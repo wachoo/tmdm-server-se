@@ -16,6 +16,7 @@ import com.amalto.core.metadata.*;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import org.apache.commons.lang.StringUtils;
 import org.xml.sax.*;
 
 import javax.xml.XMLConstants;
@@ -24,8 +25,10 @@ import java.util.Stack;
 public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecordReader.Input> {
 
     public static class Input {
-        final XMLReader reader;
-        final InputSource input;
+
+        private final XMLReader reader;
+
+        private final InputSource input;
 
         public Input(XMLReader reader, InputSource input) {
             this.reader = reader;
@@ -37,11 +40,9 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
         try {
             InputSource inputSource = input.input;
             XMLReader xmlReader = input.reader;
-
             DataRecordContentHandler handler = new DataRecordContentHandler(type, repository);
             xmlReader.setContentHandler(handler);
             xmlReader.parse(inputSource);
-
             DataRecord dataRecord = handler.getDataRecord();
             dataRecord.setRevisionId(revisionId);
             return dataRecord;
@@ -122,7 +123,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
                     ComplexTypeMetadata actualType = ((ContainedTypeFieldMetadata) field).getContainedType();
                     String xsiType = attributes.getValue(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
                     if (xsiType != null) {
-                        actualType = repository.getComplexType(xsiType);
+                        actualType = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, xsiType);
                     }
                     DataRecord containedRecord = new DataRecord(actualType, UnsupportedDataRecordMetadata.INSTANCE);
                     dataRecordStack.peek().set(field, containedRecord);

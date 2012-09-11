@@ -44,10 +44,6 @@ public class SoftTypeRef implements ComplexTypeMetadata {
         this.instantiable = true;
     }
 
-    public SoftTypeRef(MetadataRepository repository, String namespace, String typeName) {
-        this(repository, namespace, typeName, false);
-    }
-
     public SoftTypeRef(MetadataRepository repository, String namespace, String typeName, boolean isInstantiable) {
         if (typeName == null) {
             throw new IllegalArgumentException("Type name cannot be null.");
@@ -61,9 +57,18 @@ public class SoftTypeRef implements ComplexTypeMetadata {
 
     private TypeMetadata getType() {
         if (typeName != null) {
-            TypeMetadata type = repository.getType(namespace, typeName);
+            TypeMetadata type;
+            if (instantiable) {
+                type = repository.getType(namespace, typeName);
+            } else {
+                type = repository.getNonInstantiableType(namespace, typeName);
+            }
             if (type == null) {
-                throw new IllegalArgumentException("Type '" + typeName + "' (namespace: '" + namespace + "') is not present in type repository.");
+                if (instantiable) {
+                    throw new IllegalArgumentException("Entity type '" + typeName + "' (namespace: '" + namespace + "') is not present in type repository.");
+                } else {
+                    throw new IllegalArgumentException("Non entity type '" + typeName + "' (namespace: '" + namespace + "') is not present in type repository.");
+                }
             }
             return type;
         } else {
@@ -113,7 +118,7 @@ public class SoftTypeRef implements ComplexTypeMetadata {
 
     public TypeMetadata copy(MetadataRepository repository) {
         if (typeName != null) {
-            return new SoftTypeRef(repository, namespace, typeName);
+            return new SoftTypeRef(repository, namespace, typeName, instantiable);
         } else {
             return new SoftTypeRef(repository, fieldRef.copy(repository));
         }

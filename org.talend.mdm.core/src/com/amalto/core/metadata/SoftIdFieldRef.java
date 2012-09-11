@@ -11,6 +11,8 @@
 
 package com.amalto.core.metadata;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.List;
 
 /**
@@ -36,6 +38,9 @@ public class SoftIdFieldRef implements FieldMetadata {
 
     private FieldMetadata getField() {
         ComplexTypeMetadata type = (ComplexTypeMetadata) repository.getType(typeName);
+        if (type == null) {
+            type = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, typeName);
+        }
         if (type == null) {
             throw new IllegalArgumentException("Type '" + typeName + "' does not exist.");
         }

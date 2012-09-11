@@ -17,7 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.Collections;
 import java.util.Stack;
 
-class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
+class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private static final String GENERATED_ID = "x_talend_id";  //$NON-NLS-1$
 
@@ -29,7 +29,7 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private TypeMapping mapping;
 
-    public GoodFieldMappingCreator(MetadataRepository repository, MappingRepository mappings) {
+    public ScatteredMappingCreator(MetadataRepository repository, MappingRepository mappings) {
         internalRepository = repository;
         this.mappings = mappings;
     }
@@ -39,7 +39,7 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         String name = getFieldName(field);
         newFlattenField = new SimpleTypeFieldMetadata(currentType.peek(), field.isKey(), field.isMany(), field.isMandatory(), name, field.getType(), field.getWriteUsers(), field.getHideUsers());
         if (field.getDeclaringType() != field.getContainingType()) {
-            newFlattenField.setDeclaringType(new SoftTypeRef(internalRepository, field.getDeclaringType().getNamespace(), field.getDeclaringType().getName()));
+            newFlattenField.setDeclaringType(new SoftTypeRef(internalRepository, field.getDeclaringType().getNamespace(), field.getDeclaringType().getName(), true));
         }
         currentType.peek().addField(newFlattenField);
         mapping.map(field, newFlattenField);
@@ -53,7 +53,7 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     @Override
     public TypeMapping visit(ReferenceFieldMetadata referenceField) {
         String name = getFieldName(referenceField);
-        ComplexTypeMetadata referencedType = new SoftTypeRef(internalRepository, StringUtils.EMPTY, referenceField.getReferencedType().getName());
+        ComplexTypeMetadata referencedType = new SoftTypeRef(internalRepository, StringUtils.EMPTY, referenceField.getReferencedType().getName(), true);
 
         FieldMetadata referencedFieldCopy = new SoftIdFieldRef(internalRepository, referencedType.getName());
         FieldMetadata foreignKeyInfoFieldCopy = referenceField.hasForeignKeyInfo() ? referenceField.getForeignKeyInfoField().copy(internalRepository) : null;
@@ -100,17 +100,18 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     originalContainedType.getDenyDelete(ComplexTypeMetadata.DeleteType.LOGICAL),
                     originalContainedType.getSchematron(),
                     false);
+            internalRepository.addTypeMetadata(internalContainedType);
             if (superTypeName == null) {  // Generate a technical ID only if contained type does not have super type (subclasses will inherit it).
                 internalContainedType.addField(new SimpleTypeFieldMetadata(internalContainedType,
                         true,
                         false,
                         true,
                         GENERATED_ID,
-                        new SoftTypeRef(internalRepository, internalRepository.getUserNamespace(), "UUID"), //$NON-NLS-1$
+                        new SoftTypeRef(internalRepository, internalRepository.getUserNamespace(), "UUID", false), //$NON-NLS-1$
                         originalContainedType.getWriteUsers(),
                         originalContainedType.getHideUsers()));
             } else {
-                internalContainedType.addSuperType(new SoftTypeRef(internalRepository, internalContainedType.getNamespace(), superTypeName), internalRepository);
+                internalContainedType.addSuperType(new SoftTypeRef(internalRepository, internalContainedType.getNamespace(), superTypeName, false), internalRepository);
             }
             internalRepository.addTypeMetadata(internalContainedType);
         }
@@ -128,7 +129,8 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         String containedTypeName = containedField.getContainedType().getName();
         SoftTypeRef typeRef = new SoftTypeRef(internalRepository,
                 containedField.getDeclaringType().getNamespace(),
-                containedTypeName);
+                containedTypeName,
+                false);
         ReferenceFieldMetadata newFlattenField = new ReferenceFieldMetadata(currentType.peek(),
                 false,
                 containedField.isMany(),
@@ -160,14 +162,15 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(ComplexTypeMetadata complexType) {
-        mapping = new GoodFieldTypeMapping(complexType, mappings);
+        mapping = new ScatteredTypeMapping(complexType, mappings);
         ComplexTypeMetadata database = mapping.getDatabase();
 
         currentType.push(database);
         {
             internalRepository.addTypeMetadata(database);
             if (complexType.getKeyFields().isEmpty() && complexType.getSuperTypes().isEmpty()) { // Assumes super type will define an id.
-                database.addField(new SimpleTypeFieldMetadata(database, true, false, true, GENERATED_ID, new SoftTypeRef(internalRepository, StringUtils.EMPTY, "UUID"), Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
+                SoftTypeRef type = new SoftTypeRef(internalRepository, StringUtils.EMPTY, "UUID", false);
+                database.addField(new SimpleTypeFieldMetadata(database, true, false, true, GENERATED_ID, type, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
             }
             for (TypeMetadata superType : complexType.getSuperTypes()) {
                 database.addSuperType(new SoftTypeRef(internalRepository, superType.getNamespace(), superType.getName(), superType.isInstantiable()), internalRepository);

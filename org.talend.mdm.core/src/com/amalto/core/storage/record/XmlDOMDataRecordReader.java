@@ -16,6 +16,7 @@ import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -71,7 +72,7 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
                     ComplexTypeMetadata containedType = (ComplexTypeMetadata) field.getType();
                     String xsiType = child.getAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
                     if (!xsiType.isEmpty()) {
-                        containedType = repository.getComplexType(xsiType);
+                        containedType = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, xsiType);
                     }
                     DataRecord containedRecord = new DataRecord(containedType, UnsupportedDataRecordMetadata.INSTANCE);
                     dataRecord.set(field, containedRecord);

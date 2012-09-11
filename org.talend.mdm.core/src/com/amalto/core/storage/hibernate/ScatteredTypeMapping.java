@@ -22,14 +22,17 @@ import org.hibernate.Session;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Represents type mapping between data model as specified by the user and data model as used by hibernate storage.
  */
-public class GoodFieldTypeMapping extends TypeMapping {
+public class ScatteredTypeMapping extends TypeMapping {
 
-    public GoodFieldTypeMapping(ComplexTypeMetadata user, MappingRepository mappings) {
+    public ScatteredTypeMapping(ComplexTypeMetadata user, MappingRepository mappings) {
         super(user, mappings);
     }
 
@@ -42,7 +45,7 @@ public class GoodFieldTypeMapping extends TypeMapping {
         List<FieldMetadata> fields = from.getType().getFields();
         for (FieldMetadata field : fields) {
             FieldMetadata mappedDatabaseField = getDatabase(field);
-            if(mappedDatabaseField == null) {
+            if (mappedDatabaseField == null) {
                 throw new IllegalStateException("Field '" + field.getName() + "' was expected to have a database mapping");
             }
 
@@ -67,11 +70,14 @@ public class GoodFieldTypeMapping extends TypeMapping {
                         if (needCreate) {
                             session.persist(object);
                         }
+                    } else {
+                        to.set(referenceFieldMetadata.getName(), null);
                     }
                 } else {
                     List<DataRecord> dataRecords = (List<DataRecord>) from.get(field);
+                    Object value = to.get(getDatabase(field).getName());
                     if (dataRecords != null) {
-                        List<Wrapper> existingValue = (List<Wrapper>) to.get(getDatabase(field).getName());
+                        List<Wrapper> existingValue = (List<Wrapper>) value;
                         List<Wrapper> objects = existingValue == null ? new ArrayList<Wrapper>(dataRecords.size()) : existingValue;
                         int i = 0;
                         for (DataRecord dataRecord : dataRecords) {
@@ -86,6 +92,10 @@ public class GoodFieldTypeMapping extends TypeMapping {
                             i++;
                         }
                         to.set(referenceFieldMetadata.getName(), objects);
+                    } else {
+                        if (value != null && value instanceof List) {
+                            ((List) value).clear();
+                        }
                     }
                 }
             } else if (field instanceof ReferenceFieldMetadata) {
@@ -126,6 +136,11 @@ public class GoodFieldTypeMapping extends TypeMapping {
                             wrappers.add(getReferencedObject(contextClassLoader, session, dataRecord.getType(), referenceId));
                         }
                         to.set(mappedDatabaseField.getName(), wrappers);
+                    } else {
+                        Object value = to.get(mappedDatabaseField.getName());
+                        if (value != null && value instanceof List) {
+                            ((List) value).clear();
+                        }
                     }
                 }
             } else {
@@ -154,7 +169,6 @@ public class GoodFieldTypeMapping extends TypeMapping {
     public DataRecord setValues(Wrapper from, DataRecord to) {
         StorageClassLoader contextClassLoader = (StorageClassLoader) Thread.currentThread().getContextClassLoader();
         ComplexTypeMetadata typeFromClass = contextClassLoader.getTypeFromClass(from.getClass());
-
         for (FieldMetadata field : typeFromClass.getFields()) {
             FieldMetadata userField = getUser(field);
             if (userField != null) {
@@ -179,7 +193,7 @@ public class GoodFieldTypeMapping extends TypeMapping {
                         if (wrapper != null) {
                             TypeMapping mapping = mappings.getMapping(contextClassLoader.getTypeFromClass(wrapper.getClass()));
                             DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
-                            for (FieldMetadata keyField : mapping.getDatabase().getKeyFields()) {
+                            for (FieldMetadata keyField : ((ReferenceFieldMetadata) field).getReferencedType().getKeyFields()) {
                                 referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
                             }
                             to.set(userField, referencedRecord);
@@ -190,7 +204,7 @@ public class GoodFieldTypeMapping extends TypeMapping {
                             for (Wrapper wrapper : wrapperList) {
                                 TypeMapping mapping = mappings.getMapping(contextClassLoader.getTypeFromClass(wrapper.getClass()));
                                 DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
-                                for (FieldMetadata keyField : mapping.getDatabase().getKeyFields()) {
+                                for (FieldMetadata keyField : ((ReferenceFieldMetadata) field).getReferencedType().getKeyFields()) {
                                     referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
                                 }
                                 to.set(userField, referencedRecord);
@@ -238,7 +252,6 @@ public class GoodFieldTypeMapping extends TypeMapping {
         } catch (Exception e) {
             throw new RuntimeException("Could not get class for type '" + referencedType.getName() + "'", e);
         }
-
         try {
             if (referencedIdValue == null) {
                 return null; // Means no reference (reference is null).
@@ -246,7 +259,6 @@ public class GoodFieldTypeMapping extends TypeMapping {
             if (referencedIdValue instanceof Wrapper) {
                 return referencedIdValue; // It's already the referenced object.
             }
-
             // Try to load object from current session
             if (referencedIdValue instanceof List) {
                 // Handle composite id values
@@ -277,8 +289,6 @@ public class GoodFieldTypeMapping extends TypeMapping {
             } else {
                 throw new NotImplementedException("Unexpected state.");
             }
-
-
             Class<?> fieldJavaType = referencedIdValue.getClass();
             // Null package might happen with proxy classes generated by Hibernate
             if (fieldJavaType.getPackage() != null && fieldJavaType.getPackage().getName().startsWith("java.")) {  //$NON-NLS-1$
@@ -295,5 +305,10 @@ public class GoodFieldTypeMapping extends TypeMapping {
         } catch (Exception e) {
             throw new RuntimeException("Could not create referenced object of type '" + referencedClass + "' with id '" + String.valueOf(referencedIdValue) + "'", e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "SCATTERED (" + user.getName() + ")";
     }
 }

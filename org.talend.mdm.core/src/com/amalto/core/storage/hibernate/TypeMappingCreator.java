@@ -54,7 +54,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     @Override
     public TypeMapping visit(ReferenceFieldMetadata referenceField) {
         String name = getColumnName(referenceField, true);
-        ComplexTypeMetadata referencedType = new SoftTypeRef(internalRepository, referenceField.getReferencedType().getNamespace(), referenceField.getReferencedType().getName());
+        ComplexTypeMetadata referencedType = new SoftTypeRef(internalRepository, referenceField.getReferencedType().getNamespace(), referenceField.getReferencedType().getName(), true);
         FieldMetadata referencedField = new SoftIdFieldRef(internalRepository, referenceField.getReferencedType().getName());
         FieldMetadata foreignKeyInfoField = referenceField.hasForeignKeyInfo() ? new SoftFieldRef(internalRepository, getColumnName(referenceField.getForeignKeyInfoField(), false), referencedType) : null;
 
@@ -147,7 +147,8 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
         if (typeMapping.getUser().getKeyFields().isEmpty() && typeMapping.getUser().getSuperTypes().isEmpty()) { // Assumes super type defines key field.
             ComplexTypeMetadata database = typeMapping.getDatabase();
-            database.addField(new SimpleTypeFieldMetadata(database, true, false, true, "X_TALEND_ID", new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"), Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$ //$NON-NLS-2$
+            SoftTypeRef type = new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, "string", false);
+            database.addField(new SimpleTypeFieldMetadata(database, true, false, true, "X_TALEND_ID", type, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return typeMapping;
     }

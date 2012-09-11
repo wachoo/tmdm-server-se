@@ -158,8 +158,6 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
         if (isMany != that.isMany) return false;
         if (allowWriteUsers != null ? !allowWriteUsers.equals(that.allowWriteUsers) : that.allowWriteUsers != null)
             return false;
-        if (containingType != null ? !containingType.equals(that.containingType) : that.containingType != null)
-            return false;
         if (declaringType != null ? !declaringType.equals(that.declaringType) : that.declaringType != null)
             return false;
         if (fieldType != null ? !fieldType.equals(that.fieldType) : that.fieldType != null) return false;
@@ -173,13 +171,12 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
     public int hashCode() {
         int result = (isMany ? 1 : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (fieldType != null ? fieldType.hashCode() : 0);
+        result = 31 * result + (fieldType != null ? fieldType.getName().hashCode() : 0);
         result = 31 * result + (allowWriteUsers != null ? allowWriteUsers.hashCode() : 0);
         result = 31 * result + (hideUsers != null ? hideUsers.hashCode() : 0);
         result = 31 * result + (isKey ? 1 : 0);
-        result = 31 * result + (declaringType != null ? declaringType.hashCode() : 0);
+        result = 31 * result + (declaringType != null ? declaringType.getName().hashCode() : 0);
         result = 31 * result + (isMandatory ? 1 : 0);
-        result = 31 * result + (containingType != null ? containingType.hashCode() : 0);
         return result;
     }
 

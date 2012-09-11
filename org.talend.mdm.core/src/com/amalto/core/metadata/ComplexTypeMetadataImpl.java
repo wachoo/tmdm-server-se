@@ -202,9 +202,17 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
     }
 
     public ComplexTypeMetadata copy(MetadataRepository repository) {
-        ComplexTypeMetadata registeredCopy = repository.getComplexType(getName());
-        if (registeredCopy != null) {
-            return registeredCopy;
+        ComplexTypeMetadata registeredCopy;
+        if (isInstantiable) {
+            registeredCopy = repository.getComplexType(getName());
+            if (registeredCopy != null) {
+                return registeredCopy;
+            }
+        } else {
+            registeredCopy = (ComplexTypeMetadata) repository.getNonInstantiableType("", getName());
+            if (registeredCopy != null) {
+                return registeredCopy;
+            }
         }
 
         ComplexTypeMetadataImpl copy = new ComplexTypeMetadataImpl(getNamespace(),
@@ -298,6 +306,7 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
             superTypes.clear();
             for (TypeMetadata superType : thisSuperTypes) {
                 if (isInstantiable() == superType.isInstantiable()) {
+                    superType = superType.freeze();
                     if (superType instanceof ComplexTypeMetadata) {
                         List<FieldMetadata> thisTypeKeyFields = getKeyFields();
                         for (FieldMetadata thisTypeKeyField : thisTypeKeyFields) {
@@ -306,8 +315,8 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
                                         "super type '" + superType.getName() + "' already defines key.");
                             }
                         }
+                        ((ComplexTypeMetadata) superType).registerSubType(this);
                     }
-                    superType = superType.freeze();
                     superTypes.add(superType);
                 } else {
                     superType = superType.freeze();

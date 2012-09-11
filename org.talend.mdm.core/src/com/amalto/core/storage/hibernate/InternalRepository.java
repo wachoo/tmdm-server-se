@@ -61,7 +61,7 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug(type.getName() + " -> SCATTERED");
                 }
-                return new GoodFieldMappingCreator(internalRepository, mappings);
+                return new ScatteredMappingCreator(internalRepository, mappings);
             default:
                 throw new IllegalArgumentException("Strategy '" + this.strategy + "' is not supported.");
         }

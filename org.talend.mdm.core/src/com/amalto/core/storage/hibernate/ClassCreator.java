@@ -59,6 +59,9 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             for (ComplexTypeMetadata sortedType : sortedTypes) {
                 sortedType.accept(this);
             }
+            for (ComplexTypeMetadata type : repository.getNonInstantiableTypes()) {
+                type.accept(this);
+            }
             return null;
         } finally {
             // Clean up processed types.
@@ -84,7 +87,6 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         } else {
             processedTypes.add(typeName);
         }
-
         try {
             CtClass newClass = classPool.makeClass(PACKAGE_PREFIX + typeName);
             CtClass hibernateClassWrapper = classPool.get(Wrapper.class.getName());
@@ -162,7 +164,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                 toStringBody.append(";\n}"); //$NON-NLS-1$
                 newIdClass.addMethod(CtNewMethod.make(toStringBody.toString(), newIdClass));
 
-                Class compiledNewClassId = classCreationStack.pop().toClass();
+                Class<? extends Wrapper> compiledNewClassId = classCreationStack.pop().toClass();
                 storageClassLoader.register(idClassName, compiledNewClassId);
             }
 
@@ -277,7 +279,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                 newClass.addMethod(setTaskId);
             }
 
-            Class compiledNewClass = classCreationStack.pop().toClass();
+            Class<? extends Wrapper> compiledNewClass = classCreationStack.pop().toClass();
             storageClassLoader.register(complexType, compiledNewClass);
         } catch (Exception e) {
             throw new RuntimeException("Error during processing of type '" + typeName + "'", e);
@@ -322,11 +324,9 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
     public Void visit(ReferenceFieldMetadata referenceField) {
         try {
             CtClass currentClass = classCreationStack.peek();
-
             referenceField.getReferencedType().accept(this); // Visit referenced type in case it hasn't been created.
             CtClass fieldType = classPool.get(PACKAGE_PREFIX + referenceField.getReferencedType().getName());
             addNewField(referenceField.getName(), referenceField.isMany(), fieldType, currentClass);
-
             return super.visit(referenceField);
         } catch (Exception e) {
             throw new RuntimeException("Error during processing of reference field '" + referenceField.getName() + "' of type '" + referenceField.getContainingType().getName() + "'", e);
@@ -357,14 +357,12 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         } else {
             newField = new CtField(listType, name, to);
         }
-
         newField.setModifiers(Modifier.PUBLIC);
         CtMethod newGetter = CtNewMethod.getter("get" + name, newField); //$NON-NLS-1$
         CtMethod newSetter = CtNewMethod.setter("set" + name, newField); //$NON-NLS-1$
         to.addMethod(newSetter);
         to.addMethod(newGetter);
         to.addField(newField);
-
         return newField;
     }
 
@@ -373,9 +371,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             CtClass currentClass = classCreationStack.peek();
             ClassFile currentClassFile = currentClass.getClassFile();
             CtClass fieldType = classPool.get(MetadataUtils.getJavaType(metadata.getType()));
-
             CtField field = addNewField(metadata.getName(), metadata.isMany(), fieldType, currentClass);
-
             if (!currentClass.getName().endsWith("_ID")) { //$NON-NLS-1$
                 ConstPool cp = currentClassFile.getConstPool();
                 AnnotationsAttribute annotations = (AnnotationsAttribute) field.getFieldInfo().getAttribute(AnnotationsAttribute.visibleTag);
@@ -383,7 +379,6 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                     annotations = new AnnotationsAttribute(cp, AnnotationsAttribute.visibleTag);
                     field.getFieldInfo().addAttribute(annotations);
                 }
-
                 // Adds "DocumentId" annotation for Hibernate search
                 if (metadata.getContainingType() == metadata.getDeclaringType()) { // Do this if key field is declared in containing type (DocumentId annotation is inherited).
                     if (metadata.getContainingType().getKeyFields().size() == 1) {
@@ -398,18 +393,15 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                             Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), cp);
                             fieldBridge.addMemberValue("impl", new ClassMemberValue(CompositeIdBridge.class.getName(), cp)); //$NON-NLS-1$
                             providedId.addMemberValue("bridge", new AnnotationMemberValue(fieldBridge, cp)); //$NON-NLS-1$
-
                             AnnotationsAttribute attribute = (AnnotationsAttribute) currentClassFile.getAttribute(AnnotationsAttribute.visibleTag);
                             attribute.addAnnotation(providedId);
                             classIndexed.add(currentClass);
                         }
                     }
                 }
-
                 SearchIndexHandler handler = getHandler(metadata);
                 handler.handle(annotations, cp);
             }
-
             return null;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -432,18 +424,18 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         }
     }
 
-    interface SearchIndexHandler {
+    private interface SearchIndexHandler {
         void handle(AnnotationsAttribute annotations, ConstPool pool);
     }
 
-    public class BasicSearchIndexHandler implements SearchIndexHandler {
+    private static class BasicSearchIndexHandler implements SearchIndexHandler {
         public void handle(AnnotationsAttribute annotations, ConstPool pool) {
             Annotation fieldAnnotation = new Annotation(Field.class.getName(), pool);
             annotations.addAnnotation(fieldAnnotation);
         }
     }
 
-    public class ToStringIndexHandler implements SearchIndexHandler {
+    private static class ToStringIndexHandler implements SearchIndexHandler {
         public void handle(AnnotationsAttribute annotations, ConstPool pool) {
             Annotation fieldAnnotation = new Annotation(Field.class.getName(), pool);
             Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), pool);
@@ -453,7 +445,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         }
     }
 
-    public class ListFieldIndexHandler implements SearchIndexHandler {
+    private static class ListFieldIndexHandler implements SearchIndexHandler {
         public void handle(AnnotationsAttribute annotations, ConstPool pool) {
             Annotation fieldAnnotation = new Annotation(Field.class.getName(), pool);
             Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), pool);

@@ -139,4 +139,13 @@ public class MetadataRepositoryTest extends TestCase {
         }
     }
 
+    public void test15() {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema15.xsd");
+        repository.load(stream);
+
+        ComplexTypeMetadata company = repository.getComplexType("Company");
+        assertNotNull(company);
+        assertEquals(1, company.getKeyFields().size());
+    }
 }

@@ -131,7 +131,7 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                         if (fieldType instanceof ContainedComplexTypeMetadata) {
                             Attribute actualType = startElement.getAttributeByName(new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type")); //$NON-NLS-1$
                             if (actualType != null) {
-                                fieldType = repository.getComplexType(actualType.getValue());
+                                fieldType = repository.getNonInstantiableType(fieldType.getNamespace(), actualType.getValue());
                             }
                             DataRecord containedDataRecord = new DataRecord((ComplexTypeMetadata) fieldType, UnsupportedDataRecordMetadata.INSTANCE);
                             dataRecords.peek().set(field, containedDataRecord);
