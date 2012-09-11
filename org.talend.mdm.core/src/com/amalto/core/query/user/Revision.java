@@ -15,6 +15,11 @@ public class Revision implements TypedExpression {
 
     public static final String REVISION_TYPE_NAME = "long";
 
+    public static final Revision INSTANCE = new Revision();
+
+    private Revision() {
+    }
+
     public String getTypeName() {
         return REVISION_TYPE_NAME;
     }

@@ -16,7 +16,10 @@ package com.amalto.core.query;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.record.*;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
@@ -1082,4 +1085,14 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testRangeOnTimestamp() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(person)
+                .where(and(gte(timestamp(), "0"), lte(timestamp(), String.valueOf(System.currentTimeMillis()))));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
 }

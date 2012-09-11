@@ -15,6 +15,11 @@ public class Timestamp implements TypedExpression {
 
     public static final String TIMESTAMP_TYPE_NAME = "long";
 
+    public static final Timestamp INSTANCE = new Timestamp();
+
+    private Timestamp() {
+    }
+
     public String getTypeName() {
         return TIMESTAMP_TYPE_NAME;
     }

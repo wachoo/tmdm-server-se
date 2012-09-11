@@ -40,27 +40,25 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         }
     };
 
-    final ValueAdapter VALUE_ADAPTER = new ValueAdapter();
+    protected static final int JDBC_FETCH_SIZE = 20;
 
-    static final int JDBC_FETCH_SIZE = 20;
+    protected final ValueAdapter VALUE_ADAPTER = new ValueAdapter();
 
-    final Session session;
+    protected final Session session;
 
-    final MappingRepository mappingMetadataRepository;
+    protected final MappingRepository mappingMetadataRepository;
 
-    final FieldAdapter FIELD_VISITOR = new FieldAdapter();
+    protected final FieldAdapter FIELD_VISITOR = new FieldAdapter();
 
-    final Storage storage;
+    protected final Storage storage;
 
-    final StorageClassLoader storageClassLoader;
+    protected final StorageClassLoader storageClassLoader;
 
-    private final String storageName;
+    protected final Select select;
 
-    final Select select;
+    protected final Set<EndOfResultsCallback> callbacks;
 
-    final Set<EndOfResultsCallback> callbacks;
-
-    final List<TypedExpression> selectedFields;
+    protected final List<TypedExpression> selectedFields;
 
     AbstractQueryHandler(Storage storage,
                          MappingRepository mappingMetadataRepository,
@@ -75,7 +73,6 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         this.storage = storage;
         this.select = select;
         this.callbacks = callbacks;
-        this.storageName = storage.getName();
         this.selectedFields = selectedFields;
     }
 
@@ -268,10 +265,7 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         @Override
         public String visit(Range range) {
             Expression fieldExpression = range.getExpression();
-            if (!(fieldExpression instanceof Field)) {
-                throw new NotImplementedException("No range support for non-field.");
-            }
-            return getFieldName((Field) fieldExpression, mappingMetadataRepository);
+            return fieldExpression.accept(this);
         }
     }
 

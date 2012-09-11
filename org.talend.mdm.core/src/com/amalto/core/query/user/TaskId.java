@@ -15,6 +15,11 @@ public class TaskId implements TypedExpression {
 
     public static final String TASK_ID_TYPE_NAME = "string";
 
+    public static final TaskId INSTANCE = new TaskId();
+
+    private TaskId() {
+    }
+
     public String getTypeName() {
         return TASK_ID_TYPE_NAME;
     }

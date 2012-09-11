@@ -243,15 +243,15 @@ public class UserQueryBuilder {
     }
 
     public static TypedExpression timestamp() {
-        return new Timestamp();
+        return Timestamp.INSTANCE;
     }
 
     public static TypedExpression revision() {
-        return new Revision();
+        return Revision.INSTANCE;
     }
 
     public static TypedExpression taskId() {
-        return new TaskId();
+        return TaskId.INSTANCE;
     }
 
     public static UserQueryBuilder from(ComplexTypeMetadata type) {
