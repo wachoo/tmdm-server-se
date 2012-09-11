@@ -288,7 +288,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             }
 
             type.accept(UpdateActionCreator.this);
-            if (leftAccessor.exist()) {
+            if (leftAccessor.exist() || rightAccessor.exist()) {
                 lastMatchPath = getLeftPath();
             }
         }

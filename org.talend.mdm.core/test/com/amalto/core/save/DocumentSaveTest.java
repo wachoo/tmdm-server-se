@@ -1620,20 +1620,20 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
-        System.out.println(Util.nodeToString(committedElement));
+        assertEquals("bob", evaluate(committedElement, "/Create_Supplier/Supplier_Name"));
+        assertEquals("123456789", evaluate(committedElement, "/Create_Supplier/Company_RegNbr"));
     }
 
-    // This test should (can) not be backported to 5.1!
-    public void testIntegerComparison() throws Exception {
+    public void test45() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata8.xsd"));
 
-        TestSaverSource source = new TestSaverSource(repository, true, "test44_original.xml", "metadata8.xsd");
+        TestSaverSource source = new TestSaverSource(repository, true, "test45_original.xml", "metadata8.xsd");
         source.setUserName("admin");
 
         SaverSession session = SaverSession.newSession(source);
-        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test44.xml");
-        DocumentSaverContext context = session.getContextFactory().create("Product", "test44", "Source", recordXml, false, true, false, false);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test45.xml");
+        DocumentSaverContext context = session.getContextFactory().create("Product", "test45", "Source", recordXml, false, true, false, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1641,11 +1641,9 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
-        System.out.println(Util.nodeToString(committedElement));
-        assertEquals("bob", evaluate(committedElement, "/Create_Supplier/Supplier_Name"));
-        assertEquals("123456789", evaluate(committedElement, "/Create_Supplier/Company_RegNbr"));
+        assertEquals("Purchasing", evaluate(committedElement, "/Create_Supplier/Contact_Details/contact_role"));
+        assertEquals("Test", evaluate(committedElement, "/Create_Supplier/Supplier_Address/postal_code"));
     }
-
 
     private static class MockCommitter implements SaverSession.Committer {
 
