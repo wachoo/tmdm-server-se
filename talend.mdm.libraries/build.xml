@@ -3,7 +3,7 @@
 	
 	<property name="version.props" value="version.properties"/>
 		
-	<property name="jboss.dir" value="e:/opt/jboss_tem"/>
+	<property name="jboss.dir" value="c:/opt/jboss_test"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
 	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
@@ -65,6 +65,10 @@
         <copy todir="${jboss.web.deployer}" overwrite="true">
             <fileset dir="deploy/jboss-web.deployer"></fileset>            
         </copy>
+	    
+	    <copy todir="${jboss.deploy.dir}" overwrite="true">
+	        <fileset dir="deploy/deploy"></fileset>            
+	    </copy>
 		
 	    <copy todir="${jboss.deploy.dir}">
 	        <fileset dir="eXist" includes="${exist.version}.war/**"/>
