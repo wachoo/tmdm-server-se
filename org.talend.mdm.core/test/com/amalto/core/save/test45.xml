@@ -1,0 +1,30 @@
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<Create_Supplier>
+    <Request_Status>[1]</Request_Status>
+    <Request_Id_PK>1</Request_Id_PK>
+    <Requester_Details>
+        <requester_name>1</requester_name>
+        <requester_site>1</requester_site>
+        <requester_email>1</requester_email>
+        <requester_phone>1</requester_phone>
+        <request_date>2012-09-06</request_date>
+    </Requester_Details>
+    <Supplier_Address>
+        <address_2>Test</address_2>
+        <city>Test</city>
+        <postal_code>Test</postal_code>
+    </Supplier_Address>
+    <Contact_Details>
+        <contact_role>Purchasing</contact_role>
+    </Contact_Details>
+</Create_Supplier>

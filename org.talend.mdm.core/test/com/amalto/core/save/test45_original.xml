@@ -1,0 +1,51 @@
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<ii>
+    <c>Product</c>
+    <n>ThirdEntity</n>
+    <dmn>Test</dmn>
+    <i>321</i>
+    <t>1342521961921</t>
+    <taskId/>
+    <p>
+        <Create_Supplier>
+            <Request_Status>[1]</Request_Status>
+            <Request_Id_PK>14</Request_Id_PK>
+            <Requester_Details>
+                <requester_name>aa</requester_name>
+                <requester_site>aa</requester_site>
+                <requester_email>aa</requester_email>
+                <request_date>2012-09-05</request_date>
+            </Requester_Details>
+            <Supplier_Name>alice</Supplier_Name>
+            <Company_RegNbr>123456</Company_RegNbr>
+            <Supplier_Details>
+                <supplier_sells>a</supplier_sells>
+                <irish_vat>false</irish_vat>
+                <uk_vat>false</uk_vat>
+                <cis_supplier>false</cis_supplier>
+                <warehouse_selfbill>false</warehouse_selfbill>
+                <haulier_selfbill>false</haulier_selfbill>
+            </Supplier_Details>
+            <Bank>
+                <nonuk_bank>false</nonuk_bank>
+                <account_number>a</account_number>
+                <account_currency>a</account_currency>
+                <bank_name>a</bank_name>
+            </Bank>
+            <Workflow_Control>
+                <WF_In_Progress>false</WF_In_Progress>
+                <ProcurementApproval>Rejected</ProcurementApproval>
+            </Workflow_Control>
+        </Create_Supplier>
+    </p>
+</ii>
