@@ -15,11 +15,9 @@ package org.talend.mdm.webapp.stagingarea.client;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaConfiguration;
-import org.talend.mdm.webapp.stagingarea.client.view.StagingContainerSummaryView;
 import org.talend.mdm.webapp.stagingarea.client.view.StagingareaMainView;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.charts.client.Chart;
 import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.core.client.EntryPoint;
@@ -147,11 +145,6 @@ public class Stagingarea implements EntryPoint {
 
     private void onModuleRender() {
         final ContentPanel contentPanel = GenerateContainer.getContentPanel();
-        Chart chart = new Chart(StagingContainerSummaryView.Chart_Url);
-        chart.setBorders(true);
-        chart.setSize(300, 200);
-        chart.setBorders(false);
-        StagingContainerSummaryView.setChart(chart);
         StagingareaMainView mainPanel = new StagingareaMainView();
         contentPanel.add(mainPanel);
     }

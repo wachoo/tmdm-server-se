@@ -22,8 +22,6 @@ import org.talend.mdm.webapp.stagingarea.client.view.PreviousExecutionView;
 import org.talend.mdm.webapp.stagingarea.client.view.StagingContainerSummaryView;
 import org.talend.mdm.webapp.stagingarea.client.view.StagingareaMainView;
 
-import com.extjs.gxt.ui.client.widget.Label;
-
 @SuppressWarnings("nls")
 public class TestUtil {
 
@@ -37,8 +35,6 @@ public class TestUtil {
         cm.setRefreshIntervals(1000);
         setContextModel(cm);
 
-        Label emptyChart = new Label();
-        StagingContainerSummaryView.setChart(emptyChart);
         StagingContainerSummaryView summaryView = new StagingContainerSummaryView();
         CurrentValidationView validationView = new CurrentValidationView();
         StagingareaMainView mainView = new StagingareaMainView();

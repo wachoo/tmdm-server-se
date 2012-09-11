@@ -17,11 +17,6 @@ import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingarea.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingarea.client.model.StagingContainerModel;
 
-import com.extjs.gxt.charts.client.Chart;
-import com.extjs.gxt.charts.client.model.ChartModel;
-import com.extjs.gxt.charts.client.model.Legend;
-import com.extjs.gxt.charts.client.model.Legend.Position;
-import com.extjs.gxt.charts.client.model.charts.PieChart;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -32,7 +27,13 @@ import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.visualization.client.LegendPosition;
+import com.google.gwt.visualization.client.VisualizationUtils;
+import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
+import com.google.gwt.visualization.client.visualizations.PieChart;
+import com.google.gwt.visualization.client.visualizations.PieChart.Options;
 
 
 
@@ -64,13 +65,19 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private Label dataModelName;
 
-    private static Widget chart;
+    private SimplePanel chartPanel;
+
+    private PieChart chart;
+
+    private DataTable chartData;
+
+    private Options chartOptions;
+
+    private final int CHART_WIDTH = 400;
+
+    private final int CHART_HEIGHT = 200;
 
     private UserContextModel ucx;
-
-    public static void setChart(Widget chart) {
-        StagingContainerSummaryView.chart = chart;
-    }
 
     private HTMLPanel detailPanel;
 
@@ -88,6 +95,8 @@ public class StagingContainerSummaryView extends AbstractView {
         dataModelName = new Label(ucx.getDataModel());
         dataModelName.setStyleAttribute("font-weight", "bold"); //$NON-NLS-1$//$NON-NLS-2$
         titleGrid = new Grid(1, 5);
+        chartPanel = new SimplePanel();
+        chartPanel.setSize(CHART_WIDTH + "px", CHART_HEIGHT + "px"); //$NON-NLS-1$ //$NON-NLS-2$
 
         StringBuffer buffer = new StringBuffer();
         buffer.append("<div style='margin-bottom:10px; font-size:16px;' id='" + STAGING_AREA_TITLE + "'></div>"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -135,7 +144,7 @@ public class StagingContainerSummaryView extends AbstractView {
         TableData chartData = new TableData();
         chartData.setColspan(1);
         chartData.setRowspan(2);
-        mainPanel.add(chart, chartData);
+        mainPanel.add(chartPanel, chartData);
         TableData detailData = new TableData();
         detailData.setColspan(1);
         detailData.setRowspan(1);
@@ -145,31 +154,6 @@ public class StagingContainerSummaryView extends AbstractView {
         mainPanel.add(startValidate, startData);
     }
 
-    private ChartModel getPieChartData() {
-        ChartModel cm = new ChartModel();
-        cm.setBackgroundColour("#FFFFFF"); //$NON-NLS-1$
-        Legend lg = new Legend(Position.RIGHT, true);
-        lg.setPadding(1);
-        cm.setLegend(lg);
-
-        if (stagingContainerModel != null) {
-            int waiting = stagingContainerModel.getWaitingValidationRecords();
-            int valid = stagingContainerModel.getValidRecords();
-            int invalid = stagingContainerModel.getInvalidRecords();
-
-            PieChart pie = new PieChart();
-            pie.setAlpha(0.5f);
-            pie.setNoLabels(false);
-            pie.setTooltip("#label# record #val#<br>#percent#"); //$NON-NLS-1$
-            pie.setColours("#0000ff", "#ff0000", "#00aa00"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            pie.addSlices(new PieChart.Slice(waiting, messages.waiting()));
-            pie.addSlices(new PieChart.Slice(invalid, messages.invalid()));
-            pie.addSlices(new PieChart.Slice(valid, messages.valid()));
-            cm.addChartConfig(pie);
-        }
-        return cm;
-    }
-    
     public void initDetailPanel() {
         if (stagingContainerModel != null) {
             int waiting = stagingContainerModel.getWaitingValidationRecords();
@@ -208,8 +192,48 @@ public class StagingContainerSummaryView extends AbstractView {
     public void refresh(StagingContainerModel stagingContainerModel) {
         this.stagingContainerModel = stagingContainerModel;
         initDetailPanel();
-        if (chart instanceof Chart) {
-            ((Chart) chart).setChartModel(getPieChartData());
+
+        if (chart == null) {
+            VisualizationUtils.loadVisualizationApi(new Runnable() {
+
+                public void run() {
+                    chartData = DataTable.create();
+                    chartData.addColumn(ColumnType.STRING);
+                    chartData.addColumn(ColumnType.NUMBER);
+                    chartData.addRows(3);
+                    updateChartData();
+                    chartOptions = createOptions();
+                    chart = new PieChart(chartData, chartOptions);
+                    chartPanel.setWidget(chart);
+                }
+            }, PieChart.PACKAGE);
+        } else {
+            updateChartData();
+            chart.draw(chartData);
+        }
+    }
+
+    private Options createOptions() {
+        Options options = Options.create();
+        options.setWidth(CHART_WIDTH);
+        options.setHeight(CHART_HEIGHT);
+        options.setLegend(LegendPosition.RIGHT);
+        options.setColors("blue", "red", "green"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        options.set3D(true);
+        return options;
+    }
+
+    private void updateChartData() {
+        if (stagingContainerModel != null) {
+            int waiting = stagingContainerModel.getWaitingValidationRecords();
+            int valid = stagingContainerModel.getValidRecords();
+            int invalid = stagingContainerModel.getInvalidRecords();
+            chartData.setValue(0, 0, messages.waiting());
+            chartData.setValue(0, 1, waiting);
+            chartData.setValue(1, 0, messages.invalid());
+            chartData.setValue(1, 1, invalid);
+            chartData.setValue(2, 0, messages.valid());
+            chartData.setValue(2, 1, valid);
         }
     }
 
