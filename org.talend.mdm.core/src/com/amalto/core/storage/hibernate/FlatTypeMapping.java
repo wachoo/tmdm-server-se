@@ -59,7 +59,6 @@ class FlatTypeMapping extends TypeMapping {
                     }
                 } else if (field instanceof ReferenceFieldMetadata) {
                     StorageClassLoader storageClassLoader = (StorageClassLoader) Thread.currentThread().getContextClassLoader();
-
                     if (!field.isMany()) {
                         DataRecord dataRecordValue = (DataRecord) value;
                         Object referencedObject = null;
@@ -164,7 +163,6 @@ class FlatTypeMapping extends TypeMapping {
                 } else {
                     to.set(userField, from.get(field.getName()));
                 }
-
                 to = previous;
             }
         }
@@ -231,5 +229,10 @@ class FlatTypeMapping extends TypeMapping {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "FLAT (" + user.getName() + ")";
     }
 }

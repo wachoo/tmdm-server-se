@@ -24,9 +24,9 @@ import java.util.Map;
  */
 public abstract class TypeMapping {
 
-    private final ComplexTypeMetadata database;
+    protected final ComplexTypeMetadata user;
 
-    private final ComplexTypeMetadata user;
+    private final ComplexTypeMetadata database;
 
     final MappingRepository mappings;
 
@@ -72,6 +72,10 @@ public abstract class TypeMapping {
         return databaseToUser.get(to.getName());
     }
 
+    /**
+     * "Freeze" both database and internal types.
+     * @see com.amalto.core.metadata.TypeMetadata#freeze()
+     */
     public void freeze() {
         if (!isFrozen) {
             // Ensure mapped type are frozen.
@@ -106,7 +110,20 @@ public abstract class TypeMapping {
         return database.getName();
     }
 
+    /**
+     * Set values <b>from</b> MDM representation <b>to</b> a Hibernate representation (i.e. POJOs).
+     * @param session A valid (opened) Hibernate session that might be used to resolve FK values.
+     * @param from A value from MDM (usually got with {@link com.amalto.core.storage.Storage#fetch(com.amalto.core.query.user.Expression)}
+     * @param to The Hibernate POJO where values should be set. Object is expected to implement {@link Wrapper} interface.
+     */
     public abstract void setValues(Session session, DataRecord from, Wrapper to);
 
+    /**
+     * Set values <b>from</b> Hibernate representation <b>to</b> a MDM representation.
+     * @param from A Hibernate object that represents a MDM entity instance.
+     * @param to A MDM internal representation of the MDM record.
+     * @return The modified version of <code>to</code>. In fact, return can be ignored for callers, this is a convenience
+     * for recursion.
+     */
     public abstract DataRecord setValues(Wrapper from, DataRecord to);
 }

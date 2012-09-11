@@ -29,6 +29,24 @@ import java.util.Set;
 
 class IdQueryHandler extends AbstractQueryHandler {
 
+    private static final CloseableIterator<DataRecord> EMPTY_ITERATOR = new CloseableIterator<DataRecord>() {
+        public boolean hasNext() {
+            return false;
+        }
+
+        public DataRecord next() {
+            throw new UnsupportedOperationException();
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+        public void close() throws IOException {
+            // Nothing to do.
+        }
+    };
+
     private Object idValue;
 
     public IdQueryHandler(Storage storage,
@@ -46,59 +64,16 @@ class IdQueryHandler extends AbstractQueryHandler {
         if (select.getCondition() == null) {
             throw new IllegalArgumentException("Select clause is expecting a condition.");
         }
-
         select.getCondition().accept(this);
         if (idValue == null) {
-            throw new IllegalStateException("Expected condition to contain id to use for instance lookup.");
+            return noResult(select, EMPTY_ITERATOR);
         }
-
         ComplexTypeMetadata mainType = select.getTypes().get(0);
         String mainTypeName = mainType.getName();
         String className = ClassCreator.PACKAGE_PREFIX + mainTypeName;
-
-        CloseableIterator<DataRecord> emptyIterator = new CloseableIterator<DataRecord>() {
-            public boolean hasNext() {
-                return false;
-            }
-
-            public DataRecord next() {
-                throw new UnsupportedOperationException();
-            }
-
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-
-            public void close() throws IOException {
-                // Nothing to do.
-            }
-        };
-
-        if (idValue == null) {
-            System.out.println("No id, no need to query database!");
-            for (EndOfResultsCallback callback : callbacks) {
-                callback.onEndOfResults();
-            }
-            return new HibernateStorageResults(storage, select, emptyIterator) {
-                @Override
-                public int getCount() {
-                    return 0;
-                }
-            };
-        }
-
         Wrapper loadedObject = (Wrapper) session.get(className, (Serializable) idValue);
-
         if (loadedObject == null) {
-            for (EndOfResultsCallback callback : callbacks) {
-                callback.onEndOfResults();
-            }
-            return new HibernateStorageResults(storage, select, emptyIterator) {
-                @Override
-                public int getCount() {
-                    return 0;
-                }
-            };
+            return noResult(select, EMPTY_ITERATOR);
         } else {
             Iterator objectIterator = Collections.singleton(loadedObject).iterator();
             CloseableIterator<DataRecord> iterator;
@@ -129,6 +104,18 @@ class IdQueryHandler extends AbstractQueryHandler {
                 }
             };
         }
+    }
+
+    private StorageResults noResult(final Select select, final CloseableIterator<DataRecord> emptyIterator) {
+        for (EndOfResultsCallback callback : callbacks) {
+            callback.onEndOfResults();
+        }
+        return new HibernateStorageResults(storage, select, emptyIterator) {
+            @Override
+            public int getCount() {
+                return 0;
+            }
+        };
     }
 
     @Override
@@ -185,10 +172,13 @@ class IdQueryHandler extends AbstractQueryHandler {
 
     private static class ExplicitProjectionAdapter extends VisitorAdapter<Void> {
 
-        private String currentAliasName;
         private final DataRecord next;
+
         private final ComplexTypeMetadata explicitProjectionType;
+
         private final DataRecord nextRecord;
+
+        private String currentAliasName;
 
         public ExplicitProjectionAdapter(DataRecord next, ComplexTypeMetadata explicitProjectionType, DataRecord nextRecord) {
             this.next = next;

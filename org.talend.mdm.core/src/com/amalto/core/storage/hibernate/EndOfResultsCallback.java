@@ -12,5 +12,9 @@
 package com.amalto.core.storage.hibernate;
 
 interface EndOfResultsCallback {
+    /**
+     * This method is called by {@link com.amalto.core.storage.hibernate.CloseableIterator#close()}  so implementations
+     * of this interface may perform clean up.
+     */
     void onEndOfResults();
 }

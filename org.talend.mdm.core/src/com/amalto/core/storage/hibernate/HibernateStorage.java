@@ -210,7 +210,6 @@ public class HibernateStorage implements Storage {
             } catch (Exception e) {
                 throw new RuntimeException("Exception occurred during dynamic classes creation.", e);
             }
-
             // Last step: configuration of Hibernate
             try {
                 // Hibernate needs to have dynamic classes in context class loader during configuration.

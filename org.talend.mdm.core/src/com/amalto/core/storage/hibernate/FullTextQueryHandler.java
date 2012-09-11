@@ -295,9 +295,9 @@ class FullTextQueryHandler extends AbstractQueryHandler {
             Iterator<String> fieldsIterator = fields.iterator();
             while (fieldsIterator.hasNext()) {
                 String next = fieldsIterator.next();
-                queryBuffer.append(next).append(':').append(fullText.getValue()).append("*");
+                queryBuffer.append(next).append(':').append(fullText.getValue()).append("*"); //$NON-NLS-1$
                 if (fieldsIterator.hasNext()) {
-                    queryBuffer.append(" OR ");
+                    queryBuffer.append(" OR "); //$NON-NLS-1$
                 }
             }
             org.apache.lucene.search.Query parse = parser.parse(queryBuffer.toString());
