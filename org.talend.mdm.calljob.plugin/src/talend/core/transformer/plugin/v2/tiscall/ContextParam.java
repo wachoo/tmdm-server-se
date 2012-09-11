@@ -6,20 +6,20 @@ public class ContextParam {
 
     private String value;
 
-    private boolean isPipleVariableName = false;
+    private boolean isPipelineVariableName = false;
 
     public boolean isPipelineVariableName() {
-        return isPipleVariableName;
+        return isPipelineVariableName;
     }
 
-    public void setPipelineVariableName(boolean isPipleVariableName) {
-        this.isPipleVariableName = isPipleVariableName;
+    public void setPipelineVariableName(boolean isPipelineVariableName) {
+        this.isPipelineVariableName = isPipelineVariableName;
     }
 
     public ContextParam(String key, String value, boolean isPipeline) {
         this.name = key;
         this.value = value;
-        this.isPipleVariableName = isPipeline;
+        this.isPipelineVariableName = isPipeline;
     }
 
     public String getName() {
