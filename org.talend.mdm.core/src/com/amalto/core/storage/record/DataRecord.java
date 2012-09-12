@@ -53,7 +53,8 @@ public class DataRecord {
     }
 
     public Object get(FieldMetadata field) {
-        if (field.getContainingType() != this.getType()) {
+        ComplexTypeMetadata containingType = field.getContainingType();
+        if (containingType != this.getType() && !this.getType().isAssignableFrom(containingType)) {
             Iterator<FieldMetadata> path = MetadataUtils.path(type, field).iterator();
             if (!path.hasNext()) {
                 Object value = get(field.getName());
@@ -73,9 +74,11 @@ public class DataRecord {
                     if (!(nextObject instanceof DataRecord)) {
                         if (!path.hasNext()) {
                             return nextObject;
-                        } else {
-                            // TODO This is maybe (surely?) not what user expect, but there's no way to select the nth instance of a collection in API.
+                        } else if (nextObject instanceof List) {
+                            // TODO This is maybe (surely?) not what user expect, but there's no way to select the nth instance of a collection in query API.
                             nextObject = ((List) nextObject).get(0);
+                        } else {
+                            throw new IllegalStateException("Can not process value '" + nextObject + "'");
                         }
                     }
                     current = (DataRecord) nextObject;

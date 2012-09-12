@@ -29,6 +29,8 @@ import java.util.*;
  */
 public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
+    public static final String ANONYMOUS_PREFIX = "X_ANONYMOUS";
+
     private final static List<XmlSchemaAnnotationProcessor> XML_ANNOTATIONS_PROCESSORS = Arrays.asList(new ForeignKeyProcessor(), new UserAccessProcessor(), new SchematronProcessor());
 
     private final static String USER_NAMESPACE = StringUtils.EMPTY;
@@ -42,6 +44,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
     private final Stack<ComplexTypeMetadata> currentTypeStack = new Stack<ComplexTypeMetadata>();
 
     private String targetNamespace;
+
+    private int anonymousCounter = 0;
 
     public TypeMetadata getType(String name) {
         return getType(USER_NAMESPACE, name);
@@ -409,7 +413,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                 isContained = true;
                 QName refName = element.getRefName();
                 if (schemaType != null) {
-                    referencedType = new ContainedComplexTypeMetadata(currentTypeStack.peek(), targetNamespace, element.getName());
+                    referencedType = new ContainedComplexTypeMetadata(currentTypeStack.peek(), targetNamespace, ANONYMOUS_PREFIX + String.valueOf(anonymousCounter++));
                     fieldType = referencedType;
                     isContained = true;
                     currentTypeStack.push((ComplexTypeMetadata) referencedType);

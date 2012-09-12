@@ -23,7 +23,7 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
     }
 
     public void write(DataRecord record, Writer writer) throws IOException {
-        writer.write("<result>\n");
+        writer.write("<result>\n"); //$NON-NLS-1$
         for (FieldMetadata fieldMetadata : record.getSetFields()) {
             Object value = record.get(fieldMetadata);
             Object valueAsString = String.valueOf(value);
@@ -36,14 +36,14 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
                     }
                     valueAsString = fkValueAsString.toString();
                 } else {
-                    valueAsString = "[" + valueAsString + ']';
+                    valueAsString = "[" + valueAsString + ']'; //$NON-NLS-1$
                 }
             }
             if (value != null) {
-                writer.append("\t<").append(fieldMetadata.getName()).append(">").append(String.valueOf(valueAsString)).append("</").append(fieldMetadata.getName()).append(">\n");
+                writer.append("\t<").append(fieldMetadata.getName()).append(">").append(String.valueOf(valueAsString)).append("</").append(fieldMetadata.getName()).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             }
         }
-        writer.append("</result>");
+        writer.append("</result>"); //$NON-NLS-1$
         writer.flush();
     }
 }

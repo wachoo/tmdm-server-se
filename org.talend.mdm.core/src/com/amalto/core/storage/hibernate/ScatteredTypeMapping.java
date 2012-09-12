@@ -54,11 +54,10 @@ public class ScatteredTypeMapping extends TypeMapping {
                     throw new IllegalStateException("Contained elements are expected to be mapped to reference.");
                 }
                 ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) mappedDatabaseField;
-                ComplexTypeMetadata referencedType = referenceFieldMetadata.getReferencedType();
                 if (!field.isMany()) {
                     DataRecord containedRecord = (DataRecord) from.get(field);
                     if (containedRecord != null) {
-                        referencedType = containedRecord.getType();
+                        ComplexTypeMetadata referencedType = containedRecord.getType();
                         Wrapper existingValue = (Wrapper) to.get(referenceFieldMetadata.getName());
                         boolean needCreate = existingValue == null;
                         if (!needCreate) {
@@ -81,11 +80,10 @@ public class ScatteredTypeMapping extends TypeMapping {
                         List<Wrapper> objects = existingValue == null ? new ArrayList<Wrapper>(dataRecords.size()) : existingValue;
                         int i = 0;
                         for (DataRecord dataRecord : dataRecords) {
-                            referencedType = getActualReferenceType(referencedType, dataRecord);
                             if (i < objects.size() && objects.get(i) != null) {
                                 objects.set(i, (Wrapper) _setValues(session, dataRecord, objects.get(i)));
                             } else {
-                                Wrapper object = createObject(contextClassLoader, referencedType);
+                                Wrapper object = createObject(contextClassLoader, dataRecord.getType());
                                 objects.add((Wrapper) _setValues(session, dataRecord, object));
                                 session.persist(object);
                             }
@@ -148,22 +146,6 @@ public class ScatteredTypeMapping extends TypeMapping {
             }
         }
         return to;
-    }
-
-    // Returns actual reference type (in case in reference to hold contained record can have sub types).
-    // Not expected to be use for foreign keys, and also very specific to this mapping implementation.
-    private static ComplexTypeMetadata getActualReferenceType(ComplexTypeMetadata referencedType, DataRecord containedRecord) {
-        String concreteReferencedType = referencedType.getName();
-        if (!containedRecord.getType().getName().equalsIgnoreCase(concreteReferencedType)) {
-            String actualTypeName = referencedType.getName();
-            for (ComplexTypeMetadata referencedTypeSubType : referencedType.getSubTypes()) {
-                if (actualTypeName.equals(referencedTypeSubType.getName())) {
-                    referencedType = referencedTypeSubType;
-                    break;
-                }
-            }
-        }
-        return referencedType;
     }
 
     public DataRecord setValues(Wrapper from, DataRecord to) {

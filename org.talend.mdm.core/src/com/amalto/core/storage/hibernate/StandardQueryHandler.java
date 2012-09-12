@@ -289,6 +289,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     selectedField.accept(this);
                 }
             }
+            // Make projection read only in case code tries to modify it later (see code that handles condition).
+            projectionList = ReadOnlyProjectionList.makeReadOnly(projectionList);
             criteria.setProjection(projectionList);
         }
 
@@ -560,6 +562,16 @@ class StandardQueryHandler extends AbstractQueryHandler {
             if (!leftFieldCondition.isProperty) {
                 throw new IllegalArgumentException("Expect left part of condition to be a field.");
             }
+            if (condition.getLeft() instanceof Field) {
+                Field leftField = (Field) condition.getLeft();
+                FieldMetadata fieldMetadata = leftField.getFieldMetadata();
+                if (!mainType.equals(fieldMetadata.getContainingType())) {
+                    FieldMetadata left = mappingMetadataRepository.getMapping(mainType).getDatabase(fieldMetadata);
+                    (new Field(fieldMetadata)).accept(StandardQueryHandler.this);
+                    String alias = joinFieldsToAlias.get(left);
+                    leftFieldCondition.criterionFieldName = alias + '.' + ((ReferenceFieldMetadata) left).getReferencedField().getName();
+                }
+            }
             if (leftFieldCondition.isMany || rightFieldCondition.isMany) {
                 // This is what could be done with Hibernate 4 for searches that includes conditions on collections:
                 // criteria = criteria.createCriteria(fieldName);
@@ -761,12 +773,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         @Override
         public String[] getAliases() {
-            return new String[] {aliasName};
+            return new String[]{aliasName};
         }
 
         @Override
         public Type[] getTypes(Criteria criteria, CriteriaQuery criteriaQuery) throws HibernateException {
-            return new Type[] {new StringType()};
+            return new Type[]{new StringType()};
         }
     }
 }
