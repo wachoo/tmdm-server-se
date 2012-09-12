@@ -29,8 +29,6 @@ public class AppHeader implements IsSerializable {
     
     private boolean isAutoValidate = true;
 
-    private boolean keepSilenceForPermissionExceptionWhenSave;
-
     /**
      * DOC HSHU AppHeader constructor comment.
      */
@@ -68,14 +66,6 @@ public class AppHeader implements IsSerializable {
 
     public void setAutoTextAreaLength(int autoTextAreaLength) {
         this.autoTextAreaLength = autoTextAreaLength;
-    }
-
-    public boolean isKeepSilenceForPermissionExceptionWhenSave() {
-        return keepSilenceForPermissionExceptionWhenSave;
-    }
-
-    public void setKeepSilenceForPermissionExceptionWhenSave(boolean keepSilenceForPermissionExceptionWhenSave) {
-        this.keepSilenceForPermissionExceptionWhenSave = keepSilenceForPermissionExceptionWhenSave;
     }
 
     @Override

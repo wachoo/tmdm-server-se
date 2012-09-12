@@ -62,15 +62,6 @@ public class BrowseRecordsConfiguration {
         return Integer.parseInt(myLength);
     }
 
-    public static boolean keepSilenceForPermissionExceptionWhenSave() {
-        String keepSilence = getPropertyValue("keepSilenceForPermissionExceptionWhenSave");//$NON-NLS-1$
-
-        if (keepSilence == null || keepSilence.trim().length() == 0)
-            return false;
-
-        return Boolean.parseBoolean(keepSilence);
-    }
-    
     public static boolean isAutoValidate() {
         String autoValidate = getPropertyValue("auto.validation.flag");//$NON-NLS-1$
 
