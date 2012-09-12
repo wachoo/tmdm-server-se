@@ -21,10 +21,6 @@ public class BrowseRecordsConfigurationTest extends TestCase {
         int autoTextAreaLength = BrowseRecordsConfiguration.getAutoTextAreaLength();
         assertEquals(30, autoTextAreaLength);
 
-        boolean keepSilenceForPermissionExceptionWhenSave = BrowseRecordsConfiguration
-                .keepSilenceForPermissionExceptionWhenSave();
-        assertEquals(false, keepSilenceForPermissionExceptionWhenSave);
-
         boolean autoMigration = BrowseRecordsConfiguration.dataMigrationMultiLingualFieldAuto();
         assertEquals(true, autoMigration);
 

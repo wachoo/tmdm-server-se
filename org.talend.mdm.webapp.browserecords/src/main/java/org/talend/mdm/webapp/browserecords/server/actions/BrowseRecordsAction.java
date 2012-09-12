@@ -1184,8 +1184,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             header.setDatamodel(getCurrentDataModel());
             header.setStandAloneMode(BaseConfiguration.isStandalone());
             header.setAutoTextAreaLength(BrowseRecordsConfiguration.getAutoTextAreaLength());
-            header.setKeepSilenceForPermissionExceptionWhenSave(BrowseRecordsConfiguration
-                    .keepSilenceForPermissionExceptionWhenSave());
             header.setAutoValidate(BrowseRecordsConfiguration.isAutoValidate());
             header.setDataMigrationMultiLingualFieldAuto(BrowseRecordsConfiguration.dataMigrationMultiLingualFieldAuto());
             return header;

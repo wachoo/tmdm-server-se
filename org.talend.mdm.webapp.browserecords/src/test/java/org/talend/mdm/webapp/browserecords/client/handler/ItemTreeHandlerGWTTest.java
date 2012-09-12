@@ -175,11 +175,6 @@ public class ItemTreeHandlerGWTTest extends GWTTestCase {
         actualXml = itemHandler.serializeItem();
         assertEquals(expectedXml, actualXml);
 
-        // keep silence
-        itemHandler.setKeepSilenceForPermissionException(true);
-        expectedXml = "<Contract xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>001</id><description>VIP Customer</description><owner>Starkey</owner><effectiveDate>1999-09-01</effectiveDate><partyNotes><firstPartyNote>First party agree</firstPartyNote><secondPartyNote>Second party agree</secondPartyNote></partyNotes></Contract>";
-        actualXml = itemHandler.serializeItem();
-        assertEquals(expectedXml, actualXml);
     }
 
     public void testSerializeItemWhenSaveUseBasicTypes() {

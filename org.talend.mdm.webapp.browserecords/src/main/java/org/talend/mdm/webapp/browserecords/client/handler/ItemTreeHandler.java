@@ -18,7 +18,6 @@ import java.util.List;
 
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.TypeModel;
-import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -42,8 +41,6 @@ public class ItemTreeHandler implements IsSerializable {
     private ItemNodeModel nodeModel;
 
     private ItemTreeHandlingStatus status;
-
-    private boolean keepSilenceForPermissionException = false;
 
     private boolean simpleTypeOnly = true;
 
@@ -80,10 +77,8 @@ public class ItemTreeHandler implements IsSerializable {
     }
 
     private void initConfig() {
-        // dependency for appHeader
-        if (BrowseRecords.getSession() != null && BrowseRecords.getSession().getAppHeader() != null)
-            keepSilenceForPermissionException = BrowseRecords.getSession().getAppHeader()
-                    .isKeepSilenceForPermissionExceptionWhenSave();
+        // dependency for external configurations
+        // do nothing for now
     }
 
     public boolean isSimpleTypeOnly() {
@@ -116,14 +111,6 @@ public class ItemTreeHandler implements IsSerializable {
 
     public void setStatus(ItemTreeHandlingStatus status) {
         this.status = status;
-    }
-
-    public boolean isKeepSilenceForPermissionException() {
-        return keepSilenceForPermissionException;
-    }
-
-    public void setKeepSilenceForPermissionException(boolean keepSilenceForPermissionException) {
-        this.keepSilenceForPermissionException = keepSilenceForPermissionException;
     }
 
     public String serializeItem() {
@@ -168,7 +155,7 @@ public class ItemTreeHandler implements IsSerializable {
                             return null;
                         }
                     }
-                    if (!isKeepSilenceForPermissionException() && currentTypeModel.isReadOnly()) {
+                    if (currentTypeModel.isReadOnly()) {
                         if (simpleTypeOnly) {
                             if (currentTypeModel.isSimpleType()) {
                                 return null;
