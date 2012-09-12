@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -193,7 +192,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String message = null;
             String errorCode = null;
             if (outputErrorMessage != null) {
-                Map<String, String> processMap = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.handleProcessMessage(outputErrorMessage, language);
+                Map<String, String> processMap = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.handleProcessMessage(
+                        outputErrorMessage, language);
                 errorCode = processMap.get("typeCode"); //$NON-NLS-1$
                 message = processMap.get("message"); //$NON-NLS-1$
             }
@@ -202,26 +202,30 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (ids != null && !item.isReadOnly()) {
                     WSItemPK wsItem = CommonUtil.getPort().deleteItem(
                             new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), override));
-                    if (wsItem != null)
+                    if (wsItem != null) {
                         pushUpdateReport(ids, concept, "PHYSICAL_DELETE"); //$NON-NLS-1$
-                    else
+                    } else {
                         throw new ServiceException(MESSAGES.getMessage("delete_record_failure")); //$NON-NLS-1$
+                    }
 
-                    if (outputErrorMessage == null)
+                    if (outputErrorMessage == null) {
                         message = message == null ? "" : message; //$NON-NLS-1$
-                    else if (message == null || message.length() == 0)
+                    } else if (message == null || message.length() == 0) {
                         message = MESSAGES.getMessage("delete_process_validation_success"); //$NON-NLS-1$
+                    }
                 } else {
-                    if (outputErrorMessage == null)
+                    if (outputErrorMessage == null) {
                         message = message == null ? "" : message; //$NON-NLS-1$
-                    else if (message == null || message.length() == 0)
+                    } else if (message == null || message.length() == 0) {
                         message = MESSAGES.getMessage("delete_process_validation_success"); //$NON-NLS-1$
+                    }
                     return MESSAGES.getMessage("delete_item_record_successNoupdate", message); //$NON-NLS-1$
                 }
             } else {
                 // Anything but 0 is unsuccessful
-                if (message == null || message.length() == 0)
+                if (message == null || message.length() == 0) {
                     message = MESSAGES.getMessage("delete_process_validation_failure"); //$NON-NLS-1$
+                }
                 throw new ServiceException(message);
             }
 
@@ -303,8 +307,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     if (pkInfo != null) {
                         if (entityModel.getTypeModel(pkInfoPath).getType().equals(DataTypeConstants.MLS)) {
                             String value = MultilanguageMessageParser.getValueByLanguage(pkInfo, language);
-                            if (value != null)
+                            if (value != null) {
                                 xPathList.add(value);
+                            }
                         } else {
                             xPathList.add(pkInfo);
                         }
@@ -321,10 +326,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         StringBuilder gettedValue = new StringBuilder();
         for (String pkInfo : xPathList) {
             if (pkInfo != null) {
-                if (gettedValue.length() == 0)
+                if (gettedValue.length() == 0) {
                     gettedValue.append(pkInfo);
-                else
+                } else {
                     gettedValue.append("-").append(pkInfo); //$NON-NLS-1$
+                }
             }
         }
         return gettedValue.toString();
@@ -372,10 +378,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 StringUtils.substringAfter(foreignKeyPath, "/")); //$NON-NLS-1$
                         if (nodes.getLength() == 1) {
                             bean.getForeignKeyInfo().put(foreignKeyPath, nodes.item(0).getTextContent());
-                            if (formattedId.equals("")) //$NON-NLS-1$
+                            if (formattedId.equals("")) { //$NON-NLS-1$
                                 formattedId += nodes.item(0).getTextContent();
-                            else
+                            } else {
                                 formattedId += "-" + nodes.item(0).getTextContent(); //$NON-NLS-1$
+                            }
                         }
                     }
 
@@ -386,8 +393,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
             }
         } catch (EntityNotFoundException e) {
-            if (!isNeedExceptionMessage)
+            if (!isNeedExceptionMessage) {
                 return null;
+            }
             // fix bug TMDM-2757
             bean.set("foreignKeyDeleteMessage", e.getMessage()); //$NON-NLS-1$
             return bean;
@@ -401,8 +409,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             List<SubTypeBean> derivedTypes = new ArrayList<SubTypeBean>();
 
             if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
-                if (xpathForeignKey.startsWith("/"))//$NON-NLS-1$
+                if (xpathForeignKey.startsWith("/")) { //$NON-NLS-1$
                     xpathForeignKey = xpathForeignKey.substring(1);
+                }
                 String fkEntity = "";//$NON-NLS-1$
                 if (xpathForeignKey.indexOf("/") != -1) {//$NON-NLS-1$
                     fkEntity = xpathForeignKey.substring(0, xpathForeignKey.indexOf("/"));//$NON-NLS-1$
@@ -411,10 +420,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
 
                 fkEntityType = SchemaWebAgent.getInstance().getBusinessConcept(fkEntity).getCorrespondTypeName();
-                if (fkEntityType != null)
+                if (fkEntityType != null) {
                     entityReusableType = SchemaWebAgent.getInstance().getReusableType(fkEntityType);
-                if (entityReusableType != null)
+                }
+                if (entityReusableType != null) {
                     entityReusableType.load();
+                }
 
                 List<ReusableType> subtypes = SchemaWebAgent.getInstance().getMySubtypes(fkEntityType, true);
                 for (ReusableType reusableType : subtypes) {
@@ -502,10 +513,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             }
                         }
                     }
-                } else
+                } else {
                     node = doc.selectSingleNode(key);
+                }
 
-                
                 if (node != null && itemBean.getOriginalMap() != null) {
                     String dateText = node.getText();
 
@@ -516,16 +527,15 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             } else if (value[1].equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
                                 sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
                             }
-                            
+
                             try {
                                 Date date = sdf.parse(dateText.trim());
                                 itemBean.getOriginalMap().put(key, date);
                                 Calendar calendar = Calendar.getInstance();
                                 calendar.setTime(date);
                                 String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
-                                itemBean.getFormateMap().put(key, formatValue); 
-                            }
-                            catch (Exception e) {
+                                itemBean.getFormateMap().put(key, formatValue);
+                            } catch (Exception e) {
                                 itemBean.getOriginalMap().remove(key);
                                 itemBean.getFormateMap().remove(key);
                             }
@@ -543,8 +553,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
+
     /**
      * This method should be only set primaryKey info and description on entity
+     * 
      * @param itemBean
      * @param entityModel
      * @param language
@@ -567,8 +579,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
 
                 if (typeModel.isSimpleType()) {
-                    // It should getValue by XPath but not element name(ItemBean's map object is only used by ItemsListPanel)
-                    NodeList nodes = Util.getNodeList(docXml, typeModel.getXpath().replaceFirst(entityModel.getConceptName() + "/", "./"));
+                    // It should getValue by XPath but not element name(ItemBean's map object is only used by
+                    // ItemsListPanel)
+                    NodeList nodes = Util.getNodeList(docXml,
+                            typeModel.getXpath().replaceFirst(entityModel.getConceptName() + "/", "./")); //$NON-NLS-1$//$NON-NLS-2$
                     if (nodes.getLength() > 0) {
                         if (nodes.item(0) instanceof Element) {
                             Element value = (Element) nodes.item(0);
@@ -576,7 +590,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 List<Serializable> list = new ArrayList<Serializable>();
                                 for (int t = 0; t < nodes.getLength(); t++) {
                                     if (nodes.item(t) instanceof Element) {
-                                        Node node = ((Element) nodes.item(t));
+                                        Node node = nodes.item(t);
                                         migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
                                         list.add(node.getTextContent());
                                     }
@@ -611,29 +625,30 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             HashMap<String, Integer> countMap = new HashMap<String, Integer>();
             for (String path : viewBean.getViewableXpaths()) {
                 String leafPath = path.substring(path.lastIndexOf('/') + 1);
-                if (leafPath.startsWith("@")){ //$NON-NLS-1$
-                    itemBean.set(path, docXml.getElementsByTagName(leafPath.substring(leafPath.indexOf("@")+1)).item(0).getTextContent()); //$NON-NLS-1$
+                if (leafPath.startsWith("@")) { //$NON-NLS-1$
+                    itemBean.set(path, docXml
+                            .getElementsByTagName(leafPath.substring(leafPath.indexOf("@") + 1)).item(0).getTextContent()); //$NON-NLS-1$
                     continue;
                 }
-            	
-            	NodeList nodes = Util.getNodeList(docXml, leafPath);
+
+                NodeList nodes = Util.getNodeList(docXml, leafPath);
                 TypeModel typeModel = entityModel.getMetaDataTypes().get(path);
                 if (nodes.getLength() > 1) {
                     // result has same name nodes
                     if (countMap.containsKey(leafPath)) {
                         int count = Integer.valueOf(countMap.get(leafPath).toString());
-                        Node node = ((Node) nodes.item(count));
+                        Node node = nodes.item(count);
                         migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
                         itemBean.set(path, node.getTextContent());
                         countMap.put(leafPath, count + 1);
                     } else {
-                        Node node = ((Node) nodes.item(0));
+                        Node node = nodes.item(0);
                         migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
                         itemBean.set(path, node.getTextContent());
                         countMap.put(leafPath, 1);
                     }
                 } else if (nodes.getLength() == 1) {
-                    Node value = (Node) nodes.item(0);
+                    Node value = nodes.item(0);
 
                     if (typeModel != null && typeModel.getForeignkey() != null) {
                         String modelType = ((Element) value).getAttribute("tmdm:type"); //$NON-NLS-1$
@@ -761,11 +776,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             WSDroppedItemPK wsItem = CommonUtil.getPort().dropItem(new WSDropItem(wsItemPK, path, override));
 
-            if (wsItem != null && xml != null)
+            if (wsItem != null && xml != null) {
                 if ("/".equalsIgnoreCase(path)) { //$NON-NLS-1$
                     pushUpdateReport(ids, concept, "LOGIC_DELETE"); //$NON-NLS-1$
-                } else
+                } else {
                     throw new ServiceException(MESSAGES.getMessage("dropItem_null")); //$NON-NLS-1$
+                }
+            }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -826,8 +843,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         Map<String, String[]> formatMap = this.checkDisplayFormat(entityModel, language);
 
         WSWhereItem wi = null;
-        if (criteria != null)
+        if (criteria != null) {
             wi = CommonUtil.buildWhereItems(criteria);
+        }
         String[] results = CommonUtil
                 .getPort()
                 .viewSearch(
@@ -854,8 +872,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             idsArray.clear();
             for (String key : entityModel.getKeys()) {
                 String id = Util.getFirstTextNode(doc.getDocumentElement(), "." + key.substring(key.lastIndexOf('/'))); //$NON-NLS-1$
-                if (id != null)
+                if (id != null) {
                     idsArray.add(id);
+                }
             }
 
             Set<String> keySet = formatMap.keySet();
@@ -869,7 +888,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String dateText = null;
                 if (!key.equals(xpath)) {
                     NodeList list = Util.getNodeList(doc.getDocumentElement(), xpath.replaceFirst(concept + "/", "./")); //$NON-NLS-1$//$NON-NLS-2$
-                    if (list != null)
+                    if (list != null) {
                         for (int k = 0; k < list.getLength(); k++) {
                             Node node = list.item(k);
                             String realType = ((Element) node.getParentNode()).getAttribute("xsi:type"); //$NON-NLS-1$
@@ -878,8 +897,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 break;
                             }
                         }
-                } else
+                    }
+                } else {
                     dateText = Util.getFirstTextNode(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")); //$NON-NLS-1$ //$NON-NLS-2$
+                }
 
                 if (dateText != null) {
                     if (dateText.trim().length() != 0) {
@@ -888,7 +909,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         } else if (value[1].equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
                             sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
                         }
-                        
+
                         try {
                             Date date = sdf.parse(dateText.trim());
                             originalMap.put(key, date);
@@ -897,8 +918,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
                             formateValueMap.put(key, formatValue);
                             Util.getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
-                        }
-                        catch (Exception e) {
+                        } catch (Exception e) {
                             originalMap.remove(key);
                             formateValueMap.remove(key);
                         }
@@ -910,10 +930,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     CommonUtil.joinStrings(idsArray, "."), Util.nodeToString(doc.getDocumentElement()));//$NON-NLS-1$
             itemBean.setOriginalMap(originalMap);
             itemBean.setFormateMap(formateValueMap);
-            if (checkSmartViewExists(concept, language))
+            if (checkSmartViewExists(concept, language)) {
                 itemBean.setSmartViewMode(ItemBean.SMARTMODE);
-            else if (checkSmartViewExistsByOpt(concept, language))
+            } else if (checkSmartViewExistsByOpt(concept, language)) {
                 itemBean.setSmartViewMode(ItemBean.SMARTMODE);
+            }
             dynamicAssembleByResultOrder(itemBean, viewBean, entityModel);
             itemBeans.add(itemBean);
         }
@@ -924,8 +945,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         Map<String, TypeModel> metaData = entityModel.getMetaDataTypes();
         Map<String, String[]> formatMap = new HashMap<String, String[]>();
         String languageStr = "format_" + language.toLowerCase(); //$NON-NLS-1$
-        if (metaData == null)
+        if (metaData == null) {
             return formatMap;
+        }
 
         Set<String> keySet = metaData.keySet();
         for (String key : keySet) {
@@ -974,8 +996,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             ForeignKeyDrawer fkDrawer = new ForeignKeyDrawer();
 
             BusinessConcept businessConcept = SchemaWebAgent.getInstance().getFirstBusinessConceptFromRootType(targetEntityType);
-            if (businessConcept == null)
+            if (businessConcept == null) {
                 return null;
+            }
             String targetEntity = businessConcept.getName();
 
             if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
@@ -985,12 +1008,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (xpathInfoForeignKey != null && xpathInfoForeignKey.length() > 0) {
                 String[] fkInfoPaths = xpathInfoForeignKey.split(",");//$NON-NLS-1$
                 xpathInfoForeignKey = "";//$NON-NLS-1$
-                for (int i = 0; i < fkInfoPaths.length; i++) {
-                    String fkInfoPath = fkInfoPaths[i];
+                for (String fkInfoPath : fkInfoPaths) {
                     String relacedFkInfoPath = replaceXpathRoot(targetEntity, fkInfoPath);
                     if (relacedFkInfoPath != null && relacedFkInfoPath.length() > 0) {
-                        if (xpathInfoForeignKey.length() > 0)
+                        if (xpathInfoForeignKey.length() > 0) {
                             xpathInfoForeignKey += ",";//$NON-NLS-1$
+                        }
                         xpathInfoForeignKey += relacedFkInfoPath;
                     }
                 }
@@ -1012,10 +1035,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
      * @return
      */
     private String replaceXpathRoot(String targetEntity, String xpath) {
-        if (xpath.indexOf("/") != -1)//$NON-NLS-1$
+        if (xpath.indexOf("/") != -1) { //$NON-NLS-1$
             xpath = targetEntity + xpath.substring(xpath.indexOf("/"));//$NON-NLS-1$
-        else
+        } else {
             xpath = targetEntity;
+        }
         return xpath;
     }
 
@@ -1029,8 +1053,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                     "BrowseItem",//$NON-NLS-1$
                                     new String[] { bookmark }))).getContent().trim();
             if (result != null) {
-                if (result.indexOf("<SearchCriteria>") != -1)//$NON-NLS-1$
+                if (result.indexOf("<SearchCriteria>") != -1) { //$NON-NLS-1$
                     criteria = result.substring(result.indexOf("<SearchCriteria>") + 16, result.indexOf("</SearchCriteria>"));//$NON-NLS-1$ //$NON-NLS-2$
+                }
             }
             return criteria;
         } catch (Exception e) {
@@ -1229,8 +1254,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     new WSPutItem(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), searchTemplate
                             .marshal2String(), new WSDataModelPK(XSystemObjects.DM_SEARCHTEMPLATE.getName()), false));
 
-            if (pk == null)
+            if (pk == null) {
                 throw new ServiceException();
+            }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -1274,8 +1300,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 WSItemPK wsItem = CommonUtil.getPort().deleteItem(
                         new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), false));
 
-                if (wsItem == null)
+                if (wsItem == null) {
                     throw new ServiceException(MESSAGES.getMessage("label_error_delete_template_null")); //$NON-NLS-1$
+                }
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -1299,7 +1326,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
 
         if (!hasMatchedOnce) {
-            throw new IllegalArgumentException(MESSAGES.getMessage("label_exception_id_malform", ids)); //$NON-NLS-1$
+            throw new IllegalArgumentException(MESSAGES.getMessage("label_exception_fk_malform", ids)); //$NON-NLS-1$
         }
 
         return idList.toArray(new String[idList.size()]);
@@ -1349,15 +1376,17 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         String username = com.amalto.webapp.core.util.Util.getLoginUserName();
         String universename = com.amalto.webapp.core.util.Util.getLoginUniverse();
-        if (universename != null && universename.length() > 0)
+        if (universename != null && universename.length() > 0) {
             revisionId = com.amalto.webapp.core.util.Util.getRevisionIdFromUniverse(universename, concept);
+        }
 
         StringBuilder keyBuilder = new StringBuilder();
         if (ids != null) {
             for (int i = 0; i < ids.length; i++) {
                 keyBuilder.append(ids[i]);
-                if (i != ids.length - 1)
+                if (i != ids.length - 1) {
                     keyBuilder.append("."); //$NON-NLS-1$
+                }
             }
         }
         String key = keyBuilder.length() == 0 ? "null" : keyBuilder.toString(); //$NON-NLS-1$
@@ -1398,37 +1427,38 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
-    
-    public Map<ViewBean, Map<String, List<String>>> getForeignKeyValues(String concept, String[] ids, String language) throws ServiceException {
-    	try{
-    		Map<ViewBean, Map<String, List<String>>> map = new HashMap<ViewBean, Map<String,List<String>>>();
-    		// 1. getView
-    		ViewBean viewBean = getView("Browse_items_" + concept, language);//$NON-NLS-1$
-    		Map<String, List<String>> fkValues = new HashMap<String, List<String>>();
-    		// 2. getItem
-    		WSItem wsItem = CommonUtil.getPort().getItem(
+
+    public Map<ViewBean, Map<String, List<String>>> getForeignKeyValues(String concept, String[] ids, String language)
+            throws ServiceException {
+        try {
+            Map<ViewBean, Map<String, List<String>>> map = new HashMap<ViewBean, Map<String, List<String>>>();
+            // 1. getView
+            ViewBean viewBean = getView("Browse_items_" + concept, language);//$NON-NLS-1$
+            Map<String, List<String>> fkValues = new HashMap<String, List<String>>();
+            // 2. getItem
+            WSItem wsItem = CommonUtil.getPort().getItem(
                     new WSGetItem(new WSItemPK(new WSDataClusterPK(this.getCurrentDataCluster()), concept, ids)));
-    		org.dom4j.Document doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(wsItem.getContent());
-    		EntityModel entityModel = viewBean.getBindingEntityModel();
-    		Map<String, TypeModel> metaData = entityModel.getMetaDataTypes();
-    		// 3. getAllFKValues
-    		for (String key : metaData.keySet()){
-    			TypeModel typeModel = metaData.get(key);
-    			if(typeModel.getForeignkey() != null && typeModel.getForeignkey().trim().length() > 0){
-    				fkValues.put(typeModel.getXpath(), new ArrayList<String>());
-    				List<?> nodeList = doc.selectNodes(typeModel.getXpath());
+            org.dom4j.Document doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(wsItem.getContent());
+            EntityModel entityModel = viewBean.getBindingEntityModel();
+            Map<String, TypeModel> metaData = entityModel.getMetaDataTypes();
+            // 3. getAllFKValues
+            for (String key : metaData.keySet()) {
+                TypeModel typeModel = metaData.get(key);
+                if (typeModel.getForeignkey() != null && typeModel.getForeignkey().trim().length() > 0) {
+                    fkValues.put(typeModel.getXpath(), new ArrayList<String>());
+                    List<?> nodeList = doc.selectNodes(typeModel.getXpath());
                     if (nodeList != null && nodeList.size() > 0) {
                         for (int i = 0; i < nodeList.size(); i++) {
-                    		org.dom4j.Element current = (org.dom4j.Element) nodeList.get(i);
-                    		fkValues.get(typeModel.getXpath()).add(current.getText());
+                            org.dom4j.Element current = (org.dom4j.Element) nodeList.get(i);
+                            fkValues.get(typeModel.getXpath()).add(current.getText());
                         }
                     }
-    			}
-    		}
-    		// 4. construct map
-    		map.put(viewBean, fkValues);
-    		return map;
-    	}catch (ServiceException e) {
+                }
+            }
+            // 4. construct map
+            map.put(viewBean, fkValues);
+            return map;
+        } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;
         } catch (Exception e) {
@@ -1439,8 +1469,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws ServiceException {
         try {
-            if (item.get("isRefresh") != null) //$NON-NLS-1$
+            if (item.get("isRefresh") != null) { //$NON-NLS-1$
                 item = getItem(item, "Browse_items_" + item.getConcept(), entity, language); // itemBean need to be get from server when refresh tree. //$NON-NLS-1$
+            }
             String xml = item.getItemXml();
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -1479,7 +1510,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             DisplayRuleEngine ruleEngine = new DisplayRuleEngine(metaDataTypes, concept);
 
             TypeModel typeModel = metaDataTypes.get(concept);
-            Document doc = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getSubXML(typeModel, null, initDataMap, language);
+            Document doc = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getSubXML(typeModel, null, initDataMap,
+                    language);
 
             org.dom4j.Document doc4j = XmlUtil.parseDocument(doc);
 
@@ -1488,15 +1520,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (initDataMap != null) {
                 Set<String> paths = initDataMap.keySet();
                 for (String path : paths) {
-					List<?> nodeList = doc4j.selectNodes(path);
+                    List<?> nodeList = doc4j.selectNodes(path);
                     List<String> values = initDataMap.get(path);
                     if (nodeList != null && nodeList.size() > 0 && values != null && values.size() > 0) {
-                    	for (int i = 0; i < nodeList.size(); i++) {
-                    		org.dom4j.Element current = (org.dom4j.Element) nodeList.get(i);
-                    		if (current != null)
-                    			current.setText(values.get(i));
-						}
-                        
+                        for (int i = 0; i < nodeList.size(); i++) {
+                            org.dom4j.Element current = (org.dom4j.Element) nodeList.get(i);
+                            if (current != null) {
+                                current.setText(values.get(i));
+                            }
+                        }
+
                     }
                 }
             }
@@ -1541,8 +1574,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Element root = resultDoc.getDocumentElement();
             String baseXpath = contextPath.substring(0, contextPath.lastIndexOf('/'));
             String baseXpathWithInheritance = baseXpath;
-            if (typePath.substring(0, typePath.lastIndexOf("/")).contains(":")) //$NON-NLS-1$ //$NON-NLS-2$
+            if (typePath.substring(0, typePath.lastIndexOf("/")).contains(":")) { //$NON-NLS-1$ //$NON-NLS-2$
                 baseXpathWithInheritance = typePath.substring(0, typePath.lastIndexOf("/")); //$NON-NLS-1$
+            }
             itemModel = builderNode(multiNodeIndex, root, entity, baseXpathWithInheritance,
                     "", true, foreignKeyDeleteMessage, true, language); //$NON-NLS-1$
             DynamicLabelUtil.getDynamicLabel(doc4j, baseXpath, itemModel, metaDataTypes, language);
@@ -1612,14 +1646,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             // set foreignKeyBean
             model.setRetrieveFKinfos(true);
             String modelType = el.getAttribute("tmdm:type"); //$NON-NLS-1$
-            if (modelType != null && modelType.trim().length() > 0)
+            if (modelType != null && modelType.trim().length() > 0) {
                 nodeModel.setTypeName(modelType);
+            }
             ForeignKeyBean fkBean = getForeignKeyDesc(model, el.getTextContent(), true, modelType);
             if (fkBean != null) {
                 String fkNotFoundMessage = fkBean.get("foreignKeyDeleteMessage"); //$NON-NLS-1$
                 if (fkNotFoundMessage != null) {// fix bug TMDM-2757
-                    if (foreignKeyDeleteMessage.indexOf(fkNotFoundMessage) == -1)
+                    if (foreignKeyDeleteMessage.indexOf(fkNotFoundMessage) == -1) {
                         foreignKeyDeleteMessage.append(fkNotFoundMessage + "\r\n"); //$NON-NLS-1$
+                    }
                     return nodeModel;
                 }
                 nodeModel.setObjectValue(fkBean);
@@ -1676,8 +1712,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         }
         for (String key : entity.getKeys()) {
-            if (key.equals(realXPath))
+            if (key.equals(realXPath)) {
                 nodeModel.setKey(true);
+            }
         }
         return nodeModel;
 
@@ -1702,8 +1739,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             XSComplexType type = (XSComplexType) decl.getType();
             XSParticle[] xsp = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
             for (XSParticle obj : xsp) {
-                if (obj.getMinOccurs() == 1 && obj.getMaxOccurs() == 1)
+                if (obj.getMinOccurs() == 1 && obj.getMaxOccurs() == 1) {
                     fieldNames.add(obj.getTerm().asElementDecl().getName());
+                }
             }
 
             return fieldNames;
@@ -1769,9 +1807,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     // Return before saving process error message as exception for web ui.
                     throw new ServiceException(beforeSavingMessage);
                 } else {
-                    String detailErrorMessage=MESSAGES.getMessage(locale, "save_process_validation_error_unknown"); //$NON-NLS-1$
-                    if(cause.getCause()!=null&&cause.getCause().getLocalizedMessage()!=null&&cause.getCause().getLocalizedMessage().trim().length()>0)
-                        detailErrorMessage=cause.getCause().getLocalizedMessage();
+                    String detailErrorMessage = MESSAGES.getMessage(locale, "save_process_validation_error_unknown"); //$NON-NLS-1$
+                    if (cause.getCause() != null && cause.getCause().getLocalizedMessage() != null
+                            && cause.getCause().getLocalizedMessage().trim().length() > 0) {
+                        detailErrorMessage = cause.getCause().getLocalizedMessage();
+                    }
                     err = MESSAGES.getMessage(locale, "save_process_validation_failure", detailErrorMessage); //$NON-NLS-1$
                 }
             } else if (Util.causeIs(e, CVCException.class)) {
@@ -1826,7 +1866,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public List<ItemResult> updateItems(List<UpdateItemModel> updateItems, String language) throws ServiceException {
         List<ItemResult> resultes = new ArrayList<ItemResult>();
-        for (UpdateItemModel item : updateItems){
+        for (UpdateItemModel item : updateItems) {
             try {
                 resultes.add(updateItem(item.getConcept(), item.getIds(), item.getChangedNodes(), null, language));
             } catch (Exception e) {
@@ -1840,8 +1880,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         try {
             CustomFormPOJOPK pk = new CustomFormPOJOPK(getCurrentDataModel(), concept);
             CustomFormPOJO customForm = com.amalto.core.util.Util.getCustomFormCtrlLocal().getUserCustomForm(pk);
-            if (customForm == null)
+            if (customForm == null) {
                 return null;
+            }
             String xml = customForm.getXml();
             Document doc = Util.parse(xml);
             Element root = doc.getDocumentElement();
@@ -1872,10 +1913,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             ItemBean itemBean = new ItemBean(concept, ids, null);
             itemBean = getItem(itemBean, viewPk, viewBean.getBindingEntityModel(), language);
-            if (checkSmartViewExists(concept, language))
+            if (checkSmartViewExists(concept, language)) {
                 itemBean.setSmartViewMode(ItemBean.SMARTMODE);
-            else if (checkSmartViewExistsByOpt(concept, language))
+            } else if (checkSmartViewExistsByOpt(concept, language)) {
                 itemBean.setSmartViewMode(ItemBean.PERSOMODE);
+            }
             ItemNodeModel nodeModel = getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), language);
             return new ForeignKeyModel(viewBean, itemBean, nodeModel);
         } catch (Exception e) {
@@ -1886,8 +1928,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public List<ItemBaseModel> getRunnableProcessList(String businessConcept, String language) throws ServiceException {
         List<ItemBaseModel> processList = new ArrayList<ItemBaseModel>();
-        if (businessConcept == null || language == null)
+        if (businessConcept == null || language == null) {
             return processList;
+        }
         try {
             String model = this.getCurrentDataModel();
             String[] businessConcepts = Util.getPort().getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model)))
@@ -1923,17 +1966,18 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         String possibleConcept = "";//$NON-NLS-1$
         if (businessConcepts != null) {
-            for (int i = 0; i < businessConcepts.length; i++) {
-                String businessConcept = businessConcepts[i];
+            for (String businessConcept : businessConcepts) {
                 if (transformerName.startsWith("Runnable_" + businessConcept)) {//$NON-NLS-1$
-                    if (businessConcept.length() > possibleConcept.length())
+                    if (businessConcept.length() > possibleConcept.length()) {
                         possibleConcept = businessConcept;
+                    }
                 }
             }
         }
 
-        if (ownerConcept != null && ownerConcept.equals(possibleConcept))
+        if (ownerConcept != null && ownerConcept.equals(possibleConcept)) {
             return true;
+        }
 
         return false;
     }
@@ -1943,8 +1987,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         try {
             String itemAlias = concept + "." + Util.joinStrings(ids, ".");//$NON-NLS-1$//$NON-NLS-2$
             // create updateReport
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("Creating update-report for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
+            }
             String updateReport = Util.createUpdateReport(ids, concept, "ACTION", null); //$NON-NLS-1$
             WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
             WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")),//$NON-NLS-1$
@@ -1954,8 +1999,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             // we can leverage the exception mechanism also
             boolean isRunnableTransformerExist = false;
             WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();//$NON-NLS-1$
-            for (int i = 0; i < wst.length; i++) {
-                if (wst[i].getPk().equals(transformerPK)) {
+            for (WSTransformerPK element : wst) {
+                if (element.getPk().equals(transformerPK)) {
                     isRunnableTransformerExist = true;
                     break;
                 }
@@ -1963,14 +2008,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             // execute
 
             WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(new WSTransformerPK(transformerPK)));
-            if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0)
+            if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0) {
                 throw new ServiceException(MESSAGES.getMessage("plugin_specs_undefined")); //$NON-NLS-1$
+            }
 
             boolean outputReport = false;
             String downloadUrl = "";//$NON-NLS-1$
             if (isRunnableTransformerExist) {
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug("Executing transformer for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
+                }
                 WSTransformerContextPipelinePipelineItem[] entries = Util.getPort().executeTransformerV2(wsExecuteTransformerV2)
                         .getPipeline().getPipelineItem();
                 if (entries.length > 0) {
@@ -1978,8 +2025,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     if (item.getVariable().equals("output_url")) {//$NON-NLS-1$
                         byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
                         String content = new String(bytes);
-                        if (LOG.isDebugEnabled())
+                        if (LOG.isDebugEnabled()) {
                             LOG.debug("Received output_url " + content); //$NON-NLS-1$
+                        }
                         try {
                             Document resultDoc = Util.parse(content);
 
@@ -1998,16 +2046,18 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 throw new ServiceException(MESSAGES.getMessage("process_not_found")); //$NON-NLS-1$
             }
 
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("Saving update-report for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
+            }
 
             if (!Util.persistentUpdateReport(updateReport, true).equals("OK")) {//$NON-NLS-1$
                 throw new ServiceException(MESSAGES.getMessage("store_update_report"));//$NON-NLS-1$
             }
-            if (outputReport)
+            if (outputReport) {
                 return downloadUrl;
-            else
+            } else {
                 return null;
+            }
 
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
@@ -2015,8 +2065,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             String err = e.getLocalizedMessage();
-            if (err == null || err.length() == 0)
+            if (err == null || err.length() == 0) {
                 err = MESSAGES.getMessage("unable_launch_process"); //$NON-NLS-1$;
+            }
             throw new ServiceException(err);
         }
     }
@@ -2049,11 +2100,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
         for (SmartViewDescriptions.SmartViewDescription smDesc : smDescSet) {
             if (optname != null) {
-                if (optname.equals(smDesc.getOptName()))
+                if (optname.equals(smDesc.getOptName())) {
                     return true;
+                }
             } else {
-                if (smDesc.getOptName() == null)
+                if (smDesc.getOptName() == null) {
                     return true;
+                }
             }
         }
         return false;
@@ -2073,17 +2126,19 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         // Add the no language Smart Views too
         smDescSet.addAll(smDescs.get(null));
 
-        if (!smDescSet.isEmpty())
+        if (!smDescSet.isEmpty()) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 
     public List<ItemBaseModel> getSmartViewList(String regex) throws ServiceException {
         try {
             List<ItemBaseModel> smartViewList = new ArrayList<ItemBaseModel>();
-            if (regex == null || regex.length() == 0)
+            if (regex == null || regex.length() == 0) {
                 return smartViewList;
+            }
 
             String[] inputParams = regex.split("&");//$NON-NLS-1$
             String concept = inputParams[0];
@@ -2139,8 +2194,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String dataClusterPK, XSElementDecl elementDecl, WSItem wsItem) throws RemoteException, XtentisWebappException,
             UnsupportedEncodingException, Exception, XPathExpressionException, TransformerFactoryConfigurationError,
             TransformerConfigurationException, TransformerException {
-        if (viewName == null || viewName.length() == 0)
+        if (viewName == null || viewName.length() == 0) {
             return;
+        }
 
         WSView view = Util.getPort().getView(new WSGetView(new WSViewPK(viewName)));
 
@@ -2159,16 +2215,17 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             // we can leverage the exception mechanism also
             boolean isATransformerExist = false;
             WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK(); //$NON-NLS-1$
-            for (int i = 0; i < wst.length; i++) {
-                if (wst[i].getPk().equals(transformerPK)) {
+            for (WSTransformerPK element : wst) {
+                if (element.getPk().equals(transformerPK)) {
                     isATransformerExist = true;
                     break;
                 }
             }
             // execute
             WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(new WSTransformerPK(transformerPK)));
-            if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0)
+            if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0) {
                 throw new ServiceException(MESSAGES.getMessage("plugin_specs_undefined")); //$NON-NLS-1$
+            }
             WSTransformerContextPipelinePipelineItem[] entries = null;
             if (isATransformerExist) {
 
@@ -2181,17 +2238,17 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             WSTransformerContextPipelinePipelineItem entrie = null;
             boolean flag = false;
             // FIXME:use 'output' as spec.
-            for (int i = 0; i < entries.length; i++) {
-                if ("output".equals(entries[i].getVariable())) { //$NON-NLS-1$
-                    entrie = entries[i];
+            for (WSTransformerContextPipelinePipelineItem entrie2 : entries) {
+                if ("output".equals(entrie2.getVariable())) { //$NON-NLS-1$
+                    entrie = entrie2;
                     flag = !flag;
                     break;
                 }
             }
             if (!flag) {
-                for (int i = 0; i < entries.length; i++) {
-                    if ("_DEFAULT_".equals(entries[i].getVariable())) { //$NON-NLS-1$
-                        entrie = entries[i];
+                for (WSTransformerContextPipelinePipelineItem entrie2 : entries) {
+                    if ("_DEFAULT_".equals(entrie2.getVariable())) { //$NON-NLS-1$
+                        entrie = entrie2;
                         break;
                     }
                 }
@@ -2222,8 +2279,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     for (int k = 0; k < annotList.getLength(); k++) {
                         if ("appinfo".equals(annotList.item(k).getLocalName())) { //$NON-NLS-1$
                             Node source = annotList.item(k).getAttributes().getNamedItem("source"); //$NON-NLS-1$
-                            if (source == null)
+                            if (source == null) {
                                 continue;
+                            }
                             String appinfoSource = annotList.item(k).getAttributes().getNamedItem("source").getNodeValue(); //$NON-NLS-1$
                             if ("X_Lookup_Field".equals(appinfoSource)) { //$NON-NLS-1$
 
@@ -2236,13 +2294,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 // TODO String
                 String searchPrefix;
                 NodeList attrNodeList = Util.getNodeList(jobDoc, "/results/item/attr"); //$NON-NLS-1$
-                if (attrNodeList != null && attrNodeList.getLength() > 0)
+                if (attrNodeList != null && attrNodeList.getLength() > 0) {
                     searchPrefix = "/results/item/attr/"; //$NON-NLS-1$
-                else
+                } else {
                     searchPrefix = ""; //$NON-NLS-1$
+                }
 
-                for (Iterator<String> iterator = lookupFieldsForWSItemDoc.iterator(); iterator.hasNext();) {
-                    String xpath = iterator.next();
+                for (String xpath : lookupFieldsForWSItemDoc) {
                     String firstValue = Util.getFirstTextNode(jobDoc, searchPrefix + xpath);// FIXME:use first node
                     if (null != firstValue && firstValue.length() != 0) {
                         NodeList list = Util.getNodeList(wsItemDoc, "/" + xpath); //$NON-NLS-1$
@@ -2262,8 +2320,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     new WSGetItem(new WSItemPK(new WSDataClusterPK(this.getCurrentDataCluster()), concept, ids)));
             String[] idsArr = wsItem.getIds();
             StringBuilder sb = new StringBuilder();
-            for (String str : idsArr)
+            for (String str : idsArr) {
                 sb.append(str).append("."); //$NON-NLS-1$
+            }
             String idsStr = sb.substring(0, sb.length() - 1);
             ItemBean itemBean = new ItemBean(concept, idsStr, wsItem.getContent());
             if (wsItem.getTaskId() != null && !"".equals(wsItem.getTaskId()) && !"null".equals(wsItem.getTaskId())) { //$NON-NLS-1$ //$NON-NLS-2$
@@ -2284,10 +2343,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             throw new ServiceException(MESSAGES.getMessage(locale, "parse_model_error")); //$NON-NLS-1$
         }
     }
-    
-    public boolean isExistId(String concept, String[] ids, String language) throws ServiceException {      
+
+    public boolean isExistId(String concept, String[] ids, String language) throws ServiceException {
         try {
-            WSBoolean wsBoolean = CommonUtil.getPort().existsItem(new WSExistsItem(new WSItemPK(new WSDataClusterPK(this.getCurrentDataCluster()), concept, ids)));
+            WSBoolean wsBoolean = CommonUtil.getPort().existsItem(
+                    new WSExistsItem(new WSItemPK(new WSDataClusterPK(this.getCurrentDataCluster()), concept, ids)));
             return wsBoolean.is_true();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
