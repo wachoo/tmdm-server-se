@@ -132,7 +132,7 @@ class ID implements DocumentSaver {
             }
         } else {
             // Throw an exception if trying to update a document that does not exist.
-            if (context.getUserAction() == UserAction.UPDATE) { // Is update
+            if (context.getUserAction() == UserAction.UPDATE || context.getUserAction() == UserAction.PARTIAL_UPDATE) {
                 StringBuilder builder = new StringBuilder();
                 for (String idElement : xmlDocumentId) {
                     builder.append('[').append(idElement).append(']');
