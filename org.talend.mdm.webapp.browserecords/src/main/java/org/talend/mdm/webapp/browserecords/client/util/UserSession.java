@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -52,6 +53,8 @@ public class UserSession implements Serializable {
     public static final String CURRENT_LINEAGE_ENTITY_LIST = "currentLineageEntityList"; //$NON-NLS-1$
 
     public static final String CURRENT_RUNNABLE_PROCESS_LIST = "currentRunnableProcessList"; //$NON-NLS-1$
+
+    public static final String CURRENT_CREATED_ENTITY = "currentCreatedEntity"; //$NON-NLS-1$
 
     public UserSession() {
         super();
@@ -116,5 +119,9 @@ public class UserSession implements Serializable {
 
     public MultipleCriteria getCustomizeCriterionStore() {
         return (MultipleCriteria) get(CUSTOMIZE_CRITERION_STORE);
+    }
+
+    public ItemPanel getCurrentCreatedEntity() {
+        return (ItemPanel) get(CURRENT_CREATED_ENTITY);
     }
 }
