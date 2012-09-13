@@ -40,6 +40,7 @@ class UpdateReport implements DocumentSaver {
         this.next = next;
     }
 
+    @Override
     public void save(SaverSession session, DocumentSaverContext context) {
         MutableDocument databaseDocument = context.getDatabaseDocument();
 
@@ -108,8 +109,9 @@ class UpdateReport implements DocumentSaver {
         }
 
         String[] idAsArray = ids.toArray(new String[ids.size()]);
-        ItemPOJO updateReport = new ItemPOJO(new DataClusterPOJOPK(UPDATE_REPORT_DATA_MODEL), UPDATE_REPORT_TYPE, idAsArray, System.currentTimeMillis(), updateReportDocument.asDOM().getDocumentElement());
-
+        ItemPOJO updateReport = new ItemPOJO(new DataClusterPOJOPK(UPDATE_REPORT_DATA_MODEL), UPDATE_REPORT_TYPE, idAsArray,
+                System.currentTimeMillis(), updateReportDocument.asDOM().getDocumentElement());
+        updateReport.setDataModelRevision(saverSource.getConceptRevisionID(updateReport.getConceptName()));
         // Call session's save to save all items in correct order (one transaction per data cluster for the XML db).
         session.save(UPDATE_REPORT_DATA_MODEL, updateReport, false);
     }
@@ -119,16 +121,18 @@ class UpdateReport implements DocumentSaver {
         accessor.createAndSet(value);
     }
 
+    @Override
     public String[] getSavedId() {
         return next.getSavedId();
     }
 
+    @Override
     public String getSavedConceptName() {
         return next.getSavedConceptName();
     }
 
+    @Override
     public String getBeforeSavingMessage() {
         return next.getBeforeSavingMessage();
     }
 }
-
