@@ -296,7 +296,7 @@ public class ItemsToolBar extends ToolBar {
                 List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
                 if (itemBean != null) {
                     breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
-                    breads.add(new BreadCrumbModel("", itemBean.getLabel(), null, null, false)); //$NON-NLS-1$
+                    breads.add(new BreadCrumbModel("", itemBean.getLabel(), null, null, true)); //$NON-NLS-1$
                 }
                 panel.initBreadCrumb(new BreadCrumb(breads, panel));
                 ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
@@ -305,6 +305,7 @@ public class ItemsToolBar extends ToolBar {
                         ItemsDetailPanel.SINGLETON, itemBean.getConcept());
                 itemPanel.initTreeDetail(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION);
                 ItemsMainTabPanel.getInstance().addMainTabItem(itemBean.getLabel(), panel, itemBean.getConcept());
+                BrowseRecords.getSession().put(UserSession.CURRENT_CREATED_ENTITY, itemPanel);
             }
 
         });

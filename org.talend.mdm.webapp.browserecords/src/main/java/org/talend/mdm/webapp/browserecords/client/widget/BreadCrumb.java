@@ -12,8 +12,10 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyUtil;
 
@@ -25,7 +27,7 @@ import com.google.gwt.user.client.ui.HTML;
 public class BreadCrumb extends Composite {
 
     private BreadCrumbBar pWidget = new BreadCrumbBar();
-    
+
     private ItemsDetailPanel itemsDetailPanel;
 
     public static String DEFAULTNAME = "Talend MDM", DEFAULTLINK = "../talendmdm/secure"; //$NON-NLS-1$ //$NON-NLS-2$    
@@ -62,7 +64,7 @@ public class BreadCrumb extends Composite {
         }
     }
 
-    private HTML initBreadCrumb(final String concept, String label, final String ids, String pkInfo, boolean ifLink,
+    private HTML initBreadCrumb(final String concept, final String label, final String ids, String pkInfo, boolean ifLink,
             boolean isFirst) {
         HTML h = null;
         String title;
@@ -71,15 +73,18 @@ public class BreadCrumb extends Composite {
                 title = label + " " + ids; //$NON-NLS-1$
             else
                 title = label;
-        }
-        else
+        } else
             title = ids;
         if (ifLink) {
             h = new HTML("&nbsp;&gt;&nbsp;<a>" + title + "</a><input value=\"" + concept + "\"' type=\"hidden\">");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$             
             h.addClickHandler(new ClickHandler() {
 
                 public void onClick(ClickEvent event) {
-                    ForeignKeyUtil.displayForeignKey(false, concept, ids, itemsDetailPanel);
+                    if (concept != null && concept.trim().length() > 0) {
+                        ForeignKeyUtil.displayForeignKey(false, concept, ids, itemsDetailPanel);
+                    } else {
+                        displayCreatedEntity(label);
+                    }
                     if (pWidget != null) {
                         HTML clickedHtml = (HTML) event.getSource();
                         pWidget.removeNeedless(clickedHtml);
@@ -94,6 +99,24 @@ public class BreadCrumb extends Composite {
         h.getElement().setAttribute("titleText", title); //$NON-NLS-1$
         h.setWordWrap(false);
         return h;
+    }
+
+    private void displayCreatedEntity(String label) {
+        itemsDetailPanel.clearContent();
+        itemsDetailPanel.clearBanner();
+
+        // Init Banner and BreadCrumb
+        List<String> pkInfoList = new ArrayList<String>();
+        pkInfoList.add(label);
+        itemsDetailPanel.initBanner(pkInfoList, null);
+        List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
+        breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
+        breads.add(new BreadCrumbModel("", label, null, null, true)); //$NON-NLS-1$
+        itemsDetailPanel.initBreadCrumb(new BreadCrumb(breads, itemsDetailPanel));
+        // Display UI
+        ItemPanel panel = BrowseRecords.getSession().getCurrentCreatedEntity();
+        if (panel != null)
+            itemsDetailPanel.addTabItem(label, panel, ItemsDetailPanel.SINGLETON, label);
     }
 
     public void adjust() {
