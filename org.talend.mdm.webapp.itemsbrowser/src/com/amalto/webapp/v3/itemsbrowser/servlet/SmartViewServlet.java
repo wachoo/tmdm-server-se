@@ -19,10 +19,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
 
 import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.bean.Configuration.ConfigurationContext;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSExtractThroughTransformerV2;
@@ -40,7 +42,7 @@ public class SmartViewServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         response.setCharacterEncoding("UTF-8");//$NON-NLS-1$ 
         response.setHeader("Cache-Control", "no-cache, must-revalidate");//$NON-NLS-1$ //$NON-NLS-2$
@@ -83,8 +85,20 @@ public class SmartViewServlet extends HttpServlet {
             String dataClusterPK;
             try {
                 Configuration conf = (Configuration) (request.getSession().getAttribute("configuration"));//$NON-NLS-1$
-                if(conf == null)
-                    conf = Configuration.getInstance();
+                if (conf == null)
+                    conf = Configuration.getInstance(new ConfigurationContext() {
+
+                        @Override
+                        public HttpSession getSession() {
+                            return request.getSession();
+                        }
+
+                        @Override
+                        public HttpSession getDefaultConfigurationSession() {
+                            return null;
+                        }
+
+                    });
                 dataClusterPK = conf.getCluster();
             } catch (Exception e) {
                 String err = "Unable to read the configuration";
