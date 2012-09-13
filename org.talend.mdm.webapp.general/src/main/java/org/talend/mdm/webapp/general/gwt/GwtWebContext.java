@@ -35,7 +35,7 @@ public class GwtWebContext {
     }
 
     public HttpSession getSession() {
-        return getSession();
+        return request.getSession();
     }
 
     public HttpSession getSession(boolean create) {
