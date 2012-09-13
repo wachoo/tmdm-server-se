@@ -11,9 +11,19 @@
         <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
     </servlet>
     
+    <servlet>
+        <servlet-name>StagingAreaBrowseService</servlet-name>
+        <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>stagingareaServlet</servlet-name>
         <url-pattern>/stagingarea/StagingAreaService</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>StagingAreaBrowseService</servlet-name>
+        <url-pattern>/stagingareabrowse/StagingAreaBrowseService</url-pattern>
     </servlet-mapping>
 
  <!-- Default page to serve -->
