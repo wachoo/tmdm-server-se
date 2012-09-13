@@ -39,8 +39,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
     private final Map<String, Map<String, TypeMetadata>> nonInstantiableTypes = new TreeMap<String, Map<String, TypeMetadata>>();
 
-    private final Stack<Set<String>> typeMetadataKeyStack = new Stack<Set<String>>();
-
     private final Stack<ComplexTypeMetadata> currentTypeStack = new Stack<ComplexTypeMetadata>();
 
     private String targetNamespace;
@@ -191,7 +189,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                 }
             }
             // Id fields
-            Set<String> idFields = new HashSet<String>();
+            List<String> idFields = new LinkedList<String>();
             XmlSchemaObjectCollection constraints = element.getConstraints();
             Iterator constraintsIterator = constraints.getIterator();
             while (constraintsIterator.hasNext()) {
@@ -208,60 +206,50 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                     throw new IllegalArgumentException("Constraint of type '" + nextConstraint.getClass().getName() + "' not supported.");
                 }
             }
-            typeMetadataKeyStack.push(idFields);
-            {
-                ComplexTypeMetadata type = getComplexType(typeName);
-                if (type == null) { // Take type from repository if already built
-                    XmlSchemaAnnotationProcessorState state;
-                    try {
-                        XmlSchemaAnnotation annotation = element.getAnnotation();
-                        state = new XmlSchemaAnnotationProcessorState();
-                        for (XmlSchemaAnnotationProcessor processor : XML_ANNOTATIONS_PROCESSORS) {
-                            processor.process(this, type, annotation, state);
-                        }
-                    } catch (Exception e) {
-                        throw new RuntimeException("Annotation processing exception while parsing info for type '" + typeName + "'.", e);
+            ComplexTypeMetadata type = getComplexType(typeName);
+            if (type == null) { // Take type from repository if already built
+                XmlSchemaAnnotationProcessorState state;
+                try {
+                    XmlSchemaAnnotation annotation = element.getAnnotation();
+                    state = new XmlSchemaAnnotationProcessorState();
+                    for (XmlSchemaAnnotationProcessor processor : XML_ANNOTATIONS_PROCESSORS) {
+                        processor.process(this, type, annotation, state);
                     }
-
-                    // If write is not allowed for everyone, at least add "administration".
-                    if (state.getAllowWrite().isEmpty()) {
-                        state.getAllowWrite().add(ICoreConstants.ADMIN_PERMISSION);
-                    }
-
-                    type = new ComplexTypeMetadataImpl(targetNamespace,
-                            typeName,
-                            state.getAllowWrite(),
-                            state.getDenyCreate(),
-                            state.getHide(),
-                            state.getDenyPhysicalDelete(),
-                            state.getDenyLogicalDelete(),
-                            state.getSchematron(),
-                            true);
-                    addTypeMetadata(type);
-                }
-                // Walk the fields
-                currentTypeStack.push(type);
-                {
-                    XmlSchemaWalker.walk(element.getSchemaType(), this);
-                }
-                currentTypeStack.pop();
-
-                // Super types
-                QName substitutionGroup = element.getSubstitutionGroup();
-                if (substitutionGroup != null) {
-                    type.addSuperType(new SoftTypeRef(this, substitutionGroup.getNamespaceURI(), substitutionGroup.getLocalPart(), true), this);
+                } catch (Exception e) {
+                    throw new RuntimeException("Annotation processing exception while parsing info for type '" + typeName + "'.", e);
                 }
 
-                // If type's keys are defined in super type (but not defined as key in super type), register as keys
-                // references to super type's fields.
-                Set<String> unresolvedIds = typeMetadataKeyStack.peek();
-                if (!unresolvedIds.isEmpty()) {
-                    for (String unresolvedId : unresolvedIds) {
-                        type.registerKey(new SoftIdFieldRef(this, type.getName(), unresolvedId));
-                    }
+                // If write is not allowed for everyone, at least add "administration".
+                if (state.getAllowWrite().isEmpty()) {
+                    state.getAllowWrite().add(ICoreConstants.ADMIN_PERMISSION);
                 }
+
+                type = new ComplexTypeMetadataImpl(targetNamespace,
+                        typeName,
+                        state.getAllowWrite(),
+                        state.getDenyCreate(),
+                        state.getHide(),
+                        state.getDenyPhysicalDelete(),
+                        state.getDenyLogicalDelete(),
+                        state.getSchematron(),
+                        true);
+                addTypeMetadata(type);
             }
-            typeMetadataKeyStack.pop();
+            // Walk the fields
+            currentTypeStack.push(type);
+            {
+                XmlSchemaWalker.walk(element.getSchemaType(), this);
+            }
+            currentTypeStack.pop();
+            // Super types
+            QName substitutionGroup = element.getSubstitutionGroup();
+            if (substitutionGroup != null) {
+                type.addSuperType(new SoftTypeRef(this, substitutionGroup.getNamespaceURI(), substitutionGroup.getLocalPart(), true), this);
+            }
+            // Register keys (TMDM-4470).
+            for (String unresolvedId : idFields) {
+                type.registerKey(new SoftIdFieldRef(this, type.getName(), unresolvedId));
+            }
         } else { // Non "top level" elements means fields for the MDM entity type being parsed
             FieldMetadata fieldMetadata = createFieldMetadata(element, currentTypeStack.peek());
             currentTypeStack.peek().addField(fieldMetadata);
@@ -283,7 +271,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
             ComplexTypeMetadata nonInstantiableType = new ComplexTypeMetadataImpl(targetNamespace, typeName, false);
             addTypeMetadata(nonInstantiableType);
             currentTypeStack.push(nonInstantiableType);
-            typeMetadataKeyStack.push(Collections.<String>emptySet());
         }
         XmlSchemaParticle contentTypeParticle = type.getParticle();
         if (contentTypeParticle != null && contentTypeParticle instanceof XmlSchemaGroupBase) {
@@ -324,7 +311,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
             }
         }
         if (isNonInstantiableType) {
-            typeMetadataKeyStack.pop();
             currentTypeStack.pop();
         }
     }
@@ -333,7 +319,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
     private FieldMetadata createFieldMetadata(XmlSchemaElement element, ComplexTypeMetadata containingType) {
         String fieldName = element.getName();
         boolean isMany = element.getMaxOccurs() > 1;
-        boolean isKey = typeMetadataKeyStack.peek().remove(fieldName);
+        // boolean isKey = typeMetadataKeyStack.peek().remove(fieldName);
         XmlSchemaAnnotationProcessorState state;
         try {
             XmlSchemaAnnotation annotation = element.getAnnotation();
@@ -381,12 +367,12 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                         }
                     }
                     if (isEnumeration) {
-                        return new EnumerationFieldMetadata(containingType, isKey, isMany, isMandatory, fieldName, fieldType, allowWriteUsers, hideUsers);
+                        return new EnumerationFieldMetadata(containingType, false, isMany, isMandatory, fieldName, fieldType, allowWriteUsers, hideUsers);
                     } else {
-                        return new SimpleTypeFieldMetadata(containingType, isKey, isMany, isMandatory, fieldName, fieldType, allowWriteUsers, hideUsers);
+                        return new SimpleTypeFieldMetadata(containingType, false, isMany, isMandatory, fieldName, fieldType, allowWriteUsers, hideUsers);
                     }
                 } else {
-                    return new SimpleTypeFieldMetadata(containingType, isKey, isMany, isMandatory, fieldName, fieldType, allowWriteUsers, hideUsers);
+                    return new SimpleTypeFieldMetadata(containingType, false, isMany, isMandatory, fieldName, fieldType, allowWriteUsers, hideUsers);
                 }
             }
         }
@@ -417,11 +403,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                     fieldType = referencedType;
                     isContained = true;
                     currentTypeStack.push((ComplexTypeMetadata) referencedType);
-                    typeMetadataKeyStack.push(Collections.<String>emptySet());
-                    {
-                        XmlSchemaWalker.walk(schemaType, this);
-                    }
-                    typeMetadataKeyStack.pop();
+                    XmlSchemaWalker.walk(schemaType, this);
                     currentTypeStack.pop();
                 } else if (refName != null) {
                     // Reference being an element, consider references as references to entity type.
@@ -434,11 +416,11 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
             }
         }
         if (isReference) {
-            return new ReferenceFieldMetadata(containingType, isKey, isMany, isMandatory, fieldName, (ComplexTypeMetadata) referencedType, referencedField, foreignKeyInfo, fkIntegrity, fkIntegrityOverride, allowWriteUsers, hideUsers);
+            return new ReferenceFieldMetadata(containingType, false, isMany, isMandatory, fieldName, (ComplexTypeMetadata) referencedType, referencedField, foreignKeyInfo, fkIntegrity, fkIntegrityOverride, allowWriteUsers, hideUsers);
         } else if (isContained) {
             return new ContainedTypeFieldMetadata(containingType, isMany, isMandatory, fieldName, (ContainedComplexTypeMetadata) referencedType, allowWriteUsers, hideUsers);
         } else {
-            return new SimpleTypeFieldMetadata(containingType, isKey, isMany, isMandatory, fieldName, fieldType, allowWriteUsers, hideUsers);
+            return new SimpleTypeFieldMetadata(containingType, false, isMany, isMandatory, fieldName, fieldType, allowWriteUsers, hideUsers);
         }
     }
 

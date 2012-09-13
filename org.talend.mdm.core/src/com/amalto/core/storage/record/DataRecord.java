@@ -97,7 +97,8 @@ public class DataRecord {
         DataRecord current = this;
         Object currentValue = null;
         while (tokenizer.hasMoreTokens()) {
-            currentValue = current.get(current.getType().getField(tokenizer.nextToken()));
+            String currentPathElement = tokenizer.nextToken();
+            currentValue = current.get(current.getType().getField(currentPathElement));
             if (tokenizer.hasMoreTokens()) {
                 if (currentValue == null) {
                     // Means record does not own field last call to "tokenizer.nextToken()" returned.

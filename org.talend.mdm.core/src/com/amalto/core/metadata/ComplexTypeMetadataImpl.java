@@ -347,19 +347,9 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
                 throw new RuntimeException("Could not process field '" + value.getName() + "' in type '" + getName() + "'", e);
             }
         }
-        TypeMetadata keyDeclaringType = null;
-        for (FieldMetadata keyField : keyFields.values()) {
-            if (keyDeclaringType == null) {
-                keyDeclaringType = keyField.getDeclaringType();
-            } else {
-                if (keyDeclaringType != keyField.getDeclaringType()) {
-
-                } else {
-                    keyDeclaringType = keyField.getDeclaringType();
-                }
-            }
+        for (Map.Entry<String, FieldMetadata> keyField : keyFields.entrySet()) {
+            keyField.setValue(keyField.getValue().freeze());
         }
-
         isFrozen = true;
         return this;
     }

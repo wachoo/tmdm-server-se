@@ -148,4 +148,23 @@ public class MetadataRepositoryTest extends TestCase {
         assertNotNull(company);
         assertEquals(1, company.getKeyFields().size());
     }
+
+    public void test16() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema16.xsd");
+        repository.load(stream);
+
+        ComplexTypeMetadata person = repository.getComplexType("Person");
+        assertNotNull(person);
+        assertEquals(2, person.getKeyFields().size());
+        /*
+        <xsd:field xpath="lastname"/>
+                    <xsd:field xpath="firstname"/>
+         */
+        String[] expectedOrder = {"lastname", "firstname"};
+        int i = 0;
+        for (FieldMetadata keyField : person.getKeyFields()) {
+            assertEquals(expectedOrder[i++], keyField.getName());
+        }
+    }
 }
