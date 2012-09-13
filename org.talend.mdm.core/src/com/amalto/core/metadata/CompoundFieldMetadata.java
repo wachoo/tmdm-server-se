@@ -25,10 +25,6 @@ public class CompoundFieldMetadata implements FieldMetadata {
         this.fields = fields;
     }
 
-    public FieldMetadata[] getFields() {
-        return fields;
-    }
-
     public String getName() {
         throw new UnsupportedOperationException();
     }

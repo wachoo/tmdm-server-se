@@ -31,11 +31,11 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
 
     private final String name;
 
+    private final TypeMetadata declaringType;
+
     private FieldMetadata referencedField;
 
     private FieldMetadata foreignKeyInfo;
-
-    private TypeMetadata declaringType;
 
     private ComplexTypeMetadata referencedType;
 

@@ -56,10 +56,6 @@ public class SimpleTypeMetadata implements TypeMetadata {
         return nameSpace;
     }
 
-    public boolean isAbstract() {
-        return true;
-    }
-
     public boolean isAssignableFrom(TypeMetadata type) {
         // Don't support inheritance with simple types.
         return false;

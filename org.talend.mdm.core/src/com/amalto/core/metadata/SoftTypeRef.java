@@ -100,10 +100,6 @@ public class SoftTypeRef implements ComplexTypeMetadata {
         return namespace;
     }
 
-    public boolean isAbstract() {
-        return getType().isAbstract();
-    }
-
     public FieldMetadata getField(String fieldName) {
         return getTypeAsComplex().getField(fieldName);
     }

@@ -15,6 +15,7 @@ import com.amalto.core.metadata.xsd.XmlSchemaVisitor;
 import com.amalto.core.metadata.xsd.XmlSchemaWalker;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.ws.commons.schema.*;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 
@@ -29,7 +30,9 @@ import java.util.*;
  */
 public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
-    public static final String ANONYMOUS_PREFIX = "X_ANONYMOUS";
+    private static final String ANONYMOUS_PREFIX = "X_ANONYMOUS";
+
+    private static final Logger LOGGER = Logger.getLogger(MetadataRepository.class);
 
     private final static List<XmlSchemaAnnotationProcessor> XML_ANNOTATIONS_PROCESSORS = Arrays.asList(new ForeignKeyProcessor(), new UserAccessProcessor(), new SchematronProcessor());
 
@@ -98,6 +101,27 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
         return allTypes;
     }
 
+    public TypeMetadata getNonInstantiableType(String namespace, String typeName) {
+        Map<String, TypeMetadata> map = nonInstantiableTypes.get(namespace);
+        if (map != null) {
+            return map.get(typeName);
+        }
+        return null;
+    }
+
+    public List<ComplexTypeMetadata> getNonInstantiableTypes() {
+        Map<String, TypeMetadata> map = nonInstantiableTypes.get(USER_NAMESPACE);
+        List<ComplexTypeMetadata> nonInstantiableTypes = new LinkedList<ComplexTypeMetadata>();
+        if (map != null) {
+            for (TypeMetadata typeMetadata : map.values()) {
+                if (typeMetadata instanceof ComplexTypeMetadata) {
+                    nonInstantiableTypes.add((ComplexTypeMetadata) typeMetadata);
+                }
+            }
+        }
+        return nonInstantiableTypes;
+    }
+
     public void load(InputStream inputStream) {
         if (inputStream == null) {
             throw new IllegalArgumentException("Input stream can not be null.");
@@ -121,7 +145,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Could not parse data model.", e); //$NON-NLS-1$
         }
-        // "Freeze" all types (a consequence of this will be validation of all reference fields).
+        // "Freeze" all types (a consequence of this will be validation of all fields).
         for (TypeMetadata type : getTypes()) {
             type.freeze();
         }
@@ -138,6 +162,13 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
         targetNamespace = xmlSchema.getTargetNamespace() == null ? USER_NAMESPACE : xmlSchema.getTargetNamespace();
         XmlSchemaWalker.walk(xmlSchema, this);
         if (!currentTypeStack.isEmpty()) {
+            if (LOGGER.isDebugEnabled()) {
+                StringBuilder builder = new StringBuilder();
+                for (ComplexTypeMetadata unprocessedType : currentTypeStack) {
+                    builder.append(unprocessedType.getName()).append(" "); //$NON-NLS-1$
+                }
+                LOGGER.debug("Unprocessed types: " + builder);
+            }
             // At the end of data model parsing, we expect all entity types to be processed.
             throw new IllegalStateException(currentTypeStack.size() + " types have not been correctly parsed.");
         }
@@ -445,26 +476,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
     public void close() {
         entityTypes.clear();
-    }
-
-    public TypeMetadata getNonInstantiableType(String namespace, String typeName) {
-        Map<String, TypeMetadata> map = nonInstantiableTypes.get(namespace);
-        if (map != null) {
-            return map.get(typeName);
-        }
-        return null;
-    }
-
-    public List<ComplexTypeMetadata> getNonInstantiableTypes() {
-        Map<String, TypeMetadata> map = nonInstantiableTypes.get(USER_NAMESPACE);
-        List<ComplexTypeMetadata> nonInstantiableTypes = new LinkedList<ComplexTypeMetadata>();
-        if (map != null) {
-            for (TypeMetadata typeMetadata : map.values()) {
-                if (typeMetadata instanceof ComplexTypeMetadata) {
-                    nonInstantiableTypes.add((ComplexTypeMetadata) typeMetadata);
-                }
-            }
-        }
-        return nonInstantiableTypes;
+        nonInstantiableTypes.clear();
     }
 }

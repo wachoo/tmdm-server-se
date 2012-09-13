@@ -55,11 +55,6 @@ public interface TypeMetadata extends MetadataVisitable {
     String getNamespace();
 
     /**
-     * @return <code>true</code> if type is defined as "abstract" in the data model (XML Schema abstract).
-     */
-    boolean isAbstract();
-
-    /**
      * @param type A type.
      * @return Returns <code>true</code> if <u>this</u> type can be safely casted to <code>type</code>. This returns <code>true</code>
      *         if <u>this</u> type is a sub type of <code>type</code>.

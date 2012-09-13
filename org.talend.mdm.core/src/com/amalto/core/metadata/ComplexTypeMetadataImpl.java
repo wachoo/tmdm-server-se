@@ -95,10 +95,6 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         return nameSpace;
     }
 
-    public boolean isAbstract() {
-        return true;
-    }
-
     public FieldMetadata getField(String fieldName) {
         if (fieldName == null || fieldName.isEmpty()) {
             throw new IllegalArgumentException("Field name can not be null nor empty.");
