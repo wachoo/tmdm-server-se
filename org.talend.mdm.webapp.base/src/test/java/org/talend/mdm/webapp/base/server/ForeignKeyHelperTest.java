@@ -141,7 +141,7 @@ public class ForeignKeyHelperTest extends TestCase {
         assertEquals(WSWhereOperator._CONTAINS, condition2.getOperator().getValue());
         assertEquals("Hats", condition2.getRightValueOrPath()); //$NON-NLS-1$
 
-        // 5. ifFKFilter = true,fkFilter = Product/Family$$<$$Product/Family$$#,foreignKeyInfo is null,value is null,
+        // 5. ifFKFilter = true,fkFilter = Product/Family$$<$$.$$#,foreignKeyInfo is null,value is null,
         value = "";
         ifFKFilter = true;
         model.setFkFilter("ProductFamily/Id$$<$$.$$#");
@@ -238,6 +238,19 @@ public class ForeignKeyHelperTest extends TestCase {
         assertEquals("CategoryOrga/TypeOrgaFK", condition1.getLeftPath()); //$NON-NLS-1$
         assertEquals(WSWhereOperator._EQUALS, condition1.getOperator().getValue());
         assertEquals("1", condition1.getRightValueOrPath()); //$NON-NLS-1$
+
+        // 9. ifFKFilter = true,fkFilter = Product/Family$$=$$"[3]"$$#,foreignKeyInfo is null,value is null,
+        value = "";
+        ifFKFilter = true;
+        model.setFkFilter("ProductFamily/Id$$=$$\"[3]\"$$#");
+        xml = "<Product><id>1</id><Name>Shirts</Name><Family>[3]</Family></Product>";
+        foreignKeyInfos.clear();
+        result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model, ifFKFilter, value);
+        whereItem = result.whereItem;
+        condition1 = whereItem.getWhereAnd().getWhereItems()[0].getWhereCondition();
+        assertEquals("ProductFamily/Id", condition1.getLeftPath()); //$NON-NLS-1$
+        assertEquals(WSWhereOperator._EQUALS, condition1.getOperator().getValue());
+        assertEquals("3", condition1.getRightValueOrPath()); //$NON-NLS-1$
 
     }
     
