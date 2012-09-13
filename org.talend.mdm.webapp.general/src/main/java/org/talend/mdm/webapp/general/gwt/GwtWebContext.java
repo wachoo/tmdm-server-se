@@ -35,7 +35,10 @@ public class GwtWebContext {
     }
 
     public HttpSession getSession() {
-        return request.getSession();
+        HttpSession session = request.getSession(false);
+        if (session == null)
+            session = request.getSession(true);
+        return session;
     }
 
     public HttpSession getSession(boolean create) {
@@ -58,8 +61,11 @@ public class GwtWebContext {
         ServletContext context = this.servlet.getServletContext();
         if (context != null) {
             ServletContext generalAppContext = context.getContext(GENERALCONTEXT);
-            if (generalAppContext != null)
+            if (generalAppContext != null) {
+                if (getSession() == null || getSession().getId() == null)
+                    return null;
                 return (HttpSession) generalAppContext.getAttribute(GENERALCONTEXT + getSession().getId());
+            }
         }
         return null;
     }
