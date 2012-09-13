@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-import org.dom4j.Node;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
@@ -434,20 +433,42 @@ public class ForeignKeyHelper {
 
     private static String parseRightValueOrPath(String xml, String dataObject, String rightValueOrPath, String currentXpath)
             throws Exception {
-        org.dom4j.Document doc = XmlUtil.parseDocument(Util.parse(xml));
-        Node node = doc.selectSingleNode(currentXpath);
-        if (node != null) {
-            Node nodeValue;
-            if (!rightValueOrPath.startsWith(".") && !rightValueOrPath.startsWith("..")) { //$NON-NLS-1$//$NON-NLS-2$
-                String xpath = rightValueOrPath.startsWith("/") ? rightValueOrPath : "/" + rightValueOrPath; //$NON-NLS-1$//$NON-NLS-2$
-                nodeValue = node.selectSingleNode(xpath);
-            } else {
-                nodeValue = node.selectSingleNode(rightValueOrPath);
-            }
-            if (nodeValue != null) {
-                rightValueOrPath = nodeValue.getText();
+        if (rightValueOrPath == null || currentXpath == null)
+            throw new IllegalArgumentException();
+
+        boolean isValue = false;
+        boolean isRelativePath = false;
+
+        rightValueOrPath = rightValueOrPath.trim();// space(s) ignore
+
+        // switch cases
+        if (rightValueOrPath.startsWith("\"") && rightValueOrPath.endsWith("\"") || //$NON-NLS-1$//$NON-NLS-2$
+                rightValueOrPath.startsWith("'") && rightValueOrPath.endsWith("'")) //$NON-NLS-1$//$NON-NLS-2$
+            isValue = true;
+        else if (rightValueOrPath.startsWith(".") || rightValueOrPath.startsWith(".."))//$NON-NLS-1$//$NON-NLS-2$
+            isRelativePath = true;
+
+        // cases handle
+        String result = rightValueOrPath;// by default result equals input value/path
+        if (isValue) {
+            result = rightValueOrPath.substring(1, rightValueOrPath.length() - 1);
+        } else {
+            if (xml != null) {
+                // get context for expression
+                org.dom4j.Document doc = XmlUtil.parseDocument(Util.parse(xml));
+                org.dom4j.Node currentNode = doc.selectSingleNode(currentXpath);
+                org.dom4j.Node targetNode = null;
+                if (isRelativePath) {
+                    targetNode = currentNode.selectSingleNode(rightValueOrPath);
+                } else {
+                    String xpath = rightValueOrPath.startsWith("/") ? rightValueOrPath : "/" + rightValueOrPath; //$NON-NLS-1$//$NON-NLS-2$
+                    targetNode = currentNode.selectSingleNode(xpath);
+                }
+                if (targetNode != null && targetNode.getText() != null)
+                    result = targetNode.getText();
             }
         }
-        return rightValueOrPath;
+
+        return result;
     }
 }
