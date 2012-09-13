@@ -24,7 +24,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     protected final Stack<String> path = new Stack<String>();
 
-    protected final List<Action> actions = new LinkedList<Action>();
+    protected final LinkedList<Action> actions = new LinkedList<Action>();
 
     protected final Date date;
 
@@ -147,7 +147,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             // Proceed in "reverse" order (highest index to lowest) so there won't be issues when deleting elements in
             // a sequence (if element #2 is deleted before element #3, element #3 becomes #2...).
             int max = Math.max(leftAccessor.size(), rightAccessor.size());
-            for (int i = max; i > 0; i--) {
+            for (int i = 1; i <= max; i++) {
                 // XPath indexes are 1-based (not 0-based).
                 path.add(field.getName() + '[' + i + ']');
                 closure.execute(field);
@@ -179,11 +179,9 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             if (!newAccessor.exist()) {
                 // No op
             } else { // new accessor exist
-                generateNoOp(lastMatchPath);
-                if (newAccessor.get() != null && !newAccessor.get().isEmpty()) { // Empty accessor means no op to ensure
-                    // legacy behavior
-                    actions.add(new FieldUpdateAction(date, source, userName, path, StringUtils.EMPTY, newAccessor.get(),
-                            comparedField));
+                if (newAccessor.get() != null && !newAccessor.get().isEmpty()) { // Empty accessor means no op to ensure legacy behavior
+                    generateNoOp(lastMatchPath);
+                    actions.add(new FieldUpdateAction(date, source, userName, path, StringUtils.EMPTY, newAccessor.get(), comparedField));
                     generateNoOp(path);
                 } else {
                     // No op.
@@ -287,8 +285,11 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 }
             }
 
+            Action before = actions.getLast();
             type.accept(UpdateActionCreator.this);
-            if (leftAccessor.exist() || rightAccessor.exist()) {
+            // Way to detect if there is a change in elements below: check if last action in list changed.
+            boolean hasActions = actions.getLast() != before;
+            if (leftAccessor.exist() || (rightAccessor.exist() && hasActions)) {
                 lastMatchPath = getLeftPath();
             }
         }
