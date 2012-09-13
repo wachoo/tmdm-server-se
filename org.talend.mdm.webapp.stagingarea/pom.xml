@@ -93,9 +93,18 @@
     <artifactId>gwt-maven-plugin</artifactId>
     <executions>
      <execution>
-      <id>gwt-compile</id>
+      <id>gwt-compile-stagingarea</id>
       <configuration>
-       <module>org.talend.mdm.webapp.stagingarea.Stagingarea</module>
+       <module>org.talend.mdm.webapp.stagingareacontrol.StagingareaControl</module>
+      </configuration>
+      <goals>
+       <goal>compile</goal>
+      </goals>
+     </execution>
+     <execution>
+      <id>gwt-compile-stagingarea-browse</id>
+      <configuration>
+       <module>org.talend.mdm.webapp.stagingareabrowser.StagingareaBrowse</module>
       </configuration>
       <goals>
        <goal>compile</goal>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to="stagingareabrowse">
+	<inherits name="org.talend.mdm.webapp.base.BASE" />
+	<entry-point class="org.talend.mdm.webapp.stagingareabrowser.client.StagingareaBrowse"/>
+	<source path="client"/>
+</module>

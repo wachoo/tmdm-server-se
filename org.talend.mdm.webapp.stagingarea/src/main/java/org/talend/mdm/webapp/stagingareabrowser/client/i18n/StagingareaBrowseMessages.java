@@ -1,0 +1,50 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+package org.talend.mdm.webapp.stagingareabrowser.client.i18n;
+
+import com.google.gwt.i18n.client.Messages;
+
+public interface StagingareaBrowseMessages extends Messages {
+
+    public String staging_browser();
+
+    public String entity();
+
+    public String key();
+
+    public String date_time();
+
+    public String source();
+
+    public String group();
+
+    public String status();
+
+    public String status_code();
+
+    public String error();
+
+    public String start_date();
+
+    public String end_date();
+
+    public String stage();
+
+    public String all_records();
+
+    public String invalid_records();
+
+    public String valid_records();
+
+    public String search();
+}
