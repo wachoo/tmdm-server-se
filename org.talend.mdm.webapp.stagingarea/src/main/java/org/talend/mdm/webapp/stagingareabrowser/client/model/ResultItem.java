@@ -78,12 +78,12 @@ public class ResultItem extends BaseModel implements IsSerializable, Serializabl
     }
 
     
-    public String getStatus() {
+    public Integer getStatus() {
         return get("status"); //$NON-NLS-1$
     }
 
     
-    public void setStatus(String status) {
+    public void setStatus(Integer status) {
         set("status", status); //$NON-NLS-1$
     }
 

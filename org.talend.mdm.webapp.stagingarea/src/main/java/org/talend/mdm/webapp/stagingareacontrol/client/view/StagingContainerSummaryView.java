@@ -170,24 +170,22 @@ public class StagingContainerSummaryView extends AbstractView {
             Element invalidEl = detailPanel.getElementById(STAGING_AREA_INVALID);
             invalidEl.setInnerHTML(messages.invalid_desc("<b>" + invalid + "</b>") + " <b><span id=\"open_invalid_record\" style=\"color:red; text-decoration:underline; cursor:pointer;\">" + messages.open_invalid_record() + "</span><b>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             Element open_invalid_record = detailPanel.getElementById("open_invalid_record"); //$NON-NLS-1$
-            addClickForOpenInvalidRecord(ucx.getDataContainer(), ucx.getDataModel(), open_invalid_record);
+            addClickForOpenInvalidRecord(2, open_invalid_record);
 
             Element validEl = detailPanel.getElementById(STAGING_AREA_VALID);
             validEl.setInnerHTML(messages.valid_desc("<b>" + valid + "</b>")); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 
-    private native void addClickForOpenInvalidRecord(String container, String dataModel, Element el)/*-{
+    private native void addClickForOpenInvalidRecord(Integer state, Element el)/*-{
         var instance = this;
         el.onclick = function(){
-        instance.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::onOpenInvalidRecord()();
+            instance.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::onOpenInvalidRecord1(Ljava/lang/Integer;)(state);
         };
     }-*/;
 
-    void onOpenInvalidRecord() {
-        ControllerContainer.get().getSummaryController().openInvalidRecordToBrowseRecord(messages.stagingarea_title() + "->", //$NON-NLS-1$
-                ucx.getDataContainer(),
-                ucx.getDataModel());
+    void onOpenInvalidRecord1(Integer state) {
+        ControllerContainer.get().getSummaryController().openInvalidRecordToBrowseRecord(state);
     }
 
     public void refresh(StagingContainerModel stagingContainerModel) {

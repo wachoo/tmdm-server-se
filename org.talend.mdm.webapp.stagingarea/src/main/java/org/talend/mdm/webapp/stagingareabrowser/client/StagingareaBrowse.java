@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareabrowser.client;
 
+import org.talend.mdm.webapp.base.client.util.UserContextUtil;
+import org.talend.mdm.webapp.stagingareabrowser.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingareabrowser.client.view.StagingareaBrowseView;
 
 import com.extjs.gxt.ui.client.core.XDOM;
@@ -32,8 +34,13 @@ public class StagingareaBrowse implements EntryPoint {
             XDOM.setAutoIdPrefix(GWT.getModuleName() + "-" + XDOM.getAutoIdPrefix()); //$NON-NLS-1$
             registerPubService();
         } else {
+            UserContextUtil.setDataContainer("TestDataContainer"); //$NON-NLS-1$
+            UserContextUtil.setDataModel("TestDataModel"); //$NON-NLS-1$
+            UserContextUtil.setDateTimeFormat("yyyy/MM/dd HH:mm:ss"); //$NON-NLS-1$
+
             StagingareaBrowseView view = new StagingareaBrowseView();
             RootPanel.get().add(view);
+            ControllerContainer.get().getSearchController().defaultDoSearch(1);
         }
     }
 
@@ -41,12 +48,12 @@ public class StagingareaBrowse implements EntryPoint {
         var instance = this;
         $wnd.amalto.stagingareabrowse = {};
         $wnd.amalto.stagingareabrowse.StagingareaBrowse = function() {
-            function initUI() {
-                instance.@org.talend.mdm.webapp.stagingareabrowser.client.StagingareaBrowse::initUI()();
+            function initUI(state) {
+                instance.@org.talend.mdm.webapp.stagingareabrowser.client.StagingareaBrowse::initUI(Ljava/lang/Integer;)(state);
             }
             return {
-                init : function() {
-                    initUI();
+                init : function(state) {
+                    initUI(state);
                 }
             }
         }();
@@ -61,6 +68,7 @@ public class StagingareaBrowse implements EntryPoint {
             tabPanel.add(panel);
         }
         tabPanel.setSelection(panel.getItemId());
+        panel.doLayout();
     }-*/;
 
     native JavaScriptObject createPanel()/*-{
@@ -96,8 +104,9 @@ public class StagingareaBrowse implements EntryPoint {
         return panel;
     }-*/;
 
-    public void initUI() {
+    public void initUI(Integer defaultState) {
         _initUI(STAGINGAREA_BROWSE_ID);
+        ControllerContainer.get().getSearchController().defaultDoSearch(defaultState);
     }
 
     public void renderContent(final String contentId) {

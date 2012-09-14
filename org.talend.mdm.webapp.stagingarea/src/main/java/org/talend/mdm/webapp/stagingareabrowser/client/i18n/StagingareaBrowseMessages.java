@@ -47,4 +47,20 @@ public interface StagingareaBrowseMessages extends Messages {
     public String valid_records();
 
     public String search();
+
+    public String status_000();
+
+    public String status_201(String dataCluser);
+
+    public String status_202(String dataCluser);
+
+    public String status_203();
+
+    public String status_401(String dataCluser);
+
+    public String status_402(String dataCluser);
+
+    public String status_403();
+
+    public String status_404();
 }

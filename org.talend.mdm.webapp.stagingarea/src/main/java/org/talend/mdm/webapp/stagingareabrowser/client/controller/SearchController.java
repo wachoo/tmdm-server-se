@@ -37,7 +37,7 @@ public class SearchController extends AbstractController {
     private static ListStore<BaseModel> store;
 
     private SearchView view;
-
+    
     public SearchController(SearchView view) {
         setBindingView(view);
         this.view = (SearchView) bindingView;
@@ -66,5 +66,12 @@ public class SearchController extends AbstractController {
 
     public static ListStore<BaseModel> getStore() {
         return store;
+    }
+
+    public void defaultDoSearch(Integer defaultState) {
+        if (defaultState != null) {
+            view.defaultDoSearch(defaultState);
+            defaultState = null;
+        }
     }
 }

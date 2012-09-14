@@ -18,6 +18,7 @@ import org.talend.mdm.webapp.stagingareabrowser.client.model.SearchModel;
 
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -83,6 +84,8 @@ public class SearchView extends AbstractView {
 
         stateCombo = new ComboBox<BaseModel>();
         stateCombo.setFieldLabel(messages.state());
+        stateCombo.setEditable(false);
+        stateCombo.setTriggerAction(TriggerAction.ALL);
         ListStore<BaseModel> stateStore = new ListStore<BaseModel>();
         BaseModel state1 = new BaseModel();
         state1.set("name", messages.all_records()); //$NON-NLS-1$
@@ -160,5 +163,13 @@ public class SearchView extends AbstractView {
                 ControllerContainer.get().getResultsController().searchResult(searchModel);
             }
         });
+    }
+
+    public void defaultDoSearch(int defaultState) {
+        BaseModel stateModel = stateCombo.getStore().findModel("value", defaultState); //$NON-NLS-1$
+        if (stateModel != null) {
+            stateCombo.setValue(stateModel);
+        }
+        searchButton.fireEvent(Events.Select);
     }
 }
