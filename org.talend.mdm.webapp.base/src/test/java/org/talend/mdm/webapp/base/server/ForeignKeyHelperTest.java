@@ -252,6 +252,17 @@ public class ForeignKeyHelperTest extends TestCase {
         assertEquals(WSWhereOperator._EQUALS, condition1.getOperator().getValue());
         assertEquals("3", condition1.getRightValueOrPath()); //$NON-NLS-1$
 
+        // 10. ifFKFilter = true,fkFilter = $CFFP:Id="[3]" and Name=Product/Name,foreignKeyInfo is null,value is null,
+        ifFKFilter = true;
+        model.setFkFilter("$CFFP:Id=\"[3]\" and Name=Product/Name");
+        xml = "<Product><id>1</id><Name>Shirts</Name><Family>[3]</Family></Product>";
+        dataCluster = "Product";
+        currentXpath = "Product/Family";
+        foreignKeyInfos.clear();
+        result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model, ifFKFilter, "");
+        assertNull(result.whereItem);
+        assertEquals("$CFFP:Id=\"[3]\" and Name=\"Shirts\"", result.fkFilter);
+
     }
     
     private String inputStream2String(InputStream is) {
