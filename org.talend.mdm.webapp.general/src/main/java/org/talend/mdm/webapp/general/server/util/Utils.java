@@ -169,6 +169,10 @@ public class Utils {
                     if (!imports.contains(tmp))
                         imports.add(tmp);
                 }
+                if (subMenu.getContext().equals("stagingarea")) { //$NON-NLS-1$
+                    String tmp = "<script type=\"text/javascript\" src=\"/stagingarea/stagingareabrowse/stagingareabrowse.nocache.js\"></script>"; //$NON-NLS-1$
+                    imports.add(tmp);
+                }
                 i++;
             }
             if (subMenu.getSubMenus().size() > 0)
