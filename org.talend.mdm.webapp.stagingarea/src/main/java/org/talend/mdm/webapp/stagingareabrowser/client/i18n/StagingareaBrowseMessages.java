@@ -38,7 +38,7 @@ public interface StagingareaBrowseMessages extends Messages {
 
     public String end_date();
 
-    public String stage();
+    public String state();
 
     public String all_records();
 

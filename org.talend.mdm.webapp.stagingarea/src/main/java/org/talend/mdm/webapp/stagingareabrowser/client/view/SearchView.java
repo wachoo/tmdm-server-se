@@ -23,14 +23,13 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
-
 
 public class SearchView extends AbstractView {
 
@@ -53,7 +52,7 @@ public class SearchView extends AbstractView {
     private DateField startDate;
 
     private DateField endDate;
-    
+
     private ComboBox<BaseModel> stateCombo;
 
     private TextField<String> statusCodeField;
@@ -73,7 +72,6 @@ public class SearchView extends AbstractView {
         entityCombo.setValueField("value");//$NON-NLS-1$
         entityCombo.setForceSelection(true);
 
-
         sourceField = new TextField<String>();
         sourceField.setFieldLabel(messages.source());
         keyField = new TextField<String>();
@@ -84,20 +82,20 @@ public class SearchView extends AbstractView {
         endDate.setFieldLabel(messages.end_date());
 
         stateCombo = new ComboBox<BaseModel>();
-        stateCombo.setFieldLabel(messages.stage());
+        stateCombo.setFieldLabel(messages.state());
         ListStore<BaseModel> stateStore = new ListStore<BaseModel>();
         BaseModel state1 = new BaseModel();
         state1.set("name", messages.all_records()); //$NON-NLS-1$
         state1.set("value", ALL_RECORDS); //$NON-NLS-1$
-        
+
         BaseModel state2 = new BaseModel();
         state2.set("name", messages.invalid_records()); //$NON-NLS-1$
         state2.set("value", INVALID_RECORDS); //$NON-NLS-1$
-        
+
         BaseModel state3 = new BaseModel();
         state3.set("name", messages.valid_records()); //$NON-NLS-1$
         state3.set("value", VALID_RECORDS); //$NON-NLS-1$
-        
+
         stateStore.add(state1);
         stateStore.add(state2);
         stateStore.add(state3);
@@ -144,6 +142,7 @@ public class SearchView extends AbstractView {
     @Override
     protected void registerEvent() {
         searchButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
             @Override
             public void componentSelected(ButtonEvent ce) {
                 SearchModel searchModel = new SearchModel();
