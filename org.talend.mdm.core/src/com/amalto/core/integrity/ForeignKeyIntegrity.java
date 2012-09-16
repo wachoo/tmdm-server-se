@@ -11,27 +11,17 @@
 
 package com.amalto.core.integrity;
 
+import com.amalto.core.metadata.*;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
-
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.ContainedTypeFieldMetadata;
-import com.amalto.core.metadata.DefaultMetadataVisitor;
-import com.amalto.core.metadata.EnumerationFieldMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.metadata.MetadataVisitor;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
-import com.amalto.core.metadata.SimpleTypeFieldMetadata;
-import com.amalto.core.metadata.SimpleTypeMetadata;
-import com.amalto.core.metadata.TypeMetadata;
 
 /**
  * Returns the field that references the concept <code>typeName</code>. References are returned as a {@link Set} of
  * {@link com.amalto.core.metadata.ReferenceFieldMetadata}.
  */
-class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFieldMetadata>> {
+public class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFieldMetadata>> {
 
     /**
      * 

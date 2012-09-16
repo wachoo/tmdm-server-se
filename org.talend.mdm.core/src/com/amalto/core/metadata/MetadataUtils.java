@@ -11,6 +11,7 @@
 
 package com.amalto.core.metadata;
 
+import com.amalto.core.integrity.ForeignKeyIntegrity;
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
@@ -27,6 +28,62 @@ import java.util.*;
 public class MetadataUtils {
 
     private MetadataUtils() {
+    }
+
+    private static final double ENTITY_RANK_ADJUST = 0.9;
+
+    /**
+     * <p>
+     * Computes "entity rank": entity rank score is based on a modified version of Google's Page Rank algorithm (it's
+     * the inverse operation of Page Rank).
+     * </p>
+     * <p>
+     * Entity rank is computed with this algorithm:
+     * ER(E) = N + d (ER(E1)/C(E1) + ... + ER(En)/C(En))
+     * where:
+     * <ul>
+     * <li>ER(E) is the entity rank of E.</li>
+     * <li>N the number of entities in <code>repository</code></li>
+     * <li>d an adjustement factor (between 0 and 1)</li>
+     * <li>ER(Ei) is the entity rank for entity Ei that E references via a reference field</li>
+     * <li>C(Ei) the number of entities in <code>repository</code> that reference Ei in the repository.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Code is expected to run in linear time (O(n+p) where n is the number of entities and p the number of references).
+     * Used memory is O(n^2) (due to a dependency ordering).
+     * </p>
+     * @param repository A {@link MetadataRepository} instance that contains entity types.
+     * @return A {@link Map} that maps a entity to its entity rank value.
+     */
+    public static Map<ComplexTypeMetadata, Long> computeEntityRank(MetadataRepository repository) {
+        List<ComplexTypeMetadata> sortedTypes = sortTypes(repository);
+        int totalNumber = sortedTypes.size();
+
+        Map<ComplexTypeMetadata, Long> entityRank = new HashMap<ComplexTypeMetadata, Long>();
+        for (ComplexTypeMetadata currentType : sortedTypes) {
+            if (currentType.isInstantiable()) {
+                double rank = totalNumber;
+                for (FieldMetadata currentField : currentType.getFields()) {
+                    if (currentField instanceof ReferenceFieldMetadata) {
+                        ComplexTypeMetadata referencedType = ((ReferenceFieldMetadata) currentField).getReferencedType();
+                        if (referencedType != currentType) {
+                            Long referencedEntityRank = entityRank.get(referencedType);
+                            if (referencedEntityRank != null) {
+                                double inboundReferencesCount = getInboundReferencesCount(repository, referencedType);
+                                rank += ENTITY_RANK_ADJUST * (referencedEntityRank / inboundReferencesCount);
+                            }
+                        }
+                    }
+                }
+                entityRank.put(currentType, Math.round(rank));
+            }
+        }
+        return entityRank;
+    }
+
+    private static double getInboundReferencesCount(MetadataRepository repository, ComplexTypeMetadata referencedType) {
+        return repository.accept(new ForeignKeyIntegrity(referencedType)).size();
     }
 
     /**
