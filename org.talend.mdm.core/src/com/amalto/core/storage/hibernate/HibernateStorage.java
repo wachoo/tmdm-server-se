@@ -29,6 +29,7 @@ import net.sf.ehcache.CacheManager;
 import org.apache.log4j.Logger;
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.search.MassIndexer;
 import org.hibernate.search.Search;
 import org.hibernate.search.event.ContextHolder;
@@ -331,6 +332,8 @@ public class HibernateStorage implements Storage {
                 }
                 session.saveOrUpdate(o);
             }
+        } catch(ConstraintViolationException e) {
+            throw new com.amalto.core.storage.exception.ConstraintViolationException(e);
         } catch (PropertyValueException e) {
             throw new RuntimeException("Invalid value in record to update.", e);
         } catch (NonUniqueObjectException e) {
