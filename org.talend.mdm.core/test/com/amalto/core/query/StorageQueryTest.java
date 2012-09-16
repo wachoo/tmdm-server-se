@@ -1095,4 +1095,93 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
     }
+
+    public void testCollectionClean() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        DataRecord productInstance = factory.read(1, repository, product, "<Product>\n" + "    <Id>1</Id>\n"
+                + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
+                + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
+                + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
+                + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
+                + "    </Features>\n" + "    <Status>Pending</Status>\n"
+                + "</Product>");
+        try {
+            storage.begin();
+            storage.update(productInstance);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        UserQueryBuilder qb = from(product).where(eq(product.getField("Id"), "1"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                Object o = result.get("Features/Colors/Color");
+                assertTrue(o instanceof List);
+                assertEquals(2, ((List) o).size());
+            }
+        } finally {
+            results.close();
+        }
+
+        productInstance = factory.read(1, repository, product, "<Product>\n" + "    <Id>1</Id>\n"
+                + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
+                + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
+                + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors><Color/><Color/></Colors>\n"
+                + "    </Features>\n" + "    <Status>Pending</Status>\n"
+                + "</Product>");
+        try {
+            storage.begin();
+            storage.update(productInstance);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        qb = from(product).where(eq(product.getField("Id"), "1"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                Object o = result.get("Features/Colors/Color");
+                assertTrue(o instanceof List);
+                assertEquals(0, ((List) o).size());
+            }
+        } finally {
+            results.close();
+        }
+
+        productInstance = factory.read(1, repository, product, "<Product>\n" + "    <Id>1</Id>\n"
+                + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
+                + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
+                + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>"
+                + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
+                + "    </Features>\n" + "    <Status>Pending</Status>\n"
+                + "</Product>");
+        try {
+            storage.begin();
+            storage.update(productInstance);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        qb = from(product).where(eq(product.getField("Id"), "1"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                Object o = result.get("Features/Colors/Color");
+                assertTrue(o instanceof List);
+                assertEquals(2, ((List) o).size());
+            }
+        } finally {
+            results.close();
+        }
+    }
 }
