@@ -135,6 +135,11 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         return isInstantiable;
     }
 
+    @Override
+    public boolean isFrozen() {
+        return isFrozen;
+    }
+
     public List<FieldMetadata> getKeyFields() {
         return new ArrayList<FieldMetadata>(keyFields.values());
     }

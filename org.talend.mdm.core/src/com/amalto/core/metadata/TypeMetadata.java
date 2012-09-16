@@ -91,4 +91,10 @@ public interface TypeMetadata extends MetadataVisitable {
      *         so called 'reusable' type must return <code>false</code> for this method.
      */
     boolean isInstantiable();
+
+    /**
+     * @return <code>true</code> if type can not be modified ({@link #freeze()} was previously called), <code>false</code>
+     * otherwise.
+     */
+    boolean isFrozen();
 }

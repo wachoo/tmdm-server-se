@@ -83,6 +83,11 @@ public class SimpleTypeMetadata implements TypeMetadata {
         return false;
     }
 
+    @Override
+    public boolean isFrozen() {
+        return true;
+    }
+
     public void addSuperType(TypeMetadata superType, MetadataRepository repository) {
         superTypes.add(superType);
     }

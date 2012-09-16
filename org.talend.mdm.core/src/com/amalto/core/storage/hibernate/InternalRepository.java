@@ -20,6 +20,8 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
 
     private static final Logger LOGGER = Logger.getLogger(InternalRepository.class);
 
+    private MetadataRepository userRepository;
+
     final HibernateStorage.TypeMappingStrategy strategy;
 
     MappingRepository mappings;
@@ -35,6 +37,7 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
     }
 
     public MetadataRepository visit(MetadataRepository repository) {
+        userRepository = repository;
         mappings = new MappingRepository();
         internalRepository = new MetadataRepository();
 
@@ -48,6 +51,9 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
     }
 
     MetadataVisitor<TypeMapping> getTypeMappingCreator(TypeMetadata type, HibernateStorage.TypeMappingStrategy strategy) {
+        if("Update".equals(type.getName())) { //$NON-NLS-1$
+            return new UpdateReportMappingCreator(type, userRepository, mappings);
+        }
         switch (strategy) {
             case AUTO:
                 HibernateStorage.TypeMappingStrategy actualStrategy = type.accept(new MappingStrategySelector(20));

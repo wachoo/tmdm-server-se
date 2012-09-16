@@ -56,6 +56,8 @@ public class StorageTestCase extends TestCase {
 
     protected static final ComplexTypeMetadata d;
 
+    protected static final ComplexTypeMetadata updateReport;
+
     protected static TestUserDelegator userSecurity = new TestUserDelegator();
 
     public static final String DATABASE = "H2";
@@ -81,6 +83,7 @@ public class StorageTestCase extends TestCase {
         b = repository.getComplexType("B");
         c = repository.getComplexType("C");
         d = repository.getComplexType("D");
+        updateReport = repository.getComplexType("Update");
 
         storage.init(getDatasource(DATABASE + "-Default"));
         storage.prepare(repository, Collections.singleton(person.getField("firstname")), true, true);

@@ -121,12 +121,25 @@ class ServerImpl implements Server {
             for (DataClusterPOJOPK container : allContainers) {
                 if (!xDataClustersMap.containsKey(container.getUniqueId())) {
                     try {
+                        LOGGER.info("Creating SQL storage for container '" + container.getUniqueId() + "'...");
                         serverStorageAdmin.create(container.getUniqueId(), container.getUniqueId(), Storage.DEFAULT_DATA_SOURCE_NAME);
                         LOGGER.info("Created SQL storage for container '" + container.getUniqueId() + "'.");
                     } catch (Exception e) {
                         LOGGER.error("Could not create SQL storage for container '" + container.getUniqueId() + "'.", e);
                     }
                 }
+                // TODO Enable this for TMDM-4507: Migrate update report to SQL storage
+                /*
+                else if(XSystemObjects.DC_UPDATE_PREPORT.getName().equals(container.getUniqueId())) {
+                    try {
+                        LOGGER.info("Creating SQL storage for update reports...");
+                        serverStorageAdmin.create(container.getUniqueId(), container.getUniqueId(), Storage.DEFAULT_DATA_SOURCE_NAME);
+                        LOGGER.info("Created SQL storage for update reports.");
+                    } catch (Exception e) {
+                        LOGGER.error("Could not create SQL storage for update reports.", e);
+                    }
+                }
+                */
             }
             LOGGER.info("Done.");
         } catch (Exception e) {

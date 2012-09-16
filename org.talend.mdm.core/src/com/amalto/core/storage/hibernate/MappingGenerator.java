@@ -461,6 +461,13 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     Attr elementType = document.createAttribute("type"); //$NON-NLS-1$
                     elementType.setValue("text"); //$NON-NLS-1$
                     propertyElement.getAttributes().setNamedItem(elementType);
+                } else if(field instanceof SimpleTypeFieldMetadata) {
+                    Object sqlType = ((SimpleTypeFieldMetadata) field).getData("SQL_TYPE"); //$NON-NLS-1$
+                    if(sqlType != null) {
+                        Attr elementType = document.createAttribute("type"); //$NON-NLS-1$
+                        elementType.setValue(String.valueOf(sqlType));
+                        propertyElement.getAttributes().setNamedItem(elementType);
+                    }
                 }
 
                 propertyElement.getAttributes().setNamedItem(propertyName);

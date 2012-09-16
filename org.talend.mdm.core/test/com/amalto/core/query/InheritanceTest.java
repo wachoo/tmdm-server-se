@@ -10,9 +10,6 @@
 
 package com.amalto.core.query;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -20,6 +17,9 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
+
+import java.util.LinkedList;
+import java.util.List;
 
 @SuppressWarnings("nls")
 public class InheritanceTest extends StorageTestCase {
@@ -60,7 +60,7 @@ public class InheritanceTest extends StorageTestCase {
     public void testTypeOrdering() throws Exception {
         List<ComplexTypeMetadata> sortedList = MetadataUtils.sortTypes(repository);
         String[] expectedOrder = { "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "ProductFamily", "TypeA",
-                "Country", "Address", "Person", "Supplier", "Product", "B", "D", "A", "C" };
+                "Update", "Country", "Address", "Person", "Supplier", "Product", "B", "D", "A", "C" };
         int i = 0;
         for (ComplexTypeMetadata sortedType : sortedList) {
             assertEquals(expectedOrder[i++], sortedType.getName());

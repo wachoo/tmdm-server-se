@@ -79,6 +79,12 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
 
     private boolean isMDMInternal(String clusterName) {
         if (clusterName != null) {
+            // TODO Enable this for TMDM-4507: Migrate update report to SQL storage
+            /*
+            if (XSystemObjects.DC_UPDATE_PREPORT.getName().equals(clusterName)) {
+                return false; // Consider update reports as user data.
+            }
+            */
             Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
             return XSystemObjects.isXSystemObject(xDataClustersMap, XObjectType.DATA_CLUSTER, clusterName)
                     || clusterName.startsWith("amalto") || "MDMDomainObjects".equals(clusterName);  //$NON-NLS-1$ //$NON-NLS-2$

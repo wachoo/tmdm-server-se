@@ -25,8 +25,7 @@ import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
@@ -1183,5 +1182,40 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+    }
+
+    public void testUpdateReportCreation() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord report = dataRecordReader.read(1, repository, updateReport, builder.toString());
+
+        try {
+            storage.begin();
+            storage.update(report);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        UserQueryBuilder qb = from(updateReport);
+        StorageResults results = storage.fetch(qb.getSelect());
+        StringWriter storedDocument = new StringWriter();
+        try {
+            DataRecordXmlWriter writer = new DataRecordXmlWriter();
+            for (DataRecord result : results) {
+                writer.write(result, storedDocument);
+            }
+            assertEquals(builder.toString(), storedDocument.toString());
+        } finally {
+            results.close();
+        }
+
     }
 }

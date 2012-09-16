@@ -155,6 +155,11 @@ public class SoftTypeRef implements ComplexTypeMetadata {
         return instantiable;
     }
 
+    @Override
+    public boolean isFrozen() {
+        return getType().isFrozen();
+    }
+
     public List<FieldMetadata> getKeyFields() {
         return getTypeAsComplex().getKeyFields();
     }

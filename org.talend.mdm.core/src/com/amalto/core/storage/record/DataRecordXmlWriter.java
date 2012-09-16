@@ -23,6 +23,16 @@ import java.util.List;
 
 public class DataRecordXmlWriter implements DataRecordWriter {
 
+    private final String rootElementName;
+
+    public DataRecordXmlWriter() {
+        rootElementName = null;
+    }
+
+    public DataRecordXmlWriter(String rootElementName) {
+        this.rootElementName = rootElementName;
+    }
+
     public void write(DataRecord record, OutputStream output) throws IOException {
         Writer out = new BufferedWriter(new OutputStreamWriter(output));
         write(record, out);
@@ -31,12 +41,16 @@ public class DataRecordXmlWriter implements DataRecordWriter {
     public void write(DataRecord record, Writer writer) throws IOException {
         DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(record, writer);
         List<FieldMetadata> fields = record.getType().getFields();
-        writer.write("<" + record.getType().getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
+        writer.write("<" + getRootElementName(record) + ">"); //$NON-NLS-1$ //$NON-NLS-2$
         for (FieldMetadata field : fields) {
             field.accept(fieldPrinter);
         }
-        writer.write("</" + record.getType().getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
+        writer.write("</" + getRootElementName(record) + ">"); //$NON-NLS-1$ //$NON-NLS-2$
         writer.flush();
+    }
+
+    private String getRootElementName(DataRecord record) {
+        return rootElementName == null ? record.getType().getName() : rootElementName;
     }
 
     private class FieldPrinter extends DefaultMetadataVisitor<Void> {

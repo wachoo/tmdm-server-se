@@ -72,7 +72,7 @@ abstract class MetadataRepositoryTask implements Task {
         try {
             List<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
             for (ComplexTypeMetadata type : types) {
-                if (type.isInstantiable()) {
+                if (type.isInstantiable() && processType(type)) {
                     Task task = createTypeTask(type);
                     tasks.add(task);
                 }
@@ -98,6 +98,11 @@ abstract class MetadataRepositoryTask implements Task {
             }
             isFinished = true;
         }
+    }
+
+    private static boolean processType(ComplexTypeMetadata type) {
+        // Do not process UpdateReport type
+        return !"Update".equals(type.getName()); //$NON-NLS-1$
     }
 
     public String getId() {
