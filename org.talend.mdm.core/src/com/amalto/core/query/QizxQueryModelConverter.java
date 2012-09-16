@@ -70,6 +70,11 @@ public class QizxQueryModelConverter implements Visitor<Expression> {
         return select.getPaging().accept(this);
     }
 
+    @Override
+    public Expression visit(NativeQuery nativeQuery) {
+        throw new NotImplementedException();
+    }
+
     public Expression visit(com.amalto.core.query.user.Condition condition) {
         return null;
     }

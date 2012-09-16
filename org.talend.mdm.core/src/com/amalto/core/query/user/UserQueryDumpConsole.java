@@ -113,6 +113,17 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(NativeQuery nativeQuery) {
+        print("[NATIVE QUERY]");
+        increaseIndent();
+        {
+            print(nativeQuery.getQueryText());
+        }
+        decreaseIndent();
+        return null;
+    }
+
     private void increaseIndent() {
         indent++;
     }

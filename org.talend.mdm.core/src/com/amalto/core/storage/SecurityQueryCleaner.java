@@ -28,6 +28,11 @@ class SecurityQueryCleaner extends VisitorAdapter<Expression> {
     }
 
     @Override
+    public Expression visit(NativeQuery nativeQuery) {
+        return nativeQuery;
+    }
+
+    @Override
     public Expression visit(Select select) {
         Iterator<TypedExpression> fields = select.getSelectedFields().iterator();
         while (fields.hasNext()) {

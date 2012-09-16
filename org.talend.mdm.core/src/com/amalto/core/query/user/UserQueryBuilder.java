@@ -28,10 +28,14 @@ public class UserQueryBuilder {
 
     private static final Logger LOGGER = Logger.getLogger(UserQueryBuilder.class);
 
-    private final Select select;
+    private final Expression expression;
 
-    private UserQueryBuilder(Select select) {
-        this.select = select;
+    private UserQueryBuilder(Expression expression) {
+        this.expression = expression;
+    }
+
+    private Select expressionAsSelect() {
+        return ((Select) expression);
     }
 
     public static Condition and(Condition left, Condition right) {
@@ -135,10 +139,10 @@ public class UserQueryBuilder {
     }
 
     public UserQueryBuilder isa(ComplexTypeMetadata type) {
-        if (select == null || select.getTypes().isEmpty()) {
+        if (expression == null || expressionAsSelect().getTypes().isEmpty()) {
             throw new IllegalStateException("No type is currently selected.");
         }
-        where(new Isa(new ComplexTypeExpression(select.getTypes().get(0)), type));
+        where(new Isa(new ComplexTypeExpression(expressionAsSelect().getTypes().get(0)), type));
         return this;
     }
 
@@ -197,7 +201,7 @@ public class UserQueryBuilder {
     public static Condition emptyOrNull(TypedExpression field) {
         assertNullField(field);
         // Only do a isEmpty operator if field type is string, for all other known cases, isNull is enough.
-        if ("string".equals(field.getTypeName())) {
+        if ("string".equals(field.getTypeName())) { //$NON-NLS-1$
             return new BinaryLogicOperator(isEmpty(field), Predicate.OR, isNull(field));
         } else {
             return isNull(field);
@@ -263,6 +267,11 @@ public class UserQueryBuilder {
         return new UserQueryBuilder(select);
     }
 
+    public static UserQueryBuilder from(String nativeQuery) {
+        NativeQuery select = new NativeQuery(nativeQuery);
+        return new UserQueryBuilder(select);
+    }
+
     public UserQueryBuilder select(FieldMetadata... fields) {
         if (fields == null) {
             throw new IllegalArgumentException("Fields cannot be null");
@@ -285,8 +294,8 @@ public class UserQueryBuilder {
         } else {
             typedExpression = new Field(field);
         }
-        select.getSelectedFields().add(typedExpression);
-        select.setProjection(true);
+        expressionAsSelect().getSelectedFields().add(typedExpression);
+        expressionAsSelect().setProjection(true);
         return this;
     }
 
@@ -304,13 +313,13 @@ public class UserQueryBuilder {
         if (condition == null) {
             throw new IllegalArgumentException("Condition cannot be null");
         }
-        if (select.getCondition() == null) {
-            select.setCondition(condition);
+        if (expressionAsSelect().getCondition() == null) {
+            expressionAsSelect().setCondition(condition);
         } else {
             if (predicate == Predicate.OR) {
-                select.setCondition(or(select.getCondition(), condition));
+                expressionAsSelect().setCondition(or(expressionAsSelect().getCondition(), condition));
             } else if (predicate == Predicate.AND) {
-                select.setCondition(and(select.getCondition(), condition));
+                expressionAsSelect().setCondition(and(expressionAsSelect().getCondition(), condition));
             } else {
                 throw new NotImplementedException("Not implemented: support of " + predicate);
             }
@@ -349,7 +358,7 @@ public class UserQueryBuilder {
             throw new IllegalArgumentException("Field cannot be null");
         }
         Field userField = new Field(field);
-        select.setOrderBy(new OrderBy(userField, direction));
+        expressionAsSelect().setOrderBy(new OrderBy(userField, direction));
         return this;
     }
 
@@ -389,11 +398,11 @@ public class UserQueryBuilder {
         Field leftUserField = new Field(leftField);
         Field rightUserField = new Field(rightField);
         // Implicit select joined type if it isn't already selected
-        if (!select.getTypes().contains(rightField.getContainingType())) {
-            select.addType(rightField.getContainingType());
+        if (!expressionAsSelect().getTypes().contains(rightField.getContainingType())) {
+            expressionAsSelect().addType(rightField.getContainingType());
         }
 
-        select.addJoin(new Join(leftUserField, rightUserField, JoinType.INNER));
+        expressionAsSelect().addJoin(new Join(leftUserField, rightUserField, JoinType.INNER));
         return this;
     }
 
@@ -421,28 +430,34 @@ public class UserQueryBuilder {
         if (start < 0) {
             throw new IllegalArgumentException("Start index must be positive");
         }
-        select.getPaging().setStart(start);
+        expressionAsSelect().getPaging().setStart(start);
         return this;
     }
 
     public UserQueryBuilder limit(int limit) {
         if (limit > 0) {
             // Only consider limit > 0 as worthy values.
-            select.getPaging().setLimit(limit);
+            expressionAsSelect().getPaging().setLimit(limit);
         }
         return this;
     }
 
     public Select getSelect() {
-        if (select == null) {
+        if (expression == null) {
             throw new IllegalStateException("No type has been selected");
         }
+        return expressionAsSelect();
+    }
 
-        return select;
+    public Expression getExpression() {
+        if (expression == null) {
+            throw new IllegalStateException("No type has been selected");
+        }
+        return expression;
     }
 
     public UserQueryBuilder and(ComplexTypeMetadata type) {
-        select.addType(type);
+        expressionAsSelect().addType(type);
         return this;
     }
 
@@ -471,8 +486,8 @@ public class UserQueryBuilder {
     }
 
     public UserQueryBuilder select(TypedExpression expression) {
-        select.getSelectedFields().add(expression);
-        select.setProjection(true);
+        expressionAsSelect().getSelectedFields().add(expression);
+        expressionAsSelect().setProjection(true);
         return this;
     }
 

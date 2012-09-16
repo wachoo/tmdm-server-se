@@ -18,6 +18,8 @@ public interface Visitor<T> {
 
     T visit(Select select);
 
+    T visit(NativeQuery nativeQuery);
+
     T visit(Condition condition);
 
     T visit(Compare condition);

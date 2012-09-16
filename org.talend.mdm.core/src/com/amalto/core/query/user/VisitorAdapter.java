@@ -7,6 +7,11 @@ public class VisitorAdapter<T> implements Visitor<T> {
         throw new NotImplementedException();
     }
 
+    @Override
+    public T visit(NativeQuery nativeQuery) {
+        throw new NotImplementedException();
+    }
+
     public T visit(Condition condition) {
         throw new NotImplementedException();
     }
