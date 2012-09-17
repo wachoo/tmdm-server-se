@@ -32,7 +32,7 @@ public class PartialUpdateSaverContext extends AbstractDocumentSaverContext {
     private final String key;
 
     private PartialUpdateSaverContext(DocumentSaverContext delegate, String pivot, String key, boolean overwrite,
-            UserAction userAction) {
+                                      UserAction userAction) {
         this.delegate = delegate;
         this.pivot = pivot;
         this.key = key;

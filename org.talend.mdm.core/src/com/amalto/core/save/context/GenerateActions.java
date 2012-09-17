@@ -93,11 +93,10 @@ class GenerateActions implements DocumentSaver {
             actions.addAll(type.accept(updateActions));
             break;
         case PARTIAL_UPDATE:
-            actions = new LinkedList<Action>();
             PartialUpdateActionCreator partialUpdateActionCreator = new PartialUpdateActionCreator(databaseDocument,
                     userDocument, context.preserveOldCollectionValues(), context.getPartialUpdatePivot(),
                     context.getPartialUpdateKey(), source, userName, metadataRepository);
-            actions.addAll(type.accept(partialUpdateActionCreator));
+            actions = type.accept(partialUpdateActionCreator);
             break;
         default:
             throw new NotImplementedException("Support for '" + userAction + "'.");
