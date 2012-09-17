@@ -113,12 +113,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
         }
 
         // Select a path from mainType to the selected field (properties are '.' separated).
-        TypeMapping mainTypeMapping = mappingMetadataRepository.getMapping(mainType);
+        TypeMapping mainTypeMapping = mappingMetadataRepository.getMappingFromUser(mainType);
         ComplexTypeMetadata containingType = join.getLeftField().getFieldMetadata().getContainingType();
         while (containingType instanceof ContainedComplexTypeMetadata) {
             containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
         }
-        TypeMapping leftTypeMapping = mappingMetadataRepository.getMapping(containingType);
+        TypeMapping leftTypeMapping = mappingMetadataRepository.getMappingFromUser(containingType);
         List<FieldMetadata> path = MetadataUtils.path(mainTypeMapping.getDatabase(), leftTypeMapping.getDatabase(join.getLeftField().getFieldMetadata()));
         if (path.isEmpty()) {
             // Empty path means no path then this is an error (all joined entities should be reachable from main type).
@@ -207,7 +207,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         }
         ComplexTypeMetadata containingType = field.getFieldMetadata().getContainingType();
         if (!selectedTypes.contains(containingType)) {
-            TypeMapping mapping = mappingMetadataRepository.getMapping(mainType);
+            TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(mainType);
             FieldMetadata database = mapping.getDatabase(field.getFieldMetadata());
             String alias = getAlias(mapping, database);
             if (database instanceof ReferenceFieldMetadata) { // Automatically selects referenced ID in case of FK.
@@ -271,7 +271,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         }
         mainType = selectedTypes.get(0);
         String mainTypeName = mainType.getName();
-        String className = ClassCreator.PACKAGE_PREFIX + mainTypeName;
+        String className = ClassCreator.PACKAGE_PREFIX + mappingMetadataRepository.getMappingFromUser(mainType).getDatabase().getName();
         criteria = session.createCriteria(className, mainTypeName);
         criteria.setReadOnly(true); // We are reading data, turns on ready only mode.
 
@@ -391,7 +391,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         String fieldName;
         ComplexTypeMetadata containingType = field.getFieldMetadata().getContainingType();
         if (!selectedTypes.contains(containingType)) {
-            TypeMapping mapping = mappingMetadataRepository.getMapping(selectedTypes.get(0));
+            TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(selectedTypes.get(0));
             FieldMetadata database = mapping.getDatabase(field.getFieldMetadata());
             String alias = getAlias(mapping, database);
             fieldName = alias + '.' + database.getName();
@@ -566,7 +566,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 Field leftField = (Field) condition.getLeft();
                 FieldMetadata fieldMetadata = leftField.getFieldMetadata();
                 if (!mainType.equals(fieldMetadata.getContainingType())) {
-                    FieldMetadata left = mappingMetadataRepository.getMapping(mainType).getDatabase(fieldMetadata);
+                    FieldMetadata left = mappingMetadataRepository.getMappingFromUser(mainType).getDatabase(fieldMetadata);
                     (new Field(fieldMetadata)).accept(StandardQueryHandler.this);
                     String alias = joinFieldsToAlias.get(left);
                     leftFieldCondition.criterionFieldName = alias + '.' + ((ReferenceFieldMetadata) left).getReferencedField().getName();

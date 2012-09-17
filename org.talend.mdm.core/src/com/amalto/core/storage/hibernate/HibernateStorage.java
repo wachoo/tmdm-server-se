@@ -193,7 +193,7 @@ public class HibernateStorage implements Storage {
             // Set MDM type to database resolver.
             Set<FieldMetadata> databaseIndexedFields = new HashSet<FieldMetadata>();
             for (FieldMetadata indexedField : indexedFields) {
-                TypeMapping mapping = mappingRepository.getMapping(indexedField.getContainingType());
+                TypeMapping mapping = mappingRepository.getMappingFromUser(indexedField.getContainingType());
                 databaseIndexedFields.add(mapping.getDatabase(indexedField));
             }
             TableResolver tableResolver = new StorageTableResolver(databaseIndexedFields);
@@ -311,7 +311,7 @@ public class HibernateStorage implements Storage {
             Session session = factory.getCurrentSession();
             DataRecordConverter<Object> converter = new ObjectDataRecordConverter(storageClassLoader, session);
             for (DataRecord currentDataRecord : records) {
-                TypeMapping mapping = mappingRepository.getMapping(currentDataRecord.getType());
+                TypeMapping mapping = mappingRepository.getMappingFromUser(currentDataRecord.getType());
                 Wrapper o = (Wrapper) currentDataRecord.convert(converter, mapping);
                 o.timestamp(System.currentTimeMillis());
                 o.revision(currentDataRecord.getRevisionId());

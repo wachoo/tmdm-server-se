@@ -38,11 +38,11 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
             throw new IllegalArgumentException("Data record can not be null");
         }
         if (mapping == null) {
-            throw new IllegalArgumentException("Mapping can not be null");
+            throw new IllegalArgumentException("Mapping cannot be null");
         }
 
         try {
-            Class<?> mainInstanceClass = storageClassLoader.findClass(dataRecord.getType().getName());
+            Class<?> mainInstanceClass = storageClassLoader.findClass(mapping.getDatabase().getName());
             // Try to load existing instance (if any).
             Wrapper mainInstance;
             try {

@@ -18,6 +18,9 @@ import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 public class ObjectDataRecordReader {
 
     public DataRecord read(TypeMapping mapping, Wrapper input) {
+        if (mapping == null) {
+            throw new IllegalArgumentException("Mapping cannot be null.");
+        }
         DataRecordMetadataImpl recordMetadata = new DataRecordMetadataImpl(input.timestamp(), input.taskId());
         DataRecord record = new DataRecord(mapping.getUser(), recordMetadata);
         mapping.setValues(input, record);

@@ -75,7 +75,7 @@ class ScrollableIterator extends CloseableIterator<DataRecord> {
         if (!(next instanceof Wrapper)) {
             throw new IllegalArgumentException("Result object is not an instance of " + Wrapper.class.getName());
         }
-        return reader.read(storageRepository.getMapping(type), (Wrapper) next);
+        return reader.read(storageRepository.getMappingFromDatabase(type), (Wrapper) next);
     }
 
     // Cache type readers

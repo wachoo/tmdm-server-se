@@ -22,7 +22,6 @@ import java.lang.reflect.Constructor;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 class FlatTypeMapping extends TypeMapping {
     public FlatTypeMapping(ComplexTypeMetadata complexType, MappingRepository mappings) {
@@ -140,7 +139,7 @@ class FlatTypeMapping extends TypeMapping {
                     if (!userField.isMany()) {
                         Wrapper wrapper = (Wrapper) from.get(field.getName());
                         if (wrapper != null) {
-                            TypeMapping mapping = mappings.getMapping(contextClassLoader.getTypeFromClass(wrapper.getClass()));
+                            TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
                             DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
                             for (FieldMetadata keyField : mapping.getDatabase().getKeyFields()) {
                                 referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
@@ -151,7 +150,7 @@ class FlatTypeMapping extends TypeMapping {
                         List<Wrapper> wrapperList = (List<Wrapper>) from.get(field.getName());
                         if (wrapperList != null) {
                             for (Wrapper wrapper : wrapperList) {
-                                TypeMapping mapping = mappings.getMapping(contextClassLoader.getTypeFromClass(wrapper.getClass()));
+                                TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
                                 DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
                                 for (FieldMetadata keyField : mapping.getDatabase().getKeyFields()) {
                                     referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));

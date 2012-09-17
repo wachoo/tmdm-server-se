@@ -63,7 +63,9 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         for (FieldMetadata keyField : keyFields) {
             qb.where(eq(keyField, splitUniqueId[currentIndex++]));
         }
-        qb.where(eq(revision(), String.valueOf(parseRevisionId(revisionId))));
+        if (!"Update".equals(type.getName())) { // TODO Not good: add a method on type to tell whether type supports revisions or not.
+            qb.where(eq(revision(), String.valueOf(parseRevisionId(revisionId))));
+        }
         return qb.getSelect();
     }
 
@@ -209,7 +211,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         ComplexTypeMetadata type = repository.getComplexType(typeName);
 
         Select select = getSelectTypeById(type, revisionID, splitUniqueId);
-        Iterable<DataRecord> records = storage.fetch(select);
+        StorageResults records = storage.fetch(select);
 
         ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
 
@@ -237,6 +239,8 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             }
         } catch (IOException e) {
             throw new XmlServerException(e);
+        } finally {
+            records.close();
         }
     }
 

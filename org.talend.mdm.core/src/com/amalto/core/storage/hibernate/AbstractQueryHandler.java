@@ -90,7 +90,7 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
             throw new IllegalStateException("Could not find containing type mapping for field '" + fieldMetadata.getName() + "'.");
         }
 
-        TypeMapping mapping = repository.getMapping(containingType);
+        TypeMapping mapping = repository.getMappingFromUser(containingType);
         if (mapping == null) {
             throw new IllegalArgumentException("Type '" + containingType.getName() + "' does not have a mapping.");
         }

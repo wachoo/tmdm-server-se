@@ -21,15 +21,25 @@ class MappingRepository {
 
     private final Map<String, TypeMapping> userToMapping = new HashMap<String, TypeMapping>();
 
-    public TypeMapping getMapping(TypeMetadata type) {
+    private final Map<String, TypeMapping> databaseToMapping = new HashMap<String, TypeMapping>();
+
+    public TypeMapping getMappingFromUser(TypeMetadata type) {
         if (type instanceof TypeMapping) {
             return (TypeMapping) type;
         }
         return userToMapping.get(type.getName());
     }
 
+    public TypeMapping getMappingFromDatabase(TypeMetadata type) {
+        if (type instanceof TypeMapping) {
+            return (TypeMapping) type;
+        }
+        return databaseToMapping.get(type.getName());
+    }
+
     public void addMapping(TypeMetadata type, TypeMapping mapping) {
         userToMapping.put(type.getName(), mapping);
+        databaseToMapping.put(mapping.getDatabase().getName(), mapping);
     }
 
     public Collection<TypeMapping> getAllTypeMappings() {

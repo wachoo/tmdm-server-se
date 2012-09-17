@@ -111,7 +111,7 @@ public class ScatteredTypeMapping extends TypeMapping {
                         } else {
                             referenceId = referencedObject.get(keyFields.get(0));
                         }
-                        to.set(mappedDatabaseField.getName(), getReferencedObject(contextClassLoader, session, mappings.getMapping(referencedObject.getType()).getDatabase(), referenceId));
+                        to.set(mappedDatabaseField.getName(), getReferencedObject(contextClassLoader, session, mappings.getMappingFromUser(referencedObject.getType()).getDatabase(), referenceId));
                     } else {
                         to.set(mappedDatabaseField.getName(), null);
                     }
@@ -173,7 +173,7 @@ public class ScatteredTypeMapping extends TypeMapping {
                     if (!userField.isMany()) {
                         Wrapper wrapper = (Wrapper) from.get(field.getName());
                         if (wrapper != null) {
-                            TypeMapping mapping = mappings.getMapping(contextClassLoader.getTypeFromClass(wrapper.getClass()));
+                            TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
                             DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
                             for (FieldMetadata keyField : ((ReferenceFieldMetadata) field).getReferencedType().getKeyFields()) {
                                 referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
@@ -184,7 +184,7 @@ public class ScatteredTypeMapping extends TypeMapping {
                         List<Wrapper> wrapperList = (List<Wrapper>) from.get(field.getName());
                         if (wrapperList != null) {
                             for (Wrapper wrapper : wrapperList) {
-                                TypeMapping mapping = mappings.getMapping(contextClassLoader.getTypeFromClass(wrapper.getClass()));
+                                TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
                                 DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
                                 for (FieldMetadata keyField : ((ReferenceFieldMetadata) field).getReferencedType().getKeyFields()) {
                                     referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
