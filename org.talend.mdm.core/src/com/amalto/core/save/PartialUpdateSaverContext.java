@@ -32,7 +32,7 @@ public class PartialUpdateSaverContext extends AbstractDocumentSaverContext {
     private final String key;
 
     private PartialUpdateSaverContext(DocumentSaverContext delegate, String pivot, String key, boolean overwrite,
-            UserAction userAction) {
+                                      UserAction userAction) {
         this.delegate = delegate;
         this.pivot = pivot;
         this.key = key;
@@ -42,10 +42,10 @@ public class PartialUpdateSaverContext extends AbstractDocumentSaverContext {
 
     public static DocumentSaverContext decorate(DocumentSaverContext context, String pivot, String key, boolean overwrite) {
         if (pivot == null) {
-            throw new IllegalArgumentException("Pivot argument can not be null.");
+            pivot = StringUtils.EMPTY;
         }
         if (key == null) {
-            throw new IllegalArgumentException("Key argument can not be null.");
+            key = StringUtils.EMPTY;
         }
         if (pivot.length() > 1) {
             return new PartialUpdateSaverContext(context, pivot, key, overwrite, UserAction.PARTIAL_UPDATE);
