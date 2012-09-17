@@ -17,10 +17,15 @@ import java.util.List;
 
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyTabModel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel.ItemDetailTabPanelContentHandle;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyRender;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyUtil;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 
@@ -116,8 +121,20 @@ public class BreadCrumb extends Composite {
         itemsDetailPanel.initBreadCrumb(new BreadCrumb(breads, itemsDetailPanel));
         // Display UI
         ItemPanel panel = BrowseRecords.getSession().getCurrentCreatedEntity();
-        if (panel != null)
+        if (panel != null) {
             itemsDetailPanel.addTabItem(label, panel, ItemsDetailPanel.SINGLETON, label);
+            List<ForeignKeyTabModel> list = BrowseRecords.getSession().getCurrentCreatedFKTabs();
+            if (list != null) {
+                ForeignKeyRender render = panel.getTree().getFkRender();
+                for (ForeignKeyTabModel fkTab : list) {
+                    ItemDetailTabPanelContentHandle handle = itemsDetailPanel.addTabItem(fkTab.getFkTabTitle(),
+                            fkTab.getFkTabPanel(), ItemsDetailPanel.MULTIPLE, GWT.getModuleName() + DOM.createUniqueId());
+                    render.setRelationFk(fkTab.getFkParentModel(), handle);
+                    itemsDetailPanel.addFkHandler(fkTab.getFkTabPanel(), fkTab.getHandler());
+                }
+            }
+
+        }
     }
 
     public void adjust() {
