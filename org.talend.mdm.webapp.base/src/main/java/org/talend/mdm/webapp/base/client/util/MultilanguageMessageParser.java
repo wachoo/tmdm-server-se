@@ -68,7 +68,7 @@ public class MultilanguageMessageParser {
                 if (errorMessageHash.isEmpty()) {
                     return resultingErrorMessage;
                 } else {
-                    return errorMessageHash.get(langCode);
+                    return FormatUtil.languageValueDecode(errorMessageHash.get(langCode));
                 }
             }
             if (errorMessageHash.containsKey(langCode)) {
@@ -172,6 +172,7 @@ public class MultilanguageMessageParser {
     }
 
     public static String getFormatValueByDefaultLanguage(String value, String language) {
+        value = FormatUtil.languageValueEncode(value);
         return "[" + language.toUpperCase() + ":" + value + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 }

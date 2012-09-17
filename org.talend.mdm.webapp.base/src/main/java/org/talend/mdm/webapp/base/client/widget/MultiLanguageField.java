@@ -23,6 +23,7 @@ import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.MultiLanguageModel;
 import org.talend.mdm.webapp.base.client.resources.icon.Icons;
+import org.talend.mdm.webapp.base.client.util.FormatUtil;
 import org.talend.mdm.webapp.base.client.util.LanguageUtil;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
@@ -133,6 +134,7 @@ public class MultiLanguageField extends TextField<String> {
 
             addListener();
             this.setAutoWidth(true);
+            this.setStyleAttribute("margin-left", "-2px"); //$NON-NLS-1$ //$NON-NLS-2$
 
         }
         super.onRender(target, index);
@@ -225,14 +227,15 @@ public class MultiLanguageField extends TextField<String> {
     }
 
     public String getValueWithLanguage(String operator) {
+        String v = FormatUtil.languageValueEncode(value);
         if (OperatorValueConstants.CONTAINS.equals(operator)) {
-            return "*[" + this.currentLanguage + ":*" + value + "*]*"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+            return "*[" + this.currentLanguage + ":*" + v + "*]*"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
         } else if (OperatorValueConstants.STARTSWITH.equals(operator)) {
-            return "*[" + this.currentLanguage + ":" + value + "*]*"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+            return "*[" + this.currentLanguage + ":" + v + "*]*"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
         } else if (OperatorValueConstants.STRICTCONTAINS.equals(operator)) {
-            return "*[" + this.currentLanguage + ":*" + value + "*]*"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+            return "*[" + this.currentLanguage + ":*" + v + "*]*"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
         }
-        return value;
+        return v;
     }
     
     public String getInputValue(String operator, String value) {

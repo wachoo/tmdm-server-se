@@ -19,14 +19,14 @@ public class MultiLanguageModelTest extends TestCase {
 
     private MultiLanguageModel model;
 
-    private String multiLanguageString = "[EN:456][FR:789][ZH:123]";
+    private String multiLanguageString = "[EN:456][FR:789][ZH:123&#92;&#91;&#93;]";
 
     protected void setUp() throws Exception {
         model = new MultiLanguageModel(multiLanguageString);
     }
 
     public void testGetValueByLanguage() {
-        assertEquals("123", model.getValueByLanguage("ZH"));
+        assertEquals("123\\[]", model.getValueByLanguage("ZH"));
         assertEquals("456", model.getValueByLanguage("EN"));
         assertEquals("789", model.getValueByLanguage("FR"));
         assertEquals("", model.getValueByLanguage("SP"));
@@ -34,9 +34,9 @@ public class MultiLanguageModelTest extends TestCase {
 
     public void testSetValue() {
         // modify chinese value
-        assertEquals("123", model.getValueByLanguage("ZH"));
-        model.setValueByLanguage("ZH", "123456");
-        assertEquals("123456", model.getValueByLanguage("ZH"));
+        assertEquals("123\\[]", model.getValueByLanguage("ZH"));
+        model.setValueByLanguage("ZH", "123456\\[]");
+        assertEquals("123456\\[]", model.getValueByLanguage("ZH"));
         // modify english value
         assertEquals("456", model.getValueByLanguage("EN"));
         model.setValueByLanguage("EN", "456789");
@@ -49,10 +49,10 @@ public class MultiLanguageModelTest extends TestCase {
         assertEquals("", model.getValueByLanguage("SP"));
         model.setValueByLanguage("SP", "ok");
         assertEquals("ok", model.getValueByLanguage("SP"));
-        assertTrue(model.toString().equals("[EN:456789][FR:789012][SP:ok][ZH:123456]"));
+        assertTrue(model.toString().equals("[EN:456789][FR:789012][SP:ok][ZH:123456&#92;&#91;&#93;]"));
         // remove spanish value
         model.setValueByLanguage("SP", "");
-        assertTrue(model.toString().equals("[EN:456789][FR:789012][ZH:123456]"));
+        assertTrue(model.toString().equals("[EN:456789][FR:789012][ZH:123456&#92;&#91;&#93;]"));
         // multiLanguageString = null
         model = new MultiLanguageModel(null);
         model.setValueByLanguage("ZH", "123");

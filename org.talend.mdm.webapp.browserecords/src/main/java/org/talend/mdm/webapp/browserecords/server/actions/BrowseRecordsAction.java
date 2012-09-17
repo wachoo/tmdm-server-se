@@ -1055,6 +1055,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (result != null) {
                 if (result.indexOf("<SearchCriteria>") != -1) { //$NON-NLS-1$
                     criteria = result.substring(result.indexOf("<SearchCriteria>") + 16, result.indexOf("</SearchCriteria>"));//$NON-NLS-1$ //$NON-NLS-2$
+                    if (criteria.contains("&amp;")) //$NON-NLS-1$
+                        criteria = criteria.replace("&amp;", "&"); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             }
             return criteria;

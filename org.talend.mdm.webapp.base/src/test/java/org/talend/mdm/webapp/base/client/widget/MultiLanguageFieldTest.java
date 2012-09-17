@@ -47,6 +47,22 @@ public class MultiLanguageFieldTest extends GWTTestCase {
         operator = OperatorValueConstants.STRICTCONTAINS;
         formatValue = field.getValueWithLanguage(operator);
         assertEquals("*[EN:*Talend*]*", formatValue);
+        // 4. value = Talend[] operator = CONTAINS
+        value = "Talend[]";
+        field.setValue(value);
+        operator = OperatorValueConstants.CONTAINS;
+        formatValue = field.getValueWithLanguage(operator);
+        assertEquals("*[EN:*Talend&#91;&#93;*]*", formatValue);
+        // 5. value = Talend\\
+        value = "Talend\\";
+        field.setValue(value);
+        formatValue = field.getValueWithLanguage(operator);
+        assertEquals("*[EN:*Talend&#92;*]*", formatValue);
+        // 6. value = Talend\\China[]
+        value = "Talend\\China[]";
+        field.setValue(value);
+        formatValue = field.getValueWithLanguage(operator);
+        assertEquals("*[EN:*Talend&#92;China&#91;&#93;*]*", formatValue);
     }
 
     public void testGetInputValue() {
@@ -65,6 +81,19 @@ public class MultiLanguageFieldTest extends GWTTestCase {
         formatValue = "*[EN:*Talend*]*";
         inputValue = field.getInputValue(operator, formatValue);
         assertEquals("Talend", inputValue);
+        // 4. operator = CONTAINS
+        formatValue = "*[EN:*Talend&#91;&#93;*]*";
+        operator = OperatorValueConstants.CONTAINS;
+        inputValue = field.getInputValue(operator, formatValue);
+        assertEquals("Talend[]", inputValue);
+        // 5. formatValue = *[EN:*Talend&#92;*]*
+        formatValue = "*[EN:*Talend&#92;*]*";
+        inputValue = field.getInputValue(operator, formatValue);
+        assertEquals("Talend\\", inputValue);
+        // 6. formatValue = *[EN:*Talend&#92;China&#91;&#93;*]*
+        formatValue = "*[EN:*Talend&#92;China&#91;&#93;*]*";
+        inputValue = field.getInputValue(operator, formatValue);
+        assertEquals("Talend\\China[]", inputValue);
     }
 
     public void testClear() {

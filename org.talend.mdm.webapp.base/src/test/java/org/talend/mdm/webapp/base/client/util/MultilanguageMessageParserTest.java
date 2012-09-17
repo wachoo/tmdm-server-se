@@ -82,15 +82,17 @@ public class MultilanguageMessageParserTest extends TestCase {
         assertTrue(MultilanguageMessageParser.getValueByLanguage(multiLanguageString, "EN").equals(multiLanguageString));
         assertFalse(MultilanguageMessageParser.isExistMultiLanguageFormat(multiLanguageString));
         // normal format lowercase language
-        multiLanguageString = "[ZH:拓蓝][EN:Talend][FR:Talend Company]";
+        multiLanguageString = "[ZH:拓蓝][EN:Tal&#92;end&#93;&#92;][FR:Talend Company]";
         assertTrue(MultilanguageMessageParser.getValueByLanguage(multiLanguageString, "ZH").equals("拓蓝"));
-        assertTrue(MultilanguageMessageParser.getValueByLanguage(multiLanguageString, "EN").equals("Talend"));
+        assertTrue(MultilanguageMessageParser.getValueByLanguage(multiLanguageString, "EN").equals("Tal\\end]\\"));
         assertTrue(MultilanguageMessageParser.getValueByLanguage(multiLanguageString, "FR").equals("Talend Company"));
         assertTrue(MultilanguageMessageParser.isExistMultiLanguageFormat(multiLanguageString));
         // test null
-        multiLanguageString = "[ZH:拓蓝][FR:Talend Company]";
+        multiLanguageString = "[ZH:拓蓝][FR:Talend Company&#93;]";
         assertNull(MultilanguageMessageParser.getValueByLanguage(multiLanguageString, "EN"));
         assertTrue(MultilanguageMessageParser.isExistMultiLanguageFormat(multiLanguageString));
+        assertTrue(MultilanguageMessageParser.getValueByLanguage(multiLanguageString, "FR").equals("Talend Company]"));
+
     }
 
     @SuppressWarnings("nls")
@@ -100,6 +102,8 @@ public class MultilanguageMessageParserTest extends TestCase {
         assertEquals("[EN:Talend]", MultilanguageMessageParser.getFormatValueByDefaultLanguage(value, defaultLanguage));
         defaultLanguage = "fr";
         assertEquals("[FR:Talend]", MultilanguageMessageParser.getFormatValueByDefaultLanguage(value, defaultLanguage));
+        value = "Talend\\[]";
+        assertEquals("[FR:Talend&#92;&#91;&#93;]", MultilanguageMessageParser.getFormatValueByDefaultLanguage(value, defaultLanguage));
     }
 
 }

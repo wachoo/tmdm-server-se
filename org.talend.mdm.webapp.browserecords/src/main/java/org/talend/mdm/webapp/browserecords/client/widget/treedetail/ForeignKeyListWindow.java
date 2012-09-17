@@ -415,7 +415,7 @@ public class ForeignKeyListWindow extends Window {
                             if (entityModel.getTypeModel(typeModel.getForeignKeyInfo().get(0)).getType()
                                     .equals(DataTypeConstants.MLS)) {
                                 MultiLanguageModel multiLanguageModel = new MultiLanguageModel(fkBean.get(property).toString());
-                                result = multiLanguageModel.getValueByLanguage(Locale.getLanguage()) + "-"; //$NON-NLS-1$
+                                result = multiLanguageModel.getValueByLanguage(Locale.getLanguage().toUpperCase()) + "-"; //$NON-NLS-1$
                             } else {
                                 result = fkBean.get(property) + "-"; //$NON-NLS-1$
                             }

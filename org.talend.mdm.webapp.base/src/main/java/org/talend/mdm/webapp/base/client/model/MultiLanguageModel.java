@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.util.FormatUtil;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 
 
@@ -37,7 +38,7 @@ public class MultiLanguageModel extends ItemBaseModel {
         LinkedHashMap<String, String> temp_languageValueMap = MultilanguageMessageParser
                 .getLanguageValueMap(_multiLanguageString);
         for (String language : temp_languageValueMap.keySet()) {
-            languageValueMap.put(language.toUpperCase(), temp_languageValueMap.get(language));
+            languageValueMap.put(language.toUpperCase(), FormatUtil.languageValueDecode(temp_languageValueMap.get(language)));
         }
     }
 
@@ -47,12 +48,10 @@ public class MultiLanguageModel extends ItemBaseModel {
     }
 
     public void setValueByLanguage(String language, String value) {
-
         if (value != null && value.trim().length() > 0)
             languageValueMap.put(language, value);
         else
             languageValueMap.remove(language);
-                
     }
 
     public LinkedHashMap<String, String> getLanguageValueMap() {
@@ -70,7 +69,7 @@ public class MultiLanguageModel extends ItemBaseModel {
         Collections.sort(keys);
         StringBuffer sb = new StringBuffer();
         for (String language : keys) {
-            sb.append("[" + language + linkedSymbol + languageValueMap.get(language) + "]"); //$NON-NLS-1$//$NON-NLS-2$
+            sb.append("[" + language + linkedSymbol + FormatUtil.languageValueEncode(languageValueMap.get(language)) + "]"); //$NON-NLS-1$//$NON-NLS-2$
         }
         multiLanguageString = sb.toString();
         return multiLanguageString;
