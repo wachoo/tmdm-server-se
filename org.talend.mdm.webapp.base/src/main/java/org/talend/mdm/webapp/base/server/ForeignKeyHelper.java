@@ -341,7 +341,7 @@ public class ForeignKeyHelper {
         if (fkFilter != null) {
             if (Util.isCustomFilter(fkFilter)) {
                 fkFilter = StringEscapeUtils.unescapeXml(fkFilter);
-                parsedFkfilter = parseRightValueOrPath(xml, dataObject, fkFilter, currentXpath);
+                parsedFkfilter = parseRightExpression(xml, dataObject, fkFilter, currentXpath);
                 return parsedFkfilter;
             }
             // parse
@@ -429,6 +429,26 @@ public class ForeignKeyHelper {
             return false;
         }
         return false;
+    }
+
+    private static String parseRightExpression(String xml, String dataObject, String rightExpression, String currentXpath)
+            throws Exception {
+        // Use legacy logic for custom FK filter
+        String patternString = dataObject + "(/[A-Za-z0-9_]*)+";//$NON-NLS-1$
+        Pattern pattern = Pattern.compile(patternString);
+        Matcher matcher = pattern.matcher(rightExpression);
+        while (matcher.find()) {
+            for (int j = 0; j < matcher.groupCount(); j++) {
+                String gettedXpath = matcher.group(j);
+                if (gettedXpath != null) {
+                    String replaceValue = parseRightValueOrPath(xml, dataObject, gettedXpath, currentXpath);
+                    if (replaceValue != null)
+                        rightExpression = rightExpression.replaceFirst(patternString, "\"" + replaceValue + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+                }
+            }
+        }
+        return rightExpression;
+
     }
 
     private static String parseRightValueOrPath(String xml, String dataObject, String rightValueOrPath, String currentXpath)
