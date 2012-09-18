@@ -350,7 +350,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
     private FieldMetadata createFieldMetadata(XmlSchemaElement element, ComplexTypeMetadata containingType) {
         String fieldName = element.getName();
         boolean isMany = element.getMaxOccurs() > 1;
-        // boolean isKey = typeMetadataKeyStack.peek().remove(fieldName);
         XmlSchemaAnnotationProcessorState state;
         try {
             XmlSchemaAnnotation annotation = element.getAnnotation();

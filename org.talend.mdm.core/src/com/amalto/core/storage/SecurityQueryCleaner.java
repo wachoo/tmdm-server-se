@@ -16,6 +16,7 @@ import com.amalto.core.query.user.*;
 
 import java.util.Iterator;
 
+// TODO Instead of removing, it is possible to return arbitrary string value ("???", "###"...).
 class SecurityQueryCleaner extends VisitorAdapter<Expression> {
 
     private final Checker checker;
@@ -30,6 +31,15 @@ class SecurityQueryCleaner extends VisitorAdapter<Expression> {
     @Override
     public Expression visit(NativeQuery nativeQuery) {
         return nativeQuery;
+    }
+
+    @Override
+    public Expression visit(Range range) {
+        if (!range.getExpression().accept(checker)) {
+            return UserQueryHelper.NO_OP_CONDITION;
+        } else {
+            return range;
+        }
     }
 
     @Override

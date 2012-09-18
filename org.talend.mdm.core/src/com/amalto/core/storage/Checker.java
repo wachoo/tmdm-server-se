@@ -176,4 +176,9 @@ class Checker extends VisitorAdapter<Boolean> {
     public Boolean visit(StagingStatus stagingStatus) {
         return true;
     }
+
+    @Override
+    public Boolean visit(Range range) {
+        return range.getExpression().accept(this);
+    }
 }

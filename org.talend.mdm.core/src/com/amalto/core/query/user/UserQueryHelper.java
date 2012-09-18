@@ -43,9 +43,9 @@ public class UserQueryHelper {
             List<IWhereItem> whereItems = ((WhereLogicOperator) whereItem).getItems();
             Condition current = NO_OP_CONDITION;
             for (IWhereItem item : whereItems) {
-                if (item instanceof WhereAnd) {
+                if (item instanceof WhereAnd || whereItem instanceof WhereAnd) {
                     current = and(current, buildCondition(queryBuilder, item, repository));
-                } else if (item instanceof WhereOr) {
+                } else if (item instanceof WhereOr || whereItem instanceof WhereOr) {
                     current = or(current, buildCondition(queryBuilder, item, repository));
                 } else {
                     return buildCondition(queryBuilder, item, repository);

@@ -66,12 +66,14 @@ class UpdateReportTypeMapping extends TypeMapping {
         to.set("x_key", from.get("Key")); //$NON-NLS-1$ //$NON-NLS-2$
         try {
             List<DataRecord> dataRecord = (List<DataRecord>) from.get("Item"); //$NON-NLS-1$
-            DataRecordXmlWriter writer = new DataRecordXmlWriter("Item"); //$NON-NLS-1$
-            StringWriter stringWriter = new StringWriter();
-            for (DataRecord record : dataRecord) {
-                writer.write(record, new BufferedWriter(stringWriter));
+            if (dataRecord != null) { // this might be null if there is no 'Item' element in update report.
+                DataRecordXmlWriter writer = new DataRecordXmlWriter("Item"); //$NON-NLS-1$
+                StringWriter stringWriter = new StringWriter();
+                for (DataRecord record : dataRecord) {
+                    writer.write(record, new BufferedWriter(stringWriter));
+                }
+                to.set("x_items_xml", stringWriter.toString()); //$NON-NLS-1$
             }
-            to.set("x_items_xml", stringWriter.toString()); //$NON-NLS-1$
         } catch (IOException e) {
             throw new RuntimeException("Could not set Items XML value", e);
         }
@@ -93,8 +95,10 @@ class UpdateReportTypeMapping extends TypeMapping {
         to.set(updateReportType.getField("Concept"), from.get("x_concept")); //$NON-NLS-1$ //$NON-NLS-2$
         to.set(updateReportType.getField("Key"), from.get("x_key")); //$NON-NLS-1$ //$NON-NLS-2$
         List<DataRecord> itemList = (List<DataRecord>) items.get("Item"); //$NON-NLS-1$
-        for (DataRecord dataRecord : itemList) {
-            to.set(updateReportType.getField("Item"), dataRecord); //$NON-NLS-1$
+        if (itemList != null) { // Might be null for create update report for instance.
+            for (DataRecord dataRecord : itemList) {
+                to.set(updateReportType.getField("Item"), dataRecord); //$NON-NLS-1$
+            }
         }
 
         return to;
