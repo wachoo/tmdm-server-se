@@ -160,18 +160,18 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
 
                 boolean isEmpty = false;
                 Accessor accessor = document.createAccessor(getPath());
-                Node parentNode=null;
-                if(accessor instanceof DOMAccessor)
+                Node parentNode = null;
+                if (accessor instanceof DOMAccessor)
                     parentNode = ((DOMAccessor) accessor).getNode();
                 if (parentNode != null && (parentNode.getTextContent() == null || parentNode.getTextContent().isEmpty()))
                     isEmpty = true;
-                
-                if(isParentOptional&&isEmpty)
+
+                if (isParentOptional && isEmpty)
                     doCreate = false;
             }
-        }        
+        }
 
-        path.push(simpleField.getName());
+        path.push(simpleField);
         {
             // Handle UUID and AutoIncrement elements (this code also ensures any previous value is overwritten, see
             // TMDM-3900).
