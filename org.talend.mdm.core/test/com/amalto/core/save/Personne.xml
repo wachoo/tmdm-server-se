@@ -1,0 +1,40 @@
+<Personne xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <IdMDM></IdMDM>
+ <IdVINCI></IdVINCI>
+ <IdVINCIRapprochement />
+ <AuthentificationVINCI></AuthentificationVINCI>
+ <Photo></Photo>
+ <TypePersonneFk>[2]</TypePersonneFk>
+ <StatutPersonneFk />
+ <CiviliteFk />
+ <NomUsuel>3</NomUsuel>
+ <NomNaissance></NomNaissance>
+ <PrenomUsuel>3</PrenomUsuel>
+ <PrenomNaissance></PrenomNaissance>
+ <DateNaissance></DateNaissance>
+ <DateEntreeGroupe></DateEntreeGroupe>
+ <Titre></Titre>
+ <Contextes>
+  <Contexte>
+   <IdContexte></IdContexte>
+   <SourceFk />
+   <TypeContexteFk />
+   <StatutContexteFk />
+   <DateDebutContexte></DateDebutContexte>
+   <DateFinContexte></DateFinContexte>
+   <OrganisationFk />
+   <SocieteFk />
+   <Fonction></Fonction>
+   <Service></Service>
+   <SocieteExterneFk />
+   <DomaineFk />
+   <NiveauResponsabiliteFk />
+   <Contacts>
+    <Contact>
+     <StatutContactFk />
+     <SpecialisationContactType />
+    </Contact>
+   </Contacts>
+  </Contexte>
+ </Contextes>
+</Personne>

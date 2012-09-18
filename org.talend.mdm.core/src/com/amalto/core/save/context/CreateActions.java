@@ -20,10 +20,12 @@ import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
+import org.w3c.dom.Node;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
+import com.amalto.core.history.accessor.DOMAccessor;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.ContainedTypeFieldMetadata;
@@ -41,7 +43,7 @@ import com.amalto.core.metadata.SimpleTypeFieldMetadata;
  */
 class CreateActions extends DefaultMetadataVisitor<List<Action>> {
 
-    private final Stack<String> path = new Stack<String>();
+    private final Stack<FieldMetadata> path = new Stack<FieldMetadata>();
 
     private final List<Action> actions = new LinkedList<Action>();
 
@@ -84,9 +86,9 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
             throw new IllegalStateException();
         } else {
             StringBuilder builder = new StringBuilder();
-            Iterator<String> pathIterator = path.iterator();
+            Iterator<FieldMetadata> pathIterator = path.iterator();
             while (pathIterator.hasNext()) {
-                builder.append(pathIterator.next());
+                builder.append(pathIterator.next().getName());
                 if (pathIterator.hasNext()) {
                     builder.append('/');
                 }
@@ -106,7 +108,7 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
 
     @Override
     public List<Action> visit(ReferenceFieldMetadata referenceField) {
-        path.push(referenceField.getName());
+        path.push(referenceField);
         {
             super.visit(referenceField);
         }
@@ -116,7 +118,7 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
 
     @Override
     public List<Action> visit(ContainedTypeFieldMetadata containedField) {
-        path.push(containedField.getName());
+        path.push(containedField);
         {
             super.visit(containedField);
         }
@@ -126,7 +128,7 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
 
     @Override
     public List<Action> visit(EnumerationFieldMetadata enumField) {
-        path.push(enumField.getName());
+        path.push(enumField);
         {
             super.visit(enumField);
         }
@@ -147,13 +149,35 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
     }
 
     private void handleField(FieldMetadata simpleField) {
+
+        // Under some circumstances, do not generate action(s) for UUID/AUTOINCREMENT(see TMDM-4473)
+        boolean doCreate = true;
+        if (!path.isEmpty()) {
+            FieldMetadata parentField = path.peek();
+            if (parentField != null) {
+
+                boolean isParentOptional = !parentField.isMandatory();
+
+                boolean isEmpty = false;
+                Accessor accessor = document.createAccessor(getPath());
+                Node parentNode=null;
+                if(accessor instanceof DOMAccessor)
+                    parentNode = ((DOMAccessor) accessor).getNode();
+                if (parentNode != null && (parentNode.getTextContent() == null || parentNode.getTextContent().isEmpty()))
+                    isEmpty = true;
+                
+                if(isParentOptional&&isEmpty)
+                    doCreate = false;
+            }
+        }        
+
         path.push(simpleField.getName());
         {
             // Handle UUID and AutoIncrement elements (this code also ensures any previous value is overwritten, see
             // TMDM-3900).
             // Note #2: This code generate values even for non-mandatory fields (but this is expected behavior).
             String currentPath = getPath();
-            if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(simpleField.getType().getName())) {
+            if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(simpleField.getType().getName()) && doCreate) {
                 String conceptName = rootTypeName + "." + getPath().replaceAll("/", "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 String autoIncrementValue = autoIncrementFieldMap.get(conceptName);
                 if (autoIncrementValue == null) {
@@ -166,7 +190,7 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
                     idValues.add(autoIncrementValue);
                 }
                 hasMetAutoIncrement = true; // Remembers we've just met an auto increment value
-            } else if (EUUIDCustomType.UUID.getName().equalsIgnoreCase(simpleField.getType().getName())) {
+            } else if (EUUIDCustomType.UUID.getName().equalsIgnoreCase(simpleField.getType().getName()) && doCreate) {
                 String uuidValue = UUID.randomUUID().toString();
                 if (simpleField.isKey()) {
                     idValues.add(uuidValue);
