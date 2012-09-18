@@ -19,9 +19,7 @@ import org.hibernate.Session;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 class FlatTypeMapping extends TypeMapping {
     public FlatTypeMapping(ComplexTypeMetadata complexType, MappingRepository mappings) {
@@ -50,7 +48,7 @@ class FlatTypeMapping extends TypeMapping {
                         } else {
                             List valueList = (List) value;
                             if (value != null) {
-                                list.addAll(valueList);
+                                list.retainAll(valueList);
                             } else {
                                 list.clear();
                             }
@@ -80,6 +78,8 @@ class FlatTypeMapping extends TypeMapping {
                                 Class<?> referencedClass = storageClassLoader.findClass(referencedType.getName());
                                 list.add(createReferencedObject(session, (ComplexTypeMetadata) referencedType, referencedClass, current));
                             }
+                        } else {
+                            list.clear();
                         }
                     }
                 } else if (field instanceof ContainedTypeFieldMetadata) {
@@ -93,9 +93,63 @@ class FlatTypeMapping extends TypeMapping {
                             }
                             containedDataRecord = dataRecords.get(0);
                         } else {
-                            containedDataRecord = (DataRecord) from.get(containedField);
+                            containedDataRecord = (DataRecord) from.get(containedField.getName());
                         }
-                        setValues(session, containedDataRecord, to);
+
+                        if (containedDataRecord == null) {
+                            // Nullify all fields reachable from contained data record.
+                            Set<FieldMetadata> reachableFields = field.getType().accept(new DefaultMetadataVisitor<Set<FieldMetadata>>() {
+                                Set<FieldMetadata> fields = new HashSet<FieldMetadata>();
+
+                                @Override
+                                public Set<FieldMetadata> visit(ComplexTypeMetadata complexType) {
+                                    super.visit(complexType);
+                                    return fields;
+                                }
+
+                                @Override
+                                public Set<FieldMetadata> visit(ContainedComplexTypeMetadata containedType) {
+                                    super.visit(containedType);
+                                    return fields;
+                                }
+
+                                @Override
+                                public Set<FieldMetadata> visit(ReferenceFieldMetadata referenceField) {
+                                    fields.add(referenceField);
+                                    return fields;
+                                }
+
+                                @Override
+                                public Set<FieldMetadata> visit(SimpleTypeFieldMetadata simpleField) {
+                                    fields.add(simpleField);
+                                    return fields;
+                                }
+
+                                @Override
+                                public Set<FieldMetadata> visit(EnumerationFieldMetadata enumField) {
+                                    fields.add(enumField);
+                                    return fields;
+                                }
+                            });
+                            reachableFields.add(field);
+
+                            for (FieldMetadata fieldMetadata : reachableFields) {
+                                FieldMetadata databaseMapping = getDatabase(fieldMetadata);
+                                if (databaseMapping != null) {
+                                    Iterator<FieldMetadata> pathToValue = MetadataUtils.path(from.getType(), fieldMetadata).iterator();
+                                    Object current = from;
+                                    while (pathToValue.hasNext() && current != null) {
+                                        FieldMetadata currentField = pathToValue.next();
+                                        current = ((DataRecord) current).get(currentField);
+                                    }
+                                    if (current == null) {
+                                        to.set(databaseMapping.getName(), null);
+                                    }
+                                }
+                            }
+                        } else {
+                            setValues(session, containedDataRecord, to);
+                        }
                     }
                 }
             }

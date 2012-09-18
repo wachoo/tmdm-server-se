@@ -46,6 +46,10 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
             // Try to load existing instance (if any).
             Wrapper mainInstance;
             try {
+                if (!session.getTransaction().isActive()) {
+                    // Hibernate needs a active session to read instances.
+                    session.getTransaction().begin();
+                }
                 if (dataRecord.getType().getKeyFields().size() == 1) {
                     mainInstance = (Wrapper) session.get(mainInstanceClass, (Serializable) dataRecord.get(dataRecord.getType().getKeyFields().get(0).getName()));
                 } else {

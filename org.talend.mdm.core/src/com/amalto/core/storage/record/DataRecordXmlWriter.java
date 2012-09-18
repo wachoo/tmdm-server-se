@@ -153,9 +153,11 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                     } else {
                         List valueAsList = (List) value;
                         for (Object currentValue : valueAsList) {
-                            out.write("<" + simpleField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
-                            handleSimpleValue(simpleField, currentValue);
-                            out.write("</" + simpleField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
+                            if (currentValue != null) {
+                                out.write("<" + simpleField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
+                                handleSimpleValue(simpleField, currentValue);
+                                out.write("</" + simpleField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
+                            }
                         }
                     }
                 }
@@ -177,9 +179,11 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                     } else {
                         List valueAsList = (List) value;
                         for (Object currentValue : valueAsList) {
-                            out.write("<" + enumField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
-                            handleSimpleValue(enumField, currentValue);
-                            out.write("</" + enumField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
+                            if (currentValue != null) {
+                                out.write("<" + enumField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
+                                handleSimpleValue(enumField, currentValue);
+                                out.write("</" + enumField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
+                            }
                         }
                     }
                 }
