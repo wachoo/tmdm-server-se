@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,9 +22,11 @@ import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyTabModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
@@ -90,6 +93,16 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
                     fkPanel.layout(true);
                 }
             });
+            ItemPanel panel = BrowseRecords.getSession().getCurrentCreatedEntity();
+            if (panel != null) {
+                List<ForeignKeyTabModel> list = BrowseRecords.getSession().getCurrentCreatedFKTabs();
+                if(list == null){
+                    list = new ArrayList<ForeignKeyTabModel>();
+                }
+                ForeignKeyTabModel fkTabModel = new ForeignKeyTabModel(parentModel, xpathLabel, itemPanel);
+                list.add(fkTabModel);
+                BrowseRecords.getSession().put(UserSession.CURRENT_CREATED_FKTABS, list);
+            }
         }
     }
 
@@ -99,5 +112,9 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             tabItem.deleteContent();
             relationFk.remove(parentModel);
         }
+    }
+    
+    public void setRelationFk(ItemNodeModel parentModel, ItemDetailTabPanelContentHandle handle) {
+        relationFk.put(parentModel, handle);
     }
 }

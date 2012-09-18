@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyTabModel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
@@ -49,6 +50,8 @@ public class UserSession implements Serializable {
     public static final String CUSTOMIZE_CRITERION_STORE = "customizeCriterionStore"; //$NON-NLS-1$
     
     public static final String CURRENT_CREATED_ENTITY = "currentCreatedEntity"; //$NON-NLS-1$
+    
+    public static final String CURRENT_CREATED_FKTABS = "currentCreatedFK"; //$NON-NLS-1$
 
     private Map<String, Object> sessionMap = null;
 
@@ -119,5 +122,10 @@ public class UserSession implements Serializable {
     
     public ItemPanel getCurrentCreatedEntity() {
         return (ItemPanel) get(CURRENT_CREATED_ENTITY);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public List<ForeignKeyTabModel> getCurrentCreatedFKTabs() {
+        return (List<ForeignKeyTabModel>) get(CURRENT_CREATED_FKTABS);
     }
 }
