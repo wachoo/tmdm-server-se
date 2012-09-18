@@ -14,7 +14,7 @@ package com.amalto.core.history.accessor;
 /**
  *
  */
-interface DOMAccessor extends Accessor {
+public interface DOMAccessor extends Accessor {
     
     String MODIFIED_MARKER_VALUE = "tree-node-different"; //$NON-NLS-1$
 
