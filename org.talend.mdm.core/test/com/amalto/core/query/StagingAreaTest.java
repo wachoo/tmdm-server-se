@@ -18,6 +18,7 @@ import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.core.query.user.UserStagingQueryBuilder;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.SaverSource;
@@ -261,6 +262,63 @@ public class StagingAreaTest extends TestCase {
                 origin.fetch(
                         UserQueryBuilder.from(person).where(eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)).getSelect())
                         .getCount());
+    }
+
+    public void testQuerySource() throws Exception {
+        generateData(true);
+
+        Select selectSource = UserQueryBuilder.from(person)
+                .select(alias(UserStagingQueryBuilder.source(), UserQueryBuilder.STAGING_SOURCE_ALIAS)).getSelect();
+        StorageResults results = origin.fetch(selectSource);
+        for (DataRecord result : results) {
+            assertTrue(result.getType().hasField(UserQueryBuilder.STAGING_SOURCE_ALIAS));
+            assertNull(result.get(UserQueryBuilder.STAGING_SOURCE_ALIAS));
+        }
+
+        selectSource = UserQueryBuilder.from(person).select(person, UserQueryBuilder.STAGING_SOURCE_FIELD).getSelect();
+        results = origin.fetch(selectSource);
+        for (DataRecord result : results) {
+            assertTrue(result.getType().hasField(UserQueryBuilder.STAGING_SOURCE_ALIAS));
+            assertNull(result.get(UserQueryBuilder.STAGING_SOURCE_ALIAS));
+        }
+    }
+
+    public void testQueryError() throws Exception {
+        generateData(true);
+
+        Select selectSource = UserQueryBuilder.from(person)
+                .select(alias(UserStagingQueryBuilder.error(), UserQueryBuilder.STAGING_ERROR_ALIAS)).getSelect();
+        StorageResults results = origin.fetch(selectSource);
+        for (DataRecord result : results) {
+            assertTrue(result.getType().hasField(UserQueryBuilder.STAGING_ERROR_ALIAS));
+            assertNull(result.get(UserQueryBuilder.STAGING_ERROR_ALIAS));
+        }
+
+        selectSource = UserQueryBuilder.from(person).select(person, UserQueryBuilder.STAGING_ERROR_FIELD).getSelect();
+        results = origin.fetch(selectSource);
+        for (DataRecord result : results) {
+            assertTrue(result.getType().hasField(UserQueryBuilder.STAGING_ERROR_ALIAS));
+            assertNull(result.get(UserQueryBuilder.STAGING_ERROR_ALIAS));
+        }
+    }
+
+    public void testQueryStatus() throws Exception {
+        generateData(true);
+
+        Select selectSource = UserQueryBuilder.from(person)
+                .select(alias(UserStagingQueryBuilder.error(), UserQueryBuilder.STAGING_STATUS_ALIAS)).getSelect();
+        StorageResults results = origin.fetch(selectSource);
+        for (DataRecord result : results) {
+            assertTrue(result.getType().hasField(UserQueryBuilder.STAGING_STATUS_ALIAS));
+            assertNull(result.get(UserQueryBuilder.STAGING_STATUS_ALIAS));
+        }
+
+        selectSource = UserQueryBuilder.from(person).select(person, UserQueryBuilder.STAGING_STATUS_FIELD).getSelect();
+        results = origin.fetch(selectSource);
+        for (DataRecord result : results) {
+            assertTrue(result.getType().hasField(UserQueryBuilder.STAGING_STATUS_ALIAS));
+            assertNull(result.get(UserQueryBuilder.STAGING_STATUS_ALIAS));
+        }
     }
 
     private static class TestSaverSource implements SaverSource {

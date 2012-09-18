@@ -223,6 +223,18 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(StagingError stagingError) {
+        print("[Technical field: STAGING_ERROR]");
+        return null;
+    }
+
+    @Override
+    public Void visit(StagingSource stagingSource) {
+        print("[Technical field: STAGING_SOURCE]");
+        return null;
+    }
+
     public Void visit(Join join) {
         print("[JOIN]");
         increaseIndent();

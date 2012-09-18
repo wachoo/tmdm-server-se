@@ -150,6 +150,30 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                         }
                         return null;
                     }
+
+                    @Override
+                    public FieldMetadata visit(StagingStatus stagingStatus) {
+                        if (!isAlias) {
+                            return createField(StagingStatus.STATING_STATUS_TYPE_NAME, Storage.METADATA_STAGING_STATUS);
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    public FieldMetadata visit(StagingError stagingError) {
+                        if (!isAlias) {
+                            return createField(StagingError.STATING_ERROR_TYPE_NAME, Storage.METADATA_STAGING_ERROR);
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    public FieldMetadata visit(StagingSource stagingSource) {
+                        if (!isAlias) {
+                            return createField(StagingSource.STATING_SOURCE_TYPE_NAME, Storage.METADATA_STAGING_SOURCE);
+                        }
+                        return null;
+                    }
                 });
                 explicitProjectionType.addField(field);
                 record.set(field, value);

@@ -38,6 +38,10 @@ public interface Visitor<T> {
 
     T visit(StagingStatus stagingStatus);
 
+    T visit(StagingError stagingError);
+
+    T visit(StagingSource stagingSource);
+
     T visit(Join join);
 
     T visit(Expression expression);

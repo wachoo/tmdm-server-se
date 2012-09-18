@@ -201,6 +201,24 @@ class StandardQueryHandler extends AbstractQueryHandler {
     }
 
     @Override
+    public StorageResults visit(StagingStatus stagingStatus) {
+        projectionList.add(Projections.property(Storage.METADATA_STAGING_STATUS));
+        return null;
+    }
+
+    @Override
+    public StorageResults visit(StagingError stagingError) {
+        projectionList.add(Projections.property(Storage.METADATA_STAGING_ERROR));
+        return null;
+    }
+
+    @Override
+    public StorageResults visit(StagingSource stagingSource) {
+        projectionList.add(Projections.property(Storage.METADATA_STAGING_SOURCE));
+        return null;
+    }
+
+    @Override
     public StorageResults visit(Field field) {
         if (field.getFieldMetadata().isMany()) {
             throw new NotImplementedException("Support for collections in projections is not supported.");
@@ -662,6 +680,16 @@ class StandardQueryHandler extends AbstractQueryHandler {
         @Override
         public FieldCondition visit(StagingStatus stagingStatus) {
             return createInternalCondition(Storage.METADATA_STAGING_STATUS);
+        }
+
+        @Override
+        public FieldCondition visit(StagingError stagingError) {
+            return createInternalCondition(Storage.METADATA_STAGING_ERROR);
+        }
+
+        @Override
+        public FieldCondition visit(StagingSource stagingSource) {
+            return createInternalCondition(Storage.METADATA_STAGING_SOURCE);
         }
 
         @Override

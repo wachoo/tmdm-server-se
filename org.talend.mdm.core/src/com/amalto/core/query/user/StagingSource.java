@@ -11,17 +11,17 @@
 
 package com.amalto.core.query.user;
 
-public class StagingStatus implements TypedExpression {
+public class StagingSource implements TypedExpression {
 
-    public static final String STATING_STATUS_TYPE_NAME = "int";
+    public static final String STATING_SOURCE_TYPE_NAME = "string";
 
-    public static final StagingStatus INSTANCE = new StagingStatus();
+    public static final StagingSource INSTANCE = new StagingSource();
 
-    private StagingStatus() {
+    private StagingSource() {
     }
 
     public String getTypeName() {
-        return STATING_STATUS_TYPE_NAME;
+        return STATING_SOURCE_TYPE_NAME;
     }
 
     public Expression normalize() {

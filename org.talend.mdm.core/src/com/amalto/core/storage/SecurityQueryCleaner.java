@@ -172,4 +172,14 @@ class SecurityQueryCleaner extends VisitorAdapter<Expression> {
     public Expression visit(StagingStatus stagingStatus) {
         return stagingStatus;
     }
+
+    @Override
+    public Expression visit(StagingError stagingError) {
+        return stagingError;
+    }
+
+    @Override
+    public Expression visit(StagingSource stagingSource) {
+        return stagingSource;
+    }
 }

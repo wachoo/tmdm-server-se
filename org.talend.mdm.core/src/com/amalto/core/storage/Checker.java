@@ -178,6 +178,16 @@ class Checker extends VisitorAdapter<Boolean> {
     }
 
     @Override
+    public Boolean visit(StagingError stagingError) {
+        return true;
+    }
+
+    @Override
+    public Boolean visit(StagingSource stagingSource) {
+        return true;
+    }
+
+    @Override
     public Boolean visit(Range range) {
         return range.getExpression().accept(this);
     }

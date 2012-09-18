@@ -26,6 +26,22 @@ import java.util.List;
  */
 public class UserQueryBuilder {
 
+    public static final String STAGING_STATUS_FIELD = "$staging_status$"; //$NON-NLS-1$
+
+    public static final String STAGING_SOURCE_FIELD = "$staging_source$"; //$NON-NLS-1$
+
+    public static final String STAGING_ERROR_FIELD = "$staging_error$"; //$NON-NLS-1$
+
+    public static final String STAGING_STATUS_ALIAS = "staging_status"; //$NON-NLS-1$
+
+    public static final String STAGING_SOURCE_ALIAS = "staging_source"; //$NON-NLS-1$
+
+    public static final String STAGING_ERROR_ALIAS = "staging_error"; //$NON-NLS-1$
+
+    public static final String TIMESTAMP_FIELD = "../../t"; //$NON-NLS-1$
+
+    public static final String TIMESTAMP_ALIAS = "timestamp"; //$NON-NLS-1$
+
     private static final Logger LOGGER = Logger.getLogger(UserQueryBuilder.class);
 
     private final Expression expression;
@@ -296,6 +312,25 @@ public class UserQueryBuilder {
         }
         expressionAsSelect().getSelectedFields().add(typedExpression);
         expressionAsSelect().setProjection(true);
+        return this;
+    }
+
+    public UserQueryBuilder select(ComplexTypeMetadata type, String fieldName) {
+        if (type.hasField(fieldName)) {
+            select(type.getField(fieldName));
+        } else {
+            if (STAGING_STATUS_FIELD.equals(fieldName)) {
+                select(alias(UserStagingQueryBuilder.status(), STAGING_STATUS_ALIAS));
+            } else if (STAGING_SOURCE_FIELD.equals(fieldName)) {
+                select(alias(UserStagingQueryBuilder.source(), STAGING_SOURCE_ALIAS));
+            } else if (STAGING_ERROR_FIELD.equals(fieldName)) {
+                select(alias(UserStagingQueryBuilder.error(), STAGING_ERROR_ALIAS));
+            } else if (TIMESTAMP_FIELD.equals(fieldName)) {
+                select(alias(timestamp(), TIMESTAMP_ALIAS));
+            } else {
+                throw new IllegalArgumentException("Field '" + fieldName + "' is not supported.");
+            }
+        }
         return this;
     }
 

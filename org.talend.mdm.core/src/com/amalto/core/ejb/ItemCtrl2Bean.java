@@ -509,7 +509,7 @@ public class ItemCtrl2Bean implements SessionBean {
             // Check if user is allowed to read the cluster
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
-            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
+            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$
                 authorized = true;
             } else if (user.userCanRead(DataClusterPOJO.class, dataClusterPOJOPK.getUniqueId())) {
                 authorized = true;
@@ -550,21 +550,19 @@ public class ItemCtrl2Bean implements SessionBean {
                 return xmlServer.runQuery(null, null, query, null);
             } else {
                 MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
-                // TODO Other viewable types
-                // TODO Fields
-                String typeName = viewablePaths.get(0).split("/")[0];
+                String typeName = StringUtils.substringBefore(viewablePaths.get(0), "/"); //$NON-NLS-1$
                 ComplexTypeMetadata type = repository.getComplexType(typeName);
                 UserQueryBuilder qb = from(type);
                 qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
                 qb.start(start);
                 qb.limit(limit);
                 if (orderBy != null) {
-                    FieldMetadata field = type.getField(StringUtils.substringAfter(orderBy, "/"));
+                    FieldMetadata field = type.getField(StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
                     if (field == null) {
                         throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
                     }
                     OrderBy.Direction queryDirection;
-                    if ("ascending".equals(direction)) {
+                    if ("ascending".equals(direction)) { //$NON-NLS-1$
                         queryDirection = OrderBy.Direction.ASC;
                     } else {
                         queryDirection = OrderBy.Direction.DESC;
@@ -572,11 +570,18 @@ public class ItemCtrl2Bean implements SessionBean {
                     qb.orderBy(field, queryDirection);
                 }
 
+                // Select fields
+                for (String viewablePath : viewablePaths) {
+                    String viewableTypeName = StringUtils.substringBefore(viewablePath, "/"); //$NON-NLS-1$
+                    String viewableFieldName = StringUtils.substringAfter(viewablePath, "/"); //$NON-NLS-1$
+                    qb.select(repository.getComplexType(viewableTypeName), viewableFieldName);
+                }
+
                 StorageResults results;
                 ArrayList<String> resultsAsString = new ArrayList<String>();
                 if (returnCount) {
                     results = storage.fetch(qb.getSelect());
-                    resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>");
+                    resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 results = storage.fetch(qb.getSelect());
                 DataRecordWriter writer = new DataRecordWriter() {
@@ -586,17 +591,17 @@ public class ItemCtrl2Bean implements SessionBean {
                     }
 
                     public void write(DataRecord record, Writer writer) throws IOException {
-                        writer.write("<result>\n");
+                        writer.write("<result>\n"); //$NON-NLS-1$
                         for (FieldMetadata fieldMetadata : record.getSetFields()) {
                             Object value = record.get(fieldMetadata);
                             if (fieldMetadata.isKey()) {
-                                writer.append("\t<i>").append(String.valueOf(value)).append("</i>\n");
+                                writer.append("\t<i>").append(String.valueOf(value)).append("</i>\n"); //$NON-NLS-1$  //$NON-NLS-2$
                             }
                             if (value != null) {
-                                writer.append("\t<").append(fieldMetadata.getName()).append(">").append(String.valueOf(value)).append("</").append(fieldMetadata.getName()).append(">\n");
+                                writer.append("\t<").append(fieldMetadata.getName()).append(">").append(String.valueOf(value)).append("</").append(fieldMetadata.getName()).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                             }
                         }
-                        writer.append("</result>");
+                        writer.append("</result>"); //$NON-NLS-1$
                         writer.flush();
                     }
                 };

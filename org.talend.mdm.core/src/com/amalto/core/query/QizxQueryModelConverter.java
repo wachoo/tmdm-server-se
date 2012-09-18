@@ -121,6 +121,16 @@ public class QizxQueryModelConverter implements Visitor<Expression> {
         throw new NotImplementedException();
     }
 
+    @Override
+    public Expression visit(StagingError stagingError) {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public Expression visit(StagingSource stagingSource) {
+        throw new NotImplementedException();
+    }
+
     public Expression visit(Join join) {
         Variable joinVariable = new Variable();
         typeToVariable.put(join.getRightField().getFieldMetadata().getContainingType(), joinVariable);
