@@ -50,6 +50,10 @@ public class PagingToolBarEx extends PagingToolBar {
 
     NumberField sizeField;
 
+    boolean isFireKeyEnter;
+
+    boolean isBrowseRecordsGridCall;
+
     public PagingToolBarEx(int pageSize) {
         super(pageSize);
         setLayout(new PagingToolBarExLayout());
@@ -69,17 +73,23 @@ public class PagingToolBarEx extends PagingToolBar {
         sizeField.addListener(Events.Change, new Listener<BaseEvent>() {
 
             public void handleEvent(BaseEvent be) {
-                if (sizeField.isValid() && sizeField.getValue() != null) {
-                    setPageSize((int) Double.parseDouble(sizeField.getValue() + "")); //$NON-NLS-1$
-                    first();
+                if (isFireKeyEnter && isBrowseRecordsGridCall) {
+                    isFireKeyEnter = false;
+                    return;
                 }
+                isFireKeyEnter = false;
+                refreshData();
             }
         });
         sizeField.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
             public void handleEvent(FieldEvent fe) {
                 if (fe.getKeyCode() == KeyCodes.KEY_ENTER) {
+                    isFireKeyEnter = true;
                     blur(inputEl.dom);
+                    if (!sizeField.isFireChangeEventOnSetValue()) {
+                        refreshData();
+                    }
                 }
             }
         });
@@ -136,6 +146,17 @@ public class PagingToolBarEx extends PagingToolBar {
         }else{
         	last();
         }
+    }
+
+    private void refreshData() {
+        if (sizeField.isValid() && sizeField.getValue() != null) {
+            setPageSize((int) Double.parseDouble(sizeField.getValue() + "")); //$NON-NLS-1$
+            first();
+        }
+    }
+
+    public void setBrowseRecordsGridCall(boolean isBrowseRecordsGridCall) {
+        this.isBrowseRecordsGridCall = isBrowseRecordsGridCall;
     }
 
     class PagingToolBarExLayout extends ToolBarLayout {
