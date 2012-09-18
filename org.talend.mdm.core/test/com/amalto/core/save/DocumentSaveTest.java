@@ -184,11 +184,6 @@ public class DocumentSaveTest extends TestCase {
         assertNotSame("100", saver.getSavedId()[0]);
     }
 
-    static {
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
-    }
-
     public void testCreateWithUUIDAndAUTOINCIgnore() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("Personne.xsd"));
