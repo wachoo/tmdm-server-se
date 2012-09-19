@@ -1225,21 +1225,11 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testNativeQueryWithReturn() throws Exception {
         UserQueryBuilder qb = from("SELECT * FROM PERSON;");
-        try {
-            storage.fetch(qb.getExpression());
-            fail("Native query support not yet implemented.");
-        } catch (Exception e) {
-            // Expected
-        }
-    }
-
-    public void testNativeQueryWithoutReturn() throws Exception {
-        UserQueryBuilder qb = from("UPDATE PERSON SET x_score=2;");
-        try {
-            storage.fetch(qb.getExpression());
-            fail("Native query support not yet implemented.");
-        } catch (Exception e) {
-            // Expected
+        StorageResults results = storage.fetch(qb.getExpression());
+        assertEquals(3, results.getCount());
+        assertEquals(3, results.getSize());
+        for (DataRecord result : results) {
+            assertNotNull(result.get("col0") != null);
         }
     }
 

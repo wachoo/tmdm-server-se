@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage;
 
+import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.metadata.*;
 import com.amalto.core.query.user.Condition;
 import com.amalto.core.query.user.Select;
@@ -407,13 +408,33 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters) throws XmlServerException {
-        // Don't support query text stuff
-        throw new UnsupportedOperationException();
+        return runQuery(revisionID, clusterName, query, parameters, 0, 0, false);
     }
 
     public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters, int start, int limit, boolean withTotalCount) throws XmlServerException {
-        // Don't support query text stuff
-        throw new UnsupportedOperationException();
+        Storage storage = storageAdmin.get(clusterName);
+         // replace parameters in the procedure
+        if (parameters != null) {
+            for (int i = 0; i < parameters.length; i++) {
+                String param = parameters[i];
+                query = query.replaceAll("([^\\\\])%" + i + "([^\\d])", "$1" + param + "$2"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            }
+        }
+        UserQueryBuilder qb = from(query);
+        StorageResults results = storage.fetch(qb.getExpression());
+        ArrayList<String> resultsAsString = new ArrayList<String>(results.getSize() + 1);
+        ResettableStringWriter writer = new ResettableStringWriter();
+        DataRecordWriter xmlWriter = new DataRecordXmlWriter("result"); //$NON-NLS-1$
+        try {
+            for (DataRecord result : results) {
+                xmlWriter.write(result, writer);
+                resultsAsString.add(writer.toString());
+                writer.reset();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Could not create query results", e);
+        }
+        return resultsAsString;
     }
 
     public List<String> getItemPKsByCriteria(ItemPKCriteria criteria) throws XmlServerException {

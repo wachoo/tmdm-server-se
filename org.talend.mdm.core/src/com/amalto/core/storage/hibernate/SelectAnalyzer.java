@@ -16,7 +16,6 @@ import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
@@ -56,7 +55,7 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     @Override
     public AbstractQueryHandler visit(NativeQuery nativeQuery) {
-        throw new NotImplementedException("No support for native queries (yet).");
+        return new NativeQueryHandler(storage, storageRepository, storageClassLoader, session, callbacks);
     }
 
     @Override

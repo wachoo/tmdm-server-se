@@ -201,7 +201,7 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
     protected String getDialect(RDBMSDataSource.DataSourceDialect dialectType) {
         switch (dialectType) {
             case H2:
-                return "org.hibernate.dialect.H2Dialect"; //$NON-NLS-1$
+                return "com.amalto.core.storage.hibernate.H2CustomDialect"; //$NON-NLS-1$
             default:
                 throw new IllegalArgumentException("Not supported database type '" + dialectType + "'");
         }

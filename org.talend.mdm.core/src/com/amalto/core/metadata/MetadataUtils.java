@@ -378,6 +378,38 @@ public class MetadataUtils {
     }
 
     /**
+     * @param javaClassName A java class name.
+     * @return The XSD type that can be used to store a value typed as <code>javaClassName</code>.
+     * @throws UnsupportedOperationException If there's no known mapping from this java class to a XSD primitive type.
+     */
+    public static String getType(String javaClassName) {
+        if ("java.lang.String".equals(javaClassName)) {
+            return "string";
+        } else if ("java.lang.Integer".equals(javaClassName)
+                || "java.math.BigInteger".equals(javaClassName)) {
+            return "int";
+        } else if ("java.lang.Boolean".equals(javaClassName)) {
+            return "boolean";
+        } else if ("java.math.BigDecimal".equals(javaClassName)) {
+            return "decimal";
+        } else if ("java.sql.Timestamp".equals(javaClassName)) {
+            return "dateTime";
+        } else if ("java.lang.Short".equals(javaClassName)) {
+            return "short";
+        } else if ("java.lang.Long".equals(javaClassName)) {
+            return "long";
+        } else if ("java.lang.Float".equals(javaClassName)) {
+            return "float";
+        } else if ("java.lang.Byte".equals(javaClassName)) {
+            return "byte";
+        } else if ("java.lang.Double".equals(javaClassName)) {
+            return "double";
+        } else {
+            throw new UnsupportedOperationException("No support for java class '" + javaClassName + "'");
+        }
+    }
+
+    /**
      * <p>
      * Sorts type in inverse order of dependency (topological sort). A dependency to <i>type</i> might be:
      * <ul>

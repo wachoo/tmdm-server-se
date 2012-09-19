@@ -582,8 +582,10 @@ public class HibernateStorage implements Storage {
         AbstractQueryHandler queryHandler = userQuery.accept(selectAnalysis);
         // Always normalize the query to ensure query has expected format.
         Expression expression = userQuery.normalize();
-        for (Optimizer optimizer : OPTIMIZERS) {
-            optimizer.optimize((Select) expression);
+        if (expression instanceof Select) {
+            for (Optimizer optimizer : OPTIMIZERS) {
+                optimizer.optimize((Select) expression);
+            }
         }
         return expression.accept(queryHandler);
     }
