@@ -12,6 +12,7 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.*;
+import com.amalto.core.query.optimization.ContainsOptimizer;
 import com.amalto.core.query.optimization.Optimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.user.Expression;
@@ -56,7 +57,7 @@ public class HibernateStorage implements Storage {
 
     private static final Logger LOGGER = Logger.getLogger(HibernateStorage.class);
 
-    private static final Optimizer[] OPTIMIZERS = new Optimizer[]{new RangeOptimizer()};
+    private static final Optimizer[] OPTIMIZERS = new Optimizer[]{new RangeOptimizer(), new ContainsOptimizer()};
 
     private static final String FORBIDDEN_PREFIX = "x_talend_"; //$NON-NLS-1$
 

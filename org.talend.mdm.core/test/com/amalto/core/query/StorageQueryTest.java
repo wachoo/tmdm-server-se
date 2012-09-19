@@ -84,7 +84,7 @@ public class StorageQueryTest extends StorageTestCase {
                         .read(1,
                                 repository,
                                 person,
-                                "<Person><id>1</id><score>130000.00</score><lastname>Dupond</lastname><middlename>John</middlename><firstname>Julien</firstname><addresses><address>[2][true]</address><address>[1][false]</address></addresses><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
+                                "<Person><id>1</id><score>130000.00</score><lastname>Dupond</lastname><resume>[EN:my splendid resume, splendid isn't it][FR:mon magnifique résumé, n'est ce pas ?]</resume><middlename>John</middlename><firstname>Julien</firstname><addresses><address>[2][true]</address><address>[1][false]</address></addresses><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
         allRecords
                 .add(factory
                         .read(1,
@@ -153,10 +153,12 @@ public class StorageQueryTest extends StorageTestCase {
         DataRecordXmlWriter writer = new DataRecordXmlWriter();
         try {
             String expectedXml = "<Person><id>1</id><firstname>Julien</firstname><middlename>John</middlename><lastname>"
-                    + "Dupond</lastname><age>10</age><score>130000.00</score><Available>true</Available><addresses><address>[2][true]</address><address>"
+                    + "Dupond</lastname><resume>[EN:my splendid resume, splendid isn't it][FR:mon magnifique résumé, n'est ce pas ?]</resume>"
+                    + "<age>10</age><score>130000.00</score><Available>true</Available><addresses><address>[2][true]</address><address>"
                     + "[1][false]</address></addresses><Status>Employee</Status></Person>";
             String expectedXml2 = "<Person><id>1</id><firstname>Julien</firstname><middlename>John</middlename><lastname>"
-                    + "Dupond</lastname><age>10</age><score>130000</score><Available>true</Available><addresses><address>[2][true]</address><address>"
+                    + "Dupond</lastname><resume>[EN:my splendid resume, splendid isn't it][FR:mon magnifique résumé, n'est ce pas ?]</resume>"
+                    + "<age>10</age><score>130000</score><Available>true</Available><addresses><address>[2][true]</address><address>"
                     + "[1][false]</address></addresses><Status>Employee</Status></Person>";
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             for (DataRecord result : results) {
@@ -1238,6 +1240,60 @@ public class StorageQueryTest extends StorageTestCase {
             fail("Native query support not yet implemented.");
         } catch (Exception e) {
             // Expected
+        }
+    }
+
+    public void testContainsWithWildcards() throws Exception {
+        UserQueryBuilder qb = from(person)
+                .where(contains(person.getField("firstname"), "*Ju*e"));
+
+        Select select = qb.getSelect();
+        assertNotNull(select);
+        Condition condition = select.getCondition();
+        assertNotNull(condition);
+        assertTrue(condition instanceof Compare);
+        Compare compareCondition = (Compare) condition;
+        Expression right = compareCondition.getRight();
+        assertTrue(right instanceof StringConstant);
+        assertEquals("*Ju*e", ((StringConstant) right).getValue());
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testMultiLingualSearch() throws Exception {
+        UserQueryBuilder qb = from(person)
+                .select(person.getField("resume"))
+                .where(contains(person.getField("resume"), "*[EN:*splendid*]*"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(person)
+                .select(person.getField("resume"))
+                .where(contains(person.getField("resume"), "*[FR:*magnifique*]*"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(person)
+                .select(person.getField("resume"))
+                .where(contains(person.getField("resume"), "*[FR:*splendid*]*"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
         }
     }
 }

@@ -13,6 +13,12 @@
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
+    <xsd:simpleType name="MULTILINGUAL">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="(\[\w+\:[^\[\]]*\]){0,}"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
     <!-- PERSON DATA MODEL -->
 
     <xsd:element name="Person">
@@ -22,6 +28,7 @@
                 <xsd:element name="firstname" type="xsd:string"/>
                 <xsd:element name="middlename" type="xsd:string"/>
                 <xsd:element name="lastname" type="xsd:string"/>
+                <xsd:element name="resume" minOccurs="0" maxOccurs="1" type="MULTILINGUAL"/>
                 <xsd:element name="age" type="xsd:positiveInteger"/>
                 <xsd:element name="score" type="xsd:decimal"/>
                 <xsd:element minOccurs="0" name="Available" type="xsd:boolean"/>

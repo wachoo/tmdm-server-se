@@ -607,7 +607,18 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 if (predicate == Predicate.EQUALS) {
                     return eq(leftFieldCondition.criterionFieldName, compareValue);
                 } else if (predicate == Predicate.CONTAINS) {
-                    return like(leftFieldCondition.criterionFieldName, "%" + compareValue + "%"); //$NON-NLS-1$ //$NON-NLS-2$
+                    String value = String.valueOf(compareValue);
+                    if (!value.isEmpty()) {
+                        if (value.charAt(0) != '%') {
+                            value = '%' + value;
+                        }
+                        if (value.charAt(value.length() - 1) != '%') {
+                            value += '%';
+                        }
+                    } else {
+                        value = "%"; //$NON-NLS-1$
+                    }
+                    return like(leftFieldCondition.criterionFieldName, value);
                 } else if (predicate == Predicate.GREATER_THAN) {
                     return gt(leftFieldCondition.criterionFieldName, compareValue);
                 } else if (predicate == Predicate.LOWER_THAN) {
