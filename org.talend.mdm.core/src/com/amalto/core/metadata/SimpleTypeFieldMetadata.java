@@ -20,30 +20,32 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
 
     private final boolean isMany;
 
-    private String name;
-
-    private final TypeMetadata fieldType;
+    private final String name;
 
     private final List<String> allowWriteUsers;
 
     private final List<String> hideUsers;
 
-    private final boolean isKey;
-
-    private final TypeMetadata declaringType;
-
     private final boolean isMandatory;
-    
+
+    private TypeMetadata fieldType;
+
+    private boolean isKey;
+
+    private TypeMetadata declaringType;
+
     private ComplexTypeMetadata containingType;
+
+    private boolean isFrozen;
 
     public SimpleTypeFieldMetadata(ComplexTypeMetadata containingType, boolean isKey, boolean isMany, boolean isMandatory, String name, TypeMetadata fieldType, List<String> allowWriteUsers, List<String> hideUsers) {
         if (fieldType == null) {
-            throw new IllegalArgumentException("Type name cannot be null.");
+            throw new IllegalArgumentException("Field type cannot be null.");
         }
         if (isKey && !isMandatory) {
-            throw new IllegalArgumentException("Key field must be mandatory (field '" + name + "' or type '" + containingType.getName() + "' is optional)");
+            throw new IllegalArgumentException("Key field must be mandatory (field '" + name + "' in type '" + containingType.getName() + "' is optional)");
         }
-        
+
         this.isMandatory = isMandatory;
         this.containingType = containingType;
         this.declaringType = containingType;
@@ -72,7 +74,21 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
     }
 
     public void setContainingType(ComplexTypeMetadata typeMetadata) {
+        assertFrozen();
         this.containingType = typeMetadata;
+    }
+
+    public FieldMetadata freeze() {
+        if (isFrozen) {
+            return this;
+        }
+        isFrozen = true;
+        fieldType = fieldType.freeze();
+        return this;
+    }
+
+    public void promoteToKey() {
+        isKey = true;
     }
 
     public TypeMetadata getDeclaringType() {
@@ -137,8 +153,6 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
         if (isMany != that.isMany) return false;
         if (allowWriteUsers != null ? !allowWriteUsers.equals(that.allowWriteUsers) : that.allowWriteUsers != null)
             return false;
-        if (containingType != null ? !containingType.equals(that.containingType) : that.containingType != null)
-            return false;
         if (declaringType != null ? !declaringType.equals(that.declaringType) : that.declaringType != null)
             return false;
         if (fieldType != null ? !fieldType.equals(that.fieldType) : that.fieldType != null) return false;
@@ -152,13 +166,18 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
     public int hashCode() {
         int result = (isMany ? 1 : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (fieldType != null ? fieldType.hashCode() : 0);
+        result = 31 * result + (fieldType != null ? fieldType.getName().hashCode() : 0);
         result = 31 * result + (allowWriteUsers != null ? allowWriteUsers.hashCode() : 0);
         result = 31 * result + (hideUsers != null ? hideUsers.hashCode() : 0);
         result = 31 * result + (isKey ? 1 : 0);
-        result = 31 * result + (declaringType != null ? declaringType.hashCode() : 0);
+        result = 31 * result + (declaringType != null ? declaringType.getName().hashCode() : 0);
         result = 31 * result + (isMandatory ? 1 : 0);
-        result = 31 * result + (containingType != null ? containingType.hashCode() : 0);
         return result;
+    }
+
+    private void assertFrozen() {
+        if (isFrozen) {
+            throw new IllegalStateException("Field definition is frozen");
+        }
     }
 }

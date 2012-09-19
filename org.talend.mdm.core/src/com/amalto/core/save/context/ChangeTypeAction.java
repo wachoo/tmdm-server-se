@@ -46,7 +46,7 @@ class ChangeTypeAction implements Action {
 
         pathToClean = new HashSet<String>();
         // Compute paths to fields that changed from previous type (only if type changed).
-        if (previousType != null && previousType.getName().equals(newType.getName())) {
+        if (previousType != null && !previousType.getName().equals(newType.getName())) {
             newType.accept(new TypeComparison(previousType, pathToClean));
             previousType.accept(new TypeComparison(newType, pathToClean));
         }
@@ -61,7 +61,7 @@ class ChangeTypeAction implements Action {
         }
 
         Accessor typeAccessor = document.createAccessor(path + "/@xsi:type"); //$NON-NLS-1$
-        String typeName = newType.getNamespace();
+        String typeName = newType.getName();
         if (typeAccessor.exist() && !typeName.equals(typeAccessor.get())) {
             for (String currentPathToDelete : pathToClean) {
                 Accessor accessor = document.createAccessor(path + '/' + currentPathToDelete);

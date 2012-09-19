@@ -44,9 +44,6 @@ public class SoftFieldRef implements FieldMetadata {
         if (containingType != null) {
             ComplexTypeMetadata type = repository.getComplexType(containingType.getName());
             if (type == null) {
-                type = (ComplexTypeMetadata) repository.getNonInstantiableType(containingType.getName());
-            }
-            if (type == null) {
                 throw new IllegalArgumentException("Type '" + containingType + "' does not exist.");
             }
             FieldMetadata field = type.getField(fieldName);
@@ -79,6 +76,14 @@ public class SoftFieldRef implements FieldMetadata {
         getField().setContainingType(typeMetadata);
     }
 
+    public FieldMetadata freeze() {
+        return getField().freeze();
+    }
+
+    public void promoteToKey() {
+        getField().promoteToKey();
+    }
+
     public TypeMetadata getDeclaringType() {
         return getField().getDeclaringType();
     }
@@ -90,7 +95,11 @@ public class SoftFieldRef implements FieldMetadata {
     }
 
     public FieldMetadata copy(MetadataRepository repository) {
-        return new SoftFieldRef(repository, fieldName, containingType.copy(repository));
+        if (containingType == null) {
+            return new SoftFieldRef(repository, fieldName, containingField);
+        } else {
+            return new SoftFieldRef(repository, fieldName, containingType.copy(repository));
+        }
     }
 
     public List<String> getHideUsers() {

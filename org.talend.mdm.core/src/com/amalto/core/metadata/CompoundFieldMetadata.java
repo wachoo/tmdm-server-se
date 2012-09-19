@@ -11,6 +11,7 @@
 
 package com.amalto.core.metadata;
 
+import javax.xml.XMLConstants;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,12 +19,10 @@ public class CompoundFieldMetadata implements FieldMetadata {
 
     private final FieldMetadata[] fields;
 
+    private boolean isFrozen;
+
     public CompoundFieldMetadata(FieldMetadata... fields) {
         this.fields = fields;
-    }
-
-    public FieldMetadata[] getFields() {
-        return fields;
     }
 
     public String getName() {
@@ -43,7 +42,7 @@ public class CompoundFieldMetadata implements FieldMetadata {
          * Compound / Composite keys are always represented as strings the [id0][id1] format.
          * So this method can return "string" as type even if fields are not all string.
          */
-        return new SimpleTypeMetadata(MetadataRepository.XSD_NAMESPACE, "string"); //$NON-NLS-1$ // TODO Constant
+        return new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"); //$NON-NLS-1$ // TODO Constant
     }
 
     public ComplexTypeMetadata getContainingType() {
@@ -51,6 +50,22 @@ public class CompoundFieldMetadata implements FieldMetadata {
     }
 
     public void setContainingType(ComplexTypeMetadata typeMetadata) {
+        throw new UnsupportedOperationException();
+    }
+
+    public FieldMetadata freeze() {
+        if (isFrozen) {
+            return this;
+        }
+        isFrozen = true;
+        int i = 0;
+        for (FieldMetadata field : fields) {
+            fields[i++] = field.freeze();
+        }
+        return this;
+    }
+
+    public void promoteToKey() {
         throw new UnsupportedOperationException();
     }
 
@@ -63,7 +78,12 @@ public class CompoundFieldMetadata implements FieldMetadata {
     }
 
     public FieldMetadata copy(MetadataRepository repository) {
-        throw new UnsupportedOperationException();
+        FieldMetadata[] fieldsCopy = new FieldMetadata[fields.length];
+        int i = 0;
+        for (FieldMetadata field : fields) {
+            fieldsCopy[i++] = field.copy(repository);
+        }
+        return new CompoundFieldMetadata(fieldsCopy);
     }
 
     @Override

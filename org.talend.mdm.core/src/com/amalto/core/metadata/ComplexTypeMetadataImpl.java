@@ -21,8 +21,6 @@ import java.util.*;
  */
 public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
 
-    private final String name;
-
     private final String nameSpace;
 
     private final List<String> allowWrite;
@@ -43,13 +41,21 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
 
     private final List<String> physicalDelete;
 
+    private final Collection<ComplexTypeMetadata> subTypes = new HashSet<ComplexTypeMetadata>();
+
+    private final boolean isInstantiable;
+
+    private String name;
+
     private MetadataRepository repository;
 
-    public ComplexTypeMetadataImpl(String nameSpace, String name) {
-        this(name, nameSpace, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), StringUtils.EMPTY);
+    private boolean isFrozen;
+
+    public ComplexTypeMetadataImpl(String nameSpace, String name, boolean instantiable) {
+        this(nameSpace, name, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), StringUtils.EMPTY, instantiable);
     }
 
-    public ComplexTypeMetadataImpl(String nameSpace, String name, List<String> allowWrite, List<String> denyCreate, List<String> hideUsers, List<String> physicalDelete, List<String> logicalDelete, String schematron) {
+    public ComplexTypeMetadataImpl(String nameSpace, String name, List<String> allowWrite, List<String> denyCreate, List<String> hideUsers, List<String> physicalDelete, List<String> logicalDelete, String schematron, boolean instantiable) {
         this.name = name;
         this.nameSpace = nameSpace;
         this.allowWrite = allowWrite;
@@ -58,9 +64,13 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         this.physicalDelete = physicalDelete;
         this.logicalDelete = logicalDelete;
         this.schematron = schematron;
+        this.isInstantiable = instantiable;
     }
 
     public void addSuperType(TypeMetadata superType, MetadataRepository repository) {
+        if (isFrozen) {
+            throw new IllegalStateException("Type '" + name + "' is frozen and can not be modified.");
+        }
         this.repository = repository;
         superTypes.add(superType);
     }
@@ -73,16 +83,23 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         return name;
     }
 
+    public void setName(String name) {
+        if (isFrozen) {
+            throw new IllegalStateException("Cannot change name after type was frozen.");
+        }
+        this.name = name;
+    }
+
     public String getNamespace() {
         return nameSpace;
     }
 
-    public boolean isAbstract() {
-        return true;
-    }
-
     public FieldMetadata getField(String fieldName) {
-        StringTokenizer tokenizer = new StringTokenizer(fieldName, "/");
+        if (fieldName == null || fieldName.isEmpty()) {
+            throw new IllegalArgumentException("Field name can not be null nor empty.");
+        }
+
+        StringTokenizer tokenizer = new StringTokenizer(fieldName, "/"); //$NON-NLS-1$
         String firstFieldName = tokenizer.nextToken();
         FieldMetadata currentField = fieldMetadata.get(firstFieldName);
         if (currentField == null) { // Look in super types if it wasn't found in current type.
@@ -113,31 +130,19 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         return currentField;
     }
 
+    public boolean isInstantiable() {
+        return isInstantiable;
+    }
+
     public List<FieldMetadata> getKeyFields() {
         return new ArrayList<FieldMetadata>(keyFields.values());
     }
 
     public List<FieldMetadata> getFields() {
-        if (!superTypes.isEmpty()) {
-            // TODO Make this more efficient (goal is to put super type field before those defined in this type).
-            Collection<FieldMetadata> thisTypeFields = new LinkedList<FieldMetadata>(fieldMetadata.values());
-            fieldMetadata.clear();
-            for (TypeMetadata superType : superTypes) {
-                if (superType instanceof ComplexTypeMetadata) {
-                    List<FieldMetadata> superTypeFields = ((ComplexTypeMetadata) superType).getFields();
-                    for (FieldMetadata superTypeField : superTypeFields) {
-                        if (keyFields.containsKey(superTypeField.getName()) && !superTypeField.isKey()) {
-                            superTypeField = new ForceKeyFieldMetadata(superTypeField);
-                        }
-                        superTypeField.adopt(this, repository);
-                    }
-                }
-            }
-            for (FieldMetadata thisTypeField : thisTypeFields) {
-                fieldMetadata.put(thisTypeField.getName(), thisTypeField);
-            }
+        if (!isFrozen) {
+            freeze();
         }
-        return new ArrayList<FieldMetadata>(fieldMetadata.values());
+        return Collections.unmodifiableList(new LinkedList<FieldMetadata>(fieldMetadata.values()));
     }
 
     public boolean isAssignableFrom(TypeMetadata type) {
@@ -169,6 +174,9 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
     }
 
     public void addField(FieldMetadata fieldMetadata) {
+        if (isFrozen) {
+            throw new IllegalStateException("Type '" + name + "' is frozen and can not be modified.");
+        }
         if (fieldMetadata == null) {
             throw new IllegalArgumentException("Field can not be null.");
         }
@@ -183,15 +191,34 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
             throw new IllegalArgumentException("Key field can not be null.");
         }
         keyFields.put(keyField.getName(), keyField);
+        if (!keyField.isKey()) {
+            keyField.promoteToKey();
+        }
     }
 
     public ComplexTypeMetadata copy(MetadataRepository repository) {
-        ComplexTypeMetadata registeredCopy = repository.getComplexType(getName());
-        if (registeredCopy != null) {
-            return registeredCopy;
+        ComplexTypeMetadata registeredCopy;
+        if (isInstantiable) {
+            registeredCopy = repository.getComplexType(getName());
+            if (registeredCopy != null) {
+                return registeredCopy;
+            }
+        } else {
+            registeredCopy = (ComplexTypeMetadata) repository.getNonInstantiableType(getName());
+            if (registeredCopy != null) {
+                return registeredCopy;
+            }
         }
 
-        ComplexTypeMetadataImpl copy = new ComplexTypeMetadataImpl(getNamespace(), getName(), allowWrite, denyCreate, hideUsers, physicalDelete, logicalDelete, schematron);
+        ComplexTypeMetadataImpl copy = new ComplexTypeMetadataImpl(getNamespace(),
+                getName(),
+                allowWrite,
+                denyCreate,
+                hideUsers,
+                physicalDelete,
+                logicalDelete,
+                schematron,
+                isInstantiable);
         repository.addTypeMetadata(copy);
 
         List<FieldMetadata> fields = getFields();
@@ -211,7 +238,15 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
     }
 
     public TypeMetadata copyShallow() {
-        return new ComplexTypeMetadataImpl(getNamespace(), getName(), allowWrite, denyCreate, hideUsers, physicalDelete, logicalDelete, schematron);
+        return new ComplexTypeMetadataImpl(getNamespace(),
+                getName(),
+                allowWrite,
+                denyCreate,
+                hideUsers,
+                physicalDelete,
+                logicalDelete,
+                schematron,
+                isInstantiable);
     }
 
     public List<String> getWriteUsers() {
@@ -241,6 +276,79 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         return schematron;
     }
 
+    public boolean hasField(String fieldName) {
+        return fieldMetadata.containsKey(fieldName);
+    }
+
+    public Collection<ComplexTypeMetadata> getSubTypes() {
+        return subTypes;
+    }
+
+    public void registerSubType(ComplexTypeMetadata type) {
+        subTypes.add(type);
+    }
+
+    public TypeMetadata freeze() {
+        if (isFrozen) {
+            return this;
+        }
+
+        // Gets fields from super types.
+        if (!superTypes.isEmpty()) {
+            Collection<FieldMetadata> thisTypeFields = new LinkedList<FieldMetadata>(fieldMetadata.values());
+            fieldMetadata.clear();
+            List<TypeMetadata> thisSuperTypes = new LinkedList<TypeMetadata>(superTypes);
+            superTypes.clear();
+            for (TypeMetadata superType : thisSuperTypes) {
+                if (isInstantiable() == superType.isInstantiable()) {
+                    superType = superType.freeze();
+                    if (superType instanceof ComplexTypeMetadata) {
+                        List<FieldMetadata> thisTypeKeyFields = getKeyFields();
+                        for (FieldMetadata thisTypeKeyField : thisTypeKeyFields) {
+                            if (!((ComplexTypeMetadata) superType).hasField(thisTypeKeyField.getName())) {
+                                throw new IllegalArgumentException("Type '" + name + "' cannot add field(s) to its key because " +
+                                        "super type '" + superType.getName() + "' already defines key.");
+                            }
+                        }
+                        ((ComplexTypeMetadata) superType).registerSubType(this);
+                    }
+                    superTypes.add(superType);
+                } else {
+                    superType = superType.freeze();
+                }
+                if (superType instanceof ComplexTypeMetadata) {
+                    ((ComplexTypeMetadata) superType).registerSubType(this);
+                    List<FieldMetadata> superTypeFields = ((ComplexTypeMetadata) superType).getFields();
+                    for (FieldMetadata superTypeField : superTypeFields) {
+                        superTypeField.adopt(this, repository);
+                    }
+                }
+            }
+            for (FieldMetadata thisTypeField : thisTypeFields) {
+                fieldMetadata.put(thisTypeField.getName(), thisTypeField);
+            }
+        }
+
+        // Freeze all fields.
+        Collection<FieldMetadata> values = new LinkedList<FieldMetadata>(fieldMetadata.values());
+        for (FieldMetadata value : values) {
+            try {
+                FieldMetadata frozenFieldDeclaration = value.freeze();
+                fieldMetadata.put(value.getName(), frozenFieldDeclaration);
+                if (keyFields.containsKey(value.getName()) && !frozenFieldDeclaration.isKey()) {
+                    frozenFieldDeclaration.promoteToKey();
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Could not process field '" + value.getName() + "' in type '" + getName() + "'", e);
+            }
+        }
+        for (Map.Entry<String, FieldMetadata> keyField : keyFields.entrySet()) {
+            keyField.setValue(keyField.getValue().freeze());
+        }
+        isFrozen = true;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -249,68 +357,10 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         return that.getName().equals(name) && that.getNamespace().equals(nameSpace);
     }
 
-    // See TMDM-4054: Cleaner fix would be to integrate metadata parser from 5.2 to 5.1. At the time this is written
-    // metadata parser from 5.2 isn't stable enough to be backported to 5.1
-    private class ForceKeyFieldMetadata implements FieldMetadata {
-
-        private final FieldMetadata delegate;
-
-        public ForceKeyFieldMetadata(FieldMetadata delegate) {
-            this.delegate = delegate;
-        }
-
-        public boolean isKey() {
-            return true;
-        }
-
-        public String getName() {
-            return delegate.getName();
-        }
-
-        public TypeMetadata getType() {
-            return delegate.getType();
-        }
-
-        public ComplexTypeMetadata getContainingType() {
-            return delegate.getContainingType();
-        }
-
-        public List<String> getHideUsers() {
-            return delegate.getHideUsers();
-        }
-
-        public TypeMetadata getDeclaringType() {
-            return delegate.getDeclaringType();
-        }
-
-        public List<String> getWriteUsers() {
-            return delegate.getWriteUsers();
-        }
-
-        public boolean isMany() {
-            return delegate.isMany();
-        }
-
-        public boolean isMandatory() {
-            return delegate.isMandatory();
-        }
-
-        public FieldMetadata copy(MetadataRepository repository) {
-            return new ForceKeyFieldMetadata(delegate.copy(repository));
-        }
-
-        public void adopt(ComplexTypeMetadata metadata, MetadataRepository repository) {
-            FieldMetadata copy = copy(repository);
-            copy.setContainingType(metadata);
-            metadata.addField(copy);
-        }
-
-        public void setContainingType(ComplexTypeMetadata typeMetadata) {
-            delegate.setContainingType(typeMetadata);
-        }
-
-        public <T> T accept(MetadataVisitor<T> visitor) {
-            return visitor.visit(this);
-        }
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + nameSpace.hashCode();
+        return result;
     }
 }

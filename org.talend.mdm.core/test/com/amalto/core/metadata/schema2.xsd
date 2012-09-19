@@ -2627,7 +2627,7 @@
     </xsd:complexType>
     <xsd:complexType name="GeneralData">
         <xsd:all maxOccurs="1" minOccurs="1">
-            <xsd:element maxOccurs="1" minOccurs="0" name="vendor" type="xsd:string">
+            <xsd:element maxOccurs="1" minOccurs="1" name="vendor" type="xsd:string">
                 <xsd:annotation>
                     <xsd:appinfo source="X_Label_EN">Vendor</xsd:appinfo>
                     <xsd:appinfo source="X_Workflow">System_Admin#SABPlanning_Product_1.0#Writable</xsd:appinfo>
@@ -3821,7 +3821,7 @@
     <xsd:element name="customerCreditPrinciple" type="customerCreditPrincipleType">
         <xsd:unique name="customerCreditPrinciple">
             <xsd:selector xpath="."/>
-            <xsd:field xpath="generalData"/>
+            <xsd:field xpath="generalData/vendor"/>
         </xsd:unique>
     </xsd:element>
     <xsd:complexType name="customerCreditPrincipleType">
@@ -3836,7 +3836,7 @@
     <xsd:element name="identificationCreditPrinciple" type="identificationCreditPrincipleType">
         <xsd:unique name="identificationCreditPrinciple">
             <xsd:selector xpath="."/>
-            <xsd:field xpath="organizationalData"/>
+            <xsd:field xpath="organizationalData/key"/>
         </xsd:unique>
     </xsd:element>
     <xsd:element name="organizationalData" type="OrganizationDataType">
@@ -3862,7 +3862,7 @@
     <xsd:element name="controlCreditPrinicple" type="controlCreditPrinicpleType">
         <xsd:unique name="controlCreditPrinicple">
             <xsd:selector xpath="."/>
-            <xsd:field xpath="dataOrgin"/>
+            <xsd:field xpath="dataOrgin/dataOrigin"/>
         </xsd:unique>
     </xsd:element>
     <xsd:complexType name="controlCreditPrinicpleType">

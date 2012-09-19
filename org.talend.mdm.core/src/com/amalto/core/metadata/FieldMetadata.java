@@ -72,13 +72,15 @@ public interface FieldMetadata extends MetadataVisitable {
     /**
      * "Adopt" the field in <code>metadata</code> type. This method performs all necessary operations so this field behaves
      * as is
-     * @param metadata The new type.
+     *
+     * @param metadata   The new type.
      * @param repository The {@link MetadataRepository} of the type to adopt.
      */
     void adopt(ComplexTypeMetadata metadata, MetadataRepository repository);
 
     /**
      * Copy the field and all depending information in <code>repository</code>.
+     *
      * @param repository The {@link MetadataRepository} to copy to.
      * @return A copy of this field.
      */
@@ -92,4 +94,16 @@ public interface FieldMetadata extends MetadataVisitable {
      */
     void setContainingType(ComplexTypeMetadata typeMetadata);
 
+    /**
+     * Freezes all modifications that can be done to a field. Similar to {@link com.amalto.core.metadata.TypeMetadata#freeze()}.
+     *
+     * @return A frozen field metadata.
+     * @see com.amalto.core.metadata.TypeMetadata#freeze()
+     */
+    FieldMetadata freeze();
+
+    /**
+     * Promotes this field to "key". After this method has been called, {@link #isKey()} must return <code>true</code>.
+     */
+    void promoteToKey();
 }

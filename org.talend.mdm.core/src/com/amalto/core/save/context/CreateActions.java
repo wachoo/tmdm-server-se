@@ -137,18 +137,7 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
     }
 
     @Override
-    public List<Action> visit(FieldMetadata fieldMetadata) {
-        handleField(fieldMetadata);
-        return super.visit(fieldMetadata); // To change body of overridden methods use File | Settings | File Templates.
-    }
-
-    @Override
     public List<Action> visit(SimpleTypeFieldMetadata simpleField) {
-        handleField(simpleField);
-        return super.visit(simpleField);
-    }
-
-    private void handleField(FieldMetadata simpleField) {
 
         // Under some circumstances, do not generate action(s) for UUID/AUTOINCREMENT(see TMDM-4473)
         boolean doCreate = true;
@@ -178,7 +167,7 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
             // Note #2: This code generate values even for non-mandatory fields (but this is expected behavior).
             String currentPath = getPath();
             if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(simpleField.getType().getName()) && doCreate) {
-                String conceptName = rootTypeName + "." + getPath().replaceAll("/", "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                String conceptName = rootTypeName + "." + simpleField.getName().replaceAll("/", "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 String autoIncrementValue = autoIncrementFieldMap.get(conceptName);
                 if (autoIncrementValue == null) {
                     autoIncrementValue = saverSource.nextAutoIncrementId(universe, dataCluster, conceptName);
@@ -208,6 +197,7 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
             }
         }
         path.pop();
+        return super.visit(simpleField);
     }
 
     public boolean hasMetAutoIncrement() {

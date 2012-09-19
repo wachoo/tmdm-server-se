@@ -106,17 +106,6 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
         return super.visit(referenceField);
     }
 
-    @Override
-    public Void visit(FieldMetadata fieldMetadata) {
-        if (fieldMetadata.isKey()) {
-            log("[Field (Key)] " + fieldMetadata.getName()); //$NON-NLS-1$
-        } else {
-            log("[Field] " + fieldMetadata.getName() + (fieldMetadata.isMany() ? "*" : "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-        }
-        logUsers(fieldMetadata);
-        return super.visit(fieldMetadata);
-    }
-
     public Void visit(SimpleTypeFieldMetadata simpleField) {
         if (simpleField.isKey()) {
             log("[Field (Simple) (Key)] " + simpleField.getName()); //$NON-NLS-1$

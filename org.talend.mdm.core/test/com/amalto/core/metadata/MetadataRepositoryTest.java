@@ -11,9 +11,9 @@
 
 package com.amalto.core.metadata;
 
-import java.io.InputStream;
-
 import junit.framework.TestCase;
+
+import java.io.InputStream;
 
 /**
  * Schema parsing <br>
@@ -120,4 +120,51 @@ public class MetadataRepositoryTest extends TestCase {
         assertTrue(repository.getTypes().size() > 0);
     }
 
+    public void test13() {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema13.xsd");
+        repository.load(stream);
+        assertTrue(repository.getTypes().size() > 0);
+        // repository.accept(visitor);
+    }
+
+    public void test14() {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema14.xsd");
+        try {
+        repository.load(stream);
+            fail("Expected exception due to invalid key definition in inheritance tree.");
+        } catch (Exception e) {
+            // Expected.
+        }
+    }
+
+    public void test15() {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema15.xsd");
+        repository.load(stream);
+
+        ComplexTypeMetadata company = repository.getComplexType("Company");
+        assertNotNull(company);
+        assertEquals(1, company.getKeyFields().size());
+    }
+
+    public void test16() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema16.xsd");
+        repository.load(stream);
+
+        ComplexTypeMetadata person = repository.getComplexType("Person");
+        assertNotNull(person);
+        assertEquals(2, person.getKeyFields().size());
+        /*
+        <xsd:field xpath="lastname"/>
+                    <xsd:field xpath="firstname"/>
+         */
+        String[] expectedOrder = {"lastname", "firstname"};
+        int i = 0;
+        for (FieldMetadata keyField : person.getKeyFields()) {
+            assertEquals(expectedOrder[i++], keyField.getName());
+        }
+    }
 }

@@ -11,6 +11,7 @@
 
 package com.amalto.core.metadata;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -31,14 +32,19 @@ public interface ComplexTypeMetadata extends TypeMetadata {
     void registerKey(FieldMetadata keyField);
 
     /**
-     * @param fieldName A field name.
+     * @param fieldName A field name. Field name is case sensitive.
      * @return The {@link FieldMetadata} for the given <code>fieldName</code>.
-     * @throws IllegalArgumentException If the field is not declared in type or type's super types.
+     * @throws IllegalArgumentException If:<ul>
+     *                                  <li>field is not declared in type nor inherited types</li>
+     *                                  <li><code>fieldName</code> is null or empty string</li>
+     *                                  </ul>
+     *                                  Field name lookup is case sensitive.
+     * @see #hasField(String)
      */
     FieldMetadata getField(String fieldName);
 
     /**
-     * Returns a <b>READ ONLY</b> collection of fields. For adding super type see {@link ComplexTypeMetadata#addField(FieldMetadata)}}
+     * Returns a <b>READ ONLY</b> collection of fields. For adding super type see {@link ComplexTypeMetadata#addField(FieldMetadata)}.
      *
      * @return A collection of super types.
      */
@@ -49,7 +55,8 @@ public interface ComplexTypeMetadata extends TypeMetadata {
      * <code>true</code>, there's no need to call {@link #registerKey(FieldMetadata)}.
      *
      * @param fieldMetadata A new field to add to this type.
-     * @throws IllegalArgumentException If <code>fieldMetadata</code> is <code>null</code>.
+     * @throws IllegalArgumentException If <code>fieldMetadata</code> is <code>null</code> or is type is frozen.
+     * @see #freeze()
      */
     void addField(FieldMetadata fieldMetadata);
 
@@ -75,11 +82,29 @@ public interface ComplexTypeMetadata extends TypeMetadata {
     List<String> getDenyDelete(DeleteType type);
 
     /**
-     * @return Schematron validation rules for this type ready for immediate use (no need to unescape XML characters).
-     * Returns an empty string if no schematron rule was specified for this type.
+     * @return Schematron validation rules for this type ready for immediate use (no need to un-escape XML characters).
+     *         Returns an empty string if no schematron rule was specified for this type.
      */
     String getSchematron();
-    
+
+    /**
+     * @param fieldName A field name.
+     * @return <code>true</code> if type (or inherited types) has a field named <code>fieldName</code>,
+     *         <code>false</code> otherwise.
+     */
+    boolean hasField(String fieldName);
+
+    /**
+     * @return A collection of {@link ComplexTypeMetadata} that inherits from this type. If this type is not extended
+     *         by any other type, this method returns empty {@link Collection}.
+     */
+    Collection<ComplexTypeMetadata> getSubTypes();
+
+    /**
+     * Registers a {@link ComplexTypeMetadata} type as a sub type of this type.
+     */
+    void registerSubType(ComplexTypeMetadata type);
+
     enum DeleteType {
         /**
          * Logical delete (a.k.a. send to trash)

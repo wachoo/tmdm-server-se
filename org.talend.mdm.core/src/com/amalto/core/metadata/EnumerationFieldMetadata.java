@@ -18,15 +18,15 @@ import java.util.List;
  */
 public class EnumerationFieldMetadata implements FieldMetadata {
 
-    private final boolean isKey;
+    private boolean isKey;
 
-    private final TypeMetadata fieldType;
+    private TypeMetadata fieldType;
 
     private final List<String> allowWriteUsers;
 
     private final List<String> hideUsers;
 
-    private final TypeMetadata declaringType;
+    private TypeMetadata declaringType;
 
     private final boolean isMany;
 
@@ -36,6 +36,8 @@ public class EnumerationFieldMetadata implements FieldMetadata {
 
     private String name;
 
+    private boolean isFrozen;
+
     public EnumerationFieldMetadata(ComplexTypeMetadata containingType,
                                     boolean isKey,
                                     boolean isMany, boolean isMandatory, String name,
@@ -43,7 +45,7 @@ public class EnumerationFieldMetadata implements FieldMetadata {
                                     List<String> allowWriteUsers,
                                     List<String> hideUsers) {
         if (isKey && !isMandatory) {
-            throw new IllegalArgumentException("Key fields must be mandatory");
+            throw new IllegalArgumentException("Key fields are mandatory");
         }
 
         this.containingType = containingType;
@@ -75,6 +77,19 @@ public class EnumerationFieldMetadata implements FieldMetadata {
 
     public void setContainingType(ComplexTypeMetadata typeMetadata) {
         this.containingType = typeMetadata;
+    }
+
+    public FieldMetadata freeze() {
+        if (isFrozen) {
+            return this;
+        }
+        isFrozen = true;
+        fieldType = fieldType.freeze();
+        return this;
+    }
+
+    public void promoteToKey() {
+        isKey = true;
     }
 
     public TypeMetadata getDeclaringType() {

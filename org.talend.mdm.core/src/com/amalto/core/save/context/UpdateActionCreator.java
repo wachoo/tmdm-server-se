@@ -267,16 +267,15 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
                 if (!newType.isEmpty()) {
                     ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(newType);
-                    ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository
-                            .getNonInstantiableType(previousType);
+                    ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(previousType);
                     // Perform some checks about the xsi:type value (valid or not?).
                     if (newTypeMetadata == null) {
                         throw new IllegalArgumentException("Type '" + newType + "' was not found.");
                     }
                     // Check if type of element isn't a subclass of declared type (use of xsi:type).
-                    if (!field.getType().isAssignableFrom(newTypeMetadata)) {
-                        throw new IllegalArgumentException("Type '" + field.getType().getName()
-                                + "' is not assignable from type '" + newTypeMetadata.getName() + "'");
+                    if (!newTypeMetadata.isAssignableFrom(field.getType())) {
+                        throw new IllegalArgumentException("Type '" + newTypeMetadata.getName()
+                                + "' is not assignable from type '" + field.getType().getName() + "'");
                     }
 
                     actions.add(new ChangeTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata));

@@ -20,11 +20,13 @@ import java.util.List;
  */
 public class SimpleTypeMetadata implements TypeMetadata {
 
-    private final String name;
-
     private final String nameSpace;
 
     private final List<TypeMetadata> superTypes = new LinkedList<TypeMetadata>();
+
+    private String name;
+
+    private boolean isFrozen = false;
 
     public SimpleTypeMetadata(String nameSpace, String name) {
         if (name == null) {
@@ -43,12 +45,15 @@ public class SimpleTypeMetadata implements TypeMetadata {
         return name;
     }
 
-    public String getNamespace() {
-        return nameSpace;
+    public void setName(String name) {
+        if (isFrozen) {
+            throw new IllegalStateException("Cannot change name after type was frozen.");
+        }
+        this.name = name;
     }
 
-    public boolean isAbstract() {
-        return true;
+    public String getNamespace() {
+        return nameSpace;
     }
 
     public boolean isAssignableFrom(TypeMetadata type) {
@@ -57,11 +62,25 @@ public class SimpleTypeMetadata implements TypeMetadata {
     }
 
     public TypeMetadata copy(MetadataRepository repository) {
-        return new SimpleTypeMetadata(nameSpace, name);
+        SimpleTypeMetadata copy = new SimpleTypeMetadata(nameSpace, name);
+        for (TypeMetadata superType : superTypes) {
+            copy.addSuperType(superType.copy(repository), repository);
+        }
+        return copy;
     }
 
     public TypeMetadata copyShallow() {
         return new SimpleTypeMetadata(nameSpace, name);
+    }
+
+    public TypeMetadata freeze() {
+        isFrozen = true;
+        return this;
+    }
+
+    @Override
+    public boolean isInstantiable() {
+        return false;
     }
 
     public void addSuperType(TypeMetadata superType, MetadataRepository repository) {

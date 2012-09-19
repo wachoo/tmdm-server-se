@@ -12,7 +12,6 @@
 package com.amalto.core.metadata;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Representation of a type in MDM. Types can either be:
@@ -46,14 +45,14 @@ public interface TypeMetadata extends MetadataVisitable {
     String getName();
 
     /**
+     * Change type name (be careful if this type was already registered to a {@link MetadataRepository} instance).
+     */
+    void setName(String name);
+
+    /**
      * @return Type's namespace as it can be used for the {@link MetadataRepository#getType(String, String)} method.
      */
     String getNamespace();
-
-    /**
-     * @return <code>true</code> if type is defined as "abstract" in the data model (XML Schema abstract).
-     */
-    boolean isAbstract();
 
     /**
      * @param type A type.
@@ -79,4 +78,17 @@ public interface TypeMetadata extends MetadataVisitable {
      */
     TypeMetadata copyShallow();
 
+    /**
+     * Mark type as unmodifiable and resolves all information (fields, super type) that <b>must</b> be present in {@link MetadataRepository}
+     * when this method is called.
+     *
+     * @return A {@link TypeMetadata} that can't be modified afterwards.
+     */
+    TypeMetadata freeze();
+
+    /**
+     * @return <code>true</code> if this type can be used to create an entity in MDM, <code>false</code> otherwise. A
+     *         so called 'reusable' type must return <code>false</code> for this method.
+     */
+    boolean isInstantiable();
 }

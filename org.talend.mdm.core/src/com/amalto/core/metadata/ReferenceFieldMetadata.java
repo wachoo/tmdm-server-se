@@ -11,23 +11,21 @@
 
 package com.amalto.core.metadata;
 
+import org.jboss.logging.Logger;
+
 import java.util.List;
 
 public class ReferenceFieldMetadata extends MetadataExtensible implements FieldMetadata {
+
+    private static final Logger LOGGER = Logger.getLogger(ReferenceFieldMetadata.class);
 
     private final boolean isKey;
 
     private final boolean isMany;
 
-    private final FieldMetadata referencedField;
-
-    private final FieldMetadata foreignKeyInfo;
-
     private final boolean allowFKIntegrityOverride;
 
     private final boolean isFKIntegrity;
-
-    private final TypeMetadata declaringType;
 
     private final List<String> hideUsers;
 
@@ -37,9 +35,17 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
 
     private final String name;
 
+    private final TypeMetadata declaringType;
+
+    private FieldMetadata referencedField;
+
+    private FieldMetadata foreignKeyInfo;
+
     private ComplexTypeMetadata referencedType;
 
     private ComplexTypeMetadata containingType;
+
+    private boolean isFrozen;
 
     public ReferenceFieldMetadata(ComplexTypeMetadata containingType,
                                   boolean isKey,
@@ -93,6 +99,44 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
 
     public void setContainingType(ComplexTypeMetadata typeMetadata) {
         this.containingType = typeMetadata;
+    }
+
+    public FieldMetadata freeze() {
+        if (isFrozen) {
+            return this;
+        }
+        isFrozen = true;
+        if (foreignKeyInfo != null) {
+            try {
+                foreignKeyInfo = foreignKeyInfo.freeze();
+            } catch (Exception e) {
+                // In 5.1, any exception during validation is ignored.
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Field '" + name + "' in type '" + containingType.getName() + "': foreign key info is invalid.", e);
+                }
+            }
+        }
+        try {
+            referencedField = referencedField.freeze();
+        } catch (Exception e) {
+            // In 5.1, any exception during validation is ignored.
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Field '" + name + "' in type '" + containingType.getName() + "': referenced field is invalid.", e);
+            }
+        }
+        try {
+            referencedType = (ComplexTypeMetadata) referencedType.freeze();
+        } catch (Exception e) {
+            // In 5.1, any exception during validation is ignored.
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Referenced type '" + referencedType.getName() + "' is invalid", e);
+            }
+        }
+        return this;
+    }
+
+    public void promoteToKey() {
+        throw new UnsupportedOperationException("FK field can't be promoted to key.");
     }
 
     public TypeMetadata getDeclaringType() {
@@ -185,10 +229,6 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
             return false;
         if (hideUsers != null ? !hideUsers.equals(that.hideUsers) : that.hideUsers != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (referencedField != null ? !referencedField.equals(that.referencedField) : that.referencedField != null)
-            return false;
-        if (referencedType != null ? !referencedType.equals(that.referencedType) : that.referencedType != null)
-            return false;
         if (writeUsers != null ? !writeUsers.equals(that.writeUsers) : that.writeUsers != null) return false;
 
         return true;
@@ -198,16 +238,10 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
     public int hashCode() {
         int result = (isKey ? 1 : 0);
         result = 31 * result + (isMany ? 1 : 0);
-        result = 31 * result + (referencedField != null ? referencedField.hashCode() : 0);
         result = 31 * result + (foreignKeyInfo != null ? foreignKeyInfo.hashCode() : 0);
         result = 31 * result + (allowFKIntegrityOverride ? 1 : 0);
         result = 31 * result + (isFKIntegrity ? 1 : 0);
-        result = 31 * result + (declaringType != null ? declaringType.hashCode() : 0);
-        result = 31 * result + (hideUsers != null ? hideUsers.hashCode() : 0);
-        result = 31 * result + (writeUsers != null ? writeUsers.hashCode() : 0);
         result = 31 * result + (isMandatory ? 1 : 0);
-        result = 31 * result + (referencedType != null ? referencedType.hashCode() : 0);
-        result = 31 * result + (containingType != null ? containingType.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }

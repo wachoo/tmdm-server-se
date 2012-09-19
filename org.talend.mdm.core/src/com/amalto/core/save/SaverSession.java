@@ -22,20 +22,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.save.context.DefaultSaverSource;
-import com.amalto.core.save.context.SaverContextFactory;
-import com.amalto.core.save.context.SaverSource;
-
 public class SaverSession {
 
     private static final String AUTO_INCREMENT_TYPE_NAME = "AutoIncrement"; //$NON-NLS-1$
 
     private static final Map<String, SaverSource> saverSourcePerUser = new HashMap<String, SaverSource>();
 
-    private final SaverContextFactory contextFactory;
+    private final SaverContextFactory contextFactory = new SaverContextFactory();
 
     private final Map<String, Set<ItemPOJO>> itemsPerDataCluster = new HashMap<String, Set<ItemPOJO>>();
 
@@ -49,7 +42,6 @@ public class SaverSession {
 
     private SaverSession(SaverSource dataSource) {
         this.dataSource = dataSource;
-        contextFactory = new SaverContextFactory();
     }
 
     /**
@@ -112,6 +104,9 @@ public class SaverSession {
      */
     public void begin(String dataCluster, Committer committer) {
         committer.begin(dataCluster);
+        if (!itemsPerDataCluster.containsKey(dataCluster)) {
+            itemsPerDataCluster.put(dataCluster, new HashSet<ItemPOJO>());
+        }
     }
 
     /**

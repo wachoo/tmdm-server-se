@@ -30,7 +30,8 @@ public class ContainedComplexTypeMetadata extends ComplexTypeMetadataImpl {
                 containerType.getHideUsers(),
                 containerType.getDenyDelete(DeleteType.PHYSICAL),
                 containerType.getDenyDelete(DeleteType.LOGICAL),
-                StringUtils.EMPTY);
+                StringUtils.EMPTY,
+                false);
         this.containerType = containerType;
     }
 
