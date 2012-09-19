@@ -21,6 +21,7 @@ import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceFactory;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import java.util.*;
 
@@ -62,9 +63,11 @@ public class StorageAdminImpl implements StorageAdmin {
         try {
             Storage masterDataModelStorage = internalCreateStorage(dataModelName, storageName, dataSourceName, StorageType.MASTER);
             storages.put(storageName, masterDataModelStorage);
-            Storage stagingDataModelStorage = internalCreateStorage(dataModelName + STAGING_SUFFIX, storageName, dataSourceName, StorageType.STAGING);
-            if (stagingDataModelStorage != null) {
-                storages.put(storageName + STAGING_SUFFIX, stagingDataModelStorage);
+            if (!XSystemObjects.DC_UPDATE_PREPORT.getName().equalsIgnoreCase(storageName)) { //TODO would be better to decide whether a staging area should be created or not in a method.
+                Storage stagingDataModelStorage = internalCreateStorage(dataModelName + STAGING_SUFFIX, storageName, dataSourceName, StorageType.STAGING);
+                if (stagingDataModelStorage != null) {
+                    storages.put(storageName + STAGING_SUFFIX, stagingDataModelStorage);
+                }
             }
             return masterDataModelStorage;
         } catch (Exception e) {
