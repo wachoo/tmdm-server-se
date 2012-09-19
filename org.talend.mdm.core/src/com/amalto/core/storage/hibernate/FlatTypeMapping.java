@@ -13,6 +13,7 @@ package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.*;
 import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.Session;
@@ -167,6 +168,8 @@ class FlatTypeMapping extends TypeMapping {
 
         for (FieldMetadata field : typeFromClass.getFields()) {
             FieldMetadata userField = getUser(field);
+            String fieldName = field.getName();
+            Object value = from.get(fieldName);
             if (userField != null) {
                 DataRecord previous = to;
                 if (userField.getContainingType() != getUser()) {
@@ -191,7 +194,7 @@ class FlatTypeMapping extends TypeMapping {
                     throw new IllegalArgumentException("This mapping does not support contained types.");
                 } else if (userField instanceof ReferenceFieldMetadata) {
                     if (!userField.isMany()) {
-                        Wrapper wrapper = (Wrapper) from.get(field.getName());
+                        Wrapper wrapper = (Wrapper) value;
                         if (wrapper != null) {
                             TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
                             DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
@@ -201,7 +204,7 @@ class FlatTypeMapping extends TypeMapping {
                             to.set(userField, referencedRecord);
                         }
                     } else {
-                        List<Wrapper> wrapperList = (List<Wrapper>) from.get(field.getName());
+                        List<Wrapper> wrapperList = (List<Wrapper>) value;
                         if (wrapperList != null) {
                             for (Wrapper wrapper : wrapperList) {
                                 TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
@@ -214,9 +217,15 @@ class FlatTypeMapping extends TypeMapping {
                         }
                     }
                 } else {
-                    to.set(userField, from.get(field.getName()));
+                    to.set(userField, value);
                 }
                 to = previous;
+            } else {
+                DataRecordMetadata recordMetadata = to.getRecordMetadata();
+                Map<String, String> recordProperties = recordMetadata.getRecordProperties();
+                if (value != null) {
+                    recordProperties.put(fieldName, String.valueOf(value));
+                }
             }
         }
         return to;

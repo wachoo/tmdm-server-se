@@ -19,7 +19,7 @@ import java.util.Stack;
 
 class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
-    private static final String GENERATED_ID = "x_talend_id";  //$NON-NLS-1$
+    public static final String GENERATED_ID = "x_talend_id";  //$NON-NLS-1$
 
     private final MetadataRepository internalRepository;
 

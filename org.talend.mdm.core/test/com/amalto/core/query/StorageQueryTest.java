@@ -1038,7 +1038,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testTimeStampQuery() throws Exception {
         UserQueryBuilder qb = UserQueryBuilder.from(person);
-        String fieldName = "../../t";
+        String fieldName = "Person/../../t";
         IWhereItem item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition(fieldName, WhereCondition.GREATER_THAN, "1000", WhereCondition.NO_OPERATOR)));
         qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
         Select select = qb.getSelect();

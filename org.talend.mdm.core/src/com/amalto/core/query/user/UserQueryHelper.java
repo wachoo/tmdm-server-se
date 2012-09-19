@@ -62,11 +62,13 @@ public class UserQueryHelper {
             TypedExpression field;
             String leftPath = whereCondition.getLeftPath();
             String typeName = leftPath.substring(0, leftPath.indexOf('/')); //$NON-NLS-1$
-            ComplexTypeMetadata type = repository.getComplexType(typeName);
             String leftFieldName = StringUtils.substringAfter(leftPath, "/"); //$NON-NLS-1$
-            if ("../../t".equals(leftPath)) {
+            ComplexTypeMetadata type = repository.getComplexType(typeName);
+            if (UserQueryBuilder.TIMESTAMP_FIELD.equals(leftFieldName)) {
                 field = timestamp();
-            } else if ("../../i".equals(leftPath)) {
+            } else if (UserQueryBuilder.TASK_ID_FIELD.equals(leftFieldName)) {
+                field = taskId();
+            } else if (UserQueryBuilder.ID_FIELD.equals(leftFieldName)) {
                 List<FieldMetadata> keyFields = type.getKeyFields();
                 if (keyFields.isEmpty()) {
                     throw new IllegalArgumentException("Can not query id on type '" + typeName + "' because type has no id field.");

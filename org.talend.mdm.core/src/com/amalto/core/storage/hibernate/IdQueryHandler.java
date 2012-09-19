@@ -186,6 +186,19 @@ class IdQueryHandler extends AbstractQueryHandler {
             this.nextRecord = nextRecord;
         }
 
+        private FieldMetadata createField(TypedExpression typedExpression) {
+            SimpleTypeFieldMetadata fieldType = new SimpleTypeFieldMetadata(explicitProjectionType,
+                    false,
+                    false,
+                    false,
+                    currentAliasName,
+                    new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typedExpression.getTypeName()),
+                    Collections.<String>emptyList(),
+                    Collections.<String>emptyList());
+            explicitProjectionType.addField(fieldType);
+            return fieldType;
+        }
+
         @Override
         public Void visit(Field field) {
             FieldMetadata fieldMetadata = field.getFieldMetadata();
@@ -218,15 +231,7 @@ class IdQueryHandler extends AbstractQueryHandler {
 
         @Override
         public Void visit(StringConstant constant) {
-            SimpleTypeFieldMetadata fieldType = new SimpleTypeFieldMetadata(explicitProjectionType,
-                    false,
-                    false,
-                    false,
-                    currentAliasName,
-                    new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, constant.getTypeName()),
-                    Collections.<String>emptyList(),
-                    Collections.<String>emptyList());
-            explicitProjectionType.addField(fieldType);
+            FieldMetadata fieldType = createField(constant);
             nextRecord.set(fieldType, constant.getValue());
             return null;
         }
@@ -246,6 +251,30 @@ class IdQueryHandler extends AbstractQueryHandler {
         @Override
         public Void visit(TaskId taskId) {
             nextRecord.getRecordMetadata().setTaskId(next.getRecordMetadata().getTaskId());
+            return null;
+        }
+
+        @Override
+        public Void visit(StagingStatus stagingStatus) {
+            FieldMetadata field = createField(stagingStatus);
+            Object o = next.getRecordMetadata().getRecordProperties().get(Storage.METADATA_STAGING_STATUS);
+            nextRecord.set(field, o);
+            return null;
+        }
+
+        @Override
+        public Void visit(StagingError stagingError) {
+            FieldMetadata field = createField(stagingError);
+            Object o = next.getRecordMetadata().getRecordProperties().get(Storage.METADATA_STAGING_ERROR);
+            nextRecord.set(field, o);
+            return null;
+        }
+
+        @Override
+        public Void visit(StagingSource stagingSource) {
+            FieldMetadata field = createField(stagingSource);
+            Object o = next.getRecordMetadata().getRecordProperties().get(Storage.METADATA_STAGING_SOURCE);
+            nextRecord.set(field, o);
             return null;
         }
     }

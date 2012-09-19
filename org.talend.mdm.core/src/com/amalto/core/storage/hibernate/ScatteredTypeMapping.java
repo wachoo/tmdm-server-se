@@ -16,16 +16,14 @@ import com.amalto.core.metadata.ContainedTypeFieldMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.ReferenceFieldMetadata;
 import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.Session;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Represents type mapping between data model as specified by the user and data model as used by hibernate storage.
@@ -153,16 +151,18 @@ public class ScatteredTypeMapping extends TypeMapping {
         ComplexTypeMetadata typeFromClass = contextClassLoader.getTypeFromClass(from.getClass());
         for (FieldMetadata field : typeFromClass.getFields()) {
             FieldMetadata userField = getUser(field);
+            String fieldName = field.getName();
+            Object value = from.get(fieldName);
             if (userField != null) {
                 if (userField instanceof ContainedTypeFieldMetadata) {
                     if (!userField.isMany()) {
-                        Wrapper value = (Wrapper) from.get(field.getName());
+                        Wrapper valueAsWrapper = (Wrapper) value;
                         if (value != null) {
-                            DataRecord containedDataRecord = new DataRecord(getActualContainedType(userField, value), UnsupportedDataRecordMetadata.INSTANCE);
-                            to.set(userField, setValues(value, containedDataRecord));
+                            DataRecord containedDataRecord = new DataRecord(getActualContainedType(userField, valueAsWrapper), UnsupportedDataRecordMetadata.INSTANCE);
+                            to.set(userField, setValues(valueAsWrapper, containedDataRecord));
                         }
                     } else {
-                        List<Wrapper> wrapperList = (List<Wrapper>) from.get(field.getName());
+                        List<Wrapper> wrapperList = (List<Wrapper>) value;
                         if (wrapperList != null) {
                             for (Wrapper wrapper : wrapperList) {
                                 to.set(userField, setValues(wrapper, new DataRecord(getActualContainedType(userField, wrapper), UnsupportedDataRecordMetadata.INSTANCE)));
@@ -171,7 +171,7 @@ public class ScatteredTypeMapping extends TypeMapping {
                     }
                 } else if (userField instanceof ReferenceFieldMetadata) {
                     if (!userField.isMany()) {
-                        Wrapper wrapper = (Wrapper) from.get(field.getName());
+                        Wrapper wrapper = (Wrapper) value;
                         if (wrapper != null) {
                             TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
                             DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
@@ -181,7 +181,7 @@ public class ScatteredTypeMapping extends TypeMapping {
                             to.set(userField, referencedRecord);
                         }
                     } else {
-                        List<Wrapper> wrapperList = (List<Wrapper>) from.get(field.getName());
+                        List<Wrapper> wrapperList = (List<Wrapper>) value;
                         if (wrapperList != null) {
                             for (Wrapper wrapper : wrapperList) {
                                 TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
@@ -194,7 +194,13 @@ public class ScatteredTypeMapping extends TypeMapping {
                         }
                     }
                 } else {
-                    to.set(userField, from.get(field.getName()));
+                    to.set(userField, value);
+                }
+            } else {
+                DataRecordMetadata recordMetadata = to.getRecordMetadata();
+                Map<String,String> recordProperties = recordMetadata.getRecordProperties();
+                if (!ScatteredMappingCreator.GENERATED_ID.equals(fieldName) && value != null) {
+                    recordProperties.put(fieldName, String.valueOf(value));
                 }
             }
         }

@@ -42,6 +42,14 @@ public class UserQueryBuilder {
 
     public static final String TIMESTAMP_ALIAS = "timestamp"; //$NON-NLS-1$
 
+    public static final String TASK_ID_FIELD = "../../taskId"; //$NON-NLS-1$
+
+    public static final String TASK_ID_ALIAS = "taskId"; //$NON-NLS-1$
+
+    public static final String ID_FIELD = "../../i"; //$NON-NLS-1$
+
+    public static final String ID_ALIAS = "i"; //$NON-NLS-1$
+
     private static final Logger LOGGER = Logger.getLogger(UserQueryBuilder.class);
 
     private final Expression expression;
@@ -327,6 +335,12 @@ public class UserQueryBuilder {
                 select(alias(UserStagingQueryBuilder.error(), STAGING_ERROR_ALIAS));
             } else if (TIMESTAMP_FIELD.equals(fieldName)) {
                 select(alias(timestamp(), TIMESTAMP_ALIAS));
+            } else if (TASK_ID_FIELD.equals(fieldName)) {
+                select(alias(taskId(), TASK_ID_ALIAS));
+            } else if (ID_FIELD.equals(fieldName)) {
+                for (FieldMetadata keyField : type.getKeyFields()) {
+                    select(alias(keyField, ID_ALIAS));
+                }
             } else {
                 throw new IllegalArgumentException("Field '" + fieldName + "' is not supported.");
             }

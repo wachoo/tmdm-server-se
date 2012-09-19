@@ -321,6 +321,29 @@ public class StagingAreaTest extends TestCase {
         }
     }
 
+    public void testQueryStatusWithId() throws Exception {
+        generateData(true);
+
+        Select selectSource = UserQueryBuilder.from(person)
+                .select(alias(UserStagingQueryBuilder.status(), UserQueryBuilder.STAGING_STATUS_ALIAS))
+                .where(eq(person.getField("id"), String.valueOf(COUNT / 2)))
+                .getSelect();
+        StorageResults results = origin.fetch(selectSource);
+        for (DataRecord result : results) {
+            assertTrue(result.getType().hasField(UserQueryBuilder.STAGING_STATUS_ALIAS));
+            assertNull(result.get(UserQueryBuilder.STAGING_STATUS_ALIAS));
+        }
+
+        selectSource = UserQueryBuilder.from(person).select(person, UserQueryBuilder.STAGING_STATUS_FIELD)
+                .where(eq(person.getField("id"), String.valueOf(COUNT / 2)))
+                .getSelect();
+        results = origin.fetch(selectSource);
+        for (DataRecord result : results) {
+            assertTrue(result.getType().hasField(UserQueryBuilder.STAGING_STATUS_ALIAS));
+            assertNull(result.get(UserQueryBuilder.STAGING_STATUS_ALIAS));
+        }
+    }
+
     private static class TestSaverSource implements SaverSource {
 
         private final Storage storage;
