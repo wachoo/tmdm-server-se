@@ -127,10 +127,7 @@ class ServerImpl implements Server {
                     } catch (Exception e) {
                         LOGGER.error("Could not create SQL storage for container '" + container.getUniqueId() + "'.", e);
                     }
-                }
-                // TODO Enable this for TMDM-4507: Migrate update report to SQL storage
-                /*
-                else if(XSystemObjects.DC_UPDATE_PREPORT.getName().equals(container.getUniqueId())) {
+                } else if(XSystemObjects.DC_UPDATE_PREPORT.getName().equals(container.getUniqueId())) { // TMDM-4507: Migrate update report to SQL storage
                     try {
                         LOGGER.info("Creating SQL storage for update reports...");
                         serverStorageAdmin.create(container.getUniqueId(), container.getUniqueId(), Storage.DEFAULT_DATA_SOURCE_NAME);
@@ -139,7 +136,6 @@ class ServerImpl implements Server {
                         LOGGER.error("Could not create SQL storage for update reports.", e);
                     }
                 }
-                */
             }
             LOGGER.info("Done.");
         } catch (Exception e) {
