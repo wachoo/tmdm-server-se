@@ -101,7 +101,7 @@ public class DataSourceFactory {
             String processedDatabaseName = databaseName.replace("${container}", container); //$NON-NLS-1$
             if (((RDBMSDataSource) dataSource).getDialectName() == RDBMSDataSource.DataSourceDialect.POSTGRES) {
                 // Postgres always creates lower case database name
-                processedDatabaseName = databaseName.toLowerCase();
+                processedDatabaseName = processedDatabaseName.toLowerCase();
             }
             rdbmsDataSource.setDatabaseName(processedDatabaseName);
         }
