@@ -1677,6 +1677,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         boolean hasBeforeSavingProcess = Util.isTransformerExist("beforeSaving_" + concept); //$NON-NLS-1$
 
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("To-Update-Xml: " + xml); //$NON-NLS-1$
+        }
+
         try {
             // TODO (1) if update, check the item is modified by others?
             // TODO (2) if create, check if the item has not been created by someone else?
