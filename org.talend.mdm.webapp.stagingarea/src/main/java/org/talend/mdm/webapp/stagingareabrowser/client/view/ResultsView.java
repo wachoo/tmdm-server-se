@@ -103,6 +103,8 @@ public class ResultsView extends AbstractView {
                 String color;
                 com.google.gwt.user.client.ui.Grid g = new com.google.gwt.user.client.ui.Grid(1, 2);
                 Image icon;
+                if (model.getStatus() == null)
+                    return null;
                 if (model.getStatus() >= 400) {
                     color = "red"; //$NON-NLS-1$
                     icon = new Image(Resources.ICONS.failed());

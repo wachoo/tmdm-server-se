@@ -25,7 +25,7 @@ public class SearchModel implements IsSerializable, Serializable {
 
     private String key;
 
-    private int state;
+    private Integer state;
 
     private String statusCode;
 
@@ -79,11 +79,11 @@ public class SearchModel implements IsSerializable, Serializable {
         this.key = key;
     }
 
-    public int getState() {
+    public Integer getState() {
         return state;
     }
 
-    public void setState(int state) {
+    public void setState(Integer state) {
         this.state = state;
     }
 

@@ -17,7 +17,6 @@ import org.restlet.client.Response;
 import org.restlet.client.Uniform;
 import org.restlet.client.data.MediaType;
 import org.restlet.client.data.Method;
-import org.restlet.client.data.Status;
 import org.restlet.client.resource.ClientResource;
 import org.talend.mdm.webapp.stagingareacontrol.client.i18n.MessagesFactory;
 
@@ -53,10 +52,11 @@ public class ClientResourceWrapper {
         client.setOnResponse(new Uniform() {
 
             public void handle(Request request, Response response) {
-                if (response.getStatus() == Status.SUCCESS_OK) {
+                int statusCode = response.getStatus().getCode();
+                if (statusCode >= 200 && statusCode <= 299) {
                     callbackHandler.process(request, response);
                 } else {
-                    MessageBox.alert(MessagesFactory.getMessages().server_error(response.getStatus().getCode()),
+                    MessageBox.alert(MessagesFactory.getMessages().server_error(statusCode),
                             MessagesFactory.getMessages().server_error_notification(), null);
                 }
             }

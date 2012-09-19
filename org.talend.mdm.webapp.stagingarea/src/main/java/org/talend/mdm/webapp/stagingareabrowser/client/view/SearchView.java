@@ -16,6 +16,7 @@ import org.talend.mdm.webapp.stagingareabrowser.client.controller.ControllerCont
 import org.talend.mdm.webapp.stagingareabrowser.client.controller.SearchController;
 import org.talend.mdm.webapp.stagingareabrowser.client.model.SearchModel;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -24,25 +25,32 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.extjs.gxt.ui.client.widget.layout.TableData;
+import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.google.gwt.user.client.ui.Label;
 
 public class SearchView extends AbstractView {
 
-    private final int ALL_RECORDS = 1;
+    public static final int ALL_RECORDS = 1;
 
-    private final int INVALID_RECORDS = 2;
+    public static final int INVALID_RECORDS = 2;
 
-    private final int VALID_RECORDS = 3;
+    public static final int VALID_RECORDS = 3;
 
     private ContentPanel leftPanel;
 
     private ContentPanel rightPanel;
+
+    private ContentPanel middlePanel;
 
     private ComboBox<BaseModel> entityCombo;
 
@@ -61,6 +69,12 @@ public class SearchView extends AbstractView {
     private FieldSet fieldSet;
 
     private Button searchButton;
+
+    private Button resetButton;
+
+    private ContentPanel buttonPanel;
+
+    private ContentPanel hp;
 
     @Override
     protected void initComponents() {
@@ -111,35 +125,75 @@ public class SearchView extends AbstractView {
         leftPanel = new ContentPanel();
         leftPanel.setHeaderVisible(false);
         leftPanel.setBodyBorder(false);
+
+        middlePanel = new ContentPanel();
+        middlePanel.setHeaderVisible(false);
+        middlePanel.setBodyBorder(false);
+
         rightPanel = new ContentPanel();
         rightPanel.setHeaderVisible(false);
         rightPanel.setBodyBorder(false);
-        fieldSet = new FieldSet();
 
+        fieldSet = new FieldSet();
         fieldSet.setHeading(messages.status());
+
+        buttonPanel = new ContentPanel();
+        buttonPanel.setHeaderVisible(false);
+        buttonPanel.setBodyBorder(false);
+        buttonPanel.setHeight(40);
+        buttonPanel.setFrame(true);
+
         searchButton = new Button(messages.search());
-        searchButton.setSize(300, 30);
+        searchButton.setWidth("90px"); //$NON-NLS-1$
+        resetButton = new Button(messages.reset());
+        resetButton.setWidth("90px"); //$NON-NLS-1$
+
+        hp = new ContentPanel();
+        hp.setHeaderVisible(false);
+        hp.setBodyBorder(false);
+
     }
 
     @Override
     protected void initLayout() {
-        mainPanel.setLayout(new HBoxLayout());
+        mainPanel.setLayout(new RowLayout());
+        hp.setLayout(new HBoxLayout());
         leftPanel.setLayout(new FormLayout());
+        rightPanel.setLayout(new FormLayout());
         fieldSet.setLayout(new FormLayout());
 
         leftPanel.add(entityCombo);
         leftPanel.add(sourceField);
         leftPanel.add(keyField);
-        leftPanel.add(startDate);
-        leftPanel.add(endDate);
 
         fieldSet.add(stateCombo);
         fieldSet.add(statusCodeField);
-        rightPanel.add(fieldSet);
-        rightPanel.add(searchButton);
+        middlePanel.add(fieldSet);
 
-        mainPanel.add(leftPanel, new HBoxLayoutData(10, 0, 0, 10));
-        mainPanel.add(rightPanel, new HBoxLayoutData(5, 0, 0, 10));
+        rightPanel.add(startDate);
+        rightPanel.add(endDate);
+
+        TableLayout buttonLayout = new TableLayout(3);
+        buttonLayout.setWidth("100%"); //$NON-NLS-1$
+        buttonPanel.setLayout(buttonLayout);
+
+        TableData td0 = new TableData();
+        buttonPanel.add(new Label(), td0);
+        TableData td1 = new TableData();
+        td1.setWidth("100px"); //$NON-NLS-1$
+        td1.setHorizontalAlign(HorizontalAlignment.RIGHT);
+        buttonPanel.add(searchButton, td1);
+        TableData td2 = new TableData();
+        td2.setWidth("120px"); //$NON-NLS-1$
+        td2.setHorizontalAlign(HorizontalAlignment.CENTER);
+        buttonPanel.add(resetButton, td2);
+
+        hp.add(leftPanel, new HBoxLayoutData(10, 0, 0, 10));
+        hp.add(middlePanel, new HBoxLayoutData(5, 0, 0, 10));
+        hp.add(rightPanel, new HBoxLayoutData(10, 0, 0, 10));
+
+        mainPanel.add(hp, new RowData(1, -1));
+        mainPanel.add(buttonPanel, new RowData(1, -1));
     }
 
     @Override
@@ -169,6 +223,12 @@ public class SearchView extends AbstractView {
         BaseModel stateModel = stateCombo.getStore().findModel("value", defaultState); //$NON-NLS-1$
         if (stateModel != null) {
             stateCombo.setValue(stateModel);
+        }
+        if (entityCombo.getValue() == null) {
+            if (entityCombo.getStore().getCount() > 0) {
+                BaseModel entityModel = entityCombo.getStore().getAt(0);
+                entityCombo.setValue(entityModel);
+            }
         }
         searchButton.fireEvent(Events.Select);
     }

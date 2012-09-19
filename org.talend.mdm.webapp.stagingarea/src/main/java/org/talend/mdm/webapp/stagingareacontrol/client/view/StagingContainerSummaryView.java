@@ -12,7 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
+import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerModel;
@@ -24,13 +28,15 @@ import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.google.gwt.ajaxloader.client.AjaxLoader;
+import com.google.gwt.ajaxloader.client.ArrayHelper;
+import com.google.gwt.ajaxloader.client.AjaxLoader.AjaxLoaderOptions;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.LegendPosition;
-import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.visualizations.PieChart;
 import com.google.gwt.visualization.client.visualizations.PieChart.Options;
@@ -97,7 +103,7 @@ public class StagingContainerSummaryView extends AbstractView {
         titleGrid = new Grid(1, 5);
         chartPanel = new SimplePanel();
         chartPanel.setSize(CHART_WIDTH + "px", CHART_HEIGHT + "px"); //$NON-NLS-1$ //$NON-NLS-2$
-        chartPanel.getElement().setInnerHTML("load..."); //$NON-NLS-1$
+        chartPanel.getElement().setInnerHTML(messages.loading());
 
         StringBuffer buffer = new StringBuffer();
         buffer.append("<div style='margin-bottom:10px; font-size:16px;' id='" + STAGING_AREA_TITLE + "'></div>"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -193,23 +199,27 @@ public class StagingContainerSummaryView extends AbstractView {
         initDetailPanel();
 
         if (chart == null) {
-            VisualizationUtils.loadVisualizationApi(new Runnable() {
+            AjaxLoaderOptions options = AjaxLoaderOptions.newInstance();
+            options.setPackages(ArrayHelper.createJsArray(PieChart.PACKAGE));
+            options.setLanguage(UrlUtil.getLanguage());
+            AjaxLoader.loadApi("visualization", "1", new Runnable() { //$NON-NLS-1$ //$NON-NLS-2$
 
-                public void run() {
-                    chartData = DataTable.create();
-                    chartData.addColumn(ColumnType.STRING);
-                    chartData.addColumn(ColumnType.NUMBER);
-                    chartData.addRows(3);
-                    updateChartData();
-                    chartOptions = createOptions();
-                    chart = new PieChart(chartData, chartOptions);
-                    chartPanel.getElement().setInnerHTML(""); //$NON-NLS-1$
-                    chartPanel.setWidget(chart);
-                }
-            }, PieChart.PACKAGE);
+                        public void run() {
+                            chartData = DataTable.create();
+                            chartData.addColumn(ColumnType.STRING);
+                            chartData.addColumn(ColumnType.NUMBER);
+                            chartData.addRows(3);
+                            chartOptions = createOptions();
+                            updateChartData();
+                            chart = new PieChart(chartData, chartOptions);
+                            chartPanel.getElement().setInnerHTML(""); //$NON-NLS-1$
+                            chartPanel.setWidget(chart);
+                        }
+                    }, options);
+
         } else {
             updateChartData();
-            chart.draw(chartData);
+            chart.draw(chartData, chartOptions);
         }
     }
 
@@ -218,7 +228,6 @@ public class StagingContainerSummaryView extends AbstractView {
         options.setWidth(CHART_WIDTH);
         options.setHeight(CHART_HEIGHT);
         options.setLegend(LegendPosition.RIGHT);
-        options.setColors("blue", "red", "green"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         options.set3D(true);
         return options;
     }
@@ -228,12 +237,23 @@ public class StagingContainerSummaryView extends AbstractView {
             int waiting = stagingContainerModel.getWaitingValidationRecords();
             int valid = stagingContainerModel.getValidRecords();
             int invalid = stagingContainerModel.getInvalidRecords();
+            List<String> colors = new ArrayList<String>();
             chartData.setValue(0, 0, messages.waiting());
             chartData.setValue(0, 1, waiting);
+            if (waiting > 0) {
+                colors.add("blue"); //$NON-NLS-1$
+            }
             chartData.setValue(1, 0, messages.invalid());
             chartData.setValue(1, 1, invalid);
+            if (invalid > 0) {
+                colors.add("red"); //$NON-NLS-1$
+            }
             chartData.setValue(2, 0, messages.valid());
             chartData.setValue(2, 1, valid);
+            if (valid > 0) {
+                colors.add("green"); //$NON-NLS-1$
+            }
+            chartOptions.setColors(ArrayHelper.createJsArray(colors.toArray(new String[colors.size()])));
         }
     }
 

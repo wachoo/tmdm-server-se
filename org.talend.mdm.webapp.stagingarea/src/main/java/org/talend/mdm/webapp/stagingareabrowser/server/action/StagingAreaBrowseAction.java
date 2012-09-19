@@ -13,19 +13,32 @@
 package org.talend.mdm.webapp.stagingareabrowser.server.action;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.stagingareabrowser.client.StagingAreaBrowseService;
-import org.talend.mdm.webapp.stagingareabrowser.client.model.FakeData;
 import org.talend.mdm.webapp.stagingareabrowser.client.model.ResultItem;
 import org.talend.mdm.webapp.stagingareabrowser.client.model.SearchModel;
+import org.talend.mdm.webapp.stagingareabrowser.client.view.SearchView;
+import org.w3c.dom.Document;
 
 import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.util.webservices.WSConceptKey;
+import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
+import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
+import com.amalto.webapp.util.webservices.WSStringArray;
+import com.amalto.webapp.util.webservices.WSStringPredicate;
+import com.amalto.webapp.util.webservices.WSWhereAnd;
+import com.amalto.webapp.util.webservices.WSWhereCondition;
+import com.amalto.webapp.util.webservices.WSWhereItem;
+import com.amalto.webapp.util.webservices.WSWhereOperator;
+import com.amalto.webapp.util.webservices.WSXPathsSearch;
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -53,34 +66,172 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
         }
     }
 
+    private WSWhereItem buildWhereItem(SearchModel searchModel) {
+
+        List<WSWhereItem> whereItems = new ArrayList<WSWhereItem>();
+        
+        String key = searchModel.getKey();
+        if (key != null && key.trim().length() > 0) {
+            WSWhereItem keyWhere = new WSWhereItem();
+            keyWhere.setWhereCondition(new WSWhereCondition(searchModel.getEntity() + "/../../i", //$NON-NLS-1$
+                    WSWhereOperator.EQUALS, key, WSStringPredicate.NONE, false));
+            whereItems.add(keyWhere);
+        }
+
+        String source = searchModel.getSource();
+        if (source != null && source.trim().length() > 0){
+            WSWhereItem sourceWhere = new WSWhereItem();
+            sourceWhere.setWhereCondition(new WSWhereCondition(searchModel.getEntity() + "/$staging_source$", //$NON-NLS-1$
+                    WSWhereOperator.CONTAINS, source, WSStringPredicate.NONE, false));
+            whereItems.add(sourceWhere);
+        }
+
+        String statusCode = searchModel.getStatusCode();
+        if (statusCode != null && statusCode.trim().length() > 0) {
+            WSWhereItem statusWhere = new WSWhereItem();
+            statusWhere.setWhereCondition(new WSWhereCondition(searchModel.getEntity() + "/$staging_status$", //$NON-NLS-1$
+                    WSWhereOperator.EQUALS, statusCode, WSStringPredicate.NONE, false));
+            whereItems.add(statusWhere);
+        }
+        
+        Integer state = searchModel.getState();
+        if (state != null){
+            WSWhereItem stateWhere = null;
+            if (state.equals(SearchView.INVALID_RECORDS)) {
+                stateWhere = new WSWhereItem();
+                stateWhere.setWhereCondition(new WSWhereCondition(searchModel.getEntity() + "/$staging_status$", //$NON-NLS-1$
+                        WSWhereOperator.GREATER_THAN_OR_EQUAL, "400", WSStringPredicate.NONE, false)); //$NON-NLS-1$
+            } else if (state.equals(SearchView.VALID_RECORDS)) {
+                stateWhere = new WSWhereItem();
+                stateWhere.setWhereCondition(new WSWhereCondition(searchModel.getEntity() + "/$staging_status$", //$NON-NLS-1$
+                        WSWhereOperator.LOWER_THAN, "400", WSStringPredicate.NONE, false)); //$NON-NLS-1$
+            }
+            if (stateWhere != null) {
+                whereItems.add(stateWhere);
+            }
+        }
+
+        Date startDate = searchModel.getStartDate();
+        if (startDate != null) {
+            WSWhereItem startDateWhere = new WSWhereItem();
+            startDateWhere.setWhereCondition(new WSWhereCondition(searchModel.getEntity() + "/../../t", //$NON-NLS-1$
+                    WSWhereOperator.GREATER_THAN_OR_EQUAL, Long.toString(startDate.getTime()), WSStringPredicate.NONE, false));
+            whereItems.add(startDateWhere);
+        }
+        Date endDate = searchModel.getEndDate();
+        if (endDate != null) {
+            WSWhereItem endDateWhere = new WSWhereItem();
+            endDateWhere.setWhereCondition(new WSWhereCondition(searchModel.getEntity() + "/../../t", //$NON-NLS-1$
+                    WSWhereOperator.LOWER_THAN_OR_EQUAL, Long.toString(endDate.getTime()), WSStringPredicate.NONE, false));
+            whereItems.add(endDateWhere);
+        }
+
+        WSWhereAnd whereAnd = new WSWhereAnd();
+        whereAnd.setWhereItems(whereItems.toArray(new WSWhereItem[] {}));
+        WSWhereItem whereItem = new WSWhereItem();
+        whereItem.setWhereAnd(whereAnd);
+        return whereItem;
+    }
+
     public PagingLoadResult<ResultItem> searchStaging(SearchModel searchModel) {
+        int totalSize = 0;
+        List<ResultItem> items = new ArrayList<ResultItem>();
+        try {
+            String[] keyPaths = getBusinessConceptKeys(getCurrentDataModel(), searchModel.getEntity());
+            List<String> viewablePathList = new ArrayList<String>();
+            if (keyPaths != null) {
+                for (String keyPath : keyPaths) {
+                    viewablePathList.add(keyPath);
+                }
+            }
+            viewablePathList.add(searchModel.getEntity() + "/../../t"); //$NON-NLS-1$
+            viewablePathList.add(searchModel.getEntity() + "/$staging_status$"); //$NON-NLS-1$
+            viewablePathList.add(searchModel.getEntity() + "/$staging_error$"); //$NON-NLS-1$
+            viewablePathList.add(searchModel.getEntity() + "/$staging_source$"); //$NON-NLS-1$
+            WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(getCurrentDataCluster());
+            WSStringArray viewablePaths = new WSStringArray(viewablePathList.toArray(new String[viewablePathList.size()]));
 
-        // TODO wait for confirmation logic
+            WSWhereItem whereItem = buildWhereItem(searchModel);
 
-        // WSStringArray results = null;
-        // try {
-        // WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(getCurrentDataCluster());
-        // WSStringArray viewablePaths = new WSStringArray(new String[] { "Pro/subelement" });
-        //
-        // WSWhereItem whereItem = null;
-        // // whereItem.setWhereCondition(new WSWhereCondition(searchModel.getEntity() + "/$staging_status$",
-        // // WSWhereOperator.GREATER_THAN_OR_EQUAL, "400", WSStringPredicate.NONE, false));
-        //
-        // WSXPathsSearch wsXPathsSearch = new WSXPathsSearch(wsDataClusterPK, null, viewablePaths, whereItem, -1,
-        // searchModel
-        // .getOffset(), searchModel.getLimit(), searchModel.getSortField(), searchModel.getSortDir(), true);
-        //
-        //
-        // results = CommonUtil.getPort().xPathsSearch(wsXPathsSearch);
-        //
-        // } catch (Exception e) {
-        // LOG.error(e.getMessage());
-        // }
+            WSXPathsSearch wsXPathsSearch = new WSXPathsSearch(wsDataClusterPK, null, viewablePaths, whereItem, -1, searchModel
+                    .getOffset(), searchModel.getLimit(), searchModel.getSortField(), searchModel.getSortDir(), true);
 
-        int offset = searchModel.getOffset();
-        PagingLoadResult<ResultItem> result = new BasePagingLoadResult<ResultItem>(FakeData.getResults(offset, offset
-                + searchModel.getLimit()), offset, FakeData.getTotal());
+            String[] results = CommonUtil.getPort().xPathsSearch(wsXPathsSearch).getStrings();
+            for (int i = 0; i < results.length; i++) {
+                if (i == 0) {
+                    try {
+                        // Qizx doesn't wrap the count in a XML element, so try to parse it
+                        totalSize = Integer.parseInt(results[i]);
+                    } catch (NumberFormatException e) {
+                        totalSize = Integer.parseInt(com.amalto.webapp.core.util.Util.parse(results[i]).getDocumentElement()
+                                .getTextContent());
+                    }
+                    continue;
+                }
+
+                Document doc = Util.parse(results[i]);
+                String[] key = Util.getTextNodes(doc, "/result/i"); //$NON-NLS-1$
+                String dateTime = Util.getFirstTextNode(doc, "/result/timestamp"); //$NON-NLS-1$
+                String source = Util.getFirstTextNode(doc, "/result/staging_source"); //$NON-NLS-1$
+                String status = Util.getFirstTextNode(doc, "/result/staging_status"); //$NON-NLS-1$
+                String error = Util.getFirstTextNode(doc, "/result/staging_error"); //$NON-NLS-1$
+                ResultItem item = new ResultItem();
+                item.setKey(join(key, ".")); //$NON-NLS-1$
+                item.setEntity(searchModel.getEntity());
+                if (dateTime != null) {
+                    item.setDateTime(new Date(Long.parseLong(dateTime)));
+                }
+                item.setSource(source);
+                if (status != null) {
+                    item.setStatus(Integer.valueOf(status));
+                }
+                item.setError(error);
+                items.add(item);
+            }
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+        }
+
+        PagingLoadResult<ResultItem> result = new BasePagingLoadResult<ResultItem>(items, searchModel.getOffset(), totalSize);
         return result;
+    }
+
+    private String join(String[] item, String separator) {
+        if (item == null || item.length == 0) {
+            return ""; //$NON-NLS-1$
+        }
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < item.length; i++) {
+            if (i == 0) {
+                buffer.append(item[i]);
+            } else {
+                buffer.append(separator + item);
+            }
+        }
+        return buffer.toString();
+    }
+
+    private static String[] getBusinessConceptKeys(String model, String concept) {
+
+        String[] keys = null;
+        try {
+            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
+                    new WSGetBusinessConceptKey(new WSDataModelPK(model), concept));
+
+            String[] keyFields = key.getFields();
+            keys = new String[keyFields.length];
+
+            for (int i = 0; i < keyFields.length; i++) {
+                if (".".equals(key.getSelector())) //$NON-NLS-1$
+                    keys[i] = concept + "/" + keyFields[i]; //$NON-NLS-1$ 
+                else
+                    keys[i] = key.getSelector() + keyFields[i];
+            }
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return keys;
+
     }
 
     public String getCurrentDataModel() throws ServiceException {

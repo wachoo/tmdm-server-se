@@ -48,6 +48,8 @@ public interface StagingareaBrowseMessages extends Messages {
 
     public String search();
 
+    public String reset();
+
     public String status_000();
 
     public String status_201(String dataCluser);

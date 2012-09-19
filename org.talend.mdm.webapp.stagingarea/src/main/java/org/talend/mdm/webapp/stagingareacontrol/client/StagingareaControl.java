@@ -53,8 +53,8 @@ public class StagingareaControl implements EntryPoint {
 
                 public void onSuccess(StagingAreaConfiguration stagingAreaConfig) {
                     StagingareaControl.stagingAreaConfig = stagingAreaConfig;
-                    UserContextUtil.setDataContainer("TestDataContainer"); //$NON-NLS-1$
-                    UserContextUtil.setDataModel("TestDataModel"); //$NON-NLS-1$
+                    UserContextUtil.setDataContainer("Product"); //$NON-NLS-1$
+                    UserContextUtil.setDataModel("Product"); //$NON-NLS-1$
                     GenerateContainer.generateContentPanel();
                     ContentPanel contentPanel = GenerateContainer.getContentPanel();
                     contentPanel.setSize(Window.getClientWidth(), Window.getClientHeight());

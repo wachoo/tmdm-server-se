@@ -12,11 +12,16 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareabrowser.client;
 
+import java.util.List;
+
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingareabrowser.client.controller.ControllerContainer;
+import org.talend.mdm.webapp.stagingareabrowser.client.controller.SearchController;
 import org.talend.mdm.webapp.stagingareabrowser.client.view.StagingareaBrowseView;
 
 import com.extjs.gxt.ui.client.core.XDOM;
+import com.extjs.gxt.ui.client.data.BaseModel;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -40,7 +45,11 @@ public class StagingareaBrowse implements EntryPoint {
 
             StagingareaBrowseView view = new StagingareaBrowseView();
             RootPanel.get().add(view);
-            ControllerContainer.get().getSearchController().defaultDoSearch(1);
+            SearchController.loadConcepts(new SessionAwareAsyncCallback<List<BaseModel>>() {
+                public void onSuccess(List<BaseModel> result) {
+                    ControllerContainer.get().getSearchController().defaultDoSearch(2);
+                }
+            });
         }
     }
 
@@ -104,9 +113,14 @@ public class StagingareaBrowse implements EntryPoint {
         return panel;
     }-*/;
 
-    public void initUI(Integer defaultState) {
+    public void initUI(final Integer defaultState) {
         _initUI(STAGINGAREA_BROWSE_ID);
-        ControllerContainer.get().getSearchController().defaultDoSearch(defaultState);
+        SearchController.loadConcepts(new SessionAwareAsyncCallback<List<BaseModel>>() {
+
+            public void onSuccess(List<BaseModel> result) {
+                ControllerContainer.get().getSearchController().defaultDoSearch(defaultState);
+            }
+        });
     }
 
     public void renderContent(final String contentId) {

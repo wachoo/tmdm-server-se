@@ -30,19 +30,9 @@ public class StagingContainerSummaryController extends AbstractController {
 
     public void refreshView() {
         final UserContextModel ucx = UserContextUtil.getUserContext();
-        StagingContainerModel result = new StagingContainerModel();
-        result.setDataContainer("TestDataContainer");
-        result.setDataModel("TestDataModel");
-        result.setInvalidRecords(1000);
-        result.setValidRecords(8000);
-        result.setWaitingValidationRecords(1000);
-        result.setTotalRecords(10000);
-        view.refresh(result);
         ControllerContainer.get().getCurrentValidationController().refreshView(ucx.getDataContainer());
         ControllerContainer.get().getPreviousExecutionController().setDataContainer(ucx.getDataContainer());
-        if ("1".equals("1")) {
-            return;
-        }
+
         RestServiceHandler.get().getStagingContainerSummary(ucx.getDataContainer(), ucx.getDataModel(),
                 new SessionAwareAsyncCallback<StagingContainerModel>() {
 
