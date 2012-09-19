@@ -34,7 +34,7 @@ public class DataRecordXmlWriter implements DataRecordWriter {
     }
 
     public void write(DataRecord record, OutputStream output) throws IOException {
-        Writer out = new BufferedWriter(new OutputStreamWriter(output));
+        Writer out = new BufferedWriter(new OutputStreamWriter(output, "UTF-8")); //$NON-NLS-1$
         write(record, out);
     }
 

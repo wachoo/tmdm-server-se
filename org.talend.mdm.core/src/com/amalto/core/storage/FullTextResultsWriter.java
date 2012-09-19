@@ -31,7 +31,7 @@ public class FullTextResultsWriter implements DataRecordWriter {
     }
 
     public void write(DataRecord record, OutputStream output) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(output);
+        OutputStreamWriter writer = new OutputStreamWriter(output, "UTF-8"); //$NON-NLS-1$
         write(record, writer);
     }
 

@@ -586,7 +586,7 @@ public class ItemCtrl2Bean implements SessionBean {
                 results = storage.fetch(qb.getSelect());
                 DataRecordWriter writer = new DataRecordWriter() {
                     public void write(DataRecord record, OutputStream output) throws IOException {
-                        Writer out = new BufferedWriter(new OutputStreamWriter(output));
+                        Writer out = new BufferedWriter(new OutputStreamWriter(output, "UTF-8")); //$NON-NLS-1$
                         write(record, out);
                     }
 
