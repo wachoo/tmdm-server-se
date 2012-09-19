@@ -1041,7 +1041,9 @@ public class StorageQueryTest extends StorageTestCase {
         String fieldName = "../../t";
         IWhereItem item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition(fieldName, WhereCondition.GREATER_THAN, "1000", WhereCondition.NO_OPERATOR)));
         qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
-        Condition condition = qb.getSelect().getCondition();
+        Select select = qb.getSelect();
+        select = (Select) select.normalize();
+        Condition condition = select.getCondition();
         assertTrue(condition instanceof Compare);
         assertTrue(((Compare) condition).getLeft() instanceof Timestamp);
     }
