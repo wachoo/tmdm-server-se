@@ -23,6 +23,7 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 		amalto.widget.ForeignKeyField.superclass.initComponent.call(this);
     },
     
+    isMandatory : false,
     xpathForeignKey : "",
     xpathForeignKeyInfo : "",
     trigger1Class : 'x-form-clear-trigger',
@@ -113,6 +114,7 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
                 fieldLabel : FILTER[language],
                 id : 'task-foreign-key-filter',
 		        store : this.taskForeignKeytore,
+		        allowBlank : !this.isMandatory,
 		        displayField : 'title',
 		        typeAhead : false,
 		        loadingText : 'Searching...',

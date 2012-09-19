@@ -11,6 +11,7 @@ amalto.widget.MultiLanguageTextField = Ext.extend(Ext.Panel, {
 		this.dataTextField = new Ext.form.TextField({
 				id : this.name + "_" + this.activityUUID + "_field",
 				name : this.name + "_" + this.activityUUID + "_field",
+				allowBlank : !this.isMandatory,
 				xtype : "textfield",
 				fieldLabel : this.label,
 				width : 300,
