@@ -34,6 +34,7 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.*;
 
 public abstract class IItemCtrlDelegator implements IBeanDelegator,
@@ -285,7 +286,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                     } catch (IOException e) {
                         throw new XmlServerException(e);
                     }
-                    String document = new String(output.toByteArray());
+                    String document = new String(output.toByteArray(), Charset.forName("UTF-8"));
                     resultsAsString.add(document);
                     output.reset();
                 }
