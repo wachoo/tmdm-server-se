@@ -19,19 +19,19 @@ public class FormatUtilTest extends TestCase {
 
     public void testLanguageValueEncode() {
         String value = "Talend[]";
-        assertEquals("Talend&#91;&#93;", FormatUtil.languageValueEncode(value));
+        assertEquals("Talend&amp;#91;&amp;#93;", FormatUtil.languageValueEncode(value));
         value = "Talend\\China";
-        assertEquals("Talend&#92;China", FormatUtil.languageValueEncode(value));
+        assertEquals("Talend&amp;#92;China", FormatUtil.languageValueEncode(value));
         value = "Talend\\China[]";
-        assertEquals("Talend&#92;China&#91;&#93;", FormatUtil.languageValueEncode(value));
+        assertEquals("Talend&amp;#92;China&amp;#91;&amp;#93;", FormatUtil.languageValueEncode(value));
     }
 
     public void testLanguageValueDecode() {
-        String value = "Talend&#91;&#93;";
+        String value = "Talend&amp;#91;&amp;#93;";
         assertEquals("Talend[]", FormatUtil.languageValueDecode(value));
-        value = "Talend&#92;China";
+        value = "Talend&amp;#92;China";
         assertEquals("Talend\\China", FormatUtil.languageValueDecode(value));
-        value = "Talend&#92;China&#91;&#93;";
+        value = "Talend&amp;#92;China&amp;#91;&amp;#93;";
         assertEquals("Talend\\China[]", FormatUtil.languageValueDecode(value));
     }
 

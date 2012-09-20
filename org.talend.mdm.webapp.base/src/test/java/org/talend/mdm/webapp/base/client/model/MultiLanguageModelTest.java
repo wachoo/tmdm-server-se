@@ -19,7 +19,7 @@ public class MultiLanguageModelTest extends TestCase {
 
     private MultiLanguageModel model;
 
-    private String multiLanguageString = "[EN:456][FR:789][ZH:123&#92;&#91;&#93;]";
+    private String multiLanguageString = "[EN:456][FR:789][ZH:123&amp;#92;&amp;#91;&amp;#93;]";
 
     protected void setUp() throws Exception {
         model = new MultiLanguageModel(multiLanguageString);
@@ -49,10 +49,10 @@ public class MultiLanguageModelTest extends TestCase {
         assertEquals("", model.getValueByLanguage("SP"));
         model.setValueByLanguage("SP", "ok");
         assertEquals("ok", model.getValueByLanguage("SP"));
-        assertTrue(model.toString().equals("[EN:456789][FR:789012][SP:ok][ZH:123456&#92;&#91;&#93;]"));
+        assertTrue(model.toString().equals("[EN:456789][FR:789012][SP:ok][ZH:123456&amp;#92;&amp;#91;&amp;#93;]"));
         // remove spanish value
         model.setValueByLanguage("SP", "");
-        assertTrue(model.toString().equals("[EN:456789][FR:789012][ZH:123456&#92;&#91;&#93;]"));
+        assertTrue(model.toString().equals("[EN:456789][FR:789012][ZH:123456&amp;#92;&amp;#91;&amp;#93;]"));
         // multiLanguageString = null
         model = new MultiLanguageModel(null);
         model.setValueByLanguage("ZH", "123");

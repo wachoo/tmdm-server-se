@@ -991,7 +991,7 @@ public class ItemsToolBar extends ToolBar {
     }
 
     private void saveBookmark(String name, boolean shared, String curCriteria, final Window winBookmark) {
-        if (curCriteria.contains("&#91;") || curCriteria.contains("&#92;") || curCriteria.contains("&#93;")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        if (curCriteria.contains("&amp;#91;") || curCriteria.contains("&amp;#92;") || curCriteria.contains("&amp;#93;")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             curCriteria = curCriteria.replace("&", "&amp;"); //$NON-NLS-1$//$NON-NLS-2$
         service.saveCriteria(entityCombo.getValue().get("value").toString(), name, shared, curCriteria, //$NON-NLS-1$
                 new SessionAwareAsyncCallback<Void>() {
