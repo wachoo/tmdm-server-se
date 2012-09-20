@@ -49,10 +49,7 @@ public class MiscTypeFieldFactory extends TypeFieldFactory {
 
                 CheckBox checkBox = new CheckBox();
                 if (context.isWithValue()) {
-                    boolean result = hasValue() ? ((getValue().toString().equals("true") || getValue().equals(true)) ? true : false) : false; //$NON-NLS-1$
-                    checkBox.setValue(result);
-                    if(this.context.getNode().getObjectValue() == null || this.context.getNode().getObjectValue().equals("")) //$NON-NLS-1$
-                        this.context.getNode().setObjectValue(false);
+                    checkBox.setValue(hasValue() ? ((getValue().toString().equals("true") || getValue().equals(true)) ? true : false) : null); //$NON-NLS-1$
                 }
 
                 field = checkBox;
