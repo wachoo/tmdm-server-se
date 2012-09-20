@@ -53,14 +53,20 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     @Override
     public TypeMapping visit(ReferenceFieldMetadata referenceField) {
         String name = getFieldName(referenceField);
-        ComplexTypeMetadata referencedType = new SoftTypeRef(internalRepository, StringUtils.EMPTY, referenceField.getReferencedType().getName(), true);
+        ComplexTypeMetadata fieldReferencedType = referenceField.getReferencedType();
+        ComplexTypeMetadata referencedType;
+        if (fieldReferencedType.isInstantiable()) {
+            referencedType = new SoftTypeRef(internalRepository, StringUtils.EMPTY, fieldReferencedType.getName(), true);
+        } else {
+            referencedType = new SoftTypeRef(internalRepository, StringUtils.EMPTY, newNonInstantiableTypeName(fieldReferencedType), true);
+        }
 
         FieldMetadata referencedFieldCopy = new SoftIdFieldRef(internalRepository, referencedType.getName());
         FieldMetadata foreignKeyInfoFieldCopy = referenceField.hasForeignKeyInfo() ? referenceField.getForeignKeyInfoField().copy(internalRepository) : null;
 
         ComplexTypeMetadata database = currentType.peek();
 
-        boolean fkIntegrity = referenceField.isFKIntegrity() && (referenceField.getReferencedType() != mapping.getUser()); // Don't enforce FK integrity for references to itself.
+        boolean fkIntegrity = referenceField.isFKIntegrity() && (fieldReferencedType != mapping.getUser()); // Don't enforce FK integrity for references to itself.
         ReferenceFieldMetadata newFlattenField = new ReferenceFieldMetadata(currentType.peek(),
                 referenceField.isKey(),
                 referenceField.isMany(),
@@ -78,10 +84,22 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         return null;
     }
 
+    private String newNonInstantiableTypeName(ComplexTypeMetadata fieldReferencedType) {
+        return getNonInstantiableTypeName(fieldReferencedType.getName());
+    }
+
+    private String getNonInstantiableTypeName(String typeName) {
+        if (!typeName.startsWith("X_")) { //$NON-NLS-1$
+            return "X_" + typeName; //$NON-NLS-1$
+        } else {
+            return typeName;
+        }
+    }
+
     @Override
     public TypeMapping visit(ContainedComplexTypeMetadata containedType) {
         String typeName = containedType.getName().replace('-', '_');
-        String databaseSuperType = createContainedType(typeName, null, containedType);
+        String databaseSuperType = createContainedType(getNonInstantiableTypeName(typeName), null, containedType);
         for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
             createContainedType(subType.getName().replace('-', '_'), databaseSuperType, subType);
         }
@@ -126,7 +144,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     @Override
     public TypeMapping visit(ContainedTypeFieldMetadata containedField) {
         String fieldName = getFieldName(containedField);
-        String containedTypeName = containedField.getContainedType().getName();
+        String containedTypeName = newNonInstantiableTypeName(containedField.getContainedType());
         SoftTypeRef typeRef = new SoftTypeRef(internalRepository,
                 containedField.getDeclaringType().getNamespace(),
                 containedTypeName,
@@ -164,16 +182,24 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     public TypeMapping visit(ComplexTypeMetadata complexType) {
         mapping = new ScatteredTypeMapping(complexType, mappings);
         ComplexTypeMetadata database = mapping.getDatabase();
-
+        if (!complexType.isInstantiable()) {
+            // In this mapping prefix non instantiable types with "x_" so table name is not mixed up with an entity
+            // table with same name.
+            database.setName(newNonInstantiableTypeName(database)); //$NON-NLS-1$
+        }
         currentType.push(database);
         {
             internalRepository.addTypeMetadata(database);
             if (complexType.getKeyFields().isEmpty() && complexType.getSuperTypes().isEmpty()) { // Assumes super type will define an id.
-                SoftTypeRef type = new SoftTypeRef(internalRepository, StringUtils.EMPTY, "UUID", false);
-                database.addField(new SimpleTypeFieldMetadata(database, true, false, true, GENERATED_ID, type, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
+                SoftTypeRef type = new SoftTypeRef(internalRepository, StringUtils.EMPTY, "UUID", false); //$NON-NLS-1$
+                database.addField(new SimpleTypeFieldMetadata(database, true, false, true, GENERATED_ID, type, Collections.<String>emptyList(), Collections.<String>emptyList()));
             }
             for (TypeMetadata superType : complexType.getSuperTypes()) {
-                database.addSuperType(new SoftTypeRef(internalRepository, superType.getNamespace(), superType.getName(), superType.isInstantiable()), internalRepository);
+                if (superType.isInstantiable()) {
+                    database.addSuperType(new SoftTypeRef(internalRepository, superType.getNamespace(), superType.getName(), superType.isInstantiable()), internalRepository);
+                } else {
+                    database.addSuperType(new SoftTypeRef(internalRepository, superType.getNamespace(), getNonInstantiableTypeName(superType.getName()), superType.isInstantiable()), internalRepository);
+                }
             }
             super.visit(complexType);
         }

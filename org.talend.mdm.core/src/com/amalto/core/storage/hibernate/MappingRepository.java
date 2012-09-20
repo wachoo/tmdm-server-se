@@ -12,34 +12,33 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.TypeMetadata;
+import org.apache.commons.collections.map.MultiKeyMap;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 class MappingRepository {
 
-    private final Map<String, TypeMapping> userToMapping = new HashMap<String, TypeMapping>();
+    private final MultiKeyMap userToMapping = new MultiKeyMap();
 
-    private final Map<String, TypeMapping> databaseToMapping = new HashMap<String, TypeMapping>();
+    private final MultiKeyMap databaseToMapping = new MultiKeyMap();
 
     public TypeMapping getMappingFromUser(TypeMetadata type) {
         if (type instanceof TypeMapping) {
             return (TypeMapping) type;
         }
-        return userToMapping.get(type.getName());
+        return (TypeMapping) userToMapping.get(type.getName(), type.isInstantiable());
     }
 
     public TypeMapping getMappingFromDatabase(TypeMetadata type) {
         if (type instanceof TypeMapping) {
             return (TypeMapping) type;
         }
-        return databaseToMapping.get(type.getName());
+        return (TypeMapping) databaseToMapping.get(type.getName(), type.isInstantiable());
     }
 
     public void addMapping(TypeMetadata type, TypeMapping mapping) {
-        userToMapping.put(type.getName(), mapping);
-        databaseToMapping.put(mapping.getDatabase().getName(), mapping);
+        userToMapping.put(type.getName(), type.isInstantiable(), mapping);
+        databaseToMapping.put(mapping.getDatabase().getName(), type.isInstantiable(), mapping);
     }
 
     public Collection<TypeMapping> getAllTypeMappings() {

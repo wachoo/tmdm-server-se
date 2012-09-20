@@ -209,8 +209,15 @@ public class ScatteredTypeMapping extends TypeMapping {
 
     // Returns actual contained type (in case in reference to hold contained record can have sub types).
     // Not expected to be use for foreign keys, and also very specific to this mapping implementation.
-    private static ComplexTypeMetadata getActualContainedType(FieldMetadata userField, Wrapper value) {
-        String actualValueType = value.getClass().getSimpleName();
+    private ComplexTypeMetadata getActualContainedType(FieldMetadata userField, Wrapper value) {
+        ComplexTypeMetadata typeFromClass = ((StorageClassLoader) Thread.currentThread().getContextClassLoader()).getTypeFromClass(value.getClass());
+        TypeMapping mappingFromDatabase = mappings.getMappingFromDatabase(typeFromClass);
+        String actualValueType;
+        if (mappingFromDatabase != null) {
+            actualValueType = mappingFromDatabase.getUser().getName();
+        } else {
+            actualValueType = value.getClass().getSimpleName();
+        }
         if (actualValueType.equalsIgnoreCase(userField.getType().getName())) {
             return (ComplexTypeMetadata) userField.getType();
         } else {
@@ -221,12 +228,19 @@ public class ScatteredTypeMapping extends TypeMapping {
                 }
             }
         }
-        throw new IllegalStateException("Could value type from class '" + String.valueOf(value) + "' and for field '" + userField.getName() + "'.");
+        throw new IllegalStateException("Could not set value with class '" + String.valueOf(value) + "' to field '" + userField.getName() + "'.");
     }
 
     private Wrapper createObject(ClassLoader storageClassLoader, ComplexTypeMetadata referencedType) {
         try {
-            Class<? extends Wrapper> referencedClass = ((StorageClassLoader) storageClassLoader).getClassFromType(referencedType);
+            TypeMapping mappingFromUser = mappings.getMappingFromUser(referencedType);
+            Class<? extends Wrapper> referencedClass;
+            if (mappingFromUser != null) {
+                ComplexTypeMetadata databaseReferenceType = mappingFromUser.getDatabase();
+                referencedClass = ((StorageClassLoader) storageClassLoader).getClassFromType(databaseReferenceType);
+            } else {
+                referencedClass = ((StorageClassLoader) storageClassLoader).getClassFromType(referencedType);
+            }
             return referencedClass.newInstance();
         } catch (Exception e) {
             throw new RuntimeException("Could not create wrapper object for type '" + referencedType.getName() + "'", e);
