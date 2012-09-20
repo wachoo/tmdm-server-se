@@ -1233,6 +1233,32 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testNativeQueryWithNoReturn() throws Exception {
+        UserQueryBuilder qb = from("UPDATE PERSON set x_firstname='My SQL modified firstname';");
+        StorageResults results = storage.fetch(qb.getExpression());
+        assertEquals(0, results.getCount());
+        assertEquals(0, results.getSize());
+        for (DataRecord result : results) {
+            // Test iterator too (even if size is 0).
+        }
+
+        qb = from(person).where(eq(person.getField("firstname"), "Julien"));
+        results = storage.fetch(qb.getExpression());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(person).where(eq(person.getField("firstname"), "My SQL modified firstname"));
+        results = storage.fetch(qb.getExpression());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
     public void testContainsWithWildcards() throws Exception {
         UserQueryBuilder qb = from(person)
                 .where(contains(person.getField("firstname"), "*Ju*e"));

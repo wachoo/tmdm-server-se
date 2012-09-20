@@ -19,26 +19,64 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.SQLQuery;
+import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.jdbc.Work;
 
 import javax.xml.XMLConstants;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 public class NativeQueryHandler extends AbstractQueryHandler {
+
+    private static final String SELECT_KEYWORD = "SELECT"; //$NON-NLS-1$
+
+    private static final Logger LOGGER = Logger.getLogger(NativeQueryHandler.class);
+
     NativeQueryHandler(Storage storage, MappingRepository mappingMetadataRepository, StorageClassLoader storageClassLoader, Session session, Set<EndOfResultsCallback> callbacks) {
         super(storage, mappingMetadataRepository, storageClassLoader, session, null, null, callbacks);
     }
 
     @Override
     public StorageResults visit(NativeQuery nativeQuery) {
-        SQLQuery sqlQuery = session.createSQLQuery(nativeQuery.getQueryText());
-        List list = sqlQuery.list();
-        return new NativeQueryStorageResults(list, callbacks);
+        Query query;
+        String queryText = nativeQuery.getQueryText().trim();
+        String selectPrefix = queryText.substring(0, SELECT_KEYWORD.length());
+        if (SELECT_KEYWORD.equalsIgnoreCase(selectPrefix)) {
+            // Hibernate support direct SQL
+            query = session.createSQLQuery(queryText);
+            List list = query.list();
+            return new NativeQueryStorageResults(list, callbacks);
+        } else {
+            // Hibernate support write queries (update / delete) only via Work interface.
+            session.doWork(new UpdateQueryWork(nativeQuery));
+            return new StorageResults() {
+                @Override
+                public int getSize() {
+                    return 0;
+                }
+
+                @Override
+                public int getCount() {
+                    return 0;
+                }
+
+                @Override
+                public void close() {
+                }
+
+                @Override
+                public Iterator<DataRecord> iterator() {
+                    return Collections.<DataRecord>emptySet().iterator();
+                }
+            };
+        }
     }
 
     private static class NativeQueryStorageResults implements StorageResults {
@@ -143,6 +181,31 @@ public class NativeQueryHandler extends AbstractQueryHandler {
                 } catch (Throwable t) {
                     // Catch Throwable and log it (to ensure all callbacks get called).
                     LOGGER.error("End of result callback exception", t);
+                }
+            }
+        }
+    }
+
+    private static class UpdateQueryWork implements Work {
+        private final NativeQuery nativeQuery;
+
+        public UpdateQueryWork(NativeQuery nativeQuery) {
+            this.nativeQuery = nativeQuery;
+        }
+
+        @Override
+        public void execute(Connection connection) throws SQLException {
+            Statement statement = null;
+            try {
+                statement = connection.createStatement();
+                statement.executeUpdate(nativeQuery.getQueryText());
+            } finally {
+                if (statement != null) {
+                    try {
+                        statement.close();
+                    } catch (SQLException e) {
+                        LOGGER.error("Error on statement close during native query execution.", e);
+                    }
                 }
             }
         }
