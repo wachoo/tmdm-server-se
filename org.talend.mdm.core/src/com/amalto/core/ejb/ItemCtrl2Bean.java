@@ -574,7 +574,11 @@ public class ItemCtrl2Bean implements SessionBean {
                 for (String viewablePath : viewablePaths) {
                     String viewableTypeName = StringUtils.substringBefore(viewablePath, "/"); //$NON-NLS-1$
                     String viewableFieldName = StringUtils.substringAfter(viewablePath, "/"); //$NON-NLS-1$
-                    qb.select(repository.getComplexType(viewableTypeName), viewableFieldName);
+                    if (!viewableFieldName.isEmpty()) {
+                        qb.select(repository.getComplexType(viewableTypeName), viewableFieldName);
+                    } else {
+                        qb.selectId(repository.getComplexType(viewableTypeName)); // Select id if xPath is 'typeName' and and 'typeName/field'
+                    }
                 }
 
                 StorageResults results;
@@ -594,9 +598,6 @@ public class ItemCtrl2Bean implements SessionBean {
                         writer.write("<result>\n"); //$NON-NLS-1$
                         for (FieldMetadata fieldMetadata : record.getSetFields()) {
                             Object value = record.get(fieldMetadata);
-                            if (fieldMetadata.isKey()) {
-                                writer.append("\t<i>").append(String.valueOf(value)).append("</i>\n"); //$NON-NLS-1$  //$NON-NLS-2$
-                            }
                             if (value != null) {
                                 writer.append("\t<").append(fieldMetadata.getName()).append(">").append(String.valueOf(value)).append("</").append(fieldMetadata.getName()).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                             }
