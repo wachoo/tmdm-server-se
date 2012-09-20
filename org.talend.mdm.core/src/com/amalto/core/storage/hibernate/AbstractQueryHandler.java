@@ -258,6 +258,16 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         }
 
         @Override
+        public String visit(StagingError stagingError) {
+            return Storage.METADATA_STAGING_ERROR;
+        }
+
+        @Override
+        public String visit(StagingSource stagingSource) {
+            return Storage.METADATA_STAGING_SOURCE;
+        }
+
+        @Override
         public String visit(Field field) {
             return getFieldName(field, mappingMetadataRepository);
         }

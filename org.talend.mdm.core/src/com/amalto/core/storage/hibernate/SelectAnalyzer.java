@@ -178,6 +178,16 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
     }
 
     @Override
+    public AbstractQueryHandler visit(StagingError stagingError) {
+        return null;
+    }
+
+    @Override
+    public AbstractQueryHandler visit(StagingSource stagingSource) {
+        return null;
+    }
+
+    @Override
     public AbstractQueryHandler visit(Revision revision) {
         isOnlyId = false;
         return null;
