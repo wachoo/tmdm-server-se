@@ -86,20 +86,26 @@ public class SearchView extends AbstractView {
         entityCombo.setDisplayField("name");//$NON-NLS-1$
         entityCombo.setValueField("value");//$NON-NLS-1$
         entityCombo.setForceSelection(true);
+        entityCombo.setWidth(250);
 
         sourceField = new TextField<String>();
         sourceField.setFieldLabel(messages.source());
+        sourceField.setWidth(250);
         keyField = new TextField<String>();
         keyField.setFieldLabel(messages.key());
+        keyField.setWidth(250);
         startDate = new DateField();
         startDate.setFieldLabel(messages.start_date());
+        startDate.setWidth(250);
         endDate = new DateField();
         endDate.setFieldLabel(messages.end_date());
+        endDate.setWidth(250);
 
         stateCombo = new ComboBox<BaseModel>();
         stateCombo.setFieldLabel(messages.state());
         stateCombo.setEditable(false);
         stateCombo.setTriggerAction(TriggerAction.ALL);
+        stateCombo.setWidth(250);
         ListStore<BaseModel> stateStore = new ListStore<BaseModel>();
         BaseModel state1 = new BaseModel();
         state1.set("name", messages.all_records()); //$NON-NLS-1$
@@ -119,8 +125,10 @@ public class SearchView extends AbstractView {
         stateCombo.setStore(stateStore);
         stateCombo.setDisplayField("name"); //$NON-NLS-1$
         stateCombo.setValueField("value"); //$NON-NLS-1$
+        stateCombo.setWidth(250);
         statusCodeField = new TextField<String>();
         statusCodeField.setFieldLabel(messages.status_code());
+        statusCodeField.setWidth(250);
 
         leftPanel = new ContentPanel();
         leftPanel.setHeaderVisible(false);
@@ -158,9 +166,15 @@ public class SearchView extends AbstractView {
     protected void initLayout() {
         mainPanel.setLayout(new RowLayout());
         hp.setLayout(new HBoxLayout());
-        leftPanel.setLayout(new FormLayout());
-        rightPanel.setLayout(new FormLayout());
-        fieldSet.setLayout(new FormLayout());
+        FormLayout leftLayout = new FormLayout();
+        leftLayout.setLabelWidth(80);
+        leftPanel.setLayout(leftLayout);
+        FormLayout rightLayout = new FormLayout();
+        rightLayout.setLabelWidth(80);
+        rightPanel.setLayout(rightLayout);
+        FormLayout setLayout = new FormLayout();
+        setLayout.setLabelWidth(80);
+        fieldSet.setLayout(setLayout);
 
         leftPanel.add(entityCombo);
         leftPanel.add(sourceField);

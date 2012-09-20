@@ -73,6 +73,8 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private SimplePanel chartPanel;
 
+    private boolean chartInitialize = false;
+
     private PieChart chart;
 
     private DataTable chartData;
@@ -198,7 +200,8 @@ public class StagingContainerSummaryView extends AbstractView {
         this.stagingContainerModel = stagingContainerModel;
         initDetailPanel();
 
-        if (chart == null) {
+        if (!chartInitialize) {
+            chartInitialize = true;
             AjaxLoaderOptions options = AjaxLoaderOptions.newInstance();
             options.setPackages(ArrayHelper.createJsArray(PieChart.PACKAGE));
             options.setLanguage(UrlUtil.getLanguage());
@@ -212,6 +215,7 @@ public class StagingContainerSummaryView extends AbstractView {
                             chartOptions = createOptions();
                             updateChartData();
                             chart = new PieChart(chartData, chartOptions);
+                            chartPanel.clear();
                             chartPanel.getElement().setInnerHTML(""); //$NON-NLS-1$
                             chartPanel.setWidget(chart);
                         }
@@ -272,10 +276,4 @@ public class StagingContainerSummaryView extends AbstractView {
     public Button getStartValidateButton() {
         return startValidate;
     }
-
-    protected void onAttach() {
-        super.onAttach();
-        ControllerContainer.get().getSummaryController().refreshView();
-    }
-
 }

@@ -125,4 +125,10 @@ public class PreviousExecutionView extends AbstractView {
             }
         });
     }
+
+    @Override
+    protected void onAttach() {
+        super.onAttach();
+        ControllerContainer.get().getPreviousExecutionController().setDataContainer(ucx.getDataContainer());
+    }
 }

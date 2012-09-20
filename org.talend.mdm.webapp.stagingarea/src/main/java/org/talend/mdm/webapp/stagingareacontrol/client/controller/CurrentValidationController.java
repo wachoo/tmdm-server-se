@@ -56,6 +56,7 @@ public class CurrentValidationController extends AbstractController {
 
     public void refreshView(String dataContainer) {
         this.dataContainer = dataContainer;
+        ControllerContainer.get().getSummaryController().refreshView();
         RestServiceHandler.get().getValidationTaskStatus(dataContainer,
                 new SessionAwareAsyncCallback<StagingAreaValidationModel>() {
                     public void onSuccess(StagingAreaValidationModel result) {
