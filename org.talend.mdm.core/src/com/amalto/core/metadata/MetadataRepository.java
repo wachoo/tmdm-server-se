@@ -200,7 +200,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                 }
             }
         }
-        TypeMetadata typeMetadata = getType(targetNamespace, typeName);
+        TypeMetadata typeMetadata = getNonInstantiableType(targetNamespace, typeName);
         if (typeMetadata == null) {
             typeMetadata = new SimpleTypeMetadata(targetNamespace, typeName);
             for (TypeMetadata superType : superTypes) {
