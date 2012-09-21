@@ -84,7 +84,7 @@ public class StorageQueryTest extends StorageTestCase {
                         .read(1,
                                 repository,
                                 person,
-                                "<Person><id>1</id><score>130000.00</score><lastname>Dupond</lastname><resume>[EN:my splendid resume, splendid isn't it][FR:mon magnifique résumé, n'est ce pas ?]</resume><middlename>John</middlename><firstname>Julien</firstname><addresses><address>[2][true]</address><address>[1][false]</address></addresses><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
+                                "<Person><id>1</id><score>130000.00</score><lastname>Dupond</lastname><resume>[EN:my splendid resume, splendid isn't it][FR:mon magnifique resume, n'est ce pas ?]</resume><middlename>John</middlename><firstname>Julien</firstname><addresses><address>[2][true]</address><address>[1][false]</address></addresses><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
         allRecords
                 .add(factory
                         .read(1,
@@ -153,11 +153,11 @@ public class StorageQueryTest extends StorageTestCase {
         DataRecordXmlWriter writer = new DataRecordXmlWriter();
         try {
             String expectedXml = "<Person><id>1</id><firstname>Julien</firstname><middlename>John</middlename><lastname>"
-                    + "Dupond</lastname><resume>[EN:my splendid resume, splendid isn't it][FR:mon magnifique résumé, n'est ce pas ?]</resume>"
+                    + "Dupond</lastname><resume>[EN:my splendid resume, splendid isn't it][FR:mon magnifique resume, n'est ce pas ?]</resume>"
                     + "<age>10</age><score>130000.00</score><Available>true</Available><addresses><address>[2][true]</address><address>"
                     + "[1][false]</address></addresses><Status>Employee</Status></Person>";
             String expectedXml2 = "<Person><id>1</id><firstname>Julien</firstname><middlename>John</middlename><lastname>"
-                    + "Dupond</lastname><resume>[EN:my splendid resume, splendid isn't it][FR:mon magnifique résumé, n'est ce pas ?]</resume>"
+                    + "Dupond</lastname><resume>[EN:my splendid resume, splendid isn't it][FR:mon magnifique resume, n'est ce pas ?]</resume>"
                     + "<age>10</age><score>130000</score><Available>true</Available><addresses><address>[2][true]</address><address>"
                     + "[1][false]</address></addresses><Status>Employee</Status></Person>";
             ByteArrayOutputStream output = new ByteArrayOutputStream();
