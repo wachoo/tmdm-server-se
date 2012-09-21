@@ -22,7 +22,9 @@ import java.util.Map;
 import java.util.Set;
 
 class MockMetadataRepositoryAdmin implements MetadataRepositoryAdmin {
-    public static final Logger LOGGER = Logger.getLogger(MockMetadataRepositoryAdmin.class);
+
+    private static final Logger LOGGER = Logger.getLogger(MockMetadataRepositoryAdmin.class);
+
     private final Map<String, MetadataRepository> metadataRepository = new HashMap<String, MetadataRepository>();
 
     public MetadataRepository get(String metadataRepositoryId) {
@@ -31,10 +33,10 @@ class MockMetadataRepositoryAdmin implements MetadataRepositoryAdmin {
 
             if (repository == null) {
                 repository = new MetadataRepository();
-                InputStream resourceAsStream = this.getClass().getResourceAsStream(metadataRepositoryId);
+                InputStream resourceAsStream = this.getClass().getResourceAsStream("../query/metadata.xsd");
                 if (resourceAsStream == null) {
                     String base = this.getClass().getResource(".").toString();
-                    String fullFileName = base + metadataRepositoryId;
+                    String fullFileName = base + "../query/metadata.xsd";
                     LOGGER.info("File " + fullFileName + " can not be found.");
                     return repository;
                 }

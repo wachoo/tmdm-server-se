@@ -79,7 +79,11 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
     public Collection<ComplexTypeMetadata> getUserComplexTypes() {
         List<ComplexTypeMetadata> complexTypes = new LinkedList<ComplexTypeMetadata>();
         // User types are all located in the default (empty) name space.
-        Collection<TypeMetadata> namespaceTypes = entityTypes.get(USER_NAMESPACE).values();
+        Map<String, TypeMetadata> userNamespace = entityTypes.get(USER_NAMESPACE);
+        if (userNamespace == null) {
+            return Collections.emptyList();
+        }
+        Collection<TypeMetadata> namespaceTypes = userNamespace.values();
         for (TypeMetadata namespaceType : namespaceTypes) {
             if (namespaceType instanceof ComplexTypeMetadata) {
                 complexTypes.add((ComplexTypeMetadata) namespaceType);

@@ -19,11 +19,16 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceFactory;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class StorageAdminImpl implements StorageAdmin {
 
@@ -64,9 +69,12 @@ public class StorageAdminImpl implements StorageAdmin {
             Storage masterDataModelStorage = internalCreateStorage(dataModelName, storageName, dataSourceName, StorageType.MASTER);
             storages.put(storageName, masterDataModelStorage);
             if (!XSystemObjects.DC_UPDATE_PREPORT.getName().equalsIgnoreCase(storageName)) { //TODO would be better to decide whether a staging area should be created or not in a method.
-                Storage stagingDataModelStorage = internalCreateStorage(dataModelName + STAGING_SUFFIX, storageName, dataSourceName, StorageType.STAGING);
-                if (stagingDataModelStorage != null) {
-                    storages.put(storageName + STAGING_SUFFIX, stagingDataModelStorage);
+                boolean hasDatasource = ServerContext.INSTANCE.get().hasDataSource(dataSourceName, storageName, StorageType.STAGING);
+                if (hasDatasource) {
+                    Storage stagingDataModelStorage = internalCreateStorage(dataModelName + STAGING_SUFFIX, storageName, dataSourceName, StorageType.STAGING);
+                    if (stagingDataModelStorage != null) {
+                        storages.put(storageName + STAGING_SUFFIX, stagingDataModelStorage);
+                    }
                 }
             }
             return masterDataModelStorage;
@@ -78,12 +86,18 @@ public class StorageAdminImpl implements StorageAdmin {
     // Returns null if storage can not be created (e.g. because of missing datasource configuration).
     private Storage internalCreateStorage(String dataModelName, String storageName, String dataSourceName, StorageType storageType) {
         ServerContext instance = ServerContext.INSTANCE;
+        DataSource dataSource = instance.get().getDataSource(dataSourceName, storageName, storageType);
+        if (dataSource instanceof RDBMSDataSource) {
+            // May get request for "StorageName/Concept", but for SQL it does not make any sense.
+            // See com.amalto.core.storage.StorageWrapper.createCluster()
+            storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
+            dataModelName = StringUtils.substringBefore(dataModelName, "/"); //$NON-NLS-1$
+        }
         if (!instance.get().hasDataSource(dataSourceName, storageName, storageType)) {
-            LOGGER.warn("Can not initialize " + storageType + " storage for '" + storageName + "': data source '" + dataSourceName + "' configuration is incomplete.") ;
+            LOGGER.warn("Can not initialize " + storageType + " storage for '" + storageName + "': data source '" + dataSourceName + "' configuration is incomplete.");
             return null;
         }
         Storage dataModelStorage = instance.getLifecycle().createStorage(storageName, dataSourceName, storageType);
-        DataSource dataSource = instance.get().getDataSource(dataSourceName, storageName, storageType);
         dataModelStorage.init(dataSource);
         MetadataRepositoryAdmin metadataRepositoryAdmin = instance.get().getMetadataRepositoryAdmin();
         boolean hasDataModel = metadataRepositoryAdmin.exist(dataModelName);
@@ -95,7 +109,7 @@ public class StorageAdminImpl implements StorageAdmin {
         try {
             dataModelStorage.prepare(metadataRepository, indexedFields, hasDataModel, autoClean);
         } catch (Exception e) {
-            throw new RuntimeException("Could not create storage for container '" + storageName + "' using data model '" + dataModelName + "'.");
+            throw new RuntimeException("Could not create storage for container '" + storageName + "' (" + storageType + ") using data model '" + dataModelName + "'.", e);
         }
         return dataModelStorage;
     }
@@ -109,6 +123,15 @@ public class StorageAdminImpl implements StorageAdmin {
     }
 
     public Storage get(String storageName) {
-        return storages.get(storageName);
+        Storage storage = storages.get(storageName);
+        if (storage == null) {
+            // May get request for "StorageName/Concept", but for SQL it does not make any sense.
+            storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
+            storage = storages.get(storageName);
+            if (storage != null && !(storage.getDataSource() instanceof RDBMSDataSource)) {
+                throw new IllegalStateException("Expected a SQL storage for '" + storageName + "' but got a '" + storage.getClass().getName() + "'.");
+            }
+        }
+        return storage;
     }
 }

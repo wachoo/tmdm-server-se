@@ -19,12 +19,14 @@ import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.record.*;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.XmlServerException;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -584,6 +586,14 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     private Storage getStorage(String dataClusterName) {
         Storage storage = getStorageAdmin().get(dataClusterName);
         if (storage == null) {
+            if (dataClusterName.contains("/")) { //$NON-NLS-1$
+                String dataCluster = StringUtils.substringBefore(dataClusterName, "/"); //$NON-NLS-1$
+                storage = getStorageAdmin().get(dataCluster);
+                if (storage != null && storage.getDataSource() instanceof RDBMSDataSource) {
+                    throw new IllegalStateException("'" + dataClusterName + "' did not match any existing storage, but '"
+                            + dataCluster + "' did (and is not a SQL storage).");
+                }
+            }
             throw new IllegalStateException("Data container '" + dataClusterName + "' does not exist.");
         }
         return storage;

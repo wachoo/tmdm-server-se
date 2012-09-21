@@ -94,21 +94,49 @@ public class ServerTest extends TestCase {
         storage.reindex();
     }
 
+    public void testCreateWithSlash() throws Exception {
+        Server server = ServerContext.INSTANCE.get();
+        assertNotNull(server);
+
+        String storageName = "Storage";
+        MetadataRepository metadataRepository = server.getMetadataRepositoryAdmin().get(storageName);
+        assertNotNull(metadataRepository);
+
+        StorageAdmin storageAdmin = server.getStorageAdmin();
+        assertNotNull(storageAdmin);
+        Storage storage = null;
+        Storage storage2 = null;
+        try {
+            storage = storageAdmin.create(storageName + "/MyTypeNameThatShouldBeSkipped", "Storage", "H2-DS1");
+            assertNotNull(storage);
+            assertEquals(storageName, storage.getName());
+
+            storage2 = storageAdmin.create(storageName, "Storage", "H2-DS1");
+            assertSame(storage2, storage);
+        } finally {
+            if (storage != null) {
+                storage.close();
+            }
+            if (storage2 != null) {
+                storage2.close(); // Also test if consecutive close() calls don't raise exception.
+            }
+        }
+    }
+
     public void testFailedInit() throws Exception {
+        ServerContext.INSTANCE.close(); // Setup set the wrong lifecycle
         ServerLifecycle serverLifecycle = new MockServerLifecycle() {
-            boolean isFirstCall = true;
-            
             @Override
             public MetadataRepositoryAdmin createMetadataRepositoryAdmin() {
                 return new MockMetadataRepositoryAdmin() {
                     @Override
+                    public boolean exist(String metadataRepositoryId) {
+                        return false;
+                    }
+
+                    @Override
                     public MetadataRepository get(String metadataRepositoryId) {
-                        if (isFirstCall) {
-                            isFirstCall = false;
-                            return super.get(metadataRepositoryId);
-                        } else {
-                            return super.get("../query/metadata.xsd");
-                        }
+                        return null;
                     }
                 };
             }
@@ -124,17 +152,5 @@ public class ServerTest extends TestCase {
         } catch (Exception e) {
             // Expected
         }
-
-        Storage storage = null;
-        try {
-            storage = storageAdmin.create("dataModelNameThatFailsFirstTime", "Storage", "H2-DS1");
-            fail();
-        } catch (Exception e) {
-            if (storage != null) {
-                storage.close();
-            }
-            // Expected
-        }
-
     }
 }
