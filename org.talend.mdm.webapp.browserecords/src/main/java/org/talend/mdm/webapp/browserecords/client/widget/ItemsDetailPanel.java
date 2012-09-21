@@ -74,6 +74,8 @@ public class ItemsDetailPanel extends ContentPanel {
 
     private ContentPanel treeDetail;
 
+    private boolean isOutMost;
+
     public ItemsDetailPanel() {
         super();
         breadCrumb.getElement().getStyle().setOverflow(Overflow.HIDDEN);
@@ -839,4 +841,13 @@ public class ItemsDetailPanel extends ContentPanel {
             savedCallback.savedCallback(ids);
         }
     }
+
+    public boolean isOutMost() {
+        return isOutMost;
+    }
+
+    public void setOutMost(boolean isOutMost) {
+        this.isOutMost = isOutMost;
+    }
+
 }

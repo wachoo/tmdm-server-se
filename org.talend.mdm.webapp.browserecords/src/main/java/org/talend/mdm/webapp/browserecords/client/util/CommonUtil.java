@@ -3,6 +3,7 @@ package org.talend.mdm.webapp.browserecords.client.util;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -10,7 +11,9 @@ import java.util.Vector;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -409,5 +412,13 @@ public class CommonUtil {
 
     public static String getDownloadFileHeadName(TypeModel typeModel) {
         return typeModel.getName();
+    }
+
+    public static void setCurrentCachedEntity(String key, ItemPanel itemPanel) {
+        HashMap<String, ItemPanel> map = (HashMap<String, ItemPanel>) BrowseRecords.getSession().getCurrentCachedEntity();
+        if (map == null)
+            map = new HashMap<String, ItemPanel>();
+        map.put(key, itemPanel);
+        BrowseRecords.getSession().put(UserSession.CURRENT_CACHED_ENTITY, map);
     }
 }

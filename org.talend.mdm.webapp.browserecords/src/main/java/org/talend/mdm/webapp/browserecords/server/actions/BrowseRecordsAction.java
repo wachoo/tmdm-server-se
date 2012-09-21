@@ -57,6 +57,7 @@ import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.model.SubTypeBean;
+import org.talend.mdm.webapp.base.client.util.FormatUtil;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.ForeignKeyHelper;
@@ -669,19 +670,24 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         String value = node.getTextContent();
         if (typeModel != null && typeModel.getType().equals(DataTypeConstants.MLS)
                 && BrowseRecordsConfiguration.dataMigrationMultiLingualFieldAuto()) {
-            if (value != null && value.trim().length() > 0 && !MultilanguageMessageParser.isExistMultiLanguageFormat(value)) {
-                String defaultLanguage = com.amalto.core.util.Util.getDefaultSystemLocale();
-                String newValue = MultilanguageMessageParser.getFormatValueByDefaultLanguage(value,
-                        defaultLanguage != null ? defaultLanguage : "en");//$NON-NLS-1$
-                if (nodeModel == null) {
-                    if (isMultiOccurence) {
-                        node.setTextContent(newValue);
+            if (value != null && value.trim().length() > 0) {
+                if (!MultilanguageMessageParser.isExistMultiLanguageFormat(value)) {
+                    String defaultLanguage = com.amalto.core.util.Util.getDefaultSystemLocale();
+                    String newValue = MultilanguageMessageParser.getFormatValueByDefaultLanguage(value,
+                            defaultLanguage != null ? defaultLanguage : "en");//$NON-NLS-1$
+                    if (nodeModel == null) {
+                        if (isMultiOccurence) {
+                            node.setTextContent(newValue);
+                        } else {
+                            itemBean.set(path, newValue);
+                        }
                     } else {
-                        itemBean.set(path, newValue);
-                    }
-                } else {
-                    nodeModel.setObjectValue(newValue);
+                        nodeModel.setObjectValue(newValue);
+                    }    
+                } else if (nodeModel != null) {
+                    nodeModel.setObjectValue(FormatUtil.multiLanguageEncode(value));
                 }
+                
             }
         }
     }

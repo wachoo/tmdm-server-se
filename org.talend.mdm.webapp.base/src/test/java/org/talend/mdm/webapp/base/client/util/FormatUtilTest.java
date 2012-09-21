@@ -35,4 +35,9 @@ public class FormatUtilTest extends TestCase {
         assertEquals("Talend\\China[]", FormatUtil.languageValueDecode(value));
     }
 
+    public void testMultiLanguageEncode(){
+        String multiLanguage = "[EN:Talend&#91;&#92;&#93;]";
+        assertEquals("[EN:Talend&amp;#91;&amp;#92;&amp;#93;]", FormatUtil.multiLanguageEncode(multiLanguage));
+    }
+
 }

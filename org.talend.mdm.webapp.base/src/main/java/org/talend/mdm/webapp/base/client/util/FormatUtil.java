@@ -48,4 +48,19 @@ public class FormatUtil {
         return value;
     }
 
+    public static String multiLanguageEncode(String multiLanguageString) {
+        if (multiLanguageString != null && multiLanguageString.trim().length() > 0) {
+            if (multiLanguageString.contains("&#92;")) {//$NON-NLS-1$
+                multiLanguageString = multiLanguageString.replace("&#92;", "&amp;#92;"); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            if (multiLanguageString.contains("&#91;")) {//$NON-NLS-1$
+                multiLanguageString = multiLanguageString.replace("&#91;", "&amp;#91;"); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            if (multiLanguageString.contains("&#93;")) {//$NON-NLS-1$
+                multiLanguageString = multiLanguageString.replace("&#93;", "&amp;#93;"); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+        }
+        return multiLanguageString;
+    }
+
 }

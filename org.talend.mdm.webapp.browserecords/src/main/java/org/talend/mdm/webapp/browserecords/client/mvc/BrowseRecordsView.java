@@ -27,6 +27,7 @@ import org.talend.mdm.webapp.browserecords.client.creator.ItemCreator;
 import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
@@ -150,6 +151,7 @@ public class BrowseRecordsView extends View {
         }
         detailPanel.clearContent();
         detailPanel.clearBanner();
+        detailPanel.setOutMost(!openTab);
         String pkInfo = fkItemBean.getDisplayPKInfo().equals(fkItemBean.getLabel()) ? null : fkItemBean.getDisplayPKInfo();
         detailPanel.appendBreadCrumb(fkItemBean.getConcept(), fkItemBean.getLabel(), fkItemBean.getIds(), pkInfo);
         ItemPanel itemPanel = new ItemPanel(fkViewBean, fkItemBean, ItemDetailToolBar.VIEW_OPERATION, detailPanel, openTab);
@@ -158,6 +160,7 @@ public class BrowseRecordsView extends View {
         itemPanel.getToolBar().setFkToolBar(true);
         detailPanel.initBanner(fkItemBean.getPkInfoList(), fkItemBean.getDescription());
         detailPanel.addTabItem(fkItemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, fkItemBean.getIds());
+        CommonUtil.setCurrentCachedEntity(fkItemBean.getConcept() + fkItemBean.getIds() + detailPanel.isOutMost(), itemPanel);
     }
 
     private void onViewItem(AppEvent event) {
@@ -251,6 +254,11 @@ public class BrowseRecordsView extends View {
                 itemsMainTabPanel.setSelection(tabItem);
             }
         }
+        ItemsDetailPanel detailPanel = itemsMainTabPanel.getCurrentViewTabItem();
+        detailPanel.setOutMost(false);
+        ItemPanel itemPanel = (ItemPanel) detailPanel.getPrimaryKeyTabWidget();
+        CommonUtil.setCurrentCachedEntity(itemConcept + itemIds + detailPanel.isOutMost(), itemPanel);
+
     }
 
     private TabItem buildNewItemsMainTabPanelTabItem(String itemLabel, String itemIds, ItemsDetailPanel itemsDetailPanel) {
@@ -298,6 +306,7 @@ public class BrowseRecordsView extends View {
         itemBean.setLabel(typeModel.getLabel(Locale.getLanguage()));
 
         ItemsDetailPanel panel = new ItemsDetailPanel();
+        panel.setOutMost(detailPanel.isOutMost());
         // set banner
         List<String> pkInfoList = new ArrayList<String>();
         pkInfoList.add(itemBean.getLabel());
@@ -306,7 +315,7 @@ public class BrowseRecordsView extends View {
         List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
         if (itemBean != null) {
             breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
-            breads.add(new BreadCrumbModel("", itemBean.getLabel(), null, null, false)); //$NON-NLS-1$
+            breads.add(new BreadCrumbModel(itemBean.getConcept(), itemBean.getLabel(), null, null, true));
         }
         panel.initBreadCrumb(new BreadCrumb(breads, panel));
         // set itemPanel
@@ -320,8 +329,10 @@ public class BrowseRecordsView extends View {
             panel.setHeading(itemBean.getLabel());
             panel.setItemId(itemBean.getLabel());
             TreeDetailUtil.renderTreeDetailPanel(itemBean.getLabel(), panel);
-        } else
+        } else {
             ItemsMainTabPanel.getInstance().addMainTabItem(itemBean.getLabel(), panel, itemBean.getConcept());
+        }
+        CommonUtil.setCurrentCachedEntity(itemBean.getConcept() + panel.isOutMost(), itemPanel);
     }
 
     private void onInitFrame(AppEvent event) {
