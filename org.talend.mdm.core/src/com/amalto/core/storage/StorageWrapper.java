@@ -268,7 +268,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             }
             typeToQuery = Collections.singletonList(complexType);
         } else {
-            typeToQuery = repository.getUserComplexTypes();
+            typeToQuery = MetadataUtils.sortTypes(repository);
         }
         for (ComplexTypeMetadata currentType : typeToQuery) {
             UserQueryBuilder qb = from(currentType).selectId(currentType);
