@@ -230,6 +230,16 @@ public class HibernateStorage implements Storage {
             // All set: set prepared flag to true.
             isPrepared = true;
             LOGGER.info("Storage '" + storageName + "' (" + storageType + ") is ready.");
+        } catch (Throwable t) {
+            try {
+                // This prevent PermGen OOME in case of multiple failures to start.
+                close();
+            } catch (Exception e) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Error occurred during clean up following failed prepare", e);
+                }
+                throw new RuntimeException("Could not prepare '" + storageName + "'.", t);
+            }
         } finally {
             Thread.currentThread().setContextClassLoader(contextClassLoader);
         }

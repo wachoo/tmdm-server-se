@@ -62,7 +62,7 @@ public class StorageAdminImpl implements StorageAdmin {
             return null;
         }
         if (exist(null, storageName)) {
-            LOGGER.warn("Storage for '" + storageName + "' already exist. It needs to be deleted before it can be recreated.");
+            LOGGER.warn("Storage for '" + storageName + "' already exists. It needs to be deleted before it can be recreated.");
             return get(storageName);
         }
         try {
@@ -91,6 +91,12 @@ public class StorageAdminImpl implements StorageAdmin {
             // May get request for "StorageName/Concept", but for SQL it does not make any sense.
             // See com.amalto.core.storage.StorageWrapper.createCluster()
             storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
+            if (exist(null, storageName)) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Storage for '" + storageName + "' already exists. It needs to be deleted before it can be recreated.");
+                }
+                return get(storageName);
+            }
             dataModelName = StringUtils.substringBefore(dataModelName, "/"); //$NON-NLS-1$
         }
         if (!instance.get().hasDataSource(dataSourceName, storageName, storageType)) {

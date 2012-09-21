@@ -73,7 +73,7 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
     private static String[] joinArrays(String[] array1, String[] array2) {
         String[] joinedArray = new String[array1.length + array2.length];
         System.arraycopy(array1, 0, joinedArray, 0, array1.length);
-        System.arraycopy(array2, 0, joinedArray, array1.length, joinedArray.length);
+        System.arraycopy(array2, 0, joinedArray, array1.length, array2.length);
         return joinedArray;
     }
 
@@ -85,7 +85,10 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
             }
             Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
             return XSystemObjects.isXSystemObject(xDataClustersMap, XObjectType.DATA_CLUSTER, clusterName)
-                    || clusterName.startsWith("amalto") || "MDMDomainObjects".equals(clusterName);  //$NON-NLS-1$ //$NON-NLS-2$
+                    || clusterName.startsWith("amalto") //$NON-NLS-1$
+                    || "MDMDomainObjects".equals(clusterName) //$NON-NLS-1$
+                    || "twitter".equals(clusterName) //$NON-NLS-1$
+                    || "system".equals(clusterName); //$NON-NLS-1$
         } else {
             return true;
         }

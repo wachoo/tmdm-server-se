@@ -66,7 +66,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         for (FieldMetadata keyField : keyFields) {
             qb.where(eq(keyField, splitUniqueId[currentIndex++]));
         }
-        if (!"Update".equals(type.getName())) { // TODO Not good: add a method on type to tell whether type supports revisions or not.
+        if (!"Update".equals(type.getName()) && !"TALEND_TASK_EXECUTION".equals(type.getName())) { // TODO Not good: add a method on type to tell whether type supports revisions or not.
             qb.where(eq(revision(), String.valueOf(parseRevisionId(revisionId))));
         }
         return qb.getSelect();
@@ -256,7 +256,37 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public String[] getAllDocumentsUniqueID(String revisionID, String clusterName) throws XmlServerException {
-        throw new UnsupportedOperationException();
+        List<String> uniqueIds = new LinkedList<String>();
+        Storage storage = getStorage(clusterName);
+        MetadataRepository repository = storage.getMetadataRepository();
+        Collection<ComplexTypeMetadata> typeToQuery;
+        if(clusterName.contains("/")) {
+            String typeName = StringUtils.substringAfter(clusterName, "/");
+            ComplexTypeMetadata complexType = repository.getComplexType(typeName);
+            if (complexType == null) {
+                throw new IllegalArgumentException("Type '" + typeName + "' does not exist in container '" + storage.getName() + "'");
+            }
+            typeToQuery = Collections.singletonList(complexType);
+        } else {
+            typeToQuery = repository.getUserComplexTypes();
+        }
+        for (ComplexTypeMetadata currentType : typeToQuery) {
+            UserQueryBuilder qb = from(currentType).selectId(currentType);
+            StorageResults results = storage.fetch(qb.getSelect());
+            for (DataRecord result : results) {
+                Iterator<FieldMetadata> setFields = result.getSetFields().iterator();
+                StringBuilder builder = new StringBuilder();
+                builder.append(clusterName).append('.').append(currentType.getName()).append('.');
+                while (setFields.hasNext()) {
+                    builder.append(String.valueOf(result.get(setFields.next())));
+                    if (setFields.hasNext()) {
+                        builder.append('.');
+                    }
+                }
+                uniqueIds.add(builder.toString());
+            }
+        }
+        return uniqueIds.toArray(new String[uniqueIds.size()]);
     }
 
     public long deleteDocument(String revisionID, String clusterName, final String uniqueID, String documentType) throws XmlServerException {
