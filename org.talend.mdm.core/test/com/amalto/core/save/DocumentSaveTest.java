@@ -205,6 +205,19 @@ public class DocumentSaveTest extends TestCase {
         assertNull(Util.getFirstTextNode(committedElement, "/Personne/Contextes/Contexte/IdContexte"));
         assertEquals("[2]", evaluate(committedElement, "/Personne/TypePersonneFk"));
 
+        session = SaverSession.newSession(source);
+        recordXml = DocumentSaveTest.class.getResourceAsStream("Personne2.xml");
+        context = session.getContextFactory().create("MDM", "Vinci", "Source", recordXml, true, true, true, true);
+        saver = context.createSaver();
+        saver.save(session, context);
+        committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        committedElement = committer.getCommittedElement();
+        assertNull(Util.getFirstTextNode(committedElement, "/Personne/Contextes/Contexte/IdContexte"));
+        assertEquals("[1]", evaluate(committedElement, "/Personne/TypePersonneFk"));
+
     }
 
     public void testReplaceWithUUIDOverwrite() throws Exception {
@@ -1547,8 +1560,10 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
         assertEquals("", evaluate(committer.getCommittedElement(), "/Societe/Contacts/Contact[8]"));
-        assertEquals("+33 0 00 00 00 00", evaluate(committer.getCommittedElement(), "/Societe/Contacts/Contact[7]/SpecialisationContactType/Numero"));
-        assertEquals("+33 1 47 16 02 03", evaluate(committer.getCommittedElement(), "/Societe/Contacts/Contact[5]/SpecialisationContactType/Numero"));
+        assertEquals("+33 0 00 00 00 00",
+                evaluate(committer.getCommittedElement(), "/Societe/Contacts/Contact[7]/SpecialisationContactType/Numero"));
+        assertEquals("+33 1 47 16 02 03",
+                evaluate(committer.getCommittedElement(), "/Societe/Contacts/Contact[5]/SpecialisationContactType/Numero"));
     }
 
     public void test39() throws Exception {
@@ -1603,7 +1618,8 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test42.xml");
-        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("Product", "test42", "Source", recordXml, true, false, "Personne/Contextes/Contexte", "", false);
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("Product", "test42", "Source", recordXml,
+                true, false, "Personne/Contextes/Contexte", "", false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1623,7 +1639,8 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test43.xml");
-        DocumentSaverContext context = session.getContextFactory().create("Product", "test43", "Source", recordXml, true, true, false, false);
+        DocumentSaverContext context = session.getContextFactory().create("Product", "test43", "Source", recordXml, true, true,
+                false, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1643,7 +1660,8 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test44.xml");
-        DocumentSaverContext context = session.getContextFactory().create("Product", "test44", "Source", recordXml, false, true, false, false);
+        DocumentSaverContext context = session.getContextFactory().create("Product", "test44", "Source", recordXml, false, true,
+                false, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1664,7 +1682,8 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test45.xml");
-        DocumentSaverContext context = session.getContextFactory().create("Product", "test45", "Source", recordXml, false, true, false, false);
+        DocumentSaverContext context = session.getContextFactory().create("Product", "test45", "Source", recordXml, false, true,
+                false, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1752,7 +1771,7 @@ public class DocumentSaveTest extends TestCase {
         private int currentId = 0;
 
         public TestSaverSource(MetadataRepository repository, boolean exist, String originalDocumentFileName,
-                               String schemaFileName) {
+                String schemaFileName) {
             this.repository = repository;
             this.exist = exist;
             this.originalDocumentFileName = originalDocumentFileName;
@@ -1869,7 +1888,7 @@ public class DocumentSaveTest extends TestCase {
         private final boolean newOutput;
 
         public AlterRecordTestSaverSource(MetadataRepository repository, boolean exist, String fileName, boolean OK,
-                                          boolean newOutput) {
+                boolean newOutput) {
             super(repository, exist, fileName, "metadata1.xsd");
             this.OK = OK;
             this.newOutput = newOutput;
@@ -1899,7 +1918,7 @@ public class DocumentSaveTest extends TestCase {
         private final boolean newOutput;
 
         public TestSaverSourceWithOutputReportItem(MetadataRepository repository, boolean exist, String fileName, boolean OK,
-                                                   boolean newOutput) {
+                boolean newOutput) {
             super(repository, exist, fileName, "autoIncrementPK.xsd");
             this.OK = OK;
             this.newOutput = newOutput;
