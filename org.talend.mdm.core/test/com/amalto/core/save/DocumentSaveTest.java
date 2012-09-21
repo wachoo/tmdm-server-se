@@ -205,6 +205,19 @@ public class DocumentSaveTest extends TestCase {
         assertNull(Util.getFirstTextNode(committedElement, "/Personne/Contextes/Contexte/IdContexte"));
         assertEquals("[2]", evaluate(committedElement, "/Personne/TypePersonneFk"));
 
+        session = SaverSession.newSession(source);
+        recordXml = DocumentSaveTest.class.getResourceAsStream("Personne2.xml");
+        context = session.getContextFactory().create("MDM", "Vinci", "Source", recordXml, true, true, true, true);
+        saver = context.createSaver();
+        saver.save(session, context);
+        committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        committedElement = committer.getCommittedElement();
+        assertNull(Util.getFirstTextNode(committedElement, "/Personne/Contextes/Contexte/IdContexte"));
+        assertEquals("[1]", evaluate(committedElement, "/Personne/TypePersonneFk"));
+
     }
 
     public void testReplaceWithUUIDOverwrite() throws Exception {

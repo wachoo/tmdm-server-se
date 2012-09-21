@@ -142,21 +142,27 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
         // Under some circumstances, do not generate action(s) for UUID/AUTOINCREMENT(see TMDM-4473)
         boolean doCreate = true;
         if (!path.isEmpty()) {
-            FieldMetadata parentField = path.peek();
-            if (parentField != null) {
+            // Only apply the do-create-check for UUID/AUTO_INCREMENT field to improve the performance
+            if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(simpleField.getType().getName())
+                    || EUUIDCustomType.UUID.getName().equalsIgnoreCase(simpleField.getType().getName())) {
+                FieldMetadata parentField = path.peek();
+                if (parentField != null) {
 
-                boolean isParentOptional = !parentField.isMandatory();
+                    boolean isParentOptional = !parentField.isMandatory();
 
-                boolean isEmpty = false;
-                Accessor accessor = document.createAccessor(getPath());
-                Node parentNode=null;
-                if(accessor instanceof DOMAccessor)
-                    parentNode = ((DOMAccessor) accessor).getNode();
-                if (parentNode != null && (parentNode.getTextContent() == null || parentNode.getTextContent().isEmpty()))
-                    isEmpty = true;
-                
-                if(isParentOptional&&isEmpty)
-                    doCreate = false;
+                    boolean isEmpty = false;
+                    Accessor accessor = document.createAccessor(getPath());
+                    Node parentNode = null;
+                    if (accessor instanceof DOMAccessor)
+                        parentNode = ((DOMAccessor) accessor).getNode();
+                    if (parentNode == null)
+                        isEmpty = true;
+                    else if (parentNode.getTextContent() == null || parentNode.getTextContent().isEmpty())
+                        isEmpty = true;
+
+                    if (isParentOptional && isEmpty)
+                        doCreate = false;
+                }
             }
         }
 
