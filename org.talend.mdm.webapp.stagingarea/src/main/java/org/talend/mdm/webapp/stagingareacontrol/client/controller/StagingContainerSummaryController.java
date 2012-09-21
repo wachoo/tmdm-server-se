@@ -44,7 +44,7 @@ public class StagingContainerSummaryController extends AbstractController {
         RestServiceHandler.get().runValidationTask(ucx.getDataContainer(), ucx.getDataModel(), null,
                 new SessionAwareAsyncCallback<String>() {
             public void onSuccess(String result) {
-                ControllerContainer.get().getCurrentValidationController().refreshView(ucx.getDataContainer());
+                ControllerContainer.get().getCurrentValidationController().refreshView();
             }
         });
     }

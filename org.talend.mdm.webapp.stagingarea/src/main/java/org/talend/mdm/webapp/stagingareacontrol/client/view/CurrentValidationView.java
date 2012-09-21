@@ -273,6 +273,6 @@ public class CurrentValidationView extends AbstractView {
     protected void onAttach() {
         super.onAttach();
         UserContextModel ucx = UserContextUtil.getUserContext();
-        ControllerContainer.get().getCurrentValidationController().refreshView(ucx.getDataContainer());
+        ControllerContainer.get().getCurrentValidationController().refreshView();
     }
 }
