@@ -68,7 +68,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 public class PictureSelector extends ContentPanel {
 
     private static final String CONTEXT_URL = GWT.getModuleBaseURL().replace(GWT.getModuleName() + "/", ""); //$NON-NLS-1$ //$NON-NLS-2$
-    
+
     private ListLoader<ListLoadResult<BeanModel>> imageloader;
 
     final private PagingToolBarEx pagingBar = new PagingToolBarEx(8);
@@ -109,6 +109,8 @@ public class PictureSelector extends ContentPanel {
         HorizontalPanel searchPanel = new HorizontalPanel();
         searchFiled.setWidth(240);
         searchFiled.addKeyListener(new KeyListener() {
+
+            @Override
             public void componentKeyUp(ComponentEvent event) {
                 if (event.getKeyCode() == KeyCodes.KEY_ENTER) {
                     // When user press Enter key, perform the search.
@@ -117,10 +119,11 @@ public class PictureSelector extends ContentPanel {
             }
 
         });
-        
+
         Button searchButton = new Button(MessagesFactory.getMessages().search_btn());
         searchButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 doSearch(loader);
             }
@@ -139,7 +142,7 @@ public class PictureSelector extends ContentPanel {
             protected ItemBaseModel prepareData(ItemBaseModel model) {
                 org.talend.mdm.webapp.base.client.model.Image image = (org.talend.mdm.webapp.base.client.model.Image) model;
                 model.set("shortName", Format.ellipse(image.getName(), 15)); //$NON-NLS-1$
-                model.set("url", CONTEXT_URL + image.getUri() + "?width=80&height=60&randomNum=" + Math.random()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$                
+                model.set("url", CONTEXT_URL + image.getUri() + "?width=80&height=60&randomNum=" + Math.random()); //$NON-NLS-1$ //$NON-NLS-2$ 
                 return model;
             }
         };
@@ -178,9 +181,6 @@ public class PictureSelector extends ContentPanel {
                     final AsyncCallback<List<org.talend.mdm.webapp.base.client.model.Image>> callback) {
 
                 RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, CONTEXT_URL + ImageUtil.IMAGE_SERVER_PATH);
-                requestBuilder.setUser(ImageUtil.IMAGE_SERVER_USERNAME);
-                requestBuilder.setPassword(ImageUtil.IMAGE_SERVER_PASSWORD);
-
                 requestBuilder.setCallback(new RequestCallback() {
 
                     public void onResponseReceived(Request request, Response response) {
@@ -205,12 +205,9 @@ public class PictureSelector extends ContentPanel {
             }
         };
 
-        imageloader = new BaseListLoader<ListLoadResult<BeanModel>>(imageProxy,
-                new BeanModelReader());
-
-        // imageloader.load();
+        imageloader = new BaseListLoader<ListLoadResult<BeanModel>>(imageProxy, new BeanModelReader());
     }
-    
+
     private void doSearch(PagingLoader<PagingLoadResult<ItemBaseModel>> loader) {
         if (searchFiled.getValue() == null || "".equals(searchFiled.getValue())) { //$NON-NLS-1$
             result = all;
@@ -220,23 +217,23 @@ public class PictureSelector extends ContentPanel {
                 // no case sensitive
                 if (image.getName() != null && image.getName().toLowerCase().contains(searchFiled.getValue().toLowerCase())) {
                     result.add(image);
-                    pagingBar.first();
                 }
             }
         }
-        loader.load();
+        pagingBar.first();
     }
 
     public void refresh() {
+        searchFiled.setValue(""); //$NON-NLS-1$
         imageloader.load();
     }
 
     private native String getTemplate() /*-{
-        return ['<tpl for=".">',
-        '<div class="thumb-wrap" id="{name}" style="border: 1px solid white">',
-        '<div class="thumb"><img src="{url}" title="{name}"></div>',
-        '<span>{shortName}</span></div>',
-        '</tpl>'].join("");
+		return [
+				'<tpl for=".">',
+				'<div class="thumb-wrap" id="{name}" style="border: 1px solid white">',
+				'<div class="thumb"><img src="{url}" title="{name}"></div>',
+				'<span>{shortName}</span></div>', '</tpl>' ].join("");
     }-*/;
 
 }
