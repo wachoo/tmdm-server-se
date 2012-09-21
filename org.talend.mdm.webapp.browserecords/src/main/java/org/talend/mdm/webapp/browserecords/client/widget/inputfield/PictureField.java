@@ -59,7 +59,6 @@ import com.google.gwt.user.client.ui.Image;
 
 public class PictureField extends TextField<String> {
 
-
     private static final int DEFAULT_IMAGE_SCALE_SIZE = 150;
 
     private static final String CONTEXT_PATH = GWT.getModuleBaseURL().replaceFirst(GWT.getModuleName() + "/", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -79,7 +78,7 @@ public class PictureField extends TextField<String> {
     private EditWindow editWindow = new EditWindow();
 
     private boolean readOnly;
-    
+
     private boolean isMandatory;
 
     private Dialog dialog = new Dialog() {
@@ -96,35 +95,24 @@ public class PictureField extends TextField<String> {
                 dialog.hide();
 
                 /*
-                RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.GET,
-                        "/imageserver/secure/ImageDeleteServlet?uri=" + value);//$NON-NLS-1$
-
-                reqBuilder.setCallback(new RequestCallback() {
-
-                    public void onResponseReceived(Request request, Response response) {
-                        String json = response.getText();
-                        JSONObject jsObject = JSONParser.parse(json).isObject();
-                        JSONBoolean success = jsObject.get("success").isBoolean(); //$NON-NLS-1$
-                        JSONString message = jsObject.get("message").isString(); //$NON-NLS-1$
-                        boolean succeed = success.booleanValue();
-                        MessageBox.alert(succeed ? MessagesFactory.getMessages().message_success() : MessagesFactory
-                                .getMessages().message_fail(), message.stringValue(), null);
-                        if (succeed) {
-                            setValue(null);
-                        }
-                        dialog.hide();
-                    }
-
-                    public void onError(Request request, Throwable exception) {
-                        MessageBox.alert(MessagesFactory.getMessages().error_title(), exception.getMessage(), null);
-                    }
-                });
-                try {
-                    reqBuilder.send();
-                } catch (RequestException e) {
-                    MessageBox.alert("RequestException", e.getMessage(), null); //$NON-NLS-1$
-                }
-                */
+                 * RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.GET,
+                 * "/imageserver/secure/ImageDeleteServlet?uri=" + value);//$NON-NLS-1$
+                 * 
+                 * reqBuilder.setCallback(new RequestCallback() {
+                 * 
+                 * public void onResponseReceived(Request request, Response response) { String json =
+                 * response.getText(); JSONObject jsObject = JSONParser.parse(json).isObject(); JSONBoolean success =
+                 * jsObject.get("success").isBoolean(); //$NON-NLS-1$ JSONString message =
+                 * jsObject.get("message").isString(); //$NON-NLS-1$ boolean succeed = success.booleanValue();
+                 * MessageBox.alert(succeed ? MessagesFactory.getMessages().message_success() : MessagesFactory
+                 * .getMessages().message_fail(), message.stringValue(), null); if (succeed) { setValue(null); }
+                 * dialog.hide(); }
+                 * 
+                 * public void onError(Request request, Throwable exception) {
+                 * MessageBox.alert(MessagesFactory.getMessages().error_title(), exception.getMessage(), null); } });
+                 * try { reqBuilder.send(); } catch (RequestException e) { MessageBox.alert("RequestException",
+                 * e.getMessage(), null); //$NON-NLS-1$ }
+                 */
 
             } else if (button == getButtonBar().getItemByItemId(NO)) {
                 dialog.hide();
@@ -154,18 +142,19 @@ public class PictureField extends TextField<String> {
         };
         
 
-        image.addLoadHandler(new LoadHandler(){
-            public void onLoad(LoadEvent event){
+        image.addLoadHandler(new LoadHandler() {
+            public void onLoad(LoadEvent event) {
                 com.google.gwt.dom.client.Element element = event.getRelativeElement();
                 if (element == image.getElement() && !isInternalImageURL(image.getUrl())) {
                     int width = image.getWidth();
                     int height = image.getHeight();
                     int size = DEFAULT_IMAGE_SCALE_SIZE;
                     if (width > 0 && width > height) {
-                        if (width > size)
-                            image.setPixelSize(size, (int) (height * size / width));
+                        if (width > size) {
+                            image.setPixelSize(size, (height * size / width));
+                        }
                     } else if (height > size) {
-                        image.setPixelSize((int) (width * size / height), size);
+                        image.setPixelSize((width * size / height), size);
                     }
                 }
             }
@@ -173,7 +162,7 @@ public class PictureField extends TextField<String> {
 
         this.isMandatory = isMandatory;
     }
-    
+
     public PictureField() {
         this(false);
     }
@@ -197,23 +186,23 @@ public class PictureField extends TextField<String> {
         if (!readOnly) {
             if (el == addHandler) {
                 editWindow.show();
-            }else if (el == delHandler) {
+            } else if (el == delHandler) {
                 dialog.show();
             }
         }
     }
 
     private native void regJs(Element el)/*-{
-        var instance = this;
-        el.onclick = function() {
-            instance.@org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField::handlerClick(Lcom/google/gwt/user/client/Element;)(this);
-        };
-    }-*/;
+                                         var instance = this;
+                                         el.onclick = function() {
+                                         instance.@org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField::handlerClick(Lcom/google/gwt/user/client/Element;)(this);
+                                         };
+                                         }-*/;
 
     @Override
     public void setValue(String value) {
         if (isMandatory) {
-            if(BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
+            if (BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
                 if (value != null && value.length() != 0) {
                     this.setAllowBlank(true);
                     super.setValue(value);
@@ -225,7 +214,7 @@ public class PictureField extends TextField<String> {
                 }
             }
         }
-     
+
         // external source
         if (value != null && (value.toLowerCase().startsWith("http") || value.toLowerCase().startsWith("https"))) { //$NON-NLS-1$//$NON-NLS-2$
             image.setUrl(value);
@@ -236,37 +225,41 @@ public class PictureField extends TextField<String> {
         this.value = value;
 
         if (value != null && value.length() != 0) {
-            if (!value.startsWith("/")) //$NON-NLS-1$
+            if (!value.startsWith("/")) { //$NON-NLS-1$
                 value = "/" + value; //$NON-NLS-1$
-           
-            if (!value.startsWith("/imageserver")) //$NON-NLS-1$
+            }
+
+            if (!value.startsWith("/imageserver")) { //$NON-NLS-1$
                 this.value = "/imageserver" + value; //$NON-NLS-1$
+            }
             image.setUrl(scaleInternalUrl(this.value, DEFAULT_IMAGE_SCALE_SIZE));
 
         } else {
             image.setUrl(DefaultImage);
         }
-        
+
         if (isFireChangeEventOnSetValue()) {
             fireChangeEvent(oldValue, value);
         }
     }
-    
-    public String getImageURL(){
-        return image.getUrl();      
+
+    public String getImageURL() {
+        return image.getUrl();
     }
-    
+
     private boolean isInternalImageURL(String url) {
-        if (url == null || url.trim().length() == 0)
+        if (url == null || url.trim().length() == 0) {
             return false;
-        
-        return CommonUtil.getHost(url).equals(com.google.gwt.user.client.Window.Location.getHost());        
+        }
+
+        return CommonUtil.getHost(url).equals(com.google.gwt.user.client.Window.Location.getHost());
     }
 
     private String scaleInternalUrl(String inputValue, int size) {
 
-        if (inputValue == null || inputValue.trim().length() == 0)
+        if (inputValue == null || inputValue.trim().length() == 0) {
             return inputValue;
+        }
 
         return inputValue += "?width=" + size + "&height=" + size + "&preserveAspectRatio=true"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
     }
@@ -287,10 +280,10 @@ public class PictureField extends TextField<String> {
         private FormPanel editForm = new FormPanel();
 
         private FileUploadField file = new FileUploadField();
-        
+
         private TextField<String> name;
-        
-        PictureSelector pictureSelector = new PictureSelector(EditWindow.this,PictureField.this);   
+
+        PictureSelector pictureSelector = new PictureSelector(EditWindow.this, PictureField.this);
 
         private SelectionListener<ButtonEvent> listener = new SelectionListener<ButtonEvent>() {
 
@@ -298,9 +291,10 @@ public class PictureField extends TextField<String> {
             public void componentSelected(ButtonEvent ce) {
                 Button button = ce.getButton();
                 if (button == uploadButton) {
-                    if(editForm.isValid()) {
-                        if(name.getValue().contains("#")) //$NON-NLS-1$
-                            name.setValue(name.getValue().replaceAll("#", "$"));  //$NON-NLS-1$//$NON-NLS-2$
+                    if (editForm.isValid()) {
+                        if (name.getValue().contains("#")) { //$NON-NLS-1$
+                            name.setValue(name.getValue().replaceAll("#", "$")); //$NON-NLS-1$//$NON-NLS-2$
+                        }
                         editForm.submit();
                     }
                 } else if (button == resetButton) {
@@ -320,11 +314,11 @@ public class PictureField extends TextField<String> {
             this.setSize(460, 450);
             this.setModal(true);
             this.setBlinkModal(true);
-            
+
             TabPanel uploadTabPanel = new TabPanel();
             TabItem localTabItem = new TabItem(MessagesFactory.getMessages().picture_upload_local_title());
             ContentPanel localContentPanel = new ContentPanel();
-            
+
             FormData formData = new FormData();
             editForm.setEncoding(FormPanel.Encoding.MULTIPART);
             editForm.setMethod(FormPanel.Method.POST);
@@ -340,11 +334,11 @@ public class PictureField extends TextField<String> {
             name.setFieldLabel(""); //$NON-NLS-1$
             name.setName("fileName"); //$NON-NLS-1$
             name.setAllowBlank(false);
-           
+
             imgIdRow.add(name);
             final LabelField extFileNameLabel = new LabelField();
             imgIdRow.add(extFileNameLabel);
-            
+
             MultiField catalogRow = new MultiField();
             catalogRow.setFieldLabel(MessagesFactory.getMessages().picture_field_imgcatalog());
 
@@ -382,17 +376,18 @@ public class PictureField extends TextField<String> {
             editForm.add(imgIdRow, formData);
             editForm.addListener(Events.Submit, new Listener<FormEvent>() {
 
-                public void handleEvent(FormEvent be) {                    
+                public void handleEvent(FormEvent be) {
                     String json = be.getResultHtml();
                     JSONObject jsObject = JSONParser.parse(json).isObject();
                     JSONBoolean success = jsObject.get("success").isBoolean(); //$NON-NLS-1$
                     JSONString message = jsObject.get("message").isString(); //$NON-NLS-1$
-                    if (success.booleanValue())
+                    if (success.booleanValue()) {
                         MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
                                 .upload_pic_ok(), null);
-                    else
+                    } else {
                         MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
                                 .upload_pic_fail(), null);
+                    }
                     if (success.booleanValue()) {
                         setValue(message.stringValue());
                     } else {
@@ -402,8 +397,8 @@ public class PictureField extends TextField<String> {
                 }
 
             });
-            
-            localContentPanel.setStyleAttribute("margin", "20px");  //$NON-NLS-1$//$NON-NLS-2$
+
+            localContentPanel.setStyleAttribute("margin", "20px"); //$NON-NLS-1$//$NON-NLS-2$
             localContentPanel.add(editForm);
             editForm.setLayout(new FormLayout());
             localContentPanel.setButtonAlign(HorizontalAlignment.CENTER);
@@ -411,12 +406,12 @@ public class PictureField extends TextField<String> {
             localContentPanel.addButton(resetButton);
             localContentPanel.setHeaderVisible(false);
             localTabItem.add(localContentPanel);
-            uploadTabPanel.add(localTabItem);  
-          
-            TabItem remoteTabItem = new TabItem(MessagesFactory.getMessages().picture_upload_remote_title()); 
-            remoteTabItem.setLayout(new FitLayout());            
-            remoteTabItem.add(pictureSelector); 
-            remoteTabItem.addListener(Events.OnClick, new Listener() {
+            uploadTabPanel.add(localTabItem);
+
+            TabItem remoteTabItem = new TabItem(MessagesFactory.getMessages().picture_upload_remote_title());
+            remoteTabItem.setLayout(new FitLayout());
+            remoteTabItem.add(pictureSelector);
+            remoteTabItem.addListener(Events.Show, new Listener() {
 
                 public void handleEvent(BaseEvent be) {
                     pictureSelector.refresh();
