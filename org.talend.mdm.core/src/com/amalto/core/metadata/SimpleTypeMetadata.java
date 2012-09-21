@@ -74,6 +74,18 @@ public class SimpleTypeMetadata implements TypeMetadata {
     }
 
     public TypeMetadata freeze() {
+        if (!superTypes.isEmpty()) {
+            List<TypeMetadata> thisSuperTypes = new LinkedList<TypeMetadata>(superTypes);
+            superTypes.clear();
+            for (TypeMetadata superType : thisSuperTypes) {
+                if (isInstantiable() == superType.isInstantiable()) {
+                    superType = superType.freeze();
+                    superTypes.add(superType);
+                } else {
+                    throw new IllegalStateException("Non instantiable type cannot inherits from entity type.");
+                }
+            }
+        }
         isFrozen = true;
         return this;
     }
