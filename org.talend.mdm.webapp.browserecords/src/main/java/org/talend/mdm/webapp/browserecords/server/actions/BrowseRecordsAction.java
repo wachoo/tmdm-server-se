@@ -353,7 +353,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 return bean;
             } else {
                 ItemPOJOPK pk = new ItemPOJOPK();
-                String[] itemId = extractIdWithBrackets(ids);
+                String[] itemId = extractFKRefValue(ids);
                 pk.setIds(itemId);
                 String conceptName = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
                 // get deriveType's conceptName, otherwise getItem() method will throw exception.
@@ -1284,7 +1284,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
      * @param ids Expect a id like "[value0][value1][value2]"
      * @return Returns an array with ["value0", "value1", "value2"]
      */
-    private static String[] extractIdWithBrackets(String ids) {
+    private static String[] extractFKRefValue(String ids) {
         List<String> idList = new ArrayList<String>();
         Matcher matcher = extractIdPattern.matcher(ids);
         boolean hasMatchedOnce = false;
