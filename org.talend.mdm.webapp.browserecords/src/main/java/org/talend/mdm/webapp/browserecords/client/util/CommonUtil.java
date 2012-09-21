@@ -8,8 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
+import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
@@ -413,12 +416,47 @@ public class CommonUtil {
     public static String getDownloadFileHeadName(TypeModel typeModel) {
         return typeModel.getName();
     }
-
+    
     public static void setCurrentCachedEntity(String key, ItemPanel itemPanel) {
         HashMap<String, ItemPanel> map = (HashMap<String, ItemPanel>) BrowseRecords.getSession().getCurrentCachedEntity();
         if (map == null)
             map = new HashMap<String, ItemPanel>();
         map.put(key, itemPanel);
         BrowseRecords.getSession().put(UserSession.CURRENT_CACHED_ENTITY, map);
+    }
+    
+    public static CriteriaAndC parseMultipleSearchExpression(char[] s, int c) throws Exception {
+        MultipleCriteria cr = new MultipleCriteria();
+        CriteriaAndC ccr = null;
+        String op = null;
+        while (true) {
+            ccr = (s[++c+1] == '(') ? parseMultipleSearchExpression(s, c) : parseSimpleSearchExpression(s, c);                     
+            cr.add(ccr.cr);
+            if (s[(c = ccr.c + 1)] == ')')
+                return new CriteriaAndC(op == null ? ccr.cr : cr, c);
+            else {
+                int ce = ++c;
+                while (s[++ce] != ' ');
+                if (op == null)
+                    cr.setOperator(op = new String(s, c, ce - c));
+                c = ce;
+            }            
+        }
+    }
+    
+    public static CriteriaAndC parseSimpleSearchExpression(char[] s, int c) throws Exception {
+        int ce = ++c;
+        while (s[++ce] != ')');
+        String[] ts = new String(s, c, ce - c).split(" "); //$NON-NLS-1$        
+        return new CriteriaAndC(new SimpleCriterion(ts[0], ts[1], ts[2]), ce);
+    }
+    
+    public static class CriteriaAndC {
+        public Criteria cr;
+        public int c;
+        public CriteriaAndC(Criteria cr, int c) {
+            this.cr = cr;
+            this.c = c;
+        }
     }
 }

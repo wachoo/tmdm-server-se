@@ -12,14 +12,19 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.SearchPanel;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.talend.mdm.webapp.base.client.exception.ParserException;
+import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
+import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.client.util.Parser;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsSearchContainer;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -87,7 +92,8 @@ public class AdvancedSearchPanel extends FormPanel {
     final public void setCriteria(String c) {
         if (c.indexOf(modifiedON) > -1) {
             // modified on condition
-            String express = c.indexOf(modifiedON) - 5 > -1 ? c.substring(0, c.indexOf(modifiedON) - 5) + ")" : "";//$NON-NLS-1$  //$NON-NLS-2$
+            String express = c.indexOf(modifiedON) - 5 > -1 ? c.substring(0, c.indexOf(modifiedON) - 5) + ")" : "";//$NON-NLS-1$ //$NON-NLS-2$ 
+            parseSearchExpression(express);
             expressionTextField.setValue(express);
             String condition = c.indexOf(")") > -1 ? c.substring(c.indexOf(modifiedON), c.length() - 1) : c.substring(c.indexOf(modifiedON), c.length()); //$NON-NLS-1$
             if (instance.getItemByItemId("modifiedon") == null) { //$NON-NLS-1$
@@ -123,8 +129,22 @@ public class AdvancedSearchPanel extends FormPanel {
             if (instance.getItemByItemId("modifiedon") != null) { //$NON-NLS-1$
                 instance.remove(instance.getItemByItemId("modifiedon")); //$NON-NLS-1$
             }
+            parseSearchExpression(c);
             expressionTextField.setValue(c);
             cb.setValue(null);
+        }
+    }
+
+    public static void parseSearchExpression(String s) {
+        try {
+            if (!s.isEmpty()) {
+                char[] sa = s.toCharArray();
+                BrowseRecords.getSession().put(
+                        UserSession.CUSTOMIZE_CRITERION_STORE,
+                        sa[1] == '(' ? CommonUtil.parseMultipleSearchExpression(sa, 0).cr : CommonUtil
+                                .parseSimpleSearchExpression(sa, 0).cr);
+            }
+        } catch (Exception e) {
         }
     }
 
