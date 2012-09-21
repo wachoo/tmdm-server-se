@@ -193,7 +193,10 @@ public class ForeignKeyHelper {
         }
 
         // to verify
-        String xpathInfoForeignKey = model.getForeignKeyInfo().toString().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        String xpathInfoForeignKey = "";//$NON-NLS-1$
+        if (model.getForeignKeyInfo() != null && model.getForeignKeyInfo().size() > 0)
+            xpathInfoForeignKey = Util.joinStrings(model.getForeignKeyInfo()
+                    .toArray(new String[model.getForeignKeyInfo().size()]), ",");//$NON-NLS-1$
         // in search panel, the fkFilter is empty
         String fkFilter;
         if (ifFKFilter) {

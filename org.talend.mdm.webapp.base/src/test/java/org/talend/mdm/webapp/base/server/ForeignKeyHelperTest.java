@@ -38,6 +38,7 @@ import com.amalto.webapp.util.webservices.WSWhereOperator;
 @SuppressWarnings("nls")
 public class ForeignKeyHelperTest extends TestCase {
 
+    // TODO Refactor FK handler, also this JUnit case
     public void testGetForeignKeyHolder() throws Exception {
 
         TypeModel model = new SimpleTypeModel("family", DataTypeConstants.STRING); //$NON-NLS-1$
@@ -45,6 +46,7 @@ public class ForeignKeyHelperTest extends TestCase {
         List<String> foreignKeyInfos = new ArrayList<String>();
         foreignKeyInfos.add("ProductFamily/Name"); //$NON-NLS-1$
         model.setForeignKeyInfo(foreignKeyInfos);
+        model.setRetrieveFKinfos(true);
         model.setXpath("Product/Family"); //$NON-NLS-1$
         boolean ifFKFilter = false;
         String value = "Hats"; //$NON-NLS-1$
@@ -84,6 +86,13 @@ public class ForeignKeyHelperTest extends TestCase {
         // 2. foreignKeyInfo = ProductFamily/Name,ProductFaimly/Description
         foreignKeyInfos.add("ProductFamily/Description"); //$NON-NLS-1$
         result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model, ifFKFilter, value);
+
+        List<String> viewableXpaths=result.xpaths;
+        assertTrue(viewableXpaths.size() > 0);
+        assertEquals("ProductFamily/Name", viewableXpaths.get(0));
+        assertEquals("ProductFamily/Description", viewableXpaths.get(1));
+        assertEquals("ProductFamily/../../i", viewableXpaths.get(2));
+
         whereItem = result.whereItem;
         whereItem1 = whereItem.getWhereAnd().getWhereItems()[0];
         condition1 = whereItem1.getWhereOr().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
