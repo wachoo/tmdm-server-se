@@ -13,11 +13,14 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyTabModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel.ItemDetailTabPanelContentHandle;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyRender;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyUtil;
@@ -85,11 +88,7 @@ public class BreadCrumb extends Composite {
             h.addClickHandler(new ClickHandler() {
 
                 public void onClick(ClickEvent event) {
-                    if (concept != null && concept.trim().length() > 0) {
-                        ForeignKeyUtil.displayForeignKey(false, concept, ids, itemsDetailPanel);
-                    } else {
-                        displayCreatedEntity(label);
-                    }
+                    displayCachedEntity(concept, label, ids);
                     if (pWidget != null) {
                         HTML clickedHtml = (HTML) event.getSource();
                         pWidget.removeNeedless(clickedHtml);
@@ -106,34 +105,51 @@ public class BreadCrumb extends Composite {
         return h;
     }
 
-    private void displayCreatedEntity(String label) {
-        itemsDetailPanel.clearContent();
-        itemsDetailPanel.clearBanner();
+    private void displayCachedEntity(String concept, String label, String ids) {
+        HashMap<String, ItemPanel> map = BrowseRecords.getSession().getCurrentCachedEntity();
+        String key = concept + (ids == null ? "" : ids) + itemsDetailPanel.isOutMost(); //$NON-NLS-1$
+        if (map != null && map.containsKey(key)) {
+            ItemPanel itemPanel = map.get(key);
+            if (itemPanel != null) {
+                itemsDetailPanel.clearContent();
+                itemsDetailPanel.clearBanner();
+                ItemBean itemBean = itemPanel.getItem();
+                if (ids != null && ids.trim().length() > 0) { // Saved record
+                    itemsDetailPanel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
+                    itemsDetailPanel.addTabItem(itemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getIds());
+                } else { // Created record
+                    List<String> pkInfoList = new ArrayList<String>();
+                    pkInfoList.add(label);
+                    itemsDetailPanel.initBanner(pkInfoList, itemBean.getDescription());
+                    List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
+                    breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
+                    breads.add(new BreadCrumbModel(concept, label, null, null, true));
+                    itemsDetailPanel.initBreadCrumb(new BreadCrumb(breads, itemsDetailPanel));
+                    itemsDetailPanel
+                            .addTabItem(itemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getConcept());
+                }
 
-        // Init Banner and BreadCrumb
-        List<String> pkInfoList = new ArrayList<String>();
-        pkInfoList.add(label);
-        itemsDetailPanel.initBanner(pkInfoList, null);
-        List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
-        breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
-        breads.add(new BreadCrumbModel("", label, null, null, true)); //$NON-NLS-1$
-        itemsDetailPanel.initBreadCrumb(new BreadCrumb(breads, itemsDetailPanel));
-        // Display UI
-        ItemPanel panel = BrowseRecords.getSession().getCurrentCreatedEntity();
-        if (panel != null) {
-            itemsDetailPanel.addTabItem(label, panel, ItemsDetailPanel.SINGLETON, label);
-            List<ForeignKeyTabModel> list = BrowseRecords.getSession().getCurrentCreatedFKTabs();
-            if (list != null) {
-                ForeignKeyRender render = panel.getTree().getFkRender();
-                for (ForeignKeyTabModel fkTab : list) {
-                    ItemDetailTabPanelContentHandle handle = itemsDetailPanel.addTabItem(fkTab.getFkTabTitle(),
-                            fkTab.getFkTabPanel(), ItemsDetailPanel.MULTIPLE, GWT.getModuleName() + DOM.createUniqueId());
-                    render.setRelationFk(fkTab.getFkParentModel(), handle);
-                    itemsDetailPanel.addFkHandler(fkTab.getFkTabPanel(), fkTab.getHandler());
+                // FK rendering
+                HashMap<String, LinkedHashMap<String, ForeignKeyTabModel>> fkMap = BrowseRecords.getSession()
+                        .getCurrentCachedFKTabs();
+                if (fkMap != null && fkMap.containsKey(key)) {
+                    LinkedHashMap<String, ForeignKeyTabModel> fkTabMap = fkMap.get(key);
+                    if (fkTabMap != null) {
+                        ForeignKeyRender render = itemPanel.getTree().getFkRender();
+                        for (String fkTitle : fkTabMap.keySet()) {
+                            ForeignKeyTabModel fkTab = fkTabMap.get(fkTitle);
+                            ItemDetailTabPanelContentHandle handle = itemsDetailPanel.addTabItem(fkTab.getFkTabTitle(),
+                                    fkTab.getFkTabPanel(), ItemsDetailPanel.MULTIPLE, GWT.getModuleName() + DOM.createUniqueId());
+                            render.setRelationFk(fkTab.getFkParentModel(), handle);
+                            itemsDetailPanel.addFkHandler(fkTab.getFkTabPanel(), fkTab.getHandler());
+                        }
+                    }
                 }
             }
-
+        } else if (ids != null && ids.trim().length() > 0) {
+            ForeignKeyUtil.displayForeignKey(false, concept, ids, itemsDetailPanel);
         }
+
     }
 
     public void adjust() {

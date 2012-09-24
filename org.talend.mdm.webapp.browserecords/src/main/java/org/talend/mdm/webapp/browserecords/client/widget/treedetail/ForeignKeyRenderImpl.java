@@ -12,8 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -114,15 +114,20 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
                 }
             };
             detailPanel.addFkHandler(itemPanel, handler);
-            ItemPanel panel = BrowseRecords.getSession().getCurrentCreatedEntity();
-            if (panel != null) {
-                List<ForeignKeyTabModel> list = BrowseRecords.getSession().getCurrentCreatedFKTabs();
-                if (list == null) {
-                    list = new ArrayList<ForeignKeyTabModel>();
-                }
+            HashMap<String, ItemPanel> cachedEntityMap = BrowseRecords.getSession().getCurrentCachedEntity();
+            String ids = toolBar.getItemBean().getIds() != null ? toolBar.getItemBean().getIds() : ""; //$NON-NLS-1$
+            String key = toolBar.getItemBean().getConcept() + ids + detailPanel.isOutMost();
+            if (cachedEntityMap != null && cachedEntityMap.containsKey(key)) {
                 ForeignKeyTabModel fkTabModel = new ForeignKeyTabModel(parentModel, xpathLabel, itemPanel, handler);
-                list.add(fkTabModel);
-                BrowseRecords.getSession().put(UserSession.CURRENT_CREATED_FKTABS, list);
+                HashMap<String, LinkedHashMap<String, ForeignKeyTabModel>> cachedFkPanels = BrowseRecords.getSession()
+                        .getCurrentCachedFKTabs();
+                if (cachedFkPanels == null)
+                    cachedFkPanels = new HashMap<String, LinkedHashMap<String, ForeignKeyTabModel>>();
+                if (!cachedFkPanels.containsKey(key)) {
+                    cachedFkPanels.put(key, new LinkedHashMap<String, ForeignKeyTabModel>());
+                }
+                cachedFkPanels.get(key).put(xpathLabel, fkTabModel);
+                BrowseRecords.getSession().put(UserSession.CURRENT_CACHED_FKTABS, cachedFkPanels);
             }
         }
     }

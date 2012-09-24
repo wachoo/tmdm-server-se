@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.BreadCrumb;
@@ -58,11 +59,11 @@ public class TreeDetailUtil {
         return createWidget(itemNode, viewBean, fieldMap, h, null, itemsDetailPanel);
     }
 
-    public static MultiOccurrenceChangeItem createWidget(final ItemNodeModel itemNode, final ViewBean viewBean, Map<String, Field<?>> fieldMap,
-            ClickHandler h, String operation, final ItemsDetailPanel itemsDetailPanel) {
+    public static MultiOccurrenceChangeItem createWidget(final ItemNodeModel itemNode, final ViewBean viewBean,
+            Map<String, Field<?>> fieldMap, ClickHandler h, String operation, final ItemsDetailPanel itemsDetailPanel) {
         return new MultiOccurrenceChangeItem(itemNode, viewBean, fieldMap, operation, itemsDetailPanel);
     }
-    
+
     public static void initItemsDetailPanelById(final String fromWhichApp, String ids, final String concept,
             final Boolean isFkToolBar, final Boolean isHierarchyCall) {
         if (BrowseRecords.getSession().getAppHeader() == null) {
@@ -70,6 +71,7 @@ public class TreeDetailUtil {
                     .get(BrowseRecords.BROWSERECORDS_SERVICE);
 
             service.getAppHeader(new SessionAwareAsyncCallback<AppHeader>() {
+
                 public void onSuccess(AppHeader header) {
                     BrowseRecords.getSession().put(UserSession.APP_HEADER, header);
                 }
@@ -103,6 +105,7 @@ public class TreeDetailUtil {
                                             .getDisplayPKInfo().equals(item.getLabel()) ? null : item.getDisplayPKInfo(), true));
                                 }
 
+                                panel.setOutMost(true);
                                 panel.setId(item.getIds());
                                 panel.initBanner(item.getPkInfoList(), item.getDescription());
                                 panel.addTabItem(item.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, item.getIds());
@@ -115,6 +118,8 @@ public class TreeDetailUtil {
                                 panel.setHeading(tabItemId);
                                 panel.setItemId(tabItemId);
                                 renderTreeDetailPanel(tabItemId, panel);
+                                CommonUtil.setCurrentCachedEntity(item.getConcept() + item.getIds() + panel.isOutMost(),
+                                        itemPanel);
                             }
 
                         });
@@ -126,12 +131,13 @@ public class TreeDetailUtil {
             boolean isHierarchyCall) {
 
         final ItemsDetailPanel itemsDetailPanel = new ItemsDetailPanel();
+        itemsDetailPanel.setOutMost(true);
 
         ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, itemsDetailPanel);
         itemPanel.getToolBar().setOutMost(true);
         itemPanel.getToolBar().setFkToolBar(isFkToolBar);
         itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
-        
+
         List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
         if (itemBean != null) {
             breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
@@ -149,6 +155,7 @@ public class TreeDetailUtil {
         itemsDetailPanel.setHeading(typeModel.getLabel(Locale.getLanguage()));
         itemsDetailPanel.setItemId(tabItemId);
         renderTreeDetailPanel(tabItemId, itemsDetailPanel);
+        CommonUtil.setCurrentCachedEntity(itemBean.getConcept() + itemsDetailPanel.isOutMost(), itemPanel);
 
     }
 

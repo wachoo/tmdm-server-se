@@ -73,6 +73,8 @@ public class ItemsDetailPanel extends ContentPanel {
     private List<Text> subTitleList = new ArrayList<Text>();
 
     private ContentPanel treeDetail;
+    
+    private boolean isOutMost;
 
     public ItemsDetailPanel() {
         super();
@@ -838,5 +840,13 @@ public class ItemsDetailPanel extends ContentPanel {
         if (savedCallback != null) {
             savedCallback.savedCallback(ids);
         }
+    }
+    
+    public boolean isOutMost() {
+        return isOutMost;
+    }
+
+    public void setOutMost(boolean isOutMost) {
+        this.isOutMost = isOutMost;
     }
 }
