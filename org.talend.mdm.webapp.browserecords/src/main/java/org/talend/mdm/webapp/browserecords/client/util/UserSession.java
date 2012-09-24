@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.browserecords.client.util;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,9 +50,9 @@ public class UserSession implements Serializable {
 
     public static final String CUSTOMIZE_CRITERION_STORE = "customizeCriterionStore"; //$NON-NLS-1$
     
-    public static final String CURRENT_CREATED_ENTITY = "currentCreatedEntity"; //$NON-NLS-1$
+    public static final String CURRENT_CACHED_ENTITY = "currentCachedEntity"; //$NON-NLS-1$
     
-    public static final String CURRENT_CREATED_FKTABS = "currentCreatedFK"; //$NON-NLS-1$
+    public static final String CURRENT_CACHED_FKTABS = "currentCachedFK"; //$NON-NLS-1$
 
     private Map<String, Object> sessionMap = null;
 
@@ -120,12 +121,13 @@ public class UserSession implements Serializable {
         return (MultipleCriteria) get(CUSTOMIZE_CRITERION_STORE);
     }
     
-    public ItemPanel getCurrentCreatedEntity() {
-        return (ItemPanel) get(CURRENT_CREATED_ENTITY);
-    }
-    
     @SuppressWarnings("unchecked")
-    public List<ForeignKeyTabModel> getCurrentCreatedFKTabs() {
-        return (List<ForeignKeyTabModel>) get(CURRENT_CREATED_FKTABS);
+    public HashMap<String, ItemPanel> getCurrentCachedEntity() {
+        return (HashMap<String, ItemPanel>) get(CURRENT_CACHED_ENTITY);
+    }
+
+    @SuppressWarnings("unchecked")
+    public HashMap<String, LinkedHashMap<String, ForeignKeyTabModel>> getCurrentCachedFKTabs() {
+        return (HashMap<String, LinkedHashMap<String, ForeignKeyTabModel>>) get(CURRENT_CACHED_FKTABS);
     }
 }

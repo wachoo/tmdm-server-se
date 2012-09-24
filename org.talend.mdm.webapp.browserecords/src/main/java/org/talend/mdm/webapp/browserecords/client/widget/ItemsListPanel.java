@@ -695,8 +695,8 @@ public class ItemsListPanel extends ContentPanel {
             }
 
             gridUpdateLock = true;
-            BrowseRecords.getSession().put(UserSession.CURRENT_CREATED_ENTITY, null);
-            BrowseRecords.getSession().put(UserSession.CURRENT_CREATED_FKTABS, null);
+            BrowseRecords.getSession().put(UserSession.CURRENT_CACHED_ENTITY, null);
+            BrowseRecords.getSession().put(UserSession.CURRENT_CACHED_FKTABS, null);
             Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, item);
             gridUpdateLock = false;
         }

@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.BreadCrumb;
@@ -93,6 +94,7 @@ public class TreeDetailUtil {
                                             .getDisplayPKInfo().equals(item.getLabel()) ? null : item.getDisplayPKInfo(), true));
                                 }
 
+                                panel.setOutMost(true);
                                 panel.setId(item.getIds());
                                 panel.initBanner(item.getPkInfoList(), item.getDescription());
                                 panel.addTabItem(item.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, item.getIds());
@@ -105,6 +107,8 @@ public class TreeDetailUtil {
                                 panel.setHeading(tabItemId);
                                 panel.setItemId(tabItemId);
                                 renderTreeDetailPanel(tabItemId, panel);
+                                CommonUtil.setCurrentCachedEntity(item.getConcept() + item.getIds() + panel.isOutMost(),
+                                        itemPanel);
                             }
 
                         });
@@ -116,7 +120,8 @@ public class TreeDetailUtil {
             boolean isHierarchyCall) {
 
         final ItemsDetailPanel itemsDetailPanel = new ItemsDetailPanel();
-
+        itemsDetailPanel.setOutMost(true);
+        
         ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, itemsDetailPanel);
         itemPanel.getToolBar().setOutMost(true);
         itemPanel.getToolBar().setFkToolBar(isFkToolBar);
@@ -139,6 +144,7 @@ public class TreeDetailUtil {
         itemsDetailPanel.setHeading(typeModel.getLabel(Locale.getLanguage()));
         itemsDetailPanel.setItemId(tabItemId);
         renderTreeDetailPanel(tabItemId, itemsDetailPanel);
+        CommonUtil.setCurrentCachedEntity(itemBean.getConcept() + itemsDetailPanel.isOutMost(), itemPanel);
 
     }
 
