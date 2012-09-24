@@ -176,7 +176,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         if (this.model == null && this.isCreate) {
             List<ItemNodeModel> models = CommonUtil.getDefaultTreeModel(
                     viewBean.getBindingEntityModel().getMetaDataTypes().get(viewBean.getBindingEntityModel().getConceptName()),
-                    Locale.getLanguage());
+                    Locale.getLanguage(), true);
             rootModel = models.get(0);
         } else
             rootModel = this.model;
@@ -258,7 +258,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.viewBean = viewBean;
         buildPanel(viewBean);
     }
-    
+
     private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, boolean withDefaultValue) {
         Map<TypeModel, List<ItemNodeModel>> foreighKeyMap = new LinkedHashMap<TypeModel, List<ItemNodeModel>>();
         Map<TypeModel, ItemNodeModel> foreignKeyParentMap = new LinkedHashMap<TypeModel, ItemNodeModel>();
@@ -269,7 +269,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         this, itemsDetailPanel);
             }
         }
-        return reuslt;        
+        return reuslt;
     }
 
     private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, boolean withDefaultValue,

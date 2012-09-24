@@ -65,7 +65,7 @@ public class ItemNodeModelGWTTest extends BrowseRecordsGWTTest {
         session.put(UserSession.APP_HEADER, new AppHeader());
         Registry.register(BrowseRecords.USER_SESSION, session);
     }
-    
+
     public void testClone() {
 
         ItemNodeModel nodeModel = new ItemNodeModel(name);
@@ -216,7 +216,7 @@ public class ItemNodeModelGWTTest extends BrowseRecordsGWTTest {
         nameModel.setDefaultValueExpression("test");
         nameModel.setDefaultValue("Hello");
         root.addSubType(nameModel);
-        List<ItemNodeModel> list = CommonUtil.getDefaultTreeModel(root, "en");
+        List<ItemNodeModel> list = CommonUtil.getDefaultTreeModel(root, "en", true);
         ItemNodeModel rootNode = list.get(0);
         assertTrue(TreeDetailUtil.isChangeValue(rootNode));
     }

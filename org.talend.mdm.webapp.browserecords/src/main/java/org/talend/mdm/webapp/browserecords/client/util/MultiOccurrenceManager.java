@@ -29,11 +29,11 @@ import com.google.gwt.user.client.ui.Widget;
 public class MultiOccurrenceManager {
 
     TreeDetail treeDetail;
-    
+
     Map<String, TypeModel> metaDataTypes;
-    
+
     private Map<String, List<DynamicTreeItem>> multiOccurrence = new HashMap<String, List<DynamicTreeItem>>();
-    
+
     public MultiOccurrenceManager(Map<String, TypeModel> metaDataTypes, TreeDetail treeDetail) {
         this.metaDataTypes = metaDataTypes;
         this.treeDetail = treeDetail;
@@ -43,8 +43,8 @@ public class MultiOccurrenceManager {
 
         ItemNodeModel nodeModel = item.getItemNodeModel();
         TypeModel typeModel = metaDataTypes.get(nodeModel.getTypePath());
-        boolean isLazyLoading = !typeModel.isAutoExpand() && nodeModel.getParent() != null && nodeModel.getChildCount() > 0 && 
-            item.getChild(0) instanceof GhostTreeItem;
+        boolean isLazyLoading = !typeModel.isAutoExpand() && nodeModel.getParent() != null && nodeModel.getChildCount() > 0
+                && item.getChild(0) instanceof GhostTreeItem;
         if (typeModel.isAutoExpand() || isLazyLoading || nodeModel.getChildCount() == 0) {
             if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
                 String xpath = CommonUtil.getRealXpathWithoutLastIndex(nodeModel);
@@ -233,8 +233,8 @@ public class MultiOccurrenceManager {
 
     private String checkMandatory(List<DynamicTreeItem> items) {
         int validValueCount = 0;
-        
-        if (items.size() >= 1){
+
+        if (items.size() >= 1) {
             DynamicTreeItem firstItem = items.get(0);
             ItemNodeModel firstModel = firstItem.getItemNodeModel();
             ItemNodeModel parentModel = (ItemNodeModel) firstModel.getParent();
@@ -253,7 +253,7 @@ public class MultiOccurrenceManager {
             }
             if (parentMandatory) {
                 if (validValueCount < minOccurs) {
-                    
+
                     return MessagesFactory.getMessages().multiOccurrence_minimize_title(minOccurs,
                             firstItem.getItemNodeModel().getName());
                 } else {
@@ -282,11 +282,11 @@ public class MultiOccurrenceManager {
 
         if (typeModel.getMaxOccurs() < 0 || count < typeModel.getMaxOccurs()) {
             ItemNodeModel model = null;
-            if("Clone".equals(optId)) { //$NON-NLS-1$
+            if ("Clone".equals(optId)) { //$NON-NLS-1$
                 model = selectedModel.clone(true);
             } else {
-                List<ItemNodeModel> modelList = CommonUtil.getDefaultTreeModel(typeModel, Locale.getLanguage());
-                if(modelList.size() > 0)
+                List<ItemNodeModel> modelList = CommonUtil.getDefaultTreeModel(typeModel, Locale.getLanguage(), false);
+                if (modelList.size() > 0)
                     model = modelList.get(0);
             }
             model.setDynamicLabel(LabelUtil.getNormalLabel(model.getLabel()));
@@ -327,42 +327,44 @@ public class MultiOccurrenceManager {
         final int count = CommonUtil.getCountOfBrotherOfTheSameName(selectedModel);
 
         final Map<String, Field<?>> fieldMap = treeDetail.getFieldMap();
-        MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages().delete_confirm(), new Listener<MessageBoxEvent>() {
+        MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages().delete_confirm(),
+                new Listener<MessageBoxEvent>() {
 
-            public void handleEvent(MessageBoxEvent be) {
-                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                    if (count > 1 && count > typeModel.getMinOccurs()) {
-                        TreeDetailGridFieldCreator.deleteField(selectedModel, fieldMap);
-                        
-                        removeMultiOccurrenceNode(selectedItem);
-                        selectedModel.setObjectValue(null);
-                        warningItems(selectedModel);
-                        String selectedXpath = CommonUtil.getRealXPath(selectedModel);
-                        parentItem.removeItem(selectedItem);
-                        parentModel.remove(selectedModel);
-                        parentModel.setChangeValue(true);
+                    public void handleEvent(MessageBoxEvent be) {
+                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                            if (count > 1 && count > typeModel.getMinOccurs()) {
+                                TreeDetailGridFieldCreator.deleteField(selectedModel, fieldMap);
 
-                        Set<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(treeDetail.getViewBean(),
-                                selectedModel);
-                        for (ItemNodeModel fkContainer : fkContainers) {
-                            treeDetail.getFkRender().removeRelationFkPanel(fkContainer);
-                        }
+                                removeMultiOccurrenceNode(selectedItem);
+                                selectedModel.setObjectValue(null);
+                                warningItems(selectedModel);
+                                String selectedXpath = CommonUtil.getRealXPath(selectedModel);
+                                parentItem.removeItem(selectedItem);
+                                parentModel.remove(selectedModel);
+                                parentModel.setChangeValue(true);
 
-                        handleOptIcon(selectedXpath);
+                                Set<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(
+                                        treeDetail.getViewBean(), selectedModel);
+                                for (ItemNodeModel fkContainer : fkContainers) {
+                                    treeDetail.getFkRender().removeRelationFkPanel(fkContainer);
+                                }
 
-                        if (parentModel.getChildCount() > 0) {
-                            ItemNodeModel child = (ItemNodeModel) parentModel.getChild(0);
-                            Field<?> field = fieldMap.get(child.getId().toString());
-                            if (field != null){
-                                TreeDetailGridFieldCreator.updateMandatory(field, child, fieldMap);
+                                handleOptIcon(selectedXpath);
+
+                                if (parentModel.getChildCount() > 0) {
+                                    ItemNodeModel child = (ItemNodeModel) parentModel.getChild(0);
+                                    Field<?> field = fieldMap.get(child.getId().toString());
+                                    if (field != null) {
+                                        TreeDetailGridFieldCreator.updateMandatory(field, child, fieldMap);
+                                    }
+                                }
+                            } else {
+                                MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
+                                        .multiOccurrence_minimize(count), null);
                             }
                         }
-                    } else {
-                        MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages().multiOccurrence_minimize(count), null);
                     }
-                }
-            }
-        });
+                });
     }
 
     private void handleClearNodeValue(final DynamicTreeItem selectedItem) {
