@@ -137,7 +137,7 @@ public class CommonUtilTest extends TestCase {
 
     public void testGetDefaultTreeModel() {
         try {
-            CommonUtil.getDefaultTreeModel(new SimpleTypeModel(), "en");
+            CommonUtil.getDefaultTreeModel(new SimpleTypeModel(), "en", true);
             fail();
         } catch (NullPointerException e) {
 
