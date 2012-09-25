@@ -149,4 +149,9 @@ public class StorageErrorDump implements Storage {
     public DataSource getDataSource() {
         return delegate.getDataSource();
     }
+
+    @Override
+    public StorageType getType() {
+        return delegate.getType();
+    }
 }

@@ -118,4 +118,9 @@ public class SecuredStorage implements Storage {
         return delegate.getDataSource();
     }
 
+    @Override
+    public StorageType getType() {
+        return delegate.getType();
+    }
+
 }

@@ -511,6 +511,11 @@ public class HibernateStorage implements Storage {
         return dataSource;
     }
 
+    @Override
+    public StorageType getType() {
+        return storageType;
+    }
+
     public void delete(Expression userQuery) {
         ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
         try {

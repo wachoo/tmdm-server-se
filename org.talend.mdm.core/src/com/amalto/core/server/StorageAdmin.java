@@ -14,6 +14,7 @@
 package com.amalto.core.server;
 
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageType;
 
 /**
  *
@@ -29,7 +30,7 @@ public interface StorageAdmin {
 
     Storage create(String dataModelName, String storageName, String dataSourceName);
 
-    boolean exist(String revision, String cluster);
+    boolean exist(String revision, String storageName, StorageType storageType);
 
     void close();
 

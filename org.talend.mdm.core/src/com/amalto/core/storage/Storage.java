@@ -10,15 +10,14 @@
 
 package com.amalto.core.storage;
 
-import java.util.Set;
-
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.record.DataRecord;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
+import java.util.Set;
 
 /**
  *
@@ -176,6 +175,8 @@ public interface Storage {
     String getName();
 
     DataSource getDataSource();
+
+    StorageType getType();
 
     enum FullTextSuggestion {
         /**

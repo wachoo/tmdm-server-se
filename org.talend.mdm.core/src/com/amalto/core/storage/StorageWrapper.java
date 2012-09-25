@@ -125,7 +125,8 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public boolean existCluster(String revision, String cluster) throws XmlServerException {
-        return getStorageAdmin().exist(revision, cluster);
+        StorageType storageType = cluster.endsWith(StorageAdmin.STAGING_SUFFIX) ? StorageType.STAGING : StorageType.MASTER;
+        return getStorageAdmin().exist(revision, cluster, storageType);
     }
 
     public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID) throws XmlServerException {

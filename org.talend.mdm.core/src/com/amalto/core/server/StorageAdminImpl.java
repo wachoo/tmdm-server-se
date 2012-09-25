@@ -61,7 +61,8 @@ public class StorageAdminImpl implements StorageAdmin {
             LOGGER.warn("Configuration does not allow creation of SQL storage for '" + dataModelName + "'.");
             return null;
         }
-        if (exist(null, storageName)) {
+        StorageType storageType = storageName.endsWith(STAGING_SUFFIX) ? StorageType.STAGING : StorageType.MASTER;
+        if (exist(null, storageName, storageType)) {
             LOGGER.warn("Storage for '" + storageName + "' already exists. It needs to be deleted before it can be recreated.");
             return get(storageName);
         }
@@ -69,8 +70,8 @@ public class StorageAdminImpl implements StorageAdmin {
             Storage masterDataModelStorage = internalCreateStorage(dataModelName, storageName, dataSourceName, StorageType.MASTER);
             storages.put(storageName, masterDataModelStorage);
             if (!XSystemObjects.DC_UPDATE_PREPORT.getName().equalsIgnoreCase(storageName)) { //TODO would be better to decide whether a staging area should be created or not in a method.
-                boolean hasDatasource = ServerContext.INSTANCE.get().hasDataSource(dataSourceName, storageName, StorageType.STAGING);
-                if (hasDatasource) {
+                boolean hasDataSource = ServerContext.INSTANCE.get().hasDataSource(dataSourceName, storageName, StorageType.STAGING);
+                if (hasDataSource) {
                     Storage stagingDataModelStorage = internalCreateStorage(dataModelName + STAGING_SUFFIX, storageName, dataSourceName, StorageType.STAGING);
                     if (stagingDataModelStorage != null) {
                         storages.put(storageName + STAGING_SUFFIX, stagingDataModelStorage);
@@ -83,7 +84,7 @@ public class StorageAdminImpl implements StorageAdmin {
         }
     }
 
-    // Returns null if storage can not be created (e.g. because of missing datasource configuration).
+    // Returns null if storage can not be created (e.g. because of missing data source configuration).
     private Storage internalCreateStorage(String dataModelName, String storageName, String dataSourceName, StorageType storageType) {
         ServerContext instance = ServerContext.INSTANCE;
         DataSource dataSource = instance.get().getDataSource(dataSourceName, storageName, storageType);
@@ -91,7 +92,7 @@ public class StorageAdminImpl implements StorageAdmin {
             // May get request for "StorageName/Concept", but for SQL it does not make any sense.
             // See com.amalto.core.storage.StorageWrapper.createCluster()
             storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
-            if (exist(null, storageName)) {
+            if (exist(null, storageName, storageType)) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Storage for '" + storageName + "' already exists. It needs to be deleted before it can be recreated.");
                 }
@@ -120,8 +121,9 @@ public class StorageAdminImpl implements StorageAdmin {
         return dataModelStorage;
     }
 
-    public boolean exist(String revision, String storageName) {
-        return storages.containsKey(storageName);
+    public boolean exist(String revision, String storageName, StorageType storageType) {
+        Storage storage = storages.get(storageName);
+        return storage != null && storage.getType() == storageType;
     }
 
     public void close() {
