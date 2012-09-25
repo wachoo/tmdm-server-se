@@ -402,7 +402,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
             Element idElement;
             if (!compositeId) {
                 idElement = document.createElement("id"); //$NON-NLS-1$
-                if ("UUID".equals(field.getType().getName())) {  //$NON-NLS-1$
+                if ("UUID".equals(field.getType().getName()) && ScatteredMappingCreator.GENERATED_ID.equals(fieldName)) {  //$NON-NLS-1$
                     // <generator class="uuid.hex"/>
                     Element generator = document.createElement("generator"); //$NON-NLS-1$
                     Attr generatorClass = document.createAttribute("class"); //$NON-NLS-1$

@@ -72,7 +72,7 @@ class TestDataRecordCreator extends DefaultMetadataVisitor<DataRecord> {
             }
             if ("string".equals(type.getName())) {
                 return "1";
-            } else if ("int".equals(type.getName())) {
+            } else if ("int".equals(type.getName()) || "integer".equals(type.getName())) {
                 return 1;
             } else {
                 throw new NotImplementedException("Support for key with type " + type.getName());

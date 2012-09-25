@@ -119,6 +119,7 @@ public class MetadataUtils {
                 return path;
             } else {
                 stack.clear();
+                processedTypes.clear();
             }
         }
 

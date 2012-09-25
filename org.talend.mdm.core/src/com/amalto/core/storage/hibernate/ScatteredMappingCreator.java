@@ -101,7 +101,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         String typeName = containedType.getName().replace('-', '_');
         String databaseSuperType = createContainedType(getNonInstantiableTypeName(typeName), null, containedType);
         for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
-            createContainedType(subType.getName().replace('-', '_'), databaseSuperType, subType);
+            String subTypeName = subType.getName().replace('-', '_');
+            createContainedType(getNonInstantiableTypeName(subTypeName), databaseSuperType, subType);
         }
         return null;
     }
