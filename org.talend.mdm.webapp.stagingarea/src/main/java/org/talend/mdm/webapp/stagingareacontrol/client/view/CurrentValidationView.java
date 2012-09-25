@@ -14,8 +14,6 @@ package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
 import java.util.Date;
 
-import org.talend.mdm.webapp.base.client.model.UserContextModel;
-import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaValidationModel;
 
@@ -272,7 +270,6 @@ public class CurrentValidationView extends AbstractView {
     @Override
     protected void onAttach() {
         super.onAttach();
-        UserContextModel ucx = UserContextUtil.getUserContext();
         ControllerContainer.get().getCurrentValidationController().refreshView();
     }
 }

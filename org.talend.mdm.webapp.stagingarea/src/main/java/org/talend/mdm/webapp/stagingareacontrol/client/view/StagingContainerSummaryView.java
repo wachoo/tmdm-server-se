@@ -222,8 +222,10 @@ public class StagingContainerSummaryView extends AbstractView {
                     }, options);
 
         } else {
-            updateChartData();
-            chart.draw(chartData, chartOptions);
+            if (chart != null) {
+                updateChartData();
+                chart.draw(chartData, chartOptions);
+            }
         }
     }
 
@@ -275,5 +277,11 @@ public class StagingContainerSummaryView extends AbstractView {
 
     public Button getStartValidateButton() {
         return startValidate;
+    }
+
+    @Override
+    protected void onAttach() {
+        super.onAttach();
+        ControllerContainer.get().getSummaryController().refreshView();
     }
 }
