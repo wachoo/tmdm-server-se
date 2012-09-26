@@ -96,7 +96,8 @@ public class BeforeSaving implements DocumentSaver {
                                 context.setId(new String[0]); // Will re-read id from document.
                             }
                             // Redo a set of actions and security checks.
-                            next = new GenerateActions(new Security(next));
+                            // TMDM-4599: Adds UpdateReport phase so a new update report is generated based on latest changes.
+                            next = new GenerateActions(new Security(new UpdateReport(next)));
                         }
                     }
                 }

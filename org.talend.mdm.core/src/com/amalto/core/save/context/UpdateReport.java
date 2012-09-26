@@ -11,28 +11,23 @@
 
 package com.amalto.core.save.context;
 
-import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.util.LinkedList;
 import java.util.List;
 
 class UpdateReport implements DocumentSaver {
 
-    private static final String UPDATE_REPORT_DATA_MODEL = "UpdateReport"; //$NON-NLS-1$
+    public static final String UPDATE_REPORT_DATA_MODEL = "UpdateReport"; //$NON-NLS-1$
 
-    private static final String UPDATE_REPORT_TYPE = "Update"; //$NON-NLS-1$
+    public static final String UPDATE_REPORT_TYPE = "Update"; //$NON-NLS-1$
 
     private final DocumentSaver next;
 
@@ -84,36 +79,7 @@ class UpdateReport implements DocumentSaver {
         updateReportDocument.disableRecordFieldChange();
 
         context.setUpdateReportDocument(updateReportDocument);
-        // Save update report
-        saveUpdateReport(updateReportDocument, session.getSaverSource(), session);
-
         next.save(session, context);
-    }
-
-    private static void saveUpdateReport(UpdateReportDocument updateReportDocument, SaverSource saverSource, SaverSession session) {
-        MetadataRepository metadataRepository = saverSource.getMetadataRepository(UPDATE_REPORT_DATA_MODEL);
-        ComplexTypeMetadata updateReportType = metadataRepository.getComplexType(UPDATE_REPORT_TYPE);
-        if (updateReportType == null) {
-            throw new IllegalStateException("Could not find UpdateReport type.");
-        }
-
-        List<FieldMetadata> keyFields = updateReportType.getKeyFields();
-        LinkedList<String> ids = new LinkedList<String>();
-        for (FieldMetadata keyField : keyFields) {
-            String keyFieldName = keyField.getName();
-            Accessor keyAccessor = updateReportDocument.createAccessor(keyFieldName);
-            if (!keyAccessor.exist()) {
-                throw new RuntimeException("Unexpected state: update report does not have value for key '" + keyFieldName + "'.");
-            }
-            ids.add(keyAccessor.get());
-        }
-
-        String[] idAsArray = ids.toArray(new String[ids.size()]);
-        ItemPOJO updateReport = new ItemPOJO(new DataClusterPOJOPK(UPDATE_REPORT_DATA_MODEL), UPDATE_REPORT_TYPE, idAsArray,
-                System.currentTimeMillis(), updateReportDocument.asDOM().getDocumentElement());
-        updateReport.setDataModelRevision(saverSource.getConceptRevisionID(updateReport.getConceptName()));
-        // Call session's save to save all items in correct order (one transaction per data cluster for the XML db).
-        session.save(UPDATE_REPORT_DATA_MODEL, updateReport, false);
     }
 
     private void createHeaderField(MutableDocument updateReportDocument, String fieldName, String value) {
