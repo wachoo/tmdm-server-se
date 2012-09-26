@@ -13,6 +13,7 @@ package com.amalto.core.storage.record;
 
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.ReferenceFieldMetadata;
+import org.apache.commons.lang.StringEscapeUtils;
 
 import java.io.*;
 
@@ -40,7 +41,9 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
                 }
             }
             if (value != null) {
-                writer.append("\t<").append(fieldMetadata.getName()).append(">").append(String.valueOf(valueAsString)).append("</").append(fieldMetadata.getName()).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                writer.append("\t<").append(fieldMetadata.getName()).append(">");
+                writer.append(StringEscapeUtils.escapeXml(String.valueOf(valueAsString)));
+                writer.append("</").append(fieldMetadata.getName()).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             }
         }
         writer.append("</result>"); //$NON-NLS-1$

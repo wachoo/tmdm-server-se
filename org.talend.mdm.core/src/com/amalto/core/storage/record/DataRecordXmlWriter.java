@@ -16,6 +16,7 @@ import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
+import org.apache.commons.lang.StringEscapeUtils;
 
 import javax.xml.XMLConstants;
 import java.io.*;
@@ -210,7 +211,7 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                     out.write((TimeConstant.TIME_FORMAT).format(value));
                 }
             } else {
-                out.write(value.toString());
+                out.write(StringEscapeUtils.escapeXml(value.toString()));
             }
         }
 

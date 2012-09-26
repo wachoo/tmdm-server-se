@@ -599,7 +599,9 @@ public class ItemCtrl2Bean implements SessionBean {
                         for (FieldMetadata fieldMetadata : record.getSetFields()) {
                             Object value = record.get(fieldMetadata);
                             if (value != null) {
-                                writer.append("\t<").append(fieldMetadata.getName()).append(">").append(String.valueOf(value)).append("</").append(fieldMetadata.getName()).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                                writer.append("\t<").append(fieldMetadata.getName()).append(">");
+                                writer.append(StringEscapeUtils.escapeXml(String.valueOf(value)));
+                                writer.append("</").append(fieldMetadata.getName()).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                             }
                         }
                         writer.append("</result>"); //$NON-NLS-1$

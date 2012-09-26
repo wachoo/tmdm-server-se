@@ -51,7 +51,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
                 + "    <Id>1</Id>\n"
                 + "    <Name>Product name</Name>\n"
                 + "    <ShortDescription>Short description word</ShortDescription>\n"
-                + "    <LongDescription>Long description</LongDescription>\n"
+                + "    <LongDescription>Long description;</LongDescription>\n"
                 + "    <Price>10</Price>\n"
                 + "    <Features>\n"
                 + "        <Sizes>\n"

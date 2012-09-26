@@ -62,25 +62,27 @@ public class StorageAdminImpl implements StorageAdmin {
             return null;
         }
         StorageType storageType = storageName.endsWith(STAGING_SUFFIX) ? StorageType.STAGING : StorageType.MASTER;
-        if (exist(null, storageName, storageType)) {
-            LOGGER.warn("Storage for '" + storageName + "' already exists. It needs to be deleted before it can be recreated.");
-            return get(storageName);
+        String actualStorageName = StringUtils.substringBefore(storageName, STAGING_SUFFIX);
+        String actualDataModelName = StringUtils.substringBefore(dataModelName, STAGING_SUFFIX);
+        if (exist(null, actualStorageName, storageType)) {
+            LOGGER.warn("Storage for '" + actualStorageName + "' already exists. It needs to be deleted before it can be recreated.");
+            return get(actualStorageName);
         }
         try {
-            Storage masterDataModelStorage = internalCreateStorage(dataModelName, storageName, dataSourceName, StorageType.MASTER);
-            storages.put(storageName, masterDataModelStorage);
-            if (!XSystemObjects.DC_UPDATE_PREPORT.getName().equalsIgnoreCase(storageName)) { //TODO would be better to decide whether a staging area should be created or not in a method.
-                boolean hasDataSource = ServerContext.INSTANCE.get().hasDataSource(dataSourceName, storageName, StorageType.STAGING);
+            Storage masterDataModelStorage = internalCreateStorage(actualDataModelName, actualStorageName, dataSourceName, StorageType.MASTER);
+            storages.put(actualStorageName, masterDataModelStorage);
+            if (!XSystemObjects.DC_UPDATE_PREPORT.getName().equalsIgnoreCase(actualStorageName)) { //TODO would be better to decide whether a staging area should be created or not in a method.
+                boolean hasDataSource = ServerContext.INSTANCE.get().hasDataSource(dataSourceName, actualStorageName, StorageType.STAGING);
                 if (hasDataSource) {
-                    Storage stagingDataModelStorage = internalCreateStorage(dataModelName + STAGING_SUFFIX, storageName, dataSourceName, StorageType.STAGING);
+                    Storage stagingDataModelStorage = internalCreateStorage(actualDataModelName + STAGING_SUFFIX, actualStorageName, dataSourceName, StorageType.STAGING);
                     if (stagingDataModelStorage != null) {
-                        storages.put(storageName + STAGING_SUFFIX, stagingDataModelStorage);
+                        storages.put(actualStorageName + STAGING_SUFFIX, stagingDataModelStorage);
                     }
                 }
             }
             return masterDataModelStorage;
         } catch (Exception e) {
-            throw new RuntimeException("Could not create storage '" + storageName + "' with data model '" + dataModelName + "'.", e);
+            throw new RuntimeException("Could not create storage '" + actualStorageName + "' with data model '" + dataModelName + "'.", e);
         }
     }
 

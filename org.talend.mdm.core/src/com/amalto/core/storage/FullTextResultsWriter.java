@@ -15,6 +15,7 @@ import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.SimpleTypeFieldMetadata;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
@@ -63,7 +64,7 @@ public class FullTextResultsWriter implements DataRecordWriter {
                     if (field instanceof SimpleTypeFieldMetadata) {
                         Object recordFieldValue = record.get(field);
                         if (recordFieldValue != null) {
-                            String value = String.valueOf(recordFieldValue);
+                            String value = StringEscapeUtils.escapeXml(String.valueOf(recordFieldValue));
                             if (value.contains(keyword)) {
                                 snippetWords[1] = "<b>" + value + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
                                 hasMetKeyword = true;
