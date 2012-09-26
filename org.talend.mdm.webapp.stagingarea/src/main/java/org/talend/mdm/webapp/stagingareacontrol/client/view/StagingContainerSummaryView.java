@@ -71,6 +71,8 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private Label dataModelName;
 
+    private Button refresh;
+
     private SimplePanel chartPanel;
 
     private boolean chartInitialize = false;
@@ -102,7 +104,9 @@ public class StagingContainerSummaryView extends AbstractView {
         modelLabel = new Label(messages.data_model());
         dataModelName = new Label(ucx.getDataModel());
         dataModelName.setStyleAttribute("font-weight", "bold"); //$NON-NLS-1$//$NON-NLS-2$
-        titleGrid = new Grid(1, 5);
+
+        refresh = new Button(messages.refresh());
+        titleGrid = new Grid(1, 6);
         chartPanel = new SimplePanel();
         chartPanel.setSize(CHART_WIDTH + "px", CHART_HEIGHT + "px"); //$NON-NLS-1$ //$NON-NLS-2$
         chartPanel.getElement().setInnerHTML(messages.loading());
@@ -133,6 +137,14 @@ public class StagingContainerSummaryView extends AbstractView {
                 ControllerContainer.get().getSummaryController().startValidation();
             }
         });
+
+        refresh.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                ControllerContainer.get().getSummaryController().refreshView();
+            }
+        });
     }
 
     @Override
@@ -148,6 +160,7 @@ public class StagingContainerSummaryView extends AbstractView {
         containerName.setStyleAttribute("margin-right", "10px"); //$NON-NLS-1$//$NON-NLS-2$
         titleGrid.setWidget(0, 3, modelLabel);
         titleGrid.setWidget(0, 4, dataModelName);
+        titleGrid.setWidget(0, 5, refresh);
 
         mainPanel.add(titleGrid, titleData);
         TableData chartData = new TableData();

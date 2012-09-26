@@ -30,6 +30,8 @@ public interface StagingareaMessages extends Messages {
 
     String data_model();
 
+    String refresh();
+
     String valid();
     String invalid();
     String waiting();

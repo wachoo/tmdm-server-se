@@ -30,6 +30,11 @@ public class CurrentValidationController extends AbstractController {
 
     private Timer timer;
 
+    interface Callback {
+
+        void callback();
+    }
+
     public CurrentValidationController(final CurrentValidationView view) {
         setBindingView(view);
         this.view = (CurrentValidationView) bindingView;
@@ -38,7 +43,11 @@ public class CurrentValidationController extends AbstractController {
             @Override
             public void run() {
                 if (Document.get().isOrHasChild(view.getElement())) {
-                    refreshView();
+                    refreshView(new Callback() {
+                        public void callback() {
+                            schedule(StagingareaControl.getStagingAreaConfig().getRefreshIntervals());
+                        }
+                    });
                 } else {
                     this.cancel();
                 }
@@ -48,13 +57,17 @@ public class CurrentValidationController extends AbstractController {
 
     public void autoRefresh(boolean auto) {
         if (auto) {
-            timer.scheduleRepeating(StagingareaControl.getStagingAreaConfig().getRefreshIntervals());
+            timer.schedule(StagingareaControl.getStagingAreaConfig().getRefreshIntervals());
         } else {
             timer.cancel();
         }
     }
 
     public void refreshView() {
+        refreshView(null);
+    }
+
+    public void refreshView(final Callback callback) {
         UserContextModel ucx = UserContextUtil.getUserContext();
         RestServiceHandler.get().getValidationTaskStatus(ucx.getDataContainer(),
                 new SessionAwareAsyncCallback<StagingAreaValidationModel>() {
@@ -64,15 +77,25 @@ public class CurrentValidationController extends AbstractController {
                             view.setStatus(CurrentValidationView.Status.HasValidation);
                             view.refresh(result);
                         } else {
+                            autoRefresh(false);
                             ControllerContainer.get().getSummaryController().setEnabledStartValidation(true);
+                            ControllerContainer.get().getSummaryController().refreshView();
                             view.setStatus(CurrentValidationView.Status.None);
+                        }
+                        if (callback != null) {
+                            callback.callback();
                         }
                     }
 
                     @Override
                     protected void doOnFailure(Throwable caught) {
+                        autoRefresh(false);
                         ControllerContainer.get().getSummaryController().setEnabledStartValidation(true);
+                        ControllerContainer.get().getSummaryController().refreshView();
                         view.setStatus(CurrentValidationView.Status.None);
+                        if (callback != null) {
+                            callback.callback();
+                        }
                     }
                 });
     }
@@ -84,8 +107,9 @@ public class CurrentValidationController extends AbstractController {
             public void onSuccess(Boolean result) {
                 if (result){
                     autoRefresh(false);
-                    view.setStatus(CurrentValidationView.Status.None);
                     ControllerContainer.get().getSummaryController().setEnabledStartValidation(true);
+                    ControllerContainer.get().getSummaryController().refreshView();
+                    view.setStatus(CurrentValidationView.Status.None);
                 }
             }
         });
