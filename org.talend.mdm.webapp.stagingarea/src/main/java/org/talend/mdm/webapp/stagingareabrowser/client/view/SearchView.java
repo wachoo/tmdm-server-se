@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
@@ -29,6 +30,7 @@ import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
@@ -49,8 +51,6 @@ public class SearchView extends AbstractView {
     private ContentPanel leftPanel;
 
     private ContentPanel rightPanel;
-
-    private ContentPanel middlePanel;
 
     private ComboBox<BaseModel> entityCombo;
 
@@ -134,10 +134,6 @@ public class SearchView extends AbstractView {
         leftPanel.setHeaderVisible(false);
         leftPanel.setBodyBorder(false);
 
-        middlePanel = new ContentPanel();
-        middlePanel.setHeaderVisible(false);
-        middlePanel.setBodyBorder(false);
-
         rightPanel = new ContentPanel();
         rightPanel.setHeaderVisible(false);
         rightPanel.setBodyBorder(false);
@@ -169,23 +165,23 @@ public class SearchView extends AbstractView {
         FormLayout leftLayout = new FormLayout();
         leftLayout.setLabelWidth(80);
         leftPanel.setLayout(leftLayout);
-        FormLayout rightLayout = new FormLayout();
-        rightLayout.setLabelWidth(80);
-        rightPanel.setLayout(rightLayout);
+
+        rightPanel.setLayout(new FormLayout());
         FormLayout setLayout = new FormLayout();
         setLayout.setLabelWidth(80);
         fieldSet.setLayout(setLayout);
 
-        leftPanel.add(entityCombo);
-        leftPanel.add(sourceField);
-        leftPanel.add(keyField);
+        FormData formData = new FormData();
+        formData.setMargins(new Margins(0, 0, 5, 0));
+        leftPanel.add(entityCombo, formData);
+        leftPanel.add(sourceField, formData);
+        leftPanel.add(keyField, formData);
+        leftPanel.add(startDate, formData);
 
         fieldSet.add(stateCombo);
         fieldSet.add(statusCodeField);
-        middlePanel.add(fieldSet);
-
-        rightPanel.add(startDate);
-        rightPanel.add(endDate);
+        rightPanel.add(fieldSet);
+        rightPanel.add(endDate, formData);
 
         TableLayout buttonLayout = new TableLayout(3);
         buttonLayout.setWidth("100%"); //$NON-NLS-1$
@@ -202,9 +198,8 @@ public class SearchView extends AbstractView {
         td2.setHorizontalAlign(HorizontalAlignment.CENTER);
         buttonPanel.add(resetButton, td2);
 
-        hp.add(leftPanel, new HBoxLayoutData(10, 0, 0, 10));
-        hp.add(middlePanel, new HBoxLayoutData(5, 0, 0, 10));
-        hp.add(rightPanel, new HBoxLayoutData(10, 0, 0, 10));
+        hp.add(leftPanel, new HBoxLayoutData(10, 20, 0, 10));
+        hp.add(rightPanel, new HBoxLayoutData(5, 0, 0, 10));
 
         mainPanel.add(hp, new RowData(1, -1));
         mainPanel.add(buttonPanel, new RowData(1, -1));
