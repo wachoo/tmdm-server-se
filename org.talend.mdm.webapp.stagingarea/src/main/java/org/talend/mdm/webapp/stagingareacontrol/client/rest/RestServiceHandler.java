@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.restlet.client.Request;
 import org.restlet.client.Response;
+import org.restlet.client.data.MediaType;
 import org.restlet.client.data.Method;
 import org.restlet.client.ext.xml.DomRepresentation;
 import org.restlet.client.representation.InputRepresentation;
@@ -326,23 +327,38 @@ public class RestServiceHandler {
 
     }
     
-    // TODO Rest API not supported
-    // FIXME also could add a parameter "withTotalCount" within "getStagingAreaExecutions"
     public void countStagingAreaExecutions(final String dataContainer, StagingAreaExecutionModel criteria,
             final SessionAwareAsyncCallback<Integer> callback) {
+                
+        // build URI
+        StringBuilder uri = new StringBuilder(BASE_URL + SEPARATE + dataContainer + "/execs/count");//$NON-NLS-1$
+        StringBuilder parameters=new StringBuilder();
+        if (criteria != null && criteria.getStartDate() != null)
+            parameters.append("&before=").append(DEFAULT_DATE_FORMAT.format(criteria.getStartDate()));//$NON-NLS-1$
+        if (parameters.length() > 0)
+            uri.append("?").append(parameters.toString());//$NON-NLS-1$
         
-        ResourceCallbackHandler callbackHandler=new ResourceCallbackHandler() {
+        // do request
+        client.init(Method.GET, uri.toString());
+        client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
                 try {
-                    callback.onSuccess(new Integer(20000));
+                    int count = 0;
+                    if (response.getEntity() != null && response.getEntity().getText() != null) {
+                        try {
+                            count = Integer.parseInt(response.getEntity().getText());
+                        } catch (NumberFormatException e) {
+                            count = Integer.MAX_VALUE;
+                        }
+                    }
+                    callback.onSuccess(new Integer(count));
                 } catch (Exception e) {
                     callback.onFailure(e);
                 }
             }
-        };
-
-        callbackHandler.process(null, null);
+        });
+        client.request(MediaType.TEXT_PLAIN);
 
     }
 
