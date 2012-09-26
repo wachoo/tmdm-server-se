@@ -21,8 +21,9 @@ import org.talend.mdm.webapp.base.client.model.UserContextModel;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.base.client.widget.ColumnAlignGrid;
 import org.talend.mdm.webapp.stagingareabrowser.client.controller.ResultsController;
+import org.talend.mdm.webapp.stagingareabrowser.client.model.RecordStatus;
+import org.talend.mdm.webapp.stagingareabrowser.client.model.RecordStatusWrapper;
 import org.talend.mdm.webapp.stagingareabrowser.client.model.ResultItem;
-import org.talend.mdm.webapp.stagingareabrowser.client.resources.Resources;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
@@ -57,14 +58,14 @@ public class ResultsView extends AbstractView {
 
     private void initErrorTitles() {
         errorTitles = new HashMap<Integer, String>();
-        errorTitles.put(000, messages.status_000());
-        errorTitles.put(201, messages.status_201(ucx.getDataContainer()));
-        errorTitles.put(202, messages.status_202(ucx.getDataContainer()));
-        errorTitles.put(203, messages.status_203());
-        errorTitles.put(401, messages.status_401(ucx.getDataContainer()));
-        errorTitles.put(402, messages.status_402(ucx.getDataContainer()));
-        errorTitles.put(403, messages.status_403());
-        errorTitles.put(404, messages.status_404());
+        errorTitles.put(RecordStatus.New_Record.getStatusCode(), messages.status_000());
+        errorTitles.put(RecordStatus.Identify_Success.getStatusCode(), messages.status_201(ucx.getDataContainer()));
+        errorTitles.put(RecordStatus.Merge_Success.getStatusCode(), messages.status_202(ucx.getDataContainer()));
+        errorTitles.put(RecordStatus.Validation_Success.getStatusCode(), messages.status_203());
+        errorTitles.put(RecordStatus.Identify_Fail.getStatusCode(), messages.status_401(ucx.getDataContainer()));
+        errorTitles.put(RecordStatus.Merge_Fail.getStatusCode(), messages.status_402(ucx.getDataContainer()));
+        errorTitles.put(RecordStatus.Model_Validation_Fail.getStatusCode(), messages.status_403());
+        errorTitles.put(RecordStatus.FK_Constrain_Fail.getStatusCode(), messages.status_404());
     }
 
     @Override
@@ -101,20 +102,18 @@ public class ResultsView extends AbstractView {
 
             public Object render(ResultItem model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ResultItem> store, Grid<ResultItem> grid) {
-                String color;
+
                 com.google.gwt.user.client.ui.Grid g = new com.google.gwt.user.client.ui.Grid(1, 2);
-                Image icon;
                 if (model.getStatus() == null)
                     return null;
-                if (model.getStatus() >= 400) {
-                    color = "red"; //$NON-NLS-1$
-                    icon = new Image(Resources.ICONS.failed());
-                } else {
-                    icon = new Image(Resources.ICONS.successful());
-                    color = "green"; //$NON-NLS-1$
-                }
-                g.getElement().getStyle().setColor(color);
-                g.setWidget(0, 0, icon);
+
+                RecordStatusWrapper wrapper = new RecordStatusWrapper(RecordStatus.newStatus(model.getStatus().intValue()));
+         
+                String color = wrapper.getColor();
+                Image icon = new Image(wrapper.getIcon());
+      
+                if(color!=null)g.getElement().getStyle().setColor(color);
+                if(icon!=null)g.setWidget(0, 0, icon);
                 g.setText(0, 1, Integer.toString(model.getStatus()));
                 g.setTitle(model.getStatus() + ": " + errorTitles.get(model.getStatus())); //$NON-NLS-1$
                 return g;
