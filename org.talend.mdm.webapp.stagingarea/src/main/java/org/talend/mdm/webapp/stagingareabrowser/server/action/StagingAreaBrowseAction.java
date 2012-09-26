@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareabrowser.server.action;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,6 +28,7 @@ import org.w3c.dom.Document;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSConceptKey;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
@@ -50,8 +52,8 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
     public List<BaseModel> getConcepts(String language) throws ServiceException {
         try {
             String model = getCurrentDataModel();
-            String[] businessConcept = CommonUtil.getPort().getBusinessConcepts(
-                    new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
+            String[] businessConcept = CommonUtil.getPort()
+                    .getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
             List<BaseModel> conceptModels = new ArrayList<BaseModel>();
             for (String concept : businessConcept) {
                 BaseModel conceptModel = new BaseModel();
@@ -69,7 +71,7 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
     private WSWhereItem buildWhereItem(SearchModel searchModel) {
 
         List<WSWhereItem> whereItems = new ArrayList<WSWhereItem>();
-        
+
         String key = searchModel.getKey();
         if (key != null && key.trim().length() > 0) {
             WSWhereItem keyWhere = new WSWhereItem();
@@ -79,7 +81,7 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
         }
 
         String source = searchModel.getSource();
-        if (source != null && source.trim().length() > 0){
+        if (source != null && source.trim().length() > 0) {
             WSWhereItem sourceWhere = new WSWhereItem();
             sourceWhere.setWhereCondition(new WSWhereCondition(searchModel.getEntity() + "/$staging_source$", //$NON-NLS-1$
                     WSWhereOperator.CONTAINS, source, WSStringPredicate.NONE, false));
@@ -93,9 +95,9 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
                     WSWhereOperator.EQUALS, statusCode, WSStringPredicate.NONE, false));
             whereItems.add(statusWhere);
         }
-        
+
         Integer state = searchModel.getState();
-        if (state != null){
+        if (state != null) {
             WSWhereItem stateWhere = null;
             if (state.equals(SearchView.INVALID_RECORDS)) {
                 stateWhere = new WSWhereItem();
@@ -133,7 +135,7 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
         return whereItem;
     }
 
-    public PagingLoadResult<ResultItem> searchStaging(SearchModel searchModel) {
+    public PagingLoadResult<ResultItem> searchStaging(SearchModel searchModel) throws ServiceException {
         int totalSize = 0;
         List<ResultItem> items = new ArrayList<ResultItem>();
         try {
@@ -153,8 +155,8 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
 
             WSWhereItem whereItem = buildWhereItem(searchModel);
 
-            WSXPathsSearch wsXPathsSearch = new WSXPathsSearch(wsDataClusterPK, null, viewablePaths, whereItem, -1, searchModel
-                    .getOffset(), searchModel.getLimit(), searchModel.getSortField(), searchModel.getSortDir(), true);
+            WSXPathsSearch wsXPathsSearch = new WSXPathsSearch(wsDataClusterPK, null, viewablePaths, whereItem, -1,
+                    searchModel.getOffset(), searchModel.getLimit(), searchModel.getSortField(), searchModel.getSortDir(), true);
 
             String[] results = CommonUtil.getPort().xPathsSearch(wsXPathsSearch).getStrings();
             for (int i = 0; i < results.length; i++) {
@@ -170,13 +172,13 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
                 }
 
                 Document doc = Util.parse(results[i]);
-                String[] key = Util.getTextNodes(doc, "/result/i"); //$NON-NLS-1$
+                String[] key = Util.getTextNodes(doc, "/result/Id"); //$NON-NLS-1$
                 String dateTime = Util.getFirstTextNode(doc, "/result/timestamp"); //$NON-NLS-1$
                 String source = Util.getFirstTextNode(doc, "/result/staging_source"); //$NON-NLS-1$
                 String status = Util.getFirstTextNode(doc, "/result/staging_status"); //$NON-NLS-1$
                 String error = Util.getFirstTextNode(doc, "/result/staging_error"); //$NON-NLS-1$
                 ResultItem item = new ResultItem();
-                item.setKey(join(key, ".")); //$NON-NLS-1$
+                item.setKey(Util.joinStrings(key, ".")); //$NON-NLS-1$
                 item.setEntity(searchModel.getEntity());
                 if (dateTime != null) {
                     item.setDateTime(new Date(Long.parseLong(dateTime)));
@@ -189,47 +191,31 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
                 items.add(item);
             }
         } catch (Exception e) {
-            LOG.error(e.getMessage());
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
 
         PagingLoadResult<ResultItem> result = new BasePagingLoadResult<ResultItem>(items, searchModel.getOffset(), totalSize);
         return result;
     }
 
-    private String join(String[] item, String separator) {
-        if (item == null || item.length == 0) {
-            return ""; //$NON-NLS-1$
-        }
-        StringBuffer buffer = new StringBuffer();
-        for (int i = 0; i < item.length; i++) {
-            if (i == 0) {
-                buffer.append(item[i]);
-            } else {
-                buffer.append(separator + item);
-            }
-        }
-        return buffer.toString();
-    }
-
-    private static String[] getBusinessConceptKeys(String model, String concept) {
+    private static String[] getBusinessConceptKeys(String model, String concept) throws RemoteException, XtentisWebappException {
 
         String[] keys = null;
-        try {
-            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
-                    new WSGetBusinessConceptKey(new WSDataModelPK(model), concept));
 
-            String[] keyFields = key.getFields();
-            keys = new String[keyFields.length];
+        WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
+                new WSGetBusinessConceptKey(new WSDataModelPK(model), concept));
 
-            for (int i = 0; i < keyFields.length; i++) {
-                if (".".equals(key.getSelector())) //$NON-NLS-1$
-                    keys[i] = concept + "/" + keyFields[i]; //$NON-NLS-1$ 
-                else
-                    keys[i] = key.getSelector() + keyFields[i];
-            }
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+        String[] keyFields = key.getFields();
+        keys = new String[keyFields.length];
+
+        for (int i = 0; i < keyFields.length; i++) {
+            if (".".equals(key.getSelector())) //$NON-NLS-1$
+                keys[i] = concept + "/" + keyFields[i]; //$NON-NLS-1$ 
+            else
+                keys[i] = key.getSelector() + keyFields[i];
         }
+
         return keys;
 
     }

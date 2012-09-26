@@ -28,5 +28,5 @@ public interface StagingAreaBrowseService extends RemoteService {
 
     public List<BaseModel> getConcepts(String language) throws ServiceException;
 
-    public PagingLoadResult<ResultItem> searchStaging(SearchModel searchModel);
+    public PagingLoadResult<ResultItem> searchStaging(SearchModel searchModel) throws ServiceException;
 }
