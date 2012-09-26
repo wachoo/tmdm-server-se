@@ -150,6 +150,7 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
             viewablePathList.add(searchModel.getEntity() + "/$staging_status$"); //$NON-NLS-1$
             viewablePathList.add(searchModel.getEntity() + "/$staging_error$"); //$NON-NLS-1$
             viewablePathList.add(searchModel.getEntity() + "/$staging_source$"); //$NON-NLS-1$
+            viewablePathList.add(searchModel.getEntity() + "/../../taskId");//$NON-NLS-1$
             WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(getCurrentDataCluster());
             WSStringArray viewablePaths = new WSStringArray(viewablePathList.toArray(new String[viewablePathList.size()]));
 
@@ -177,6 +178,8 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
                 String source = Util.getFirstTextNode(doc, "/result/staging_source"); //$NON-NLS-1$
                 String status = Util.getFirstTextNode(doc, "/result/staging_status"); //$NON-NLS-1$
                 String error = Util.getFirstTextNode(doc, "/result/staging_error"); //$NON-NLS-1$
+                String taskId = Util.getFirstTextNode(doc, "/result/taskId"); //$NON-NLS-1$
+                if (taskId == null || taskId.equals("null"))taskId = "";//$NON-NLS-1$//$NON-NLS-2$
                 ResultItem item = new ResultItem();
                 item.setKey(Util.joinStrings(key, ".")); //$NON-NLS-1$
                 item.setEntity(searchModel.getEntity());
@@ -188,6 +191,7 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
                     item.setStatus(Integer.valueOf(status));
                 }
                 item.setError(error);
+                item.setGroup(taskId);// Is it ok to use taskId to classify group?
                 items.add(item);
             }
         } catch (Exception e) {
