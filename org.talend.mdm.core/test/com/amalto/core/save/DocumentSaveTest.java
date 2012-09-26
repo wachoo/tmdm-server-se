@@ -44,6 +44,7 @@ import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import com.sun.org.apache.xpath.internal.XPathAPI;
 
 @SuppressWarnings("nls")
 public class DocumentSaveTest extends TestCase {
@@ -962,6 +963,32 @@ public class DocumentSaveTest extends TestCase {
         saver = context.createSaver();
         saver.save(session, context);
         assertEquals("change the value successfully!", saver.getBeforeSavingMessage());
+        committer = new MockCommitter();
+        session.end(committer);
+        assertTrue(committer.hasSaved());
+
+        // Test updateReport
+        isOK = true;
+        newOutput = true;
+        source = new AlterRecordTestSaverSource(repository, true, "test1_original.xml", isOK, newOutput);
+
+        session = SaverSession.newSession(source);
+        recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
+        context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true, true, true);
+        saver = context.createSaver();
+        saver.save(session, context);
+        assertEquals("change the value successfully!", saver.getBeforeSavingMessage());
+
+        String expectedUserXml = "<Agency><Id>5258f292-5670-473b-bc01-8b63434682f3</Id><Name>beforeSaving_Agency</Name></Agency>";
+        assertEquals(expectedUserXml, context.getUserDocument().exportToString());
+        MutableDocument updateReportDocument = context.getUpdateReportDocument();
+        assertNotNull(updateReportDocument);
+        Document doc = updateReportDocument.asDOM();
+        String oldValue = XPathAPI.selectSingleNode(doc.getDocumentElement(), "Item/oldValue").getTextContent();
+        String newValue = XPathAPI.selectSingleNode(doc.getDocumentElement(), "Item/newValue").getTextContent();
+        assertEquals("Portland", oldValue);
+        assertEquals("beforeSaving_Agency", newValue);
+
         committer = new MockCommitter();
         session.end(committer);
         assertTrue(committer.hasSaved());
@@ -1904,7 +1931,7 @@ public class DocumentSaveTest extends TestCase {
             OutputReport report = new OutputReport(message, item);
 
             if (newOutput) {
-                item = "<exchange><item>" + "<Agency><Id>1</Id><Name>beforeSaving_Agency</Name></Agency></item></exchange>";
+                item = "<exchange><item>" + "<Agency><Id>5258f292-5670-473b-bc01-8b63434682f3</Id><Name>beforeSaving_Agency</Name></Agency></item></exchange>";
                 report.setItem(item);
             }
             return report;
