@@ -10,6 +10,9 @@
 
 package com.amalto.core.save.context;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -29,6 +32,8 @@ public class BeforeSaving implements DocumentSaver {
 
     public static final String BEFORE_SAVING_VALIDATION_MESSAGE_PREFIX = "BeforeSaving Validation Error --> "; //$NON-NLS-1$
 
+    public static final String BEFORE_SAVING_FORMAT_MESSAGE_PREFIX = "BeforeSaving Format Error --> "; //$NON-NLS-1$
+    
     private DocumentSaver next;
 
     private String message = StringUtils.EMPTY;
@@ -49,6 +54,8 @@ public class BeforeSaving implements DocumentSaver {
         if (outputreport != null) { // when a process was found
             String errorCode;
             message = outputreport.getMessage();
+            if(!validateFormat(message))
+                throw new RuntimeException(BEFORE_SAVING_FORMAT_MESSAGE_PREFIX + message);
             try {
                 Document doc = Util.parse(message);
                 // handle output_report
@@ -114,5 +121,23 @@ public class BeforeSaving implements DocumentSaver {
     @Override
     public String getBeforeSavingMessage() {
         return message;
+    }
+    
+    public boolean validateFormat(String message) {
+        String tmpStr = message.toLowerCase();
+        String patternStr = "^<report><message .+>.*</message></report>$"; //$NON-NLS-1$
+        Pattern pattern = Pattern.compile(patternStr);
+        Matcher matcher = pattern.matcher(tmpStr);
+        
+        if(matcher.matches())
+            return true;
+        
+        patternStr = "^<report><message .+/></report>$"; //$NON-NLS-1$
+        pattern = Pattern.compile(patternStr);
+        matcher = pattern.matcher(tmpStr);
+        if(matcher.matches())
+            return true;
+        
+        return false;
     }
 }
