@@ -82,6 +82,7 @@ public class ResultsView extends AbstractView {
         mainPanel.setLayout(new FitLayout());
         mainPanel.add(resultGrid);
         mainPanel.setBottomComponent(pagingBar);
+        mainPanel.setBodyBorder(false);
     }
 
     private void initColumnModel() {
