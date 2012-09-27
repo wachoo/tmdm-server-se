@@ -1,19 +1,18 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.metadata;
 
-import org.jboss.logging.Logger;
-
 import java.util.List;
+
+import org.apache.log4j.Logger;
 
 public class ReferenceFieldMetadata extends MetadataExtensible implements FieldMetadata {
 
@@ -47,16 +46,9 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
 
     private boolean isFrozen;
 
-    public ReferenceFieldMetadata(ComplexTypeMetadata containingType,
-                                  boolean isKey,
-                                  boolean isMany,
-                                  boolean isMandatory,
-                                  String name,
-                                  ComplexTypeMetadata referencedType,
-                                  FieldMetadata referencedField,
-                                  FieldMetadata foreignKeyInfo,
-                                  boolean fkIntegrity,
-                                  boolean allowFKIntegrityOverride, List<String> allowWriteUsers, List<String> hideUsers) {
+    public ReferenceFieldMetadata(ComplexTypeMetadata containingType, boolean isKey, boolean isMany, boolean isMandatory,
+            String name, ComplexTypeMetadata referencedType, FieldMetadata referencedField, FieldMetadata foreignKeyInfo,
+            boolean fkIntegrity, boolean allowFKIntegrityOverride, List<String> allowWriteUsers, List<String> hideUsers) {
         this.isMandatory = isMandatory;
         this.name = name;
         this.referencedField = referencedField;
@@ -112,7 +104,8 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
             } catch (Exception e) {
                 // In 5.1, any exception during validation is ignored.
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Field '" + name + "' in type '" + containingType.getName() + "': foreign key info is invalid.", e);
+                    LOGGER.debug("Field '" + name + "' in type '" + containingType.getName() + "': foreign key info is invalid.",
+                            e);
                 }
             }
         }
@@ -174,7 +167,8 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
         FieldMetadata referencedFieldCopy = referencedField.copy(repository);
         FieldMetadata foreignKeyInfoCopy = hasForeignKeyInfo() ? foreignKeyInfo.copy(repository) : null;
         ComplexTypeMetadata containingTypeCopy = (ComplexTypeMetadata) containingType.copy(repository);
-        return new ReferenceFieldMetadata(containingTypeCopy, isKey, isMany, isMandatory, name, referencedTypeCopy, referencedFieldCopy, foreignKeyInfoCopy, isFKIntegrity, allowFKIntegrityOverride, writeUsers, hideUsers);
+        return new ReferenceFieldMetadata(containingTypeCopy, isKey, isMany, isMandatory, name, referencedTypeCopy,
+                referencedFieldCopy, foreignKeyInfoCopy, isFKIntegrity, allowFKIntegrityOverride, writeUsers, hideUsers);
     }
 
     @Override
@@ -211,25 +205,35 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ReferenceFieldMetadata)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof ReferenceFieldMetadata))
+            return false;
 
         ReferenceFieldMetadata that = (ReferenceFieldMetadata) o;
 
-        if (allowFKIntegrityOverride != that.allowFKIntegrityOverride) return false;
-        if (isFKIntegrity != that.isFKIntegrity) return false;
-        if (isKey != that.isKey) return false;
-        if (isMandatory != that.isMandatory) return false;
-        if (isMany != that.isMany) return false;
+        if (allowFKIntegrityOverride != that.allowFKIntegrityOverride)
+            return false;
+        if (isFKIntegrity != that.isFKIntegrity)
+            return false;
+        if (isKey != that.isKey)
+            return false;
+        if (isMandatory != that.isMandatory)
+            return false;
+        if (isMany != that.isMany)
+            return false;
         if (containingType != null ? !containingType.equals(that.containingType) : that.containingType != null)
             return false;
         if (declaringType != null ? !declaringType.equals(that.declaringType) : that.declaringType != null)
             return false;
         if (foreignKeyInfo != null ? !foreignKeyInfo.equals(that.foreignKeyInfo) : that.foreignKeyInfo != null)
             return false;
-        if (hideUsers != null ? !hideUsers.equals(that.hideUsers) : that.hideUsers != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (writeUsers != null ? !writeUsers.equals(that.writeUsers) : that.writeUsers != null) return false;
+        if (hideUsers != null ? !hideUsers.equals(that.hideUsers) : that.hideUsers != null)
+            return false;
+        if (name != null ? !name.equals(that.name) : that.name != null)
+            return false;
+        if (writeUsers != null ? !writeUsers.equals(that.writeUsers) : that.writeUsers != null)
+            return false;
 
         return true;
     }

@@ -1,29 +1,57 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.metadata;
 
-import com.amalto.core.metadata.xsd.XmlSchemaVisitor;
-import com.amalto.core.metadata.xsd.XmlSchemaWalker;
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.apache.ws.commons.schema.*;
-import org.talend.mdm.commmon.util.core.ICoreConstants;
-
-import javax.xml.namespace.QName;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+import java.util.TreeMap;
+
+import javax.xml.namespace.QName;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.apache.ws.commons.schema.ValidationEventHandler;
+import org.apache.ws.commons.schema.XmlSchema;
+import org.apache.ws.commons.schema.XmlSchemaAnnotation;
+import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.apache.ws.commons.schema.XmlSchemaComplexContentExtension;
+import org.apache.ws.commons.schema.XmlSchemaComplexType;
+import org.apache.ws.commons.schema.XmlSchemaContent;
+import org.apache.ws.commons.schema.XmlSchemaContentModel;
+import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaEnumerationFacet;
+import org.apache.ws.commons.schema.XmlSchemaGroupBase;
+import org.apache.ws.commons.schema.XmlSchemaObject;
+import org.apache.ws.commons.schema.XmlSchemaObjectCollection;
+import org.apache.ws.commons.schema.XmlSchemaParticle;
+import org.apache.ws.commons.schema.XmlSchemaSimpleType;
+import org.apache.ws.commons.schema.XmlSchemaSimpleTypeContent;
+import org.apache.ws.commons.schema.XmlSchemaSimpleTypeRestriction;
+import org.apache.ws.commons.schema.XmlSchemaType;
+import org.apache.ws.commons.schema.XmlSchemaUnique;
+import org.apache.ws.commons.schema.XmlSchemaXPath;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
+
+import com.amalto.core.metadata.xsd.XmlSchemaVisitor;
+import com.amalto.core.metadata.xsd.XmlSchemaWalker;
 
 /**
  *
@@ -32,7 +60,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
     private static final Logger LOGGER = Logger.getLogger(MetadataRepository.class);
 
-    private final static List<XmlSchemaAnnotationProcessor> XML_ANNOTATIONS_PROCESSORS = Arrays.asList(new ForeignKeyProcessor(), new UserAccessProcessor(), new SchematronProcessor());
+    private final static List<XmlSchemaAnnotationProcessor> XML_ANNOTATIONS_PROCESSORS = Arrays.asList(new ForeignKeyProcessor(),
+            new UserAccessProcessor(), new SchematronProcessor());
 
     private final static String USER_NAMESPACE = StringUtils.EMPTY;
 
@@ -65,7 +94,11 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
     }
 
     public TypeMetadata getNonInstantiableType(String nameSpace, String name) {
-        return nonInstantiableTypes.get(nameSpace).get(name);
+        Map<String, TypeMetadata> map = nonInstantiableTypes.get(nameSpace);
+        if (map != null) {
+            return map.get(name);
+        }
+        return null;
     }
 
     public TypeMetadata getType(String nameSpace, String name) {
@@ -78,7 +111,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
     /**
      * @return Returns only {@link ComplexTypeMetadata} types defined in the data model by the MDM user (no types
-     *         potentially defined in other name spaces such as the XML schema's one).
+     * potentially defined in other name spaces such as the XML schema's one).
      */
     public Collection<ComplexTypeMetadata> getUserComplexTypes() {
         List<ComplexTypeMetadata> complexTypes = new LinkedList<ComplexTypeMetadata>();
@@ -217,7 +250,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                         idFields.add(idPath.getXPath());
                     }
                 } else {
-                    throw new IllegalArgumentException("Constraint of type '" + nextConstraint.getClass().getName() + "' not supported.");
+                    throw new IllegalArgumentException("Constraint of type '" + nextConstraint.getClass().getName()
+                            + "' not supported.");
                 }
             }
             ComplexTypeMetadata type = getComplexType(typeName);
@@ -230,7 +264,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                         processor.process(this, type, annotation, state);
                     }
                 } catch (Exception e) {
-                    throw new RuntimeException("Annotation processing exception while parsing info for type '" + typeName + "'.", e);
+                    throw new RuntimeException("Annotation processing exception while parsing info for type '" + typeName + "'.",
+                            e);
                 }
 
                 // If write is not allowed for everyone, at least add "administration".
@@ -238,15 +273,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                     state.getAllowWrite().add(ICoreConstants.ADMIN_PERMISSION);
                 }
 
-                type = new ComplexTypeMetadataImpl(targetNamespace,
-                        typeName,
-                        state.getAllowWrite(),
-                        state.getDenyCreate(),
-                        state.getHide(),
-                        state.getDenyPhysicalDelete(),
-                        state.getDenyLogicalDelete(),
-                        state.getSchematron(),
-                        true);
+                type = new ComplexTypeMetadataImpl(targetNamespace, typeName, state.getAllowWrite(), state.getDenyCreate(),
+                        state.getHide(), state.getDenyPhysicalDelete(), state.getDenyLogicalDelete(), state.getSchematron(), true);
                 addTypeMetadata(type);
             }
             // Walk the fields
@@ -258,7 +286,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
             // Super types
             QName substitutionGroup = element.getSubstitutionGroup();
             if (substitutionGroup != null) {
-                type.addSuperType(new SoftTypeRef(this, substitutionGroup.getNamespaceURI(), substitutionGroup.getLocalPart(), true), this);
+                type.addSuperType(new SoftTypeRef(this, substitutionGroup.getNamespaceURI(), substitutionGroup.getLocalPart(),
+                        true), this);
             }
             // Register keys (TMDM-4470).
             for (String unresolvedId : idFields) {
@@ -341,7 +370,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                 processor.process(this, containingType, annotation, state);
             }
         } catch (Exception e) {
-            throw new RuntimeException("Annotation processing exception while parsing info for field '" + fieldName + "' in type '" + containingType.getName() + "'", e);
+            throw new RuntimeException("Annotation processing exception while parsing info for field '" + fieldName
+                    + "' in type '" + containingType.getName() + "'", e);
         }
         boolean isMandatory = element.getMinOccurs() > 0;
         boolean isContained = false;
@@ -356,14 +386,16 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
         List<String> allowWriteUsers = state.getAllowWrite();
         // TODO If allowWriteUsers is empty, put ICoreConstants.admin???
         if (foreignKeyInfo != null && fieldType == null) {
-            throw new IllegalArgumentException("Invalid foreign key definition for field '" + fieldName + "' in type '" + containingType.getName() + "'.");
+            throw new IllegalArgumentException("Invalid foreign key definition for field '" + fieldName + "' in type '"
+                    + containingType.getName() + "'.");
         }
         XmlSchemaType schemaType = element.getSchemaType();
         if (schemaType instanceof XmlSchemaSimpleType) {
             XmlSchemaSimpleType simpleSchemaType = (XmlSchemaSimpleType) schemaType;
             XmlSchemaSimpleTypeContent content = simpleSchemaType.getContent();
             if (schemaType.getQName() != null) { // Null QNames may happen for anonymous types extending other types.
-                fieldType = new SoftTypeRef(this, schemaType.getQName().getNamespaceURI(), schemaType.getQName().getLocalPart(), false);
+                fieldType = new SoftTypeRef(this, schemaType.getQName().getNamespaceURI(), schemaType.getQName().getLocalPart(),
+                        false);
             }
             if (content != null) {
                 XmlSchemaSimpleTypeRestriction typeRestriction = (XmlSchemaSimpleTypeRestriction) content;
@@ -380,12 +412,15 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                         }
                     }
                     if (isEnumeration) {
-                        return new EnumerationFieldMetadata(containingType, false, isMany, isMandatory, fieldName, fieldType, allowWriteUsers, hideUsers);
+                        return new EnumerationFieldMetadata(containingType, false, isMany, isMandatory, fieldName, fieldType,
+                                allowWriteUsers, hideUsers);
                     } else {
-                        return new SimpleTypeFieldMetadata(containingType, false, isMany, isMandatory, fieldName, fieldType, allowWriteUsers, hideUsers);
+                        return new SimpleTypeFieldMetadata(containingType, false, isMany, isMandatory, fieldName, fieldType,
+                                allowWriteUsers, hideUsers);
                     }
                 } else {
-                    return new SimpleTypeFieldMetadata(containingType, false, isMany, isMandatory, fieldName, fieldType, allowWriteUsers, hideUsers);
+                    return new SimpleTypeFieldMetadata(containingType, false, isMany, isMandatory, fieldName, fieldType,
+                            allowWriteUsers, hideUsers);
                 }
             }
         }
@@ -394,11 +429,13 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
             if (qName != null) {
                 TypeMetadata metadata = getType(qName.getNamespaceURI(), qName.getLocalPart());
                 if (metadata != null) {
-                    referencedType = new ContainedComplexTypeRef(currentTypeStack.peek(), targetNamespace, element.getName(), new SoftTypeRef(this, targetNamespace, schemaType.getName(), false));
+                    referencedType = new ContainedComplexTypeRef(currentTypeStack.peek(), targetNamespace, element.getName(),
+                            new SoftTypeRef(this, targetNamespace, schemaType.getName(), false));
                     isContained = true;
                 } else {
                     if (schemaType instanceof XmlSchemaComplexType) {
-                        referencedType = new ContainedComplexTypeRef(currentTypeStack.peek(), targetNamespace, element.getName(), new SoftTypeRef(this, targetNamespace, schemaType.getName(), false));
+                        referencedType = new ContainedComplexTypeRef(currentTypeStack.peek(), targetNamespace, element.getName(),
+                                new SoftTypeRef(this, targetNamespace, schemaType.getName(), false));
                         isContained = true;
                     } else if (schemaType instanceof XmlSchemaSimpleType) {
                         fieldType = new SoftTypeRef(this, schemaType.getSourceURI(), schemaType.getName(), false);
@@ -421,7 +458,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                 } else if (refName != null) {
                     // Reference being an element, consider references as references to entity type.
                     SoftTypeRef reference = new SoftTypeRef(this, refName.getNamespaceURI(), refName.getLocalPart(), true);
-                    referencedType = new ContainedComplexTypeRef(currentTypeStack.peek(), targetNamespace, element.getName(), reference);
+                    referencedType = new ContainedComplexTypeRef(currentTypeStack.peek(), targetNamespace, element.getName(),
+                            reference);
                     fieldType = referencedType;
                 } else {
                     throw new NotImplementedException();
@@ -429,11 +467,15 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
             }
         }
         if (isReference) {
-            return new ReferenceFieldMetadata(containingType, false, isMany, isMandatory, fieldName, (ComplexTypeMetadata) referencedType, referencedField, foreignKeyInfo, fkIntegrity, fkIntegrityOverride, allowWriteUsers, hideUsers);
+            return new ReferenceFieldMetadata(containingType, false, isMany, isMandatory, fieldName,
+                    (ComplexTypeMetadata) referencedType, referencedField, foreignKeyInfo, fkIntegrity, fkIntegrityOverride,
+                    allowWriteUsers, hideUsers);
         } else if (isContained) {
-            return new ContainedTypeFieldMetadata(containingType, isMany, isMandatory, fieldName, (ContainedComplexTypeMetadata) referencedType, allowWriteUsers, hideUsers);
+            return new ContainedTypeFieldMetadata(containingType, isMany, isMandatory, fieldName,
+                    (ContainedComplexTypeMetadata) referencedType, allowWriteUsers, hideUsers);
         } else {
-            return new SimpleTypeFieldMetadata(containingType, false, isMany, isMandatory, fieldName, fieldType, allowWriteUsers, hideUsers);
+            return new SimpleTypeFieldMetadata(containingType, false, isMany, isMandatory, fieldName, fieldType, allowWriteUsers,
+                    hideUsers);
         }
     }
 
@@ -454,7 +496,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
         }
         typeMap.get(namespace).put(typeMetadata.getName(), typeMetadata);
     }
-
 
     public void close() {
         entityTypes.clear();
