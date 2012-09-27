@@ -31,8 +31,6 @@ import com.sun.org.apache.xpath.internal.XPathAPI;
 public class BeforeSaving implements DocumentSaver {
 
     public static final String BEFORE_SAVING_VALIDATION_MESSAGE_PREFIX = "BeforeSaving Validation Error --> "; //$NON-NLS-1$
-
-    public static final String BEFORE_SAVING_FORMAT_MESSAGE_PREFIX = "BeforeSaving Format Error --> "; //$NON-NLS-1$
     
     private DocumentSaver next;
 
@@ -54,8 +52,6 @@ public class BeforeSaving implements DocumentSaver {
         if (outputreport != null) { // when a process was found
             String errorCode;
             message = outputreport.getMessage();
-            if(!validateFormat(message))
-                throw new RuntimeException(BEFORE_SAVING_FORMAT_MESSAGE_PREFIX + message);
             try {
                 Document doc = Util.parse(message);
                 // handle output_report
@@ -122,23 +118,5 @@ public class BeforeSaving implements DocumentSaver {
     @Override
     public String getBeforeSavingMessage() {
         return message;
-    }
-    
-    public boolean validateFormat(String message) {
-        String tmpStr = message.toLowerCase();
-        String patternStr = "^<report><message .+>.*</message></report>$"; //$NON-NLS-1$
-        Pattern pattern = Pattern.compile(patternStr);
-        Matcher matcher = pattern.matcher(tmpStr);
-        
-        if(matcher.matches())
-            return true;
-        
-        patternStr = "^<report><message .+/></report>$"; //$NON-NLS-1$
-        pattern = Pattern.compile(patternStr);
-        matcher = pattern.matcher(tmpStr);
-        if(matcher.matches())
-            return true;
-        
-        return false;
     }
 }
