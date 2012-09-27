@@ -61,23 +61,14 @@ public class StorageAdminImpl implements StorageAdmin {
             LOGGER.warn("Configuration does not allow creation of SQL storage for '" + dataModelName + "'.");
             return null;
         }
-        StorageType storageType = storageName.endsWith(STAGING_SUFFIX) ? StorageType.STAGING : StorageType.MASTER;
         String actualStorageName = StringUtils.substringBefore(storageName, STAGING_SUFFIX);
         String actualDataModelName = StringUtils.substringBefore(dataModelName, STAGING_SUFFIX);
-        if (exist(null, actualStorageName, storageType)) {
-            LOGGER.warn("Storage for '" + actualStorageName + "' already exists. It needs to be deleted before it can be recreated.");
-            return get(actualStorageName);
-        }
         try {
             Storage masterDataModelStorage = internalCreateStorage(actualDataModelName, actualStorageName, dataSourceName, StorageType.MASTER);
-            storages.put(actualStorageName, masterDataModelStorage);
             if (!XSystemObjects.DC_UPDATE_PREPORT.getName().equalsIgnoreCase(actualStorageName)) { //TODO would be better to decide whether a staging area should be created or not in a method.
                 boolean hasDataSource = ServerContext.INSTANCE.get().hasDataSource(dataSourceName, actualStorageName, StorageType.STAGING);
                 if (hasDataSource) {
-                    Storage stagingDataModelStorage = internalCreateStorage(actualDataModelName + STAGING_SUFFIX, actualStorageName, dataSourceName, StorageType.STAGING);
-                    if (stagingDataModelStorage != null) {
-                        storages.put(actualStorageName + STAGING_SUFFIX, stagingDataModelStorage);
-                    }
+                    internalCreateStorage(actualDataModelName + STAGING_SUFFIX, actualStorageName, dataSourceName, StorageType.STAGING);
                 }
             }
             return masterDataModelStorage;
@@ -95,12 +86,15 @@ public class StorageAdminImpl implements StorageAdmin {
             // See com.amalto.core.storage.StorageWrapper.createCluster()
             storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
             if (exist(null, storageName, storageType)) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Storage for '" + storageName + "' already exists. It needs to be deleted before it can be recreated.");
-                }
+                LOGGER.warn("Storage for '" + storageName + "' already exists. It needs to be deleted before it can be recreated.");
                 return get(storageName);
             }
             dataModelName = StringUtils.substringBefore(dataModelName, "/"); //$NON-NLS-1$
+            if (storageType == StorageType.STAGING && !dataModelName.endsWith(STAGING_SUFFIX)) {
+                dataModelName += STAGING_SUFFIX;
+            }
+            // Replace all container name, so re-read the configuration.
+            dataSource = instance.get().getDataSource(dataSourceName, storageName, storageType);
         }
         if (!instance.get().hasDataSource(dataSourceName, storageName, storageType)) {
             LOGGER.warn("Can not initialize " + storageType + " storage for '" + storageName + "': data source '" + dataSourceName + "' configuration is incomplete.");
@@ -120,11 +114,19 @@ public class StorageAdminImpl implements StorageAdmin {
         } catch (Exception e) {
             throw new RuntimeException("Could not create storage for container '" + storageName + "' (" + storageType + ") using data model '" + dataModelName + "'.", e);
         }
+        if (storageType == StorageType.MASTER) {
+            storages.put(storageName, dataModelStorage);
+        } else {
+            storages.put(storageName + STAGING_SUFFIX, dataModelStorage);
+        }
         return dataModelStorage;
     }
 
     public boolean exist(String revision, String storageName, StorageType storageType) {
         Storage storage = storages.get(storageName);
+        if (storageType == StorageType.STAGING && !storageName.endsWith(STAGING_SUFFIX)) {
+            storage = storages.get(storageName + STAGING_SUFFIX);
+        }
         return storage != null && storage.getType() == storageType;
     }
 
