@@ -159,7 +159,19 @@ public class UserQueryBuilder {
     }
 
     public static Condition isa(FieldMetadata field, ComplexTypeMetadata type) {
-        return new Isa(new Field(field), type);
+        if (type == null) {
+            throw new IllegalArgumentException("Type argument cannot be null.");
+        }
+        if (field instanceof ReferenceFieldMetadata) {
+            throw new IllegalArgumentException("Cannot perform type check on a foreign key.");
+        }
+        Condition current = new Isa(new Field(field), type);
+        if (!type.getSubTypes().isEmpty()) {
+            for (ComplexTypeMetadata subType : type.getSubTypes()) {
+                current = or(current, isa(field, subType));
+            }
+        }
+        return current;
     }
 
     public UserQueryBuilder isa(ComplexTypeMetadata type) {
@@ -386,9 +398,9 @@ public class UserQueryBuilder {
      * <p>
      * This method is equivalent to:<br/>
      * <code>
-     *     Condition condition = ...<br/>
-     *     UserQueryBuilder qb = ...<br/>
-     *     qb.where(condition, Predicate.AND);<br/>
+     * Condition condition = ...<br/>
+     * UserQueryBuilder qb = ...<br/>
+     * qb.where(condition, Predicate.AND);<br/>
      * </code>
      * </p>
      *

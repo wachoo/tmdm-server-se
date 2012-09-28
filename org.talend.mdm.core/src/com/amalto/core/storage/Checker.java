@@ -191,4 +191,9 @@ class Checker extends VisitorAdapter<Boolean> {
     public Boolean visit(Range range) {
         return range.getExpression().accept(this);
     }
+
+    @Override
+    public Boolean visit(Isa isa) {
+        return isa.getExpression().accept(this);
+    }
 }

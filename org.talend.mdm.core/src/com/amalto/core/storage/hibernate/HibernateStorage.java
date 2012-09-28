@@ -238,8 +238,8 @@ public class HibernateStorage implements Storage {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Error occurred during clean up following failed prepare", e);
                 }
-                throw new RuntimeException("Could not prepare '" + storageName + "'.", t);
             }
+            throw new RuntimeException("Could not prepare '" + storageName + "'.", t);
         } finally {
             Thread.currentThread().setContextClassLoader(contextClassLoader);
         }

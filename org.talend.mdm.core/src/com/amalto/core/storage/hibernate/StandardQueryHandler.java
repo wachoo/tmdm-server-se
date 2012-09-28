@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.*;
 import org.hibernate.criterion.*;
+import org.hibernate.impl.CriteriaImpl;
 import org.hibernate.sql.JoinFragment;
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
@@ -120,8 +121,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
         }
         TypeMapping leftTypeMapping = mappingMetadataRepository.getMappingFromUser(containingType);
         List<FieldMetadata> path = MetadataUtils.path(mainTypeMapping.getDatabase(), leftTypeMapping.getDatabase(join.getLeftField().getFieldMetadata()));
+        // Empty path means no path then this is an error (all joined entities should be reachable from main type).
         if (path.isEmpty()) {
-            // Empty path means no path then this is an error (all joined entities should be reachable from main type).
             String destinationFieldName;
             try {
                 destinationFieldName = fieldMetadata.getName();
@@ -136,6 +137,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     + fieldMetadata.getContainingType().getName() + "') is invalid since there is no path from '"
                     + mainType.getName() + "' to this field.");
         }
+        // Generate all necessary joins to go from main type to join right table.
+        generateJoinPath(rightTableName, joinType, path);
+        return null;
+    }
+
+    private void generateJoinPath(String rightTableName, int joinType, List<FieldMetadata> path) {
         Iterator<FieldMetadata> pathIterator = path.iterator();
         String previousAlias = mainType.getName();
         while (pathIterator.hasNext()) {
@@ -160,7 +167,6 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 }
             }
         }
-        return null;
     }
 
     @Override
@@ -220,13 +226,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Field field) {
-        if (field.getFieldMetadata().isMany()) {
+        FieldMetadata userFieldMetadata = field.getFieldMetadata();
+        if (userFieldMetadata.isMany()) {
             throw new NotImplementedException("Support for collections in projections is not supported.");
         }
-        ComplexTypeMetadata containingType = field.getFieldMetadata().getContainingType();
+        TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(mainType);
+        FieldMetadata database = mapping.getDatabase(userFieldMetadata);
+        ComplexTypeMetadata containingType = userFieldMetadata.getContainingType();
         if (!selectedTypes.contains(containingType)) {
-            TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(mainType);
-            FieldMetadata database = mapping.getDatabase(field.getFieldMetadata());
             String alias = getAlias(mapping, database);
             if (database instanceof ReferenceFieldMetadata) { // Automatically selects referenced ID in case of FK.
                 projectionList.add(Projections.property(alias + '.' + ((ReferenceFieldMetadata) database).getReferencedField().getName()));
@@ -234,8 +241,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 projectionList.add(Projections.property(alias + '.' + database.getName()));
             }
         } else {
-            if (field.getFieldMetadata() instanceof ReferenceFieldMetadata) {
-                ReferenceFieldMetadata fieldMetadata = (ReferenceFieldMetadata) field.getFieldMetadata();
+            if (userFieldMetadata instanceof ReferenceFieldMetadata) {
+                ReferenceFieldMetadata fieldMetadata = (ReferenceFieldMetadata) userFieldMetadata;
                 if (!selectedTypes.contains(fieldMetadata.getReferencedType())) {
                     selectedTypes.add(fieldMetadata.getReferencedType());
                     Field rightField = new Field(fieldMetadata.getReferencedField());
@@ -245,7 +252,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 } else {
                     projectionList.add(Projections.property(getFieldName(field, mappingMetadataRepository)));
                 }
-            } else {
+            }  else {
                 projectionList.add(Projections.property(getFieldName(field, mappingMetadataRepository)));
             }
         }
@@ -260,8 +267,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
             if (next instanceof ReferenceFieldMetadata) {
                 alias = joinFieldsToAlias.get(next);
                 if (alias == null) {
-                    alias = "a" + aliasCount++;
-                    joinFieldsToAlias.put(next, alias); //$NON-NLS-1$
+                    alias = "a" + aliasCount++; //$NON-NLS-1$
+                    joinFieldsToAlias.put(next, alias);
                     criteria.createAlias(previousAlias + '.' + next.getName(), alias, CriteriaSpecification.INNER_JOIN);
                 }
                 previousAlias = alias;
@@ -516,8 +523,44 @@ class StandardQueryHandler extends AbstractQueryHandler {
         @Override
         public Criterion visit(Isa isa) {
             FieldCondition fieldCondition = isa.getExpression().accept(new CriterionFieldCondition());
-            String classProperty = fieldCondition.criterionFieldName.isEmpty() ? "class" : StringUtils.substringBeforeLast(fieldCondition.criterionFieldName, ".") + ".class";
-            return Restrictions.eq(classProperty, storageClassLoader.getClassFromType(isa.getType()));
+            if (fieldCondition.criterionFieldName.isEmpty()) {
+                // Case #1: doing a simple instance type check on main selected type.
+                return Restrictions.eq("class", storageClassLoader.getClassFromType(isa.getType())); //$NON-NLS-1$
+            } else {
+                // Case #2: doing a instance type check on a field reachable from main selected type.
+                // First, need to join with all tables to get to the table that stores the type
+                TypeMapping typeMapping = mappingMetadataRepository.getMappingFromUser(mainType);
+                ComplexTypeMetadata database = typeMapping.getDatabase();
+                FieldMetadata field = database.getField(StringUtils.substringAfter(fieldCondition.criterionFieldName.replace('.', '/'), "/")); //$NON-NLS-1$
+                List<FieldMetadata> path = MetadataUtils.path(database, field);
+                if (path.isEmpty()) {
+                    throw new IllegalStateException("Expected field '" + field.getName() + "' to be reachable from '" + database.getName() + "'.");
+                }
+                // Generate the joins
+                String alias = field.getType().getName();
+                generateJoinPath(alias, JoinFragment.INNER_JOIN, path);
+                // Find the criteria that does the join to the table to check (only way to get the SQL alias for table).
+                if (criteria instanceof CriteriaImpl) {
+                    Iterator iterator = ((CriteriaImpl) criteria).iterateSubcriteria();
+                    Criteria typeCheckCriteria = null;
+                    while (iterator.hasNext()) {
+                        Criteria subCriteria = (Criteria) iterator.next();
+                        if (alias.equals(subCriteria.getAlias())) {
+                            typeCheckCriteria = subCriteria;
+                            break;
+                        }
+                    }
+                    if (typeCheckCriteria == null) {
+                        throw new IllegalStateException("Could not criteria for type check.");
+                    }
+                    TypeMapping isaType = mappingMetadataRepository.getMappingFromUser(isa.getType());
+                    String name = storageClassLoader.getClassFromType(isaType.getDatabase()).getName();
+                    return new FieldTypeCriterion(typeCheckCriteria, name);
+                } else {
+                    throw new IllegalStateException("Expected a criteria instance of " + CriteriaImpl.class.getName() + ".");
+                }
+            }
+
         }
 
         @Override

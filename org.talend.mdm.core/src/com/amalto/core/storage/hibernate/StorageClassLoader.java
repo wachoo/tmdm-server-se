@@ -156,6 +156,9 @@ public abstract class StorageClassLoader extends ClassLoader {
     }
 
     public Class<? extends Wrapper> getClassFromType(ComplexTypeMetadata type) {
+        if (type == null) {
+            throw new IllegalArgumentException("Type cannot be null");
+        }
         assertNotClosed();
         Class<? extends Wrapper> registeredClass = registeredClasses.get(type.getName());
         if (registeredClass != null) {
@@ -166,6 +169,9 @@ public abstract class StorageClassLoader extends ClassLoader {
 
     public void register(ComplexTypeMetadata metadata, Class<? extends Wrapper> newClass) {
         assertNotClosed();
+        if (metadata == null) {
+            throw new IllegalArgumentException("Metadata cannot be null");
+        }
         knownTypes.put(metadata.getName(), metadata);
         register(metadata.getName(), newClass);
     }

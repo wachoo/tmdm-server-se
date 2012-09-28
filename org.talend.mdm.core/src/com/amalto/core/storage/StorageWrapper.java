@@ -261,8 +261,8 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         Storage storage = getStorage(clusterName);
         MetadataRepository repository = storage.getMetadataRepository();
         Collection<ComplexTypeMetadata> typeToQuery;
-        if(clusterName.contains("/")) {
-            String typeName = StringUtils.substringAfter(clusterName, "/");
+        if(clusterName.contains("/")) { //$NON-NLS-1$
+            String typeName = StringUtils.substringAfter(clusterName, "/"); //$NON-NLS-1$
             ComplexTypeMetadata complexType = repository.getComplexType(typeName);
             if (complexType == null) {
                 throw new IllegalArgumentException("Type '" + typeName + "' does not exist in container '" + storage.getName() + "'");

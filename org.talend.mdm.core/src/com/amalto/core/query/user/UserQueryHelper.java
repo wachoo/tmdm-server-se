@@ -63,8 +63,12 @@ public class UserQueryHelper {
             String leftPath = whereCondition.getLeftPath();
             String typeName = leftPath.substring(0, leftPath.indexOf('/')); //$NON-NLS-1$
             String leftFieldName = StringUtils.substringAfter(leftPath, "/"); //$NON-NLS-1$
+            boolean isPerformingTypeCheck = false;
             ComplexTypeMetadata type = repository.getComplexType(typeName);
-            if (UserQueryBuilder.TIMESTAMP_FIELD.equals(leftFieldName)) {
+            if (leftFieldName.endsWith("xsi:type") || leftFieldName.endsWith("tmdm:type")) { //$NON-NLS-1$ //$NON-NLS-2$
+                field = getField(repository, typeName, StringUtils.substringBeforeLast(leftFieldName, "/")); //$NON-NLS-1$
+                isPerformingTypeCheck = true;
+            } else if (UserQueryBuilder.TIMESTAMP_FIELD.equals(leftFieldName)) {
                 field = timestamp();
             } else if (UserQueryBuilder.TASK_ID_FIELD.equals(leftFieldName)) {
                 field = taskId();
@@ -86,8 +90,18 @@ public class UserQueryHelper {
             } else {
                 field = getField(repository, typeName, leftFieldName);
             }
-
-            if (!whereCondition.isRightValueXPath()) {
+            // Field comparisons
+            if (!whereCondition.isRightValueXPath()) { // Value based comparison
+                if (isPerformingTypeCheck) {
+                    TypeMetadata typeForCheck = repository.getNonInstantiableType("", value); //$NON-NLS-1$
+                    if (!(typeForCheck instanceof ComplexTypeMetadata)) {
+                        throw new IllegalArgumentException("Expected type '" + value + "' to be a complex type.");
+                    }
+                    if (!(field instanceof Field)) {
+                        throw new IllegalArgumentException("Expected field '" + leftFieldName + "' to be a element path.");
+                    }
+                    return isa(((Field) field).getFieldMetadata(), ((ComplexTypeMetadata) typeForCheck));
+                }
                 String fieldTypeName = field.getTypeName();
                 boolean isFk = field instanceof Field && ((Field) field).getFieldMetadata() instanceof ReferenceFieldMetadata;
                 if (!isFk && !MetadataUtils.isValueAssignable(value, fieldTypeName)) {

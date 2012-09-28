@@ -13,13 +13,21 @@ package com.amalto.core.query;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+
+import static com.amalto.core.query.user.UserQueryBuilder.isa;
+import static com.amalto.core.query.user.UserQueryBuilder.or;
 
 @SuppressWarnings("nls")
 public class InheritanceTest extends StorageTestCase {
@@ -208,6 +216,81 @@ public class InheritanceTest extends StorageTestCase {
             }
         } finally {
             results.close();
+        }
+    }
+
+    public void testIsa() throws Exception {
+        ComplexTypeMetadata subNested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "SubNested");
+        assertNotNull(subNested);
+        ComplexTypeMetadata nested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "Nested");
+        assertNotNull(nested);
+        // Test 1
+        UserQueryBuilder qb = UserQueryBuilder.from(a)
+                .where(isa(a.getField("nestedB"), subNested));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertEquals(c, result.getType());
+            }
+        } finally {
+            results.close();
+        }
+        // Test 2
+        qb = UserQueryBuilder.from(a)
+                .where(or(isa(a.getField("nestedB"), nested), isa(a.getField("nestedB"), subNested)));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+        // Test 3
+        qb = UserQueryBuilder.from(a)
+                .where(isa(a.getField("nestedB"), nested));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testIsaFromWhereItem() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(a);
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition("A/nestedB/xsi:type", WhereCondition.EQUALS, "SubNested",
+                WhereCondition.NO_OPERATOR)));
+        qb.getSelect().setCondition(UserQueryHelper.buildCondition(qb, item, repository));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertEquals(c, result.getType());
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testIsaOnFK() throws Exception {
+        try {
+            UserQueryBuilder.from(a)
+                    .where(isa(a.getField("refB"), d));
+            fail("Expected exception: can perform 'is a' on a FK");
+        } catch (Exception e) {
+            // Expected.
+        }
+    }
+
+    public void testIsaOnFKFromWhereItem() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(a);
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition("A/refB/tmdm:type", WhereCondition.EQUALS, "D",
+                WhereCondition.NO_OPERATOR)));
+        try {
+            qb.getSelect().setCondition(UserQueryHelper.buildCondition(qb, item, repository));
+            fail("Expected exception: can perform 'is a' on a FK");
+        } catch (Exception e) {
+            // Expected.
         }
     }
 }

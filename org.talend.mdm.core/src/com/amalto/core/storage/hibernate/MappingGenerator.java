@@ -25,6 +25,8 @@ import java.util.List;
 // TODO Refactor (+ NON-NLS)
 class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
+    public static final String DISCRIMINATOR_NAME = "x_talend_class"; //$NON-NLS-1$
+
     private static final Logger LOGGER = Logger.getLogger(MappingGenerator.class);
 
     private final Document document;
@@ -41,7 +43,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     private String compositeKeyPrefix;
 
-    private final boolean generateConstrains;
+    private boolean generateConstrains;
 
     public MappingGenerator(Document document, TableResolver resolver) {
         this(document, resolver, true);
@@ -134,12 +136,27 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
             mappedAttribute.setValue("true"); //$NON-NLS-1$
             idParentElement.getAttributes().setNamedItem(mappedAttribute);
         }
-
         for (FieldMetadata keyField : keyFields) {
             idParentElement.appendChild(keyField.accept(this));
-            allFields.remove(keyField);
+            boolean wasRemoved = allFields.remove(keyField);
+            if (!wasRemoved) {
+                LOGGER.error("Field '" + keyField.getName() + "' was expected to be removed from processed fields.");
+            }
         }
         compositeId = false;
+        // Generate a discriminator (if needed).
+        if (!complexType.getSubTypes().isEmpty() && !complexType.isInstantiable()) {
+            // <discriminator column="PAYMENT_TYPE" type="string"/>
+            Element discriminator = document.createElement("discriminator"); //$NON-NLS-1$
+            Attr name = document.createAttribute("column"); //$NON-NLS-1$
+            name.setValue(DISCRIMINATOR_NAME);
+            discriminator.setAttributeNode(name);
+            Attr type = document.createAttribute("type"); //$NON-NLS-1$
+            type.setValue("string"); //$NON-NLS-1$
+            discriminator.setAttributeNode(type);
+            classElement.appendChild(discriminator);
+        }
+        // Process this type fields
         for (FieldMetadata currentField : allFields) {
             Element child = currentField.accept(this);
             if (child == null) {
@@ -147,32 +164,63 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
             }
             classElement.appendChild(child);
         }
-
         // Sub types
         if (!complexType.getSubTypes().isEmpty()) {
-            /*
-            <union-subclass name="CreditCardPayment" table="CREDIT_PAYMENT">
-                   <property name="creditCardType" column=""/>
-                   ...
-               </union-subclass>
-            */
-            for (ComplexTypeMetadata subType : complexType.getSubTypes()) {
-                Element unionSubclass = document.createElement("union-subclass"); //$NON-NLS-1$
-                Attr name = document.createAttribute("name"); //$NON-NLS-1$
-                name.setValue(ClassCreator.PACKAGE_PREFIX + subType.getName());
-                unionSubclass.setAttributeNode(name);
+            if (complexType.isInstantiable()) {
+                /*
+                    <union-subclass name="CreditCardPayment" table="CREDIT_PAYMENT">
+                           <property name="creditCardType" column=""/>
+                           ...
+                       </union-subclass>
+                    */
+                for (ComplexTypeMetadata subType : complexType.getSubTypes()) {
+                    Element unionSubclass = document.createElement("union-subclass"); //$NON-NLS-1$
+                    Attr name = document.createAttribute("name"); //$NON-NLS-1$
+                    name.setValue(ClassCreator.PACKAGE_PREFIX + subType.getName());
+                    unionSubclass.setAttributeNode(name);
 
-                Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
-                tableName.setValue(shortString(resolver.get(subType)));
-                unionSubclass.setAttributeNode(tableName);
+                    Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
+                    tableName.setValue(shortString(resolver.get(subType)));
+                    unionSubclass.setAttributeNode(tableName);
 
-                List<FieldMetadata> subTypeFields = subType.getFields();
-                for (FieldMetadata subTypeField : subTypeFields) {
-                    if (!complexType.hasField(subTypeField.getName()) && !subTypeField.isKey()) {
-                        unionSubclass.appendChild(subTypeField.accept(this));
+                    List<FieldMetadata> subTypeFields = subType.getFields();
+                    for (FieldMetadata subTypeField : subTypeFields) {
+                        if (!complexType.hasField(subTypeField.getName()) && !subTypeField.isKey()) {
+                            unionSubclass.appendChild(subTypeField.accept(this));
+                        }
                     }
+                    classElement.appendChild(unionSubclass);
                 }
-                classElement.appendChild(unionSubclass);
+            } else {
+                /*
+                <subclass name="CreditCardPayment" discriminator-value="CREDIT">
+                        <property name="creditCardType" column="CCTYPE"/>
+                        ...
+                    </subclass>
+                 */
+                boolean wasGeneratingConstraints = generateConstrains;
+                generateConstrains = false;
+                try {
+                    for (ComplexTypeMetadata subType : complexType.getSubTypes()) {
+                        Element subclass = document.createElement("subclass"); //$NON-NLS-1$
+                        Attr name = document.createAttribute("name"); //$NON-NLS-1$
+                        name.setValue(ClassCreator.PACKAGE_PREFIX + subType.getName());
+                        subclass.setAttributeNode(name);
+                        Attr discriminator = document.createAttribute("discriminator-value"); //$NON-NLS-1$
+                        discriminator.setValue(ClassCreator.PACKAGE_PREFIX + subType.getName());
+                        subclass.setAttributeNode(discriminator);
+
+                        List<FieldMetadata> subTypeFields = subType.getFields();
+                        for (FieldMetadata subTypeField : subTypeFields) {
+                            if (!complexType.hasField(subTypeField.getName()) && !subTypeField.isKey()) {
+                                subclass.appendChild(subTypeField.accept(this));
+                            }
+                        }
+                        classElement.appendChild(subclass);
+                    }
+                } finally {
+                    generateConstrains = wasGeneratingConstraints;
+                }
             }
         }
 
@@ -191,7 +239,6 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     @Override
     public Element visit(EnumerationFieldMetadata enumField) {
-        // TODO Not the best solution to implement a enumeration (a FK that points to constant values?).
         // handle enum fields just like simple fields
         return handleSimpleField(enumField);
     }
@@ -286,7 +333,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         propertyElement.getAttributes().setNamedItem(joinAttribute);
 
         // Not null
-        if (referencedField.isMandatory()) {
+        if (referencedField.isMandatory() && generateConstrains) {
             Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
             notNull.setValue("true"); //$NON-NLS-1$
             propertyElement.getAttributes().setNamedItem(notNull);
@@ -388,13 +435,12 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
             Attr columnName = document.createAttribute("name"); //$NON-NLS-1$
             columnName.setValue(shortString(compositeKeyPrefix + "_" + fieldName)); //$NON-NLS-1$
             column.getAttributes().setNamedItem(columnName);
-
-            Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
-            notNull.setValue(String.valueOf(isColumnMandatory));
-            column.getAttributes().setNamedItem(notNull);
-
+            if (generateConstrains) {
+                Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
+                notNull.setValue(String.valueOf(isColumnMandatory));
+                column.getAttributes().setNamedItem(notNull);
+            }
             parentElement.appendChild(column);
-
             return column;
         }
 
