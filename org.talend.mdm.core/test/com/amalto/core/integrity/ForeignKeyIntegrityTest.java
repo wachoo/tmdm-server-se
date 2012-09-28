@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2006-2011 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.integrity;
@@ -25,7 +24,7 @@ import com.amalto.core.metadata.TypeMetadata;
 /**
  *
  */
-@SuppressWarnings({"HardCodedStringLiteral", "nls"})
+@SuppressWarnings({ "HardCodedStringLiteral", "nls" })
 public class ForeignKeyIntegrityTest extends TestCase {
 
     private Set<ReferenceFieldMetadata> getReferencedFields(MetadataRepository repository, String typeName) {
@@ -51,24 +50,28 @@ public class ForeignKeyIntegrityTest extends TestCase {
     }
 
     public void testNonExistingType() throws Exception {
-        MetadataRepository repository = getMetadataRepository("model1.xsd");
-        IntegrityCheckDataSourceMock dataSource = new IntegrityCheckDataSourceMock(repository);
+        try {
+            MetadataRepository repository = getMetadataRepository("model1.xsd");
+            IntegrityCheckDataSourceMock dataSource = new IntegrityCheckDataSourceMock(repository);
 
-        Set<ReferenceFieldMetadata> list = dataSource.getForeignKeyList("TypeThatDoesNotExist", "DataModel");
-        assertTrue(list.isEmpty());
+            Set<ReferenceFieldMetadata> list = dataSource.getForeignKeyList("TypeThatDoesNotExist", "DataModel");
+            assertTrue(list.isEmpty());
 
-        FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
-        String dataCluster = "DataCluster";
-        String typeName = "TypeThatDoesNotExist";
-        String[] ids = {"1"};
-        assertTrue(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
-        FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
-        assertEquals(FKIntegrityCheckResult.ALLOWED, policy);
+            FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
+            String dataCluster = "DataCluster";
+            String typeName = "TypeThatDoesNotExist";
+            String[] ids = { "1" };
+            assertTrue(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
+            FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
+            assertEquals(FKIntegrityCheckResult.ALLOWED, policy);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
      * A -ref(1)-> B
-     *
+     * 
      * @throws Exception
      */
     public void testModel1() throws Exception {
@@ -82,10 +85,8 @@ public class ForeignKeyIntegrityTest extends TestCase {
     }
 
     /**
-     * A -ref(1)-> B
-     * B -ref(1)-> C
-     * C -ref(1)-> A
-     *
+     * A -ref(1)-> B B -ref(1)-> C C -ref(1)-> A
+     * 
      * @throws Exception
      */
     public void testModel2() throws Exception {
@@ -102,9 +103,8 @@ public class ForeignKeyIntegrityTest extends TestCase {
     }
 
     /**
-     * A -ref(1)-> B
-     * C -inherits-> A
-     *
+     * A -ref(1)-> B C -inherits-> A
+     * 
      * @throws Exception
      */
     public void testModel3() throws Exception {
@@ -121,11 +121,8 @@ public class ForeignKeyIntegrityTest extends TestCase {
     }
 
     /**
-     * A -ref(1)-> B
-     * A -ref(1)-> B
-     * A -ref(1)-> B
-     * A -ref(1)-> B
-     *
+     * A -ref(1)-> B A -ref(1)-> B A -ref(1)-> B A -ref(1)-> B
+     * 
      * @throws Exception
      */
     public void testModel4() throws Exception {
@@ -139,9 +136,8 @@ public class ForeignKeyIntegrityTest extends TestCase {
     }
 
     /**
-     * A -ref(1)-> B
-     * B -ref(1)-> A
-     *
+     * A -ref(1)-> B B -ref(1)-> A
+     * 
      * @throws Exception
      */
     public void testModel5() throws Exception {
@@ -157,7 +153,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
 
     /**
      * A -ref(unbounded)-> B
-     *
+     * 
      * @throws Exception
      */
     public void testModel6() throws Exception {
@@ -172,11 +168,10 @@ public class ForeignKeyIntegrityTest extends TestCase {
     }
 
     /**
-     * A
-     * B
+     * A B
      * <p/>
      * (no relationship between types).
-     *
+     * 
      * @throws Exception
      */
     public void testModel7() throws Exception {
@@ -191,9 +186,8 @@ public class ForeignKeyIntegrityTest extends TestCase {
     }
 
     /**
-     * A -ref(1)-> B
-     * C -inherits-> B
-     *
+     * A -ref(1)-> B C -inherits-> B
+     * 
      * @throws Exception
      */
     public void testModel8() throws Exception {
@@ -210,9 +204,8 @@ public class ForeignKeyIntegrityTest extends TestCase {
     }
 
     /**
-     * A -ref(1)-> C
-     * B -ref(1)-> C
-     *
+     * A -ref(1)-> C B -ref(1)-> C
+     * 
      * @throws Exception
      */
     public void testModel9() throws Exception {
@@ -229,10 +222,8 @@ public class ForeignKeyIntegrityTest extends TestCase {
     }
 
     /**
-     * A -ref(1)-> B
-     * C -inherits-> B
-     * D -inherits-> C
-     *
+     * A -ref(1)-> B C -inherits-> B D -inherits-> C
+     * 
      * @throws Exception
      */
     public void testModel10() throws Exception {
@@ -252,9 +243,8 @@ public class ForeignKeyIntegrityTest extends TestCase {
     }
 
     /**
-     * A -ref(1)-> C
-     * B -ref(1)-> C
-     *
+     * A -ref(1)-> C B -ref(1)-> C
+     * 
      * @throws Exception
      */
     public void testModel11() throws Exception {
@@ -287,7 +277,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
         FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
         String dataCluster = "DataCluster";
         String typeName = "C";
-        String[] ids = {"1"};
+        String[] ids = { "1" };
         assertTrue(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
         FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
         assertEquals(FKIntegrityCheckResult.ALLOWED, policy);
@@ -296,9 +286,8 @@ public class ForeignKeyIntegrityTest extends TestCase {
     }
 
     /**
-     * A -ref(1)-> C
-     * B -ref(1)-> C
-     *
+     * A -ref(1)-> C B -ref(1)-> C
+     * 
      * @throws Exception
      */
     public void testModel12() throws Exception {
@@ -331,7 +320,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
         FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
         String dataCluster = "DataCluster";
         String typeName = "C";
-        String[] ids = {"1"};
+        String[] ids = { "1" };
         assertFalse(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
         FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
         assertEquals(FKIntegrityCheckResult.FORBIDDEN_OVERRIDE_ALLOWED, policy);
@@ -340,9 +329,8 @@ public class ForeignKeyIntegrityTest extends TestCase {
     }
 
     /**
-     * A -ref(1)-> C
-     * B -ref(1)-> C
-     *
+     * A -ref(1)-> C B -ref(1)-> C
+     * 
      * @throws Exception
      */
     public void testModel13() throws Exception {
@@ -375,7 +363,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
         FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
         String dataCluster = "DataCluster";
         String typeName = "C";
-        String[] ids = {"1"};
+        String[] ids = { "1" };
         assertFalse(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
         FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
         assertEquals(FKIntegrityCheckResult.FORBIDDEN_OVERRIDE_ALLOWED, policy);
@@ -384,9 +372,8 @@ public class ForeignKeyIntegrityTest extends TestCase {
     }
 
     /**
-     * A -ref(1)-> C
-     * B -ref(1)-> C
-     *
+     * A -ref(1)-> C B -ref(1)-> C
+     * 
      * @throws Exception
      */
     public void testModel14() throws Exception {
@@ -406,7 +393,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
         FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
         String dataCluster = "DataCluster";
         String typeName = "A";
-        String[] ids = {"1"};
+        String[] ids = { "1" };
         assertFalse(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
         FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
         assertEquals(FKIntegrityCheckResult.FORBIDDEN, policy);
@@ -431,7 +418,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
         FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
         String dataCluster = "DataCluster";
         String typeName = "BusinessFunction";
-        String[] ids = {"1"};
+        String[] ids = { "1" };
         assertFalse(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
         FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
         assertEquals(FKIntegrityCheckResult.FORBIDDEN, policy);
@@ -441,7 +428,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
      * SocieteCliente -ref(1)-> Contrat
      * <p/>
      * The reference field "contrat" is defined under a contained complex type "contrats"
-     *
+     * 
      * @throws Exception
      */
     public void testModel17() throws Exception {
@@ -457,7 +444,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
 
         String dataCluster = "DataCluster";
         String typeName = "Contrat";
-        String[] ids = {"1"};
+        String[] ids = { "1" };
 
         FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
         IntegrityCheckDataSourceMock dataSource = new IntegrityCheckDataSourceMock(repository);
@@ -468,7 +455,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
 
     /**
      * A -ref(1)-> A
-     *
+     * 
      * @throws Exception
      */
     public void test18() throws Exception {
@@ -488,7 +475,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
         FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
         String dataCluster = "DataCluster";
         String typeName = "A";
-        String[] ids = {"1"};
+        String[] ids = { "1" };
         assertFalse(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
         FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
         assertEquals(FKIntegrityCheckResult.FORBIDDEN, policy);
@@ -502,7 +489,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
         ReferenceFieldMetadata referencedField = references.iterator().next();
 
         String dataCluster = "DataCluster";
-        String[] ids = {"1"};
+        String[] ids = { "1" };
         FKIntegrityCheckDataSource dataSource = new DefaultCheckDataSource();
 
         // Check the anonymous type and leave the type name empty
