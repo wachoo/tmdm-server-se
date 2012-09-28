@@ -50,23 +50,20 @@ public class ForeignKeyIntegrityTest extends TestCase {
     }
 
     public void testNonExistingType() throws Exception {
-        try {
-            MetadataRepository repository = getMetadataRepository("model1.xsd");
-            IntegrityCheckDataSourceMock dataSource = new IntegrityCheckDataSourceMock(repository);
 
-            Set<ReferenceFieldMetadata> list = dataSource.getForeignKeyList("TypeThatDoesNotExist", "DataModel");
-            assertTrue(list.isEmpty());
+        MetadataRepository repository = getMetadataRepository("model1.xsd");
+        IntegrityCheckDataSourceMock dataSource = new IntegrityCheckDataSourceMock(repository);
 
-            FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
-            String dataCluster = "DataCluster";
-            String typeName = "TypeThatDoesNotExist";
-            String[] ids = { "1" };
-            assertTrue(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
-            FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
-            assertEquals(FKIntegrityCheckResult.ALLOWED, policy);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Set<ReferenceFieldMetadata> list = dataSource.getForeignKeyList("TypeThatDoesNotExist", "DataModel");
+        assertTrue(list.isEmpty());
+
+        FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
+        String dataCluster = "DataCluster";
+        String typeName = "TypeThatDoesNotExist";
+        String[] ids = { "1" };
+        assertTrue(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
+        FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
+        assertEquals(FKIntegrityCheckResult.ALLOWED, policy);
     }
 
     /**

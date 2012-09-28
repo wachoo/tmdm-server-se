@@ -41,6 +41,16 @@
 
       <delete dir="${basedir}/target/test-classes" />
       <mkdir dir="${basedir}/target/test-classes" />
+    	
+      <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
+         <fileset dir="${basedir}/src" includes="**/**.xml"/>
+      </copy>
+      <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
+          <fileset dir="${basedir}/src" includes="**/**.xsd"/>
+      </copy>
+      <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
+          <fileset dir="${basedir}/src" includes="**/**.dtd"/>
+      </copy>	
 
       <delete dir="${basedir}/target/test-reports" />
       <mkdir dir="${basedir}/target/test-reports" />
