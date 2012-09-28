@@ -428,14 +428,14 @@ public class CommonUtil {
     }
     
     public static CriteriaAndC parseMultipleSearchExpression(char[] s, int c) throws Exception {
-        MultipleCriteria cr = new MultipleCriteria();
+        MultipleCriteria cr = new MultipleCriteria("AND"); //$NON-NLS-1$
         CriteriaAndC ccr = null;
         String op = null;
         while (true) {
             ccr = (s[++c+1] == '(') ? parseMultipleSearchExpression(s, c) : parseSimpleSearchExpression(s, c);                     
             cr.add(ccr.cr);
             if (s[(c = ccr.c + 1)] == ')')
-                return new CriteriaAndC(op == null ? ccr.cr : cr, c);
+                return new CriteriaAndC((op == null && !(ccr.cr instanceof SimpleCriterion)) ? ccr.cr : cr, c);
             else {
                 int ce = ++c;
                 while (s[++ce] != ' ');
