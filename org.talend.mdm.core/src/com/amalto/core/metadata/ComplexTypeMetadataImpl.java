@@ -197,9 +197,6 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
             throw new IllegalArgumentException("Key field can not be null.");
         }
         keyFields.put(keyField.getName(), keyField);
-        if (!keyField.isKey()) {
-            keyField.promoteToKey();
-        }
     }
 
     public ComplexTypeMetadata copy(MetadataRepository repository) {

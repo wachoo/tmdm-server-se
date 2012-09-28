@@ -37,7 +37,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     private TypeMapping handleField(FieldMetadata field) {
         SimpleTypeFieldMetadata newFlattenField;
         String name = getFieldName(field);
-        newFlattenField = new SimpleTypeFieldMetadata(currentType.peek(), field.isKey(), field.isMany(), field.isMandatory(), name, field.getType(), field.getWriteUsers(), field.getHideUsers());
+        newFlattenField = new SimpleTypeFieldMetadata(currentType.peek(), false, field.isMany(), field.isMandatory(), name, field.getType(), field.getWriteUsers(), field.getHideUsers());
         if (field.getDeclaringType() != field.getContainingType()) {
             newFlattenField.setDeclaringType(new SoftTypeRef(internalRepository, field.getDeclaringType().getNamespace(), field.getDeclaringType().getName(), true));
         }
@@ -203,6 +203,9 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 }
             }
             super.visit(complexType);
+            for (FieldMetadata keyField : complexType.getKeyFields()) {
+                database.registerKey(database.getField("x_" + keyField.getName().toLowerCase()));
+            }
         }
         currentType.pop();
         if (!currentType.isEmpty()) { // This is unexpected

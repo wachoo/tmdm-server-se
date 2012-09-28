@@ -97,7 +97,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(SimpleTypeFieldMetadata simpleField) {
-        boolean isKey = simpleField.isKey() || forceKey;
+        boolean isKey = false;
         FieldMetadata newFlattenField;
         if (simpleField.getContainingType() == simpleField.getDeclaringType()) {
             ComplexTypeMetadata database = typeMapping.getDatabase();
@@ -134,20 +134,18 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             field.accept(this);
         }
         List<FieldMetadata> keyFields = complexType.getKeyFields();
-        forceKey = true;
-        for (FieldMetadata keyField : keyFields) {
-            keyField.accept(this);
-        }
-        forceKey = false;
-
+        ComplexTypeMetadata database = typeMapping.getDatabase();
         Collection<TypeMetadata> superTypes = complexType.getSuperTypes();
         for (TypeMetadata superType : superTypes) {
-            typeMapping.getDatabase().addSuperType(new SoftTypeRef(internalRepository, superType.getNamespace(), superType.getName(), true), internalRepository);
+            database.addSuperType(new SoftTypeRef(internalRepository, superType.getNamespace(), superType.getName(), true), internalRepository);
         }
-
+        forceKey = true;
+        for (FieldMetadata keyField : keyFields) {
+            database.registerKey(new SoftFieldRef(internalRepository, "x_" + keyField.getName().toLowerCase(), database));
+        }
+        forceKey = false;
         if (typeMapping.getUser().getKeyFields().isEmpty() && typeMapping.getUser().getSuperTypes().isEmpty()) { // Assumes super type defines key field.
-            ComplexTypeMetadata database = typeMapping.getDatabase();
-            SoftTypeRef type = new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, "string", false);
+            SoftTypeRef type = new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, "string", false); //$NON-NLS-1$
             database.addField(new SimpleTypeFieldMetadata(database, true, false, true, "X_TALEND_ID", type, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return typeMapping;
