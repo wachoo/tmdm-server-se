@@ -96,7 +96,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                     && ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
                 itemNode.setObjectValue(""); //$NON-NLS-1$
             }
-            field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage(), fieldMap,
+            field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, viewBean, Locale.getLanguage(), fieldMap,
                     operation, itemsDetailPanel);
             field.setWidth(200);
             field.addListener(Events.Change, new Listener<FieldEvent>() {
@@ -149,13 +149,15 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             }
         }
         this.setCellWidth(label, "200px"); //$NON-NLS-1$
-        this.getElement().getStyle().setMarginBottom(6D, Unit.PX);
         this.setVisible(typeModel.isVisible());
+        Widget w = this.getWidget(this.getWidgetCount() - 1);
+        w.getElement().getParentElement().getStyle().setPaddingTop(4D, Unit.PX);
+        w.getElement().getParentElement().getStyle().setPaddingBottom(4D, Unit.PX);
     }
-    
+
     public void clearValue() {
         if (field != null) {
-            field.setValue(null);
+            field.clear();
         }
     }
 
@@ -176,7 +178,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             }
         }
     }
-    
+
     public void setAddIconVisible(boolean visible) {
         if (addNodeImg != null) {
             addNodeImg.setVisible(visible);
@@ -186,7 +188,39 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         }
     }
 
-    public void setTreeDetail(TreeDetail treeDetail){
+    public void clearWarning() {
+
+        Widget w = this.getWidget(this.getWidgetCount() - 1);
+        w.getElement().getParentElement().getStyle().setProperty("border", ""); //$NON-NLS-1$//$NON-NLS-2$
+
+        w = this.getWidget(this.getWidgetCount() - 1);
+        w.getElement().getParentElement().getStyle().setProperty("border", ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+        this.getElement().getStyle().setProperty("border", ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+    }
+
+    public void setWarningFirst() {
+        Widget w = this.getWidget(this.getWidgetCount() - 1);
+        w.getElement().getParentElement().getStyle().setProperty("borderTop", "solid 3px #ff8888"); //$NON-NLS-1$ //$NON-NLS-2$
+        w.getElement().getParentElement().getStyle().setProperty("borderRight", "solid 3px #ff8888"); //$NON-NLS-1$ //$NON-NLS-2$
+        w.getElement().getParentElement().getStyle().clearPaddingTop();
+    }
+
+    public void setWarning() {
+        Widget w = this.getWidget(this.getWidgetCount() - 1);
+        w.getElement().getParentElement().getStyle().setProperty("paddingRight", "5px"); //$NON-NLS-1$ //$NON-NLS-2$
+        w.getElement().getParentElement().getStyle().setProperty("borderRight", "solid 3px #ff8888"); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    public void setWarningLast() {
+        Widget w = this.getWidget(this.getWidgetCount() - 1);
+        w.getElement().getParentElement().getStyle().setProperty("borderRight", "solid 3px #ff8888"); //$NON-NLS-1$ //$NON-NLS-2$
+        w.getElement().getParentElement().getStyle().setProperty("borderBottom", "solid 3px #ff8888"); //$NON-NLS-1$ //$NON-NLS-2$
+        w.getElement().getParentElement().getStyle().clearPaddingBottom();
+    }
+
+    public void setTreeDetail(TreeDetail treeDetail) {
         this.treeDetail = treeDetail;
     }
 

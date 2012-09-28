@@ -58,12 +58,12 @@ public class ItemNodeModelGWTTest extends BrowseRecordsGWTTest {
 
     @Override
     protected void gwtSetUp() throws Exception {
-    	super.gwtSetUp();
-    	UserSession session = new UserSession();
-    	session.put(UserSession.APP_HEADER, new AppHeader());
-    	Registry.register(BrowseRecords.USER_SESSION, session);
+        super.gwtSetUp();
+        UserSession session = new UserSession();
+        session.put(UserSession.APP_HEADER, new AppHeader());
+        Registry.register(BrowseRecords.USER_SESSION, session);
     }
-    
+
     public void testClone() {
 
         ItemNodeModel nodeModel = new ItemNodeModel(name);
@@ -173,7 +173,7 @@ public class ItemNodeModelGWTTest extends BrowseRecordsGWTTest {
         field.fireEvent(Events.Change, fe);
         field.fireEvent(Events.Blur);
         assertEquals(true, field1.isValid());
-        assertEquals(false, field2.isValid());
+        assertEquals(true, field2.isValid());
         assertEquals(true, field3.isValid());
         assertEquals("field1", field1.getObjectValue());
 
@@ -206,7 +206,7 @@ public class ItemNodeModelGWTTest extends BrowseRecordsGWTTest {
 
     }
 
-	public void test_isChangeValue() {
+    public void test_isChangeValue() {
         ComplexTypeModel root = new ComplexTypeModel("root", DataTypeConstants.STRING);
         root.addDescription("en", "root");
         TypeModel idModel = new SimpleTypeModel("id", DataTypeConstants.LONG);

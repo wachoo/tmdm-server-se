@@ -28,6 +28,8 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
+import org.talend.mdm.webapp.browserecords.client.util.MultiOccurrenceManager;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKPropertyEditor;
@@ -44,6 +46,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldSour
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldStyle;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
+import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.core.El;
@@ -73,6 +76,11 @@ public class TreeDetailGridFieldCreator {
 
     public static Field<?> createField(ItemNodeModel node, final TypeModel dataType, String language,
             Map<String, Field<?>> fieldMap, String operation, final ItemsDetailPanel itemsDetailPanel) {
+        return createField(node, dataType, null, language, fieldMap, operation, itemsDetailPanel);
+    }
+
+    public static Field<?> createField(ItemNodeModel node, final TypeModel dataType, ViewBean viewBean, String language,
+            Map<String, Field<?>> fieldMap, String operation, final ItemsDetailPanel itemsDetailPanel) {
         // Field
 
         Serializable value = node.getObjectValue();
@@ -93,9 +101,9 @@ public class TreeDetailGridFieldCreator {
         } else if (dataType.hasEnumeration()) {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
             comboBox.setFireChangeEventOnSetValue(true);
-            if (dataType.getMinOccurs() > 0)
-            	if(BrowseRecords.getSession().getAppHeader().isAutoValidate()) 
-            		comboBox.setAllowBlank(false);
+            if (dataType.getMinOccurs() == 1 && dataType.getMaxOccurs() == 1)
+                if (BrowseRecords.getSession().getAppHeader().isAutoValidate())
+                    comboBox.setAllowBlank(false);
             comboBox.setEditable(false);
             comboBox.setForceSelection(true);
             comboBox.setTriggerAction(TriggerAction.ALL);
@@ -152,6 +160,7 @@ public class TreeDetailGridFieldCreator {
         } else {
             TypeFieldCreateContext context = new TypeFieldCreateContext(dataType);
             context.setLanguage(language);
+            context.setMandatory(node.isMandatory());
             TypeFieldCreator typeFieldCreator = new TypeFieldCreator(new TypeFieldSource(TypeFieldSource.FORM_INPUT), context);
             Map<String, TypeFieldStyle> sytles = new HashMap<String, TypeFieldStyle>();
             sytles.put(TypeFieldStyle.ATTRI_WIDTH, new TypeFieldStyle(TypeFieldStyle.ATTRI_WIDTH,
@@ -193,8 +202,8 @@ public class TreeDetailGridFieldCreator {
 
         }
         fieldMap.put(node.getId().toString(), field);
-        updateMandatory(field, node, fieldMap);
-        addFieldListener(field, node, fieldMap);
+        updateMandatory(viewBean.getBindingEntityModel().getMetaDataTypes(), field, node, fieldMap);
+        addFieldListener(dataType, viewBean.getBindingEntityModel().getMetaDataTypes(), field, node, fieldMap);
         return field;
     }
 
@@ -203,15 +212,16 @@ public class TreeDetailGridFieldCreator {
         return createField(node, dataType, language, fieldMap, null, itemsDetailPanel);
     }
 
-    public static void deleteField(ItemNodeModel node, Map<String, Field<?>> fieldMap) {
+    public static void deleteField(ItemNodeModel node, Map<String, TypeModel> models, Map<String, Field<?>> fieldMap) {
 
         Field<?> updateField = fieldMap.get(node.getId().toString());
         node.setObjectValue(null);
-        updateMandatory(updateField, node, fieldMap);
+        updateMandatory(models, updateField, node, fieldMap);
         fieldMap.remove(node.getId().toString());
     }
 
-    private static void addFieldListener(final Field<?> field, final ItemNodeModel node, final Map<String, Field<?>> fieldMap) {
+    private static void addFieldListener(final TypeModel dataType, final Map<String, TypeModel> models, final Field<?> field,
+            final ItemNodeModel node, final Map<String, Field<?>> fieldMap) {
         field.setFireChangeEventOnSetValue(true);
         field.addListener(Events.Change, new Listener<FieldEvent>() {
 
@@ -234,7 +244,15 @@ public class TreeDetailGridFieldCreator {
 
                 validate(fe.getField(), node);
 
-                updateMandatory(field, node, fieldMap);
+                updateMandatory(models, field, node, fieldMap);
+
+                TreeDetail treeDetail = getCurrentTreeDetail(field);
+                if (treeDetail != null) {
+                    MultiOccurrenceManager multiManager = treeDetail.getMultiManager();
+                    if (multiManager != null) {
+                        multiManager.warningBrothers(node);
+                    }
+                }
             }
         });
 
@@ -253,10 +271,10 @@ public class TreeDetailGridFieldCreator {
                 // original value
                 if (node.isValid())
                     if (fe.getField() instanceof FormatTextField) {
-                        if(BrowseRecords.getSession().getAppHeader().isAutoValidate()) 
+                        if (BrowseRecords.getSession().getAppHeader().isAutoValidate())
                             node.setObjectValue(((FormatTextField) fe.getField()).getOjbectValue());
                     } else if (fe.getField() instanceof FormatNumberField) {
-                        if(BrowseRecords.getSession().getAppHeader().isAutoValidate()) 
+                        if (BrowseRecords.getSession().getAppHeader().isAutoValidate())
                             node.setObjectValue(((FormatNumberField) fe.getField()).getOjbectValue());
                     } else if (fe.getField() instanceof FormatDateField) {
                         node.setObjectValue(((FormatDateField) fe.getField()).getOjbectValue());
@@ -316,8 +334,10 @@ public class TreeDetailGridFieldCreator {
     private static void buildFacets(TypeModel typeModel, Widget w) {
         if (typeModel instanceof SimpleTypeModel) {
             List<FacetModel> facets = ((SimpleTypeModel) typeModel).getFacets();
-            for (FacetModel facet : facets) {
-                FacetEnum.setFacetValue(facet.getName(), w, facet.getValue());
+            if (facets != null) {
+                for (FacetModel facet : facets) {
+                    FacetEnum.setFacetValue(facet.getName(), w, facet.getValue());
+                }
             }
         }
     }
@@ -334,6 +354,11 @@ public class TreeDetailGridFieldCreator {
     }
 
     public static void updateMandatory(Field<?> field, ItemNodeModel node, Map<String, Field<?>> fieldMap) {
+        updateMandatory(null, field, node, fieldMap);
+    }
+
+    public static void updateMandatory(Map<String, TypeModel> models, Field<?> field, ItemNodeModel node,
+            Map<String, Field<?>> fieldMap) {
 
         boolean flag = false;
         ItemNodeModel parent = (ItemNodeModel) node.getParent();
@@ -341,7 +366,7 @@ public class TreeDetailGridFieldCreator {
             List<ModelData> childs = parent.getChildren();
             for (int i = 0; i < childs.size(); i++) {
                 ItemNodeModel child = (ItemNodeModel) childs.get(i);
-                if (child.getObjectValue() != null && !"".equals(child.getObjectValue())) { //$NON-NLS-1$
+                if (CommonUtil.hasChildrenValue(child)) {
                     flag = true;
                     break;
                 }
@@ -353,12 +378,26 @@ public class TreeDetailGridFieldCreator {
                 ItemNodeModel mandatoryNode = (ItemNodeModel) childs.get(i);
                 Field<?> updateField = fieldMap.get(mandatoryNode.getId().toString());
                 if (updateField != null && mandatoryNode.isMandatory()) {
-                    setMandatory(updateField, flag ? mandatoryNode.isMandatory() : !mandatoryNode.isMandatory());
                     mandatoryNode.setValid(updateField.validate());
+                    if (models != null) {
+                        TypeModel tm = models.get(mandatoryNode.getTypePath());
+                        if (tm != null && tm.isMultiOccurrence()) {
+                            setMandatory(updateField, false);
+                            continue;
+                        }
+                    }
+                    setMandatory(updateField, flag ? mandatoryNode.isMandatory() : !mandatoryNode.isMandatory());
                 }
             }
 
         } else {
+            if (models != null) {
+                TypeModel tm = models.get(node.getTypePath());
+                if (tm.isMultiOccurrence()) {
+                    setMandatory(field, false);
+                    return;
+                }
+            }
             setMandatory(field, node.isMandatory());
         }
     }
@@ -387,10 +426,23 @@ public class TreeDetailGridFieldCreator {
 
     }
 
+    private static TreeDetail getCurrentTreeDetail(Widget child) {
+        if (child == null)
+            return null;
+        Widget current = child;
+        while (current != null) {
+            if (current instanceof TreeDetail) {
+                return (TreeDetail) current;
+            }
+            current = current.getParent();
+        }
+        return null;
+    }
+
     @SuppressWarnings("rawtypes")
     private static void setMandatory(Field<?> field, boolean mandatory) {
-    	if(!BrowseRecords.getSession().getAppHeader().isAutoValidate()) 
-    		return; 
+        if (!BrowseRecords.getSession().getAppHeader().isAutoValidate())
+            return;
         if (field instanceof NumberField) {
             ((NumberField) field).setAllowBlank(!mandatory);
         } else if (field instanceof BooleanField) {

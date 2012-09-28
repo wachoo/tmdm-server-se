@@ -23,7 +23,7 @@ public class FormatTextField extends TextField<String> {
     private String diplayValue;
 
     private boolean validateFlag = true;
-    
+
     public FormatTextField() {
         super();
         validateFlag = BrowseRecords.getSession().getAppHeader().isAutoValidate();
@@ -59,8 +59,9 @@ public class FormatTextField extends TextField<String> {
             this.fireEvent(Events.Change);
             return true;
         } else {
-          if(!validateFlag)
-              return true;
+            this.setOjbectValue(value);
+            if (!validateFlag)
+                return true;
             boolean result = super.validateValue(value);
             if (!result) {
                 return false;
@@ -127,7 +128,7 @@ public class FormatTextField extends TextField<String> {
             return true;
         }
     }
-    
+
     public void setValidateFlag(boolean validateFlag) {
         this.validateFlag = validateFlag;
     }

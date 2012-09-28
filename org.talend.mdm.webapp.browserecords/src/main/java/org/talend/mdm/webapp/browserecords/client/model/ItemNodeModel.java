@@ -154,7 +154,7 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     private String _toString(String pre) {
         StringBuffer sb = new StringBuffer();
-        sb.append(pre + getName());
+        sb.append(pre + getName() + "[" + getObjectValue() + "]");
         if (getRealType() != null && getRealType().trim().length() > 0) {
             sb.append("  xsi:" + getRealType()); //$NON-NLS-1$
         }
@@ -290,4 +290,15 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
         return clonedModel;
     }
 
+    public void clearNodeValue() {
+        if (this.isLeaf()) {
+            Serializable value = getObjectValue();
+            if (value != null)
+                setObjectValue(null);
+        }
+        for (ModelData model : this.getChildren()) {
+            ItemNodeModel node = (ItemNodeModel) model;
+            node.clearNodeValue();
+        }
+    }
 }

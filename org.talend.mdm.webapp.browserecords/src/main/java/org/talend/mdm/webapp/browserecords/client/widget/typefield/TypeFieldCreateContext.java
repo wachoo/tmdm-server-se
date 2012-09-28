@@ -22,9 +22,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class TypeFieldCreateContext implements IsSerializable {
 
-
     private static final String DEFAULT_LANGUAGE = "en"; //$NON-NLS-1$
-
 
     /**
      * DOC Administrator TypeFieldCreateContext constructor comment.
@@ -56,7 +54,8 @@ public class TypeFieldCreateContext implements IsSerializable {
 
     private ItemNodeModel node;
 
-    
+    private boolean isMandatory;
+
     private int autoTextAreaLength;
 
     public TypeModel getDataType() {
@@ -91,7 +90,6 @@ public class TypeFieldCreateContext implements IsSerializable {
         this.node = node;
     }
 
-    
     public boolean isUpdateStyle() {
         return updateStyle;
     }
@@ -108,16 +106,22 @@ public class TypeFieldCreateContext implements IsSerializable {
         this.typeFieldStyles = typeFieldStyles;
     }
 
-    
+    public boolean isMandatory() {
+        return isMandatory;
+    }
+
+    public void setMandatory(boolean isMandatory) {
+        this.isMandatory = isMandatory;
+    }
+
     public int getAutoTextAreaLength() {
         if (autoTextAreaLength == 0)
             autoTextAreaLength = BrowseRecords.getSession().getAppHeader().getAutoTextAreaLength();
         return autoTextAreaLength;
     }
 
-    
     public void setAutoTextAreaLength(int autoTextAreaLength) {
         this.autoTextAreaLength = autoTextAreaLength;
     }
-    
+
 }

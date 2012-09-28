@@ -45,8 +45,8 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
@@ -63,17 +63,20 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.dom.client.Style.Cursor;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteriaFK {
 
     private static final int COLUMN_WIDTH = 100;
 
     private int PAGE_SIZE = 10;
-    
+
     private String panelName;
 
     private PagingToolBarEx pagingBar = null;
@@ -82,7 +85,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
     ToolBar toolBar = new ToolBar();
 
-    ToolBar firstToolBar = new ToolBar();
+    HTML statusBar = new HTML();
 
     Button addFkButton = new Button(MessagesFactory.getMessages().add_btn(), AbstractImagePrototype.create(Icons.INSTANCE
             .Create()));
@@ -116,12 +119,19 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     int lastFkIndex;
 
     Map<String, Field<?>> fieldMap;
-    
+
     private ItemsDetailPanel itemsDetailPanel;
 
+    private VerticalPanel bottomPanel = new VerticalPanel();
+
     public ForeignKeyTablePanel(String panelName) {
-    	super();
-    	this.panelName = panelName;
+        super();
+        this.setHeaderVisible(false);
+        this.setLayout(new FitLayout());
+        this.setAutoWidth(true);
+        this.setBodyBorder(false);
+        this.panelName = panelName;
+        initBaseComponent();
     }
 
     public ForeignKeyTablePanel(final EntityModel entityModel, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
@@ -135,29 +145,41 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         initContent(entityModel, parent, fkModels, fkTypeModel, fieldMap, itemsDetailPanel, originalViewBean);
     }
 
+    private void initBaseComponent() {
+        // topComponent
+        toolBar.add(addFkButton);
+        toolBar.add(new SeparatorToolItem());
+        toolBar.add(removeFkButton);
+        toolBar.add(new SeparatorToolItem());
+        toolBar.add(createFkButton);
+        toolBar.add(new SeparatorToolItem());
+        this.setTopComponent(toolBar);
+        // bottomComponent
+        bottomPanel.setWidth("100%"); //$NON-NLS-1$
+        statusBar.getElement().getStyle().setFontSize(12D, Unit.PX);
+        statusBar.setHeight("16px"); //$NON-NLS-1$
+        bottomPanel.add(statusBar);
+        if (StateManager.get().get(panelName) != null) {
+            PAGE_SIZE = Integer.valueOf(((Map<?, ?>) StateManager.get().get(panelName)).get("limit").toString()); //$NON-NLS-1$
+        }
+        pagingBar = new PagingToolBarEx(PAGE_SIZE);
+        pagingBar.setHideMode(HideMode.VISIBILITY);
+        pagingBar.getMessages().setDisplayMsg(MessagesFactory.getMessages().page_displaying_records());
+        bottomPanel.add(pagingBar);
+        this.setBottomComponent(new WidgetComponent(bottomPanel));
+    }
+
     public void initContent(final EntityModel entityModel, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
             final TypeModel fkTypeModel, Map<String, Field<?>> fieldMap, ItemsDetailPanel itemsDetailPanel,
             ViewBean originalViewBean) {
         this.itemsDetailPanel = itemsDetailPanel;
-        this.setHeaderVisible(false);
-        this.setLayout(new FitLayout());
-        this.setAutoWidth(true);
-        this.setBodyBorder(false);
         this.parent = parent;
         this.entityModel = entityModel;
         this.fkTypeModel = fkTypeModel;
         this.fkModels = fkModels;
         this.fieldMap = fieldMap;
 
-        toolBar.add(addFkButton);
-        toolBar.add(new SeparatorToolItem());
-        toolBar.add(removeFkButton);
-        toolBar.add(new SeparatorToolItem());
-        toolBar.add(createFkButton);
         addListener();
-        LayoutContainer toolBarPanel = new LayoutContainer();
-        toolBarPanel.add(toolBar);
-        this.setTopComponent(toolBarPanel);
 
         fkWindow.setForeignKeyInfos(fkTypeModel.getForeignkey(), fkTypeModel.getForeignKeyInfo());
         fkWindow.setSize(470, 340);
@@ -237,8 +259,8 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false, Locale.getLanguage());
 
             CellEditor cellEditor = new ForeignKeyCellEditor(field, typeModel);
-            if (cellEditor != null) {    
-                column.setEditor(cellEditor);                              
+            if (cellEditor != null) {
+                column.setEditor(cellEditor);
             }
             columnConfigs.add(column);
         }
@@ -279,8 +301,9 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
         if (parent.getParent() != null && !parent.isMandatory()) {
             grid.getView().addListener(Events.Refresh, new Listener<BaseEvent>() {
+
                 public void handleEvent(BaseEvent be) {
-                    updateSiblingNodes();
+                    updateSiblingNodes(entityModel);
                 };
             });
         }
@@ -290,45 +313,39 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         grid.setStateId(panelName);
         grid.setStateful(true);
         hookContextMenu(re);
-        if(entityModel.getMetaDataTypes() != null){
+        if (entityModel.getMetaDataTypes() != null) {
             TypeModel fkType = entityModel.getMetaDataTypes().get(entityModel.getConceptName());
-            if(fkType != null){
-                if(!fkType.isReadOnly())
-                    grid.addPlugin(re);   
+            if (fkType != null) {
+                if (!fkType.isReadOnly())
+                    grid.addPlugin(re);
             }
         }
-        
+
         // grid.setWidth(Window.getClientWidth() - ItemsListPanel.getInstance().getInnerWidth());
         grid.setBorders(false);
         this.add(grid);
 
-        if (StateManager.get().get(panelName) != null){
-            PAGE_SIZE = Integer.valueOf(((Map<?, ?>) StateManager.get().get(panelName)).get("limit").toString()); //$NON-NLS-1$
-        }
-        pagingBar = new PagingToolBarEx(PAGE_SIZE);
-        pagingBar.setHideMode(HideMode.VISIBILITY);
-        pagingBar.getMessages().setDisplayMsg(MessagesFactory.getMessages().page_displaying_records());
         pagingBar.bind(loader);
         loader.setRemoteSort(true);
 
-        this.setBottomComponent(pagingBar);
+        updateMandatory();
     }
 
-    private void updateSiblingNodes() {
+    private void updateSiblingNodes(EntityModel entity) {
         if (parent.getChildCount() > 0) {
             ItemNodeModel child = (ItemNodeModel) parent.getChild(0);
             Field<?> field = fieldMap.get(child.getId().toString());
             if (field != null)
-                TreeDetailGridFieldCreator.updateMandatory(field, child, fieldMap);
+                TreeDetailGridFieldCreator.updateMandatory(entity.getMetaDataTypes(), field, child, fieldMap);
         }
     }
 
-    private String convertKeys(String[] keys){
+    private String convertKeys(String[] keys) {
         if (keys.length == 1)
             return CommonUtil.getElementFromXpath(keys[0]);
         StringBuffer sb = new StringBuffer();
-        for(int i = 0; i< keys.length; i++){
-            if(i != 0)
+        for (int i = 0; i < keys.length; i++) {
+            if (i != 0)
                 sb.append("-"); //$NON-NLS-1$
             sb.append(CommonUtil.getElementFromXpath(keys[i]));
         }
@@ -349,7 +366,6 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             public void componentSelected(ButtonEvent ce) {
                 List<ItemNodeModel> selectedFkModelList = grid.getSelectionModel().getSelectedItems();
                 if (selectedFkModelList != null && selectedFkModelList.size() > 0) {
-                    boolean tipMinOccurs = (fkModels.size() - selectedFkModelList.size()) < fkTypeModel.getMinOccurs();
                     boolean allSelected = (fkModels.size() == selectedFkModelList.size());
                     int endIndex = allSelected ? 1 : 0;
                     for (int i = selectedFkModelList.size() - 1; i >= endIndex; i--) {
@@ -365,15 +381,10 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                             }
                         }
                     }
-                    // minOccurs tip
-                    if (tipMinOccurs) {
-                        MessageBox.alert(MessagesFactory.getMessages().info_title(),
-                                MessagesFactory.getMessages().fk_validate_min_occurence(
-                                        fkTypeModel.getLabel(Locale.getLanguage()), fkTypeModel.getMinOccurs()), null);
-                    }
+
+                    updateMandatory();
                     pagingBar.refresh();
                 }
-
             }
         });
         createFkButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -386,8 +397,8 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 dispatch.dispatch(event);
             }
         });
-        
-        if(fkTypeModel.isReadOnly()){
+
+        if (fkTypeModel.isReadOnly()) {
             addFkButton.setEnabled(false);
             removeFkButton.setEnabled(false);
             createFkButton.setEnabled(false);
@@ -420,10 +431,8 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             pagingBar.refresh();
         } else {
             // maxOccurs tip
-            MessageBox.alert(
-                    MessagesFactory.getMessages().info_title(),
-                    MessagesFactory.getMessages().fk_validate_max_occurence(fkTypeModel.getLabel(Locale.getLanguage()),
-                            fkTypeModel.getMaxOccurs()), null);
+            MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().fk_validate_max_occurence(
+                    fkTypeModel.getLabel(Locale.getLanguage()), fkTypeModel.getMaxOccurs()), null);
 
         }
 
@@ -454,7 +463,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             Image selectFKBtn = new Image(Icons.INSTANCE.link());
             selectFKBtn.setTitle(MessagesFactory.getMessages().fk_select_title());
             selectFKBtn.getElement().getStyle().setCursor(Cursor.POINTER);
-            if(!fkTypeModel.isReadOnly()){
+            if (!fkTypeModel.isReadOnly()) {
                 selectFKBtn.addClickHandler(new ClickHandler() {
 
                     public void onClick(ClickEvent event) {
@@ -463,7 +472,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                     }
                 });
             }
-            
+
             Image linkFKBtn = new Image(Icons.INSTANCE.link_go());
             linkFKBtn.setTitle(MessagesFactory.getMessages().fk_open_title());
             linkFKBtn.getElement().getStyle().setCursor(Cursor.POINTER);
@@ -500,6 +509,29 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         currentNodeModel.setTypeName(fk.getTypeName());
         currentNodeModel.setChangeValue(true);
         grid.getView().refresh(false);
+        updateMandatory();
+    }
+
+    private void updateMandatory() {
+        if (this.fkModels.size() > 0) {
+            ItemNodeModel fk = fkModels.get(0);
+            int fkValueCount = 0;
+            for (ItemNodeModel fkModel : fkModels) {
+                if (fkModel.getObjectValue() != null) {
+                    fkValueCount++;
+                }
+            }
+            if (fkValueCount < fkTypeModel.getMinOccurs()) {
+
+                setStatusHtml("<b style=\"color: red;\">" + MessagesFactory.getMessages().multiOccurrence_minimize_title(fkTypeModel.getMinOccurs(), fk.getName()) + "</b>"); //$NON-NLS-1$//$NON-NLS-2$
+            } else {
+                setStatusHtml(null);
+            }
+        }
+    }
+
+    public void setStatusHtml(String html) {
+        statusBar.setHTML(html);
     }
 
     private void hookContextMenu(final ForeignKeyRowEditor re) {
@@ -519,8 +551,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 }
                 if (m.getObjectValue() == null) {
                     MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                            .fk_edit_failure(),
-                            null);
+                            .fk_edit_failure(), null);
                     return;
                 }
                 int rowIndex = grid.getStore().indexOf(m);

@@ -73,8 +73,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetail extends ContentPanel {
 
-	private int ONE_SECOND = 1000;
-	
+    private int ONE_SECOND = 1000;
+
     private ViewBean viewBean;
 
     private TreeEx tree = new TreeEx();
@@ -94,63 +94,63 @@ public class TreeDetail extends ContentPanel {
     private DynamicTreeItem selectedItem;
 
     private ItemsDetailPanel itemsDetailPanel;
-    
-    private int renderedCounter = 0;
-    
-    private MessageBox progressBar;
-    
-    private List<RenderCompleteCallBack> renderCompleteCallBackList = new ArrayList<RenderCompleteCallBack>();
 
+    private int renderedCounter = 0;
+
+    private MessageBox progressBar;
+
+    private List<RenderCompleteCallBack> renderCompleteCallBackList = new ArrayList<RenderCompleteCallBack>();
 
     // In case of custom layout, which displays some elements and not others,
     // we store the DynamicTreeItem corresponding to the displayed elements in
     // this set.
     private HashSet<TreeItem> customLayoutDisplayedElements = new HashSet<TreeItem>();
 
-    public ForeignKeyRender getFkRender(){
-    	return fkRender;
+    public ForeignKeyRender getFkRender() {
+        return fkRender;
     }
-    
-    public void beginRender(){
-    	BrowseRecordsMessages msg = MessagesFactory.getMessages();
-    	progressBar = MessageBox.wait(msg.rendering_title(), msg.render_message(), msg.rendering_progress());
-    	Timer timer = new Timer(){
-			public void run() {
-				closeProgressBar();
-				Log.info("render detail timeout!"); //$NON-NLS-1$
-			}
-    	};
-    	timer.schedule(ONE_SECOND * 300);
+
+    public void beginRender() {
+        BrowseRecordsMessages msg = MessagesFactory.getMessages();
+        progressBar = MessageBox.wait(msg.rendering_title(), msg.render_message(), msg.rendering_progress());
+        Timer timer = new Timer() {
+
+            public void run() {
+                closeProgressBar();
+                Log.info("render detail timeout!"); //$NON-NLS-1$
+            }
+        };
+        timer.schedule(ONE_SECOND * 300);
     }
-    
-    public void stepRenderCounter(){
-    	renderedCounter++;
+
+    public void stepRenderCounter() {
+        renderedCounter++;
     }
-    
-    public void resetRenderCounter(){
-    	renderedCounter= 0;
-    	closeProgressBar();
+
+    public void resetRenderCounter() {
+        renderedCounter = 0;
+        closeProgressBar();
     }
-    
-    public void closeProgressBar(){
-    	if(progressBar != null)
-    		progressBar.close();
+
+    public void closeProgressBar() {
+        if (progressBar != null)
+            progressBar.close();
     }
-    
-    public void endRender(){
-    	if (renderedCounter > 0){
-    		renderedCounter--;
-    	}
-    	if (renderedCounter == 0){
-    		Iterator<RenderCompleteCallBack> it = renderCompleteCallBackList.iterator();
-    		while(it.hasNext()) {
-    			it.next().onSuccess();
-    			it.remove();
-    		}
-    		closeProgressBar();
-    	}
+
+    public void endRender() {
+        if (renderedCounter > 0) {
+            renderedCounter--;
+        }
+        if (renderedCounter == 0) {
+            Iterator<RenderCompleteCallBack> it = renderCompleteCallBackList.iterator();
+            while (it.hasNext()) {
+                it.next().onSuccess();
+                it.remove();
+            }
+            closeProgressBar();
+        }
     }
-    
+
     MultiOccurrenceManager multiManager;
 
     public DynamicTreeItem getSelectedItem() {
@@ -160,7 +160,7 @@ public class TreeDetail extends ContentPanel {
     public MultiOccurrenceManager getMultiManager() {
         return multiManager;
     }
-    
+
     public TreeDetail(ItemsDetailPanel itemsDetailPanel) {
         this.setHeaderVisible(false);
         // this.setAutoWidth(true);
@@ -180,10 +180,10 @@ public class TreeDetail extends ContentPanel {
                     td.setFiledWidth(root, width, 400, 0);
                 } else if (td.getWidget(0) instanceof HorizontalPanel && columnTrees.size() > 0) {
                     int columnWidth = width / columnTrees.size();
-                    for(Tree columnTree : columnTrees)
+                    for (Tree columnTree : columnTrees)
                         td.setFiledWidth(columnTree.getItem(0), columnWidth, 300, 0);
                 }
-            }     
+            }
         });
     }
 
@@ -198,60 +198,63 @@ public class TreeDetail extends ContentPanel {
         } else {
             final BrowseRecordsServiceAsync itemService = getItemService();
             BrowseRecordsMessages msg = MessagesFactory.getMessages();
-            
+
             final MessageBox loadProgress = MessageBox.wait(msg.load_title(), msg.load_message(), msg.load_progress());
 
             itemService.getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), Locale.getLanguage(),
                     new SessionAwareAsyncCallback<ItemNodeModel>() {
+
                         public void onSuccess(final ItemNodeModel node) {
                             itemService.executeVisibleRule(viewBean, CommonUtil.toXML(node, TreeDetail.this.viewBean, true),
                                     new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
                                         public void onSuccess(List<VisibleRuleResult> visibleResults) {
-                                        	if (visibleResults != null){
-                                        		recrusiveSetItems(visibleResults, node);
-                                        	}
-                                        	loadProgress.close();
+                                            if (visibleResults != null) {
+                                                recrusiveSetItems(visibleResults, node);
+                                            }
+                                            loadProgress.close();
                                             renderTree(node, operation);
                                         }
                                     });
                         }
-                        
+
                         protected void doOnFailure(Throwable caught) {
-                        	loadProgress.close();
-                        	super.doOnFailure(caught);
+                            loadProgress.close();
+                            super.doOnFailure(caught);
                         }
                     });
         }
     }
 
     private void buildPanel(final String operation) {
-        getItemService().createDefaultItemNodeModel(viewBean, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemNodeModel>() {
-            public void onSuccess(final ItemNodeModel result) {
+        getItemService().createDefaultItemNodeModel(viewBean, Locale.getLanguage(),
+                new SessionAwareAsyncCallback<ItemNodeModel>() {
 
-                if (hasVisibleRule(viewBean.getBindingEntityModel().getMetaDataTypes().get(
-                        viewBean.getBindingEntityModel().getConceptName()))) {
+                    public void onSuccess(final ItemNodeModel result) {
+
+                        if (hasVisibleRule(viewBean.getBindingEntityModel().getMetaDataTypes().get(
+                                viewBean.getBindingEntityModel().getConceptName()))) {
                             getItemService().executeVisibleRule(viewBean, CommonUtil.toXML(result, viewBean, true),
-                            new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
+                                    new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
-                                public void onSuccess(List<VisibleRuleResult> visibleResults) {
-                                	if (visibleResults != null){
-                                		recrusiveSetItems(visibleResults, result);
-                                	}
-                                    renderTree(result, operation);
-                                }
-                            });
-                } else {
-                	renderTree(result, operation);
-                }
-            }
-        });
+                                        public void onSuccess(List<VisibleRuleResult> visibleResults) {
+                                            if (visibleResults != null) {
+                                                recrusiveSetItems(visibleResults, result);
+                                            }
+                                            renderTree(result, operation);
+                                        }
+                                    });
+                        } else {
+                            renderTree(result, operation);
+                        }
+                    }
+                });
     }
-
 
     private boolean isFirstKey = true;
 
-    public DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,String operation) {
+    public DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,
+            String operation) {
         if (item == null) {
             item = new DynamicTreeItem();
             item.setItemNodeModel(itemNode);
@@ -267,7 +270,8 @@ public class TreeDetail extends ContentPanel {
                     }
                 }
             }
-            MultiOccurrenceChangeItem itemWidget = TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, null, operation, itemsDetailPanel);
+            MultiOccurrenceChangeItem itemWidget = TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, null, operation,
+                    itemsDetailPanel);
             itemWidget.setTreeDetail(this);
             item.setWidget(itemWidget);
         }
@@ -275,12 +279,13 @@ public class TreeDetail extends ContentPanel {
         List<ModelData> itemNodeChildren = itemNode.getChildren();
 
         if (itemNodeChildren != null && itemNodeChildren.size() > 0) {
-        	IncrementalBuildTree incCommand = new IncrementalBuildTree(this, itemNode, viewBean, withDefaultValue, operation, item, occurMap);
-        	if (itemNode.getParent() == null){
-        		addCommand(incCommand, true);
-        	} else {
-        		addCommand(incCommand, false);
-        	}
+            IncrementalBuildTree incCommand = new IncrementalBuildTree(this, itemNode, viewBean, withDefaultValue, operation,
+                    item, occurMap);
+            if (itemNode.getParent() == null) {
+                addCommand(incCommand, true);
+            } else {
+                addCommand(incCommand, false);
+            }
 
             item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
         }
@@ -291,34 +296,35 @@ public class TreeDetail extends ContentPanel {
 
         return item;
     }
-    
-	public static void addCommand(IncrementalBuildTree command, boolean sync){
-		if (sync || command.getChildCount() < IncrementalBuildTree.GROUP_SIZE){
-			while (command.execute());
-		} else {
-			DeferredCommand.addCommand(command);			
-		}
-	}
+
+    public static void addCommand(IncrementalBuildTree command, boolean sync) {
+        if (sync || command.getChildCount() < IncrementalBuildTree.GROUP_SIZE) {
+            while (command.execute())
+                ;
+        } else {
+            DeferredCommand.addCommand(command);
+        }
+    }
 
     static boolean isFKDisplayedIntoTab(ItemNodeModel node, TypeModel typeModel, Map<String, TypeModel> metaDataTypes) {
-    	String typeModelFK = typeModel.getForeignkey();
+        String typeModelFK = typeModel.getForeignkey();
         if (typeModelFK == null)
             return false; // Not a FK
-        
+
         ItemNodeModel parentNode = (ItemNodeModel) node.getParent();
         if (parentNode == null) {
             return false; // It is root
         }
         if (parentNode.getParent() == null) {
-        	return !typeModel.isNotSeparateFk();
+            return !typeModel.isNotSeparateFk();
         }
-        
+
         TypeModel parentType = metaDataTypes.get(parentNode.getTypePath());
         assert parentType instanceof ComplexTypeModel : "any node's parent type must be ComplexTypeModel"; //$NON-NLS-1$
 
         List<TypeModel> subTypes = ((ComplexTypeModel) parentType).getSubTypes();
-        if (subTypes != null && subTypes.size() == 1){
-        	return !typeModel.isNotSeparateFk();
+        if (subTypes != null && subTypes.size() == 1) {
+            return !typeModel.isNotSeparateFk();
         }
         return false;
     }
@@ -347,25 +353,26 @@ public class TreeDetail extends ContentPanel {
         treeNode.removeAll();
         String xml = CommonUtil.toXML(rootNode, viewBean);
 
-        getItemService().createSubItemNodeModel(viewBean, xml, typePath, contextPath, treeNode.getRealType(), UrlUtil.getLanguage(),
-                new SessionAwareAsyncCallback<ItemNodeModel>() {
+        getItemService().createSubItemNodeModel(viewBean, xml, typePath, contextPath, treeNode.getRealType(),
+                UrlUtil.getLanguage(), new SessionAwareAsyncCallback<ItemNodeModel>() {
 
+                    public void onSuccess(ItemNodeModel result) {
+                        ModelData[] children = result.getChildren().toArray(new ModelData[0]);
+                        for (ModelData child : children) {
+                            treeNode.add(child);
+                        }
+                        buildGWTTree(treeNode, selectedItem, false, null);
+                        renderCompleteCallBackList.add(new RenderCompleteCallBack() {
 
-            public void onSuccess(ItemNodeModel result) {
-                ModelData[] children = result.getChildren().toArray(new ModelData[0]);
-                for (ModelData child : children) {
-                    treeNode.add(child);
-                }
-                buildGWTTree(treeNode, selectedItem, false, null);
-                renderCompleteCallBackList.add(new RenderCompleteCallBack() {
-					public void onSuccess() {
-						multiManager.addMultiOccurrenceNode(selectedItem);
-		                multiManager.handleOptIcons();				
-					}
-				});
-            }
-        });
-        
+                            public void onSuccess() {
+                                multiManager.addMultiOccurrenceNode(selectedItem);
+                                multiManager.handleOptIcons();
+                                multiManager.warningAllItems();
+                            }
+                        });
+                    }
+                });
+
     }
 
     public void onExecuteVisibleRule(List<VisibleRuleResult> visibleResults) {
@@ -375,7 +382,7 @@ public class TreeDetail extends ContentPanel {
                     recrusiveSetItems(visibleResult, (DynamicTreeItem) columnTree.getItem(0));
                 }
             } else {
-            	DynamicTreeItem rootItem = (DynamicTreeItem) tree.getItem(0);
+                DynamicTreeItem rootItem = (DynamicTreeItem) tree.getItem(0);
                 recrusiveSetItems(visibleResult, rootItem);
             }
         }
@@ -383,7 +390,7 @@ public class TreeDetail extends ContentPanel {
 
     private Tree displayGWTTree(ColumnTreeModel columnLayoutModel) {
         Tree tree = new TreeEx();
-        
+
         DynamicTreeItem treeRootNode = new DynamicTreeItem();
         tree.addItem(treeRootNode);
 
@@ -421,31 +428,33 @@ public class TreeDetail extends ContentPanel {
     }
 
     private void renderTree(ItemNodeModel rootModel, String operation) {
-    	multiManager = new MultiOccurrenceManager(viewBean.getBindingEntityModel().getMetaDataTypes(), this);
-    	beginRender();
-    	renderCompleteCallBackList.add(new RenderCompleteCallBack() {
-			public void onSuccess() {
-				multiManager.addMultiOccurrenceNode((DynamicTreeItem) root);
-		        multiManager.handleOptIcons();			
-			}
-		});
-        root = buildGWTTree(rootModel, null, false, operation);        
+        multiManager = new MultiOccurrenceManager(viewBean.getBindingEntityModel().getMetaDataTypes(), this);
+        beginRender();
+        renderCompleteCallBackList.add(new RenderCompleteCallBack() {
+
+            public void onSuccess() {
+                multiManager.addMultiOccurrenceNode((DynamicTreeItem) root);
+                multiManager.handleOptIcons();
+                multiManager.warningAllItems();
+            }
+        });
+        root = buildGWTTree(rootModel, null, false, operation);
         isFirstKey = true;
         root.setState(true);
         root.getElement().setId("TreeDetail-root"); //$NON-NLS-1$
         if (root.getElement().getFirstChildElement() != null)
             root.getElement().getFirstChildElement().setClassName("rootNode"); //$NON-NLS-1$
-        
+
         ColumnTreeLayoutModel columnLayoutModel = viewBean.getColumnLayoutModel();
         if (columnLayoutModel != null) {// TODO if create a new PrimaryKey, tree UI should not render according to the
-                                        // layout template
+            // layout template
             HorizontalPanel hp = new HorizontalPanel();
-            int columnWidth = this.getWidth() / columnLayoutModel.getColumnTreeModels().size(); 
+            int columnWidth = this.getWidth() / columnLayoutModel.getColumnTreeModels().size();
             columnTrees.clear();
             for (ColumnTreeModel ctm : columnLayoutModel.getColumnTreeModels()) {
                 Tree columnTree = displayGWTTree(ctm);
-                if(columnWidth > 500) 
-                 	this.setFiledWidth(columnTree.getItem(0), columnWidth, 300, 0); 
+                if (columnWidth > 500)
+                    this.setFiledWidth(columnTree.getItem(0), columnWidth, 300, 0);
                 columnTrees.add(columnTree);
                 hp.add(columnTree);
                 addTreeListener(columnTree);
@@ -475,16 +484,16 @@ public class TreeDetail extends ContentPanel {
         } else {
             tree = new TreeEx();
             tree.getElement().setId("TreeDetail-tree"); //$NON-NLS-1$
-        	tree.addItem(root);
-        	setFiledWidth(root, this.getWidth(), 400, 0);
+            tree.addItem(root);
+            setFiledWidth(root, this.getWidth(), 400, 0);
             add(tree);
             addTreeListener(tree);
         }
         this.layout(true);
         String foreignKeyDeleteMessage = rootModel.get("foreignKeyDeleteMessage"); //$NON-NLS-1$
         if (foreignKeyDeleteMessage != null && foreignKeyDeleteMessage.trim().length() > 0)
-            MessageBox.alert(MessagesFactory.getMessages().warning_title(), foreignKeyDeleteMessage, null).getDialog()
-                    .setWidth(600);
+            MessageBox.alert(MessagesFactory.getMessages().warning_title(), foreignKeyDeleteMessage, null).getDialog().setWidth(
+                    600);
     }
 
     private int getLevel(TreeItem item) {
@@ -513,8 +522,8 @@ public class TreeDetail extends ContentPanel {
             setFiledWidth(item, this.getWidth(), 400, level);
         }
     }
-    
-	private void setFiledWidth(TreeItem item, int width, int offset, int level) {
+
+    private void setFiledWidth(TreeItem item, int width, int offset, int level) {
         if (item.getWidget() instanceof HorizontalPanel) {
             HorizontalPanel hp = (HorizontalPanel) item.getWidget();
             if (hp.getWidgetCount() > 1) {
@@ -530,7 +539,8 @@ public class TreeDetail extends ContentPanel {
             TreeItem subItem = item.getChild(i);
             setFiledWidth(subItem, width, offset, level + 1);
         }
-	}
+    }
+
     /**
      * Recursively set the valid flags of the ItemNodeModel's corresponding to the dynamicTreeItem and all its children
      * dynamicTreeItem's to true. Used to set the valid flag for all those items excluded from the display because of a
@@ -553,9 +563,9 @@ public class TreeDetail extends ContentPanel {
         tree.addSelectionHandler(new SelectionHandler<TreeItem>() {
 
             public void onSelection(SelectionEvent<TreeItem> event) {
-            	if (event.getSelectedItem() instanceof DynamicTreeItem){
-            		selectedItem = (DynamicTreeItem) event.getSelectedItem();
-            	}
+                if (event.getSelectedItem() instanceof DynamicTreeItem) {
+                    selectedItem = (DynamicTreeItem) event.getSelectedItem();
+                }
             }
         });
     }
@@ -566,26 +576,26 @@ public class TreeDetail extends ContentPanel {
 
             boolean maybeUse = false;
             Iterator<VisibleRuleResult> iter = visibleResults.iterator();
-            
-        	while (iter.hasNext()){
-        		VisibleRuleResult vr = iter.next();
-        		if (vr.getXpath().equals(realPath)){
-        			itemNode.setVisible(vr.isVisible());
+
+            while (iter.hasNext()) {
+                VisibleRuleResult vr = iter.next();
+                if (vr.getXpath().equals(realPath)) {
+                    itemNode.setVisible(vr.isVisible());
                     iter.remove();
                     return;
-        		}
-        		if (vr.getXpath().startsWith(realPath)){
-        			maybeUse = true;
-        			break;
-        		}
-        	}
-        	if (!maybeUse){
-        		return;
-        	}
+                }
+                if (vr.getXpath().startsWith(realPath)) {
+                    maybeUse = true;
+                    break;
+                }
+            }
+            if (!maybeUse) {
+                return;
+            }
         }
-        
-        if (visibleResults.size() == 0){
-        	return;
+
+        if (visibleResults.size() == 0) {
+            return;
         }
 
         for (int i = 0; i < itemNode.getChildCount(); i++) {
@@ -593,18 +603,18 @@ public class TreeDetail extends ContentPanel {
             recrusiveSetItems(visibleResults, childNode);
         }
     }
-    
+
     private void recrusiveSetItems(VisibleRuleResult visibleResult, DynamicTreeItem rootItem) {
         if (rootItem.getItemNodeModel() != null) {
-        	String realPath = CommonUtil.getRealXPath(rootItem.getItemNodeModel());
+            String realPath = CommonUtil.getRealXPath(rootItem.getItemNodeModel());
             if (realPath.equals(visibleResult.getXpath())) {
                 rootItem.setVisible(visibleResult.isVisible());
                 return;
             }
-            
-            if (!visibleResult.getXpath().startsWith(realPath)){
-        		return;
-        	}
+
+            if (!visibleResult.getXpath().startsWith(realPath)) {
+                return;
+            }
         }
 
         if (rootItem.getChildCount() == 0) {
@@ -625,6 +635,8 @@ public class TreeDetail extends ContentPanel {
 
         public DynamicTreeItem() {
             super();
+            this.getElement().getStyle().setPaddingTop(0D, Unit.PX);
+            this.getElement().getStyle().setPaddingBottom(0D, Unit.PX);
         }
 
         private List<TreeItem> items = new ArrayList<TreeItem>();
@@ -652,30 +664,30 @@ public class TreeDetail extends ContentPanel {
         public void setState(boolean open, boolean fireEvents) {
             // Only do the physical update if it changes
             if (this.getOpen() != open) {
-            	setOpen(open);
-            	__updateState(true, true);
-            	if (fireEvents && this.getTree() != null) {
-            		fireTreeStateChanged(this.getTree(), this, open);
-            	}
+                setOpen(open);
+                __updateState(true, true);
+                if (fireEvents && this.getTree() != null) {
+                    fireTreeStateChanged(this.getTree(), this, open);
+                }
             }
         }
-        
+
         private native boolean getOpen()/*-{
-        	return this.@com.google.gwt.user.client.ui.TreeItem::open;
+            return this.@com.google.gwt.user.client.ui.TreeItem::open;
         }-*/;
-        
+
         private native void setOpen(boolean open)/*-{
-        	this.@com.google.gwt.user.client.ui.TreeItem::open = open;
+            this.@com.google.gwt.user.client.ui.TreeItem::open = open;
         }-*/;
-        
+
         private native void __updateState(boolean animate, boolean updateTreeSelection)/*-{
-        	this.@com.google.gwt.user.client.ui.TreeItem::updateState(ZZ)(animate, updateTreeSelection);
+            this.@com.google.gwt.user.client.ui.TreeItem::updateState(ZZ)(animate, updateTreeSelection);
         }-*/;
-        
+
         private native void fireTreeStateChanged(Tree tree, TreeItem item, boolean open)/*-{
-        	tree.@com.google.gwt.user.client.ui.Tree::fireStateChanged(Lcom/google/gwt/user/client/ui/TreeItem;Z)(item, open);
+            tree.@com.google.gwt.user.client.ui.Tree::fireStateChanged(Lcom/google/gwt/user/client/ui/TreeItem;Z)(item, open);
         }-*/;
-        
+
         public void setItemNodeModel(ItemNodeModel treeNode) {
             itemNode = treeNode;
         }
@@ -684,9 +696,10 @@ public class TreeDetail extends ContentPanel {
             return itemNode;
         }
     }
-    
+
     interface RenderCompleteCallBack {
-    	void onSuccess();
+
+        void onSuccess();
     }
 
     private static BrowseRecordsServiceAsync getItemService() {
@@ -709,22 +722,22 @@ public class TreeDetail extends ContentPanel {
                         TreeDetail.this.removeAll();
                         item.setLastUpdateTime(node);
                         itemsDetailPanel.clearChildrenContent();
-                        
+
                         if (hasVisibleRule(viewBean.getBindingEntityModel().getMetaDataTypes().get(
                                 viewBean.getBindingEntityModel().getConceptName()))) {
-                        	BrowseRecordsServiceAsync itemService = getItemService();
+                            BrowseRecordsServiceAsync itemService = getItemService();
                             itemService.executeVisibleRule(viewBean, CommonUtil.toXML(node, TreeDetail.this.viewBean, true),
                                     new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
-                                public void onSuccess(List<VisibleRuleResult> visibleResults) {
-                                	if (visibleResults != null){
-                                		recrusiveSetItems(visibleResults, node);
-                                	}
-                                	renderTree(node);                                	
-                                }
-                            });
-                        }else {
-                        	renderTree(node);                        	
+                                        public void onSuccess(List<VisibleRuleResult> visibleResults) {
+                                            if (visibleResults != null) {
+                                                recrusiveSetItems(visibleResults, node);
+                                            }
+                                            renderTree(node);
+                                        }
+                                    });
+                        } else {
+                            renderTree(node);
                         }
                     }
 
@@ -811,10 +824,10 @@ public class TreeDetail extends ContentPanel {
         return (ItemNodeModel) root.getUserObject();
     }
 
-    public TreeItem getRoot(){
-    	return root;
+    public TreeItem getRoot() {
+        return root;
     }
-    
+
     public void setViewBean(ViewBean viewBean) {
         this.viewBean = viewBean;
     }
@@ -822,61 +835,62 @@ public class TreeDetail extends ContentPanel {
     public ViewBean getViewBean() {
         return viewBean;
     }
+
     public ItemsDetailPanel getItemsDetailPanel() {
         return itemsDetailPanel;
     }
 
     public void makeWarning(TreeItem item) {
         ItemNodeModel itemNodeModel = ((DynamicTreeItem) item).getItemNodeModel();
-        if(itemNodeModel != null) {
-            if(!isRoot(itemNodeModel)) {
-                ItemNodeModel parent = (ItemNodeModel)itemNodeModel.getParent();
+        if (itemNodeModel != null) {
+            if (!isRoot(itemNodeModel)) {
+                ItemNodeModel parent = (ItemNodeModel) itemNodeModel.getParent();
                 if (item.getWidget() instanceof HorizontalPanel) {
                     HorizontalPanel hp = (HorizontalPanel) item.getWidget();
                     if (hp.getWidgetCount() > 1) {
                         Widget field = hp.getWidget(1);
                         if (itemNodeModel.isMandatory()) {
-                            if(isRoot(parent)){
+                            if (isRoot(parent)) {
                                 makeWarning4Mandatory(field, true, itemNodeModel);
                             } else {
-                                if(parent.isMandatory()) {
+                                if (parent.isMandatory()) {
                                     makeWarning4Mandatory(field, true, itemNodeModel);
                                 } else {
                                     makeWarning4Mandatory(field, false, itemNodeModel);
                                 }
                             }
                         } else {
-                            if (field instanceof FormatTextField){
+                            if (field instanceof FormatTextField) {
                                 FormatTextField ftf = (FormatTextField) field;
-                                String value = ftf.getValue();                                    
-                                if(value != null) {
+                                String value = ftf.getValue();
+                                if (value != null) {
                                     ftf.setValidateFlag(true);
                                     ftf.validateValue(value);
                                     ftf.setValidateFlag(false);
-                                }                                        
+                                }
 
                             } else if (field instanceof FormatNumberField) {
                                 FormatNumberField fnf = (FormatNumberField) field;
-                                Number value = fnf.getValue();                                   
-                                if(value != null) {
+                                Number value = fnf.getValue();
+                                if (value != null) {
                                     fnf.setValidateFlag(true);
                                     fnf.validateValue(value.toString());
                                     fnf.setValidateFlag(false);
-                                }                                       
-                                
-                            }  else if (field instanceof FormatDateField) {
+                                }
+
+                            } else if (field instanceof FormatDateField) {
                                 FormatDateField fdf = (FormatDateField) field;
                                 Date value = fdf.getValue();
-                                if(value != null) {
+                                if (value != null) {
                                     fdf.setValidateFlag(true);
                                     fdf.validateValue(itemNodeModel.getObjectValue().toString());
                                     fdf.setValidateFlag(false);
                                 }
-                                
+
                             } else if (field instanceof ForeignKeyField) {
                                 ForeignKeyField fkf = (ForeignKeyField) field;
                                 ForeignKeyBean value = fkf.getValue();
-                                if(value != null) {
+                                if (value != null) {
                                     fkf.setValidateFlag(true);
                                     fkf.validateValue(value.getId());
                                     fkf.setValidateFlag(false);
@@ -893,49 +907,49 @@ public class TreeDetail extends ContentPanel {
             makeWarning(subItem);
         }
     }
-        
+
     private void makeWarning4Mandatory(Widget field, boolean isParentMandatory, ItemNodeModel itemNodeModel) {
         if (field instanceof PictureField) {
-            if(((PictureField) field).getImageURL().equals(PictureField.DefaultImage)){
-                if(isParentMandatory)
+            if (((PictureField) field).getImageURL().equals(PictureField.DefaultImage)) {
+                if (isParentMandatory)
                     ((Field<?>) field).markInvalid(null);
                 else {
-                    if(checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
+                    if (checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
                         ((Field<?>) field).markInvalid(null);
                 }
             }
-                
+
         } else if (field instanceof SimpleComboBox) {
             SimpleComboBox<?> scb = (SimpleComboBox<?>) field;
             ModelData value = scb.getValue();
-            if(value == null) {
-                if(isParentMandatory)
+            if (value == null) {
+                if (isParentMandatory)
                     scb.markInvalid(scb.getMessages().getBlankText());
                 else {
-                    if(checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
+                    if (checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
                         scb.markInvalid(scb.getMessages().getBlankText());
                 }
             }
-        } else if(field instanceof UrlField) {
+        } else if (field instanceof UrlField) {
             UrlField uf = (UrlField) field;
             String value = uf.getValue();
-            if(value == null) {
-                if(isParentMandatory)
+            if (value == null) {
+                if (isParentMandatory)
                     uf.markInvalid(uf.getMessages().getInvalidText());
                 else {
-                    if(checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
+                    if (checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
                         uf.markInvalid(uf.getMessages().getInvalidText());
                 }
             }
-            
-        } else if(field instanceof FormatDateField) {
+
+        } else if (field instanceof FormatDateField) {
             FormatDateField fdf = (FormatDateField) field;
             Date value = fdf.getValue();
-            if(value == null) {
-                if(isParentMandatory)
+            if (value == null) {
+                if (isParentMandatory)
                     fdf.markInvalid(fdf.getMessages().getBlankText());
                 else {
-                    if(checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
+                    if (checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
                         fdf.markInvalid(fdf.getMessages().getBlankText());
                 }
             } else {
@@ -943,15 +957,15 @@ public class TreeDetail extends ContentPanel {
                 fdf.validateValue(itemNodeModel.getObjectValue().toString());
                 fdf.setValidateFlag(false);
             }
-            
-        } else if(field instanceof ForeignKeyField) {
+
+        } else if (field instanceof ForeignKeyField) {
             ForeignKeyField fkf = (ForeignKeyField) field;
             ForeignKeyBean value = fkf.getValue();
-            if(value == null) {
-                if(isParentMandatory)
+            if (value == null) {
+                if (isParentMandatory)
                     fkf.markInvalid(fkf.getMessages().getBlankText());
                 else {
-                    if(checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
+                    if (checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
                         fkf.markInvalid(fkf.getMessages().getBlankText());
                 }
             } else {
@@ -959,15 +973,15 @@ public class TreeDetail extends ContentPanel {
                 fkf.validateValue(value.getId());
                 fkf.setValidateFlag(false);
             }
-            
+
         } else if (field instanceof FormatTextField) {
             FormatTextField ftf = (FormatTextField) field;
             String value = ftf.getValue();
             if (value == null || value.equals("")) { //$NON-NLS-1$
-                if(isParentMandatory)
+                if (isParentMandatory)
                     ftf.markInvalid(ftf.getMessages().getBlankText());
                 else {
-                    if(checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
+                    if (checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
                         ftf.markInvalid(ftf.getMessages().getBlankText());
                 }
             } else {
@@ -975,37 +989,37 @@ public class TreeDetail extends ContentPanel {
                 ftf.validateValue(value);
                 ftf.setValidateFlag(false);
             }
-            
+
         } else if (field instanceof FormatNumberField) {
             FormatNumberField fnf = (FormatNumberField) field;
             Number value = fnf.getValue();
             if (value == null) {
-                if(isParentMandatory)
+                if (isParentMandatory)
                     fnf.markInvalid(fnf.getMessages().getBlankText());
                 else {
-                    if(checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
+                    if (checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
                         fnf.markInvalid(fnf.getMessages().getBlankText());
                 }
-            } else {                                       
+            } else {
                 fnf.setValidateFlag(true);
                 fnf.validateValue(value.toString());
                 fnf.setValidateFlag(false);
             }
         }
     }
-    
-    private boolean checkSameLevelNode(ItemNodeModel model){
+
+    private boolean checkSameLevelNode(ItemNodeModel model) {
         List<ModelData> modelList = model.getChildren();
-        for(ModelData data : modelList) {
-            ItemNodeModel itemNodeModel = (ItemNodeModel)data;
-            if(itemNodeModel.getObjectValue() != null && !itemNodeModel.getObjectValue().equals("")) //$NON-NLS-1$
+        for (ModelData data : modelList) {
+            ItemNodeModel itemNodeModel = (ItemNodeModel) data;
+            if (itemNodeModel.getObjectValue() != null && !itemNodeModel.getObjectValue().equals("")) //$NON-NLS-1$
                 return true;
         }
         return false;
     }
-    
-    private boolean isRoot(ItemNodeModel itemNodeModel){
-        if(itemNodeModel.getParent() != null)
+
+    private boolean isRoot(ItemNodeModel itemNodeModel) {
+        if (itemNodeModel.getParent() != null)
             return false;
         return true;
     }
