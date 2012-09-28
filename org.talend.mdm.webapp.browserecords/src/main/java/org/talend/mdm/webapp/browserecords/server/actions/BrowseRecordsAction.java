@@ -304,14 +304,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (pkInfoPath != null && pkInfoPath.length() > 0) {
                     String pkInfo = Util.getFirstTextNode(document, pkInfoPath);
                     if (pkInfo != null) {
-                        if (entityModel.getTypeModel(pkInfoPath).getType().equals(DataTypeConstants.MLS)) {
-                            String value = MultilanguageMessageParser.getValueByLanguage(pkInfo, language);
-                            if (value != null) {
-                                xPathList.add(value);
-                            }
-                        } else {
-                            xPathList.add(pkInfo);
-                        }
+                        xPathList.add(pkInfo);
                     }
                 }
             }
@@ -553,14 +546,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    /**
-     * This method should be only set primaryKey info and description on entity
-     * 
-     * @param itemBean
-     * @param entityModel
-     * @param language
-     * @throws Exception
-     */
     private void dynamicAssemble(ItemBean itemBean, EntityModel entityModel, String language) throws Exception {
         if (itemBean.getItemXml() != null) {
             Document docXml = Util.parse(itemBean.getItemXml());
@@ -581,7 +566,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     // It should getValue by XPath but not element name(ItemBean's map object is only used by
                     // ItemsListPanel)
                     NodeList nodes = Util.getNodeList(docXml,
-                            typeModel.getXpath().replaceFirst(entityModel.getConceptName() + "/", "./")); //$NON-NLS-1$//$NON-NLS-2$
+                            typeModel.getXpath().replaceFirst(entityModel.getConceptName() + "/", "./"));
                     if (nodes.getLength() > 0) {
                         if (nodes.item(0) instanceof Element) {
                             Element value = (Element) nodes.item(0);
@@ -589,8 +574,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 List<Serializable> list = new ArrayList<Serializable>();
                                 for (int t = 0; t < nodes.getLength(); t++) {
                                     if (nodes.item(t) instanceof Element) {
-                                        Node node = nodes.item(t);
-                                        migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
                                         list.add(((Element) nodes.item(t)).getTextContent());
                                     }
                                 }
@@ -614,6 +597,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
+    /**
+     * This method should be only set primaryKey info and description on entity
+     * 
+     * @param itemBean
+     * @param entityModel
+     * @param language
+     * @throws Exception
+     */
     public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel) throws Exception {
         if (itemBean.getItemXml() != null) {
             Document docXml = Util.parse(itemBean.getItemXml());
@@ -631,15 +622,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     // result has same name nodes
                     if (countMap.containsKey(leafPath)) {
                         int count = Integer.valueOf(countMap.get(leafPath).toString());
-
-                        Node node = nodes.item(count);
-                        migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
-                        itemBean.set(path, ((Node) nodes.item(count)).getTextContent());
+                        itemBean.set(path, nodes.item(count).getTextContent());
                         countMap.put(leafPath, count + 1);
                     } else {
-                        Node node = nodes.item(0);
-                        migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
-                        itemBean.set(path, ((Node) nodes.item(0)).getTextContent());
+                        itemBean.set(path, nodes.item(0).getTextContent());
                         countMap.put(leafPath, 1);
                     }
                 } else if (nodes.getLength() == 1) {
