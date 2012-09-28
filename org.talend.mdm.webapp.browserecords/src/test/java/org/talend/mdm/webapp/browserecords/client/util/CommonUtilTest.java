@@ -21,10 +21,14 @@ import java.util.Stack;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
+import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.AdvancedSearchPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
 import org.talend.mdm.webapp.browserecords.server.util.TestData;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
@@ -35,6 +39,45 @@ import com.extjs.gxt.ui.client.data.ModelData;
 @SuppressWarnings("nls")
 public class CommonUtilTest extends TestCase {
 
+    
+    public void testParseSimpleSearchExpression () {
+        try {
+            String s = "(foo/bar EQUALS 3/4)";
+            CommonUtil.CriteriaAndC r = CommonUtil.parseSimpleSearchExpression(s.toCharArray(), 0);
+            assertTrue(r.cr instanceof SimpleCriterion);
+            assertTrue(r.c == s.length() - 1);
+            assertTrue(((SimpleCriterion)r.cr).getOperator().equals("EQUALS"));
+            assertTrue(((SimpleCriterion)r.cr).getKey().equals("foo/bar"));
+            assertTrue(((SimpleCriterion)r.cr).getValue().equals("3/4"));            
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
+    
+    public void testParseMultipleSearchExpression() {
+        try {
+            String s = "((foo/bar EQUALS 3/4) AND ((a/a/a MORETHAN a/b) OR (c/b/f LESSTHAN 3.2)) AND (c/c/c MORETHAN c/c))";
+            CommonUtil.CriteriaAndC r = CommonUtil.parseMultipleSearchExpression(s.toCharArray(), 0);
+            assertTrue(r.cr instanceof MultipleCriteria);
+            assertTrue(r.c == s.length() - 1);
+            MultipleCriteria mc = (MultipleCriteria)r.cr;            
+            assertTrue(mc.getOperator().equals("AND"));
+            List<Criteria> children = mc.getChildren();
+            assertTrue(children.size() == 3);
+            MultipleCriteria child = (MultipleCriteria)children.get(1);
+            assertTrue(child.getOperator().equals("OR"));
+            children = child.getChildren();
+            assertTrue(((SimpleCriterion)children.get(0)).getOperator().equals("MORETHAN"));
+            assertTrue(((SimpleCriterion)children.get(1)).getOperator().equals("LESSTHAN"));            
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            fail();
+        }        
+    }
+        
     public void testValidateSearchValue() {
         Map<String, TypeModel> xpathMap = new HashMap<String, TypeModel>();
         xpathMap.put("Product/Name", new SimpleTypeModel()); //$NON-NLS-1$
