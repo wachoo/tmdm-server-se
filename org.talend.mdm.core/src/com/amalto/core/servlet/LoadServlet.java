@@ -142,18 +142,18 @@ public class LoadServlet extends HttpServlet {
         if (dataCluster == null) {
             throw new IllegalArgumentException("Data cluster '" + dataClusterName + "' does not exist.");
         }
-
-        // Activate optimizations only if Qizx is used.
+        // Activate optimizations if Qizx is used.
         Object dbType = MDMConfiguration.getConfiguration().get("xmldb.type"); //$NON-NLS-1$
         boolean isUsingQizx = dbType != null && EDBType.QIZX.getName().equals(dbType.toString());
-
+        // Activate optimizations if SQL is used.
+        Object userWrapper = MDMConfiguration.getConfiguration().get("user.wrapper"); //$NON-NLS-1$
+        boolean isUsingSQL = userWrapper != null && "com.amalto.core.storage.StorageWrapper".equals(userWrapper.toString()); //$NON-NLS-1$
         LoadAction loadAction;
-        if (needValidate || !isUsingQizx) {
+        if (needValidate || (!isUsingQizx && !isUsingSQL)) {
             loadAction = new DefaultLoadAction(dataClusterName, dataModelName, needValidate);
         } else {
             loadAction = new OptimizedLoadAction(dataClusterName, typeName, dataModelName, needAutoGenPK);
         }
-
         if (log.isDebugEnabled()) {
             log.debug("Load action selected for load: " + loadAction.getClass().getName() + "(isUsingQizx: " + isUsingQizx //$NON-NLS-1$ //$NON-NLS-2$
                     + " / needValidate:" + needValidate + ")"); //$NON-NLS-1$ //$NON-NLS-2$

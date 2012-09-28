@@ -1,6 +1,7 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
@@ -11,7 +12,9 @@ import org.hibernate.Session;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
 *
@@ -25,6 +28,10 @@ class UpdateReportTypeMapping extends TypeMapping {
     private ComplexTypeMetadata databaseUpdateReportType;
 
     private MetadataRepository repository;
+
+    private Map<String, FieldMetadata> userToDatabase = new HashMap<String, FieldMetadata>();
+
+    private Map<String, FieldMetadata> databaseToUser = new HashMap<String, FieldMetadata>();
 
     public UpdateReportTypeMapping(ComplexTypeMetadata updateReportType, ComplexTypeMetadata databaseUpdateReportType, MappingRepository mappings, MetadataRepository repository) {
         super(updateReportType, mappings);
@@ -107,5 +114,55 @@ class UpdateReportTypeMapping extends TypeMapping {
     @Override
     public String toString() {
         return MAPPING_NAME;
+    }
+
+    protected void map(FieldMetadata user, FieldMetadata database) {
+        if (isFrozen) {
+            throw new IllegalStateException("Mapping is frozen.");
+        }
+        userToDatabase.put(user.getName(), database);
+        databaseToUser.put(database.getName(), user);
+    }
+
+    public FieldMetadata getDatabase(FieldMetadata from) {
+        return userToDatabase.get(from.getName());
+    }
+
+    public FieldMetadata getUser(FieldMetadata to) {
+        return databaseToUser.get(to.getName());
+    }
+
+    /**
+     * "Freeze" both database and internal types.
+     * @see com.amalto.core.metadata.TypeMetadata#freeze()
+     */
+    public void freeze() {
+        if (!isFrozen) {
+            // Ensure mapped type are frozen.
+            try {
+                database.freeze();
+            } catch (Exception e) {
+                throw new RuntimeException("Could not process internal type '" + database.getName() + "'.", e);
+            }
+            try {
+                user.freeze();
+            } catch (Exception e) {
+                throw new RuntimeException("Could not process user type '" + user.getName() + "'.", e);
+            }
+
+            // Freeze field mappings.
+            Map<String, FieldMetadata> frozen = new HashMap<String, FieldMetadata>();
+            for (Map.Entry<String, FieldMetadata> entry : userToDatabase.entrySet()) {
+                frozen.put(entry.getKey(), entry.getValue().freeze());
+            }
+            userToDatabase = frozen;
+            frozen = new HashMap<String, FieldMetadata>();
+            for (Map.Entry<String, FieldMetadata> entry : databaseToUser.entrySet()) {
+                frozen.put(entry.getKey(), entry.getValue().freeze());
+            }
+            databaseToUser = frozen;
+
+            isFrozen = true;
+        }
     }
 }

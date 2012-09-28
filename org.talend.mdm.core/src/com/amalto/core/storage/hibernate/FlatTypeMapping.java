@@ -23,8 +23,56 @@ import java.lang.reflect.Constructor;
 import java.util.*;
 
 class FlatTypeMapping extends TypeMapping {
+
+    private Map<FieldMetadata, FieldMetadata> userToDatabase = new HashMap<FieldMetadata, FieldMetadata>();
+
+    private Map<FieldMetadata, FieldMetadata> databaseToUser = new HashMap<FieldMetadata, FieldMetadata>();
+
     public FlatTypeMapping(ComplexTypeMetadata complexType, MappingRepository mappings) {
         super(complexType, mappings);
+    }
+
+    public void map(FieldMetadata user, FieldMetadata database) {
+        userToDatabase.put(user, database);
+        databaseToUser.put(database, user);
+    }
+
+    public FieldMetadata getDatabase(FieldMetadata from) {
+        return userToDatabase.get(from);
+    }
+
+    public FieldMetadata getUser(FieldMetadata to) {
+        return databaseToUser.get(to);
+    }
+
+    public void freeze() {
+        if (!isFrozen) {
+            // Ensure mapped type are frozen.
+            try {
+                database.freeze();
+            } catch (Exception e) {
+                throw new RuntimeException("Could not process internal type '" + database.getName() + "'.", e);
+            }
+            try {
+                user.freeze();
+            } catch (Exception e) {
+                throw new RuntimeException("Could not process user type '" + user.getName() + "'.", e);
+            }
+
+            // Freeze field mappings.
+            Map<FieldMetadata, FieldMetadata> frozen = new HashMap<FieldMetadata, FieldMetadata>();
+            for (Map.Entry<FieldMetadata, FieldMetadata> entry : userToDatabase.entrySet()) {
+                frozen.put(entry.getKey().freeze(), entry.getValue().freeze());
+            }
+            userToDatabase = frozen;
+            frozen = new HashMap<FieldMetadata, FieldMetadata>();
+            for (Map.Entry<FieldMetadata, FieldMetadata> entry : databaseToUser.entrySet()) {
+                frozen.put(entry.getKey().freeze(), entry.getValue().freeze());
+            }
+            databaseToUser = frozen;
+
+            isFrozen = true;
+        }
     }
 
     @Override

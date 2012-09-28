@@ -30,6 +30,10 @@ import java.util.*;
  */
 public class ScatteredTypeMapping extends TypeMapping {
 
+    private Map<String, FieldMetadata> userToDatabase = new HashMap<String, FieldMetadata>();
+
+    private Map<String, FieldMetadata> databaseToUser = new HashMap<String, FieldMetadata>();
+
     public ScatteredTypeMapping(ComplexTypeMetadata user, MappingRepository mappings) {
         super(user, mappings);
     }
@@ -312,5 +316,55 @@ public class ScatteredTypeMapping extends TypeMapping {
     @Override
     public String toString() {
         return "SCATTERED (" + user.getName() + ")";
+    }
+
+    protected void map(FieldMetadata user, FieldMetadata database) {
+        if (isFrozen) {
+            throw new IllegalStateException("Mapping is frozen.");
+        }
+        userToDatabase.put(user.getName(), database);
+        databaseToUser.put(database.getName(), user);
+    }
+
+    public FieldMetadata getDatabase(FieldMetadata from) {
+        return userToDatabase.get(from.getName());
+    }
+
+    public FieldMetadata getUser(FieldMetadata to) {
+        return databaseToUser.get(to.getName());
+    }
+
+    /**
+     * "Freeze" both database and internal types.
+     * @see com.amalto.core.metadata.TypeMetadata#freeze()
+     */
+    public void freeze() {
+        if (!isFrozen) {
+            // Ensure mapped type are frozen.
+            try {
+                database.freeze();
+            } catch (Exception e) {
+                throw new RuntimeException("Could not process internal type '" + database.getName() + "'.", e);
+            }
+            try {
+                user.freeze();
+            } catch (Exception e) {
+                throw new RuntimeException("Could not process user type '" + user.getName() + "'.", e);
+            }
+
+            // Freeze field mappings.
+            Map<String, FieldMetadata> frozen = new HashMap<String, FieldMetadata>();
+            for (Map.Entry<String, FieldMetadata> entry : userToDatabase.entrySet()) {
+                frozen.put(entry.getKey(), entry.getValue().freeze());
+            }
+            userToDatabase = frozen;
+            frozen = new HashMap<String, FieldMetadata>();
+            for (Map.Entry<String, FieldMetadata> entry : databaseToUser.entrySet()) {
+                frozen.put(entry.getKey(), entry.getValue().freeze());
+            }
+            databaseToUser = frozen;
+
+            isFrozen = true;
+        }
     }
 }

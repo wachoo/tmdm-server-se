@@ -203,4 +203,11 @@ public class SoftTypeRef implements ComplexTypeMetadata {
     public void registerKey(FieldMetadata keyField) {
         getTypeAsComplex().registerKey(keyField);
     }
+
+    @Override
+    public int hashCode() {
+        return getType().hashCode();
+    }
+
+
 }
