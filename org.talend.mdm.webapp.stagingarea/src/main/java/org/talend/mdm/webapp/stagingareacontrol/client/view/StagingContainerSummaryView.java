@@ -29,15 +29,15 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.ajaxloader.client.AjaxLoader;
-import com.google.gwt.ajaxloader.client.ArrayHelper;
 import com.google.gwt.ajaxloader.client.AjaxLoader.AjaxLoaderOptions;
+import com.google.gwt.ajaxloader.client.ArrayHelper;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.LegendPosition;
-import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.visualizations.PieChart;
 import com.google.gwt.visualization.client.visualizations.PieChart.Options;
 
@@ -160,6 +160,7 @@ public class StagingContainerSummaryView extends AbstractView {
         containerName.setStyleAttribute("margin-right", "10px"); //$NON-NLS-1$//$NON-NLS-2$
         titleGrid.setWidget(0, 3, modelLabel);
         titleGrid.setWidget(0, 4, dataModelName);
+        dataModelName.setStyleAttribute("margin-right", "5px");//$NON-NLS-1$//$NON-NLS-2$
         titleGrid.setWidget(0, 5, refresh);
 
         mainPanel.add(titleGrid, titleData);
@@ -199,10 +200,10 @@ public class StagingContainerSummaryView extends AbstractView {
     }
 
     private native void addClickForOpenInvalidRecord(Integer state, Element el)/*-{
-        var instance = this;
-        el.onclick = function(){
-            instance.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::onOpenInvalidRecord1(Ljava/lang/Integer;)(state);
-        };
+		var instance = this;
+		el.onclick = function() {
+			instance.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::onOpenInvalidRecord1(Ljava/lang/Integer;)(state);
+		};
     }-*/;
 
     void onOpenInvalidRecord1(Integer state) {
