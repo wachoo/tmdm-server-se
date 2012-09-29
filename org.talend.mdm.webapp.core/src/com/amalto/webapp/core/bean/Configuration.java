@@ -100,10 +100,6 @@ public class Configuration {
             HttpSession session = configurationContext.getSession();
             if (session == null) {
                 instance = null;
-
-                // TEMP
-                throw new IllegalStateException();
-                
             } else {
                 instance = (Configuration) session.getAttribute(CONFIGURATION_ATTRIBUTE);
             }
