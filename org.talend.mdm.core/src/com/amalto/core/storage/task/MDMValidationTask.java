@@ -23,9 +23,7 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Map;
 
 import static com.amalto.core.query.user.UserQueryBuilder.eq;
@@ -112,7 +110,9 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                 recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_VALIDATE);
             } catch (Exception e) {
                 recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.FAIL_VALIDATE_VALIDATION);
-                recordProperties.put(Storage.METADATA_STAGING_ERROR, e.getMessage());
+                StringWriter exceptionStackTrace = new StringWriter();
+                e.printStackTrace(new PrintWriter(exceptionStackTrace));
+                recordProperties.put(Storage.METADATA_STAGING_ERROR, exceptionStackTrace.toString());
             }
             storage.update(record);
         }
