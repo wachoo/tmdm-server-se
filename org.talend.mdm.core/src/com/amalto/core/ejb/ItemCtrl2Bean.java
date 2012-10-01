@@ -20,9 +20,7 @@ import javax.ejb.SessionContext;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.query.user.OrderBy;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.core.query.user.*;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
@@ -557,7 +555,7 @@ public class ItemCtrl2Bean implements SessionBean {
                 qb.start(start);
                 qb.limit(limit);
                 if (orderBy != null) {
-                    FieldMetadata field = type.getField(StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
+                    TypedExpression field = UserQueryHelper.getField(repository, typeName, StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
                     if (field == null) {
                         throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
                     }

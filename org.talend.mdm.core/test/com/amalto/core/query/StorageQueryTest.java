@@ -1312,4 +1312,17 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
     }
+
+    public void testSortOnXPath() throws Exception {
+        UserQueryBuilder qb = from(person).selectId(person);
+        TypedExpression sortField = UserQueryHelper.getField(repository, "Person", "../../i");
+        qb.orderBy(sortField, OrderBy.Direction.DESC);
+
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        int[] expected = {3, 2, 1};
+        int i = 0;
+        for (DataRecord result : storageResults) {
+            assertEquals(expected[i++], result.get("id"));
+        }
+    }
 }

@@ -56,37 +56,15 @@ public class UserQueryHelper {
             if (WhereCondition.FULLTEXTSEARCH.equals(operator)) {
                 return fullText(value);
             }
-            TypedExpression field;
             String leftPath = whereCondition.getLeftPath();
             String typeName = leftPath.substring(0, leftPath.indexOf('/')); //$NON-NLS-1$
             String leftFieldName = StringUtils.substringAfter(leftPath, "/"); //$NON-NLS-1$
             boolean isPerformingTypeCheck = false;
             ComplexTypeMetadata type = repository.getComplexType(typeName);
             if (leftFieldName.endsWith("xsi:type") || leftFieldName.endsWith("tmdm:type")) { //$NON-NLS-1$ //$NON-NLS-2$
-                field = getField(repository, typeName, StringUtils.substringBeforeLast(leftFieldName, "/")); //$NON-NLS-1$
                 isPerformingTypeCheck = true;
-            } else if (UserQueryBuilder.TIMESTAMP_FIELD.equals(leftFieldName)) {
-                field = timestamp();
-            } else if (UserQueryBuilder.TASK_ID_FIELD.equals(leftFieldName)) {
-                field = taskId();
-            } else if (UserQueryBuilder.ID_FIELD.equals(leftFieldName)) {
-                List<FieldMetadata> keyFields = type.getKeyFields();
-                if (keyFields.isEmpty()) {
-                    throw new IllegalArgumentException("Can not query id on type '" + typeName + "' because type has no id field.");
-                }
-                if (keyFields.size() > 1) {
-                    throw new NotImplementedException("No support for query on composite key.");
-                }
-                field = new Field(keyFields.get(0));
-            } else if (UserQueryBuilder.STAGING_STATUS_FIELD.equals(leftFieldName)) {
-                field = UserStagingQueryBuilder.status();
-            } else if (UserQueryBuilder.STAGING_SOURCE_FIELD.equals(leftFieldName)) {
-                field = UserStagingQueryBuilder.source();
-            } else if (UserQueryBuilder.STAGING_ERROR_FIELD.equals(leftFieldName)) {
-                field = UserStagingQueryBuilder.error();
-            } else {
-                field = getField(repository, typeName, leftFieldName);
             }
+            TypedExpression field = getField(repository, typeName, leftFieldName);
             // Field comparisons
             if (!whereCondition.isRightValueXPath()) { // Value based comparison
                 if (isPerformingTypeCheck) {
@@ -154,12 +132,34 @@ public class UserQueryHelper {
         }
     }
 
-    private static TypedExpression getField(MetadataRepository repository, String typeName, String fieldName) {
-        ComplexTypeMetadata complexType = repository.getComplexType(typeName);
-        if (complexType == null) {
+    public static TypedExpression getField(MetadataRepository repository, String typeName, String fieldName) {
+        ComplexTypeMetadata type = repository.getComplexType(typeName);
+        if (type == null) {
             throw new IllegalArgumentException("Type '" + typeName + "' does not exist.");
         }
-        FieldMetadata field = complexType.getField(fieldName);
+        if (fieldName.endsWith("xsi:type") || fieldName.endsWith("tmdm:type")) { //$NON-NLS-1$ //$NON-NLS-2$
+            return getField(repository, typeName, StringUtils.substringBeforeLast(fieldName, "/")); //$NON-NLS-1$
+        } else if (UserQueryBuilder.TIMESTAMP_FIELD.equals(fieldName)) {
+            return timestamp();
+        } else if (UserQueryBuilder.TASK_ID_FIELD.equals(fieldName)) {
+            return taskId();
+        } else if (UserQueryBuilder.ID_FIELD.equals(fieldName)) {
+            List<FieldMetadata> keyFields = type.getKeyFields();
+            if (keyFields.isEmpty()) {
+                throw new IllegalArgumentException("Can not query id on type '" + typeName + "' because type has no id field.");
+            }
+            if (keyFields.size() > 1) {
+                throw new NotImplementedException("No support for query on composite key.");
+            }
+            return new Field(keyFields.get(0));
+        } else if (UserQueryBuilder.STAGING_STATUS_FIELD.equals(fieldName)) {
+            return UserStagingQueryBuilder.status();
+        } else if (UserQueryBuilder.STAGING_SOURCE_FIELD.equals(fieldName)) {
+            return UserStagingQueryBuilder.source();
+        } else if (UserQueryBuilder.STAGING_ERROR_FIELD.equals(fieldName)) {
+            return UserStagingQueryBuilder.error();
+        }
+        FieldMetadata field = type.getField(fieldName);
         if (field == null) {
             throw new IllegalArgumentException("Field '" + fieldName + "' does not exist in type '" + typeName + "'.");
         }

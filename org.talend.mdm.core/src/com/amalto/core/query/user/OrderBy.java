@@ -21,11 +21,11 @@ public class OrderBy implements Expression {
         DESC
     }
 
-    private final Field field;
+    private final TypedExpression field;
 
     private final Direction direction;
 
-    public OrderBy(Field field, Direction direction) {
+    public OrderBy(TypedExpression field, Direction direction) {
         this.field = field;
         this.direction = direction;
     }
@@ -34,7 +34,7 @@ public class OrderBy implements Expression {
         return direction;
     }
 
-    public Field getField() {
+    public TypedExpression getField() {
         return field;
     }
 

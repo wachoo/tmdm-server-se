@@ -411,19 +411,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(OrderBy orderBy) {
-        Field field = orderBy.getField();
-
-        String fieldName;
-        ComplexTypeMetadata containingType = field.getFieldMetadata().getContainingType();
-        if (!selectedTypes.contains(containingType)) {
-            TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(selectedTypes.get(0));
-            FieldMetadata database = mapping.getDatabase(field.getFieldMetadata());
-            String alias = getAlias(mapping, database);
-            fieldName = alias + '.' + database.getName();
-        } else {
-            fieldName = getFieldName(field, mappingMetadataRepository);
-        }
-
+        TypedExpression orderByExpression = orderBy.getField();
+        String fieldName = orderByExpression.accept(FIELD_VISITOR);
         OrderBy.Direction direction = orderBy.getDirection();
         switch (direction) {
             case ASC:

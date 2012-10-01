@@ -418,8 +418,14 @@ public class UserQueryBuilder {
         if (field == null) {
             throw new IllegalArgumentException("Field cannot be null");
         }
-        Field userField = new Field(field);
-        expressionAsSelect().setOrderBy(new OrderBy(userField, direction));
+        return orderBy(new Field(field), direction);
+    }
+
+    public UserQueryBuilder orderBy(TypedExpression field, OrderBy.Direction direction) {
+        if (field == null) {
+            throw new IllegalArgumentException("Field cannot be null");
+        }
+        expressionAsSelect().setOrderBy(new OrderBy(field, direction));
         return this;
     }
 
