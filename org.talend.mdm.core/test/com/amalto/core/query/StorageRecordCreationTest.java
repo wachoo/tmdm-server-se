@@ -268,4 +268,31 @@ public class StorageRecordCreationTest extends StorageTestCase {
             results.close();
         }
     }
+
+    public void testImplicitFK() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                address,
+                                "<Address><Id>9999</Id><Street>Street1</Street><country>1000</country><ZipCode>10000</ZipCode><City>City1</City><enterprise>false</enterprise></Address>"));
+        try {
+            storage.begin();
+            storage.update(allRecords);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+        UserQueryBuilder qb = from(address)
+                .select(address.getField("country"))
+                .where(eq(address.getField("country"), "1000"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
 }

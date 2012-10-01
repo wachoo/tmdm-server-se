@@ -130,33 +130,39 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
 
         @Override
         public Object visit(Id id) {
+            ComplexTypeMetadata type = id.getType();
+            List<FieldMetadata> keyFields = type.getKeyFields();
+            if (keyFields.size() > 1) {
+                throw new UnsupportedOperationException("Cannot perform search on composite FK.");
+            }
             List<String> ids = new LinkedList<String>();
             StringBuilder builder = null;
-            for (char currentChar : id.getId().toCharArray()) {
-                switch (currentChar) {
-                    case '[':
-                        builder = new StringBuilder();
-                        break;
-                    case ']':
-                        if (builder != null) {
-                            ids.add(builder.toString());
-                        }
-                        break;
-                    default:
-                        if (builder != null) {
-                            builder.append(currentChar);
-                        }
-                        break;
+            String idAsString = id.getId();
+            if (idAsString.startsWith("[")) { //$NON-NLS-1$
+                for (char currentChar : idAsString.toCharArray()) {
+                    switch (currentChar) {
+                        case '[':
+                            builder = new StringBuilder();
+                            break;
+                        case ']':
+                            if (builder != null) {
+                                ids.add(builder.toString());
+                            }
+                            break;
+                        default:
+                            if (builder != null) {
+                                builder.append(currentChar);
+                            }
+                            break;
+                    }
                 }
+                if (ids.isEmpty()) {
+                    throw new IllegalArgumentException("Id '" + idAsString + "' does not match expected format (no id found).");
+                }
+            } else {
+                ids.add(idAsString);
             }
-            if (ids.isEmpty()) {
-                throw new IllegalArgumentException("Id '" + id.getId() + "' does not match expected format (no id found).");
-            }
-            if (ids.size() > 1) {
-                throw new NotImplementedException("No support for composite key in condition (yet)."); // TODO Support this (lookup of instance with composite key).
-            }
-            ComplexTypeMetadata type = id.getType();
-            return MetadataUtils.convert(ids.get(0), type.getKeyFields().get(0));
+            return MetadataUtils.convert(ids.get(0), keyFields.get(0));
         }
 
         @Override

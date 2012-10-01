@@ -180,25 +180,29 @@ public class MetadataUtils {
 
     public static Object convert(String dataAsString, FieldMetadata field, TypeMetadata actualType) {
         if (field instanceof ReferenceFieldMetadata) {
-            char[] chars = dataAsString.toCharArray();
             List<String> ids = new LinkedList<String>();
-            StringBuilder builder = null;
-            for (char currentChar : chars) {
-                switch (currentChar) {
-                    case '[':
-                        builder = new StringBuilder();
-                        break;
-                    case ']':
-                        if (builder != null) {
-                            ids.add(builder.toString());
-                        }
-                        break;
-                    default:
-                        if (builder != null) {
-                            builder.append(currentChar);
-                        }
-                        break;
+            if (dataAsString.startsWith("[")) {
+                char[] chars = dataAsString.toCharArray();
+                StringBuilder builder = null;
+                for (char currentChar : chars) {
+                    switch (currentChar) {
+                        case '[':
+                            builder = new StringBuilder();
+                            break;
+                        case ']':
+                            if (builder != null) {
+                                ids.add(builder.toString());
+                            }
+                            break;
+                        default:
+                            if (builder != null) {
+                                builder.append(currentChar);
+                            }
+                            break;
+                    }
                 }
+            } else {
+                ids.add(dataAsString);
             }
             if (ids.isEmpty()) {
                 throw new IllegalArgumentException("Id '" + dataAsString + "' does not match expected format (no id found).");
