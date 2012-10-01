@@ -53,17 +53,17 @@ public class RDBMSDataSource implements DataSource {
                            String initPassword,
                            String initUserName,
                            String initConnectionURL) {
-        if ("MySQL".equals(dialectName)) { //$NON-NLS-1$
+        if ("MySQL".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
             dialect = DataSourceDialect.MYSQL;
-        } else if ("H2".equals(dialectName)) { //$NON-NLS-1$
+        } else if ("H2".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
             dialect = DataSourceDialect.H2;
-        } else if ("Oracle11g".equals(dialectName)) { //$NON-NLS-1$
+        } else if ("Oracle11g".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
             dialect = DataSourceDialect.ORACLE_10G;
-        } else if ("Oracle10g".equals(dialectName)) { //$NON-NLS-1$
+        } else if ("Oracle10g".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
             dialect = DataSourceDialect.ORACLE_10G;
-        } else if ("SQLServer".equals(dialectName)) { //$NON-NLS-1$
+        } else if ("SQLServer".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
             dialect = DataSourceDialect.SQL_SERVER;
-        } else if ("Postgres".equals(dialectName)) { //$NON-NLS-1$
+        } else if ("Postgres".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
             dialect = DataSourceDialect.POSTGRES;
         } else {
             throw new IllegalArgumentException("No support for type '" + dialectName + "'.");
