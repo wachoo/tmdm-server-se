@@ -226,7 +226,6 @@ public class HibernateStorage implements Storage {
             } catch (Exception e) {
                 throw new RuntimeException("Exception occurred during Hibernate initialization.", e);
             }
-
             // All set: set prepared flag to true.
             isPrepared = true;
             LOGGER.info("Storage '" + storageName + "' (" + storageType + ") is ready.");
@@ -571,7 +570,6 @@ public class HibernateStorage implements Storage {
                 } catch (Exception e) {
                     LOGGER.error("Exception occurred during Hibernate Search clean up.", e);
                 }
-
                 if (factory != null) {
                     factory.close();
                     factory = null; // close() documentation advises to remove all references to SessionFactory.
@@ -584,12 +582,21 @@ public class HibernateStorage implements Storage {
         } finally {
             Thread.currentThread().setContextClassLoader(previousClassLoader);
         }
-
         // Reset caches
         ListIterator.resetTypeReaders();
         ScrollableIterator.resetTypeReaders();
+        LOGGER.info("Storage '" + storageName + "' (" + storageType + ") closed.");
+    }
 
-        LOGGER.info("done.");
+    @Override
+    public void close(boolean dropExistingData) {
+        if (dropExistingData) {
+            LOGGER.info("Deleting data and schema of storage '" + storageName + "' (" + storageType + ").");
+            JDBCStorageCleaner cleaner = new JDBCStorageCleaner(new FullTextIndexCleaner());
+            cleaner.clean(this);
+            LOGGER.info("Data and schema of storage '" + storageName + "' (" + storageType + ") deleted.");
+        }
+        close();
     }
 
     private StorageResults internalFetch(Session session, Expression userQuery, Set<EndOfResultsCallback> callbacks) {

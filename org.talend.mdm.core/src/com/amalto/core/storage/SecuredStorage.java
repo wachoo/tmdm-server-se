@@ -86,6 +86,11 @@ public class SecuredStorage implements Storage {
         delegate.close();
     }
 
+    @Override
+    public void close(boolean dropExistingData) {
+        delegate.close(dropExistingData);
+    }
+
     public void begin() {
         delegate.begin();
     }

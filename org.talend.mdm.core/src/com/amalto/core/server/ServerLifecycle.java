@@ -35,5 +35,5 @@ public interface ServerLifecycle {
 
     Storage createStorage(String storageName, String dataSourceName, StorageType storageType);
 
-    void destroyStorage(Storage storage);
+    void destroyStorage(Storage storage, boolean dropExistingData);
 }

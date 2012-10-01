@@ -106,8 +106,8 @@ public class ServerContext {
             return storage;
         }
 
-        public void destroyStorage(Storage storage) {
-            storage.close();
+        public void destroyStorage(Storage storage, boolean dropExistingData) {
+            storage.close(dropExistingData);
         }
     }
 
@@ -192,8 +192,8 @@ public class ServerContext {
             return storage;
         }
 
-        public void destroyStorage(Storage storage) {
-            delegate.destroyStorage(storage);
+        public void destroyStorage(Storage storage, boolean dropExistingData) {
+            delegate.destroyStorage(storage, dropExistingData);
 
             try {
                 String storageName = storage.getName();

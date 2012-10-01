@@ -44,15 +44,19 @@ public class StorageAdminImpl implements StorageAdmin {
         return allStorageNames.toArray(new String[allStorageNames.size()]);
     }
 
-    public void delete(String revisionID, String storageName) {
+    public void delete(String revisionID, String storageName, boolean dropExistingData) {
         Storage storage = storages.get(storageName);
-        ServerContext.INSTANCE.getLifecycle().destroyStorage(storage);
+        if (storage == null) {
+            LOGGER.warn("Storage '" + storageName + "' does not exist.");
+            return;
+        }
+        ServerContext.INSTANCE.getLifecycle().destroyStorage(storage, dropExistingData);
         storages.remove(storageName);
     }
 
-    public void deleteAll(String revisionID) {
+    public void deleteAll(String revisionID, boolean dropExistingData) {
         for (String clusterName : new HashSet<String>(storages.keySet())) {
-            delete(revisionID, clusterName);
+            delete(revisionID, clusterName, dropExistingData);
         }
     }
 
@@ -131,7 +135,7 @@ public class StorageAdminImpl implements StorageAdmin {
     }
 
     public void close() {
-        deleteAll(null);
+        deleteAll(null, false);
     }
 
     public Storage get(String storageName) {

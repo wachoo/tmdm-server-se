@@ -123,9 +123,16 @@ public interface Storage {
     void delete(Expression userQuery);
 
     /**
-     * Performs shutdown actions and clean up.
+     * Performs shutdown actions and internal objects clean up. Calling this method is <b>same</b> as calling
+     * {@link #close(boolean)} with <b><code>false</code></b>.
      */
     void close();
+
+    /**
+     * Performs shutdown actions and internal objects clean up. If <code>dropExistingData</code> is true, data managed
+     * by this Storage will be deleted.
+     */
+    void close(boolean dropExistingData);
 
     /**
      * <p>

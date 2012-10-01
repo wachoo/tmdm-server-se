@@ -153,4 +153,41 @@ public class ServerTest extends TestCase {
             // Expected
         }
     }
+
+    public void testStorageDrop() throws Exception {
+        Server server = ServerContext.INSTANCE.get();
+        assertNotNull(server);
+        // Create a storage
+        String metadataRepositoryId = "../query/metadata.xsd";
+        MetadataRepository metadataRepository = server.getMetadataRepositoryAdmin().get(metadataRepositoryId);
+        assertNotNull(metadataRepository);
+        StorageAdmin storageAdmin = server.getStorageAdmin();
+        assertNotNull(storageAdmin);
+        Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1");
+        assertNotNull(storage);
+        ComplexTypeMetadata person = metadataRepository.getComplexType("Person");
+        assertNotNull(person);
+        UserQueryBuilder qb = UserQueryBuilder.from(person);
+        StorageResults fetch = storage.fetch(qb.getSelect());
+        assertNotNull(fetch);
+        try {
+            assertTrue(fetch.getCount() >= 0); // Execute this just to check initialization was ok.
+        } finally {
+            fetch.close();
+        }
+        // Destroy storage (and data).
+        storageAdmin.delete(null, "Storage", true);
+        // Re create a storage.
+        storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1");
+        assertNotNull(storage);
+        qb = UserQueryBuilder.from(person);
+        fetch = storage.fetch(qb.getSelect());
+        assertNotNull(fetch);
+        try {
+            assertTrue(fetch.getCount() >= 0); // Execute this just to check initialization was ok.
+        } finally {
+            fetch.close();
+        }
+    }
+
 }

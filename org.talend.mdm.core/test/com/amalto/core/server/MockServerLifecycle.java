@@ -47,8 +47,8 @@ public class MockServerLifecycle implements ServerLifecycle {
         return new HibernateStorage(storageName, storageType);
     }
 
-    public void destroyStorage(Storage storage) {
-        storage.close();
+    public void destroyStorage(Storage storage, boolean dropExistingData) {
+        storage.close(true);
     }
 
 }

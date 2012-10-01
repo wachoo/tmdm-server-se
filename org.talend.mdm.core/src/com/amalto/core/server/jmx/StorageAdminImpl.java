@@ -35,7 +35,7 @@ public class StorageAdminImpl implements StorageAdmin {
 
     public void delete(String dataModelName) {
         com.amalto.core.server.StorageAdmin storageAdmin = getServerStorageAdmin();
-        storageAdmin.delete(null, dataModelName);
+        storageAdmin.delete(null, dataModelName, true);
     }
 
     public Object getAttribute(String attribute) throws AttributeNotFoundException, MBeanException, ReflectionException {

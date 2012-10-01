@@ -103,7 +103,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     public long deleteCluster(String revisionID, String clusterName) throws XmlServerException {
         long start = System.currentTimeMillis();
         {
-            getStorageAdmin().delete(revisionID, clusterName);
+            getStorageAdmin().delete(revisionID, clusterName, true);
         }
         return System.currentTimeMillis() - start;
     }
@@ -111,7 +111,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     public long deleteAllClusters(String revisionID) throws XmlServerException {
         long start = System.currentTimeMillis();
         {
-            getStorageAdmin().deleteAll(revisionID);
+            getStorageAdmin().deleteAll(revisionID, true);
         }
         return System.currentTimeMillis() - start;
     }

@@ -24,9 +24,9 @@ public interface StorageAdmin {
 
     String[] getAll(String revisionID);
 
-    void delete(String revisionID, String storageName);
+    void delete(String revisionID, String storageName, boolean dropExistingData);
 
-    void deleteAll(String revisionID);
+    void deleteAll(String revisionID, boolean dropExistingData);
 
     Storage create(String dataModelName, String storageName, String dataSourceName);
 
