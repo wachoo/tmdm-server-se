@@ -14,7 +14,10 @@ package com.amalto.core.server;
 import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocal;
 import com.amalto.core.storage.Storage;
+import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -80,15 +83,13 @@ public class DataModelUpdateMDB implements MessageDrivenBean, MessageListener {
 
                 if (object instanceof DMUpdateEvent) {
                     DMUpdateEvent updateEvent = (DMUpdateEvent) object;
-                    if (DMUpdateEvent.EVENT_TYPE_UPDATE.equals(updateEvent.getEventType())) {
-                        String updatedDataModelName = updateEvent.getDataModelPK();
-
-                        if (!SYSTEM_OBJECTS.containsKey(updatedDataModelName)) { // Do not update system data clusters
+                    String updatedDataModelName = updateEvent.getDataModelPK();
+                    if (isUserDataModel(updatedDataModelName)) { // Do not update system data clusters
+                        if (DMUpdateEvent.EVENT_TYPE_UPDATE.equals(updateEvent.getEventType())) {
                             Server server = ServerContext.INSTANCE.get();
                             MetadataRepositoryAdmin metadataRepositoryAdmin = server.getMetadataRepositoryAdmin();
                             metadataRepositoryAdmin.remove(updatedDataModelName);
                             MetadataRepository repository = metadataRepositoryAdmin.get(updatedDataModelName);
-
                             StorageAdmin storageAdmin = server.getStorageAdmin();
                             Storage storage = storageAdmin.get(updatedDataModelName);
                             if (storage != null) {
@@ -107,6 +108,18 @@ public class DataModelUpdateMDB implements MessageDrivenBean, MessageListener {
                             } else {
                                 LOGGER.warn("No SQL staging storage defined for data model '" + updatedDataModelName + "'. No SQL staging storage to update.");
                             }
+                        } else if (DMUpdateEvent.EVENT_TYPE_INIT.equals(updateEvent.getEventType())) {
+                            try {
+                                DataClusterCtrlLocal dataClusterControl = Util.getDataClusterCtrlLocal();
+                                // Only create storage when both (data model) and (data container) exist.
+                                if (dataClusterControl.existsDataCluster(new DataClusterPOJOPK(updatedDataModelName)) != null) {
+                                    Server server = ServerContext.INSTANCE.get();
+                                    StorageAdmin storageAdmin = server.getStorageAdmin();
+                                    storageAdmin.create(updatedDataModelName, updatedDataModelName, Storage.DEFAULT_DATA_SOURCE_NAME);
+                                }
+                            } catch (Exception e) {
+                                LOGGER.error("Exception occurred during data model initialization.", e);
+                            }
                         }
                     }
                 }
@@ -114,6 +127,10 @@ public class DataModelUpdateMDB implements MessageDrivenBean, MessageListener {
         } catch (JMSException e) {
             LOGGER.error("Error during message receive", e);
         }
+    }
+
+    private static boolean isUserDataModel(String updatedDataModelName) {
+        return !SYSTEM_OBJECTS.containsKey(updatedDataModelName) || "Update".equals(updatedDataModelName); //$NON-NLS-1$
     }
 
 }

@@ -15,7 +15,7 @@ package com.amalto.commons.core.datamodel.synchronization;
 import java.io.Serializable;
 
 /**
- * DOC HSHU class global comment. Detailled comment
+ *
  */
 public class DMUpdateEvent implements Serializable {
 
@@ -37,11 +37,7 @@ public class DMUpdateEvent implements Serializable {
 
     private long updateTime;
 
-    /**
-     * DOC HSHU DMUpdateEvent constructor comment.
-     */
     public DMUpdateEvent() {
-
     }
 
     public DMUpdateEvent(String dataModelPK) {

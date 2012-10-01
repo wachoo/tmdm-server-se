@@ -106,40 +106,5 @@ class ServerImpl implements Server {
     }
 
     public void init() {
-        if (MDMConfiguration.getConfiguration().get(DataSourceFactory.DB_DATASOURCES) == null) {
-            LOGGER.warn("Server is not configured for SQL storage.");
-            return;
-        }
-
-        try {
-            LOGGER.info("Creating SQL storage for containers...");
-            DataClusterCtrlLocal dataClusterControl = Util.getDataClusterCtrlLocal();
-            Collection<DataClusterPOJOPK> allContainers = dataClusterControl.getDataClusterPKs(".*"); //$NON-NLS-1$
-            StorageAdmin serverStorageAdmin = getStorageAdmin();
-
-            Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
-            for (DataClusterPOJOPK container : allContainers) {
-                if (!xDataClustersMap.containsKey(container.getUniqueId())) {
-                    try {
-                        LOGGER.info("Creating SQL storage for container '" + container.getUniqueId() + "'...");
-                        serverStorageAdmin.create(container.getUniqueId(), container.getUniqueId(), Storage.DEFAULT_DATA_SOURCE_NAME);
-                        LOGGER.info("Created SQL storage for container '" + container.getUniqueId() + "'.");
-                    } catch (Exception e) {
-                        LOGGER.error("Could not create SQL storage for container '" + container.getUniqueId() + "'.", e);
-                    }
-                } else if(XSystemObjects.DC_UPDATE_PREPORT.getName().equals(container.getUniqueId())) { // TMDM-4507: Migrate update report to SQL storage
-                    try {
-                        LOGGER.info("Creating SQL storage for update reports...");
-                        serverStorageAdmin.create(container.getUniqueId(), container.getUniqueId(), Storage.DEFAULT_DATA_SOURCE_NAME);
-                        LOGGER.info("Created SQL storage for update reports.");
-                    } catch (Exception e) {
-                        LOGGER.error("Could not create SQL storage for update reports.", e);
-                    }
-                }
-            }
-            LOGGER.info("Done.");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }
