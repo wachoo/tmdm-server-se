@@ -79,4 +79,17 @@ public abstract class TypeMapping {
      *         for recursion.
      */
     public abstract DataRecord setValues(Wrapper from, DataRecord to);
+
+    /**
+     * @return A name for the timestamp in storage. The name is database dependent and represent name of a field in
+     * underlying storage (column name, XPath...). Returns <code>null</code> if mapping has no database field for this.
+     */
+    public abstract String getDatabaseTimestamp();
+
+    /**
+     * @return A name for the task id in storage. The name is database dependent and represent name of a field in
+     *         underlying storage (column name, XPath...). Returns <code>null</code> if mapping has no database field
+     *         for this.
+     */
+    public abstract String getDatabaseTaskId();
 }

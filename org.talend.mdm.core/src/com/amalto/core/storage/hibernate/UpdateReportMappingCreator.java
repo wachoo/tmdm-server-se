@@ -28,9 +28,10 @@ public class UpdateReportMappingCreator extends DefaultMetadataVisitor<TypeMappi
         this.mappings = mappings;
         ComplexTypeMetadata databaseUpdateReportType = new ComplexTypeMetadataImpl("", "X_UPDATE_REPORT", true); //$NON-NLS-1$ //$NON-NLS-2$
         TypeMetadata stringType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"); //$NON-NLS-1$
+        TypeMetadata longType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "long"); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_user_name", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, true, false, true, "x_source", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
-        databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, true, false, true, "x_time_in_millis", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
+        databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, true, false, true, "x_time_in_millis", longType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_operation_type", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_revision_id", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_data_cluster", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$

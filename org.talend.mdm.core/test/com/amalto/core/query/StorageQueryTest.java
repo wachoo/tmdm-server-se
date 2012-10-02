@@ -1220,7 +1220,62 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+    }
 
+    public void testUpdateReportTimeStampQuery() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord report = dataRecordReader.read(1, repository, updateReport, builder.toString());
+        try {
+            storage.begin();
+            storage.update(report);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        UserQueryBuilder qb = from(updateReport).where(gt(timestamp(), "0"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testUpdateReportTaskIdQuery() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord report = dataRecordReader.read(1, repository, updateReport, builder.toString());
+        try {
+            storage.begin();
+            storage.update(report);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        UserQueryBuilder qb = from(updateReport).where(isNull(taskId()));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
     }
 
     public void testNativeQueryWithReturn() throws Exception {

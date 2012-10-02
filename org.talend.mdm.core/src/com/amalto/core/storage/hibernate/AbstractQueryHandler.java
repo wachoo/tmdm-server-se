@@ -48,8 +48,6 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
 
     protected final MappingRepository mappingMetadataRepository;
 
-    protected final FieldAdapter FIELD_VISITOR = new FieldAdapter();
-
     protected final Storage storage;
 
     protected final StorageClassLoader storageClassLoader;
@@ -239,49 +237,6 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         public Object visit(Field field) {
             // If this happens, it is very likely wrong visitor was used (see FIELD_VISITOR).
             throw new UnsupportedOperationException("Can not compare to an other field value.");
-        }
-    }
-
-    class FieldAdapter extends VisitorAdapter<String> {
-        @Override
-        public String visit(Revision revision) {
-            return Storage.METADATA_REVISION_ID;
-        }
-
-        @Override
-        public String visit(com.amalto.core.query.user.Timestamp timestamp) {
-            return Storage.METADATA_TIMESTAMP;
-        }
-
-        @Override
-        public String visit(TaskId taskId) {
-            return Storage.METADATA_TASK_ID;
-        }
-
-        @Override
-        public String visit(StagingStatus stagingStatus) {
-            return Storage.METADATA_STAGING_STATUS;
-        }
-
-        @Override
-        public String visit(StagingError stagingError) {
-            return Storage.METADATA_STAGING_ERROR;
-        }
-
-        @Override
-        public String visit(StagingSource stagingSource) {
-            return Storage.METADATA_STAGING_SOURCE;
-        }
-
-        @Override
-        public String visit(Field field) {
-            return getFieldName(field, mappingMetadataRepository);
-        }
-
-        @Override
-        public String visit(Range range) {
-            Expression fieldExpression = range.getExpression();
-            return fieldExpression.accept(this);
         }
     }
 

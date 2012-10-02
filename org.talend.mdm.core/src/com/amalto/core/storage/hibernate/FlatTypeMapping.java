@@ -12,6 +12,7 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.*;
+import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
@@ -277,6 +278,16 @@ class FlatTypeMapping extends TypeMapping {
             }
         }
         return to;
+    }
+
+    @Override
+    public String getDatabaseTimestamp() {
+        return Storage.METADATA_TIMESTAMP;
+    }
+
+    @Override
+    public String getDatabaseTaskId() {
+        return Storage.METADATA_TASK_ID;
     }
 
     private Object createReferencedObject(Session session, ComplexTypeMetadata referencedType, Class<?> referencedClass, Object referencedIdValue) throws InstantiationException, IllegalAccessException {

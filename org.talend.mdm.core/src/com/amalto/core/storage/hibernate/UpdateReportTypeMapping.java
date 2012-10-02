@@ -64,7 +64,7 @@ class UpdateReportTypeMapping extends TypeMapping {
     public void setValues(Session session, DataRecord from, Wrapper to) {
         to.set("x_user_name", from.get("UserName")); //$NON-NLS-1$ //$NON-NLS-2$
         to.set("x_source", from.get("Source")); //$NON-NLS-1$ //$NON-NLS-2$
-        to.set("x_time_in_millis", from.get("TimeInMillis")); //$NON-NLS-1$ //$NON-NLS-2$
+        to.set("x_time_in_millis", Long.parseLong(String.valueOf(from.get("TimeInMillis")))); //$NON-NLS-1$ //$NON-NLS-2$
         to.set("x_operation_type", from.get("OperationType")); //$NON-NLS-1$ //$NON-NLS-2$
         to.set("x_revision_id", from.get("RevisionID")); //$NON-NLS-1$ //$NON-NLS-2$
         to.set("x_data_cluster", from.get("DataCluster")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -109,6 +109,16 @@ class UpdateReportTypeMapping extends TypeMapping {
         }
 
         return to;
+    }
+
+    @Override
+    public String getDatabaseTimestamp() {
+        return "x_time_in_millis"; //$NON-NLS-1$
+    }
+
+    @Override
+    public String getDatabaseTaskId() {
+        return null;
     }
 
     @Override

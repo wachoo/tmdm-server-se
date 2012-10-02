@@ -15,6 +15,7 @@ import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.ContainedTypeFieldMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
@@ -209,6 +210,16 @@ public class ScatteredTypeMapping extends TypeMapping {
             }
         }
         return to;
+    }
+
+    @Override
+    public String getDatabaseTimestamp() {
+        return Storage.METADATA_TIMESTAMP;
+    }
+
+    @Override
+    public String getDatabaseTaskId() {
+        return Storage.METADATA_TASK_ID;
     }
 
     // Returns actual contained type (in case in reference to hold contained record can have sub types).

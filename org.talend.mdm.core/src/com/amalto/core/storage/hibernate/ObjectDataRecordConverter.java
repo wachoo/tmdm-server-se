@@ -55,7 +55,7 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
                 } else {
                     List<Object> compositeIdValues = new ArrayList<Object>(dataRecord.getType().getKeyFields().size());
                     for (FieldMetadata keyField : dataRecord.getType().getKeyFields()) {
-                        compositeIdValues.add(dataRecord.get(keyField));
+                        compositeIdValues.add(MetadataUtils.convert(String.valueOf(dataRecord.get(keyField)), mapping.getDatabase(keyField)));
                     }
                     mainInstance = (Wrapper) session.get(mainInstanceClass, createCompositeId(storageClassLoader, mainInstanceClass, compositeIdValues));
                 }

@@ -24,8 +24,6 @@ import org.hibernate.*;
 import org.hibernate.criterion.*;
 import org.hibernate.impl.CriteriaImpl;
 import org.hibernate.sql.JoinFragment;
-import org.hibernate.type.StringType;
-import org.hibernate.type.Type;
 
 import java.util.*;
 
@@ -34,6 +32,8 @@ import static org.hibernate.criterion.Restrictions.*;
 class StandardQueryHandler extends AbstractQueryHandler {
 
     private static final Logger LOGGER = Logger.getLogger(StandardQueryHandler.class);
+
+    private static final StringConstant EMPTY_STRING_CONSTANT = (new StringConstant(StringUtils.EMPTY));
 
     private final CriterionAdapter CRITERION_VISITOR = new CriterionAdapter();
 
@@ -196,13 +196,23 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Timestamp timestamp) {
-        projectionList.add(Projections.property(Storage.METADATA_TIMESTAMP));
+        String timeStamp = mappingMetadataRepository.getMappingFromUser(mainType).getDatabaseTimestamp();
+        if (timeStamp != null) {
+            projectionList.add(Projections.property(timeStamp));
+        } else {
+            EMPTY_STRING_CONSTANT.accept(this);
+        }
         return null;
     }
 
     @Override
     public StorageResults visit(TaskId taskId) {
-        projectionList.add(Projections.property(Storage.METADATA_TASK_ID));
+        String taskIdField = mappingMetadataRepository.getMappingFromUser(mainType).getDatabaseTaskId();
+        if (taskIdField != null) {
+            projectionList.add(Projections.property(taskIdField));
+        } else {
+            EMPTY_STRING_CONSTANT.accept(this);
+        }
         return null;
     }
 
@@ -412,15 +422,18 @@ class StandardQueryHandler extends AbstractQueryHandler {
     @Override
     public StorageResults visit(OrderBy orderBy) {
         TypedExpression orderByExpression = orderBy.getField();
-        String fieldName = orderByExpression.accept(FIELD_VISITOR);
-        OrderBy.Direction direction = orderBy.getDirection();
-        switch (direction) {
-            case ASC:
-                criteria.addOrder(Order.asc(fieldName));
-                break;
-            case DESC:
-                criteria.addOrder(Order.desc(fieldName));
-                break;
+        FieldCondition condition = orderByExpression.accept(new CriterionFieldCondition());
+        if (condition != null) {
+            String fieldName = condition.criterionFieldName;
+            OrderBy.Direction direction = orderBy.getDirection();
+            switch (direction) {
+                case ASC:
+                    criteria.addOrder(Order.asc(fieldName));
+                    break;
+                case DESC:
+                    criteria.addOrder(Order.desc(fieldName));
+                    break;
+            }
         }
 
         return null;
@@ -483,11 +496,16 @@ class StandardQueryHandler extends AbstractQueryHandler {
     public StorageResults visit(Range range) {
         Object start = range.getStart().accept(VALUE_ADAPTER);
         Object end = range.getEnd().accept(VALUE_ADAPTER);
-        criteria.add(Restrictions.between(range.accept(FIELD_VISITOR), start, end));
+        FieldCondition condition = range.getExpression().accept(new CriterionFieldCondition());
+        if (condition != null) {
+            criteria.add(Restrictions.between(condition.criterionFieldName, start, end));
+        }
         return null;
     }
 
     private class CriterionAdapter extends VisitorAdapter<Criterion> {
+
+        private final CriterionFieldCondition visitor = new CriterionFieldCondition();
 
         @Override
         public Criterion visit(Condition condition) {
@@ -511,7 +529,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         @Override
         public Criterion visit(Isa isa) {
-            FieldCondition fieldCondition = isa.getExpression().accept(new CriterionFieldCondition());
+            FieldCondition fieldCondition = isa.getExpression().accept(visitor);
+            if (fieldCondition == null) {
+                return NO_OP_CRITERION;
+            }
             if (fieldCondition.criterionFieldName.isEmpty()) {
                 // Case #1: doing a simple instance type check on main selected type.
                 return Restrictions.eq("class", storageClassLoader.getClassFromType(isa.getType())); //$NON-NLS-1$
@@ -554,7 +575,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         @Override
         public Criterion visit(IsNull isNull) {
-            FieldCondition fieldCondition = isNull.getField().accept(new CriterionFieldCondition());
+            FieldCondition fieldCondition = isNull.getField().accept(visitor);
+            if (fieldCondition == null) {
+                return NO_OP_CRITERION;
+            }
             if (fieldCondition.isMany) {
                 throw new UnsupportedOperationException("Does not support isNull operation on collections.");
             }
@@ -563,7 +587,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         @Override
         public Criterion visit(IsEmpty isEmpty) {
-            FieldCondition fieldCondition = isEmpty.getField().accept(new CriterionFieldCondition());
+            FieldCondition fieldCondition = isEmpty.getField().accept(visitor);
+            if (fieldCondition == null) {
+                return NO_OP_CRITERION;
+            }
             if (fieldCondition.isMany) {
                 return Restrictions.isEmpty(fieldCondition.criterionFieldName);
             } else {
@@ -573,7 +600,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         @Override
         public Criterion visit(NotIsEmpty notIsEmpty) {
-            FieldCondition fieldCondition = notIsEmpty.getField().accept(new CriterionFieldCondition());
+            FieldCondition fieldCondition = notIsEmpty.getField().accept(visitor);
+            if (fieldCondition == null) {
+                return NO_OP_CRITERION;
+            }
             if (fieldCondition.isMany) {
                 return Restrictions.isNotEmpty(fieldCondition.criterionFieldName);
             } else {
@@ -583,7 +613,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         @Override
         public Criterion visit(NotIsNull notIsNull) {
-            FieldCondition fieldCondition = notIsNull.getField().accept(new CriterionFieldCondition());
+            FieldCondition fieldCondition = notIsNull.getField().accept(visitor);
+            if (fieldCondition == null) {
+                return NO_OP_CRITERION;
+            }
             if (fieldCondition.isMany) {
                 throw new UnsupportedOperationException("Does not support notIsNull operation on collections.");
             }
@@ -629,6 +662,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
             }
             if (!rightFieldCondition.isProperty) {  // "Standard" comparison between a field and a constant value.
                 Object compareValue = condition.getRight().accept(VALUE_ADAPTER);
+                if (condition.getLeft() instanceof Field) {
+                    Field leftField = (Field) condition.getLeft();
+                    FieldMetadata fieldMetadata = leftField.getFieldMetadata();
+                    FieldMetadata left = mappingMetadataRepository.getMappingFromUser(mainType).getDatabase(fieldMetadata);
+                    compareValue = MetadataUtils.convert(String.valueOf(compareValue), left);
+                }
                 Predicate predicate = condition.getPredicate();
                 if (compareValue instanceof Boolean && predicate == Predicate.EQUALS) {
                     if (!(Boolean) compareValue) {
@@ -712,12 +751,22 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         @Override
         public FieldCondition visit(Timestamp timestamp) {
-            return createInternalCondition(Storage.METADATA_TIMESTAMP);
+            String databaseTimestamp = mappingMetadataRepository.getMappingFromUser(mainType).getDatabaseTimestamp();
+            if (databaseTimestamp != null) {
+                return createInternalCondition(databaseTimestamp);
+            } else {
+                return null;
+            }
         }
 
         @Override
         public FieldCondition visit(TaskId taskId) {
-            return createInternalCondition(Storage.METADATA_TASK_ID);
+            String taskIdField = mappingMetadataRepository.getMappingFromUser(mainType).getDatabaseTaskId();
+            if (taskIdField != null) {
+                return createInternalCondition(Storage.METADATA_TASK_ID);
+            } else {
+                return null;
+            }
         }
 
         @Override
@@ -823,33 +872,6 @@ class StandardQueryHandler extends AbstractQueryHandler {
         @Override
         public FieldCondition visit(FloatConstant constant) {
             return createConstantCondition();
-        }
-    }
-
-    private class ConstantStringProjection extends SimpleProjection {
-
-        private final String aliasName;
-
-        private final String constantValue;
-
-        public ConstantStringProjection(String aliasName, String constantValue) {
-            this.aliasName = aliasName;
-            this.constantValue = constantValue;
-        }
-
-        @Override
-        public String toSqlString(Criteria criteria, int position, CriteriaQuery criteriaQuery) throws HibernateException {
-            return "CONCAT('" + constantValue + "', '') as y" + position + "_"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-        }
-
-        @Override
-        public String[] getAliases() {
-            return new String[]{aliasName};
-        }
-
-        @Override
-        public Type[] getTypes(Criteria criteria, CriteriaQuery criteriaQuery) throws HibernateException {
-            return new Type[]{new StringType()};
         }
     }
 }
