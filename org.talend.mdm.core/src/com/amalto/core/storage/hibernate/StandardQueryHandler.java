@@ -20,7 +20,10 @@ import com.amalto.core.storage.record.DataRecord;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.*;
+import org.hibernate.Criteria;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
 import org.hibernate.criterion.*;
 import org.hibernate.impl.CriteriaImpl;
 import org.hibernate.sql.JoinFragment;
@@ -262,7 +265,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 } else {
                     projectionList.add(Projections.property(getFieldName(field, mappingMetadataRepository)));
                 }
-            }  else {
+            } else {
                 projectionList.add(Projections.property(getFieldName(field, mappingMetadataRepository)));
             }
         }
@@ -423,6 +426,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
     public StorageResults visit(OrderBy orderBy) {
         TypedExpression orderByExpression = orderBy.getField();
         FieldCondition condition = orderByExpression.accept(new CriterionFieldCondition());
+        if (orderByExpression instanceof Field) {
+            Field field = (Field) orderByExpression;
+            FieldMetadata userFieldMetadata = field.getFieldMetadata();
+            TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(mainType);
+            FieldMetadata database = mapping.getDatabase(userFieldMetadata);
+            String alias = getAlias(mapping, database);
+            condition.criterionFieldName = alias + '.' + database.getName();
+        }
         if (condition != null) {
             String fieldName = condition.criterionFieldName;
             OrderBy.Direction direction = orderBy.getDirection();
@@ -437,443 +448,443 @@ class StandardQueryHandler extends AbstractQueryHandler {
         }
 
         return null;
-    }
-
-    @Override
-    public StorageResults visit(BinaryLogicOperator condition) {
-        criteria.add(condition.accept(CRITERION_VISITOR));
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(UnaryLogicOperator condition) {
-        criteria.add(condition.accept(CRITERION_VISITOR));
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Isa isa) {
-        criteria.add(isa.accept(CRITERION_VISITOR));
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Compare condition) {
-        Criterion criterion = condition.accept(CRITERION_VISITOR);
-        criteria.add(criterion);
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(IsNull isNull) {
-        Criterion criterion = isNull.accept(CRITERION_VISITOR);
-        criteria.add(criterion);
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(IsEmpty isEmpty) {
-        Criterion criterion = isEmpty.accept(CRITERION_VISITOR);
-        criteria.add(criterion);
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(NotIsEmpty notIsEmpty) {
-        Criterion criterion = notIsEmpty.accept(CRITERION_VISITOR);
-        criteria.add(criterion);
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(NotIsNull notIsNull) {
-        Criterion criterion = notIsNull.accept(CRITERION_VISITOR);
-        criteria.add(criterion);
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Range range) {
-        Object start = range.getStart().accept(VALUE_ADAPTER);
-        Object end = range.getEnd().accept(VALUE_ADAPTER);
-        FieldCondition condition = range.getExpression().accept(new CriterionFieldCondition());
-        if (condition != null) {
-            criteria.add(Restrictions.between(condition.criterionFieldName, start, end));
-        }
-        return null;
-    }
-
-    private class CriterionAdapter extends VisitorAdapter<Criterion> {
-
-        private final CriterionFieldCondition visitor = new CriterionFieldCondition();
-
-        @Override
-        public Criterion visit(Condition condition) {
-            if (condition == UserQueryHelper.NO_OP_CONDITION) {
-                return NO_OP_CRITERION;
-            }
-            return super.visit(condition);
         }
 
         @Override
-        public Criterion visit(UnaryLogicOperator condition) {
-            Predicate predicate = condition.getPredicate();
-            Criterion conditionCriterion = condition.getCondition().accept(this);
-
-            if (predicate == Predicate.NOT) {
-                return not(conditionCriterion);
-            } else {
-                throw new NotImplementedException("No support for predicate '" + predicate + "'");
-            }
+        public StorageResults visit (BinaryLogicOperator condition){
+            criteria.add(condition.accept(CRITERION_VISITOR));
+            return null;
         }
 
         @Override
-        public Criterion visit(Isa isa) {
-            FieldCondition fieldCondition = isa.getExpression().accept(visitor);
-            if (fieldCondition == null) {
-                return NO_OP_CRITERION;
+        public StorageResults visit (UnaryLogicOperator condition){
+            criteria.add(condition.accept(CRITERION_VISITOR));
+            return null;
+        }
+
+        @Override
+        public StorageResults visit (Isa isa){
+            criteria.add(isa.accept(CRITERION_VISITOR));
+            return null;
+        }
+
+        @Override
+        public StorageResults visit (Compare condition){
+            Criterion criterion = condition.accept(CRITERION_VISITOR);
+            criteria.add(criterion);
+            return null;
+        }
+
+        @Override
+        public StorageResults visit (IsNull isNull){
+            Criterion criterion = isNull.accept(CRITERION_VISITOR);
+            criteria.add(criterion);
+            return null;
+        }
+
+        @Override
+        public StorageResults visit (IsEmpty isEmpty){
+            Criterion criterion = isEmpty.accept(CRITERION_VISITOR);
+            criteria.add(criterion);
+            return null;
+        }
+
+        @Override
+        public StorageResults visit (NotIsEmpty notIsEmpty){
+            Criterion criterion = notIsEmpty.accept(CRITERION_VISITOR);
+            criteria.add(criterion);
+            return null;
+        }
+
+        @Override
+        public StorageResults visit (NotIsNull notIsNull){
+            Criterion criterion = notIsNull.accept(CRITERION_VISITOR);
+            criteria.add(criterion);
+            return null;
+        }
+
+        @Override
+        public StorageResults visit (Range range){
+            Object start = range.getStart().accept(VALUE_ADAPTER);
+            Object end = range.getEnd().accept(VALUE_ADAPTER);
+            FieldCondition condition = range.getExpression().accept(new CriterionFieldCondition());
+            if (condition != null) {
+                criteria.add(Restrictions.between(condition.criterionFieldName, start, end));
             }
-            if (fieldCondition.criterionFieldName.isEmpty()) {
-                // Case #1: doing a simple instance type check on main selected type.
-                return Restrictions.eq("class", storageClassLoader.getClassFromType(isa.getType())); //$NON-NLS-1$
-            } else {
-                // Case #2: doing a instance type check on a field reachable from main selected type.
-                // First, need to join with all tables to get to the table that stores the type
-                TypeMapping typeMapping = mappingMetadataRepository.getMappingFromUser(mainType);
-                ComplexTypeMetadata database = typeMapping.getDatabase();
-                FieldMetadata field = database.getField(StringUtils.substringAfter(fieldCondition.criterionFieldName.replace('.', '/'), "/")); //$NON-NLS-1$
-                List<FieldMetadata> path = MetadataUtils.path(database, field);
-                if (path.isEmpty()) {
-                    throw new IllegalStateException("Expected field '" + field.getName() + "' to be reachable from '" + database.getName() + "'.");
+            return null;
+        }
+
+        private class CriterionAdapter extends VisitorAdapter<Criterion> {
+
+            private final CriterionFieldCondition visitor = new CriterionFieldCondition();
+
+            @Override
+            public Criterion visit(Condition condition) {
+                if (condition == UserQueryHelper.NO_OP_CONDITION) {
+                    return NO_OP_CRITERION;
                 }
-                // Generate the joins
-                String alias = field.getType().getName();
-                generateJoinPath(alias, JoinFragment.INNER_JOIN, path);
-                // Find the criteria that does the join to the table to check (only way to get the SQL alias for table).
-                if (criteria instanceof CriteriaImpl) {
-                    Iterator iterator = ((CriteriaImpl) criteria).iterateSubcriteria();
-                    Criteria typeCheckCriteria = null;
-                    while (iterator.hasNext()) {
-                        Criteria subCriteria = (Criteria) iterator.next();
-                        if (alias.equals(subCriteria.getAlias())) {
-                            typeCheckCriteria = subCriteria;
-                            break;
-                        }
-                    }
-                    if (typeCheckCriteria == null) {
-                        throw new IllegalStateException("Could not criteria for type check.");
-                    }
-                    TypeMapping isaType = mappingMetadataRepository.getMappingFromUser(isa.getType());
-                    String name = storageClassLoader.getClassFromType(isaType.getDatabase()).getName();
-                    return new FieldTypeCriterion(typeCheckCriteria, name);
+                return super.visit(condition);
+            }
+
+            @Override
+            public Criterion visit(UnaryLogicOperator condition) {
+                Predicate predicate = condition.getPredicate();
+                Criterion conditionCriterion = condition.getCondition().accept(this);
+
+                if (predicate == Predicate.NOT) {
+                    return not(conditionCriterion);
                 } else {
-                    throw new IllegalStateException("Expected a criteria instance of " + CriteriaImpl.class.getName() + ".");
+                    throw new NotImplementedException("No support for predicate '" + predicate + "'");
                 }
             }
 
-        }
+            @Override
+            public Criterion visit(Isa isa) {
+                FieldCondition fieldCondition = isa.getExpression().accept(visitor);
+                if (fieldCondition == null) {
+                    return NO_OP_CRITERION;
+                }
+                if (fieldCondition.criterionFieldName.isEmpty()) {
+                    // Case #1: doing a simple instance type check on main selected type.
+                    return Restrictions.eq("class", storageClassLoader.getClassFromType(isa.getType())); //$NON-NLS-1$
+                } else {
+                    // Case #2: doing a instance type check on a field reachable from main selected type.
+                    // First, need to join with all tables to get to the table that stores the type
+                    TypeMapping typeMapping = mappingMetadataRepository.getMappingFromUser(mainType);
+                    ComplexTypeMetadata database = typeMapping.getDatabase();
+                    FieldMetadata field = database.getField(StringUtils.substringAfter(fieldCondition.criterionFieldName.replace('.', '/'), "/")); //$NON-NLS-1$
+                    List<FieldMetadata> path = MetadataUtils.path(database, field);
+                    if (path.isEmpty()) {
+                        throw new IllegalStateException("Expected field '" + field.getName() + "' to be reachable from '" + database.getName() + "'.");
+                    }
+                    // Generate the joins
+                    String alias = field.getType().getName();
+                    generateJoinPath(alias, JoinFragment.INNER_JOIN, path);
+                    // Find the criteria that does the join to the table to check (only way to get the SQL alias for table).
+                    if (criteria instanceof CriteriaImpl) {
+                        Iterator iterator = ((CriteriaImpl) criteria).iterateSubcriteria();
+                        Criteria typeCheckCriteria = null;
+                        while (iterator.hasNext()) {
+                            Criteria subCriteria = (Criteria) iterator.next();
+                            if (alias.equals(subCriteria.getAlias())) {
+                                typeCheckCriteria = subCriteria;
+                                break;
+                            }
+                        }
+                        if (typeCheckCriteria == null) {
+                            throw new IllegalStateException("Could not criteria for type check.");
+                        }
+                        TypeMapping isaType = mappingMetadataRepository.getMappingFromUser(isa.getType());
+                        String name = storageClassLoader.getClassFromType(isaType.getDatabase()).getName();
+                        return new FieldTypeCriterion(typeCheckCriteria, name);
+                    } else {
+                        throw new IllegalStateException("Expected a criteria instance of " + CriteriaImpl.class.getName() + ".");
+                    }
+                }
 
-        @Override
-        public Criterion visit(IsNull isNull) {
-            FieldCondition fieldCondition = isNull.getField().accept(visitor);
-            if (fieldCondition == null) {
-                return NO_OP_CRITERION;
             }
-            if (fieldCondition.isMany) {
-                throw new UnsupportedOperationException("Does not support isNull operation on collections.");
-            }
-            return Restrictions.isNull(fieldCondition.criterionFieldName);
-        }
 
-        @Override
-        public Criterion visit(IsEmpty isEmpty) {
-            FieldCondition fieldCondition = isEmpty.getField().accept(visitor);
-            if (fieldCondition == null) {
-                return NO_OP_CRITERION;
+            @Override
+            public Criterion visit(IsNull isNull) {
+                FieldCondition fieldCondition = isNull.getField().accept(visitor);
+                if (fieldCondition == null) {
+                    return NO_OP_CRITERION;
+                }
+                if (fieldCondition.isMany) {
+                    throw new UnsupportedOperationException("Does not support isNull operation on collections.");
+                }
+                return Restrictions.isNull(fieldCondition.criterionFieldName);
             }
-            if (fieldCondition.isMany) {
-                return Restrictions.isEmpty(fieldCondition.criterionFieldName);
-            } else {
-                return Restrictions.eq(fieldCondition.criterionFieldName, StringUtils.EMPTY);
-            }
-        }
 
-        @Override
-        public Criterion visit(NotIsEmpty notIsEmpty) {
-            FieldCondition fieldCondition = notIsEmpty.getField().accept(visitor);
-            if (fieldCondition == null) {
-                return NO_OP_CRITERION;
-            }
-            if (fieldCondition.isMany) {
-                return Restrictions.isNotEmpty(fieldCondition.criterionFieldName);
-            } else {
-                return Restrictions.not(Restrictions.eq(fieldCondition.criterionFieldName, StringUtils.EMPTY));
-            }
-        }
-
-        @Override
-        public Criterion visit(NotIsNull notIsNull) {
-            FieldCondition fieldCondition = notIsNull.getField().accept(visitor);
-            if (fieldCondition == null) {
-                return NO_OP_CRITERION;
-            }
-            if (fieldCondition.isMany) {
-                throw new UnsupportedOperationException("Does not support notIsNull operation on collections.");
-            }
-            return Restrictions.isNotNull(fieldCondition.criterionFieldName);
-        }
-
-        @Override
-        public Criterion visit(BinaryLogicOperator condition) {
-            Predicate predicate = condition.getPredicate();
-            Criterion left = condition.getLeft().accept(this);
-            Criterion right = condition.getRight().accept(this);
-
-            if (predicate == Predicate.AND) {
-                return and(left, right);
-            } else if (predicate == Predicate.OR) {
-                return or(left, right);
-            } else {
-                throw new NotImplementedException("No support for predicate '" + predicate + "'");
-            }
-        }
-
-        @Override
-        public Criterion visit(Compare condition) {
-            FieldCondition leftFieldCondition = condition.getLeft().accept(criterionFieldCondition);
-            FieldCondition rightFieldCondition = condition.getRight().accept(criterionFieldCondition);
-            if (!leftFieldCondition.isProperty) {
-                throw new IllegalArgumentException("Expect left part of condition to be a field.");
-            }
-            if (condition.getLeft() instanceof Field) {
-                Field leftField = (Field) condition.getLeft();
-                FieldMetadata fieldMetadata = leftField.getFieldMetadata();
-                if (!mainType.equals(fieldMetadata.getContainingType())) {
-                    FieldMetadata left = mappingMetadataRepository.getMappingFromUser(mainType).getDatabase(fieldMetadata);
-                    (new Field(fieldMetadata)).accept(StandardQueryHandler.this);
-                    String alias = joinFieldsToAlias.get(left);
-                    leftFieldCondition.criterionFieldName = alias + '.' + ((ReferenceFieldMetadata) left).getReferencedField().getName();
+            @Override
+            public Criterion visit(IsEmpty isEmpty) {
+                FieldCondition fieldCondition = isEmpty.getField().accept(visitor);
+                if (fieldCondition == null) {
+                    return NO_OP_CRITERION;
+                }
+                if (fieldCondition.isMany) {
+                    return Restrictions.isEmpty(fieldCondition.criterionFieldName);
+                } else {
+                    return Restrictions.eq(fieldCondition.criterionFieldName, StringUtils.EMPTY);
                 }
             }
-            if (leftFieldCondition.isMany || rightFieldCondition.isMany) {
-                // This is what could be done with Hibernate 4 for searches that includes conditions on collections:
-                // criteria = criteria.createCriteria(fieldName);
-                throw new UnsupportedOperationException("Cannot search on field '" + leftFieldCondition.criterionFieldName + "' because it is a collection.");
+
+            @Override
+            public Criterion visit(NotIsEmpty notIsEmpty) {
+                FieldCondition fieldCondition = notIsEmpty.getField().accept(visitor);
+                if (fieldCondition == null) {
+                    return NO_OP_CRITERION;
+                }
+                if (fieldCondition.isMany) {
+                    return Restrictions.isNotEmpty(fieldCondition.criterionFieldName);
+                } else {
+                    return Restrictions.not(Restrictions.eq(fieldCondition.criterionFieldName, StringUtils.EMPTY));
+                }
             }
-            if (!rightFieldCondition.isProperty) {  // "Standard" comparison between a field and a constant value.
-                Object compareValue = condition.getRight().accept(VALUE_ADAPTER);
+
+            @Override
+            public Criterion visit(NotIsNull notIsNull) {
+                FieldCondition fieldCondition = notIsNull.getField().accept(visitor);
+                if (fieldCondition == null) {
+                    return NO_OP_CRITERION;
+                }
+                if (fieldCondition.isMany) {
+                    throw new UnsupportedOperationException("Does not support notIsNull operation on collections.");
+                }
+                return Restrictions.isNotNull(fieldCondition.criterionFieldName);
+            }
+
+            @Override
+            public Criterion visit(BinaryLogicOperator condition) {
+                Predicate predicate = condition.getPredicate();
+                Criterion left = condition.getLeft().accept(this);
+                Criterion right = condition.getRight().accept(this);
+
+                if (predicate == Predicate.AND) {
+                    return and(left, right);
+                } else if (predicate == Predicate.OR) {
+                    return or(left, right);
+                } else {
+                    throw new NotImplementedException("No support for predicate '" + predicate + "'");
+                }
+            }
+
+            @Override
+            public Criterion visit(Compare condition) {
+                FieldCondition leftFieldCondition = condition.getLeft().accept(criterionFieldCondition);
+                FieldCondition rightFieldCondition = condition.getRight().accept(criterionFieldCondition);
+                if (!leftFieldCondition.isProperty) {
+                    throw new IllegalArgumentException("Expect left part of condition to be a field.");
+                }
+                TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(mainType);
                 if (condition.getLeft() instanceof Field) {
                     Field leftField = (Field) condition.getLeft();
                     FieldMetadata fieldMetadata = leftField.getFieldMetadata();
-                    FieldMetadata left = mappingMetadataRepository.getMappingFromUser(mainType).getDatabase(fieldMetadata);
-                    if (!left.getType().equals(fieldMetadata)) {
-                        compareValue = MetadataUtils.convert(String.valueOf(compareValue), left);
+                    if (!mainType.equals(fieldMetadata.getContainingType())) {
+                        FieldMetadata left = mapping.getDatabase(fieldMetadata);
+                        (new Field(fieldMetadata)).accept(StandardQueryHandler.this);
+                        leftFieldCondition.criterionFieldName = getAlias(mapping, left) + '.' + left.getName();
                     }
                 }
-                Predicate predicate = condition.getPredicate();
-                if (compareValue instanceof Boolean && predicate == Predicate.EQUALS) {
-                    if (!(Boolean) compareValue) {
-                        // Special case for boolean: when looking for 'false' value, consider null values as 'false' too.
-                        return or(eq(leftFieldCondition.criterionFieldName, compareValue), isNull(leftFieldCondition.criterionFieldName));
-                    }
+                if (leftFieldCondition.isMany || rightFieldCondition.isMany) {
+                    // This is what could be done with Hibernate 4 for searches that includes conditions on collections:
+                    // criteria = criteria.createCriteria(fieldName);
+                    throw new UnsupportedOperationException("Cannot search on field '" + leftFieldCondition.criterionFieldName + "' because it is a collection.");
                 }
-                if (predicate == Predicate.EQUALS) {
-                    return eq(leftFieldCondition.criterionFieldName, compareValue);
-                } else if (predicate == Predicate.CONTAINS) {
-                    String value = String.valueOf(compareValue);
-                    if (!value.isEmpty()) {
-                        if (value.charAt(0) != '%') {
-                            value = '%' + value;
+                if (!rightFieldCondition.isProperty) {  // "Standard" comparison between a field and a constant value.
+                    Object compareValue = condition.getRight().accept(VALUE_ADAPTER);
+                    if (condition.getLeft() instanceof Field) {
+                        Field leftField = (Field) condition.getLeft();
+                        FieldMetadata fieldMetadata = leftField.getFieldMetadata();
+                        FieldMetadata left = mapping.getDatabase(fieldMetadata);
+                        if (!left.getType().equals(fieldMetadata.getType())) {
+                            compareValue = MetadataUtils.convert(String.valueOf(compareValue), left);
                         }
-                        if (value.charAt(value.length() - 1) != '%') {
-                            value += '%';
+                    }
+                    Predicate predicate = condition.getPredicate();
+                    if (compareValue instanceof Boolean && predicate == Predicate.EQUALS) {
+                        if (!(Boolean) compareValue) {
+                            // Special case for boolean: when looking for 'false' value, consider null values as 'false' too.
+                            return or(eq(leftFieldCondition.criterionFieldName, compareValue), isNull(leftFieldCondition.criterionFieldName));
                         }
+                    }
+                    if (predicate == Predicate.EQUALS) {
+                        return eq(leftFieldCondition.criterionFieldName, compareValue);
+                    } else if (predicate == Predicate.CONTAINS) {
+                        String value = String.valueOf(compareValue);
+                        if (!value.isEmpty()) {
+                            if (value.charAt(0) != '%') {
+                                value = '%' + value;
+                            }
+                            if (value.charAt(value.length() - 1) != '%') {
+                                value += '%';
+                            }
+                        } else {
+                            value = "%"; //$NON-NLS-1$
+                        }
+                        return like(leftFieldCondition.criterionFieldName, value);
+                    } else if (predicate == Predicate.GREATER_THAN) {
+                        return gt(leftFieldCondition.criterionFieldName, compareValue);
+                    } else if (predicate == Predicate.LOWER_THAN) {
+                        return lt(leftFieldCondition.criterionFieldName, compareValue);
+                    } else if (predicate == Predicate.GREATER_THAN_OR_EQUALS) {
+                        return ge(leftFieldCondition.criterionFieldName, compareValue);
+                    } else if (predicate == Predicate.LOWER_THAN_OR_EQUALS) {
+                        return le(leftFieldCondition.criterionFieldName, compareValue);
+                    } else if (predicate == Predicate.STARTS_WITH) {
+                        return like(leftFieldCondition.criterionFieldName, compareValue + "%"); //$NON-NLS-1$
                     } else {
-                        value = "%"; //$NON-NLS-1$
+                        throw new NotImplementedException("No support for predicate '" + predicate.getClass() + "'");
                     }
-                    return like(leftFieldCondition.criterionFieldName, value);
-                } else if (predicate == Predicate.GREATER_THAN) {
-                    return gt(leftFieldCondition.criterionFieldName, compareValue);
-                } else if (predicate == Predicate.LOWER_THAN) {
-                    return lt(leftFieldCondition.criterionFieldName, compareValue);
-                } else if (predicate == Predicate.GREATER_THAN_OR_EQUALS) {
-                    return ge(leftFieldCondition.criterionFieldName, compareValue);
-                } else if (predicate == Predicate.LOWER_THAN_OR_EQUALS) {
-                    return le(leftFieldCondition.criterionFieldName, compareValue);
-                } else if (predicate == Predicate.STARTS_WITH) {
-                    return like(leftFieldCondition.criterionFieldName, compareValue + "%"); //$NON-NLS-1$
-                } else {
-                    throw new NotImplementedException("No support for predicate '" + predicate.getClass() + "'");
-                }
-            } else { // Since we expect left part to be a field, this 'else' means we're comparing 2 fields
-                Predicate predicate = condition.getPredicate();
-                if (predicate == Predicate.EQUALS) {
-                    return Restrictions.eqProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName);
-                } else if (predicate == Predicate.GREATER_THAN) {
-                    return Restrictions.gtProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName);
-                } else if (predicate == Predicate.LOWER_THAN) {
-                    return Restrictions.ltProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName);
-                } else if (predicate == Predicate.GREATER_THAN_OR_EQUALS) {
-                    // No GTE for properties, do it "manually"
-                    return or(Restrictions.gtProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName),
-                            Restrictions.eqProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName));
-                } else if (predicate == Predicate.LOWER_THAN_OR_EQUALS) {
-                    // No LTE for properties, do it "manually"
-                    return or(Restrictions.ltProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName),
-                            Restrictions.eqProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName));
-                } else {
-                    throw new NotImplementedException("No support for predicate '" + predicate.getClass() + "'");
+                } else { // Since we expect left part to be a field, this 'else' means we're comparing 2 fields
+                    Predicate predicate = condition.getPredicate();
+                    if (predicate == Predicate.EQUALS) {
+                        return Restrictions.eqProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName);
+                    } else if (predicate == Predicate.GREATER_THAN) {
+                        return Restrictions.gtProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName);
+                    } else if (predicate == Predicate.LOWER_THAN) {
+                        return Restrictions.ltProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName);
+                    } else if (predicate == Predicate.GREATER_THAN_OR_EQUALS) {
+                        // No GTE for properties, do it "manually"
+                        return or(Restrictions.gtProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName),
+                                Restrictions.eqProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName));
+                    } else if (predicate == Predicate.LOWER_THAN_OR_EQUALS) {
+                        // No LTE for properties, do it "manually"
+                        return or(Restrictions.ltProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName),
+                                Restrictions.eqProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName));
+                    } else {
+                        throw new NotImplementedException("No support for predicate '" + predicate.getClass() + "'");
+                    }
                 }
             }
         }
-    }
 
-    private class CriterionFieldCondition extends VisitorAdapter<FieldCondition> {
+        private class CriterionFieldCondition extends VisitorAdapter<FieldCondition> {
 
-        private FieldCondition createInternalCondition(String fieldName) {
-            FieldCondition condition = new FieldCondition();
-            condition.criterionFieldName = fieldName;
-            condition.isMany = false;
-            condition.isProperty = true;
-            return condition;
-        }
-
-        private FieldCondition createConstantCondition() {
-            FieldCondition condition = new FieldCondition();
-            condition.isProperty = false;
-            condition.isMany = false;
-            condition.criterionFieldName = StringUtils.EMPTY;
-            return condition;
-        }
-
-        @Override
-        public FieldCondition visit(Revision revision) {
-            return createInternalCondition(Storage.METADATA_REVISION_ID);
-        }
-
-        @Override
-        public FieldCondition visit(Timestamp timestamp) {
-            String databaseTimestamp = mappingMetadataRepository.getMappingFromUser(mainType).getDatabaseTimestamp();
-            if (databaseTimestamp != null) {
-                return createInternalCondition(databaseTimestamp);
-            } else {
-                return null;
+            private FieldCondition createInternalCondition(String fieldName) {
+                FieldCondition condition = new FieldCondition();
+                condition.criterionFieldName = fieldName;
+                condition.isMany = false;
+                condition.isProperty = true;
+                return condition;
             }
-        }
 
-        @Override
-        public FieldCondition visit(TaskId taskId) {
-            String taskIdField = mappingMetadataRepository.getMappingFromUser(mainType).getDatabaseTaskId();
-            if (taskIdField != null) {
-                return createInternalCondition(Storage.METADATA_TASK_ID);
-            } else {
-                return null;
+            private FieldCondition createConstantCondition() {
+                FieldCondition condition = new FieldCondition();
+                condition.isProperty = false;
+                condition.isMany = false;
+                condition.criterionFieldName = StringUtils.EMPTY;
+                return condition;
             }
-        }
 
-        @Override
-        public FieldCondition visit(StagingStatus stagingStatus) {
-            return createInternalCondition(Storage.METADATA_STAGING_STATUS);
-        }
+            @Override
+            public FieldCondition visit(Revision revision) {
+                return createInternalCondition(Storage.METADATA_REVISION_ID);
+            }
 
-        @Override
-        public FieldCondition visit(StagingError stagingError) {
-            return createInternalCondition(Storage.METADATA_STAGING_ERROR);
-        }
+            @Override
+            public FieldCondition visit(Timestamp timestamp) {
+                String databaseTimestamp = mappingMetadataRepository.getMappingFromUser(mainType).getDatabaseTimestamp();
+                if (databaseTimestamp != null) {
+                    return createInternalCondition(databaseTimestamp);
+                } else {
+                    return null;
+                }
+            }
 
-        @Override
-        public FieldCondition visit(StagingSource stagingSource) {
-            return createInternalCondition(Storage.METADATA_STAGING_SOURCE);
-        }
+            @Override
+            public FieldCondition visit(TaskId taskId) {
+                String taskIdField = mappingMetadataRepository.getMappingFromUser(mainType).getDatabaseTaskId();
+                if (taskIdField != null) {
+                    return createInternalCondition(Storage.METADATA_TASK_ID);
+                } else {
+                    return null;
+                }
+            }
 
-        @Override
-        public FieldCondition visit(Expression expression) {
-            if (expression instanceof ComplexTypeExpression) {
+            @Override
+            public FieldCondition visit(StagingStatus stagingStatus) {
+                return createInternalCondition(Storage.METADATA_STAGING_STATUS);
+            }
+
+            @Override
+            public FieldCondition visit(StagingError stagingError) {
+                return createInternalCondition(Storage.METADATA_STAGING_ERROR);
+            }
+
+            @Override
+            public FieldCondition visit(StagingSource stagingSource) {
+                return createInternalCondition(Storage.METADATA_STAGING_SOURCE);
+            }
+
+            @Override
+            public FieldCondition visit(Expression expression) {
+                if (expression instanceof ComplexTypeExpression) {
+                    return createConstantCondition();
+                } else {
+                    return super.visit(expression);
+                }
+            }
+
+            @Override
+            public FieldCondition visit(Alias alias) {
+                return alias.getTypedExpression().accept(this);
+            }
+
+            @Override
+            public FieldCondition visit(Field field) {
+                FieldCondition condition = new FieldCondition();
+                condition.isMany = field.getFieldMetadata().isMany();
+                // Use line below to allow searches on collection fields (but Hibernate 4 should be used).
+                // condition.criterionFieldName = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field, StandardQueryHandler.this.mappingMetadataRepository);
+                condition.criterionFieldName = getFieldName(field, StandardQueryHandler.this.mappingMetadataRepository);
+                condition.isProperty = true;
+                return condition;
+            }
+
+            @Override
+            public FieldCondition visit(Id id) {
                 return createConstantCondition();
-            } else {
-                return super.visit(expression);
+            }
+
+            @Override
+            public FieldCondition visit(StringConstant constant) {
+                return createConstantCondition();
+            }
+
+            @Override
+            public FieldCondition visit(IntegerConstant constant) {
+                return createConstantCondition();
+            }
+
+            @Override
+            public FieldCondition visit(DateConstant constant) {
+                return createConstantCondition();
+            }
+
+            @Override
+            public FieldCondition visit(DateTimeConstant constant) {
+                return createConstantCondition();
+            }
+
+            @Override
+            public FieldCondition visit(BooleanConstant constant) {
+                return createConstantCondition();
+            }
+
+            @Override
+            public FieldCondition visit(BigDecimalConstant constant) {
+                return createConstantCondition();
+            }
+
+            @Override
+            public FieldCondition visit(TimeConstant constant) {
+                return createConstantCondition();
+            }
+
+            @Override
+            public FieldCondition visit(ShortConstant constant) {
+                return createConstantCondition();
+            }
+
+            @Override
+            public FieldCondition visit(ByteConstant constant) {
+                return createConstantCondition();
+            }
+
+            @Override
+            public FieldCondition visit(LongConstant constant) {
+                return createConstantCondition();
+            }
+
+            @Override
+            public FieldCondition visit(DoubleConstant constant) {
+                return createConstantCondition();
+            }
+
+            @Override
+            public FieldCondition visit(FloatConstant constant) {
+                return createConstantCondition();
             }
         }
-
-        @Override
-        public FieldCondition visit(Alias alias) {
-            return alias.getTypedExpression().accept(this);
-        }
-
-        @Override
-        public FieldCondition visit(Field field) {
-            FieldCondition condition = new FieldCondition();
-            condition.isMany = field.getFieldMetadata().isMany();
-            // Use line below to allow searches on collection fields (but Hibernate 4 should be used).
-            // condition.criterionFieldName = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field, StandardQueryHandler.this.mappingMetadataRepository);
-            condition.criterionFieldName = getFieldName(field, StandardQueryHandler.this.mappingMetadataRepository);
-            condition.isProperty = true;
-            return condition;
-        }
-
-        @Override
-        public FieldCondition visit(Id id) {
-            return createConstantCondition();
-        }
-
-        @Override
-        public FieldCondition visit(StringConstant constant) {
-            return createConstantCondition();
-        }
-
-        @Override
-        public FieldCondition visit(IntegerConstant constant) {
-            return createConstantCondition();
-        }
-
-        @Override
-        public FieldCondition visit(DateConstant constant) {
-            return createConstantCondition();
-        }
-
-        @Override
-        public FieldCondition visit(DateTimeConstant constant) {
-            return createConstantCondition();
-        }
-
-        @Override
-        public FieldCondition visit(BooleanConstant constant) {
-            return createConstantCondition();
-        }
-
-        @Override
-        public FieldCondition visit(BigDecimalConstant constant) {
-            return createConstantCondition();
-        }
-
-        @Override
-        public FieldCondition visit(TimeConstant constant) {
-            return createConstantCondition();
-        }
-
-        @Override
-        public FieldCondition visit(ShortConstant constant) {
-            return createConstantCondition();
-        }
-
-        @Override
-        public FieldCondition visit(ByteConstant constant) {
-            return createConstantCondition();
-        }
-
-        @Override
-        public FieldCondition visit(LongConstant constant) {
-            return createConstantCondition();
-        }
-
-        @Override
-        public FieldCondition visit(DoubleConstant constant) {
-            return createConstantCondition();
-        }
-
-        @Override
-        public FieldCondition visit(FloatConstant constant) {
-            return createConstantCondition();
-        }
     }
-}
