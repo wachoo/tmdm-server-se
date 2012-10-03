@@ -666,7 +666,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     Field leftField = (Field) condition.getLeft();
                     FieldMetadata fieldMetadata = leftField.getFieldMetadata();
                     FieldMetadata left = mappingMetadataRepository.getMappingFromUser(mainType).getDatabase(fieldMetadata);
-                    compareValue = MetadataUtils.convert(String.valueOf(compareValue), left);
+                    if (!left.getType().equals(fieldMetadata)) {
+                        compareValue = MetadataUtils.convert(String.valueOf(compareValue), left);
+                    }
                 }
                 Predicate predicate = condition.getPredicate();
                 if (compareValue instanceof Boolean && predicate == Predicate.EQUALS) {
