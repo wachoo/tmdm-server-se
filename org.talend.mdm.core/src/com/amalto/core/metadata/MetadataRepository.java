@@ -58,7 +58,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
     public ComplexTypeMetadata getComplexType(String typeName) {
         try {
-            return (ComplexTypeMetadata) getType(USER_NAMESPACE, typeName);
+            return (ComplexTypeMetadata) getType(USER_NAMESPACE, typeName.trim());
         } catch (ClassCastException e) {
             throw new IllegalArgumentException("Type named '" + typeName + "' is not a complex type.");
         }
@@ -69,7 +69,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
         if (nameSpaceTypes == null) {
             return null;
         }
-        return nameSpaceTypes.get(name);
+        return nameSpaceTypes.get(name.trim());
     }
 
     /**
@@ -108,7 +108,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
     public TypeMetadata getNonInstantiableType(String namespace, String typeName) {
         Map<String, TypeMetadata> map = nonInstantiableTypes.get(namespace);
         if (map != null) {
-            return map.get(typeName);
+            return map.get(typeName.trim());
         }
         return null;
     }
