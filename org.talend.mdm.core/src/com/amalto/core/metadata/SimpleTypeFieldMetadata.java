@@ -158,8 +158,6 @@ public class SimpleTypeFieldMetadata extends MetadataExtensible implements Field
         if (isMany != that.isMany) return false;
         if (allowWriteUsers != null ? !allowWriteUsers.equals(that.allowWriteUsers) : that.allowWriteUsers != null)
             return false;
-        if (declaringType != null ? !declaringType.equals(that.declaringType) : that.declaringType != null)
-            return false;
         if (fieldType != null ? !fieldType.equals(that.fieldType) : that.fieldType != null) return false;
         if (hideUsers != null ? !hideUsers.equals(that.hideUsers) : that.hideUsers != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
@@ -175,7 +173,6 @@ public class SimpleTypeFieldMetadata extends MetadataExtensible implements Field
         result = 31 * result + (allowWriteUsers != null ? allowWriteUsers.hashCode() : 0);
         result = 31 * result + (hideUsers != null ? hideUsers.hashCode() : 0);
         result = 31 * result + (isKey ? 1 : 0);
-        result = 31 * result + (declaringType != null ? declaringType.getName().hashCode() : 0);
         result = 31 * result + (isMandatory ? 1 : 0);
         return result;
     }
