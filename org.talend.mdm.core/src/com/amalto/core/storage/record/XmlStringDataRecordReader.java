@@ -103,8 +103,6 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
             dataRecord.setRevisionId(revisionId);
 
             Stack<DataRecord> dataRecords = new Stack<DataRecord>();
-            Stack<String> typeElements = new Stack<String>();
-            typeElements.push(type.getName());
             dataRecords.push(dataRecord);
             int userXmlPayloadLevel = level;
             while (xmlEventReader.hasNext()) {
@@ -126,9 +124,7 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                             } else {
                                 fieldType = ((ReferenceFieldMetadata) field).getReferencedType();
                             }
-                        }
-                        // Reads xsi:type for actual contained type.
-                        if (fieldType instanceof ContainedComplexTypeMetadata) {
+                        } else if (fieldType instanceof ContainedComplexTypeMetadata) { // Reads xsi:type for actual contained type.
                             Attribute actualType = startElement.getAttributeByName(new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type")); //$NON-NLS-1$
                             if (actualType != null) {
                                 fieldType = repository.getNonInstantiableType(fieldType.getNamespace(), actualType.getValue());
@@ -136,7 +132,6 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                             DataRecord containedDataRecord = new DataRecord((ComplexTypeMetadata) fieldType, UnsupportedDataRecordMetadata.INSTANCE);
                             dataRecords.peek().set(field, containedDataRecord);
                             dataRecords.push(containedDataRecord);
-                            typeElements.push(startElement.getName().getLocalPart());
                         }
                         currentType.push(fieldType);
                     }
@@ -160,18 +155,17 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                     if (level == userXmlPayloadLevel && endElementLocalPart.equals(type.getName())) {
                         break;
                     }
-                    field = null;
-                    if (typeElements.peek().equals(endElementLocalPart)) {
-                        typeElements.pop();
+                    if (currentType.peek() instanceof ComplexTypeMetadata && !(field instanceof ReferenceFieldMetadata)) {
                         dataRecords.pop();
                     }
+                    field = null;
                     currentType.pop();
                     level--;
                 }
             }
             DataRecord createdDataRecord = dataRecords.pop();
-            if (!dataRecords.empty()) {
-                throw new IllegalStateException("Data record remained in stack at end of creation.");
+            while (!dataRecords.isEmpty()) {
+                createdDataRecord = dataRecords.pop();
             }
             return createdDataRecord;
         } catch (Exception e) {

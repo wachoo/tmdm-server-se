@@ -80,7 +80,7 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
                 } else {
                     _read(repository, dataRecord, type, child);
                 }
-            } else if (currentChild instanceof Text && !tagName.equals(type.getName())) {
+            } else if (currentChild instanceof Text) {
                 String textContent = element.getFirstChild().getNodeValue().trim();
                 if (!textContent.isEmpty()) {
                     FieldMetadata field = type.getField(tagName);

@@ -21,6 +21,7 @@
                     <Color>Blue</Color>
                 </Colors>
             </Features>
+            <Product>A value just there to test when entity contains an element with same name as entity (TMDM-4717)</Product>
             <Availability/>
             <Price>30</Price>
             <Family>[2]</Family>

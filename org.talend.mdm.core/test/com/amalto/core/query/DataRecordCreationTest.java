@@ -175,6 +175,8 @@ public class DataRecordCreationTest extends TestCase {
         assertEquals(1, list.size());
         assertEquals("Blue", list.get(0));
 
+        assertNotNull(dataRecord.get("Product"));
+
         o = dataRecord.get("Supplier");
         assertNotNull(o);
         assertTrue(o instanceof List);
