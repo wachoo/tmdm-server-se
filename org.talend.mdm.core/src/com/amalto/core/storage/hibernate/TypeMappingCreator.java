@@ -97,14 +97,22 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(SimpleTypeFieldMetadata simpleField) {
-        boolean isKey = false;
-        FieldMetadata newFlattenField;
-        if (simpleField.getContainingType() == simpleField.getDeclaringType()) {
-            ComplexTypeMetadata database = typeMapping.getDatabase();
-            newFlattenField = new SimpleTypeFieldMetadata(database, isKey, simpleField.isMany(), simpleField.isMandatory(), getColumnName(simpleField, true), simpleField.getType(), simpleField.getWriteUsers(), simpleField.getHideUsers());
+        SimpleTypeFieldMetadata newFlattenField;
+        ComplexTypeMetadata database = typeMapping.getDatabase();
+        TypeMetadata declaringType = simpleField.getDeclaringType();
+        if (simpleField.getContainingType() == declaringType) {
+            newFlattenField = new SimpleTypeFieldMetadata(database, false, simpleField.isMany(), simpleField.isMandatory(), getColumnName(simpleField, true), simpleField.getType(), simpleField.getWriteUsers(), simpleField.getHideUsers());
             database.addField(newFlattenField);
         } else {
-            newFlattenField = new SoftFieldRef(internalRepository, getColumnName(simpleField, true), simpleField.getContainingType());
+            SoftTypeRef internalDeclaringType;
+            if (!declaringType.isInstantiable()) {
+                internalDeclaringType = new SoftTypeRef(internalRepository, declaringType.getNamespace(), "X_" + declaringType.getName(), declaringType.isInstantiable());
+            } else {
+                internalDeclaringType = new SoftTypeRef(internalRepository, declaringType.getNamespace(), declaringType.getName(), declaringType.isInstantiable());
+            }
+            newFlattenField = new SimpleTypeFieldMetadata(database, false, simpleField.isMany(), simpleField.isMandatory(), getColumnName(simpleField, true), simpleField.getType(), simpleField.getWriteUsers(), simpleField.getHideUsers());
+            newFlattenField.setDeclaringType(internalDeclaringType);
+            database.addField(newFlattenField);
         }
         typeMapping.map(simpleField, newFlattenField);
         return typeMapping;

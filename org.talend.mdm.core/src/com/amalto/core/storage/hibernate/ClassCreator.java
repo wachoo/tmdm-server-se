@@ -59,7 +59,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             for (ComplexTypeMetadata sortedType : sortedTypes) {
                 sortedType.accept(this);
             }
-            for (ComplexTypeMetadata type : repository.getNonInstantiableTypes()) {
+            for (ComplexTypeMetadata type : MetadataUtils.sortNonInstantiableTypes(repository)) {
                 type.accept(this);
             }
             return null;
@@ -380,7 +380,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                     field.getFieldInfo().addAttribute(annotations);
                 }
                 // Adds "DocumentId" annotation for Hibernate search
-                if (metadata.getContainingType() == metadata.getDeclaringType()) { // Do this if key field is declared in containing type (DocumentId annotation is inherited).
+                if (metadata.getContainingType().getSuperTypes().isEmpty()) { // Do this if key field is declared in containing type (DocumentId annotation is inherited).
                     if (metadata.getContainingType().getKeyFields().size() == 1) {
                         if (metadata.isKey()) {
                             Annotation docIdAnnotation = new Annotation(DocumentId.class.getName(), cp);
