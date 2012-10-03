@@ -7,7 +7,7 @@
 ######################################################
 
 ######################################################
-# System Setting
+# System Settings
 ######################################################
 
 #mdm admin username
@@ -46,7 +46,7 @@ cluster_override=false
 #configuration.reloadfrequency=60
 
 ######################################################
-# eXist DB Setting
+# eXist DB Settings
 ######################################################
 xmldb.server.name=localhost
 xmldb.server.port=8180
@@ -60,7 +60,7 @@ xmldb.type=exist
 xmlserver.class=com.amalto.xmldb.XmldbSLWrapper
 
 ######################################################
-# DUAL DB Setting
+# RDBMS Settings
 ######################################################
 #xmldb.server.name=localhost
 #xmldb.server.port=8180
