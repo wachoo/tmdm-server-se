@@ -22,13 +22,13 @@ import org.apache.log4j.Logger;
 
 import java.util.Set;
 
-public class StorageErrorDump implements Storage {
+public class StorageLogger implements Storage {
 
-    private static final Logger LOGGER = Logger.getLogger(StorageErrorDump.class);
+    private static final Logger LOGGER = Logger.getLogger(StorageLogger.class);
 
     private final Storage delegate;
 
-    public StorageErrorDump(Storage delegate) {
+    public StorageLogger(Storage delegate) {
         this.delegate = delegate;
     }
 

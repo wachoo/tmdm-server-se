@@ -17,7 +17,7 @@ import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.storage.SecuredStorage;
 import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageErrorDump;
+import com.amalto.core.storage.StorageLogger;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.jmx.StagingImpl;
@@ -102,7 +102,7 @@ public class ServerContext {
                 }
             });
             // TODO This is a prototype, but we should be able configure this dump on error behavior
-            storage = new StorageErrorDump(storage);
+            storage = new StorageLogger(storage);
             return storage;
         }
 
