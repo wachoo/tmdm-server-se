@@ -11,10 +11,7 @@
 
 package com.amalto.core.query.user;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.ContainedTypeFieldMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.*;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -587,6 +584,9 @@ public class UserQueryBuilder {
 
     public static Condition contains(FieldMetadata field, String value) {
         assertValueConditionArguments(field, value);
+        if (value.isEmpty()) {
+            return UserQueryHelper.NO_OP_CONDITION;
+        }
         Field userField = new Field(field);
         return contains(userField, value);
     }
@@ -601,6 +601,18 @@ public class UserQueryBuilder {
                 LOGGER.debug("Change CONTAINS to EQUALS for '" + field + "' (type: " + field.getTypeName() + ").");
             }
             return new Compare(field, Predicate.EQUALS, constant);
+        }
+    }
+
+    public static TypedExpression type(FieldMetadata field) {
+        if (!(field.getType() instanceof ComplexTypeMetadata)) {
+            throw new IllegalArgumentException("Expected a complex type for field '" + field.getName() + "'.");
+        }
+        ComplexTypeMetadata fieldType = (ComplexTypeMetadata) field.getType();
+        if (fieldType.getSubTypes().isEmpty()) {
+            return new StringConstant(fieldType.getName());
+        } else {
+            return new Type(new Field(field));
         }
     }
 }

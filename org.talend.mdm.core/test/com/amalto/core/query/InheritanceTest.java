@@ -26,8 +26,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.amalto.core.query.user.UserQueryBuilder.isa;
-import static com.amalto.core.query.user.UserQueryBuilder.or;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 @SuppressWarnings("nls")
 public class InheritanceTest extends StorageTestCase {
@@ -251,6 +250,26 @@ public class InheritanceTest extends StorageTestCase {
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testXsiTypeProjection() throws Exception {
+        ComplexTypeMetadata subNested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "SubNested");
+        assertNotNull(subNested);
+        ComplexTypeMetadata nested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "Nested");
+        assertNotNull(nested);
+        // Test 1
+        UserQueryBuilder qb = UserQueryBuilder.from(a)
+                .select(alias(type(a.getField("nestedB")), "type"))
+                .where(isa(a.getField("nestedB"), subNested));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertEquals(subNested.getName(), result.get("type"));
+            }
         } finally {
             results.close();
         }

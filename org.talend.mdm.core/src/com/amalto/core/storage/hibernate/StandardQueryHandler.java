@@ -181,6 +181,17 @@ class StandardQueryHandler extends AbstractQueryHandler {
     }
 
     @Override
+    public StorageResults visit(Type type) {
+        Projection p = new ClassNameProjection(currentAliasName);
+        if (currentAliasName != null) {
+            projectionList.add(p, currentAliasName);
+        } else {
+            throw new IllegalStateException("Expected an alias for a type expression.");
+        }
+        return null;
+    }
+
+    @Override
     public StorageResults visit(StringConstant constant) {
         Projection p = new ConstantStringProjection(currentAliasName, constant.getValue());
         if (currentAliasName != null) {

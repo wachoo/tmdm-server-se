@@ -63,6 +63,11 @@ class Checker extends VisitorAdapter<Boolean> {
     }
 
     @Override
+    public Boolean visit(Type type) {
+        return type.getField().accept(this);
+    }
+
+    @Override
     public Boolean visit(Timestamp timestamp) {
         return true;
     }

@@ -117,6 +117,11 @@ public class QizxQueryModelConverter implements Visitor<Expression> {
         throw new NotImplementedException();
     }
 
+    @Override
+    public Expression visit(Type type) {
+        throw new NotImplementedException();
+    }
+
     public Expression visit(StagingStatus stagingStatus) {
         throw new NotImplementedException();
     }

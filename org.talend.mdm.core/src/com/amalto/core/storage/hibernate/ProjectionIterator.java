@@ -115,6 +115,11 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                     }
 
                     @Override
+                    public FieldMetadata visit(Type type) {
+                        return null;
+                    }
+
+                    @Override
                     public FieldMetadata visit(StringConstant constant) {
                         return null;
                     }

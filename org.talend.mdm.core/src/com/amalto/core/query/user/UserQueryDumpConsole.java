@@ -218,6 +218,15 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(Type type) {
+        print("[Field type name]");
+        increaseIndent();
+        type.getField().accept(this);
+        decreaseIndent();
+        return null;
+    }
+
     public Void visit(StagingStatus stagingStatus) {
         print("[Technical field: STAGING_STATUS]");
         return null;

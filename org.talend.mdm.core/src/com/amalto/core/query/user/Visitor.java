@@ -36,6 +36,8 @@ public interface Visitor<T> {
 
     T visit(TaskId taskId);
 
+    T visit(Type type);
+
     T visit(StagingStatus stagingStatus);
 
     T visit(StagingError stagingError);
