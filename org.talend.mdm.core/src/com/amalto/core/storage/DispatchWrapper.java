@@ -305,38 +305,54 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
     }
 
     public boolean supportTransaction() {
-        return mdmInternalWrapper.supportTransaction() && userStorageWrapper.supportTransaction();
+        return mdmInternalWrapper.supportTransaction() || userStorageWrapper.supportTransaction();
     }
 
     public void start(String dataClusterName) throws XmlServerException {
         if (isMDMInternal(dataClusterName)) {
-            mdmInternalWrapper.start(dataClusterName);
+            if (mdmInternalWrapper.supportTransaction()) {
+                mdmInternalWrapper.start(dataClusterName);
+            }
         } else {
-            userStorageWrapper.start(dataClusterName);
+            if (userStorageWrapper.supportTransaction()) {
+                userStorageWrapper.start(dataClusterName);
+            }
         }
     }
 
     public void commit(String dataClusterName) throws XmlServerException {
         if (isMDMInternal(dataClusterName)) {
-            mdmInternalWrapper.commit(dataClusterName);
+            if (mdmInternalWrapper.supportTransaction()) {
+                mdmInternalWrapper.commit(dataClusterName);
+            }
         } else {
-            userStorageWrapper.commit(dataClusterName);
+            if (userStorageWrapper.supportTransaction()) {
+                userStorageWrapper.commit(dataClusterName);
+            }
         }
     }
 
     public void rollback(String dataClusterName) throws XmlServerException {
         if (isMDMInternal(dataClusterName)) {
-            mdmInternalWrapper.rollback(dataClusterName);
+            if (mdmInternalWrapper.supportTransaction()) {
+                mdmInternalWrapper.rollback(dataClusterName);
+            }
         } else {
-            userStorageWrapper.rollback(dataClusterName);
+            if (userStorageWrapper.supportTransaction()) {
+                userStorageWrapper.rollback(dataClusterName);
+            }
         }
     }
 
     public void end(String dataClusterName) throws XmlServerException {
         if (isMDMInternal(dataClusterName)) {
-            mdmInternalWrapper.end(dataClusterName);
+            if (mdmInternalWrapper.supportTransaction()) {
+                mdmInternalWrapper.end(dataClusterName);
+            }
         } else {
-            userStorageWrapper.end(dataClusterName);
+            if (userStorageWrapper.supportTransaction()) {
+                userStorageWrapper.end(dataClusterName);
+            }
         }
     }
 
