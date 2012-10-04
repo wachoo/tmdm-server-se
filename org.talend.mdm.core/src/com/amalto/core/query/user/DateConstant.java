@@ -28,10 +28,12 @@ public class DateConstant implements TypedExpression {
     private final Date value;
 
     public DateConstant(String value) {
-        try {
-            this.value = DATE_FORMAT.parse(value);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
+        synchronized (DATE_FORMAT) {
+            try {
+                this.value = DATE_FORMAT.parse(value);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

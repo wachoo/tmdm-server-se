@@ -26,10 +26,12 @@ public class TimeConstant implements TypedExpression {
     private final Date value;
 
     public TimeConstant(String value) {
-        try {
-            this.value = TIME_FORMAT.parse(value);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
+        synchronized (TIME_FORMAT) {
+            try {
+                this.value = TIME_FORMAT.parse(value);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
