@@ -506,7 +506,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         // Filter by keys: expected format here: $EntityTypeName/Path/To/Field$[id_for_lookup]
         String keysKeywords = criteria.getKeysKeywords();
         if (keysKeywords != null && !keysKeywords.isEmpty()) {
-            if (!criteria.isCompoundKeyKeywords()) {
+            if (keysKeywords.charAt(0) == '$') {
                 char[] chars = keysKeywords.toCharArray();
                 StringBuilder path = new StringBuilder();
                 StringBuilder id = new StringBuilder();
@@ -536,7 +536,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                     // TODO Implement compound key support
                     qb.where(eq(type.getKeyFields().get(0), id.toString()));
                 } else {
-                    qb.where(contains(type.getField(path.toString()), idForLookup.toString()));
+                    qb.where(eq(type.getField(path.toString()), idForLookup.toString()));
                 }
             } else {
                 List<FieldMetadata> keyFields = type.getKeyFields();
@@ -544,7 +544,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                     throw new IllegalArgumentException("Expected type '" + type.getName() + "' to contain only 1 key field.");
                 }
                 String uniqueKeyFieldName = keyFields.get(0).getName();
-                qb.where(contains(type.getField(uniqueKeyFieldName), keysKeywords));
+                qb.where(eq(type.getField(uniqueKeyFieldName), keysKeywords));
             }
         }
 
