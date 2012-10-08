@@ -89,11 +89,11 @@ public class DataModelUpdateMDB implements MessageDrivenBean, MessageListener {
                             Server server = ServerContext.INSTANCE.get();
                             MetadataRepositoryAdmin metadataRepositoryAdmin = server.getMetadataRepositoryAdmin();
                             metadataRepositoryAdmin.remove(updatedDataModelName);
-                            MetadataRepository repository = metadataRepositoryAdmin.get(updatedDataModelName);
                             StorageAdmin storageAdmin = server.getStorageAdmin();
                             Storage storage = storageAdmin.get(updatedDataModelName);
                             if (storage != null) {
                                 // Storage already exists so update it.
+                                MetadataRepository repository = metadataRepositoryAdmin.get(updatedDataModelName);
                                 Set<FieldMetadata> indexedFields = metadataRepositoryAdmin.getIndexedFields(updatedDataModelName);
                                 storage.prepare(repository, indexedFields, true, false);
                             } else {
@@ -103,8 +103,9 @@ public class DataModelUpdateMDB implements MessageDrivenBean, MessageListener {
                             Storage stagingStorage = storageAdmin.get(updatedDataModelName + StorageAdmin.STAGING_SUFFIX);
                             if (stagingStorage != null) {
                                 // Storage already exists so update it.
+                                MetadataRepository stagingRepository = metadataRepositoryAdmin.get(updatedDataModelName + StorageAdmin.STAGING_SUFFIX);
                                 Set<FieldMetadata> indexedFields = metadataRepositoryAdmin.getIndexedFields(updatedDataModelName);
-                                stagingStorage.prepare(repository, indexedFields, true, false);
+                                stagingStorage.prepare(stagingRepository, indexedFields, true, false);
                             } else {
                                 LOGGER.warn("No SQL staging storage defined for data model '" + updatedDataModelName + "'. No SQL staging storage to update.");
                             }

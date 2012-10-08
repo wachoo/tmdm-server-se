@@ -145,6 +145,10 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
             MetadataRepository repository = get(metadataRepositoryId);
             repository.close();
             metadataRepository.remove(metadataRepositoryId);
+            if (!metadataRepositoryId.endsWith(StorageAdmin.STAGING_SUFFIX)) {
+                // Remove staging metadata repository.
+                remove(metadataRepositoryId + StorageAdmin.STAGING_SUFFIX);
+            }
         }
     }
 
