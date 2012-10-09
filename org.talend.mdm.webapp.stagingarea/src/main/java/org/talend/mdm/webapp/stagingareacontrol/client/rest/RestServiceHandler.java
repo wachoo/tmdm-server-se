@@ -29,6 +29,8 @@ import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaExecutio
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaValidationModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerModel;
 
+import com.extjs.gxt.ui.client.util.Format;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -77,14 +79,12 @@ public class RestServiceHandler {
         client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
-                StagingContainerModel model;
                 try {
-                    model = StagingModelConvertor.response2StagingContainerModel(response);
+                    StagingContainerModel model = StagingModelConvertor.response2StagingContainerModel(response);
+                    callback.onSuccess(model);
                 } catch (Exception e) {
-                    MessageBox.alert(null, messages.rest_exception(), null);
-                    return;
+                    alertStagingError(e);
                 }
-                callback.onSuccess(model);
             }
         });
         client.request();
@@ -110,14 +110,12 @@ public class RestServiceHandler {
         client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
-                StagingContainerModel model;
                 try {
-                    model = StagingModelConvertor.response2StagingContainerModel(response);
+                    StagingContainerModel model = StagingModelConvertor.response2StagingContainerModel(response);
+                    callback.onSuccess(model);
                 } catch (Exception e) {
-                    MessageBox.alert(null, messages.rest_exception(), null);
-                    return;
+                    alertStagingError(e);
                 }
-                callback.onSuccess(model);
             }
         });
         client.request();
@@ -142,8 +140,8 @@ public class RestServiceHandler {
         client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
-                final List<String> exeIds = new ArrayList<String>();
                 try {
+                    final List<String> exeIds = new ArrayList<String>();
                     DomRepresentation rep = new DomRepresentation(response.getEntity());
                     NodeList list = rep.getDocument().getDocumentElement().getChildNodes();
                     if (list != null) {
@@ -153,11 +151,10 @@ public class RestServiceHandler {
                                 exeIds.add(node.getFirstChild().getNodeValue());
                         }
                     }
+                    callback.onSuccess(exeIds);
                 } catch (Exception e) {
-                    MessageBox.alert(null, messages.rest_exception(), null);
-                    return;
+                    alertStagingError(e);
                 }
-                callback.onSuccess(exeIds);
             }
         });
         client.request();
@@ -179,14 +176,12 @@ public class RestServiceHandler {
         client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
-                StagingAreaExecutionModel model;
                 try {
-                    model = StagingModelConvertor.response2StagingAreaExecutionModel(response);
+                    StagingAreaExecutionModel model = StagingModelConvertor.response2StagingAreaExecutionModel(response);
+                    callback.onSuccess(model);
                 } catch (Exception e) {
-                    MessageBox.alert(null, messages.rest_exception(), null);
-                    return;
+                    alertStagingError(e);
                 }
-                callback.onSuccess(model);
             }
         });
         client.request();
@@ -240,12 +235,12 @@ public class RestServiceHandler {
                             }
 
                             protected void doOnFailure(Throwable caught) {
-                                super.doOnFailure(caught);
+                                alertStagingError(caught);
                             }
                         });
                     }
                 } catch (Exception e) {
-                    MessageBox.alert(null, messages.rest_exception(), null);
+                    alertStagingError(e);
                 }
             }
         });
@@ -266,14 +261,12 @@ public class RestServiceHandler {
         client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
-                StagingAreaValidationModel model;
                 try {
-                    model = StagingModelConvertor.response2StagingAreaValidationModel(response);
+                    StagingAreaValidationModel model = StagingModelConvertor.response2StagingAreaValidationModel(response);
+                    callback.onSuccess(model);
                 } catch (Exception e) {
-                    MessageBox.alert(null, messages.rest_exception(), null);
-                    return;
+                    alertStagingError(e);
                 }
-                callback.onSuccess(model);
             }
         });
         client.request();
@@ -302,18 +295,16 @@ public class RestServiceHandler {
         client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
-                String taskId = null;
                 try {
+                    String taskId = null;
                     if (response.getEntity() != null) {
                         InputRepresentation rep = (InputRepresentation) response.getEntity();
                         taskId = rep.getText();
                     }
-
+                    callback.onSuccess(taskId);
                 } catch (Exception e) {
-                    MessageBox.alert(null, messages.rest_exception(), null);
-                    return;
+                    alertStagingError(e);
                 }
-                callback.onSuccess(taskId);
             }
         });
         client.request();
@@ -333,14 +324,11 @@ public class RestServiceHandler {
         client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
-                boolean isSuccess;
                 try {
-                    isSuccess = response.getStatus().isSuccess();
+                    callback.onSuccess(response.getStatus().isSuccess());
                 } catch (Exception e) {
-                    MessageBox.alert(null, messages.rest_exception(), null);
-                    return;
+                    alertStagingError(e);
                 }
-                callback.onSuccess(isSuccess);
             }
         });
         client.request();
@@ -357,14 +345,14 @@ public class RestServiceHandler {
             parameters.append("&before=").append(DEFAULT_DATE_FORMAT.format(criteria.getStartDate()));//$NON-NLS-1$
         if (parameters.length() > 0)
             uri.append("?").append(parameters.toString());//$NON-NLS-1$
-        
+
         // do request
         client.init(Method.GET, uri.toString());
         client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
-                int count = 0;
                 try {
+                    int count = 0;
                     if (response.getEntity() != null && response.getEntity().getText() != null) {
                         try {
                             count = Integer.parseInt(response.getEntity().getText());
@@ -372,15 +360,28 @@ public class RestServiceHandler {
                             count = Integer.MAX_VALUE;
                         }
                     }
+                    callback.onSuccess(new Integer(count));
                 } catch (Exception e) {
-                    MessageBox.alert(null, messages.rest_exception(), null);
-                    return;
+                    alertStagingError(e);
                 }
-                callback.onSuccess(new Integer(count));
             }
         });
         client.request(MediaType.TEXT_PLAIN);
 
     }
 
+    private void alertStagingError(Throwable e) {
+        String errorTitle = messages.staging_area_error();
+        String errorDetail;
+        if (e.getMessage() == null || e.getMessage().trim().length() == 0) {
+            errorDetail = messages.staging_area_exception();
+        } else {
+            errorDetail = messages.staging_area_exception() + "</br>" + messages.underlying_cause() //$NON-NLS-1$
+                    + "<div style='width:300px; height:80px; overflow:auto; margin-top: 5px; margin-left: 50px; border: dashed 1px #777777;'>" //$NON-NLS-1$
+                    + Format.htmlEncode(e.getMessage()) + "</div>"; //$NON-NLS-1$
+        }
+        Dialog dialog = MessageBox.alert(errorTitle, errorDetail, null).getDialog();
+        dialog.setWidth(400);
+        dialog.center();
+    }
 }
