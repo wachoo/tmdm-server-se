@@ -77,4 +77,6 @@ public interface StagingareaMessages extends Messages {
     String confirm_message();
 
     String loading();
+
+    String rest_exception();
 }

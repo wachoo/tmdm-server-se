@@ -23,10 +23,13 @@ import org.restlet.client.data.Method;
 import org.restlet.client.ext.xml.DomRepresentation;
 import org.restlet.client.representation.InputRepresentation;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.stagingareacontrol.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.stagingareacontrol.client.i18n.StagingareaMessages;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaExecutionModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaValidationModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerModel;
 
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.xml.client.Node;
@@ -45,6 +48,8 @@ public class RestServiceHandler {
     private ClientResourceWrapper client;
 
     private static RestServiceHandler handler;
+
+    private StagingareaMessages messages = MessagesFactory.getMessages();
 
     private RestServiceHandler() {
         client = new ClientResourceWrapper();
@@ -72,11 +77,14 @@ public class RestServiceHandler {
         client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
+                StagingContainerModel model;
                 try {
-                    callback.onSuccess(StagingModelConvertor.response2StagingContainerModel(response));
+                    model = StagingModelConvertor.response2StagingContainerModel(response);
                 } catch (Exception e) {
-                    callback.onFailure(e);
+                    MessageBox.alert(null, messages.rest_exception(), null);
+                    return;
                 }
+                callback.onSuccess(model);
             }
         });
         client.request();
@@ -102,11 +110,14 @@ public class RestServiceHandler {
         client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
+                StagingContainerModel model;
                 try {
-                    callback.onSuccess(StagingModelConvertor.response2StagingContainerModel(response));
+                    model = StagingModelConvertor.response2StagingContainerModel(response);
                 } catch (Exception e) {
-                    callback.onFailure(e);
+                    MessageBox.alert(null, messages.rest_exception(), null);
+                    return;
                 }
+                callback.onSuccess(model);
             }
         });
         client.request();
@@ -131,8 +142,8 @@ public class RestServiceHandler {
         client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
+                final List<String> exeIds = new ArrayList<String>();
                 try {
-                    final List<String> exeIds = new ArrayList<String>();
                     DomRepresentation rep = new DomRepresentation(response.getEntity());
                     NodeList list = rep.getDocument().getDocumentElement().getChildNodes();
                     if (list != null) {
@@ -142,10 +153,11 @@ public class RestServiceHandler {
                                 exeIds.add(node.getFirstChild().getNodeValue());
                         }
                     }
-                    callback.onSuccess(exeIds);
                 } catch (Exception e) {
-                    callback.onFailure(e);
+                    MessageBox.alert(null, messages.rest_exception(), null);
+                    return;
                 }
+                callback.onSuccess(exeIds);
             }
         });
         client.request();
@@ -167,12 +179,14 @@ public class RestServiceHandler {
         client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
+                StagingAreaExecutionModel model;
                 try {
-                    StagingAreaExecutionModel model = StagingModelConvertor.response2StagingAreaExecutionModel(response);
-                    callback.onSuccess(model);
+                    model = StagingModelConvertor.response2StagingAreaExecutionModel(response);
                 } catch (Exception e) {
-                    callback.onFailure(e);
+                    MessageBox.alert(null, messages.rest_exception(), null);
+                    return;
                 }
+                callback.onSuccess(model);
             }
         });
         client.request();
@@ -231,7 +245,7 @@ public class RestServiceHandler {
                         });
                     }
                 } catch (Exception e) {
-                    callback.onFailure(e);
+                    MessageBox.alert(null, messages.rest_exception(), null);
                 }
             }
         });
@@ -252,12 +266,14 @@ public class RestServiceHandler {
         client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
+                StagingAreaValidationModel model;
                 try {
-                    StagingAreaValidationModel model = StagingModelConvertor.response2StagingAreaValidationModel(response);
-                    callback.onSuccess(model);
+                    model = StagingModelConvertor.response2StagingAreaValidationModel(response);
                 } catch (Exception e) {
-                    callback.onFailure(e);
+                    MessageBox.alert(null, messages.rest_exception(), null);
+                    return;
                 }
+                callback.onSuccess(model);
             }
         });
         client.request();
@@ -286,17 +302,18 @@ public class RestServiceHandler {
         client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
-
+                String taskId = null;
                 try {
-                    String taskId = null;
                     if (response.getEntity() != null) {
                         InputRepresentation rep = (InputRepresentation) response.getEntity();
                         taskId = rep.getText();
                     }
-                    callback.onSuccess(taskId);
+
                 } catch (Exception e) {
-                    callback.onFailure(e);
+                    MessageBox.alert(null, messages.rest_exception(), null);
+                    return;
                 }
+                callback.onSuccess(taskId);
             }
         });
         client.request();
@@ -316,11 +333,14 @@ public class RestServiceHandler {
         client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
+                boolean isSuccess;
                 try {
-                    callback.onSuccess(response.getStatus().isSuccess());
+                    isSuccess = response.getStatus().isSuccess();
                 } catch (Exception e) {
-                    callback.onFailure(e);
+                    MessageBox.alert(null, messages.rest_exception(), null);
+                    return;
                 }
+                callback.onSuccess(isSuccess);
             }
         });
         client.request();
@@ -343,8 +363,8 @@ public class RestServiceHandler {
         client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
+                int count = 0;
                 try {
-                    int count = 0;
                     if (response.getEntity() != null && response.getEntity().getText() != null) {
                         try {
                             count = Integer.parseInt(response.getEntity().getText());
@@ -352,10 +372,11 @@ public class RestServiceHandler {
                             count = Integer.MAX_VALUE;
                         }
                     }
-                    callback.onSuccess(new Integer(count));
                 } catch (Exception e) {
-                    callback.onFailure(e);
+                    MessageBox.alert(null, messages.rest_exception(), null);
+                    return;
                 }
+                callback.onSuccess(new Integer(count));
             }
         });
         client.request(MediaType.TEXT_PLAIN);
