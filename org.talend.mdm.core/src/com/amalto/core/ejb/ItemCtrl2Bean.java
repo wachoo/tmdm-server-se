@@ -20,6 +20,7 @@ import javax.ejb.SessionContext;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
@@ -1171,7 +1172,7 @@ public class ItemCtrl2Bean implements SessionBean {
                 }
             } else {
                 MetadataRepository repository = mdmServer.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
-                Collection<ComplexTypeMetadata> types = repository.getUserComplexTypes();
+                Collection<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
                 for (ComplexTypeMetadata type : types) {
                     concepts.put(type.getName(), "");
                 }
