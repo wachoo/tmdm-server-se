@@ -1,9 +1,23 @@
 package com.amalto.core.objects.datamodel.ejb;
 
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.webapp.XObjectType;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+
 import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;
 import com.amalto.commons.core.datamodel.synchronization.DatamodelChangeNotifier;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.Server;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.Storage;
 import com.amalto.core.util.XtentisException;
 
 
@@ -18,8 +32,9 @@ public class DataModelPOJO extends ObjectPOJO{
     private String name;
     private String description;
     private String schema;
-    
-    
+
+    private static final Logger LOGGER = Logger.getLogger(DataModelPOJO.class);
+    private static final Map<String, XSystemObjects> SYSTEM_OBJECTS = XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
     /**
      * 
      */
@@ -98,13 +113,45 @@ public class DataModelPOJO extends ObjectPOJO{
 	    
 	    ObjectPOJOPK objectPK=super.store(revisionID);
 	    
-	    //synchronize with outer agents
+        // TMDM-4621: Update operation has to be synchronous
+        String updatedDataModelName = getPK().getUniqueId();
+        if (isUserDataModel(updatedDataModelName)) { // Do not update system data clusters
+            Server server = ServerContext.INSTANCE.get();
+            MetadataRepositoryAdmin metadataRepositoryAdmin = server.getMetadataRepositoryAdmin();
+            metadataRepositoryAdmin.remove(updatedDataModelName);
+            StorageAdmin storageAdmin = server.getStorageAdmin();
+            Storage storage = storageAdmin.get(updatedDataModelName);
+            if (storage != null) {
+                // Storage already exists so update it.
+                MetadataRepository repository = metadataRepositoryAdmin.get(updatedDataModelName);
+                Set<FieldMetadata> indexedFields = metadataRepositoryAdmin.getIndexedFields(updatedDataModelName);
+                storage.prepare(repository, indexedFields, true, false);
+            } else {
+                LOGGER.warn("No SQL storage defined for data model '" + updatedDataModelName + "'. No SQL storage to update."); //$NON-NLS-1$//$NON-NLS-2$
+            }
+
+            Storage stagingStorage = storageAdmin.get(updatedDataModelName + StorageAdmin.STAGING_SUFFIX);
+            if (stagingStorage != null) {
+                // Storage already exists so update it.
+                MetadataRepository stagingRepository = metadataRepositoryAdmin.get(updatedDataModelName
+                        + StorageAdmin.STAGING_SUFFIX);
+                Set<FieldMetadata> indexedFields = metadataRepositoryAdmin.getIndexedFields(updatedDataModelName);
+                stagingStorage.prepare(stagingRepository, indexedFields, true, false);
+            } else {
+                LOGGER.warn("No SQL staging storage defined for data model '" + updatedDataModelName //$NON-NLS-1$
+                        + "'. No SQL staging storage to update."); //$NON-NLS-1$
+            }
+        }
+
+        //synchronize with outer agents
         DatamodelChangeNotifier dmUpdateEventNotifer = new DatamodelChangeNotifier();
-        dmUpdateEventNotifer.addUpdateMessage(new DMUpdateEvent(getPK().getUniqueId(),revisionID));
+        dmUpdateEventNotifer.addUpdateMessage(new DMUpdateEvent(getPK().getUniqueId(), revisionID));
         dmUpdateEventNotifer.sendMessages();
         
         return objectPK;
 	}
 	
-
+    public static boolean isUserDataModel(String updatedDataModelName) {
+        return !SYSTEM_OBJECTS.containsKey(updatedDataModelName) || "Update".equals(updatedDataModelName); //$NON-NLS-1$
+    }
 }
