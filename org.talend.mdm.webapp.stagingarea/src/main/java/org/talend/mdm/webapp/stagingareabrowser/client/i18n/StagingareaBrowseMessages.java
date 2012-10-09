@@ -65,4 +65,10 @@ public interface StagingareaBrowseMessages extends Messages {
     public String status_403();
 
     public String status_404();
+
+    public String staging_area_error();
+
+    public String staging_area_exception();
+
+    public String underlying_cause();
 }

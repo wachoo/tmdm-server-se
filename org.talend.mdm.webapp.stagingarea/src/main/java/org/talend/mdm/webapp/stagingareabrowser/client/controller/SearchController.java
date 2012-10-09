@@ -21,6 +21,7 @@ import org.talend.mdm.webapp.stagingareabrowser.client.view.SearchView;
 
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 
 public class SearchController extends AbstractController {
@@ -39,7 +40,7 @@ public class SearchController extends AbstractController {
     }
 
     public static void loadConcepts(final SessionAwareAsyncCallback<List<BaseModel>> conceptCallback) {
-        StagingareaBrowse.service.getConcepts(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<List<BaseModel>>() {
+        StagingareaBrowse.service.getConcepts(UrlUtil.getLanguage(), new AsyncCallback<List<BaseModel>>() {
 
             public void onSuccess(List<BaseModel> result) {
                 store.removeAll();
@@ -47,6 +48,10 @@ public class SearchController extends AbstractController {
                 if (conceptCallback != null) {
                     conceptCallback.onSuccess(result);
                 }
+            }
+
+            public void onFailure(Throwable caught) {
+                alertStagingError(caught);
             }
         });
     }

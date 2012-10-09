@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareabrowser.client.controller;
 
-import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.stagingareabrowser.client.StagingareaBrowse;
 import org.talend.mdm.webapp.stagingareabrowser.client.model.ResultItem;
 import org.talend.mdm.webapp.stagingareabrowser.client.model.SearchModel;
@@ -53,10 +52,14 @@ public class ResultsController extends AbstractController {
                 }
                 searchModel.setSortDir(sortDir);
                 StagingareaBrowse.service.searchStaging(searchModel,
-                        new SessionAwareAsyncCallback<PagingLoadResult<ResultItem>>() {
+                        new AsyncCallback<PagingLoadResult<ResultItem>>() {
 
                     public void onSuccess(PagingLoadResult<ResultItem> result) {
                         callback.onSuccess(result);
+                    }
+
+                    public void onFailure(Throwable caught) {
+                        alertStagingError(caught);
                     }
                 });
             }
