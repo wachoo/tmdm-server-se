@@ -93,20 +93,27 @@ public class ForeignKeyBean extends ItemBaseModel {
     @Override
     public String toString() {
         if (foreignKeyInfo.size() != 0) {
-            if (getDisplayInfo() != null)
+            if (getDisplayInfo() != null && getDisplayInfo().trim().length() > 0)
                 return getDisplayInfo();
             StringBuilder sb = new StringBuilder();
             Collection<String> fkInfoValues = foreignKeyInfo.values();
             int i = 0;
             for (String fkInfoValue : fkInfoValues) {
-                if (i > 0)
-                    sb.append('-');
-                sb.append(fkInfoValue);
-                i++;
+                if (fkInfoValue != null && fkInfoValue.trim().length() > 0) {
+                    if (i > 0)
+                        sb.append('-');
+                    sb.append(fkInfoValue);
+                    i++;
+                }
             }
-            return sb.toString();
+            String displayValue = sb.toString();
+            if (displayValue != null && displayValue.trim().length() > 0) {
+                return displayValue;
+            } else {
+                return getId();
+            }
         } else {
             return this.getId();
         }
-    }
+   	}
 }
