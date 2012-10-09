@@ -482,7 +482,8 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             // TODO: This is bad implementation (using parameter itemPKResults to get results).
             totalCount += getTypeItems(criteria, itemPKResults, repository.getComplexType(typeName), storage);
         } else {
-            Collection<ComplexTypeMetadata> types = repository.getUserComplexTypes();
+            // TMDM-4651: Returns type in correct dependency order.
+            Collection<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
             for (ComplexTypeMetadata type : types) {
                 if (itemPKResults.size() < criteria.getMaxItems()) {
                     // TODO Lower skip as you iterate over types.
