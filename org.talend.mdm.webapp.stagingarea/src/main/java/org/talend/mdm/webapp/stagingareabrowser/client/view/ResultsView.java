@@ -88,7 +88,9 @@ public class ResultsView extends AbstractView {
 
     private void initColumnModel() {
         List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
-        columns.add(new ColumnConfig("entity", messages.entity(), 100)); //$NON-NLS-1$
+        ColumnConfig entityColumn = new ColumnConfig("entity", messages.entity(), 100); //$NON-NLS-1$
+        entityColumn.setSortable(false);
+        columns.add(entityColumn);
         columns.add(new ColumnConfig("key", messages.key(), 100)); //$NON-NLS-1$
         ColumnConfig dateTimeColumn = new ColumnConfig("dateTime", messages.date_time(), 200); //$NON-NLS-1$
         if (ucx.getDateTimeFormat() != null && !"".equals(ucx.getDateTimeFormat())) { //$NON-NLS-1$
@@ -144,13 +146,21 @@ public class ResultsView extends AbstractView {
                 }
                 message.append("<div style='width: 400px; margin-left: 50px;'>"); //$NON-NLS-1$
                 message.append("<b style='color: " + color + ";'>" + item.getStatus() + ": " + errorTitles.get(item.getStatus()) + "</b>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                message.append("<div style='margin-top: 5px; width: 380px; height: 50px; overflow: auto;'>"); //$NON-NLS-1$
-                Element el = DOM.createDiv();
-                el.setInnerText(item.getError());
-                message.append(el.getInnerHTML());
+
+                if (item.getStatus() >= 400) {
+                    Element el = DOM.createDiv();
+                    el.setInnerText(item.getError());
+                    message.append("<div style='margin-top: 5px; width: 380px; height: 100px; overflow: auto;'>"); //$NON-NLS-1$
+                    message.append(el.getInnerHTML());
+                    message.append("</div>"); //$NON-NLS-1$
+                }
+
                 message.append("</div>"); //$NON-NLS-1$
-                message.append("</div>"); //$NON-NLS-1$
-                MessageBox.alert(title.toString(), message.toString(), null).getDialog().setWidth(500);
+                if (item.getStatus() >= 400) {
+                    MessageBox.alert(title.toString(), message.toString(), null).getDialog().setWidth(500);
+                } else {
+                    MessageBox.info(title.toString(), message.toString(), null).getDialog().setSize(500, 100);
+                }
             }
         });
     }
