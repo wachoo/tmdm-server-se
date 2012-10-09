@@ -37,6 +37,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
     private static final String EXECUTION_LOG_TYPE = "TALEND_TASK_EXECUTION"; //$NON-NLS-1$
 
+    // SimpleDateFormat is not thread-safe
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS"); //$NON-NLS-1$
 
     private static final Map<String, Task> runningTasks = new HashMap<String, Task>();
@@ -168,7 +169,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             status.setProcessedRecords(task.getProcessedRecords());
             status.setTotalRecords(task.getRecordCount());
             long elapsedTime = System.currentTimeMillis() - task.getStartDate();
-            String formattedElapsedTime = String.format("%d:%02d:%02d", elapsedTime / 3600, (elapsedTime % 3600) / 60, (elapsedTime % 60)); //$NON-NLS-1$
+            String formattedElapsedTime = formatElapsedTime(elapsedTime);
             status.setRunningTime(formattedElapsedTime);
             long timeLeft = (long) ((task.getRecordCount() - task.getProcessedRecords()) / task.getPerformance());
             synchronized (dateFormat) {
@@ -178,6 +179,10 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             }
             return status;
         }
+    }
+
+    private static String formatElapsedTime(long elapsedTime) {
+        return String.format("%d:%02d:%02d", elapsedTime / 3600, (elapsedTime % 3600) / 60, (elapsedTime % 60)); //$NON-NLS-1$
     }
 
     public void cancelCurrentExecution(String dataContainer, String dataModel) {
@@ -206,14 +211,17 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         try {
             for (DataRecord result : results) {
                 status.setId(String.valueOf(result.get("id"))); //$NON-NLS-1$
+                Date start_time = (Date) result.get("start_time");
+                Date end_time = (Date) result.get("end_time");
                 synchronized (dateFormat) {
-                    status.setStartDate(dateFormat.format(((Date) result.get("start_time")))); //$NON-NLS-1$
-                    status.setEndDate(dateFormat.format(((Date) result.get("end_time")))); //$NON-NLS-1$
+                    status.setStartDate(dateFormat.format(start_time)); //$NON-NLS-1$
+                    status.setEndDate(dateFormat.format(end_time)); //$NON-NLS-1$
                 }
-                status.setInvalidRecords(1);
-                status.setProcessedRecords(1);
-                status.setRunningTime("1h");
-                status.setTotalRecords(((BigDecimal) result.get("record_count")).intValue()); //$NON-NLS-1$
+                status.setInvalidRecords(((BigDecimal) result.get("error_count")).intValue());
+                status.setRunningTime(formatElapsedTime(end_time.getTime() - start_time.getTime()));
+                int record_count = ((BigDecimal) result.get("record_count")).intValue();
+                status.setProcessedRecords(record_count);
+                status.setTotalRecords(record_count);
             }
         } finally {
             results.close();
@@ -224,7 +232,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
     private static int countAllInstancesByStatus(Storage storage, MetadataRepository repository) {
         int totalCount = 0;
         for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
-            if (currentType.isInstantiable()) {
+            if (currentType.isInstantiable() && !"TALEND_TASK_EXECUTION".equals(currentType.getName())) {
                 UserQueryBuilder qb = from(currentType)
                         .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
                 StorageResults results = storage.fetch(qb.getSelect());
@@ -243,7 +251,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
     private static int countInstancesByStatus(Storage storage, MetadataRepository repository, String status) {
         int totalCount = 0;
         for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
-            if (currentType.isInstantiable()) {
+            if (currentType.isInstantiable() && !"TALEND_TASK_EXECUTION".equals(currentType.getName())) {
                 UserQueryBuilder qb = from(currentType)
                         .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
                 if (StagingConstants.NEW.equals(status)) {
@@ -267,7 +275,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
     private static int countInstancesByStatus(Storage storage, MetadataRepository repository, boolean valid) {
         int totalCount = 0;
         for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
-            if (currentType.isInstantiable()) {
+            if (currentType.isInstantiable() && !"TALEND_TASK_EXECUTION".equals(currentType.getName())) {
                 UserQueryBuilder qb = from(currentType)
                         .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
                 if (valid) {

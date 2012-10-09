@@ -44,6 +44,11 @@ public class ClusterTask extends MetadataRepositoryTask {
         return recordsCount;
     }
 
+    @Override
+    public int getErrorCount() {
+        return 0;
+    }
+
     private static class ClusterClosure implements Closure {
 
         private final Storage storage;
@@ -56,13 +61,14 @@ public class ClusterTask extends MetadataRepositoryTask {
             storage.begin();
         }
 
-        public void execute(DataRecord record) {
+        public boolean execute(DataRecord stagingRecord) {
             String taskId = UUID.randomUUID().toString();
-            DataRecordMetadata recordMetadata = record.getRecordMetadata();
+            DataRecordMetadata recordMetadata = stagingRecord.getRecordMetadata();
             Map<String, String> recordProperties = recordMetadata.getRecordProperties();
             recordMetadata.setTaskId(taskId);
             recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_IDENTIFIED_CLUSTERS);
-            storage.update(record);
+            storage.update(stagingRecord);
+            return true;
         }
 
         public void end() {

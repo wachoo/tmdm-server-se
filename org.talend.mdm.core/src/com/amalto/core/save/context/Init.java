@@ -66,10 +66,10 @@ class Init implements DocumentSaver {
         } catch (Exception e) {
             // TMDM-3638: Don't log error if there's a before saving error.
             if (getBeforeSavingMessage().isEmpty()) {
-                LOGGER.error("Exception occurred during save.", e);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Exception occurred during save.", e);
+                }
             }
-            
-            session.clear();
             if (e instanceof ValidateException) {
                 // In case of validation issue, don't include a potential before saving message in exception.
                 throw new com.amalto.core.save.SaveException(e);

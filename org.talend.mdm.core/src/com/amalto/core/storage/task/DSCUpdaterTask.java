@@ -61,6 +61,11 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
         return recordsCount;
     }
 
+    @Override
+    public int getErrorCount() {
+        return 0;
+    }
+
     private static class DSCTaskClosure implements Closure {
 
         private final Storage origin;
@@ -80,9 +85,9 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
             output = new ResettableStringWriter();
         }
 
-        public void execute(DataRecord record) {
-            String taskId = record.getRecordMetadata().getTaskId();
-            Select select = from(record.getType()).where(eq(taskId(), taskId)).getSelect();
+        public boolean execute(DataRecord stagingRecord) {
+            String taskId = stagingRecord.getRecordMetadata().getTaskId();
+            Select select = from(stagingRecord.getType()).where(eq(taskId(), taskId)).getSelect();
             StorageResults originRecords = origin.fetch(select);
             try {
                 writer = xmlOutputFactory.createXMLStreamWriter(output);
@@ -157,14 +162,14 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
                         writer.writeEndElement();
 
                         writer.writeStartElement("resolvedOn"); //$NON-NLS-1$
-                        Date modificationDate = new Date(record.getRecordMetadata().getLastModificationTime());
+                        Date modificationDate = new Date(stagingRecord.getRecordMetadata().getLastModificationTime());
                         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss"); //$NON-NLS-1$
                         writer.writeCharacters(dateFormat.format(modificationDate));
                         writer.writeEndElement();
 
-                        ComplexTypeMetadata originRecordType = record.getType();
+                        ComplexTypeMetadata originRecordType = stagingRecord.getType();
                         for (FieldMetadata field : originRecordType.getFields()) {
-                            Object value = record.get(field);
+                            Object value = stagingRecord.get(field);
                             if (value != null) {
                                 writer.writeStartElement("tgtColumn"); //$NON-NLS-1$
                                 {
@@ -217,6 +222,7 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
             } catch (XMLStreamException e) {
                 throw new RuntimeException(e);
             }
+            return true;
         }
 
         private String getFieldType(FieldMetadata field) {

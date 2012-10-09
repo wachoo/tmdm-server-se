@@ -46,9 +46,11 @@ public class StagingTask implements Task {
 
     private final AtomicInteger recordCount = new AtomicInteger();
 
-    private final AtomicInteger processedRecordCount = new AtomicInteger();
+    private final AtomicInteger errorCount = new AtomicInteger();
 
     private MetadataRepositoryTask currentTask;
+
+    private int processedRecordCount = 0;
 
     private long startTime;
 
@@ -81,6 +83,17 @@ public class StagingTask implements Task {
                 return recordCount.get() + currentTask.getRecordCount();
             } else {
                 return recordCount.get();
+            }
+        }
+    }
+
+    @Override
+    public int getErrorCount() {
+        synchronized (currentTaskMonitor) {
+            if (currentTask != null) {
+                return errorCount.get() + currentTask.getErrorCount();
+            } else {
+                return errorCount.get();
             }
         }
     }
@@ -130,11 +143,7 @@ public class StagingTask implements Task {
     @Override
     public int getProcessedRecords() {
         synchronized (currentTaskMonitor) {
-            if (currentTask != null) {
-                return processedRecordCount.get() + currentTask.getProcessedRecords();
-            } else {
-                return processedRecordCount.get();
-            }
+                return processedRecordCount;
         }
     }
 
@@ -179,7 +188,8 @@ public class StagingTask implements Task {
                 LOGGER.info("--> " + task.toString());
                 taskSubmitter.submitAndWait(currentTask);
                 recordCount.addAndGet(currentTask.getRecordCount());
-                processedRecordCount.addAndGet(currentTask.getProcessedRecords());
+                processedRecordCount = Math.max(currentTask.getProcessedRecords(), processedRecordCount);
+                errorCount.addAndGet(currentTask.getErrorCount());
                 LOGGER.info("<-- DONE " + task.toString());
             }
 
@@ -188,6 +198,7 @@ public class StagingTask implements Task {
             {
                 long endTime = System.currentTimeMillis();
                 execution.set(executionType.getField("end_time"), new Timestamp(endTime)); //$NON-NLS-1$
+                execution.set(executionType.getField("error_count"), new BigDecimal(getErrorCount())); //$NON-NLS-1$
                 execution.set(executionType.getField("record_count"), new BigDecimal(getRecordCount())); //$NON-NLS-1$
                 execution.set(executionType.getField("completed"), Boolean.TRUE); //$NON-NLS-1$
                 stagingStorage.update(execution);

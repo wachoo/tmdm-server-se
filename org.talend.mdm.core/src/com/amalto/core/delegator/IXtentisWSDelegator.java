@@ -12,13 +12,7 @@
 // ============================================================================
 package com.amalto.core.delegator;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.StringReader;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -1434,10 +1428,20 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String dataModelName = dataModelPK.getPk();
 
             SaverSession session = SaverSession.newSession();
-            DocumentSaver saver = SaverHelper.saveItem(wsPutItem,
-                    session,
-                    dataClusterName,
-                    dataModelName);
+            DocumentSaver saver;
+            try {
+                saver = SaverHelper.saveItem(wsPutItem,
+                        session,
+                        dataClusterName,
+                        dataModelName);
+            } catch (Exception e) {
+                try {
+                    session.abort();
+                } catch (Exception e1) {
+                    LOG.error("Could not abort save session.", e1);
+                }
+                throw new RuntimeException(e);
+            }
             // Cause items being saved to be committed to database.
             session.end();
 
@@ -1466,10 +1470,20 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 String dataClusterName = item.getWsDataClusterPK().getPk();
                 String dataModelName = item.getWsDataModelPK().getPk();
 
-                DocumentSaver saver = SaverHelper.saveItem(item,
-                        session,
-                        dataClusterName,
-                        dataModelName);
+                DocumentSaver saver;
+                try {
+                    saver = SaverHelper.saveItem(item,
+                            session,
+                            dataClusterName,
+                            dataModelName);
+                } catch (Exception e) {
+                    try {
+                        session.abort();
+                    } catch (Exception e1) {
+                        LOG.error("Could not abort save session.", e1);
+                    }
+                    throw new RuntimeException(e);
+                }
                 pks.add(new WSItemPK(new WSDataClusterPK(), saver.getSavedConceptName(), saver.getSavedId()));
             }
             // Cause items being saved to be committed to database.
@@ -1512,6 +1526,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                             item.getInvokeBeforeSaving());
                     item.setSource(saver.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
                 } catch (SaveException e) {
+                    try {
+                        session.abort();
+                    } catch (Exception e1) {
+                        LOG.error("Could not abort save session.", e1);
+                    }
                     item.setSource(e.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
                     throw new RemoteException("Could not save record.", e);
                 }
@@ -1545,7 +1564,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String dataModelName = dataModelPK.getPk();
 
             SaverSession session = SaverSession.newSession();
-            DocumentSaver saver = null;
+            DocumentSaver saver;
             try {
                 saver = SaverHelper.saveItemWithReport(wsPutItem,
                         session,
@@ -1555,13 +1574,18 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                         wsPutItemWithReport.getInvokeBeforeSaving());
                 wsPutItemWithReport.setSource(saver.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
             } catch (SaveException e) {
+                try {
+                    session.abort();
+                } catch (Exception e1) {
+                    LOG.error("Could not abort save session.", e1);
+                }
                 ValidateException ve = Util.getException(e, ValidateException.class);
-                if(ve != null)
+                if(ve != null) {
                     throw e;
+                }
                 wsPutItemWithReport.setSource(e.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
                 throw new RemoteException("Could not save record.", e);
             }
-
             // Cause items being saved to be committed to database.
             session.end();
 
@@ -1603,6 +1627,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                         wsPutItemWithReport.getInvokeBeforeSaving());
                 wsPutItemWithReport.setSource(saver.getBeforeSavingMessage());  // TODO Expected (legacy) behavior: set the before saving message as source.
             } catch (SaveException e) {
+                try {
+                    session.abort();
+                } catch (Exception e1) {
+                    LOG.error("Could not abort save session.", e1);
+                }
                 wsPutItemWithReport.setSource(e.getBeforeSavingMessage());  // TODO Expected (legacy) behavior: set the before saving message as source.
                 throw new RemoteException("Could not save record.", e);
             }

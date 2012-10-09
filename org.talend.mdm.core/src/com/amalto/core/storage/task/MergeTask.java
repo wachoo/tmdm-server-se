@@ -43,6 +43,11 @@ public class MergeTask extends MetadataRepositoryTask {
         return recordsCount;
     }
 
+    @Override
+    public int getErrorCount() {
+        return 0;
+    }
+
     private static class MergeClosure implements Closure {
         private final Storage storage;
 
@@ -54,10 +59,11 @@ public class MergeTask extends MetadataRepositoryTask {
             storage.begin();
         }
 
-        public void execute(DataRecord record) {
-            Map<String, String> recordProperties = record.getRecordMetadata().getRecordProperties();
+        public boolean execute(DataRecord stagingRecord) {
+            Map<String, String> recordProperties = stagingRecord.getRecordMetadata().getRecordProperties();
             recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_MERGE_CLUSTERS);
-            storage.update(record);
+            storage.update(stagingRecord);
+            return true;
         }
 
         public void end() {

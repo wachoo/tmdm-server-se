@@ -44,9 +44,9 @@ public class MultiThreadedTask implements Task {
 
     private int count;
 
-    private double success;
+    private int success;
 
-    private double fail;
+    private int fail;
 
     private long taskStartTime;
 
@@ -84,8 +84,11 @@ public class MultiThreadedTask implements Task {
                     break;
                 }
                 try {
-                    closure.execute(record);
-                    success++;
+                    if (closure.execute(record)) {
+                        success++;
+                    } else {
+                        fail++;
+                    }
                 } catch (Exception e) {
                     fail++;
                 }
@@ -107,6 +110,11 @@ public class MultiThreadedTask implements Task {
 
     public int getRecordCount() {
         return count;
+    }
+
+    @Override
+    public int getErrorCount() {
+        return fail;
     }
 
     public double getPerformance() {
@@ -147,7 +155,7 @@ public class MultiThreadedTask implements Task {
 
     @Override
     public int getProcessedRecords() {
-        return (int) (success + fail);
+        return success + fail;
     }
 
     @Override

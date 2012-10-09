@@ -337,12 +337,21 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             //Store
             XmlServerSLWrapperLocal xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
             String dataClusterName = item.getDataClusterPOJOPK().getUniqueId();
-            xmlServerCtrlLocal.start(dataClusterName);
             ItemPOJOPK pk;
-            {
-                pk = item.store();
+            try {
+                xmlServerCtrlLocal.start(dataClusterName);
+                {
+                    pk = item.store();
+                }
+                xmlServerCtrlLocal.commit(dataClusterName);
+            } catch (XtentisException e) {
+                try {
+                    xmlServerCtrlLocal.rollback(dataClusterName);
+                } catch (XtentisException e1) {
+                    Logger.getLogger(IItemCtrlDelegator.class).error("Rollback error.", e1);
+                }
+                throw new RuntimeException(e);
             }
-            xmlServerCtrlLocal.commit(dataClusterName);
 
             if (pk == null) {
                 throw new XtentisException("Could not put item " + Util.joinStrings(item.getItemIds(), ".") + ". Check server logs.");

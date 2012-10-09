@@ -49,7 +49,7 @@ class ThreadDispatcher implements Closure {
         startTime = System.currentTimeMillis();
         WorkManager workManager = getManager();
         try {
-             for (ConsumerRunnable childThread : childClosures) {
+            for (ConsumerRunnable childThread : childClosures) {
                 workManager.doWork(childThread);
             }
         } catch (WorkException e) {
@@ -57,21 +57,24 @@ class ThreadDispatcher implements Closure {
         }
     }
 
-    public void execute(DataRecord record) {
+    public boolean execute(DataRecord stagingRecord) {
         try {
-            if (!queue.offer(record)) {
+            if (!queue.offer(stagingRecord)) {
                 LOGGER.warn("Not enough consumers for records!");
-                queue.put(record); // Wait for free room in queue.
+                queue.put(stagingRecord); // Wait for free room in queue.
             }
             count++;
-
             if (LOGGER.isDebugEnabled()) {
                 if (count % 1000 == 0) {
                     LOGGER.debug("doc/s -> " + count / ((System.currentTimeMillis() - startTime) / 1000f) + " / queue size: " + queue.size());
                 }
             }
+            return true;
         } catch (Exception e) {
-            // TODO Logger
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Exception occurred during dispatch of records.", e);
+            }
+            return false;
         }
     }
 

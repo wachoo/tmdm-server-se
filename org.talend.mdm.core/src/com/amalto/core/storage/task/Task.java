@@ -35,6 +35,12 @@ public interface Task extends Job, Runnable {
     int getRecordCount();
 
     /**
+     * @return The number of errors met during record processing. Number of success can be computed by
+     * ({@link #getProcessedRecords()} - {@link #getErrorCount()}).
+     */
+    int getErrorCount();
+
+    /**
      * @return The number of records processed by the task <b>so far</b>.
      */
     int getProcessedRecords();

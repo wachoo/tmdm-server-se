@@ -259,11 +259,11 @@ public class StagingAreaTest extends TestCase {
         assertEquals(COUNT, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
         assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
         assertEquals(COUNT, origin.fetch(UserQueryBuilder.from(person).getSelect()).getCount());
-        assertEquals(
-                COUNT,
-                origin.fetch(
-                        UserQueryBuilder.from(person).where(eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)).getSelect())
-                        .getCount());
+        int count = origin.fetch(
+                UserQueryBuilder.from(person).where(eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)).getSelect())
+                .getCount();
+        assertEquals(COUNT, count);
+        assertEquals(100, stagingTask.getErrorCount());
     }
 
     public void testQuerySource() throws Exception {

@@ -12,13 +12,7 @@
 // ============================================================================
 package com.amalto.webapp.core.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.StringReader;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -764,13 +758,24 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             String dataModelName = dataModelPK.getPk();
 
             SaverSession session = SaverSession.newSession();
-            DocumentSaver saver = SaverHelper.saveItem(wsPutItem.getXmlString(),
-                    session,
-                    !wsPutItem.getIsUpdate(),
-                    dataClusterName,
-                    dataModelName);
-            // Cause items being saved to be committed to database.
-            session.end();
+            DocumentSaver saver;
+            try {
+                session.begin(dataClusterPK.getPk());
+                saver = SaverHelper.saveItem(wsPutItem.getXmlString(),
+                        session,
+                        !wsPutItem.getIsUpdate(),
+                        dataClusterName,
+                        dataModelName);
+                // Cause items being saved to be committed to database.
+                session.end();
+            } catch (Exception e) {
+                try {
+                    session.abort();
+                } catch (Exception e1) {
+                    LOG.error("Exception occurred during rollback.", e1);
+                }
+                throw new RuntimeException(e);
+            }
 
             String[] savedId = saver.getSavedId();
             String savedConceptName = saver.getSavedConceptName();

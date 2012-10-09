@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -32,9 +33,9 @@ abstract class MetadataRepositoryTask implements Task {
 
     private final Object currentTypeTaskMonitor = new Object();
 
-    final Storage storage;
+    private final AtomicInteger processedRecordCount = new AtomicInteger();
 
-    private double processedRecordCount;
+    private final AtomicInteger processedErrorCount = new AtomicInteger();
 
     private long startTime;
 
@@ -45,6 +46,8 @@ abstract class MetadataRepositoryTask implements Task {
     private Task currentTypeTask;
 
     private boolean isFinished;
+
+    final Storage storage;
 
     MetadataRepositoryTask(Storage storage, MetadataRepository repository) {
         this.storage = storage;
@@ -85,7 +88,8 @@ abstract class MetadataRepositoryTask implements Task {
                 if (!isCancelled) {
                     LOGGER.info("--> Executing " + task + "...");
                     task.run();
-                    processedRecordCount += task.getProcessedRecords();
+                    processedRecordCount.addAndGet(task.getProcessedRecords());
+                    processedErrorCount.addAndGet(task.getErrorCount());
                     LOGGER.info("<-- Executed (" + task.getRecordCount() + " record validated @ " + getPerformance() + " doc/s)");
                 }
             }
@@ -109,8 +113,22 @@ abstract class MetadataRepositoryTask implements Task {
         return id;
     }
 
+    @Override
+    public int getErrorCount() {
+        synchronized (currentTypeTaskMonitor) {
+            return processedErrorCount.get();
+        }
+    }
+
+    @Override
+    public int getProcessedRecords() {
+        synchronized (currentTypeTaskMonitor) {
+            return processedRecordCount.get();
+        }
+    }
+
     public double getPerformance() {
-        if (processedRecordCount > 0) {
+        if (getProcessedRecords() > 0) {
             float time;
             if (endTime > 0) {
                 time = (endTime - startTime) / 1000f;
@@ -153,14 +171,5 @@ abstract class MetadataRepositoryTask implements Task {
     @Override
     public boolean hasFinished() {
         return isCancelled || isFinished;
-    }
-
-    @Override
-    public int getProcessedRecords() {
-        int totalProcessedRecords = 0;
-        for (Task task : tasks) {
-            totalProcessedRecords += task.getProcessedRecords();
-        }
-        return totalProcessedRecords;
     }
 }

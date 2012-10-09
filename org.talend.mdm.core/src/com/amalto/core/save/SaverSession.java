@@ -103,9 +103,11 @@ public class SaverSession {
      * @param committer   A {@link Committer} committer for interaction between save session and underlying storage.
      */
     public void begin(String dataCluster, Committer committer) {
-        committer.begin(dataCluster);
-        if (!itemsPerDataCluster.containsKey(dataCluster)) {
-            itemsPerDataCluster.put(dataCluster, new HashSet<ItemPOJO>());
+        synchronized (itemsPerDataCluster) {
+            committer.begin(dataCluster);
+            if (!itemsPerDataCluster.containsKey(dataCluster)) {
+                itemsPerDataCluster.put(dataCluster, new HashSet<ItemPOJO>());
+            }
         }
     }
 
@@ -122,45 +124,47 @@ public class SaverSession {
      * @param committer A {@link Committer} committer to use when committing transactions on underlying storage.
      */
     public void end(Committer committer) {
-        SaverSource saverSource = getSaverSource();
-        boolean needResetAutoIncrement = false;
+        synchronized (itemsPerDataCluster) {
+            SaverSource saverSource = getSaverSource();
+            boolean needResetAutoIncrement = false;
 
-        for (Map.Entry<String, Set<ItemPOJO>> currentTransaction : itemsPerDataCluster.entrySet()) {
-            String dataCluster = currentTransaction.getKey();
-            begin(dataCluster, committer);
-            for (ItemPOJO currentItemToCommit : currentTransaction.getValue()) {
-                if (!needResetAutoIncrement) {
-                    needResetAutoIncrement = isAutoIncrementItem(currentItemToCommit);
+            for (Map.Entry<String, Set<ItemPOJO>> currentTransaction : itemsPerDataCluster.entrySet()) {
+                String dataCluster = currentTransaction.getKey();
+                begin(dataCluster, committer);
+                for (ItemPOJO currentItemToCommit : currentTransaction.getValue()) {
+                    if (!needResetAutoIncrement) {
+                        needResetAutoIncrement = isAutoIncrementItem(currentItemToCommit);
+                    }
+                    committer.save(currentItemToCommit, currentItemToCommit.getDataModelRevision()); // TODO Use data model revision for revision id?
                 }
-                committer.save(currentItemToCommit, currentItemToCommit.getDataModelRevision()); // TODO Use data model revision for revision id?
-            }
-            committer.commit(dataCluster);
-        }
-
-        // If any change was made to data cluster "UpdateReport", route committed update reports.
-        Set<ItemPOJO> updateReport = itemsPerDataCluster.get("UpdateReport"); //$NON-NLS-1$
-        if (updateReport != null) {
-            for (ItemPOJO updateReportPOJO : updateReport) {
-                saverSource.routeItem(updateReportPOJO.getDataClusterPOJOPK().getUniqueId(), updateReportPOJO.getConceptName(), updateReportPOJO.getItemIds());
-            }
-        }
-
-        // reset the AutoIncrement
-        if (needResetAutoIncrement) {
-            saverSource.initAutoIncrement();
-        }
-
-        // Save current state of autoincrement when save is completed.
-        if (hasMetAutoIncrement) {
-            // TMDM-3964 : Auto-Increment Id can not be saved immediately to DB
-            String dataCluster = XSystemObjects.DC_CONF.getName();
-            committer.begin(dataCluster);
-            try {
-                saverSource.saveAutoIncrement();
                 committer.commit(dataCluster);
-            } catch (Exception e) {
-                committer.rollback(dataCluster);
-                throw new RuntimeException("Could not save auto increment counter state.", e);
+            }
+
+            // If any change was made to data cluster "UpdateReport", route committed update reports.
+            Set<ItemPOJO> updateReport = itemsPerDataCluster.get("UpdateReport"); //$NON-NLS-1$
+            if (updateReport != null) {
+                for (ItemPOJO updateReportPOJO : updateReport) {
+                    saverSource.routeItem(updateReportPOJO.getDataClusterPOJOPK().getUniqueId(), updateReportPOJO.getConceptName(), updateReportPOJO.getItemIds());
+                }
+            }
+
+            // reset the AutoIncrement
+            if (needResetAutoIncrement) {
+                saverSource.initAutoIncrement();
+            }
+
+            // Save current state of autoincrement when save is completed.
+            if (hasMetAutoIncrement) {
+                // TMDM-3964 : Auto-Increment Id can not be saved immediately to DB
+                String dataCluster = XSystemObjects.DC_CONF.getName();
+                committer.begin(dataCluster);
+                try {
+                    saverSource.saveAutoIncrement();
+                    committer.commit(dataCluster);
+                } catch (Exception e) {
+                    committer.rollback(dataCluster);
+                    throw new RuntimeException("Could not save auto increment counter state.", e);
+                }
             }
         }
     }
@@ -190,15 +194,17 @@ public class SaverSession {
      *                            <code>false</code> otherwise.
      */
     public void save(String dataCluster, ItemPOJO itemToSave, boolean hasMetAutoIncrement) {
-        if (!this.hasMetAutoIncrement) {
-            this.hasMetAutoIncrement = hasMetAutoIncrement;
+        synchronized (itemsPerDataCluster) {
+            if (!this.hasMetAutoIncrement) {
+                this.hasMetAutoIncrement = hasMetAutoIncrement;
+            }
+            Set<ItemPOJO> itemsToSave = itemsPerDataCluster.get(dataCluster);
+            if (itemsToSave == null) {
+                itemsToSave = new HashSet<ItemPOJO>();
+                itemsPerDataCluster.put(dataCluster, itemsToSave);
+            }
+            itemsToSave.add(itemToSave);
         }
-        Set<ItemPOJO> itemsToSave = itemsPerDataCluster.get(dataCluster);
-        if (itemsToSave == null) {
-            itemsToSave = new HashSet<ItemPOJO>();
-            itemsPerDataCluster.put(dataCluster, itemsToSave);
-        }
-        itemsToSave.add(itemToSave);
     }
 
     /**
@@ -206,13 +212,6 @@ public class SaverSession {
      */
     public SaverSource getSaverSource() {
         return dataSource;
-    }
-
-    /**
-     * Causes current session to forget about all changes to save.
-     */
-    public void clear() {
-        itemsPerDataCluster.clear();
     }
 
     /**
@@ -228,9 +227,12 @@ public class SaverSession {
      * @param committer A {@link Committer} committer for interaction between save session and underlying storage.
      */
     public void abort(Committer committer) {
-        for (Map.Entry<String, Set<ItemPOJO>> currentTransaction : itemsPerDataCluster.entrySet()) {
-            String dataCluster = currentTransaction.getKey();
-            committer.rollback(dataCluster);
+        synchronized (itemsPerDataCluster) {
+            for (Map.Entry<String, Set<ItemPOJO>> currentTransaction : itemsPerDataCluster.entrySet()) {
+                String dataCluster = currentTransaction.getKey();
+                committer.rollback(dataCluster);
+            }
+            itemsPerDataCluster.clear();
         }
     }
 

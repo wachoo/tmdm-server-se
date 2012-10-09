@@ -22,12 +22,13 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 import static com.amalto.core.query.user.UserStagingQueryBuilder.status;
 
 public class MDMValidationTask extends MetadataRepositoryTask {
@@ -37,6 +38,9 @@ public class MDMValidationTask extends MetadataRepositoryTask {
     private final SaverSession.Committer committer;
 
     private final Storage destinationStorage;
+
+    private final AtomicInteger errorCount = new AtomicInteger();
+
     private int recordsCount;
 
     public MDMValidationTask(Storage storage, Storage destinationStorage, MetadataRepository repository, SaverSource source, SaverSession.Committer committer) {
@@ -53,20 +57,28 @@ public class MDMValidationTask extends MetadataRepositoryTask {
 
     @Override
     protected Task createTypeTask(ComplexTypeMetadata type) {
-        Closure closure = new MDMValidationTask.MDMValidationClosure(source, committer, destinationStorage);
-        Select select = from(type).where(eq(status(), StagingConstants.SUCCESS_MERGE_CLUSTERS)).getSelect();
+        Closure closure = new MDMValidationTask.MDMValidationClosure(source, committer, destinationStorage, errorCount);
+        Select select = from(type).where(
+                or(eq(status(), StagingConstants.SUCCESS_MERGE_CLUSTERS),
+                        or(eq(status(), StagingConstants.FAIL_VALIDATE_CONSTRAINTS),
+                                eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)))).getSelect();
         StorageResults records = storage.fetch(select);
         try {
             recordsCount += records.getCount();
         } finally {
             records.close();
         }
-        return new MultiThreadedTask(type.getName(), storage, select, 2, closure);
+        return new MultiThreadedTask(type.getName(), storage, select, 1, closure);
     }
 
     @Override
     public int getRecordCount() {
         return recordsCount;
+    }
+
+    @Override
+    public int getErrorCount() {
+        return errorCount.get();
     }
 
     private class MDMValidationClosure implements Closure {
@@ -75,15 +87,20 @@ public class MDMValidationTask extends MetadataRepositoryTask {
 
         private final SaverSession.Committer committer;
 
+        private final AtomicInteger errorCount;
+
         private final DataRecordXmlWriter writer;
 
         private final Storage destinationStorage;
 
         private SaverSession session;
 
-        public MDMValidationClosure(SaverSource source, SaverSession.Committer committer, Storage destinationStorage) {
+        private int commitCount;
+
+        public MDMValidationClosure(SaverSource source, SaverSession.Committer committer, Storage destinationStorage, AtomicInteger errorCount) {
             this.source = source;
             this.committer = committer;
+            this.errorCount = errorCount;
             writer = new DataRecordXmlWriter();
             this.destinationStorage = destinationStorage;
         }
@@ -94,27 +111,38 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             storage.begin();
         }
 
-        public void execute(DataRecord record) {
+        public boolean execute(DataRecord stagingRecord) {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             try {
-                writer.write(record, output);
+                writer.write(stagingRecord, output);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
             DocumentSaverContext context = session.getContextFactory().create(destinationStorage.getName(), destinationStorage.getName(), true, new ByteArrayInputStream(output.toByteArray()));
-            context.setTaskId(record.getRecordMetadata().getTaskId());
+            context.setTaskId(stagingRecord.getRecordMetadata().getTaskId());
             DocumentSaver saver = context.createSaver();
-            Map<String, String> recordProperties = record.getRecordMetadata().getRecordProperties();
+            Map<String, String> recordProperties = stagingRecord.getRecordMetadata().getRecordProperties();
             try {
                 saver.save(session, context);
+                commitCount++;
+                if (commitCount % 200 == 0) {
+                    session.end(committer);
+                    session = SaverSession.newSession(source);
+                    session.begin(destinationStorage.getName(), committer);
+                }
                 recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_VALIDATE);
+                recordProperties.put(Storage.METADATA_STAGING_ERROR, StringUtils.EMPTY);
+                storage.update(stagingRecord);
+                return true;
             } catch (Exception e) {
+                errorCount.incrementAndGet();
                 recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.FAIL_VALIDATE_VALIDATION);
                 StringWriter exceptionStackTrace = new StringWriter();
                 e.printStackTrace(new PrintWriter(exceptionStackTrace));
                 recordProperties.put(Storage.METADATA_STAGING_ERROR, exceptionStackTrace.toString());
+                storage.update(stagingRecord);
+                return false;
             }
-            storage.update(record);
         }
 
         public synchronized void end() {
@@ -124,7 +152,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
         }
 
         public Closure copy() {
-            return new MDMValidationClosure(source, committer, destinationStorage);
+            return new MDMValidationClosure(source, committer, destinationStorage, errorCount);
         }
     }
 
