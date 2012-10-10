@@ -268,7 +268,6 @@ public class AdvancedSearchPanel extends FormPanel {
                     public void componentSelected(ButtonEvent ce) {
                         MultipleCriteria mutilCriteria = multiCriteria.getCriteria();
                         BrowseRecords.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE, mutilCriteria);
-                        mutilCriteria.requestShowAppearance();
                         setCriteria(mutilCriteria.toString());
                         winFilter.close();
                     }
