@@ -37,7 +37,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 
 public class PreviousExecutionView extends AbstractView {
 
-    private static final int PAGE_SIZE = 1;
+    private static final int PAGE_SIZE = 10;
     
     private PagingToolBar taskPagingBar;
 
@@ -99,9 +99,6 @@ public class PreviousExecutionView extends AbstractView {
         bar.add(searchButton);
 
         taskPagingBar.bind(PreviousExecutionController.getLoader());
-
-        taskGrid.setStateful(true);
-        taskGrid.setStateId("grid"); //$NON-NLS-1$
         taskGrid.getView().setForceFit(true);
         taskGrid.setAutoExpandColumn(taskColumnModel.getColumn(0).getHeader());
 
