@@ -125,9 +125,9 @@ public class ItemsListPanel extends ContentPanel {
     }
 
     private QueryModel currentQueryModel;
-    
+
     private ItemBean createItemBean = null;
-    
+
     private PagingLoadConfig pagingLoadConfig;
 
     private boolean isPagingAccurate;
@@ -148,10 +148,11 @@ public class ItemsListPanel extends ContentPanel {
 
             // validate criteria on client-side first
             try {
-                if (qm.getCriteria() == null){
+                if (qm.getCriteria() == null) {
                     return;
-                }else if (qm.getErrorValue() != null && !"".equals(qm.getErrorValue())){ //$NON-NLS-1$
-                    MessageBox.alert(MessagesFactory.getMessages().search_field_error_title(), MessagesFactory.getMessages().search_field_error_info(qm.getErrorValue()), null); 
+                } else if (qm.getErrorValue() != null && !"".equals(qm.getErrorValue())) { //$NON-NLS-1$
+                    MessageBox.alert(MessagesFactory.getMessages().search_field_error_title(), MessagesFactory.getMessages()
+                            .search_field_error_info(qm.getErrorValue()), null);
                     callback.onSuccess(new BasePagingLoadResult<ItemBean>(new ArrayList<ItemBean>(), 0, 0));
                     return;
                 }
@@ -173,8 +174,9 @@ public class ItemsListPanel extends ContentPanel {
                     isPagingAccurate = result.isPagingAccurate();
                     callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result
                             .getTotalLength()));
-                    if (result.getTotalLength() == 0)
+                    if (result.getTotalLength() == 0) {
                         ItemsMainTabPanel.getInstance().removeAll();
+                    }
 
                     currentQueryModel = qm;
                 }
@@ -190,11 +192,11 @@ public class ItemsListPanel extends ContentPanel {
     };
 
     private native String getDataContainer(JavaScriptObject stagingAreaConfig)/*-{
-        return stagingAreaConfig.dataContainer;
+		return stagingAreaConfig.dataContainer;
     }-*/;
 
     private native String getCriteria(JavaScriptObject stagingAreaConfig)/*-{
-        return stagingAreaConfig.criteria;
+		return stagingAreaConfig.criteria;
     }-*/;
 
     private RecordsPagingConfig copyPgLoad(PagingLoadConfig pconfig) {
@@ -275,15 +277,15 @@ public class ItemsListPanel extends ContentPanel {
                 if (store.getModels().size() > 0) {
                     if (selectedItems == null) {
                         // search and create
-                        if (isCreate && createItemBean != null){
-                            if (grid.getStore().findModel(createItemBean) != null){
-                                grid.getSelectionModel().select(createItemBean,true);
-                            }else{
+                        if (isCreate && createItemBean != null) {
+                            if (grid.getStore().findModel(createItemBean) != null) {
+                                grid.getSelectionModel().select(createItemBean, true);
+                            } else {
                                 grid.getSelectionModel().select(-1, false);
                             }
-                        }else{
+                        } else {
                             grid.getSelectionModel().select(0, false);
-                        } 
+                        }
                         isCreate = false;
                         createItemBean = null;
                     }
@@ -312,20 +314,24 @@ public class ItemsListPanel extends ContentPanel {
 
     public void updateGrid(CheckBoxSelectionModel<ItemBean> sm, List<ColumnConfig> columnConfigList) {
         // toolBar.searchBut.setEnabled(false);
-        if (gridContainer != null && this.findItem(gridContainer.getElement()) != null)
+        if (gridContainer != null && this.findItem(gridContainer.getElement()) != null) {
             remove(gridContainer);
-        if (panel != null && this.findItem(panel.getElement()) != null)
+        }
+        if (panel != null && this.findItem(panel.getElement()) != null) {
             remove(panel);
+        }
 
         ColumnModel cm = new ColumnModel(columnConfigList);
         gridContainer = new ContentPanel(new FitLayout());
         gridContainer.setBodyBorder(false);
         gridContainer.setHeaderVisible(false);
         int usePageSize = PAGE_SIZE;
-        if (StateManager.get().get("grid") != null) //$NON-NLS-1$
-            usePageSize = Integer.valueOf(((Map<?, ?>) StateManager.get().get("grid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
+        if (StateManager.get().get("browseRecord_grid") != null) { //$NON-NLS-1$
+            usePageSize = Integer.valueOf(((Map<?, ?>) StateManager.get().get("browseRecord_grid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
+        }
         pagingBar = new PagingToolBarEx(usePageSize) {
 
+            @Override
             protected void onLoad(LoadEvent event) {
                 String of_word = MessagesFactory.getMessages().of_word();
                 msgs.setDisplayMsg("{0} - {1} " + of_word + " " + (isPagingAccurate ? "" : "~") + "{2}"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
@@ -342,7 +348,7 @@ public class ItemsListPanel extends ContentPanel {
         grid = new ColumnAlignGrid<ItemBean>(store, cm);
         grid.setSelectionModel(sm);
         grid.setStateful(true);
-        grid.setStateId("grid"); //$NON-NLS-1$
+        grid.setStateId("browseRecord_grid"); //$NON-NLS-1$
         re = new SaveRowEditor();
         grid.getView().setForceFit(true);
         if (cm.getColumnCount() > 0) {
@@ -360,7 +366,7 @@ public class ItemsListPanel extends ContentPanel {
             }
 
         });
-        
+
         grid.addListener(Events.OnMouseOver, new Listener<GridEvent<ItemBean>>() {
 
             public void handleEvent(GridEvent<ItemBean> ge) {
@@ -382,7 +388,7 @@ public class ItemsListPanel extends ContentPanel {
 
             @Override
             public void selectionChanged(final SelectionChangedEvent<ItemBean> se) {
-                if (se.getSelectedItem() != null)
+                if (se.getSelectedItem() != null) {
                     DeferredCommand.addCommand(new Command() {
 
                         public void execute() {
@@ -401,11 +407,13 @@ public class ItemsListPanel extends ContentPanel {
                                             }
                                         });
                                 msgBox.getDialog().setWidth(550);
-                            } else
+                            } else {
                                 selectRow(se);
+                            }
 
                         }
                     });
+                }
 
             }
         });
@@ -448,13 +456,15 @@ public class ItemsListPanel extends ContentPanel {
                 while (iterator.hasNext()) {
                     String path = iterator.next();
                     TypeModel tm = entityModel.getMetaDataTypes().get(path);
-                    if (changes.get(path) == null)
+                    if (changes.get(path) == null) {
                         continue;
+                    }
                     String value = changes.get(path).toString();
                     if (tm.getForeignkey() != null) {
                         ForeignKeyBean fkBean = itemBean.getForeignkeyDesc(value);
-                        if (fkBean != null)
+                        if (fkBean != null) {
                             changedField.put(path, fkBean.getId());
+                        }
                     } else {
                         if (originalMap.containsKey(path)) {
                             Date date = originalMap.get(path);
@@ -471,7 +481,7 @@ public class ItemsListPanel extends ContentPanel {
                 ItemNodeModel model = null;
                 if (widget instanceof ItemPanel) {// save primary key
                     ItemPanel itemPanel = (ItemPanel) widget;
-                    model = (ItemNodeModel) itemPanel.getTree().getRootModel();
+                    model = itemPanel.getTree().getRootModel();
                 } else if (widget instanceof ForeignKeyTreeDetail) { // save foreign key
                     ForeignKeyTreeDetail fkDetail = (ForeignKeyTreeDetail) widget;
                     model = fkDetail.getRootModel();
@@ -497,7 +507,7 @@ public class ItemsListPanel extends ContentPanel {
                                 }
 
                                 String err = caught.getLocalizedMessage();
-                                if (err != null) {                                    
+                                if (err != null) {
                                     MessageBox.alert(MessagesFactory.getMessages().error_title(),
                                             MultilanguageMessageParser.pickOutISOMessage(err), null);
                                 } else {
@@ -578,10 +588,11 @@ public class ItemsListPanel extends ContentPanel {
                 ItemBean itemBean = grid.getSelectionModel().getSelectedItem();
                 String smartViewMode = itemBean.getSmartViewMode();
                 String opt = ItemDetailToolBar.VIEW_OPERATION;
-                if (smartViewMode.equals(ItemBean.PERSOMODE))
+                if (smartViewMode.equals(ItemBean.PERSOMODE)) {
                     opt = ItemDetailToolBar.PERSONALEVIEW_OPERATION;
-                else if (smartViewMode.equals(ItemBean.SMARTMODE))
+                } else if (smartViewMode.equals(ItemBean.SMARTMODE)) {
                     opt = ItemDetailToolBar.SMARTVIEW_OPERATION;
+                }
 
                 TreeDetailUtil.initItemsDetailPanelById("", m.getIds(), m.getConcept(), false, false, opt); //$NON-NLS-1$
             }
@@ -635,15 +646,17 @@ public class ItemsListPanel extends ContentPanel {
                 return;
             }
         }
-        if (ItemsToolBar.getInstance().getSimplePanel() != null && ItemsToolBar.getInstance().getSimplePanel().getCriteria() != null) {
-            ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);      
+        if (ItemsToolBar.getInstance().getSimplePanel() != null
+                && ItemsToolBar.getInstance().getSimplePanel().getCriteria() != null) {
+            ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
             ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
         }
     }
 
     public void lastPage() {
-        if (pagingBar != null && pagingBar.getItemCount() > 0)
+        if (pagingBar != null && pagingBar.getItemCount() > 0) {
             pagingBar.last();
+        }
     }
 
     public void resetGrid() {
@@ -684,8 +697,9 @@ public class ItemsListPanel extends ContentPanel {
                                         saveCurrentChangeBeforeSwitching = false;
                                         defaultSelectionModel = true;
                                         changedRecordId = null;
-                                    } else
+                                    } else {
                                         grid.getSelectionModel().select(itemBean, false);
+                                    }
                                     return;
                                 }
 
@@ -716,7 +730,7 @@ public class ItemsListPanel extends ContentPanel {
                 } else {
                     ItemPanel itemPanel = (ItemPanel) widget;
                     toolBar = itemPanel.getToolBar();
-                    root = (ItemNodeModel) itemPanel.getTree().getRootModel();
+                    root = itemPanel.getTree().getRootModel();
                 }
                 return root != null ? TreeDetailUtil.isChangeValue(root) : false;
             }
@@ -751,8 +765,9 @@ public class ItemsListPanel extends ContentPanel {
             }
 
             if (ItemsMainTabPanel.getInstance().getDefaultViewTabItem() != null) {
-                if (ItemsListPanel.this.isCheckbox)
+                if (ItemsListPanel.this.isCheckbox) {
                     return;
+                }
             }
 
             gridUpdateLock = true;
@@ -788,8 +803,9 @@ public class ItemsListPanel extends ContentPanel {
     }
 
     public void deSelectCurrentItem() {
-        if (grid != null && grid.getSelectionModel() != null)
+        if (grid != null && grid.getSelectionModel() != null) {
             grid.getSelectionModel().deselect(grid.getSelectionModel().getSelectedItem());
+        }
     }
 
     public void initSpecialVariable() {
@@ -798,7 +814,7 @@ public class ItemsListPanel extends ContentPanel {
             changedRecordId = null;
         }
     }
-    
+
     public void refreshGrid(final ItemBean itemBean) {
         if (gridContainer != null) {// refresh when grid is not empty
             if (pagingBar != null && pagingBar.getItemCount() > 0) {
@@ -810,18 +826,20 @@ public class ItemsListPanel extends ContentPanel {
                         refresh(ids, true);
                     }
                 } else {
-                    if (itemBean != null){                                              
-                        String ids[] = {itemBean.getIds()};
+                    if (itemBean != null) {
+                        String ids[] = { itemBean.getIds() };
                         service.getItemBeanById(itemBean.getConcept(), ids, Locale.getLanguage(), new AsyncCallback<ItemBean>() {
+
                             public void onSuccess(ItemBean result) {
-                                if (!"NONE".equals(pagingLoadConfig.getSortField())){  //$NON-NLS-1$
+                                if (!"NONE".equals(pagingLoadConfig.getSortField())) { //$NON-NLS-1$
                                     createItemBean = result;
                                     pagingBar.refresh();
                                 } else {
                                     createItemBean = result;
                                     pagingBar.lastAfterCreate();
-                                }                                 
+                                }
                             }
+
                             public void onFailure(Throwable exception) {
                                 pagingBar.last();
                             }
@@ -831,8 +849,9 @@ public class ItemsListPanel extends ContentPanel {
                 return;
             }
         }
-        if (ItemsToolBar.getInstance().getSimplePanel() != null && ItemsToolBar.getInstance().getSimplePanel().getCriteria() != null) {
-            ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);      
+        if (ItemsToolBar.getInstance().getSimplePanel() != null
+                && ItemsToolBar.getInstance().getSimplePanel().getCriteria() != null) {
+            ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
             ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
         }
     }
