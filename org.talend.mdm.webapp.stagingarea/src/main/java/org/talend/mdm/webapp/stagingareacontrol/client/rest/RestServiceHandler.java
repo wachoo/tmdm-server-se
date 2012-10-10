@@ -45,7 +45,7 @@ public class RestServiceHandler {
             GWT.getHostPageBaseURL().replaceAll(GWT.getModuleName() + SEPARATE, "")) //$NON-NLS-1$
             + "datamanager/services/tasks/staging"; //$NON-NLS-1$
 
-    public static final DateTimeFormat DEFAULT_DATE_FORMAT = DateTimeFormat.getFormat("yyyy-MM-dd");//$NON-NLS-1$
+    public static final DateTimeFormat DEFAULT_DATE_FORMAT = DateTimeFormat.getFormat("yyyy-MM-dd'T'hh:mm:ss");//$NON-NLS-1$
 
     private ClientResourceWrapper client;
 
@@ -225,6 +225,10 @@ public class RestServiceHandler {
                         }
                     }
                     final List<StagingAreaExecutionModel> models = new ArrayList<StagingAreaExecutionModel>();
+                    if (exeIds.size() == 0) {
+                        callback.onSuccess(models);
+                        return;
+                    }
                     for (String exeId : exeIds) {
                         getStagingAreaExecution(dataContainer, exeId, new SessionAwareAsyncCallback<StagingAreaExecutionModel>() {
 

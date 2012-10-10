@@ -54,7 +54,7 @@ public class PreviousExecutionController extends AbstractController {
 
                             public void onSuccess(final Integer total) {
                                 RestServiceHandler.get().getStagingAreaExecutionsWithPaging(dataContainer,
-                                        config.getOffset() + 1, config.getLimit(), beforeDate,
+                                        config.getOffset(), config.getLimit(), beforeDate,
                                         new SessionAwareAsyncCallback<List<StagingAreaExecutionModel>>() {
                                             public void onSuccess(List<StagingAreaExecutionModel> result) {
                                                 BasePagingLoadResult<StagingAreaExecutionModel> pagingResult = new BasePagingLoadResult<StagingAreaExecutionModel>(
