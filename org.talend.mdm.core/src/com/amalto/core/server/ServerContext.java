@@ -44,7 +44,9 @@ public class ServerContext {
     }
 
     public synchronized Server get() {
-        return get(new JMXLifecycle(new DefaultServerLifecycle()));
+        // Uncomment line below to enable JMX administration.
+        // return get(new JMXLifecycle(new DefaultServerLifecycle()));
+        return get(new DefaultServerLifecycle());
     }
 
     public synchronized Server get(ServerLifecycle lifecycle) {
@@ -111,6 +113,7 @@ public class ServerContext {
         }
     }
 
+    // Use this to enable JMX administration of the SQL storages.
     class JMXLifecycle implements ServerLifecycle {
         ServerLifecycle delegate;
 
