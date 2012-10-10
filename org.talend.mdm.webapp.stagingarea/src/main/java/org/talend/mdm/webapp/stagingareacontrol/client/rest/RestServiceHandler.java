@@ -45,7 +45,7 @@ public class RestServiceHandler {
             GWT.getHostPageBaseURL().replaceAll(GWT.getModuleName() + SEPARATE, "")) //$NON-NLS-1$
             + "datamanager/services/tasks/staging"; //$NON-NLS-1$
 
-    public static final DateTimeFormat DEFAULT_DATE_FORMAT = DateTimeFormat.getFormat("yyyy-MM-dd'T'hh:mm:ss");//$NON-NLS-1$
+    public static final DateTimeFormat DEFAULT_DATE_FORMAT = DateTimeFormat.getFormat("yyyy-MM-dd'T'HH:mm:ss");//$NON-NLS-1$
 
     private ClientResourceWrapper client;
 
