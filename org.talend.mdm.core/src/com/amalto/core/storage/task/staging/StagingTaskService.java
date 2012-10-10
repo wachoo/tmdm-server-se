@@ -11,9 +11,15 @@
 
 package com.amalto.core.storage.task.staging;
 
-import javax.ws.rs.*;
-import java.util.Date;
 import java.util.List;
+
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 
 @Path(StagingTaskService.TASKS)
 public class StagingTaskService {
@@ -51,7 +57,7 @@ public class StagingTaskService {
     @GET
     @Path("{container}/execs")
     public List<String> listCompletedTaskExecutions(@PathParam("container") String dataContainer,
-                                                    @QueryParam("before") Date beforeDate,
+            @QueryParam("before") String beforeDate,
                                                     @DefaultValue("1") @QueryParam("start") int start,
                                                     @DefaultValue("-1") @QueryParam("size") int size) {
         return SerializableList.create(delegate.listCompletedExecutions(dataContainer, beforeDate, start, size), "executions", "execution");
@@ -60,7 +66,7 @@ public class StagingTaskService {
     @GET
     @Path("{container}/execs/count")
     public int countCompletedTaskExecutions(@PathParam("container") String dataContainer,
-                                            @QueryParam("before") Date beforeDate) {
+                                            @QueryParam("before") String beforeDate) {
         return delegate.listCompletedExecutions(dataContainer, beforeDate, 1, -1).size();
     }
 

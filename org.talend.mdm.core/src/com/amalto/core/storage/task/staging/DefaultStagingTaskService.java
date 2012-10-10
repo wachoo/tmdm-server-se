@@ -11,6 +11,25 @@
 
 package com.amalto.core.storage.task.staging;
 
+import static com.amalto.core.query.user.UserQueryBuilder.alias;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
+import static com.amalto.core.query.user.UserQueryBuilder.gte;
+import static com.amalto.core.query.user.UserQueryBuilder.isNull;
+import static com.amalto.core.query.user.UserQueryBuilder.lt;
+import static com.amalto.core.query.user.UserQueryBuilder.or;
+
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -23,15 +42,12 @@ import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.task.*;
+import com.amalto.core.storage.task.StagingConfiguration;
+import com.amalto.core.storage.task.StagingConstants;
+import com.amalto.core.storage.task.Task;
+import com.amalto.core.storage.task.TaskFactory;
+import com.amalto.core.storage.task.TaskSubmitterFactory;
 import com.amalto.core.util.Util;
-
-import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
@@ -118,7 +134,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         }
     }
 
-    public List<String> listCompletedExecutions(String dataContainer, Date beforeDate, int start, int size) {
+    public List<String> listCompletedExecutions(String dataContainer, String beforeDate, int start, int size) {
         Server server = ServerContext.INSTANCE.get();
         Storage staging = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX);
         if (staging == null) {
@@ -129,13 +145,13 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         UserQueryBuilder qb = from(executionType)
                 .select(executionType.getField("id")) //$NON-NLS-1$
                 .where(eq(executionType.getField("completed"), "true")); //$NON-NLS-1$ //$NON-NLS-2$
-        if (beforeDate != null) {
-            qb.where(lt(executionType.getField("start_date"), beforeDate.toString())); //$NON-NLS-1$
+        if (beforeDate != null && beforeDate.trim().length() > 0) {
+            qb.where(lt(executionType.getField("start_time"), beforeDate)); //$NON-NLS-1$
         }
-        if (start > 0) {
+        if (start >= 0) {
             qb.start(start);
         }
-        if (size > 1) {
+        if (size >= 0) {
             qb.limit(size);
         }
         List<String> taskIds;

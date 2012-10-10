@@ -11,7 +11,6 @@
 
 package com.amalto.core.storage.task.staging;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,7 +26,7 @@ public interface StagingTaskServiceDelegate {
 
     String startValidation(String dataContainer, String dataModel);
 
-    List<String> listCompletedExecutions(String dataContainer, Date beforeDate, int start, int size);
+    List<String> listCompletedExecutions(String dataContainer, String beforeDate, int start, int size);
 
     ExecutionStatistics getExecutionStats(String dataContainer, String dataModel, String executionId);
 
