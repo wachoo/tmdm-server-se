@@ -10,12 +10,10 @@
 
 package com.amalto.core.save.context;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -31,6 +29,8 @@ import com.sun.org.apache.xpath.internal.XPathAPI;
 public class BeforeSaving implements DocumentSaver {
 
     public static final String BEFORE_SAVING_VALIDATION_MESSAGE_PREFIX = "BeforeSaving Validation Error --> "; //$NON-NLS-1$
+    
+    public static final String BEFORE_SAVING_FORMAT_MESSAGE_PREFIX = "BeforeSaving Format Error --> "; //$NON-NLS-1$
     
     private DocumentSaver next;
 
@@ -52,6 +52,8 @@ public class BeforeSaving implements DocumentSaver {
         if (outputreport != null) { // when a process was found
             String errorCode;
             message = outputreport.getMessage();
+            if (!validateFormat(message))
+                throw new RuntimeException(BEFORE_SAVING_FORMAT_MESSAGE_PREFIX + message);
             try {
                 Document doc = Util.parse(message);
                 // handle output_report
@@ -118,5 +120,43 @@ public class BeforeSaving implements DocumentSaver {
     @Override
     public String getBeforeSavingMessage() {
         return message;
+    }
+    
+    public boolean validateFormat(String msg) {
+        NodeList nodeList = null;
+        try {
+            Document document = Util.parse(msg.toLowerCase());
+            nodeList = Util.getNodeList(document, "//report/message"); //$NON-NLS-1$
+        } catch (Exception e) {
+            return false;
+        }
+
+        if (nodeList.getLength() != 1)
+            return false;
+
+        Node reportNode = nodeList.item(0);
+        if (reportNode.getNodeType() != Node.ELEMENT_NODE)
+            return false;
+
+        NamedNodeMap attrMap = reportNode.getAttributes();
+        Node attribute = attrMap.getNamedItem("type"); //$NON-NLS-1$
+        if (attribute == null)
+            return false;
+
+        if (!attribute.getNodeValue().equalsIgnoreCase("info") && !attribute.getNodeValue().equalsIgnoreCase("error")) //$NON-NLS-1$ //$NON-NLS-2$
+            return false;
+
+        NodeList messageNodeList = reportNode.getChildNodes();
+        if (messageNodeList.getLength() > 1)
+            return false;
+
+        if (messageNodeList.getLength() == 0)
+            return true;
+
+        Node messageNode = messageNodeList.item(0);
+        if (messageNode.getNodeType() != Node.TEXT_NODE)
+            return false;
+
+        return true;
     }
 }
