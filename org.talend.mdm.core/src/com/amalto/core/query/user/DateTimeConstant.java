@@ -23,7 +23,7 @@ import java.util.Date;
  */
 public class DateTimeConstant implements TypedExpression {
 
-    public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+    public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
     private final Date value;
 
