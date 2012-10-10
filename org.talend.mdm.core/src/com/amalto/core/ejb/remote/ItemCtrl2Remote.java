@@ -257,20 +257,20 @@ public class ItemCtrl2Remote extends Observable
 
    }
 
-   public java.util.TreeMap getConceptsInDataCluster ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK )
+   public java.util.Map getConceptsInDataCluster ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
-        java.util.TreeMap retval;
+        java.util.Map retval;
        retval =  getSession().getConceptsInDataCluster( dataClusterPOJOPK );
 
       return retval;
 
    }
 
-   public java.util.TreeMap getConceptsInDataCluster ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,com.amalto.core.objects.universe.ejb.UniversePOJO universe )
+   public java.util.Map getConceptsInDataCluster ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,com.amalto.core.objects.universe.ejb.UniversePOJO universe )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
-        java.util.TreeMap retval;
+        java.util.Map retval;
        retval =  getSession().getConceptsInDataCluster( dataClusterPOJOPK,universe );
 
       return retval;

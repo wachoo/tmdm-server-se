@@ -1081,7 +1081,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
-    public TreeMap<String, String> getConceptsInDataCluster(DataClusterPOJOPK dataClusterPOJOPK) throws XtentisException {
+    public Map<String, String> getConceptsInDataCluster(DataClusterPOJOPK dataClusterPOJOPK) throws XtentisException {
         return getConceptsInDataCluster(dataClusterPOJOPK, null);
     }
 
@@ -1095,10 +1095,10 @@ public class ItemCtrl2Bean implements SessionBean {
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
-    public TreeMap<String, String> getConceptsInDataCluster(DataClusterPOJOPK dataClusterPOJOPK, UniversePOJO universe)
+    public Map<String, String> getConceptsInDataCluster(DataClusterPOJOPK dataClusterPOJOPK, UniversePOJO universe)
             throws XtentisException {
         try {
-            TreeMap<String, String> concepts = new TreeMap<String, String>();
+            Map<String, String> concepts = new LinkedHashMap<String, String>();
 
             Server mdmServer = ServerContext.INSTANCE.get();
             Storage storage = mdmServer.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId());

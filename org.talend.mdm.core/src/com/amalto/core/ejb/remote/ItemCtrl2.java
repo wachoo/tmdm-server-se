@@ -249,20 +249,20 @@ public interface ItemCtrl2
     * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
     * @param dataClusterPOJOPK
     * @param universe
-    * @return A {@link TreeMap} of concept names to revision IDs
+    * @return A {@link Map} of concept names to revision IDs
     * @throws XtentisException
     */
-   public java.util.TreeMap getConceptsInDataCluster( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK )
+   public java.util.Map getConceptsInDataCluster( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
     * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
     * @param dataClusterPOJOPK
     * @param universe
-    * @return A {@link TreeMap} of concept names to revision IDs
+    * @return A {@link Map} of concept names to revision IDs
     * @throws XtentisException
     */
-   public java.util.TreeMap getConceptsInDataCluster( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,com.amalto.core.objects.universe.ejb.UniversePOJO universe )
+   public java.util.Map getConceptsInDataCluster( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,com.amalto.core.objects.universe.ejb.UniversePOJO universe )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    public long countItemsByCustomFKFilters( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,java.lang.String injectedXpath )
