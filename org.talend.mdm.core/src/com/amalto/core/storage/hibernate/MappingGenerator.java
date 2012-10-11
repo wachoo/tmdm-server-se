@@ -369,7 +369,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         propertyElement.getAttributes().setNamedItem(className);
 
         isDoingColumns = true;
-        isColumnMandatory = referencedField.isMandatory();
+        isColumnMandatory = referencedField.isMandatory() && generateConstrains;
         this.parentElement = propertyElement;
         compositeKeyPrefix = referencedField.getName();
         {
@@ -412,7 +412,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
         isDoingColumns = true;
         this.parentElement = manyToMany;
-        isColumnMandatory = referencedField.isMandatory();
+        isColumnMandatory = referencedField.isMandatory() && generateConstrains;
         compositeKeyPrefix = referencedField.getName();
         {
             referencedField.getReferencedField().accept(this);
