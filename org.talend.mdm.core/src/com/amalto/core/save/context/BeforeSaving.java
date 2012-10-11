@@ -22,16 +22,14 @@ import com.amalto.core.save.DOMDocument;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.UserAction;
+import com.amalto.core.util.BeforeSavingErrorException;
+import com.amalto.core.util.BeforeSavingFormatException;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.Util;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 
 public class BeforeSaving implements DocumentSaver {
-
-    public static final String BEFORE_SAVING_VALIDATION_MESSAGE_PREFIX = "BeforeSaving Validation Error --> "; //$NON-NLS-1$
-    
-    public static final String BEFORE_SAVING_FORMAT_MESSAGE_PREFIX = "BeforeSaving Format Error --> "; //$NON-NLS-1$
-    
+        
     private DocumentSaver next;
 
     private String message = StringUtils.EMPTY;
@@ -45,7 +43,7 @@ public class BeforeSaving implements DocumentSaver {
         // Invoke the beforeSaving
         MutableDocument updateReportDocument = context.getUpdateReportDocument();
         if (updateReportDocument == null) {
-            throw new IllegalStateException("Update report is missing.");
+            throw new IllegalStateException("Update report is missing."); //$NON-NLS-1$
         }
         OutputReport outputreport = session.getSaverSource().invokeBeforeSaving(context, updateReportDocument);
 
@@ -53,7 +51,7 @@ public class BeforeSaving implements DocumentSaver {
             String errorCode;
             message = outputreport.getMessage();
             if (!validateFormat(message))
-                throw new RuntimeException(BEFORE_SAVING_FORMAT_MESSAGE_PREFIX + message);
+                throw new BeforeSavingFormatException(message);
             try {
                 Document doc = Util.parse(message);
                 // handle output_report
@@ -70,7 +68,7 @@ public class BeforeSaving implements DocumentSaver {
                 }
 
                 if (!"info".equals(errorCode)) { //$NON-NLS-1$
-                    throw new RuntimeException(BEFORE_SAVING_VALIDATION_MESSAGE_PREFIX + message);
+                    throw new BeforeSavingErrorException(message);
                 }
 
                 // handle output_item
@@ -100,7 +98,7 @@ public class BeforeSaving implements DocumentSaver {
                     }
                 }
             } catch (Exception e) {
-                throw new RuntimeException("Exception occurred during before saving phase.", e);
+                throw new RuntimeException("Exception occurred during before saving phase.", e); //$NON-NLS-1$
             }
         }
 
