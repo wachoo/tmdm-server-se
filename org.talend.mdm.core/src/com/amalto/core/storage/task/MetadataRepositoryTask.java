@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -33,9 +32,7 @@ abstract class MetadataRepositoryTask implements Task {
 
     private final Object currentTypeTaskMonitor = new Object();
 
-    private final AtomicInteger processedRecordCount = new AtomicInteger();
-
-    private final AtomicInteger processedErrorCount = new AtomicInteger();
+    protected final ClosureExecutionStats stats;
 
     private long startTime;
 
@@ -49,9 +46,10 @@ abstract class MetadataRepositoryTask implements Task {
 
     final Storage storage;
 
-    MetadataRepositoryTask(Storage storage, MetadataRepository repository) {
+    MetadataRepositoryTask(Storage storage, MetadataRepository repository, ClosureExecutionStats stats) {
         this.storage = storage;
         this.repository = repository;
+        this.stats = stats;
     }
 
     protected abstract Task createTypeTask(ComplexTypeMetadata type);
@@ -88,8 +86,6 @@ abstract class MetadataRepositoryTask implements Task {
                 if (!isCancelled) {
                     LOGGER.info("--> Executing " + task + "...");
                     task.run();
-                    processedRecordCount.addAndGet(task.getProcessedRecords());
-                    processedErrorCount.addAndGet(task.getErrorCount());
                     LOGGER.info("<-- Executed (" + task.getRecordCount() + " record validated @ " + getPerformance() + " doc/s)");
                 }
             }
@@ -115,16 +111,12 @@ abstract class MetadataRepositoryTask implements Task {
 
     @Override
     public int getErrorCount() {
-        synchronized (currentTypeTaskMonitor) {
-            return processedErrorCount.get();
-        }
+        return stats.getErrorCount();
     }
 
     @Override
     public int getProcessedRecords() {
-        synchronized (currentTypeTaskMonitor) {
-            return processedRecordCount.get();
-        }
+        return stats.getErrorCount() + stats.getSuccessCount();
     }
 
     public double getPerformance() {

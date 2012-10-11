@@ -25,14 +25,16 @@ class ConsumerRunnable implements Work {
     private final Closure closure;
 
     private final BlockingQueue<DataRecord> queue;
+    private final ClosureExecutionStats stats;
 
     private final AtomicBoolean hasEnded = new AtomicBoolean(false);
 
     private int committedRecordCount = 0;
 
-    ConsumerRunnable(BlockingQueue<DataRecord> queue, Closure closure) {
+    ConsumerRunnable(BlockingQueue<DataRecord> queue, Closure closure, ClosureExecutionStats stats) {
         this.closure = closure;
         this.queue = queue;
+        this.stats = stats;
         hasEnded.set(false);
     }
 
@@ -57,7 +59,7 @@ class ConsumerRunnable implements Work {
                     }
                     end();
                 } else {
-                    closure.execute(record);
+                    closure.execute(record, stats);
                     committedRecordCount++;
                 }
             } catch (Exception e) {

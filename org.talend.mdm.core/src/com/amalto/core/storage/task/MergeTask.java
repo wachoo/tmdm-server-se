@@ -17,8 +17,8 @@ public class MergeTask extends MetadataRepositoryTask {
 
     private int recordsCount;
 
-    MergeTask(Storage storage, MetadataRepository repository) {
-        super(storage, repository);
+    MergeTask(Storage storage, MetadataRepository repository, ClosureExecutionStats stats) {
+        super(storage, repository, stats);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class MergeTask extends MetadataRepositoryTask {
         } finally {
             records.close();
         }
-        return new SingleThreadedTask(type.getName(), storage, query, new MergeClosure(storage));
+        return new SingleThreadedTask(type.getName(), storage, query, new MergeClosure(storage), stats);
     }
 
     @Override
@@ -59,11 +59,11 @@ public class MergeTask extends MetadataRepositoryTask {
             storage.begin();
         }
 
-        public boolean execute(DataRecord stagingRecord) {
+        public void execute(DataRecord stagingRecord, ClosureExecutionStats stats) {
             Map<String, String> recordProperties = stagingRecord.getRecordMetadata().getRecordProperties();
             recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_MERGE_CLUSTERS);
             storage.update(stagingRecord);
-            return true;
+            stats.reportSuccess();
         }
 
         public void end() {

@@ -37,8 +37,8 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
 
     private int recordsCount;
 
-    DSCUpdaterTask(Storage origin, Storage destination, MetadataRepository repository) {
-        super(origin, repository);
+    DSCUpdaterTask(Storage origin, Storage destination, MetadataRepository repository, ClosureExecutionStats stats) {
+        super(origin, repository, stats);
         this.origin = origin;
         this.destination = destination;
         xmlOutputFactory = XMLOutputFactory.newInstance();
@@ -53,7 +53,7 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
         } finally {
             records.close();
         }
-        return new SingleThreadedTask(type.getName(), destination, select, new DSCTaskClosure(origin, xmlOutputFactory));
+        return new SingleThreadedTask(type.getName(), destination, select, new DSCTaskClosure(origin, xmlOutputFactory), stats);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
             output = new ResettableStringWriter();
         }
 
-        public boolean execute(DataRecord stagingRecord) {
+        public void execute(DataRecord stagingRecord, ClosureExecutionStats stats) {
             String taskId = stagingRecord.getRecordMetadata().getTaskId();
             Select select = from(stagingRecord.getType()).where(eq(taskId(), taskId)).getSelect();
             StorageResults originRecords = origin.fetch(select);
@@ -219,10 +219,11 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
                     output.reset();
                 }
 
+                stats.reportSuccess();
             } catch (XMLStreamException e) {
                 throw new RuntimeException(e);
             }
-            return true;
+
         }
 
         private String getFieldType(FieldMetadata field) {

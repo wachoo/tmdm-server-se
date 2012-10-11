@@ -26,7 +26,6 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
 import static com.amalto.core.query.user.UserStagingQueryBuilder.status;
@@ -39,12 +38,10 @@ public class MDMValidationTask extends MetadataRepositoryTask {
 
     private final Storage destinationStorage;
 
-    private final AtomicInteger errorCount = new AtomicInteger();
-
     private int recordsCount;
 
-    public MDMValidationTask(Storage storage, Storage destinationStorage, MetadataRepository repository, SaverSource source, SaverSession.Committer committer) {
-        super(storage, repository);
+    public MDMValidationTask(Storage storage, Storage destinationStorage, MetadataRepository repository, SaverSource source, SaverSession.Committer committer, ClosureExecutionStats stats) {
+        super(storage, repository, stats);
         this.source = source;
         this.committer = committer;
         this.destinationStorage = destinationStorage;
@@ -57,7 +54,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
 
     @Override
     protected Task createTypeTask(ComplexTypeMetadata type) {
-        Closure closure = new MDMValidationTask.MDMValidationClosure(source, committer, destinationStorage, errorCount);
+        Closure closure = new MDMValidationTask.MDMValidationClosure(source, committer, destinationStorage);
         Select select = from(type).where(
                 or(eq(status(), StagingConstants.SUCCESS_MERGE_CLUSTERS),
                         or(eq(status(), StagingConstants.FAIL_VALIDATE_CONSTRAINTS),
@@ -68,7 +65,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
         } finally {
             records.close();
         }
-        return new MultiThreadedTask(type.getName(), storage, select, 1, closure);
+        return new MultiThreadedTask(type.getName(), storage, select, 1, closure, stats);
     }
 
     @Override
@@ -76,18 +73,11 @@ public class MDMValidationTask extends MetadataRepositoryTask {
         return recordsCount;
     }
 
-    @Override
-    public int getErrorCount() {
-        return errorCount.get();
-    }
-
     private class MDMValidationClosure implements Closure {
 
         private final SaverSource source;
 
         private final SaverSession.Committer committer;
-
-        private final AtomicInteger errorCount;
 
         private final DataRecordXmlWriter writer;
 
@@ -97,10 +87,9 @@ public class MDMValidationTask extends MetadataRepositoryTask {
 
         private int commitCount;
 
-        public MDMValidationClosure(SaverSource source, SaverSession.Committer committer, Storage destinationStorage, AtomicInteger errorCount) {
+        public MDMValidationClosure(SaverSource source, SaverSession.Committer committer, Storage destinationStorage) {
             this.source = source;
             this.committer = committer;
-            this.errorCount = errorCount;
             writer = new DataRecordXmlWriter();
             this.destinationStorage = destinationStorage;
         }
@@ -111,7 +100,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             storage.begin();
         }
 
-        public boolean execute(DataRecord stagingRecord) {
+        public void execute(DataRecord stagingRecord, ClosureExecutionStats stats) {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             try {
                 writer.write(stagingRecord, output);
@@ -133,15 +122,14 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                 recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_VALIDATE);
                 recordProperties.put(Storage.METADATA_STAGING_ERROR, StringUtils.EMPTY);
                 storage.update(stagingRecord);
-                return true;
+                stats.reportSuccess();
             } catch (Exception e) {
-                errorCount.incrementAndGet();
                 recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.FAIL_VALIDATE_VALIDATION);
                 StringWriter exceptionStackTrace = new StringWriter();
                 e.printStackTrace(new PrintWriter(exceptionStackTrace));
                 recordProperties.put(Storage.METADATA_STAGING_ERROR, exceptionStackTrace.toString());
                 storage.update(stagingRecord);
-                return false;
+                stats.reportError();
             }
         }
 
@@ -152,7 +140,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
         }
 
         public Closure copy() {
-            return new MDMValidationClosure(source, committer, destinationStorage, errorCount);
+            return new MDMValidationClosure(source, committer, destinationStorage);
         }
     }
 

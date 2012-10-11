@@ -35,9 +35,9 @@ class ThreadDispatcher implements Closure {
 
     private int count = 0;
 
-    ThreadDispatcher(int threadNumber, Closure closure) {
+    ThreadDispatcher(int threadNumber, Closure closure, ClosureExecutionStats stats) {
         for (int i = 0; i < threadNumber; i++) {
-            childClosures.add(new ConsumerRunnable(queue, closure.copy()));
+            childClosures.add(new ConsumerRunnable(queue, closure.copy(), stats));
         }
     }
 
@@ -57,7 +57,7 @@ class ThreadDispatcher implements Closure {
         }
     }
 
-    public boolean execute(DataRecord stagingRecord) {
+    public void execute(DataRecord stagingRecord, ClosureExecutionStats stats) {
         try {
             if (!queue.offer(stagingRecord)) {
                 LOGGER.warn("Not enough consumers for records!");
@@ -69,12 +69,10 @@ class ThreadDispatcher implements Closure {
                     LOGGER.debug("doc/s -> " + count / ((System.currentTimeMillis() - startTime) / 1000f) + " / queue size: " + queue.size());
                 }
             }
-            return true;
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Exception occurred during dispatch of records.", e);
             }
-            return false;
         }
     }
 

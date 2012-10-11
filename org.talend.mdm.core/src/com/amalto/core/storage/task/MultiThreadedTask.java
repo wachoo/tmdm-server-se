@@ -32,6 +32,8 @@ public class MultiThreadedTask implements Task {
 
     private final Expression expression;
 
+    private final ClosureExecutionStats stats;
+
     private final Closure closure;
 
     private final AtomicBoolean isCancelled = new AtomicBoolean(false);
@@ -44,19 +46,21 @@ public class MultiThreadedTask implements Task {
 
     private int count;
 
-    private int success;
-
-    private int fail;
-
     private long taskStartTime;
 
     private boolean isFinished;
 
-    public MultiThreadedTask(String name, Storage storage, Expression expression, int threadNumber, Closure closure) {
+    public MultiThreadedTask(String name,
+                             Storage storage,
+                             Expression expression,
+                             int threadNumber,
+                             Closure closure,
+                             ClosureExecutionStats stats) {
         this.name = name;
         this.storage = storage;
         this.expression = expression;
-        this.closure = new ThreadDispatcher(threadNumber, closure);
+        this.stats = stats;
+        this.closure = new ThreadDispatcher(threadNumber, closure, stats);
     }
 
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
@@ -83,15 +87,7 @@ public class MultiThreadedTask implements Task {
                 if (isCancelled.get()) {
                     break;
                 }
-                try {
-                    if (closure.execute(record)) {
-                        success++;
-                    } else {
-                        fail++;
-                    }
-                } catch (Exception e) {
-                    fail++;
-                }
+                closure.execute(record, stats);
                 count++;
             }
             closure.end();
@@ -114,7 +110,7 @@ public class MultiThreadedTask implements Task {
 
     @Override
     public int getErrorCount() {
-        return fail;
+        return stats.getErrorCount();
     }
 
     public double getPerformance() {
@@ -155,7 +151,7 @@ public class MultiThreadedTask implements Task {
 
     @Override
     public int getProcessedRecords() {
-        return success + fail;
+        return stats.getSuccessCount() + stats.getErrorCount();
     }
 
     @Override

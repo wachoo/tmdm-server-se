@@ -75,8 +75,6 @@ public class CurrentValidationView extends AbstractView {
     private NumberField recordToProcessField;
 
     private NumberField invalidField;
-    
-    private TextField<String> etaField;
 
     private ProgressBar progressBar;
 
@@ -93,9 +91,6 @@ public class CurrentValidationView extends AbstractView {
         invalidField = new NumberField();
         invalidField.setReadOnly(true);
         invalidField.setFieldLabel(messages.invalid_record());
-        etaField = new TextField<String>();
-        etaField.setReadOnly(true);
-        etaField.setFieldLabel(messages.eta());
         progressBar = new ProgressBar();
         cancelButton = new Button(messages.cancel());
         cancelButton.setStyleAttribute("margin-top", "10px"); //$NON-NLS-1$//$NON-NLS-2$
@@ -144,7 +139,6 @@ public class CurrentValidationView extends AbstractView {
         formPanel.add(startDateField);
         formPanel.add(recordToProcessField);
         formPanel.add(invalidField);
-        formPanel.add(etaField);
 
         TableData fpData = new TableData();
         fpData.setWidth("400px"); //$NON-NLS-1$
@@ -166,40 +160,14 @@ public class CurrentValidationView extends AbstractView {
     public void refresh(StagingAreaValidationModel stagingAreaValidationModel) {
         currentValidationModel = stagingAreaValidationModel;
         startDateField.setValue(stagingAreaValidationModel.getStartDate());
-        recordToProcessField.setValue(stagingAreaValidationModel.getProcessedRecords());
+        recordToProcessField.setValue(stagingAreaValidationModel.getTotalRecord() - stagingAreaValidationModel.getProcessedRecords());
         invalidField.setValue(stagingAreaValidationModel.getInvalidRecords());
 
-        Date startDate = stagingAreaValidationModel.getStartDate();
-        Date currentDate = new Date();
-
-        final int process = stagingAreaValidationModel.getProcessedRecords();
-        final int total = stagingAreaValidationModel.getTotalRecord();
-        final double percentage = process * 1.0D / total;
-        long costTime = currentDate.getTime() - startDate.getTime();
-        long etaTime = (long) (costTime / percentage) - costTime;
-
-        int day = (int) (etaTime / DAY);
-        int hour = (int) ((etaTime % DAY) / HOUR);
-        int minite = (int) ((etaTime % DAY) % HOUR / MINITE);
-        int second = (int) (etaTime % MINITE / SECOND);
-
-        StringBuffer buffer = new StringBuffer();
-        if (day > 0){
-            buffer.append(day + "d "); //$NON-NLS-1$
-        }
-        if(hour > 0){
-            buffer.append(hour + "h "); //$NON-NLS-1$
-        }
-        if (minite > 0){
-            buffer.append(minite + "m "); //$NON-NLS-1$
-        }
-        if (second > 0){
-            buffer.append(second + "s"); //$NON-NLS-1$
-        }
-        etaField.setValue(buffer.toString());
-        progressBar.updateProgress(percentage, messages.percentage(process, total));
+        int process = stagingAreaValidationModel.getProcessedRecords();
+        int total = stagingAreaValidationModel.getTotalRecord();
+        double percentage = process * 100 / total;
+        progressBar.updateProgress(percentage / 100, percentage + " %"); //$NON-NLS-1$
     }
-
 
     public void setStatus(Status status) {
 
@@ -207,7 +175,6 @@ public class CurrentValidationView extends AbstractView {
             startDateField.clear();
             recordToProcessField.clear();
             invalidField.clear();
-            etaField.clear();
             progressBar.reset();
             mainPanel.setHeight(30);
             cardLayout.setActiveItem(defaultMessagePanel);

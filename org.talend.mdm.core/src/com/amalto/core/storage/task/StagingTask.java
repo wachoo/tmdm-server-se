@@ -46,11 +46,9 @@ public class StagingTask implements Task {
 
     private final AtomicInteger recordCount = new AtomicInteger();
 
-    private final AtomicInteger errorCount = new AtomicInteger();
+    private final ClosureExecutionStats stats = new ClosureExecutionStats();
 
     private MetadataRepositoryTask currentTask;
-
-    private int processedRecordCount = 0;
 
     private long startTime;
 
@@ -67,9 +65,9 @@ public class StagingTask implements Task {
         this.stagingStorage = stagingStorage;
         this.executionId = UUID.randomUUID().toString();
         this.executionType = stagingRepository.getComplexType("TALEND_TASK_EXECUTION");
-        tasks = Arrays.asList(new ClusterTask(stagingStorage, userRepository),
-                new MergeTask(stagingStorage, userRepository),
-                new MDMValidationTask(stagingStorage, destinationStorage, userRepository, source, committer));
+        tasks = Arrays.asList(new ClusterTask(stagingStorage, userRepository, stats),
+                new MergeTask(stagingStorage, userRepository, stats),
+                new MDMValidationTask(stagingStorage, destinationStorage, userRepository, source, committer, stats));
         // new DSCUpdaterTask(stagingStorage, destinationStorage, userRepository));
     }
 
@@ -89,13 +87,7 @@ public class StagingTask implements Task {
 
     @Override
     public int getErrorCount() {
-        synchronized (currentTaskMonitor) {
-            if (currentTask != null) {
-                return errorCount.get() + currentTask.getErrorCount();
-            } else {
-                return errorCount.get();
-            }
-        }
+        return stats.getErrorCount();
     }
 
     public double getPerformance() {
@@ -142,9 +134,7 @@ public class StagingTask implements Task {
 
     @Override
     public int getProcessedRecords() {
-        synchronized (currentTaskMonitor) {
-                return processedRecordCount;
-        }
+        return stats.getErrorCount() + stats.getSuccessCount();
     }
 
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
@@ -188,8 +178,6 @@ public class StagingTask implements Task {
                 LOGGER.info("--> " + task.toString());
                 taskSubmitter.submitAndWait(currentTask);
                 recordCount.addAndGet(currentTask.getRecordCount());
-                processedRecordCount = Math.max(currentTask.getProcessedRecords(), processedRecordCount);
-                errorCount.addAndGet(currentTask.getErrorCount());
                 LOGGER.info("<-- DONE " + task.toString());
             }
 

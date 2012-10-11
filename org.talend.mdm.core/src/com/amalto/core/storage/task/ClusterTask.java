@@ -18,8 +18,8 @@ public class ClusterTask extends MetadataRepositoryTask {
 
     private int recordsCount;
 
-    ClusterTask(Storage storage, MetadataRepository repository) {
-        super(storage, repository);
+    ClusterTask(Storage storage, MetadataRepository repository, ClosureExecutionStats stats) {
+        super(storage, repository, stats);
     }
 
     @Override
@@ -36,7 +36,7 @@ public class ClusterTask extends MetadataRepositoryTask {
         } finally {
             records.close();
         }
-        return new SingleThreadedTask(type.getName(), storage, query, new ClusterClosure(storage));
+        return new SingleThreadedTask(type.getName(), storage, query, new ClusterClosure(storage), stats);
     }
 
     @Override
@@ -61,14 +61,14 @@ public class ClusterTask extends MetadataRepositoryTask {
             storage.begin();
         }
 
-        public boolean execute(DataRecord stagingRecord) {
+        public void execute(DataRecord stagingRecord, ClosureExecutionStats stats) {
             String taskId = UUID.randomUUID().toString();
             DataRecordMetadata recordMetadata = stagingRecord.getRecordMetadata();
             Map<String, String> recordProperties = recordMetadata.getRecordProperties();
             recordMetadata.setTaskId(taskId);
             recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_IDENTIFIED_CLUSTERS);
             storage.update(stagingRecord);
-            return true;
+            stats.reportSuccess();
         }
 
         public void end() {

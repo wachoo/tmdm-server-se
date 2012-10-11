@@ -16,7 +16,7 @@ import com.amalto.core.storage.record.DataRecord;
 public interface Closure {
     void begin();
 
-    boolean execute(DataRecord stagingRecord);
+    void execute(DataRecord stagingRecord, ClosureExecutionStats stats);
 
     void end();
 

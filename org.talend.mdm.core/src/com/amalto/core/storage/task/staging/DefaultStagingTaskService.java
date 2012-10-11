@@ -184,6 +184,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             status.setId(task.getId());
             status.setProcessedRecords(task.getProcessedRecords());
             status.setTotalRecords(task.getRecordCount());
+            status.setInvalidRecords(task.getErrorCount());
             long elapsedTime = System.currentTimeMillis() - task.getStartDate();
             String formattedElapsedTime = formatElapsedTime(elapsedTime);
             status.setRunningTime(formattedElapsedTime);
