@@ -2214,7 +2214,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 }
             }
             
-            if (errorMessage == null || errorMessage.indexOf(BeforeSaving.BEFORE_SAVING_VALIDATION_MESSAGE_PREFIX) != 0) {
+            if (errorMessage == null) {
                 LOG.error("Error during save.", e);
             }
             
