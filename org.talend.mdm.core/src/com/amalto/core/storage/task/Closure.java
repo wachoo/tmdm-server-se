@@ -18,7 +18,7 @@ public interface Closure {
 
     void execute(DataRecord stagingRecord, ClosureExecutionStats stats);
 
-    void end();
+    void end(ClosureExecutionStats stats);
 
     Closure copy();
 }

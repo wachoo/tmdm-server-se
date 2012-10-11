@@ -2,15 +2,18 @@ package com.amalto.core.storage.task;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 import static com.amalto.core.query.user.UserStagingQueryBuilder.status;
 
 public class MergeTask extends MetadataRepositoryTask {
@@ -28,7 +31,10 @@ public class MergeTask extends MetadataRepositoryTask {
 
     @Override
     protected Task createTypeTask(ComplexTypeMetadata type) {
-        Select query = from(type).where(eq(status(), StagingConstants.SUCCESS_IDENTIFIED_CLUSTERS)).getSelect();
+        Select query = from(type)
+                .where(eq(status(), StagingConstants.SUCCESS_IDENTIFIED_CLUSTERS))
+                .orderBy(taskId(), OrderBy.Direction.ASC)
+                .getSelect();
         StorageResults records = storage.fetch(query);
         try {
             recordsCount += records.getCount();
@@ -49,7 +55,10 @@ public class MergeTask extends MetadataRepositoryTask {
     }
 
     private static class MergeClosure implements Closure {
+
         private final Storage storage;
+
+        private final LinkedList<DataRecord> groupRecord = new LinkedList<DataRecord>();
 
         public MergeClosure(Storage storage) {
             this.storage = storage;
@@ -60,13 +69,40 @@ public class MergeTask extends MetadataRepositoryTask {
         }
 
         public void execute(DataRecord stagingRecord, ClosureExecutionStats stats) {
-            Map<String, String> recordProperties = stagingRecord.getRecordMetadata().getRecordProperties();
-            recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_MERGE_CLUSTERS);
-            storage.update(stagingRecord);
-            stats.reportSuccess();
+            if (!groupRecord.isEmpty()) {
+                String lastTaskId = groupRecord.getLast().getRecordMetadata().getTaskId();
+                String currentTaskId = stagingRecord.getRecordMetadata().getTaskId();
+                if (!lastTaskId.equals(currentTaskId)) { // Update status of last record of group.
+                    setGoldenRecord(groupRecord, stats);
+                    groupRecord.clear();
+                }
+            }
+            groupRecord.add(stagingRecord);
         }
 
-        public void end() {
+        private void setGoldenRecord(List<DataRecord> stagingRecords, ClosureExecutionStats stats) {
+            if (stagingRecords.size() == 1) {
+                DataRecord stagingRecord = stagingRecords.get(0);
+                DataRecordMetadata recordMetadata = stagingRecord.getRecordMetadata();
+                Map<String, String> recordProperties = recordMetadata.getRecordProperties();
+                recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_MERGED_RECORD);
+                storage.update(stagingRecord);
+                stats.reportSuccess();
+            } else {
+                for (DataRecord stagingRecord : stagingRecords) {
+                    DataRecordMetadata recordMetadata = stagingRecord.getRecordMetadata();
+                    Map<String, String> recordProperties = recordMetadata.getRecordProperties();
+                    recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_MERGE_CLUSTER_TO_RESOLVE);
+                    storage.update(stagingRecord);
+                    stats.reportSuccess();
+                }
+            }
+        }
+
+        public void end(ClosureExecutionStats stats) {
+            if (!groupRecord.isEmpty()) {
+                setGoldenRecord(groupRecord, stats);
+            }
             storage.commit();
         }
 

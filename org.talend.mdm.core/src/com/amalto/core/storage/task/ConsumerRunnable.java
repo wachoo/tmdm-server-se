@@ -45,7 +45,7 @@ class ConsumerRunnable implements Work {
                 DataRecord record = queue.take();
                 if (record.getType() == null) {
                     try {
-                        closure.end();
+                        closure.end(stats);
                     } catch (Exception e) {
                         if (committedRecordCount == 0) {
                             LOGGER.warn("Ignore error on save (no record to save).");

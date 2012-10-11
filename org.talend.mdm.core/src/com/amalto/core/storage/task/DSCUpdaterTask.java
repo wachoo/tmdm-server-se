@@ -46,7 +46,9 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
 
     @Override
     protected Task createTypeTask(ComplexTypeMetadata type) {
-        Select select = from(type).where(eq(UserStagingQueryBuilder.status(), StagingConstants.SUCCESS_IDENTIFIED_CLUSTERS)).getSelect();
+        Select select = from(type)
+                .where(eq(UserStagingQueryBuilder.status(), StagingConstants.SUCCESS_MERGE_CLUSTER_TO_RESOLVE))
+                .getSelect();
         StorageResults records = storage.fetch(select);
         try {
             recordsCount += records.getCount();
@@ -244,7 +246,7 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
             }
         }
 
-        public void end() {
+        public void end(ClosureExecutionStats stats) {
 
         }
 

@@ -90,7 +90,7 @@ public class MultiThreadedTask implements Task {
                 closure.execute(record, stats);
                 count++;
             }
-            closure.end();
+            closure.end(stats);
             isFinished = true;
         } finally {
             synchronized (executionLock) {

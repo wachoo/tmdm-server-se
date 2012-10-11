@@ -71,7 +71,7 @@ public class ClusterTask extends MetadataRepositoryTask {
             stats.reportSuccess();
         }
 
-        public void end() {
+        public void end(ClosureExecutionStats stats) {
             storage.commit();
         }
 

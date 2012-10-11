@@ -56,7 +56,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
     protected Task createTypeTask(ComplexTypeMetadata type) {
         Closure closure = new MDMValidationTask.MDMValidationClosure(source, committer, destinationStorage);
         Select select = from(type).where(
-                or(eq(status(), StagingConstants.SUCCESS_MERGE_CLUSTERS),
+                or(eq(status(), StagingConstants.SUCCESS_MERGED_RECORD),
                         or(eq(status(), StagingConstants.FAIL_VALIDATE_CONSTRAINTS),
                                 eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)))).getSelect();
         StorageResults records = storage.fetch(select);
@@ -133,7 +133,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             }
         }
 
-        public synchronized void end() {
+        public synchronized void end(ClosureExecutionStats stats) {
             session.end(committer);
             storage.commit();
             storage.end();
