@@ -30,7 +30,9 @@ public class CurrentValidationController extends AbstractController {
 
     private Timer timer;
 
-    interface Callback {
+    private boolean auto;
+
+    private interface Callback {
 
         void callback();
     }
@@ -42,24 +44,21 @@ public class CurrentValidationController extends AbstractController {
 
             @Override
             public void run() {
-                if (Document.get().isOrHasChild(view.getElement())) {
+                if (Document.get().isOrHasChild(view.getElement()) && auto) {
                     refreshView(new Callback() {
                         public void callback() {
                             schedule(StagingareaControl.getStagingAreaConfig().getRefreshIntervals());
                         }
                     });
-                } else {
-                    this.cancel();
                 }
             }
         };
     }
 
     public void autoRefresh(boolean auto) {
+        this.auto = auto;
         if (auto) {
             timer.schedule(StagingareaControl.getStagingAreaConfig().getRefreshIntervals());
-        } else {
-            timer.cancel();
         }
     }
 
@@ -67,7 +66,7 @@ public class CurrentValidationController extends AbstractController {
         refreshView(null);
     }
 
-    public void refreshView(final Callback callback) {
+    private void refreshView(final Callback callback) {
         UserContextModel ucx = UserContextUtil.getUserContext();
         RestServiceHandler.get().getValidationTaskStatus(ucx.getDataContainer(),
                 new SessionAwareAsyncCallback<StagingAreaValidationModel>() {
