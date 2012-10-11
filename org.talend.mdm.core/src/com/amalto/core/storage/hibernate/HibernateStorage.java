@@ -1,17 +1,60 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
+
+import net.sf.ehcache.CacheManager;
+
+import org.apache.log4j.Logger;
+import org.hibernate.FlushMode;
+import org.hibernate.HibernateException;
+import org.hibernate.NonUniqueObjectException;
+import org.hibernate.PropertyValueException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.search.MassIndexer;
+import org.hibernate.search.Search;
+import org.hibernate.search.event.ContextHolder;
+import org.hibernate.search.impl.SearchFactoryImpl;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ContainedTypeFieldMetadata;
+import com.amalto.core.metadata.DefaultMetadataVisitor;
+import com.amalto.core.metadata.EnumerationFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.SimpleTypeFieldMetadata;
 import com.amalto.core.query.optimization.ContainsOptimizer;
 import com.amalto.core.query.optimization.Optimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
@@ -22,30 +65,14 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
-import com.amalto.core.storage.prepare.*;
+import com.amalto.core.storage.prepare.FullTextIndexCleaner;
+import com.amalto.core.storage.prepare.JDBCStorageCleaner;
+import com.amalto.core.storage.prepare.JDBCStorageInitializer;
+import com.amalto.core.storage.prepare.StorageCleaner;
+import com.amalto.core.storage.prepare.StorageInitializer;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordConverter;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
-import net.sf.ehcache.CacheManager;
-import org.apache.log4j.Logger;
-import org.hibernate.*;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.exception.ConstraintViolationException;
-import org.hibernate.search.MassIndexer;
-import org.hibernate.search.Search;
-import org.hibernate.search.event.ContextHolder;
-import org.hibernate.search.impl.SearchFactoryImpl;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.util.*;
 
 public class HibernateStorage implements Storage {
 
@@ -57,14 +84,15 @@ public class HibernateStorage implements Storage {
 
     private static final Logger LOGGER = Logger.getLogger(HibernateStorage.class);
 
-    private static final Optimizer[] OPTIMIZERS = new Optimizer[]{new RangeOptimizer(), new ContainsOptimizer()};
+    private static final Optimizer[] OPTIMIZERS = new Optimizer[] { new RangeOptimizer(), new ContainsOptimizer() };
 
     private static final String FORBIDDEN_PREFIX = "x_talend_"; //$NON-NLS-1$
 
     private static final MetadataChecker METADATA_CHECKER = new MetadataChecker();
 
     // Default value is "true" (meaning the storage will try to create database if it doesn't exist).
-    private static final boolean autoPrepare = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("db.autoPrepare", "true")); //$NON-NLS-1$ //$NON-NLS-2$
+    private static final boolean autoPrepare = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty(
+            "db.autoPrepare", "true")); //$NON-NLS-1$ //$NON-NLS-2$
 
     private final String storageName;
 
@@ -90,7 +118,7 @@ public class HibernateStorage implements Storage {
 
     /**
      * Create a {@link StorageType#MASTER} storage.
-     *
+     * 
      * @param storageName Name for this storage. <b>by convention</b>, this is the MDM container name.
      * @see StorageType#MASTER
      */
@@ -100,7 +128,7 @@ public class HibernateStorage implements Storage {
 
     /**
      * @param storageName Name for this storage. <b>By convention</b>, this is the MDM container name.
-     * @param type        Tells whether this storage is a staging area or not.
+     * @param type Tells whether this storage is a staging area or not.
      * @see StorageType
      */
     public HibernateStorage(String storageName, StorageType type) {
@@ -108,6 +136,7 @@ public class HibernateStorage implements Storage {
         this.storageType = type;
     }
 
+    @Override
     public void init(DataSource dataSource) {
         // Stateless components
         if (dataSource == null) {
@@ -125,12 +154,15 @@ public class HibernateStorage implements Storage {
             LOGGER.warn("Storage '" + storageName + "' (" + storageType + ") is not configured to support full text queries.");
         }
         configuration = new Configuration();
-        // Setting our own entity resolver allows to ensure the DTD found/used are what we expect (and not potentially ones
+        // Setting our own entity resolver allows to ensure the DTD found/used are what we expect (and not potentially
+        // ones
         // provided by the application server).
         configuration.setEntityResolver(ENTITY_RESOLVER);
     }
 
-    public synchronized void prepare(MetadataRepository repository, Set<FieldMetadata> indexedFields, boolean force, boolean dropExistingData) {
+    @Override
+    public synchronized void prepare(MetadataRepository repository, Set<FieldMetadata> indexedFields, boolean force,
+            boolean dropExistingData) {
         if (!force && isPrepared) {
             return; // No op operation
         }
@@ -147,7 +179,8 @@ public class HibernateStorage implements Storage {
             } catch (ClassNotFoundException e) {
                 clazz = (Class<? extends StorageClassLoader>) Class.forName(CLASS_LOADER);
             }
-            Constructor<? extends StorageClassLoader> constructor = clazz.getConstructor(ClassLoader.class, String.class, StorageType.class);
+            Constructor<? extends StorageClassLoader> constructor = clazz.getConstructor(ClassLoader.class, String.class,
+                    StorageType.class);
             storageClassLoader = constructor.newInstance(contextClassLoader, storageName, storageType);
             storageClassLoader.setDataSourceConfiguration(dataSource);
             storageClassLoader.generateHibernateConfig(); // Checks if configuration can be generated.
@@ -172,7 +205,8 @@ public class HibernateStorage implements Storage {
         } else {
             LOGGER.info("*NOT* preparing database before schema generation.");
         }
-        // No support for data models including inheritance AND for g* XSD simple types AND fields that start with X_TALEND_
+        // No support for data models including inheritance AND for g* XSD simple types AND fields that start with
+        // X_TALEND_
         try {
             MetadataUtils.sortTypes(repository); // Do a "sort" to ensure there's no cyclic dependency.
             repository.accept(METADATA_CHECKER);
@@ -201,10 +235,10 @@ public class HibernateStorage implements Storage {
             storageClassLoader.setTableResolver(tableResolver);
             // Master and Staging share same class creator.
             switch (storageType) {
-                case MASTER:
-                case STAGING:
-                    hibernateClassCreator = new ClassCreator(storageClassLoader);
-                    break;
+            case MASTER:
+            case STAGING:
+                hibernateClassCreator = new ClassCreator(storageClassLoader);
+                break;
             }
             // Create Hibernate classes (after some modifications to the types).
             try {
@@ -220,7 +254,8 @@ public class HibernateStorage implements Storage {
                     CacheManager.create(ehCacheConfig);
                 }
                 configuration.configure(StorageClassLoader.HIBERNATE_CONFIG);
-                // This method is deprecated but using a 4.1+ hibernate initialization, Hibernate Search can't be started
+                // This method is deprecated but using a 4.1+ hibernate initialization, Hibernate Search can't be
+                // started
                 // (wait for Hibernate Search 4.1 to be ready before considering changing this).
                 factory = configuration.buildSessionFactory();
             } catch (Exception e) {
@@ -229,6 +264,11 @@ public class HibernateStorage implements Storage {
             // All set: set prepared flag to true.
             isPrepared = true;
             LOGGER.info("Storage '" + storageName + "' (" + storageType + ") is ready.");
+
+            if (LOGGER.isTraceEnabled()) {
+                traceDDL();
+            }
+            
         } catch (Throwable t) {
             try {
                 // This prevent PermGen OOME in case of multiple failures to start.
@@ -244,25 +284,47 @@ public class HibernateStorage implements Storage {
         }
     }
 
+    private void traceDDL() {
+        try {
+            String jbossServerTempDir = System.getProperty("jboss.server.temp.dir"); //$NON-NLS-1$
+            RDBMSDataSource.DataSourceDialect dialectType = dataSource.getDialectName();
+            SchemaExport export = new SchemaExport(configuration);
+            export.setFormat(false);
+            export.setOutputFile(jbossServerTempDir + File.separator + storageName
+                    + "_" + storageType + "_" + dialectType + ".ddl"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            export.setDelimiter(";"); //$NON-NLS-1$
+            export.execute(false, false, false, true);
+            if (export.getExceptions().size() > 0) {
+                for (int i = 0; i < export.getExceptions().size(); i++) {
+                    LOGGER.error("Error occurred while producing ddl.",//$NON-NLS-1$
+                            (Exception) export.getExceptions().get(i));
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error occurred while producing ddl.", e); //$NON-NLS-1$
+        }
+    }
+
     private InternalRepository getTypeEnhancer() {
         if (typeMappingRepository == null) {
             switch (storageType) {
-                case MASTER:
-                    typeMappingRepository = new UserTypeMappingRepository();
-                    break;
-                case STAGING:
-                    typeMappingRepository = new StagingTypeMappingRepository();
-                    break;
-                default:
-                    throw new IllegalArgumentException("Storage type '" + storageType + "' is not supported.");
+            case MASTER:
+                typeMappingRepository = new UserTypeMappingRepository();
+                break;
+            case STAGING:
+                typeMappingRepository = new StagingTypeMappingRepository();
+                break;
+            default:
+                throw new IllegalArgumentException("Storage type '" + storageType + "' is not supported.");
             }
         }
         return typeMappingRepository;
     }
 
+    @Override
     public synchronized void prepare(MetadataRepository repository, boolean dropExistingData) {
         if (!isPrepared) {
-            prepare(repository, Collections.<FieldMetadata>emptySet(), false, dropExistingData);
+            prepare(repository, Collections.<FieldMetadata> emptySet(), false, dropExistingData);
         }
     }
 
@@ -274,6 +336,7 @@ public class HibernateStorage implements Storage {
         return userMetadataRepository;
     }
 
+    @Override
     public StorageResults fetch(Expression userQuery) {
         assertPrepared();
 
@@ -287,7 +350,9 @@ public class HibernateStorage implements Storage {
             transaction.begin();
         }
         // Call back closes session once calling code has consumed all results.
-        Set<EndOfResultsCallback> callbacks = Collections.<EndOfResultsCallback>singleton(new EndOfResultsCallback() {
+        Set<EndOfResultsCallback> callbacks = Collections.<EndOfResultsCallback> singleton(new EndOfResultsCallback() {
+
+            @Override
             public void onEndOfResults() {
                 if (session.isOpen()) { // Prevent any problem if anyone (Hibernate...) already closed session.
                     session.getTransaction().commit();
@@ -308,10 +373,12 @@ public class HibernateStorage implements Storage {
         }
     }
 
+    @Override
     public void update(DataRecord record) {
         update(Collections.singleton(record));
     }
 
+    @Override
     public void update(Iterable<DataRecord> records) {
         assertPrepared();
         ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
@@ -337,12 +404,13 @@ public class HibernateStorage implements Storage {
                         Object convertedValue = MetadataUtils.convert(value, database.getField(key));
                         o.set(key, convertedValue);
                     } else {
-                        throw new IllegalArgumentException("Can not store value '" + key + "' because there is no database field '" + key + "' in type '" + mapping.getName() + "'");
+                        throw new IllegalArgumentException("Can not store value '" + key
+                                + "' because there is no database field '" + key + "' in type '" + mapping.getName() + "'");
                     }
                 }
                 session.saveOrUpdate(o);
             }
-        } catch(ConstraintViolationException e) {
+        } catch (ConstraintViolationException e) {
             throw new com.amalto.core.storage.exception.ConstraintViolationException(e);
         } catch (PropertyValueException e) {
             throw new RuntimeException("Invalid value in record to update.", e);
@@ -355,6 +423,7 @@ public class HibernateStorage implements Storage {
         }
     }
 
+    @Override
     public void begin() {
         assertPrepared();
         Session session = factory.getCurrentSession();
@@ -362,12 +431,14 @@ public class HibernateStorage implements Storage {
         session.setFlushMode(FlushMode.MANUAL);
     }
 
+    @Override
     public void commit() {
         assertPrepared();
         Session session = factory.getCurrentSession();
         Transaction transaction = session.getTransaction();
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("[" + this + "] Transaction #" + transaction.hashCode() + " -> Commit " + session.getStatistics().getEntityCount() + " record(s).");
+            LOGGER.debug("[" + this + "] Transaction #" + transaction.hashCode() + " -> Commit "
+                    + session.getStatistics().getEntityCount() + " record(s).");
         }
         if (!transaction.isActive()) {
             throw new IllegalStateException("Can not commit transaction, no transaction is active.");
@@ -381,6 +452,7 @@ public class HibernateStorage implements Storage {
 
     }
 
+    @Override
     public void rollback() {
         assertPrepared();
         Session session = factory.getCurrentSession();
@@ -397,6 +469,7 @@ public class HibernateStorage implements Storage {
         }
     }
 
+    @Override
     public synchronized void end() {
         assertPrepared();
         Session session = factory.getCurrentSession();
@@ -410,6 +483,7 @@ public class HibernateStorage implements Storage {
         }
     }
 
+    @Override
     public void reindex() {
         Session session = factory.getCurrentSession();
 
@@ -426,86 +500,55 @@ public class HibernateStorage implements Storage {
         }
     }
 
+    @Override
     public Set<String> getFullTextSuggestion(String keyword, FullTextSuggestion mode, int suggestionSize) {
         // TODO Need Lucene 3.0+ to implement this.
         /*
-        FullTextSession fullTextSession = Search.getFullTextSession(factory.getCurrentSession());
-        SearchFactory searchFactory = fullTextSession.getSearchFactory();
-
-        Collection<ComplexTypeMetadata> complexTypes = internalRepository.getUserComplexTypes();
-        Set<String> fields = new HashSet<String>();
-        List<DirectoryProvider> directoryProviders = new LinkedList<DirectoryProvider>();
-        for (ComplexTypeMetadata complexType : complexTypes) {
-            for (FieldMetadata fieldMetadata : complexType.getFields()) {
-                fields.add(fieldMetadata.getName());
-            }
-            Class<?> generatedClass = storageClassLoader.getClassFromType(complexType);
-            DirectoryProvider[] providers = searchFactory.getDirectoryProviders(generatedClass);
-            Collections.addAll(directoryProviders, providers);
-        }
-
-        DirectoryProvider[] providers = directoryProviders.toArray(new DirectoryProvider[directoryProviders.size()]);
-        IndexReader reader = searchFactory.getReaderProvider().openReader(providers);
-
-        try {
-            switch (mode) {
-                case START:
-                    try {
-                        IndexSearcher searcher = new IndexSearcher(reader);
-
-                        String[] fieldsAsArray = fields.toArray(new String[fields.size()]);
-                        MultiFieldQueryParser parser = new MultiFieldQueryParser(Version.LUCENE_29, fieldsAsArray, new KeywordAnalyzer());
-                        StringBuilder queryBuffer = new StringBuilder();
-                        Iterator<String> fieldsIterator = fields.iterator();
-                        while (fieldsIterator.hasNext()) {
-                            queryBuffer.append(fieldsIterator.next()).append(':').append(keyword).append("*");
-                            if (fieldsIterator.hasNext()) {
-                                queryBuffer.append(" OR ");
-                            }
-                        }
-                        org.apache.lucene.search.Query query = parser.parse(queryBuffer.toString());
-
-                        MatchedWordsCollector collector = new MatchedWordsCollector(reader);
-                        searcher.search(query, collector);
-                        return collector.getMatchedWords();
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                case ALTERNATE:
-                    try {
-                        IndexSearcher searcher = new IndexSearcher(reader);
-
-                        String[] fieldsAsArray = fields.toArray(new String[fields.size()]);
-                        BooleanQuery query = new BooleanQuery();
-                        for (String field : fieldsAsArray) {
-                            FuzzyQuery fieldQuery = new FuzzyQuery(new Term(field, '~' + keyword));
-                            query.add(fieldQuery, BooleanClause.Occur.SHOULD);
-                        }
-
-                        MatchedWordsCollector collector = new MatchedWordsCollector(reader);
-                        searcher.search(query, collector);
-                        return collector.getMatchedWords();
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                default:
-                    throw new NotImplementedException("No support for suggestion mode '" + mode + "'");
-            }
-        } finally {
-            try {
-                reader.close();
-            } catch (IOException e) {
-                LOGGER.error("Exception occurred during full text suggestion searches.", e);
-            }
-        }
-        */
+         * FullTextSession fullTextSession = Search.getFullTextSession(factory.getCurrentSession()); SearchFactory
+         * searchFactory = fullTextSession.getSearchFactory();
+         * 
+         * Collection<ComplexTypeMetadata> complexTypes = internalRepository.getUserComplexTypes(); Set<String> fields =
+         * new HashSet<String>(); List<DirectoryProvider> directoryProviders = new LinkedList<DirectoryProvider>(); for
+         * (ComplexTypeMetadata complexType : complexTypes) { for (FieldMetadata fieldMetadata :
+         * complexType.getFields()) { fields.add(fieldMetadata.getName()); } Class<?> generatedClass =
+         * storageClassLoader.getClassFromType(complexType); DirectoryProvider[] providers =
+         * searchFactory.getDirectoryProviders(generatedClass); Collections.addAll(directoryProviders, providers); }
+         * 
+         * DirectoryProvider[] providers = directoryProviders.toArray(new DirectoryProvider[directoryProviders.size()]);
+         * IndexReader reader = searchFactory.getReaderProvider().openReader(providers);
+         * 
+         * try { switch (mode) { case START: try { IndexSearcher searcher = new IndexSearcher(reader);
+         * 
+         * String[] fieldsAsArray = fields.toArray(new String[fields.size()]); MultiFieldQueryParser parser = new
+         * MultiFieldQueryParser(Version.LUCENE_29, fieldsAsArray, new KeywordAnalyzer()); StringBuilder queryBuffer =
+         * new StringBuilder(); Iterator<String> fieldsIterator = fields.iterator(); while (fieldsIterator.hasNext()) {
+         * queryBuffer.append(fieldsIterator.next()).append(':').append(keyword).append("*"); if
+         * (fieldsIterator.hasNext()) { queryBuffer.append(" OR "); } } org.apache.lucene.search.Query query =
+         * parser.parse(queryBuffer.toString());
+         * 
+         * MatchedWordsCollector collector = new MatchedWordsCollector(reader); searcher.search(query, collector);
+         * return collector.getMatchedWords(); } catch (Exception e) { throw new RuntimeException(e); } case ALTERNATE:
+         * try { IndexSearcher searcher = new IndexSearcher(reader);
+         * 
+         * String[] fieldsAsArray = fields.toArray(new String[fields.size()]); BooleanQuery query = new BooleanQuery();
+         * for (String field : fieldsAsArray) { FuzzyQuery fieldQuery = new FuzzyQuery(new Term(field, '~' + keyword));
+         * query.add(fieldQuery, BooleanClause.Occur.SHOULD); }
+         * 
+         * MatchedWordsCollector collector = new MatchedWordsCollector(reader); searcher.search(query, collector);
+         * return collector.getMatchedWords(); } catch (Exception e) { throw new RuntimeException(e); } default: throw
+         * new NotImplementedException("No support for suggestion mode '" + mode + "'"); } } finally { try {
+         * reader.close(); } catch (IOException e) {
+         * LOGGER.error("Exception occurred during full text suggestion searches.", e); } }
+         */
         throw new UnsupportedOperationException("No support due to version of Lucene in use.");
     }
 
+    @Override
     public String getName() {
         return storageName;
     }
 
+    @Override
     public DataSource getDataSource() {
         return dataSource;
     }
@@ -515,13 +558,14 @@ public class HibernateStorage implements Storage {
         return storageType;
     }
 
+    @Override
     public void delete(Expression userQuery) {
         ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(storageClassLoader);
             Session session = factory.getCurrentSession();
 
-            Iterable<DataRecord> records = internalFetch(session, userQuery, Collections.<EndOfResultsCallback>emptySet());
+            Iterable<DataRecord> records = internalFetch(session, userQuery, Collections.<EndOfResultsCallback> emptySet());
             for (DataRecord currentDataRecord : records) {
                 ComplexTypeMetadata currentType = currentDataRecord.getType();
                 Class<?> clazz = storageClassLoader.getClassFromType(currentType);
@@ -542,7 +586,8 @@ public class HibernateStorage implements Storage {
                 if (object != null) {
                     session.delete(object);
                 } else {
-                    LOGGER.warn("Instance of type '" + currentType.getName() + "' and ID '" + idValue.toString() + "' has already been deleted within same transaction.");
+                    LOGGER.warn("Instance of type '" + currentType.getName() + "' and ID '" + idValue.toString()
+                            + "' has already been deleted within same transaction.");
                 }
             }
         } catch (ConstraintViolationException e) {
@@ -554,6 +599,7 @@ public class HibernateStorage implements Storage {
         }
     }
 
+    @Override
     public synchronized void close() {
         LOGGER.info("Closing storage '" + storageName + "' (" + storageType + ").");
         ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
@@ -564,7 +610,8 @@ public class HibernateStorage implements Storage {
                 try {
                     Field contexts = ContextHolder.class.getDeclaredField("contexts"); //$NON-NLS-1$
                     contexts.setAccessible(true); // 'contexts' field is private.
-                    ThreadLocal<WeakHashMap<Configuration, SearchFactoryImpl>> contextsPerThread = (ThreadLocal<WeakHashMap<Configuration, SearchFactoryImpl>>) contexts.get(null);
+                    ThreadLocal<WeakHashMap<Configuration, SearchFactoryImpl>> contextsPerThread = (ThreadLocal<WeakHashMap<Configuration, SearchFactoryImpl>>) contexts
+                            .get(null);
                     WeakHashMap<Configuration, SearchFactoryImpl> contextMap = contextsPerThread.get();
                     if (contextMap != null) {
                         contextMap.remove(configuration);
@@ -624,15 +671,17 @@ public class HibernateStorage implements Storage {
     }
 
     private static class MetadataChecker extends DefaultMetadataVisitor<Object> {
+
         @Override
         public Object visit(SimpleTypeFieldMetadata simpleField) {
             String simpleFieldTypeName = simpleField.getType().getName();
-            if ("gYearMonth".equals(simpleFieldTypeName)  //$NON-NLS-1$
-                    || "gYear".equals(simpleFieldTypeName)   //$NON-NLS-1$
+            if ("gYearMonth".equals(simpleFieldTypeName) //$NON-NLS-1$
+                    || "gYear".equals(simpleFieldTypeName) //$NON-NLS-1$
                     || "gMonthDay".equals(simpleFieldTypeName) //$NON-NLS-1$
-                    || "gDay".equals(simpleFieldTypeName)  //$NON-NLS-1$
-                    || "gMonth".equals(simpleFieldTypeName)) {  //$NON-NLS-1$
-                throw new IllegalArgumentException("No support for field type '" + simpleFieldTypeName + "' (field '" + simpleField.getName() + "' of type '" + simpleField.getContainingType().getName() + "').");
+                    || "gDay".equals(simpleFieldTypeName) //$NON-NLS-1$
+                    || "gMonth".equals(simpleFieldTypeName)) { //$NON-NLS-1$
+                throw new IllegalArgumentException("No support for field type '" + simpleFieldTypeName + "' (field '"
+                        + simpleField.getName() + "' of type '" + simpleField.getContainingType().getName() + "').");
             }
             assertField(simpleField);
             return super.visit(simpleField);
@@ -658,12 +707,15 @@ public class HibernateStorage implements Storage {
 
         private static void assertField(FieldMetadata field) {
             if (field.getName().toLowerCase().startsWith(FORBIDDEN_PREFIX)) {
-                throw new IllegalArgumentException("Field '" + field.getName() + "' of type '" + field.getContainingType().getName() + "' is not allowed to start with " + FORBIDDEN_PREFIX);
+                throw new IllegalArgumentException("Field '" + field.getName() + "' of type '"
+                        + field.getContainingType().getName() + "' is not allowed to start with " + FORBIDDEN_PREFIX);
             }
         }
     }
 
     private static class LocalEntityResolver implements EntityResolver {
+
+        @Override
         public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
             if (StorageClassLoader.CONFIGURATION_PUBLIC_ID.equals(publicId)) {
                 InputStream resourceAsStream = HibernateStorage.class.getResourceAsStream("hibernate.cfg.dtd"); //$NON-NLS-1$
