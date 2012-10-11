@@ -12,15 +12,20 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
+import com.extjs.gxt.ui.client.event.*;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ToggleButton;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.layout.*;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.BoxComponent;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 public class StagingareaMainView extends AbstractView {
     
@@ -57,10 +62,37 @@ public class StagingareaMainView extends AbstractView {
 
     @Override
     protected void initLayout() {
-        mainPanel.setLayout(new RowLayout());
+        RowLayout layout = new RowLayout();
+        mainPanel.setLayout(layout);
+
+        ContentPanel refreshPanel = new ContentPanel();
+        refreshPanel.setHeaderVisible(false);
+        refreshPanel.setBodyBorder(false);
+        HBoxLayout refreshLayout = new HBoxLayout();
+        refreshLayout.setHBoxLayoutAlign(HBoxLayout.HBoxLayoutAlign.TOP);
+        refreshLayout.setPack(BoxLayout.BoxLayoutPack.END);
+        refreshPanel.setLayout(refreshLayout);
+        Button refresh = new Button(messages.refresh());
+        refresh.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                ControllerContainer.get().getSummaryController().refreshView();
+                ControllerContainer.get().getCurrentValidationController().refreshView();
+            }
+        });
+        refreshPanel.add(refresh);
+        final ToggleButton autoRefreshToggle = new ToggleButton(messages.off());
+        autoRefreshToggle.addListener(Events.Toggle, new Listener<BaseEvent>() {
+            public void handleEvent(BaseEvent be) {
+                autoRefreshToggle.setText(autoRefreshToggle.isPressed() ? messages.on() : messages.off());
+                ControllerContainer.get().getCurrentValidationController().autoRefresh(autoRefreshToggle.isPressed());
+            }
+        });
+        refreshPanel.add(autoRefreshToggle);
+        mainPanel.add(refreshPanel, new RowData(1, -1, new Margins(0, 23, 0, 0)));
         mainPanel.add(wrapFieldSet(summaryView, messages.status()), new RowData(1, -1, new Margins(0, 23, 0, 0)));
-        mainPanel.add(wrapFieldSet(currentValidationView, messages.current_validation()), new RowData(1, -1,  new Margins(0, 23, 0, 0)));
-        mainPanel.add(wrapFieldSet(previousExecutionValidationView, messages.previous_validation()), new RowData(1, -1,  new Margins(0, 23, 0, 0)));
+        mainPanel.add(wrapFieldSet(currentValidationView, messages.current_validation()), new RowData(1, -1, new Margins(0, 23, 0, 0)));
+        mainPanel.add(wrapFieldSet(previousExecutionValidationView, messages.previous_validation()), new RowData(1, -1, new Margins(0, 23, 0, 0)));
     }
 
     public void doLayout() {

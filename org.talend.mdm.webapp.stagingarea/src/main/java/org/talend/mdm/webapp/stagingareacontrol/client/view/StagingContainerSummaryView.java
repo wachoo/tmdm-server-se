@@ -45,8 +45,6 @@ import com.google.gwt.visualization.client.visualizations.PieChart.Options;
 
 public class StagingContainerSummaryView extends AbstractView {
 
-    public static final String Chart_Url = "/core/secure/gxt/resources/chart/open-flash-chart.swf"; //$NON-NLS-1$
-
     public static final String STAGING_AREA_TITLE = "staging_area_title"; //$NON-NLS-1$
 
     public static final String STAGING_AREA_WAITING = "staging_area_waiting"; //$NON-NLS-1$
@@ -71,8 +69,6 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private Label dataModelName;
 
-    private Button refresh;
-
     private SimplePanel chartPanel;
 
     private boolean chartInitialize = false;
@@ -87,14 +83,13 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private final int CHART_HEIGHT = 200;
 
-    private UserContextModel ucx;
-
     private HTMLPanel detailPanel;
 
     @Override
     protected void initComponents() {
-        ucx = UserContextUtil.getUserContext();
+        UserContextModel ucx = UserContextUtil.getUserContext();
         titleLabel = new Label(messages.staging_area_title());
+        titleLabel.setTagName("h3"); //$NON-NLS-1$
         titleLabel.setStyleAttribute("margin-right", "20px"); //$NON-NLS-1$//$NON-NLS-2$
         containerLabel = new Label(messages.data_container());
 
@@ -105,13 +100,12 @@ public class StagingContainerSummaryView extends AbstractView {
         dataModelName = new Label(ucx.getDataModel());
         dataModelName.setStyleAttribute("font-weight", "bold"); //$NON-NLS-1$//$NON-NLS-2$
 
-        refresh = new Button(messages.refresh());
-        titleGrid = new Grid(1, 6);
+        titleGrid = new Grid(2, 6);
         chartPanel = new SimplePanel();
         chartPanel.setSize(CHART_WIDTH + "px", CHART_HEIGHT + "px"); //$NON-NLS-1$ //$NON-NLS-2$
         chartPanel.getElement().setInnerHTML(messages.loading());
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append("<div style='margin-bottom:10px; font-size:16px;' id='" + STAGING_AREA_TITLE + "'></div>"); //$NON-NLS-1$ //$NON-NLS-2$
         buffer.append("<div style='margin-left:20px; color:#0000ff; margin-bottom:5px;' id='" + STAGING_AREA_WAITING + "'></div>"); //$NON-NLS-1$ //$NON-NLS-2$
         buffer.append("<div style='margin-left:20px; color:#ff0000; margin-bottom:5px;' id='" + STAGING_AREA_INVALID + "'></div>"); //$NON-NLS-1$//$NON-NLS-2$
@@ -125,7 +119,7 @@ public class StagingContainerSummaryView extends AbstractView {
         startValidate.setSize(200, 30);
         startValidate.setEnabled(false);
 
-        mainPanel.setHeight(220);
+        mainPanel.setAutoHeight(true);
         mainPanel.setBodyBorder(false);
     }
 
@@ -135,14 +129,6 @@ public class StagingContainerSummaryView extends AbstractView {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 ControllerContainer.get().getSummaryController().startValidation();
-            }
-        });
-
-        refresh.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                ControllerContainer.get().getSummaryController().refreshView();
             }
         });
     }
@@ -155,13 +141,12 @@ public class StagingContainerSummaryView extends AbstractView {
         titleData.setRowspan(1);
 
         titleGrid.setWidget(0, 0, titleLabel);
-        titleGrid.setWidget(0, 1, containerLabel);
-        titleGrid.setWidget(0, 2, containerName);
+        titleGrid.setWidget(1, 0, containerLabel);
+        titleGrid.setWidget(1, 1, containerName);
         containerName.setStyleAttribute("margin-right", "10px"); //$NON-NLS-1$//$NON-NLS-2$
-        titleGrid.setWidget(0, 3, modelLabel);
-        titleGrid.setWidget(0, 4, dataModelName);
+        titleGrid.setWidget(1, 2, modelLabel);
+        titleGrid.setWidget(1, 3, dataModelName);
         dataModelName.setStyleAttribute("margin-right", "5px");//$NON-NLS-1$//$NON-NLS-2$
-        titleGrid.setWidget(0, 5, refresh);
 
         mainPanel.add(titleGrid, titleData);
         TableData chartData = new TableData();

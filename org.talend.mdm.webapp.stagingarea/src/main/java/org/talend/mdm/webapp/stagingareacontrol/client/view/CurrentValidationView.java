@@ -70,10 +70,6 @@ public class CurrentValidationView extends AbstractView {
 
     private ContentPanel defaultMessagePanel;
 
-    private LabelField autoRefeshLabel;
-
-    private ToggleButton toggle;
-    
     private DateField startDateField;
 
     private NumberField recordToProcessField;
@@ -88,10 +84,6 @@ public class CurrentValidationView extends AbstractView {
 
     @Override
     protected void initComponents() {
-        autoRefeshLabel = new LabelField(messages.auto_refresh() + ":"); //$NON-NLS-1$
-        autoRefeshLabel.setWidth(120);
-        toggle = new ToggleButton(messages.off());
-        toggle.setWidth(210);
         startDateField = new DateField();
         startDateField.setReadOnly(true);
         startDateField.setFieldLabel(messages.start_date());
@@ -130,13 +122,6 @@ public class CurrentValidationView extends AbstractView {
 
     @Override
     protected void registerEvent() {
-        toggle.addListener(Events.Toggle, new Listener<BaseEvent>() {
-
-            public void handleEvent(BaseEvent be) {
-                toggle.setText(toggle.isPressed() ? messages.on() : messages.off());
-                ControllerContainer.get().getCurrentValidationController().autoRefresh(toggle.isPressed());
-            }
-        });
         cancelButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
             @Override
             public void componentSelected(ButtonEvent ce) {
@@ -156,11 +141,6 @@ public class CurrentValidationView extends AbstractView {
         cardLayout = new CardLayout();
         mainPanel.setLayout(cardLayout);
 
-        Grid rowGrid = new Grid(1, 2);
-        rowGrid.setWidget(0, 0, autoRefeshLabel);
-        rowGrid.setWidget(0, 1, toggle);
-
-        formPanel.add(rowGrid);
         formPanel.add(startDateField);
         formPanel.add(recordToProcessField);
         formPanel.add(invalidField);
@@ -224,7 +204,6 @@ public class CurrentValidationView extends AbstractView {
     public void setStatus(Status status) {
 
         if (status == Status.None) {
-            toggle.toggle(false);
             startDateField.clear();
             recordToProcessField.clear();
             invalidField.clear();
