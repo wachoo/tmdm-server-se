@@ -545,6 +545,8 @@ public class HibernateStorage implements Storage {
                     LOGGER.warn("Instance of type '" + currentType.getName() + "' and ID '" + idValue.toString() + "' has already been deleted within same transaction.");
                 }
             }
+        } catch (ConstraintViolationException e) {
+            throw new com.amalto.core.storage.exception.ConstraintViolationException(e);
         } catch (HibernateException e) {
             throw new RuntimeException(e);
         } finally {
