@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
+import org.talend.mdm.webapp.base.client.util.XmlUtil;
 import org.talend.mdm.webapp.base.client.widget.CallbackAction;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
@@ -129,18 +130,17 @@ public class BrowseRecordsController extends Controller {
 
         service.saveItem(viewBean, itemBean.getIds(),
                 (new ItemTreeHandler(model, viewBean, ItemTreeHandlingStatus.ToSave)).serializeItem(), isCreate,
-                Locale.getLanguage(),
-                new SessionAwareAsyncCallback<ItemResult>() {
+                Locale.getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
 
                     @Override
                     protected void doOnFailure(Throwable caught) {
                         progressBar.close();
                         String err = caught.getMessage();
-                        if (err != null) {                           
-                            MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                    MultilanguageMessageParser.pickOutISOMessage(err), null);
-                        } else
+                        if (err != null) {
+                            MessageBox.alert(MessagesFactory.getMessages().error_title(), XmlUtil.transformXmlToString(err), null);
+                        } else {
                             super.doOnFailure(caught);
+                        }
                     }
 
                     public void onSuccess(ItemResult result) {
@@ -152,24 +152,28 @@ public class BrowseRecordsController extends Controller {
                                     MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null);
                             return;
                         }
-                        if (result.getDescription() != "")//$NON-NLS-1$
+                        if (result.getDescription() != "") { //$NON-NLS-1$
                             msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(),
                                     MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null);
-                        else
+                        } else {
                             msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
                                     .save_success(), null);
+                        }
                         setTimeout(msgBox, 1000);
 
                         if (!detailToolBar.isOutMost() && (isClose || isCreate)) {
                             if (!ItemsListPanel.getInstance().isSaveCurrentChangeBeforeSwitching()
-                                    && (isClose || !detailToolBar.isFkToolBar()))
+                                    && (isClose || !detailToolBar.isFkToolBar())) {
                                 ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
+                            }
                         }
-                        if (detailToolBar.isOutMost())
+                        if (detailToolBar.isOutMost()) {
                             detailToolBar.refreshNodeStatus();
+                        }
                         if (isClose) {
-                            if (detailToolBar.isOutMost())
+                            if (detailToolBar.isOutMost()) {
                                 detailToolBar.closeOutTabPanel();
+                            }
                         } else {
                             if (detailToolBar.isOutMost()) {
                                 TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes()
@@ -186,31 +190,34 @@ public class BrowseRecordsController extends Controller {
                             }
                         }
                         // TMDM-3349 button 'save and close' function
-                        if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall() && !detailToolBar.isFkToolBar())
+                        if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall() && !detailToolBar.isFkToolBar()) {
                             ItemsListPanel.getInstance().setDefaultSelectionModel(!isClose);
+                        }
 
                         // ItemsListPanel need to refresh when only fkToolBar = false and isOutMost = false and
                         // isHierarchyCall = false
-                        if (!detailToolBar.isOutMost() && !detailToolBar.isFkToolBar() && !detailToolBar.isHierarchyCall()){
+                        if (!detailToolBar.isOutMost() && !detailToolBar.isFkToolBar() && !detailToolBar.isHierarchyCall()) {
                             itemBean.setIds(result.getReturnValue());
                             ItemsListPanel.getInstance().refreshGrid(itemBean);
                         }
-                        if (detailToolBar.isFkToolBar() && !isClose)
+                        if (detailToolBar.isFkToolBar() && !isClose) {
                             detailToolBar.refresh(result.getReturnValue());
+                        }
                         // Only Hierarchy call the next method
                         // TMDM-4112 : JavaScript Error on IE8
-                        if (detailToolBar.isHierarchyCall())
+                        if (detailToolBar.isHierarchyCall()) {
                             CallbackAction.getInstance().doAction(CallbackAction.HIERARCHY_SAVEITEM_CALLBACK,
                                     result.getReturnValue());
+                        }
                     }
                 });
     }
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
-        $wnd.setTimeout(function() {
-            msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
-        }, millisecond);
-    }-*/;
+                                                                      $wnd.setTimeout(function() {
+                                                                      msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
+                                                                      }, millisecond);
+                                                                      }-*/;
 
     private void onViewForeignKey(final AppEvent event) {
 
@@ -255,8 +262,9 @@ public class BrowseRecordsController extends Controller {
                         public void onSuccess(ItemBean result) {
                             AppEvent ae = new AppEvent(event.getType(), result);
                             String itemsFormTarget = event.getData(BrowseRecordsView.ITEMS_FORM_TARGET);
-                            if (itemsFormTarget != null)
+                            if (itemsFormTarget != null) {
                                 ae.setData(BrowseRecordsView.ITEMS_FORM_TARGET, itemsFormTarget);
+                            }
                             forwardToView(view, ae);
                         }
                     });
@@ -306,7 +314,7 @@ public class BrowseRecordsController extends Controller {
 
     protected void onSearchView(final AppEvent event) {
         Log.info("Do view-search... ");//$NON-NLS-1$
-        ViewBean viewBean = (ViewBean) BrowseRecords.getSession().getCurrentView();
+        ViewBean viewBean = BrowseRecords.getSession().getCurrentView();
         AppEvent ae = new AppEvent(event.getType(), viewBean);
         forwardToView(view, ae);
     }

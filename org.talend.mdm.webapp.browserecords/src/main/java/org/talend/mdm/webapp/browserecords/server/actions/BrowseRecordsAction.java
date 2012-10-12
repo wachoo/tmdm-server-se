@@ -104,20 +104,16 @@ import org.xml.sax.InputSource;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
-import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.save.SaveException;
-import com.amalto.core.util.CVCException;
 import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
-import com.amalto.core.util.ValidateException;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
-import com.amalto.webapp.core.util.RoutingException;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.WebCoreException;
 import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.core.util.XtentisWebappException;
@@ -683,11 +679,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         }
                     } else {
                         nodeModel.setObjectValue(newValue);
-                    }    
+                    }
                 } else if (nodeModel != null) {
                     nodeModel.setObjectValue(FormatUtil.multiLanguageEncode(value));
                 }
-                
+
             }
         }
     }
@@ -1061,8 +1057,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (result != null) {
                 if (result.indexOf("<SearchCriteria>") != -1) { //$NON-NLS-1$
                     criteria = result.substring(result.indexOf("<SearchCriteria>") + 16, result.indexOf("</SearchCriteria>"));//$NON-NLS-1$ //$NON-NLS-2$
-                    if (criteria.contains("&amp;")) //$NON-NLS-1$
+                    if (criteria.contains("&amp;")) { //$NON-NLS-1$
                         criteria = criteria.replace("&amp;", "&"); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
                 }
             }
             return criteria;
@@ -1804,37 +1801,22 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;
-        } catch (Exception e) {
-            String err = ""; //$NON-NLS-1$
-            if (Util.causeIs(e, RoutingException.class)) {
-                err = MESSAGES.getMessage(locale, "save_success_but_exist_exception", //$NON-NLS-1$
-                        concept + "." + ids, e.getLocalizedMessage()); //$NON-NLS-1$
-            } else if (Util.causeIs(e, SaveException.class)) {
-                SaveException cause = Util.cause(e, SaveException.class);
-                String beforeSavingMessage = cause.getBeforeSavingMessage();
-                if (cause.getCause() instanceof ValidateException) {
-                    err = MESSAGES.getMessage(locale, "save_validationrule_fail", concept + "." + ids, //$NON-NLS-1$//$NON-NLS-2$
-                            Util.getExceptionMessage(cause.getCause().getLocalizedMessage(), language));
-                } else if (beforeSavingMessage != null && !beforeSavingMessage.isEmpty()) {
-                    // Return before saving process error message as exception for web ui.
-                    throw new ServiceException(beforeSavingMessage);
-                } else {
-                    String detailErrorMessage = MESSAGES.getMessage(locale, "save_process_validation_error_unknown"); //$NON-NLS-1$
-                    if (cause.getCause() != null && cause.getCause().getLocalizedMessage() != null
-                            && cause.getCause().getLocalizedMessage().trim().length() > 0) {
-                        detailErrorMessage = cause.getCause().getLocalizedMessage();
-                    }
-                    err = MESSAGES.getMessage(locale, "save_process_validation_failure", detailErrorMessage); //$NON-NLS-1$
-                }
-            } else if (Util.causeIs(e, CVCException.class)) {
-                err = MESSAGES.getMessage(locale, "save_fail_cvc_exception", concept); //$NON-NLS-1$
-            } else if (Util.causeIs(e, JobNotFoundException.class)) {
-                err = MESSAGES.getMessage(locale, "save_fail", concept, //$NON-NLS-1$
-                        e.getLocalizedMessage().substring(0, e.getLocalizedMessage().indexOf(";"))); //$NON-NLS-1$
-            } else {
-                err = MESSAGES.getMessage(locale, "save_fail", concept + "." + ids, e.getLocalizedMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+        } catch (RemoteException remoteException) {
+            WebCoreException webCoreException = (WebCoreException) remoteException.getCause();
+            String errorMessage = MESSAGES.getMessage(locale, webCoreException.getTitle(),
+                    concept + ((ids != null && !"".equals(ids)) ? "." + ids : ""), webCoreException.getCause() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            .getLocalizedMessage());
+            LOG.error(webCoreException.getMessage(), webCoreException);
+            if (webCoreException.isClient()) {
+                throw new ServiceException(errorMessage);
             }
-            return new ItemResult(ItemResult.FAILURE, err);
+            return new ItemResult(ItemResult.FAILURE, errorMessage);
+        } catch (Exception e) {
+            if (ServiceException.class.isInstance(e)) {
+                throw (ServiceException) e;
+            }
+            LOG.error(e.getMessage(), e);
+            return new ItemResult(ItemResult.FAILURE, e.getLocalizedMessage());
         }
     }
 
