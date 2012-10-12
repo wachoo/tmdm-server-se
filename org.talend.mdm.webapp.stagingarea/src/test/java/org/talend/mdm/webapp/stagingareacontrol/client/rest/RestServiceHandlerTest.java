@@ -85,7 +85,7 @@ public class RestServiceHandlerTest extends GWTTestCase {
     public void testGetStagingAreaExecutionsWithPaging() {
         MockStagingAreaExecutionArrayModel callback = new MockStagingAreaExecutionArrayModel();
         handler.getStagingAreaExecutionsWithPaging("TestDataContainer", 1, 10,
-                RestServiceHandler.DEFAULT_DATE_FORMAT.parse("2012-12-12"), callback);
+                RestServiceHandler.DEFAULT_DATE_FORMAT.parse("2012-12-12T00:00:00"), callback);
         assertTrue(callback.isSucceed());
         assertEquals(2, callback.getModel().size());
         assertEquals("fa011993-648f-48b3-9e4d-9c71de82f91a", callback.getModel().get(0).getId());
