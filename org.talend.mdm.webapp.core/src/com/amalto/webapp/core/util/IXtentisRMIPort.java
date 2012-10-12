@@ -2171,55 +2171,10 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     }
 
     public WSItemPK putItemWithReport(WSPutItemWithReport wsPutItemWithReport) throws RemoteException {
-        try {
-            WSPutItem wsPutItem = wsPutItemWithReport.getWsPutItem();
-            WSDataClusterPK dataClusterPK = wsPutItem.getWsDataClusterPK();
-            WSDataModelPK dataModelPK = wsPutItem.getWsDataModelPK();
-
-            String dataClusterName = dataClusterPK.getPk();
-            String dataModelName = dataModelPK.getPk();
-
-            SaverSession session = SaverSession.newSession();
-            DocumentSaver saver;
-            try {
-                saver = SaverHelper.saveItemWithReport(wsPutItem.getXmlString(),
-                        session,
-                        !wsPutItem.getIsUpdate(),
-                        dataClusterName,
-                        dataModelName,
-                        wsPutItemWithReport.getSource(),
-                        wsPutItemWithReport.getInvokeBeforeSaving());
-                wsPutItemWithReport.setSource(saver.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
-            } catch (SaveException e) {
-                wsPutItemWithReport.setSource(e.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
-                throw new RemoteException("Could not save record", e);
-            }
-            // Cause items being saved to be committed to database.
-            session.end();
-            String[] savedId = saver.getSavedId();
-            String conceptName = saver.getSavedConceptName();
-            return new WSItemPK(dataClusterPK, conceptName, savedId);
-        } catch (Exception e) {
-            Throwable e2 = e.getCause();
-            Throwable e3 = null;
-            Throwable e4 = null;
-            String errorMessage = null;
-            if (e2 != null) {
-                e3 = e2.getCause();
-                if (e3 != null) {
-                    e4 = e3.getCause();
-                    if (e4 != null) {
-                        errorMessage  = e4.getMessage();
-                    }
-                }
-            }
-            
-            if (errorMessage == null) {
-                LOG.error("Error during save.", e);
-            }
-            
-            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
-        }
+        WSPutItem wsPutItem = wsPutItemWithReport.getWsPutItem();
+        WebSaver webSaver = new WebSaver(wsPutItem.getWsDataClusterPK().getPk(), wsPutItem.getWsDataModelPK().getPk(),
+                SaverSession.newSession());
+        return webSaver.saveItemWithReport(wsPutItemWithReport);
     }
 
     public WSMDMConfig getMDMConfiguration() throws RemoteException {
