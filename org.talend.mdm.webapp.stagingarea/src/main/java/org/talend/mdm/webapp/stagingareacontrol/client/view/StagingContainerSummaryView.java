@@ -211,7 +211,6 @@ public class StagingContainerSummaryView extends AbstractView {
                             chartData.addColumn(ColumnType.STRING);
                             chartData.addColumn(ColumnType.NUMBER);
                             chartData.addRows(3);
-                            chartOptions = createOptions();
                             updateChartData();
                             chart = new PieChart(chartData, chartOptions);
                             chartPanel.clear();
@@ -238,6 +237,7 @@ public class StagingContainerSummaryView extends AbstractView {
     }
 
     private void updateChartData() {
+        chartOptions = createOptions();
         if (stagingContainerModel != null) {
             int waiting = stagingContainerModel.getWaitingValidationRecords();
             int valid = stagingContainerModel.getValidRecords();

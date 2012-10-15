@@ -12,15 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
-import java.util.Date;
-
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaValidationModel;
 
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -30,17 +26,13 @@ import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.ProgressBar;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
-import com.google.gwt.user.client.ui.Grid;
 
 
 public class CurrentValidationView extends AbstractView {
@@ -158,13 +150,16 @@ public class CurrentValidationView extends AbstractView {
     }
 
     public void refresh(StagingAreaValidationModel stagingAreaValidationModel) {
+        int total = stagingAreaValidationModel.getTotalRecord();
+        if (total == 0) {
+            return;
+        }
         currentValidationModel = stagingAreaValidationModel;
         startDateField.setValue(stagingAreaValidationModel.getStartDate());
         recordToProcessField.setValue(stagingAreaValidationModel.getTotalRecord() - stagingAreaValidationModel.getProcessedRecords());
         invalidField.setValue(stagingAreaValidationModel.getInvalidRecords());
 
         int process = stagingAreaValidationModel.getProcessedRecords();
-        int total = stagingAreaValidationModel.getTotalRecord();
         double percentage = process * 100 / total;
         progressBar.updateProgress(percentage / 100, percentage + " %"); //$NON-NLS-1$
     }
@@ -179,7 +174,7 @@ public class CurrentValidationView extends AbstractView {
             mainPanel.setHeight(30);
             cardLayout.setActiveItem(defaultMessagePanel);
         } else {
-            mainPanel.setHeight(190);
+            mainPanel.setHeight(150);
             cardLayout.setActiveItem(contentPanel);
         }
         this.status = status;
