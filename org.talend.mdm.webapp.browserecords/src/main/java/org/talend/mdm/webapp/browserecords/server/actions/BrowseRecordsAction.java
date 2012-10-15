@@ -52,7 +52,6 @@ import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
-import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
@@ -1423,7 +1422,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws ServiceException {
         try {
-            if (item.get("isRefresh") != null) { //$NON-NLS-1$
+            if (item.get("isRefresh") != null && (!"".equals(item.getIds()) && item.getIds() != null)) { //$NON-NLS-1$ //$NON-NLS-2$ 
                 item = getItem(item, "Browse_items_" + item.getConcept(), entity, language); // itemBean need to be get from server when refresh tree. //$NON-NLS-1$
             }
             String xml = item.getItemXml();
