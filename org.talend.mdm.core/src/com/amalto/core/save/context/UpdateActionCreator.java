@@ -10,14 +10,31 @@
 
 package com.amalto.core.save.context;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldUpdateAction;
-import com.amalto.core.metadata.*;
-import org.apache.commons.lang.StringUtils;
-
-import java.util.*;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ContainedTypeFieldMetadata;
+import com.amalto.core.metadata.DefaultMetadataVisitor;
+import com.amalto.core.metadata.EnumerationFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.SimpleTypeFieldMetadata;
 
 // TODO Clean up: preserveCollectionOldValues is dedicated to partial update only!
 class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
@@ -299,6 +316,34 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
         public void execute(FieldMetadata field) {
             compare(field);
+            if (field instanceof ReferenceFieldMetadata) {
+                Accessor leftAccessor = originalDocument.createAccessor(getLeftPath());
+                Accessor rightAccessor = newDocument.createAccessor(getRightPath());
+                if (rightAccessor.exist()) {
+                    String newType = rightAccessor.getActualType();
+                    String previousType = StringUtils.EMPTY;
+                    if (leftAccessor.exist()) {
+                        previousType = leftAccessor.getActualType();
+                    }
+
+                    if (!newType.isEmpty()) {
+                        ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, newType);
+                        ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, previousType);
+                        // Perform some checks about the xsi:type value (valid or not?).
+                        if (newTypeMetadata == null) {
+                            throw new IllegalArgumentException("Type '" + newType + "' was not found.");
+                        }
+                        // TODO Check if type of element isn't a subclass of declared type (use of xsi:type).
+                        actions.add(new ChangeReferenceTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata));
+                    }
+                }
+                Action before = actions.getLast();
+                // Way to detect if there is a change in elements below: check if last action in list changed.
+                boolean hasActions = actions.getLast() != before;
+                if (leftAccessor.exist() || (rightAccessor.exist() && hasActions)) {
+                    lastMatchPath = getLeftPath();
+                }
+            }
         }
     }
 }
