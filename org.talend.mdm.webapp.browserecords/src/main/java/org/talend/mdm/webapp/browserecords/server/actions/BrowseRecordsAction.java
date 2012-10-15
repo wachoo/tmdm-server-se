@@ -1472,7 +1472,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws ServiceException {
         try {
-            if (item.get("isRefresh") != null) { //$NON-NLS-1$
+            if (item.get("isRefresh") != null && (!"".equals(item.getIds()) && item.getIds() != null)) { //$NON-NLS-1$ //$NON-NLS-2$ 
                 item = getItem(item, "Browse_items_" + item.getConcept(), entity, language); // itemBean need to be get from server when refresh tree. //$NON-NLS-1$
             }
             String xml = item.getItemXml();
