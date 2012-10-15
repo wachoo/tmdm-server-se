@@ -15,10 +15,12 @@ package org.talend.mdm.webapp.general.model;
 import java.io.Serializable;
 import java.util.List;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class GroupItem implements Serializable {
+public class GroupItem implements Serializable, IsSerializable {
 
     private static final long serialVersionUID = 1L;
+
     String groupHeader;
 
     public String getGroupHeader() {

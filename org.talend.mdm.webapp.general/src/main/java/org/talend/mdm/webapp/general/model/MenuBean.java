@@ -14,87 +14,96 @@ package org.talend.mdm.webapp.general.model;
 
 import java.io.Serializable;
 
-public class MenuBean implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
 
+public class MenuBean implements Serializable, IsSerializable {
 
-	/**
+    /**
      * 
      */
     private static final long serialVersionUID = -7349094793298324333L;
+
     int id;
-	int level;
-	String context;
-	String icon;
-	String name;
-	String desc;
-	String url;
-	String application;
-	
-	public MenuBean(){}
 
-	public int getId() {
-		return id;
-	}
+    int level;
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    String context;
 
-	public int getLevel() {
-		return level;
-	}
+    String icon;
 
-	public void setLevel(int level) {
-		this.level = level;
-	}
+    String name;
 
-	public String getContext() {
-		return context;
-	}
+    String desc;
 
-	public void setContext(String context) {
-		this.context = context;
-	}
+    String url;
 
-	public String getIcon() {
-		return icon;
-	}
+    String application;
 
-	public void setIcon(String icon) {
-		this.icon = icon;
-	}
+    public MenuBean() {
+    }
 
-	public String getName() {
-		return name;
-	}
+    public int getId() {
+        return id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setId(int id) {
+        this.id = id;
+    }
 
-	public String getDesc() {
-		return desc;
-	}
+    public int getLevel() {
+        return level;
+    }
 
-	public void setDesc(String desc) {
-		this.desc = desc;
-	}
-	
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public String getContext() {
+        return context;
+    }
+
+    public void setContext(String context) {
+        this.context = context;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
     public String getUrl() {
         return url;
     }
-    
+
     public void setUrl(String url) {
         this.url = url;
     }
 
     public String getApplication() {
-		return application;
-	}
+        return application;
+    }
 
-	public void setApplication(String application) {
-		this.application = application;
-	}
-	
-	
+    public void setApplication(String application) {
+        this.application = application;
+    }
+
 }

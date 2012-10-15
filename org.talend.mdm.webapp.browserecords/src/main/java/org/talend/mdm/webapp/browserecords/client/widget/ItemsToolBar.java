@@ -13,19 +13,16 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.client.util.CriteriaUtil;
-import org.talend.mdm.webapp.base.client.util.PostDataUtil;
-import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -36,7 +33,6 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
-import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
@@ -59,6 +55,7 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
+import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.ListLoadResult;
 import com.extjs.gxt.ui.client.data.ListLoader;
@@ -570,8 +567,9 @@ public class ItemsToolBar extends ToolBar {
 
                     @Override
                     public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<ItemBaseModel>> callback) {
+                        BasePagingLoadConfigImpl baseConfig = BasePagingLoadConfigImpl.copyPagingLoad((PagingLoadConfig) loadConfig);
                         service.querySearchTemplates(entityCombo.getValue().get("value").toString(), true, //$NON-NLS-1$
-                                (PagingLoadConfig) loadConfig, new SessionAwareAsyncCallback<PagingLoadResult<ItemBaseModel>>() {
+                                baseConfig, new SessionAwareAsyncCallback<ItemBasePageLoadResult<ItemBaseModel>>() {
 
                                     @Override
                                     protected void doOnFailure(Throwable caught) {
@@ -579,8 +577,9 @@ public class ItemsToolBar extends ToolBar {
                                         callback.onFailure(caught);
                                     }
 
-                                    public void onSuccess(PagingLoadResult<ItemBaseModel> result) {
-                                        callback.onSuccess(result);
+                                    public void onSuccess(ItemBasePageLoadResult<ItemBaseModel> result) {
+                                        callback.onSuccess(new BasePagingLoadResult<ItemBaseModel>(result.getData(), result
+                                                .getOffset(), result.getTotalLength()));
                                     }
                                 });
                     }

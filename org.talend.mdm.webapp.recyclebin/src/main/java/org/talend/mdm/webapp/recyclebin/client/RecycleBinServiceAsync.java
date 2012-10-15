@@ -12,10 +12,10 @@
 // ============================================================================
 package org.talend.mdm.webapp.recyclebin.client;
 
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
+import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
 
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -23,7 +23,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public interface RecycleBinServiceAsync {
 
-    void getTrashItems(String regex, PagingLoadConfig load, AsyncCallback<PagingLoadResult<ItemsTrashItem>> callback);
+    void getTrashItems(String regex, BasePagingLoadConfigImpl load, AsyncCallback<ItemBasePageLoadResult<ItemsTrashItem>> callback);
 
     void removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids, String language,
             AsyncCallback<String> callback);
@@ -36,6 +36,6 @@ public interface RecycleBinServiceAsync {
     void getCurrentDataCluster(AsyncCallback<String> callback);
 
     void isEntityPhysicalDeletable(String conceptName, AsyncCallback<Boolean> callback);
-    
-    void checkConflict(String itemPk,String conceptName, String id, AsyncCallback<Boolean> callback);
+
+    void checkConflict(String itemPk, String conceptName, String id, AsyncCallback<Boolean> callback);
 }

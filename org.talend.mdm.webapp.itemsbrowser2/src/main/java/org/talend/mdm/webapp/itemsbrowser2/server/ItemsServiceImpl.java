@@ -16,6 +16,7 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
@@ -32,9 +33,6 @@ import org.talend.mdm.webapp.itemsbrowser2.server.i18n.ItemsbrowserMessagesImpl;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
-
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
 
 /**
  * The server side implementation of the RPC service.
@@ -105,7 +103,7 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#querySearchTemplates(java.lang.String, boolean,
      * com.extjs.gxt.ui.client.data.PagingLoadConfig)
      */
-    public PagingLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load) {
+    public ItemBasePageLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, BasePagingLoadConfigImpl load) {
         return itemsServiceHandler.querySearchTemplates(view, isShared, load);
     }
 
@@ -193,7 +191,7 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
         return itemsServiceHandler.getItem(itemBean, entityModel);
     }
 
-    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
+    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value) {
         return itemsServiceHandler.getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value);
     }

@@ -43,6 +43,7 @@ import org.dom4j.Node;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
@@ -109,9 +110,7 @@ import com.amalto.webapp.util.webservices.WSWhereOperator;
 import com.amalto.webapp.util.webservices.WSWhereOr;
 import com.amalto.webapp.util.webservices.WSXPathsSearch;
 import com.extjs.gxt.ui.client.Style.SortDir;
-import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSParticle;
@@ -126,8 +125,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     private static final Pattern extractIdPattern = Pattern.compile("\\[.*?\\]"); //$NON-NLS-1$
 
-    private static final Messages MESSAGES = com.amalto.core.util.MessagesFactory.getMessages(
-            "org.talend.mdm.webapp.itemsbrowser2.client.i18n.ItemsbrowserMessages", ItemServiceCommonHandler.class.getClassLoader()); //$NON-NLS-1$
+    private static final Messages MESSAGES = com.amalto.core.util.MessagesFactory
+            .getMessages(
+                    "org.talend.mdm.webapp.itemsbrowser2.client.i18n.ItemsbrowserMessages", ItemServiceCommonHandler.class.getClassLoader()); //$NON-NLS-1$
 
     private Object[] getItemBeans(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String criteria, int skip,
             int max, String sortDir, String sortCol, String language) {
@@ -796,7 +796,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
      *********************************************************************/
 
     @Override
-    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
+    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value) {
         try {
             return ForeignKeyHelper.getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value);
@@ -860,7 +860,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     }
 
     @Override
-    public PagingLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load) {
+    public ItemBasePageLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, BasePagingLoadConfigImpl load) {
         List<String> results = Arrays.asList(getSearchTemplateNames(view, isShared, load.getOffset(), load.getLimit()));
         List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
         for (String result : results) {
@@ -883,7 +883,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             }
         }
         int totalSize = results.size();
-        return new BasePagingLoadResult<ItemBaseModel>(list, load.getOffset(), totalSize);
+        return new ItemBasePageLoadResult<ItemBaseModel>(list, load.getOffset(), totalSize);
     }
 
     @Override

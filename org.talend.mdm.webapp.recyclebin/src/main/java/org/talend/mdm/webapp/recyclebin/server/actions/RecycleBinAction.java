@@ -26,6 +26,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
+import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.recyclebin.client.RecycleBinService;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
 import org.talend.mdm.webapp.recyclebin.shared.NoPermissionException;
@@ -58,9 +60,6 @@ import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSLoadDroppedItem;
 import com.amalto.webapp.util.webservices.WSRecoverDroppedItem;
 import com.amalto.webapp.util.webservices.WSRemoveDroppedItem;
-import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -71,8 +70,9 @@ public class RecycleBinAction implements RecycleBinService {
 
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.recyclebin.client.i18n.RecycleBinMessages", RecycleBinAction.class.getClassLoader()); //$NON-NLS-1$
-    
-    public PagingLoadResult<ItemsTrashItem> getTrashItems(String regex, PagingLoadConfig load) throws ServiceException {
+
+    public ItemBasePageLoadResult<ItemsTrashItem> getTrashItems(String regex, BasePagingLoadConfigImpl load)
+            throws ServiceException {
         try {
             //
             if (regex == null || regex.length() == 0) {
@@ -127,7 +127,7 @@ public class RecycleBinAction implements RecycleBinService {
                 for (int i = start; i < end + 1; i++)
                     sublist.add(li.get(i));
             }
-            return new BasePagingLoadResult<ItemsTrashItem>(sublist, load.getOffset(), li.size());
+            return new ItemBasePageLoadResult<ItemsTrashItem>(sublist, load.getOffset(), li.size());
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -192,8 +192,8 @@ public class RecycleBinAction implements RecycleBinService {
         }
     }
 
-    public String removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids, String language)
-            throws ServiceException {
+    public String removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids,
+            String language) throws ServiceException {
         try {
             Locale locale = new Locale(language);
             // WSDroppedItemPK
@@ -215,7 +215,7 @@ public class RecycleBinAction implements RecycleBinService {
 
             if (outputErrorMessage != null && !"info".equals(errorCode)) { //$NON-NLS-1$
                 if (message == null || message.equals("")) //$NON-NLS-1$
-                    if("error".equals(errorCode)) //$NON-NLS-1$
+                    if ("error".equals(errorCode)) //$NON-NLS-1$
                         message = MESSAGES.getMessage(locale, "delete_process_validation_failure"); //$NON-NLS-1$
                     else
                         message = MESSAGES.getMessage(locale, "delete_record_failure"); //$NON-NLS-1$
@@ -232,7 +232,7 @@ public class RecycleBinAction implements RecycleBinService {
 
                 if (message == null || message.equals("")) //$NON-NLS-1$
                     message = MESSAGES.getMessage(locale, "delete_process_validation_success"); //$NON-NLS-1$
-                
+
                 return "info".equals(errorCode) ? message : null; //$NON-NLS-1$
             }
         } catch (Exception e) {

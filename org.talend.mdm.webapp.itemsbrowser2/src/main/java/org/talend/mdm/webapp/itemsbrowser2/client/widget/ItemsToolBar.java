@@ -17,7 +17,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.model.ItemBean;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
@@ -700,8 +702,9 @@ public class ItemsToolBar extends ToolBar {
 
                     @Override
                     public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBaseModel>> callback) {
+                        BasePagingLoadConfigImpl baseConfig = BasePagingLoadConfigImpl.copyPagingLoad((PagingLoadConfig) loadConfig);
                         service.querySearchTemplates(entityCombo.getValue().get("value").toString(), true, //$NON-NLS-1$
-                                (PagingLoadConfig) loadConfig, new SessionAwareAsyncCallback<PagingLoadResult<ItemBaseModel>>() {
+                                baseConfig, new SessionAwareAsyncCallback<ItemBasePageLoadResult<ItemBaseModel>>() {
 
                                     @Override
                                     protected void doOnFailure(Throwable caught) {
@@ -709,7 +712,7 @@ public class ItemsToolBar extends ToolBar {
                                         Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                     }
 
-                                    public void onSuccess(PagingLoadResult<ItemBaseModel> arg0) {
+                                    public void onSuccess(ItemBasePageLoadResult<ItemBaseModel> arg0) {
                                     }
                                 });
                     }

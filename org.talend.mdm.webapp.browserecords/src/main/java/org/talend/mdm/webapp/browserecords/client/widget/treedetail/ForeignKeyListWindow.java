@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -61,9 +62,9 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -197,15 +198,15 @@ public class ForeignKeyListWindow extends Window {
             @Override
             public void load(final Object loadConfig, final AsyncCallback<PagingLoadResult<ForeignKeyBean>> callback) {
                 PagingLoadConfig config = (PagingLoadConfig) loadConfig;
-                
+                BasePagingLoadConfigImpl baseConfig = BasePagingLoadConfigImpl.copyPagingLoad(config);
                 final String currentFilterText = getFilterValue();
                 
                 if (hasForeignKeyFilter) {
-                    config.set("xml", xml); //$NON-NLS-1$
-                    config.set("currentXpath", currentXpath); //$NON-NLS-1$
-                    config.set("dataObject", currentXpath.split("/")[0]); //$NON-NLS-1$ //$NON-NLS-2$
+                    baseConfig.set("xml", xml); //$NON-NLS-1$
+                    baseConfig.set("currentXpath", currentXpath); //$NON-NLS-1$
+                    baseConfig.set("dataObject", currentXpath.split("/")[0]); //$NON-NLS-1$ //$NON-NLS-2$
                 }
-                service.getForeignKeyList((PagingLoadConfig) loadConfig, typeModel, BrowseRecords.getSession().getAppHeader()
+                service.getForeignKeyList(baseConfig, typeModel, BrowseRecords.getSession().getAppHeader()
                         .getDatacluster(), hasForeignKeyFilter, currentFilterText,
                         new SessionAwareAsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
 

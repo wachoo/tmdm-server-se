@@ -2,6 +2,8 @@ package org.talend.mdm.webapp.recyclebin.client;
 
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
+import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
 
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
@@ -23,9 +25,9 @@ public class RecycleBinServiceAsyncMock implements RecycleBinServiceAsync {
         callback.onSuccess("Product");
     }
 
-    public void getTrashItems(String regex, PagingLoadConfig load, AsyncCallback<PagingLoadResult<ItemsTrashItem>> callback) {
+    public void getTrashItems(String regex, BasePagingLoadConfigImpl load, AsyncCallback<ItemBasePageLoadResult<ItemsTrashItem>> callback) {
         List<ItemsTrashItem> items = FakeData.getItems();
-        PagingLoadResult<ItemsTrashItem> result = new BasePagingLoadResult<ItemsTrashItem>(items);
+        ItemBasePageLoadResult<ItemsTrashItem> result = new ItemBasePageLoadResult<ItemsTrashItem>(items, 0, items.size());
         callback.onSuccess(result);
     }
 

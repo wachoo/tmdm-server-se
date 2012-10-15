@@ -20,6 +20,8 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
+import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.client.widget.ColumnAlignGrid;
@@ -323,10 +325,11 @@ public class MainFramePanel extends ContentPanel {
 
             @Override
             protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<ItemsTrashItem>> callback) {
-                service.getTrashItems(text.getValue() == null ? "*" : text.getValue(), (PagingLoadConfig) loadConfig,//$NON-NLS-1$
-                        new SessionAwareAsyncCallback<PagingLoadResult<ItemsTrashItem>>() {
+                BasePagingLoadConfigImpl baseConfig = BasePagingLoadConfigImpl.copyPagingLoad((PagingLoadConfig) loadConfig);
+                service.getTrashItems(text.getValue() == null ? "*" : text.getValue(), baseConfig,//$NON-NLS-1$
+                        new SessionAwareAsyncCallback<ItemBasePageLoadResult<ItemsTrashItem>>() {
 
-                            public void onSuccess(PagingLoadResult<ItemsTrashItem> result) {
+                            public void onSuccess(ItemBasePageLoadResult<ItemsTrashItem> result) {
                                 for (ItemsTrashItem trashItem : result.getData()) {
                                     CONCEPT_MODEL_MAP.put(trashItem.getConceptName(), trashItem.getDataModelName());
                                 }
@@ -601,29 +604,29 @@ public class MainFramePanel extends ContentPanel {
                                             }
                                         }
 
-                                        service.removeDroppedItem(r.get("itemPK").toString(), r.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
-                                                        r.get("revisionId") == null ? null : r.get("revisionId").toString(), r //$NON-NLS-1$//$NON-NLS-2$
-                                                                .get("conceptName").toString(), r.get("ids").toString(), UrlUtil.getLanguage(), //$NON-NLS-1$//$NON-NLS-2$
-                                                        new SessionAwareAsyncCallback<String>() {
+                                        service.removeDroppedItem(
+                                                r.get("itemPK").toString(), r.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
+                                                r.get("revisionId") == null ? null : r.get("revisionId").toString(), r //$NON-NLS-1$//$NON-NLS-2$
+                                                        .get("conceptName").toString(), r.get("ids").toString(), UrlUtil.getLanguage(), //$NON-NLS-1$//$NON-NLS-2$
+                                                new SessionAwareAsyncCallback<String>() {
 
-                                                            public void onSuccess(String msg) {
-                                                                deleteSelectedCheckFinished(r, true, msg);
-                                                            }
+                                                    public void onSuccess(String msg) {
+                                                        deleteSelectedCheckFinished(r, true, msg);
+                                                    }
 
-                                                            @Override
-                                                            protected void doOnFailure(Throwable caught) {
-                                                                String errorMsg = caught.getLocalizedMessage();
-                                                                if (errorMsg == null) {
-                                                                    if (Log.isDebugEnabled())
-                                                                        errorMsg = caught.toString(); // for debugging
-                                                                    // purpose
-                                                                    else
-                                                                        errorMsg = BaseMessagesFactory.getMessages()
-                                                                                .unknown_error();
-                                                                }
-                                                                deleteSelectedCheckFinished(r, false, errorMsg);
-                                                            }
-                                                        });
+                                                    @Override
+                                                    protected void doOnFailure(Throwable caught) {
+                                                        String errorMsg = caught.getLocalizedMessage();
+                                                        if (errorMsg == null) {
+                                                            if (Log.isDebugEnabled())
+                                                                errorMsg = caught.toString(); // for debugging
+                                                            // purpose
+                                                            else
+                                                                errorMsg = BaseMessagesFactory.getMessages().unknown_error();
+                                                        }
+                                                        deleteSelectedCheckFinished(r, false, errorMsg);
+                                                    }
+                                                });
                                     }
                                 });
                     }
@@ -670,8 +673,8 @@ public class MainFramePanel extends ContentPanel {
                         pagetoolBar.refresh();
                         grid.getStore().remove((ItemsTrashItem) model);
                         if (msg != null) {
-                            MessageBox.info(BaseMessagesFactory.getMessages().info_title(), MultilanguageMessageParser
-                                    .pickOutISOMessage(msg), null);
+                            MessageBox.info(BaseMessagesFactory.getMessages().info_title(),
+                                    MultilanguageMessageParser.pickOutISOMessage(msg), null);
                         }
                     }
 
@@ -684,8 +687,8 @@ public class MainFramePanel extends ContentPanel {
                             else
                                 errorMsg = BaseMessagesFactory.getMessages().unknown_error();
                         }
-                        MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), MultilanguageMessageParser
-                                .pickOutISOMessage(errorMsg), null);
+                        MessageBox.alert(BaseMessagesFactory.getMessages().error_title(),
+                                MultilanguageMessageParser.pickOutISOMessage(errorMsg), null);
                     }
                 });
     }

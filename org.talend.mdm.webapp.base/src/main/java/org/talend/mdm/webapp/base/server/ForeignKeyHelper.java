@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
@@ -47,7 +48,6 @@ import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSXPathsSearch;
 import com.extjs.gxt.ui.client.Style.SortDir;
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 
 public class ForeignKeyHelper {
 
@@ -61,7 +61,7 @@ public class ForeignKeyHelper {
         schemaManager = _schemaManager;
     }
 
-    public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
+    public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value) throws Exception {
 
         ForeignKeyHolder holder = getForeignKeyHolder((String) config.get("xml"), (String) config.get("dataObject"), //$NON-NLS-1$ //$NON-NLS-2$
@@ -72,18 +72,18 @@ public class ForeignKeyHelper {
             List<String> xPaths = holder.xpaths;
             WSWhereItem whereItem = holder.whereItem;
             String fkFilter = holder.fkFilter;
-            
+
             String sortDir;
             String xpath;
 
-            if (SortDir.ASC.equals(config.getSortDir())) {
+            if (SortDir.ASC.equals(SortDir.findDir(config.getSortDir()))) {
                 sortDir = Constants.SEARCH_DIRECTION_ASC;
-            } else if (SortDir.DESC.equals(config.getSortDir())) {
+            } else if (SortDir.DESC.equals(SortDir.findDir(config.getSortDir()))) {
                 sortDir = Constants.SEARCH_DIRECTION_DESC;
             } else {
                 sortDir = null;
             }
-            
+
             if (sortDir != null) {
                 xpath = model.getXpath() + "/" + config.getSortField(); //$NON-NLS-1$
             } else {
@@ -105,8 +105,7 @@ public class ForeignKeyHelper {
                         .getItemsByCustomFKFilters(
                                 new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName,
                                         new WSStringArray(xPaths.toArray(new String[xPaths.size()])), injectedXpath, config
-                                                .getOffset(), config.getLimit(), xpath, sortDir, true, whereItem))
-                        .getStrings();
+                                                .getOffset(), config.getLimit(), xpath, sortDir, true, whereItem)).getStrings();
             }
         }
 
@@ -324,7 +323,7 @@ public class ForeignKeyHelper {
             }
         }
     }
-    
+
     public static void convertFKInfo2DisplayInfo(ForeignKeyBean bean, List<String> foreignKeyInfos) {
         if (foreignKeyInfos.size() == 0)
             return;
@@ -403,7 +402,7 @@ public class ForeignKeyHelper {
         }
         return parsedFkfilter;
     }
-    
+
     public static String wrapFkValue(String value) {
         if (value.startsWith("[") && value.endsWith("]")) { //$NON-NLS-1$//$NON-NLS-2$
             return value;

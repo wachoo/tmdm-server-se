@@ -17,9 +17,11 @@ import java.io.Serializable;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public class ItemResult implements IsSerializable, Serializable {
+
+    private static final long serialVersionUID = -8146665156441820837L;
 
     public static final int SUCCESS = 0;
 

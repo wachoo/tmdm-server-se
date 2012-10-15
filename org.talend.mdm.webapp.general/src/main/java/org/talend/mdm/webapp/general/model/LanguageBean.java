@@ -14,7 +14,9 @@ package org.talend.mdm.webapp.general.model;
 
 import java.io.Serializable;
 
-public class LanguageBean implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class LanguageBean implements Serializable, IsSerializable {
 
     private static final long serialVersionUID = -5087750309890091801L;
 

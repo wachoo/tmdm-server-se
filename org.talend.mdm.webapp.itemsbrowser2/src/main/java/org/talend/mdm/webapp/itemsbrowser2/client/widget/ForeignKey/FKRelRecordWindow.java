@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -140,7 +141,8 @@ public class FKRelRecordWindow extends Window {
 
             @Override
             public void load(final Object loadConfig, final AsyncCallback<PagingLoadResult<ForeignKeyBean>> callback) {
-                service.getForeignKeyList((PagingLoadConfig) loadConfig, typeModel, Itemsbrowser2.getSession().getAppHeader()
+                BasePagingLoadConfigImpl baseConfig = BasePagingLoadConfigImpl.copyPagingLoad((PagingLoadConfig) loadConfig);
+                service.getForeignKeyList(baseConfig, typeModel, Itemsbrowser2.getSession().getAppHeader()
                         .getDatacluster(), false, getFilterValue(), new SessionAwareAsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
 
                     @Override

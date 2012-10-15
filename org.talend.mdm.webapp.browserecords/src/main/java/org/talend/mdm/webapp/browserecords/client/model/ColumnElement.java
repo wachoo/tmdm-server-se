@@ -19,6 +19,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class ColumnElement implements Serializable, IsSerializable {
 
+    private static final long serialVersionUID = -269226355295735787L;
+
     private String label;
 
     private String xPath;

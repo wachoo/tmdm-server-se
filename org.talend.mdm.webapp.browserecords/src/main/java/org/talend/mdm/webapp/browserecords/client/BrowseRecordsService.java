@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
@@ -36,8 +37,6 @@ import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
@@ -53,8 +52,8 @@ public interface BrowseRecordsService extends RemoteService {
 
     String saveItemBean(ItemBean item, String language) throws ServiceException;
 
-    ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK,
-            boolean ifFKFilter, String value) throws ServiceException;
+    ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
+            String dataClusterPK, boolean ifFKFilter, String value) throws ServiceException;
 
     List<Restriction> getForeignKeyPolymTypeList(String xpathForeignKey, String language) throws ServiceException;
 
@@ -87,7 +86,7 @@ public interface BrowseRecordsService extends RemoteService {
 
     String getCurrentDataCluster() throws ServiceException;
 
-    PagingLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load)
+    ItemBasePageLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, BasePagingLoadConfigImpl load)
             throws ServiceException;
 
     void deleteSearchTemplate(String id) throws ServiceException;
@@ -98,9 +97,11 @@ public interface BrowseRecordsService extends RemoteService {
 
     ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws ServiceException;
 
-    ItemNodeModel createDefaultItemNodeModel(ViewBean viewBean, Map<String, List<String>> initDataMap, String language) throws ServiceException;
-    
-    ItemNodeModel createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath, String realType,String language) throws ServiceException;
+    ItemNodeModel createDefaultItemNodeModel(ViewBean viewBean, Map<String, List<String>> initDataMap, String language)
+            throws ServiceException;
+
+    ItemNodeModel createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath, String realType,
+            String language) throws ServiceException;
 
     List<String> getMandatoryFieldList(String tableName) throws ServiceException;
 
@@ -132,9 +133,10 @@ public interface BrowseRecordsService extends RemoteService {
     boolean isItemModifiedByOthers(ItemBean itemBean) throws ServiceException;
 
     String formatValue(FormatModel model) throws ServiceException;
-    
-    Map<ViewBean, Map<String, List<String>>> getForeignKeyValues(String concept, String[] ids, String language) throws ServiceException;
-    
+
+    Map<ViewBean, Map<String, List<String>>> getForeignKeyValues(String concept, String[] ids, String language)
+            throws ServiceException;
+
     boolean isExistId(String concept, String[] ids, String language) throws ServiceException;
 
 }

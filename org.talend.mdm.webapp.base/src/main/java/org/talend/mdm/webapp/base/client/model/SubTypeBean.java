@@ -14,7 +14,9 @@ package org.talend.mdm.webapp.base.client.model;
 
 import java.io.Serializable;
 
-public class SubTypeBean implements Comparable<SubTypeBean>, Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class SubTypeBean implements Comparable<SubTypeBean>, Serializable, IsSerializable {
 
     private static final long serialVersionUID = 1L;
 

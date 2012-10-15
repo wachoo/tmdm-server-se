@@ -13,8 +13,9 @@
 package org.talend.mdm.webapp.browserecords.client.model;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class ComboBoxModel extends BaseModelData {
+public class ComboBoxModel extends BaseModelData implements IsSerializable {
 
     private static final long serialVersionUID = 1L;
 

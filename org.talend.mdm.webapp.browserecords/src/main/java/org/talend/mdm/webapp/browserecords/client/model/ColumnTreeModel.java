@@ -19,6 +19,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class ColumnTreeModel implements Serializable, IsSerializable {
 
+    private static final long serialVersionUID = 1086213996159955974L;
+
     private String style;
 
     private List<ColumnElement> columnElements;

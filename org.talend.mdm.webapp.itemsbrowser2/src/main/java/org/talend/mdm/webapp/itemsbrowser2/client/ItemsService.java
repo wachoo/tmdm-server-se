@@ -2,6 +2,7 @@ package org.talend.mdm.webapp.itemsbrowser2.client;
 
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
@@ -15,8 +16,6 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -49,7 +48,7 @@ public interface ItemsService extends RemoteService {
 
     List<ItemBaseModel> getUserCriterias(String view);
 
-    PagingLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load);
+    ItemBasePageLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, BasePagingLoadConfigImpl load);
 
     String deleteSearchTemplate(String id);
 
@@ -71,14 +70,14 @@ public interface ItemsService extends RemoteService {
 
     ItemBean getItem(ItemBean itemBean, EntityModel entityModel) throws Exception;
 
-    ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK,
-            boolean ifFKFilter, String value);
+    ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
+            String dataClusterPK, boolean ifFKFilter, String value);
 
     List<Restriction> getForeignKeyPolymTypeList(String xpathForeignKey, String language) throws Exception;
 
     ForeignKeyDrawer switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey,
             String fkFilter) throws Exception;
-    
+
     List<String> getMandatoryFieldList(String tableName) throws Exception;
-    
+
 }
