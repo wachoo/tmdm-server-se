@@ -10,31 +10,14 @@
 
 package com.amalto.core.save.context;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldUpdateAction;
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.ContainedTypeFieldMetadata;
-import com.amalto.core.metadata.DefaultMetadataVisitor;
-import com.amalto.core.metadata.EnumerationFieldMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.metadata.MetadataUtils;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
-import com.amalto.core.metadata.SimpleTypeFieldMetadata;
+import com.amalto.core.metadata.*;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.*;
 
 // TODO Clean up: preserveCollectionOldValues is dedicated to partial update only!
 class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
@@ -224,12 +207,11 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                         String previousPathElement = this.path.pop();
                         int newIndex = originalFieldToLastIndex.get(comparedField);
                         this.path.push(comparedField.getName() + "[" + (newIndex + 1) + "]");
-                        actions.add(new FieldUpdateAction(date, source, userName, getLeftPath(), StringUtils.EMPTY,
-                                newAccessor.get(), comparedField));
+                        actions.add(new FieldUpdateAction(date, source, userName, getLeftPath(), StringUtils.EMPTY, newValue, comparedField));
                         this.path.pop();
                         this.path.push(previousPathElement);
                         originalFieldToLastIndex.put(comparedField, newIndex + 1);
-                    } else if (oldValue != null && !oldValue.equals(newAccessor.get())) {
+                    } else if (oldValue != null && !oldValue.equals(newValue)) {
                         if (!"string".equals(comparedField.getType().getName()) && !(comparedField instanceof ReferenceFieldMetadata)) {
                             // Field is not string. To ensure false positive difference detection, creates a typed value.
                             Object oldObject = MetadataUtils.convert(oldValue, comparedField);
@@ -248,6 +230,8 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                             }
                         }
                         actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newAccessor.get(), comparedField));
+                    } else if (oldValue != null && oldValue.equals(newValue)) {
+                        generateNoOp(path);
                     }
                 }
             }
@@ -296,7 +280,6 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                         throw new IllegalArgumentException("Type '" + field.getType().getName()
                                 + "' is not assignable from type '" + newTypeMetadata.getName() + "'");
                     }
-
                     actions.add(new ChangeTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata));
                     type = newTypeMetadata;
                 }
