@@ -1,6 +1,12 @@
 package org.talend.mdm.webapp.base.client.model;
 
-public class UserContextModel {
+import java.io.Serializable;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class UserContextModel implements Serializable, IsSerializable {
+
+    private static final long serialVersionUID = -3689563019277748075L;
 
     private String dataContainer;
 

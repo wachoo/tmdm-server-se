@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
@@ -45,7 +46,6 @@ import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
@@ -66,17 +66,17 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class MockGridRefreshGWTTest extends GWTTestCase {
 
     boolean isGridRefresh;
-    
+
     boolean isCreate = false;
-    
+
     ItemBean createItemBean = null;
-    
+
     ItemBean selectedItem = null;
-    
+
     Grid<ItemBean> grid = null;
-    
+
     ListStore<ItemBean> store = null;
-    
+
     private PagingToolBarEx pagingBar = null;
 
     private String sortField;
@@ -143,57 +143,59 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         detailToolBar.setHierarchyCall(false);
         onSaveItem(event);
         assertEquals(false, isGridRefresh);
-        
+
         detailToolBar.setFkToolBar(true);
         detailToolBar.setOutMost(true);
         detailToolBar.setHierarchyCall(false);
         onDeleteItem();
         assertEquals(true, isGridRefresh);
-        
+
         detailToolBar.setFkToolBar(true);
         detailToolBar.setOutMost(true);
         detailToolBar.setHierarchyCall(false);
         onDeleteItemBeans();
         assertEquals(true, isGridRefresh);
     }
-    
-    public void testGridRefreshAfterSave(){ 
 
-      AppEvent event = new AppEvent(BrowseRecordsEvents.SaveItem);
-      ItemDetailToolBar detailToolBar = new ItemDetailToolBar(null);
-      event.setData("itemDetailToolBar", detailToolBar);
-        
+    public void testGridRefreshAfterSave() {
+
+        AppEvent event = new AppEvent(BrowseRecordsEvents.SaveItem);
+        ItemDetailToolBar detailToolBar = new ItemDetailToolBar(null);
+        event.setData("itemDetailToolBar", detailToolBar);
+
         RpcProxy<PagingLoadResult<ItemBean>> proxy = new RpcProxy<PagingLoadResult<ItemBean>>() {
+
+            @Override
             public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<ItemBean>> callback) {
                 return;
             }
         };
-        
-        PagingLoader<PagingLoadResult<ModelData>> loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);        
-        
-        store = new ListStore<ItemBean>(loader);   
-            
-        ColumnConfig idColumn = new ColumnConfig("id","id", 200);
-        
-        ColumnConfig nameColumn = new ColumnConfig("name","name", 200);
-        
+
+        PagingLoader<PagingLoadResult<ModelData>> loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);
+
+        store = new ListStore<ItemBean>(loader);
+
+        ColumnConfig idColumn = new ColumnConfig("id", "id", 200);
+
+        ColumnConfig nameColumn = new ColumnConfig("name", "name", 200);
+
         List<ColumnConfig> ccList = new ArrayList<ColumnConfig>();
-        
+
         ccList.add(idColumn);
-        
+
         ccList.add(nameColumn);
-        
+
         ColumnModel cm = new ColumnModel(ccList);
-        
+
         grid = new ColumnAlignGrid<ItemBean>(store, cm);
-        
+
         pagingBar = new PagingToolBarEx(3);
 
         pagingBar.bind(loader);
 
         sortField = "id";
-        
-        //init store data        
+
+        // init store data
         ItemBean itemBean1 = new ItemBean();
         itemBean1.set("id", "1");
         itemBean1.set("name", "Apple");
@@ -202,8 +204,8 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         itemBean2.set("id", "4");
         itemBean2.set("name", "Banana");
         store.add(itemBean2);
-        
-        //test 1  pagesize=3  pageNumber=1  pageCount=1  position=2
+
+        // test 1 pagesize=3 pageNumber=1 pageCount=1 position=2
         detailToolBar.setOutMost(false);
         detailToolBar.setFkToolBar(false);
         detailToolBar.setHierarchyCall(false);
@@ -217,8 +219,8 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         onSaveItem(event);
         assertEquals(selectedItem.get("name"), "Zero");
         assertEquals(store.getAt(1).get("name"), "Zero");
-        
-        //test 2  pagesize=3  pageNumber=2  pageCount=2  position=4
+
+        // test 2 pagesize=3 pageNumber=2 pageCount=2 position=4
         detailToolBar.setOutMost(false);
         detailToolBar.setFkToolBar(false);
         detailToolBar.setHierarchyCall(false);
@@ -227,13 +229,13 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         ItemBean itemBean4 = new ItemBean();
         itemBean4.set("id", "6");
         itemBean4.set("name", "City");
-        store.add(itemBean4);   
+        store.add(itemBean4);
         event.setData(itemBean4);
         onSaveItem(event);
         assertEquals(selectedItem.get("name"), "City");
         assertEquals(store.getAt(3).get("name"), "City");
-        
-        //test 3  pagesize=3  pageNumber=2  pageCount=2  position=2
+
+        // test 3 pagesize=3 pageNumber=2 pageCount=2 position=2
         detailToolBar.setOutMost(false);
         detailToolBar.setFkToolBar(false);
         detailToolBar.setHierarchyCall(false);
@@ -246,9 +248,9 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         event.setData(itemBean5);
         onSaveItem(event);
         assertNull(selectedItem);
-        assertEquals(store.getAt(1).get("name"), "Orange");        
-        
-        //test 4  pagesize=3  pageNumber=2  pageCount=2  position=6
+        assertEquals(store.getAt(1).get("name"), "Orange");
+
+        // test 4 pagesize=3 pageNumber=2 pageCount=2 position=6
         detailToolBar.setOutMost(false);
         detailToolBar.setFkToolBar(false);
         detailToolBar.setHierarchyCall(false);
@@ -261,11 +263,11 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         event.setData(itemBean6);
         onSaveItem(event);
         assertEquals(selectedItem.get("name"), "Dance");
-        assertEquals(store.getAt(5).get("name"), "Dance");  
-        
-        sortField = null; 
-        
-        //test 5  pagesize=3  pageNumber=2  pageCount=3  position=6
+        assertEquals(store.getAt(5).get("name"), "Dance");
+
+        sortField = null;
+
+        // test 5 pagesize=3 pageNumber=2 pageCount=3 position=6
         detailToolBar.setOutMost(false);
         detailToolBar.setFkToolBar(false);
         detailToolBar.setHierarchyCall(false);
@@ -274,12 +276,12 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         ItemBean itemBean7 = new ItemBean();
         itemBean7.set("id", "7");
         itemBean7.set("name", "Edit");
-        store.add(itemBean7); 
+        store.add(itemBean7);
         event.setData(itemBean7);
         onSaveItem(event);
         assertEquals(selectedItem.get("name"), "Edit");
-        assertEquals(store.getAt(5).get("name"), "Edit"); 
-        
+        assertEquals(store.getAt(5).get("name"), "Edit");
+
         // test 6
         detailToolBar.setOutMost(false);
         detailToolBar.setFkToolBar(false);
@@ -308,8 +310,8 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
                 if (!detailToolBar.isFkToolBar() && !detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall()) {
                     gridRefresh();
                 }
-                
-                if (!detailToolBar.isOutMost() && !detailToolBar.isFkToolBar() && !detailToolBar.isHierarchyCall() && isCreate){                 
+
+                if (!detailToolBar.isOutMost() && !detailToolBar.isFkToolBar() && !detailToolBar.isHierarchyCall() && isCreate) {
                     createItemBean = event.getData();
                     isCreate = true;
                     if (sortField != null) {
@@ -321,76 +323,76 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
                     }
                 }
             }
-            
+
         });
     }
-    
-    private void refreshGrid(ItemBean itemBean){
-        if (selectedItem == null && itemBean != null){
+
+    private void refreshGrid(ItemBean itemBean) {
+        if (selectedItem == null && itemBean != null) {
             fireLoadEvent();
         }
     }
-    
-    private void fireLoadEvent(){
-     // mock grid loadListener
+
+    private void fireLoadEvent() {
+        // mock grid loadListener
         if (store.getModels().size() > 0) {
             if (selectedItem == null) {
-             // search and create
-                if (isCreate && createItemBean != null){
-                    // mock pageRecord pageSize = 3 
+                // search and create
+                if (isCreate && createItemBean != null) {
+                    // mock pageRecord pageSize = 3
                     // totalRecordCount <= 3 pageNumber = 1
                     // totalRecordCount <= 6 pageNumber = 2
                     // totalRecordCount > 6 pageNumber = 2
                     int start = 0;
                     int end = 0;
-                    if (store.getCount() <= 3){
+                    if (store.getCount() <= 3) {
                         end = store.getCount() - 1;
-                    }else if (store.getCount() <= 6){
+                    } else if (store.getCount() <= 6) {
                         start = 3;
                         end = store.getCount() - 1;
-                    }else{
+                    } else {
                         start = 3;
                         end = 5;
                     }
-                    for (int i=start;i<=end;i++){
-                        if (grid.getStore().getAt(i) == createItemBean){
+                    for (int i = start; i <= end; i++) {
+                        if (grid.getStore().getAt(i) == createItemBean) {
                             grid.getSelectionModel().select(-1, false);
-                            grid.getSelectionModel().select(createItemBean,true);
+                            grid.getSelectionModel().select(createItemBean, true);
                             break;
-                        }else{
+                        } else {
                             grid.getSelectionModel().select(-1, false);
                         }
                     }
-                }else{
+                } else {
                     fail();
                 }
-                selectedItem  = grid.getSelectionModel().getSelectedItem();
+                selectedItem = grid.getSelectionModel().getSelectedItem();
                 isCreate = false;
                 createItemBean = null;
             }
-        } 
+        }
     }
-    
-    private void onDeleteItem(){
-        service.deleteItemBean(null, false, "", new SessionAwareAsyncCallback<String>(){
+
+    private void onDeleteItem() {
+        service.deleteItemBean(null, false, "", new SessionAwareAsyncCallback<String>() {
 
             public void onSuccess(String result) {
                 assertEquals("true", result);
                 gridRefresh();
-            }        
+            }
         });
     }
-    
-    private void onDeleteItemBeans(){
+
+    private void onDeleteItemBeans() {
         service.deleteItemBeans(null, true, "en", new SessionAwareAsyncCallback<List<String>>() {
-            
+
             public void onSuccess(List<String> result) {
                 assertNotNull(result);
                 gridRefresh();
             }
         });
     }
-    
+
     private void gridRefresh() {
         isGridRefresh = true;
     }
@@ -402,7 +404,7 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
             callback.onSuccess(new ItemResult(ItemResult.SUCCESS));
         }
 
-        public void getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK, boolean ifFKFilter,
+        public void getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model, String dataClusterPK, boolean ifFKFilter,
                 String value, AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback) {
         }
 
@@ -438,7 +440,7 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
 
         public void logicalDeleteItem(ItemBean item, String path, boolean override, AsyncCallback<Void> callback) {
-           
+
         }
 
         public void logicalDeleteItems(List<ItemBean> items, String path, boolean override, AsyncCallback<Void> callback) {
@@ -462,8 +464,8 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         public void getCurrentDataCluster(AsyncCallback<String> callback) {
         }
 
-        public void querySearchTemplates(String view, boolean isShared, PagingLoadConfig load,
-                AsyncCallback<PagingLoadResult<ItemBaseModel>> callback) {
+        public void querySearchTemplates(String view, boolean isShared, BasePagingLoadConfigImpl load,
+                AsyncCallback<ItemBasePageLoadResult<ItemBaseModel>> callback) {
         }
 
         public void deleteSearchTemplate(String id, AsyncCallback<Void> callback) {
@@ -533,7 +535,6 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
 
         }
 
-
         public void createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath, String realType,
                 String language, AsyncCallback<ItemNodeModel> callback) {
         }
@@ -547,9 +548,9 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
                 AsyncCallback<Map<ViewBean, Map<String, List<String>>>> callback) {
 
         }
-        
-        public void isExistId(String concept, String[] ids, String language,AsyncCallback<Boolean> callback){
-            
+
+        public void isExistId(String concept, String[] ids, String language, AsyncCallback<Boolean> callback) {
+
         }
 
     }

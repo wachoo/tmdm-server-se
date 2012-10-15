@@ -20,6 +20,8 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
+import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.client.widget.ColumnAlignGrid;
@@ -323,10 +325,11 @@ public class MainFramePanel extends ContentPanel {
 
             @Override
             protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<ItemsTrashItem>> callback) {
-                service.getTrashItems(text.getValue() == null ? "*" : text.getValue(), (PagingLoadConfig) loadConfig,//$NON-NLS-1$
-                        new SessionAwareAsyncCallback<PagingLoadResult<ItemsTrashItem>>() {
+                BasePagingLoadConfigImpl baseConfig = BasePagingLoadConfigImpl.copyPagingLoad((PagingLoadConfig) loadConfig);
+                service.getTrashItems(text.getValue() == null ? "*" : text.getValue(), baseConfig,//$NON-NLS-1$
+                        new SessionAwareAsyncCallback<ItemBasePageLoadResult<ItemsTrashItem>>() {
 
-                            public void onSuccess(PagingLoadResult<ItemsTrashItem> result) {
+                            public void onSuccess(ItemBasePageLoadResult<ItemsTrashItem> result) {
                                 for (ItemsTrashItem trashItem : result.getData()) {
                                     CONCEPT_MODEL_MAP.put(trashItem.getConceptName(), trashItem.getDataModelName());
                                 }

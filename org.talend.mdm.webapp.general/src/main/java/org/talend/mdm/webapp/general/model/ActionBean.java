@@ -3,7 +3,11 @@ package org.talend.mdm.webapp.general.model;
 import java.io.Serializable;
 import java.util.List;
 
-public class ActionBean implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class ActionBean implements Serializable, IsSerializable {
+
+    private static final long serialVersionUID = 2254323752634482658L;
 
     private List<ComboBoxModel> clusters;
 

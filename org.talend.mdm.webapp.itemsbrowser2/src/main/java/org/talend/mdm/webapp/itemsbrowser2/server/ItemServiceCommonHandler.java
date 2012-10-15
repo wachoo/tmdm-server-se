@@ -43,6 +43,7 @@ import org.dom4j.Node;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
@@ -109,9 +110,7 @@ import com.amalto.webapp.util.webservices.WSWhereOperator;
 import com.amalto.webapp.util.webservices.WSWhereOr;
 import com.amalto.webapp.util.webservices.WSXPathsSearch;
 import com.extjs.gxt.ui.client.Style.SortDir;
-import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSParticle;
@@ -126,8 +125,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     private static final Pattern extractIdPattern = Pattern.compile("\\[.*?\\]"); //$NON-NLS-1$
 
-    private static final Messages MESSAGES = com.amalto.core.util.MessagesFactory.getMessages(
-            "org.talend.mdm.webapp.itemsbrowser2.client.i18n.ItemsbrowserMessages", ItemServiceCommonHandler.class.getClassLoader()); //$NON-NLS-1$
+    private static final Messages MESSAGES = com.amalto.core.util.MessagesFactory
+            .getMessages(
+                    "org.talend.mdm.webapp.itemsbrowser2.client.i18n.ItemsbrowserMessages", ItemServiceCommonHandler.class.getClassLoader()); //$NON-NLS-1$
 
     private Object[] getItemBeans(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String criteria, int skip,
             int max, String sortDir, String sortCol, String language) {
@@ -142,8 +142,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
         try {
             WSWhereItem wi = null;
-            if (criteria != null)
+            if (criteria != null) {
                 wi = CommonUtil.buildWhereItems(criteria);
+            }
             String[] results = CommonUtil
                     .getPort()
                     .viewSearch(
@@ -170,12 +171,14 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 idsArray.clear();
                 for (String key : entityModel.getKeys()) {
 
-                    Node idNode = XmlUtil.queryNode(doc, "result" + key.substring(key.lastIndexOf('/'))); //$NON-NLS-1$ //$NON-NLS-2$ 
-                    if (idNode == null)
+                    Node idNode = XmlUtil.queryNode(doc, "result" + key.substring(key.lastIndexOf('/'))); //$NON-NLS-1$ 
+                    if (idNode == null) {
                         continue;
+                    }
                     String id = idNode.getText();
-                    if (id != null)
+                    if (id != null) {
                         idsArray.add(id);
+                    }
                 }
 
                 Set<String> keySet = formatMap.keySet();
@@ -185,8 +188,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 for (String key : keySet) {
                     String[] value = formatMap.get(key);
                     Node dateNode = XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")); //$NON-NLS-1$ //$NON-NLS-2$
-                    if (dateNode == null)
+                    if (dateNode == null) {
                         continue;
+                    }
                     String dateText = dateNode.getText();
 
                     if (dateText != null) {
@@ -236,8 +240,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         Map<String, TypeModel> metaData = entityModel.getMetaDataTypes();
         Map<String, String[]> formatMap = new HashMap<String, String[]>();
         String languageStr = "format_" + language.toLowerCase(); //$NON-NLS-1$
-        if (metaData == null)
+        if (metaData == null) {
             return formatMap;
+        }
 
         Set<String> keySet = metaData.keySet();
         for (String key : keySet) {
@@ -387,8 +392,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     String xpath = "//report/message"; //$NON-NLS-1$
                     org.w3c.dom.NodeList checkList = com.amalto.webapp.core.util.Util.getNodeList(doc, xpath);
                     org.w3c.dom.Node errorNode = null;
-                    if (checkList != null && checkList.getLength() > 0)
+                    if (checkList != null && checkList.getLength() > 0) {
                         errorNode = checkList.item(0);
+                    }
                     if (errorNode != null && errorNode instanceof org.w3c.dom.Element) {
                         org.w3c.dom.Element errorElement = (org.w3c.dom.Element) errorNode;
                         errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
@@ -400,13 +406,15 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 }
 
                 if ("info".equals(errorCode)) { //$NON-NLS-1$
-                    if (message == null || message.length() == 0)
+                    if (message == null || message.length() == 0) {
                         message = MessagesFactory.getMessages().save_process_validation_success();
+                    }
                     status = ItemResult.SUCCESS;
                 } else {
                     // Anything but 0 is unsuccessful
-                    if (message == null || message.length() == 0)
+                    if (message == null || message.length() == 0) {
                         message = MessagesFactory.getMessages().save_process_validation_failure();
+                    }
                     status = ItemResult.FAILURE;
                 }
             } else {
@@ -447,10 +455,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         Pattern idsPattern = Pattern.compile(patternStr);
         idsPattern.matcher(ids);
         Matcher matcher = idsPattern.matcher(ids);
-        if (!matcher.matches())
+        if (!matcher.matches()) {
             return new String[] { ids };
-        else
+        } else {
             extractIdWithBrackets(ids);
+        }
         return null;
     }
 
@@ -484,8 +493,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 if (wsItem != null) {
                     status = ItemResult.SUCCESS;
                     pushUpdateReport(ids, concept, "PHYSICAL_DELETE", true); //$NON-NLS-1$
-                    if (message == null || message.length() == 0)
+                    if (message == null || message.length() == 0) {
                         message = MESSAGES.getMessage(locale, "delete_record_success"); //$NON-NLS-1$
+                    }
                 } else {
                     status = ItemResult.FAILURE;
                     message = MESSAGES.getMessage(locale, "delete_record_failure"); //$NON-NLS-1$
@@ -493,8 +503,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             } else {
                 // Anything but 0 is unsuccessful
                 status = ItemResult.FAILURE;
-                if (message == null || message.length() == 0)
+                if (message == null || message.length() == 0) {
                     message = MESSAGES.getMessage(locale, "delete_process_validation_failure"); //$NON-NLS-1$
+                }
             }
 
             return new ItemResult(status, message);
@@ -539,14 +550,15 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             WSDroppedItemPK wsItem = CommonUtil.getPort().dropItem(
                     new WSDropItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), path, false));
 
-            if (wsItem != null && xml != null)
+            if (wsItem != null && xml != null) {
                 if ("/".equalsIgnoreCase(path)) { //$NON-NLS-1$
                     pushUpdateReport(ids, concept, "LOGIC_DELETE"); //$NON-NLS-1$
                 }
                 // TODO updatereport
-
-                else
+                else {
                     return new ItemResult(ItemResult.FAILURE, "ERROR - dropItem is NULL");//$NON-NLS-1$ 
+                }
+            }
 
             return new ItemResult(ItemResult.SUCCESS, "OK");//$NON-NLS-1$ 
 
@@ -562,8 +574,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     private String pushUpdateReport(String[] ids, String concept, String operationType, boolean routeAfterSaving)
             throws Exception {
-        if (LOG.isTraceEnabled())
+        if (LOG.isTraceEnabled()) {
             LOG.trace("pushUpdateReport() concept " + concept + " operation " + operationType);//$NON-NLS-1$ //$NON-NLS-2$ 
+        }
 
         // TODO check updatedPath
         HashMap<String, UpdateReportItem> updatedPath = null;
@@ -573,8 +586,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
         String xml2 = createUpdateReport(ids, concept, operationType, updatedPath);
 
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug("pushUpdateReport() " + xml2);//$NON-NLS-1$ 
+        }
 
         // TODO routeAfterSaving is true
         return persistentUpdateReport(xml2, routeAfterSaving);
@@ -589,15 +603,17 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
         String username = com.amalto.webapp.core.util.Util.getLoginUserName();
         String universename = com.amalto.webapp.core.util.Util.getLoginUniverse();
-        if (universename != null && universename.length() > 0)
+        if (universename != null && universename.length() > 0) {
             revisionId = com.amalto.webapp.core.util.Util.getRevisionIdFromUniverse(universename, concept);
+        }
 
         StringBuilder keyBuilder = new StringBuilder();
         if (ids != null) {
             for (int i = 0; i < ids.length; i++) {
                 keyBuilder.append(ids[i]);
-                if (i != ids.length - 1)
+                if (i != ids.length - 1) {
                     keyBuilder.append("."); //$NON-NLS-1$
+                }
             }
         }
         String key = keyBuilder.length() == 0 ? "null" : keyBuilder.toString(); //$NON-NLS-1$
@@ -617,29 +633,33 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             for (UpdateReportItem item : list) {
                 String oldValue = item.getOldValue() == null ? "" : item.getOldValue();//$NON-NLS-1$
                 String newValue = item.getNewValue() == null ? "" : item.getNewValue();//$NON-NLS-1$
-                if (newValue.equals(oldValue))
+                if (newValue.equals(oldValue)) {
                     continue;
+                }
                 sb.append("<Item>   <path>").append(item.getPath()).append("</path>   <oldValue>")//$NON-NLS-1$ //$NON-NLS-2$
                         .append(oldValue).append("</oldValue>   <newValue>")//$NON-NLS-1$
                         .append(newValue).append("</newValue></Item>");//$NON-NLS-1$
                 isUpdate = true;
             }
-            if (!isUpdate)
+            if (!isUpdate) {
                 return null;
+            }
         }
         sb.append("</Update>");//$NON-NLS-1$
         return sb.toString();
     }
 
     private static String persistentUpdateReport(String xml2, boolean routeAfterSaving) throws Exception {
-        if (xml2 == null)
+        if (xml2 == null) {
             return "OK";//$NON-NLS-1$
+        }
 
         WSItemPK itemPK = CommonUtil.getPort().putItem(
                 new WSPutItem(new WSDataClusterPK("UpdateReport"), xml2, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$ //$NON-NLS-2$
 
-        if (routeAfterSaving)
+        if (routeAfterSaving) {
             CommonUtil.getPort().routeItemV2(new WSRouteItemV2(itemPK));
+        }
 
         return "OK";//$NON-NLS-1$ 
     }
@@ -719,6 +739,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         TreeSet<Map.Entry<String, String>> set = new TreeSet<Map.Entry<String, String>>(
                 new Comparator<Map.Entry<String, String>>() {
 
+                    @Override
                     public int compare(Map.Entry<String, String> obj1, Map.Entry<String, String> obj2) {
                         String obj1Value = obj1.getValue();
                         if (obj1Value != null) {
@@ -769,10 +790,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                         NodeList nodes = com.amalto.core.util.Util.getNodeList(document,
                                 StringUtils.substringAfter(foreignKeyPath, "/")); //$NON-NLS-1$
                         if (nodes.getLength() == 1) {
-                            if (formattedId.equals("")) //$NON-NLS-1$
+                            if (formattedId.equals("")) {
                                 formattedId += nodes.item(0).getTextContent();
-                            else
+                            } else {
                                 formattedId += "-" + nodes.item(0).getTextContent(); //$NON-NLS-1$
+                            }
                         } else {
                             throw new IllegalArgumentException(MessagesFactory.getMessages().label_exception_xpath_not_match(
                                     foreignKeyPath, nodes.getLength()));
@@ -796,7 +818,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
      *********************************************************************/
 
     @Override
-    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
+    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value) {
         try {
             return ForeignKeyHelper.getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value);
@@ -848,10 +870,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                             .marshal2String(), new WSDataModelPK(XSystemObjects.DM_SEARCHTEMPLATE.getName()), false));
 
             String returnString;
-            if (pk != null)
+            if (pk != null) {
                 returnString = "OK";//$NON-NLS-1$
-            else
+            } else {
                 returnString = null;
+            }
             return returnString;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -860,7 +883,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     }
 
     @Override
-    public PagingLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load) {
+    public ItemBasePageLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, BasePagingLoadConfigImpl load) {
         List<String> results = Arrays.asList(getSearchTemplateNames(view, isShared, load.getOffset(), load.getLimit()));
         List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
         for (String result : results) {
@@ -883,7 +906,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             }
         }
         int totalSize = results.size();
-        return new BasePagingLoadResult<ItemBaseModel>(list, load.getOffset(), totalSize);
+        return new ItemBasePageLoadResult<ItemBaseModel>(list, load.getOffset(), totalSize);
     }
 
     @Override
@@ -979,8 +1002,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             WSItemPK wsItem = CommonUtil.getPort().deleteItem(
                     new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), false));
 
-            if (wsItem == null)
+            if (wsItem == null) {
                 return MessagesFactory.getMessages().label_error_delete_template_null();
+            }
             return "OK";//$NON-NLS-1$
 
         } catch (Exception e) {
@@ -1000,8 +1024,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                                     "BrowseItem",//$NON-NLS-1$
                                     new String[] { bookmark }))).getContent().trim();
             if (result != null) {
-                if (result.indexOf("<SearchCriteria>") != -1)//$NON-NLS-1$
+                if (result.indexOf("<SearchCriteria>") != -1) {
                     criteria = result.substring(result.indexOf("<SearchCriteria>") + 16, result.indexOf("</SearchCriteria>"));//$NON-NLS-1$ //$NON-NLS-2$
+                }
             }
             return criteria;
         } catch (XtentisWebappException e) {
@@ -1100,8 +1125,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         XSComplexType type = (XSComplexType) decl.getType();
         XSParticle[] xsp = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
         for (XSParticle obj : xsp) {
-            if (obj.getMinOccurs() == 1 && obj.getMaxOccurs() == 1)
+            if (obj.getMinOccurs() == 1 && obj.getMaxOccurs() == 1) {
                 fieldNames.add(obj.getTerm().asElementDecl().getName());
+            }
         }
 
         return fieldNames;
@@ -1125,8 +1151,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         List<SubTypeBean> derivedTypes = new ArrayList<SubTypeBean>();
 
         if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
-            if (xpathForeignKey.startsWith("/"))//$NON-NLS-1$
+            if (xpathForeignKey.startsWith("/")) {
                 xpathForeignKey = xpathForeignKey.substring(1);
+            }
             String fkEntity = "";//$NON-NLS-1$
             if (xpathForeignKey.indexOf("/") != -1) {//$NON-NLS-1$
                 fkEntity = xpathForeignKey.substring(0, xpathForeignKey.indexOf("/"));//$NON-NLS-1$
@@ -1191,8 +1218,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         ForeignKeyDrawer fkDrawer = new ForeignKeyDrawer();
 
         BusinessConcept businessConcept = SchemaWebAgent.getInstance().getFirstBusinessConceptFromRootType(targetEntityType);
-        if (businessConcept == null)
+        if (businessConcept == null) {
             return null;
+        }
         String targetEntity = businessConcept.getName();
 
         if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
@@ -1202,12 +1230,12 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         if (xpathInfoForeignKey != null && xpathInfoForeignKey.length() > 0) {
             String[] fkInfoPaths = xpathInfoForeignKey.split(",");//$NON-NLS-1$
             xpathInfoForeignKey = "";//$NON-NLS-1$
-            for (int i = 0; i < fkInfoPaths.length; i++) {
-                String fkInfoPath = fkInfoPaths[i];
+            for (String fkInfoPath : fkInfoPaths) {
                 String relacedFkInfoPath = replaceXpathRoot(targetEntity, fkInfoPath);
                 if (relacedFkInfoPath != null && relacedFkInfoPath.length() > 0) {
-                    if (xpathInfoForeignKey.length() > 0)
+                    if (xpathInfoForeignKey.length() > 0) {
                         xpathInfoForeignKey += ",";//$NON-NLS-1$
+                    }
                     xpathInfoForeignKey += relacedFkInfoPath;
                 }
             }
@@ -1225,10 +1253,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
      * @return
      */
     private String replaceXpathRoot(String targetEntity, String xpath) {
-        if (xpath.indexOf("/") != -1)//$NON-NLS-1$
+        if (xpath.indexOf("/") != -1) {
             xpath = targetEntity + xpath.substring(xpath.indexOf("/"));//$NON-NLS-1$
-        else
+        } else {
             xpath = targetEntity;
+        }
         return xpath;
     }
 }

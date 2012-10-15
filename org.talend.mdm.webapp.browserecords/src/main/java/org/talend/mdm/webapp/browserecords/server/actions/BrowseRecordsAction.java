@@ -52,6 +52,7 @@ import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
@@ -157,9 +158,6 @@ import com.amalto.webapp.util.webservices.WSWhereOperator;
 import com.amalto.webapp.util.webservices.WSWhereOr;
 import com.amalto.webapp.util.webservices.WSXPathsSearch;
 import com.extjs.gxt.ui.client.Style.SortDir;
-import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
@@ -283,7 +281,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
+    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value) throws ServiceException {
         try {
             return ForeignKeyHelper.getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value);
@@ -1268,7 +1266,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public PagingLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load)
+    public ItemBasePageLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, BasePagingLoadConfigImpl load)
             throws ServiceException {
         try {
             List<String> results = Arrays.asList(getSearchTemplateNames(view, isShared, load.getOffset(), load.getLimit()));
@@ -1289,7 +1287,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 list.add(bm);
             }
             int totalSize = results.size();
-            return new BasePagingLoadResult<ItemBaseModel>(list, load.getOffset(), totalSize);
+            return new ItemBasePageLoadResult<ItemBaseModel>(list, load.getOffset(), totalSize);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());

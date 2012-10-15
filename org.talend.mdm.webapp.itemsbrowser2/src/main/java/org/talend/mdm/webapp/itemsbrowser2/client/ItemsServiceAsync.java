@@ -2,6 +2,7 @@ package org.talend.mdm.webapp.itemsbrowser2.client;
 
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
@@ -15,8 +16,6 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -34,8 +33,8 @@ public interface ItemsServiceAsync {
 
     void saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString, AsyncCallback<String> callback);
 
-    void querySearchTemplates(String view, boolean isShared, PagingLoadConfig load,
-            AsyncCallback<PagingLoadResult<ItemBaseModel>> callback);
+    void querySearchTemplates(String view, boolean isShared, BasePagingLoadConfigImpl load,
+            AsyncCallback<ItemBasePageLoadResult<ItemBaseModel>> callback);
 
     void getCriteriaByBookmark(String bookmark, AsyncCallback<String> callback);
 
@@ -59,8 +58,8 @@ public interface ItemsServiceAsync {
 
     void getItem(ItemBean itemBean, EntityModel entityModel, AsyncCallback<ItemBean> callback);
 
-    void getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK, boolean ifFKFilter, String value,
-            AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback);
+    void getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model, String dataClusterPK, boolean ifFKFilter,
+            String value, AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback);
 
     void logicalDeleteItems(List<ItemBean> items, String path, AsyncCallback<List<ItemResult>> callback);
 

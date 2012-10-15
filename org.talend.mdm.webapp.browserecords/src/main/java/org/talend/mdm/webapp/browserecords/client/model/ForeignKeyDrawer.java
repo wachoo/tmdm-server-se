@@ -14,10 +14,14 @@ package org.talend.mdm.webapp.browserecords.client.model;
 
 import java.io.Serializable;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
  * DOC HSHU class global comment. Detailled comment
  */
-public class ForeignKeyDrawer implements Serializable {
+public class ForeignKeyDrawer implements Serializable, IsSerializable {
+
+    private static final long serialVersionUID = -5495796745371373787L;
 
     private String xpathForeignKey;
 

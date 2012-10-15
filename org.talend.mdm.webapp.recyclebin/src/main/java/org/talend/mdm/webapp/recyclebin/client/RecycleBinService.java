@@ -13,10 +13,10 @@
 package org.talend.mdm.webapp.recyclebin.client;
 
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
+import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
 
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
@@ -26,11 +26,13 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("RecycleBinService")
 public interface RecycleBinService extends RemoteService {
 
-    PagingLoadResult<ItemsTrashItem> getTrashItems(String regex, PagingLoadConfig load) throws ServiceException;
+    ItemBasePageLoadResult<ItemsTrashItem> getTrashItems(String regex, BasePagingLoadConfigImpl load) throws ServiceException;
 
-    String removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids, String language) throws ServiceException;
+    String removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids, String language)
+            throws ServiceException;
 
-    void recoverDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String modelName, String ids) throws ServiceException;
+    void recoverDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String modelName, String ids)
+            throws ServiceException;
 
     String getCurrentDataModel() throws ServiceException;
 
@@ -38,5 +40,5 @@ public interface RecycleBinService extends RemoteService {
 
     boolean isEntityPhysicalDeletable(String conceptName) throws ServiceException;
 
-    boolean checkConflict(String itemPk,String conceptName, String id) throws ServiceException;
+    boolean checkConflict(String itemPk, String conceptName, String id) throws ServiceException;
 }

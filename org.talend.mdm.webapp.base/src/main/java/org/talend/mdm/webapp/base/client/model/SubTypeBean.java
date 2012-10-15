@@ -14,7 +14,9 @@ package org.talend.mdm.webapp.base.client.model;
 
 import java.io.Serializable;
 
-public class SubTypeBean implements Comparable<SubTypeBean>, Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class SubTypeBean implements Comparable<SubTypeBean>, Serializable, IsSerializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -23,6 +25,9 @@ public class SubTypeBean implements Comparable<SubTypeBean>, Serializable {
     private String label;
 
     private String OrderValue;
+
+    public SubTypeBean() {
+    }
 
     public String getName() {
         return name;
@@ -58,13 +63,18 @@ public class SubTypeBean implements Comparable<SubTypeBean>, Serializable {
      * 
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
+    @Override
     public int compareTo(SubTypeBean o) {
 
         if (o != null && o instanceof SubTypeBean) {
             if (o.getOrderValue() != null && this.getOrderValue() != null) {
 
-                if (!o.getOrderValue().matches("\\d+"))o.setOrderValue(String.valueOf(Integer.MAX_VALUE));//$NON-NLS-1$
-                if (!this.getOrderValue().matches("\\d+"))this.setOrderValue(String.valueOf(Integer.MAX_VALUE));//$NON-NLS-1$
+                if (!o.getOrderValue().matches("\\d+")) {
+                    o.setOrderValue(String.valueOf(Integer.MAX_VALUE));
+                }
+                if (!this.getOrderValue().matches("\\d+")) {
+                    this.setOrderValue(String.valueOf(Integer.MAX_VALUE));
+                }
 
                 return Integer.valueOf(this.getOrderValue()).compareTo(Integer.valueOf(o.getOrderValue()));
             }

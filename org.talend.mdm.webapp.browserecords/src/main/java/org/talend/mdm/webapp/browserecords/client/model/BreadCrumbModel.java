@@ -14,10 +14,14 @@ package org.talend.mdm.webapp.browserecords.client.model;
 
 import java.io.Serializable;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
-public class BreadCrumbModel implements Serializable {
+public class BreadCrumbModel implements Serializable, IsSerializable {
+
+    private static final long serialVersionUID = -4775531376847407604L;
 
     private String ids;
 

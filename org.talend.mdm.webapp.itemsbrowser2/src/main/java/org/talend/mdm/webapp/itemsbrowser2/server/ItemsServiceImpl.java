@@ -16,6 +16,7 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
@@ -33,9 +34,6 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
-
 /**
  * The server side implementation of the RPC service.
  */
@@ -50,14 +48,17 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
 
     private static ItemsService itemsServiceHandler = ItemServiceHandlerFactory.createHandler();
 
+    @Override
     public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config) {
         return itemsServiceHandler.queryItemBeans(config);
     }
 
+    @Override
     public ViewBean getView(String viewPk, String language) {
         return itemsServiceHandler.getView(viewPk, language);
     }
 
+    @Override
     public List<ItemBaseModel> getViewsList(String language) {
         return itemsServiceHandler.getViewsList(language);
     }
@@ -67,6 +68,7 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
      * 
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#isExistCriteria(java.lang.String, java.lang.String)
      */
+    @Override
     public boolean isExistCriteria(String dataObjectLabel, String id) {
         return itemsServiceHandler.isExistCriteria(dataObjectLabel, id);
     }
@@ -77,6 +79,7 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#saveCriteria(java.lang.String, java.lang.String,
      * boolean, java.lang.String)
      */
+    @Override
     public String saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString) {
         return itemsServiceHandler.saveCriteria(viewPK, templateName, isShared, criteriaString);
     }
@@ -86,6 +89,7 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
      * 
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#getCriteriaByBookmark(java.lang.String)
      */
+    @Override
     public String getCriteriaByBookmark(String bookmark) {
         return itemsServiceHandler.getCriteriaByBookmark(bookmark);
     }
@@ -95,6 +99,7 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
      * 
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#getviewItemsCriterias(java.lang.String)
      */
+    @Override
     public List<ItemBaseModel> getUserCriterias(String view) {
         return itemsServiceHandler.getUserCriterias(view);
     }
@@ -105,7 +110,8 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#querySearchTemplates(java.lang.String, boolean,
      * com.extjs.gxt.ui.client.data.PagingLoadConfig)
      */
-    public PagingLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load) {
+    @Override
+    public ItemBasePageLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, BasePagingLoadConfigImpl load) {
         return itemsServiceHandler.querySearchTemplates(view, isShared, load);
     }
 
@@ -114,6 +120,7 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
      * 
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#deleteSearchTemplate(java.lang.String)
      */
+    @Override
     public String deleteSearchTemplate(String id) {
         return itemsServiceHandler.deleteSearchTemplate(id);
     }
@@ -123,6 +130,7 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
      * 
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#getCurrentDataModel()
      */
+    @Override
     public String getCurrentDataModel() throws Exception {
         return itemsServiceHandler.getCurrentDataModel();
     }
@@ -132,6 +140,7 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
      * 
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#getCurrentDataCluster()
      */
+    @Override
     public String getCurrentDataCluster() throws Exception {
         return itemsServiceHandler.getCurrentDataCluster();
     }
@@ -143,6 +152,7 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
      * org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#saveItemBean(org.talend.mdm.webapp.itemsbrowser2.client
      * .model.ItemBean)
      */
+    @Override
     public ItemResult saveItemBean(ItemBean item, String language) {
         return itemsServiceHandler.saveItemBean(item, language);
     }
@@ -154,10 +164,12 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
      * org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#logicalDeleteItem(org.talend.mdm.webapp.itemsbrowser2
      * .client .model.ItemBean, java.lang.String)
      */
+    @Override
     public ItemResult logicalDeleteItem(ItemBean item, String path) {
         return itemsServiceHandler.logicalDeleteItem(item, path);
     }
 
+    @Override
     public List<ItemResult> logicalDeleteItems(List<ItemBean> items, String path) {
         return itemsServiceHandler.logicalDeleteItems(items, path);
     }
@@ -169,10 +181,12 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
      * org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#deleteItemBean(org.talend.mdm.webapp.itemsbrowser2.client
      * .model.ItemBean)
      */
+    @Override
     public ItemResult deleteItemBean(ItemBean item, String language) {
         return itemsServiceHandler.deleteItemBean(item, language);
     }
 
+    @Override
     public List<ItemResult> deleteItemBeans(List<ItemBean> items, String language) {
         return itemsServiceHandler.deleteItemBeans(items, language);
     }
@@ -180,6 +194,7 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
     /**
      * DOC HSHU Comment method "getAppHeader".
      */
+    @Override
     public AppHeader getAppHeader() throws Exception {
         return itemsServiceHandler.getAppHeader();
     }
@@ -189,24 +204,29 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
      * 
      * @throws Exception
      */
+    @Override
     public ItemBean getItem(ItemBean itemBean, EntityModel entityModel) throws Exception {
         return itemsServiceHandler.getItem(itemBean, entityModel);
     }
 
-    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
+    @Override
+    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value) {
         return itemsServiceHandler.getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value);
     }
 
+    @Override
     public List<Restriction> getForeignKeyPolymTypeList(String xpathForeignKey, String language) throws Exception {
         return itemsServiceHandler.getForeignKeyPolymTypeList(xpathForeignKey, language);
     }
 
+    @Override
     public ForeignKeyDrawer switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey,
             String fkFilter) throws Exception {
         return itemsServiceHandler.switchForeignKeyType(targetEntityType, xpathForeignKey, xpathInfoForeignKey, fkFilter);
     }
 
+    @Override
     public List<String> getMandatoryFieldList(String tableName) throws Exception {
         return itemsServiceHandler.getMandatoryFieldList(tableName);
     }

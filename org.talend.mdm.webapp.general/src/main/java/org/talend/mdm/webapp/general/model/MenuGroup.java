@@ -15,10 +15,11 @@ package org.talend.mdm.webapp.general.model;
 import java.io.Serializable;
 import java.util.List;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class MenuGroup implements Serializable {
+public class MenuGroup implements Serializable, IsSerializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -976509836517973550L;
 
     List<GroupItem> groupItem;
 
@@ -27,7 +28,7 @@ public class MenuGroup implements Serializable {
     public boolean hasSpecifiedMenu(MenuBean mb) {
         for (GroupItem item : groupItem) {
             for (String menu : item.getMenuItems()) {
-                if (menu.equals(mb.getContext() + "." + mb.getApplication()))
+                if (menu.equals(mb.getContext() + "." + mb.getApplication())) //$NON-NLS-1$
                     return true;
             }
         }

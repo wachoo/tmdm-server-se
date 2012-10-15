@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecords.client;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
@@ -35,8 +36,6 @@ import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -44,8 +43,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public interface BrowseRecordsServiceAsync {
 
-    void getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK, boolean ifFKFilter, String value,
-            AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback);
+    void getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model, String dataClusterPK, boolean ifFKFilter,
+            String value, AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback);
 
     void getForeignKeyPolymTypeList(String xpathForeignKey, String language, AsyncCallback<List<Restriction>> callback);
 
@@ -82,8 +81,8 @@ public interface BrowseRecordsServiceAsync {
 
     void getCurrentDataCluster(AsyncCallback<String> callback);
 
-    void querySearchTemplates(String view, boolean isShared, PagingLoadConfig load,
-            AsyncCallback<PagingLoadResult<ItemBaseModel>> callback);
+    void querySearchTemplates(String view, boolean isShared, BasePagingLoadConfigImpl load,
+            AsyncCallback<ItemBasePageLoadResult<ItemBaseModel>> callback);
 
     void deleteSearchTemplate(String id, AsyncCallback<Void> callback);
 
@@ -125,15 +124,16 @@ public interface BrowseRecordsServiceAsync {
     void formatValue(FormatModel model, AsyncCallback<String> callback);
 
     void getEntityModel(String concept, String language, AsyncCallback<EntityModel> callback);
-    
-    void createDefaultItemNodeModel(ViewBean viewBean, Map<String, List<String>> initDataMap, String language, AsyncCallback<ItemNodeModel> callback);
+
+    void createDefaultItemNodeModel(ViewBean viewBean, Map<String, List<String>> initDataMap, String language,
+            AsyncCallback<ItemNodeModel> callback);
 
     void createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath, String realType,
             String language, AsyncCallback<ItemNodeModel> callback);
 
-	void getForeignKeyValues(String concept, String[] ids, String language,
-			AsyncCallback<Map<ViewBean, Map<String, List<String>>>> callback);
-	
-	void isExistId(String concept, String[] ids, String language,AsyncCallback<Boolean> callback);
+    void getForeignKeyValues(String concept, String[] ids, String language,
+            AsyncCallback<Map<ViewBean, Map<String, List<String>>>> callback);
+
+    void isExistId(String concept, String[] ids, String language, AsyncCallback<Boolean> callback);
 
 }

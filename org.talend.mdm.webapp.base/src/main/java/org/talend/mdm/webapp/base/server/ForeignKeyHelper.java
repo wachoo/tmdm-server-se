@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.base.server;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -25,6 +24,7 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
@@ -47,7 +47,6 @@ import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSXPathsSearch;
 import com.extjs.gxt.ui.client.Style.SortDir;
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 
 public class ForeignKeyHelper {
 
@@ -61,7 +60,7 @@ public class ForeignKeyHelper {
         schemaManager = _schemaManager;
     }
 
-    public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
+    public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value) throws Exception {
 
         ForeignKeyHolder holder = getForeignKeyHolder((String) config.get("xml"), (String) config.get("dataObject"), //$NON-NLS-1$ //$NON-NLS-2$
@@ -72,18 +71,18 @@ public class ForeignKeyHelper {
             List<String> xPaths = holder.xpaths;
             WSWhereItem whereItem = holder.whereItem;
             String fkFilter = holder.fkFilter;
-            
+
             String sortDir;
             String xpath;
 
-            if (SortDir.ASC.equals(config.getSortDir())) {
+            if (SortDir.ASC.equals(SortDir.findDir(config.getSortDir()))) {
                 sortDir = Constants.SEARCH_DIRECTION_ASC;
-            } else if (SortDir.DESC.equals(config.getSortDir())) {
+            } else if (SortDir.DESC.equals(SortDir.findDir(config.getSortDir()))) {
                 sortDir = Constants.SEARCH_DIRECTION_DESC;
             } else {
                 sortDir = null;
             }
-            
+
             if (sortDir != null) {
                 xpath = model.getXpath() + "/" + config.getSortField(); //$NON-NLS-1$
             } else {
@@ -105,8 +104,7 @@ public class ForeignKeyHelper {
                         .getItemsByCustomFKFilters(
                                 new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName,
                                         new WSStringArray(xPaths.toArray(new String[xPaths.size()])), injectedXpath, config
-                                                .getOffset(), config.getLimit(), xpath, sortDir, true, whereItem))
-                        .getStrings();
+                                                .getOffset(), config.getLimit(), xpath, sortDir, true, whereItem)).getStrings();
             }
         }
 
@@ -114,8 +112,8 @@ public class ForeignKeyHelper {
 
         if (results != null) {
             if (LOG.isDebugEnabled()) {
-                for (int index = 0; index < results.length; index++) {
-                    LOG.debug(results[index]);
+                for (String result : results) {
+                    LOG.debug(result);
                 }
             }
 
@@ -194,18 +192,20 @@ public class ForeignKeyHelper {
 
         // to verify
         String xpathInfoForeignKey;
-        if (model.getForeignKeyInfo() != null && model.getForeignKeyInfo().size() > 0)
+        if (model.getForeignKeyInfo() != null && model.getForeignKeyInfo().size() > 0) {
             xpathInfoForeignKey = Util.joinStrings(model.getForeignKeyInfo()
                     .toArray(new String[model.getForeignKeyInfo().size()]), ",");//$NON-NLS-1$
-        else
+        } else {
             xpathInfoForeignKey = "";//$NON-NLS-1$
+        }
         // in search panel, the fkFilter is empty
         String fkFilter;
         if (ifFKFilter) {
             fkFilter = model.getFkFilter().replaceAll("&quot;", "\""); //$NON-NLS-1$ //$NON-NLS-2$
             fkFilter = parseForeignKeyFilter(xml, dataObject, fkFilter, currentXpath);
-        } else
+        } else {
             fkFilter = ""; //$NON-NLS-1$
+        }
 
         String initxpathForeignKey = Util.getForeignPathFromPath(xpathForeignKey);
 
@@ -218,14 +218,16 @@ public class ForeignKeyHelper {
         if (!Util.isCustomFilter(fkFilter)) {
             // get FK filter
             WSWhereItem fkFilterWi = Util.getConditionFromFKFilter(xpathForeignKey, xpathInfoForeignKey, fkFilter, false);
-            if (fkFilterWi != null)
+            if (fkFilterWi != null) {
                 whereItem = fkFilterWi;
+            }
         }
 
         initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
 
-        if (xpathInfoForeignKey == null)
+        if (xpathInfoForeignKey == null) {
             xpathInfoForeignKey = ""; //$NON-NLS-1$
+        }
 
         // foreign key set by business concept
         if (initxpathForeignKey.split("/").length == 1) { //$NON-NLS-1$
@@ -255,8 +257,9 @@ public class ForeignKeyHelper {
                             realXpathForeignKey = fks[0];
                             for (int i = 0; i < fks.length; i++) {
                                 ids.append(fks[i] + " CONTAINS " + value); //$NON-NLS-1$
-                                if (i != fks.length - 1)
+                                if (i != fks.length - 1) {
                                     ids.append(" OR "); //$NON-NLS-1$
+                                }
                             }
                         }
                     }
@@ -268,10 +271,11 @@ public class ForeignKeyHelper {
                                 + " CONTAINS " + value); //$NON-NLS-1$
                         sb.append(" OR "); //$NON-NLS-1$
                     }
-                    if (realXpathForeignKey != null)
+                    if (realXpathForeignKey != null) {
                         sb.append(ids.toString());
-                    else
+                    } else {
                         sb.append(xpathForeignKey + " CONTAINS " + value); //$NON-NLS-1$
+                    }
                     fkWhere = sb.toString();
                 }
 
@@ -279,18 +283,20 @@ public class ForeignKeyHelper {
                 condition.add(wc);
                 WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
                 WSWhereItem whand = new WSWhereItem(null, and, null);
-                if (whand != null)
+                if (whand != null) {
                     whereItem = whand;
+                }
             }
 
             // add the xPath Infos Path
             ArrayList<String> xPaths = new ArrayList<String>();
-            if (model.isRetrieveFKinfos())
+            if (model.isRetrieveFKinfos()) {
                 // add the xPath Infos Path
                 for (String xpathInfo : xpathInfos) {
                     xPaths.add(Util.getFormatedFKInfo(xpathInfo.replaceFirst(initxpathForeignKey, initxpathForeignKey),
                             initxpathForeignKey));
                 }
+            }
             // add the key paths last, since there may be multiple keys
             xPaths.add(initxpathForeignKey + "/../../i"); //$NON-NLS-1$
             // order by
@@ -324,17 +330,19 @@ public class ForeignKeyHelper {
             }
         }
     }
-    
+
     public static void convertFKInfo2DisplayInfo(ForeignKeyBean bean, List<String> foreignKeyInfos) {
-        if (foreignKeyInfos.size() == 0)
+        if (foreignKeyInfos.size() == 0) {
             return;
+        }
 
         String infoStr = ""; //$NON-NLS-1$
         for (String str : foreignKeyInfos) {
-            if (infoStr.equals("")) //$NON-NLS-1$
+            if (infoStr.equals("")) {
                 infoStr += bean.getForeignKeyInfo().get(str);
-            else
+            } else {
                 infoStr += "-" + bean.getForeignKeyInfo().get(str); //$NON-NLS-1$
+            }
         }
 
         bean.setDisplayInfo(infoStr);
@@ -387,8 +395,8 @@ public class ForeignKeyHelper {
             // build
             if (conditions.size() > 0) {
                 StringBuffer sb = new StringBuffer();
-                for (Iterator<Map<String, String>> iterator = conditions.iterator(); iterator.hasNext();) {
-                    Map<String, String> conditionMap = (Map<String, String>) iterator.next();
+                for (Map<String, String> map : conditions) {
+                    Map<String, String> conditionMap = map;
                     if (conditionMap.size() > 0) {
                         String xpath = conditionMap.get("Xpath") == null ? "" : conditionMap.get("Xpath");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
                         String operator = conditionMap.get("Operator") == null ? "" : conditionMap.get("Operator");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
@@ -397,13 +405,14 @@ public class ForeignKeyHelper {
                         sb.append(xpath + "$$" + operator + "$$" + value + "$$" + predicate + "#");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
                     }
                 }
-                if (sb.length() > 0)
+                if (sb.length() > 0) {
                     parsedFkfilter = sb.toString();
+                }
             }
         }
         return parsedFkfilter;
     }
-    
+
     public static String wrapFkValue(String value) {
         if (value.startsWith("[") && value.endsWith("]")) { //$NON-NLS-1$//$NON-NLS-2$
             return value;
@@ -447,8 +456,9 @@ public class ForeignKeyHelper {
                 String gettedXpath = matcher.group(j);
                 if (gettedXpath != null) {
                     String replaceValue = parseRightValueOrPath(xml, dataObject, gettedXpath, currentXpath);
-                    if (replaceValue != null)
+                    if (replaceValue != null) {
                         rightExpression = rightExpression.replaceFirst(patternString, "\"" + replaceValue + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
                 }
             }
         }
@@ -458,8 +468,9 @@ public class ForeignKeyHelper {
 
     private static String parseRightValueOrPath(String xml, String dataObject, String rightValueOrPath, String currentXpath)
             throws Exception {
-        if (rightValueOrPath == null || currentXpath == null)
+        if (rightValueOrPath == null || currentXpath == null) {
             throw new IllegalArgumentException();
+        }
 
         boolean isValue = false;
         boolean isRelativePath = false;
@@ -468,10 +479,11 @@ public class ForeignKeyHelper {
 
         // switch cases
         if (rightValueOrPath.startsWith("\"") && rightValueOrPath.endsWith("\"") || //$NON-NLS-1$//$NON-NLS-2$
-                rightValueOrPath.startsWith("'") && rightValueOrPath.endsWith("'")) //$NON-NLS-1$//$NON-NLS-2$
+                rightValueOrPath.startsWith("'") && rightValueOrPath.endsWith("'")) {
             isValue = true;
-        else if (rightValueOrPath.startsWith(".") || rightValueOrPath.startsWith(".."))//$NON-NLS-1$//$NON-NLS-2$
+        } else if (rightValueOrPath.startsWith(".") || rightValueOrPath.startsWith("..")) {
             isRelativePath = true;
+        }
 
         // cases handle
         String result = rightValueOrPath;// by default result equals input value/path
@@ -489,8 +501,9 @@ public class ForeignKeyHelper {
                     String xpath = rightValueOrPath.startsWith("/") ? rightValueOrPath : "/" + rightValueOrPath; //$NON-NLS-1$//$NON-NLS-2$
                     targetNode = currentNode.selectSingleNode(xpath);
                 }
-                if (targetNode != null && targetNode.getText() != null)
+                if (targetNode != null && targetNode.getText() != null) {
                     result = targetNode.getText();
+                }
             }
         }
 

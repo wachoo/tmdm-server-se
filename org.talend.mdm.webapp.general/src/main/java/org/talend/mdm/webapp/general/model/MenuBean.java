@@ -14,7 +14,9 @@ package org.talend.mdm.webapp.general.model;
 
 import java.io.Serializable;
 
-public class MenuBean implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class MenuBean implements Serializable, IsSerializable {
 
 
 	/**

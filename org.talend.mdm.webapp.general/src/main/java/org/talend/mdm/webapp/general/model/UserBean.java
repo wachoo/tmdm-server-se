@@ -2,10 +2,12 @@ package org.talend.mdm.webapp.general.model;
 
 import java.io.Serializable;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class UserBean implements Serializable {
 
-    
+public class UserBean implements Serializable, IsSerializable {
+
+    private static final long serialVersionUID = 7651498501644312002L;
     private String name;
     private String universe;
     private boolean enterprise;
@@ -34,6 +36,6 @@ public class UserBean implements Serializable {
 
     public void setEnterprise(boolean enterprise) {
         this.enterprise = enterprise;
-    };
+    }
     
 }
