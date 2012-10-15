@@ -22,7 +22,7 @@ public interface StagingareaMessages extends Messages {
     String current_validation();
     String previous_validation();
 
-    String server_error(int errorCode);
+    String server_error();
 
     String server_error_notification();
 

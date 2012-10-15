@@ -56,7 +56,7 @@ public class ClientResourceWrapper {
                 if (statusCode >= 200 && statusCode <= 299) {
                     callbackHandler.process(request, response);
                 } else {
-                    MessageBox.alert(MessagesFactory.getMessages().server_error(statusCode),
+                    MessageBox.alert(MessagesFactory.getMessages().server_error(),
                             MessagesFactory.getMessages().server_error_notification(), null);
                 }
             }
