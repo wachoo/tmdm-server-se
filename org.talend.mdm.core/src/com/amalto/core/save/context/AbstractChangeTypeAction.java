@@ -33,6 +33,8 @@ abstract class AbstractChangeTypeAction implements Action {
 
     protected final Set<String> pathToClean;
 
+    protected final boolean hasChangedType;
+
     public AbstractChangeTypeAction(Date date, String source, String userName, String path, ComplexTypeMetadata previousType, ComplexTypeMetadata newType) {
         this.source = source;
         this.date = date;
@@ -43,7 +45,8 @@ abstract class AbstractChangeTypeAction implements Action {
 
         pathToClean = new HashSet<String>();
         // Compute paths to fields that changed from previous type (only if type changed).
-        if (previousType != null && !previousType.getName().equals(newType.getName())) {
+        hasChangedType = previousType != newType || !previousType.getName().equals(newType.getName());
+        if (previousType != null && hasChangedType) {
             newType.accept(new TypeComparison(previousType, pathToClean));
             previousType.accept(new TypeComparison(newType, pathToClean));
         }
