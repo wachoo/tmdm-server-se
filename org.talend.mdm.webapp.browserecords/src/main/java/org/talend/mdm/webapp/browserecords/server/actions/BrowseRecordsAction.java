@@ -52,6 +52,7 @@ import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
