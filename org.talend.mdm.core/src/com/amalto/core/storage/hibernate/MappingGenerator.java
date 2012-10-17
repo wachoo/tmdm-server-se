@@ -55,12 +55,12 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         this.generateConstrains = generateConstrains;
     }
 
-    private static String shortString(String s) {
-        if (s.length() < 40) {
+    public static String shortString(String s) {
+        if (s.length() < 30) {
             return s;
         }
         char[] chars = s.toCharArray();
-        return __shortString(chars, 40);
+        return __shortString(chars, 30);
     }
 
     private static String __shortString(char[] chars, int threshold) {
