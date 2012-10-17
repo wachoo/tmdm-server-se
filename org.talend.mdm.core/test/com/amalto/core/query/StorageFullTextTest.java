@@ -253,18 +253,6 @@ public class StorageFullTextTest extends StorageTestCase {
 
     }
 
-    public void testCollectionCondition() throws Exception {
-        UserQueryBuilder qb = from(product).select(product.getField("Id")).where(
-                eq(product.getField("Features/Sizes/Size"), "XL"));
-
-        try {
-            storage.fetch(qb.getSelect());
-            fail("Cannot search on collections until use of Hibernate 4");
-        } catch (Exception e) {
-            // Excepted
-        }
-    }
-
     public void testFullTextResultsFormat() throws Exception {
         UserQueryBuilder qb = from(product).where(fullText("Renault"));
 

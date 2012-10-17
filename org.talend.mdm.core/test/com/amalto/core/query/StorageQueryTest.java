@@ -109,6 +109,38 @@ public class StorageQueryTest extends StorageTestCase {
                                 repository,
                                 a,
                                 "<A><id>2</id><textA>TextA</textA><nestedB><text>Text</text></nestedB><refA>[1]</refA></A>"));
+        allRecords.add(factory.read(1, repository, supplier, "<Supplier>\n" + "    <Id>1</Id>\n"
+                + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
+                + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
+                + "</Supplier>"));
+        allRecords.add(factory.read(1, repository, supplier, "<Supplier>\n" + "    <Id>2</Id>\n"
+                + "    <SupplierName>Starbucks Talend</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Cafe</Name>\n"
+                + "        <Phone>33234567890</Phone>\n" + "        <Email>test@testfactory.org</Email>\n" + "    </Contact>\n"
+                + "</Supplier>"));
+        allRecords.add(factory.read(1, repository, supplier, "<Supplier>\n" + "    <Id>3</Id>\n"
+                + "    <SupplierName>Talend</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Paul</Name>\n"
+                + "        <Phone>33234567890</Phone>\n" + "        <Email>test@talend.com</Email>\n" + "    </Contact>\n"
+                + "</Supplier>"));
+        allRecords.add(factory.read(1, repository, productFamily, "<ProductFamily>\n" + "    <Id>1</Id>\n"
+                + "    <Name>Product family #1</Name>\n" + "</ProductFamily>"));
+        allRecords.add(factory.read(1, repository, productFamily, "<ProductFamily>\n" + "    <Id>2</Id>\n"
+                + "    <Name>Product family #2</Name>\n" + "</ProductFamily>"));
+        allRecords.add(factory.read(1, repository, product, "<Product>\n" + "    <Id>1</Id>\n"
+                + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
+                + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
+                + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
+                + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
+                + "    </Features>\n" + "    <Status>Pending</Status>\n" + "    <Family>[2]</Family>\n"
+                + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
+        allRecords.add(factory.read(1, repository, product, "<Product>\n" + "    <Id>2</Id>\n" + "    <Name>Renault car</Name>\n"
+                + "    <ShortDescription>A car</ShortDescription>\n"
+                + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
+                + "            <Color>Blue 2</Color>\n" + "            <Color>Blue 1</Color>\n"
+                + "            <Color>Klein blue2</Color>\n" + "        </Colors>\n" + "    </Features>\n"
+                + "    <Family>[1]</Family>\n" + "    <Status>Pending</Status>\n" + "    <Supplier>[2]</Supplier>\n"
+                + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
         try {
             storage.begin();
             storage.update(allRecords);
@@ -1378,6 +1410,81 @@ public class StorageQueryTest extends StorageTestCase {
         int i = 0;
         for (DataRecord result : storageResults) {
             assertEquals(expected[i++], result.get("id"));
+        }
+    }
+
+    public void testCompositeFKCollectionSearch() throws Exception {
+        UserQueryBuilder qb = from(person)
+                .selectId(person)
+                .where(eq(person.getField("addresses/address"), "[3][false]"));
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+        }
+    }
+
+    public void testCompositeFKCollectionSearchWithWhereItem() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(person);
+        String fieldName = "Person/addresses/address";
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition(fieldName, WhereCondition.EQUALS, "[3][false]", WhereCondition.NO_OPERATOR)));
+        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+        }
+    }
+
+    public void testFKCollectionSearch() throws Exception {
+        UserQueryBuilder qb = from(product)
+                .selectId(product)
+                .where(eq(product.getField("Supplier"), "[2]"));
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+        }
+    }
+
+    public void testFKCollectionSearchWithWhereItem() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(product);
+        String fieldName = "Product/Supplier";
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition(fieldName, WhereCondition.EQUALS, "[2]", WhereCondition.NO_OPERATOR)));
+        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+        }
+    }
+
+    public void testValueCollectionSearch() throws Exception {
+        UserQueryBuilder qb = from(product)
+                .selectId(product)
+                .where(eq(product.getField("Features/Colors/Color"), "Blue"));
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+        }
+    }
+
+    public void testValueCollectionSearchWithWhereItem() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(product);
+        String fieldName = "Product/Features/Colors/Color";
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition(fieldName, WhereCondition.EQUALS, "Blue", WhereCondition.NO_OPERATOR)));
+        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
         }
     }
 }
