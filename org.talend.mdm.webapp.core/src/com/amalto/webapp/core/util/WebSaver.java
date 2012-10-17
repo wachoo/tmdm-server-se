@@ -24,6 +24,7 @@ import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.util.BeforeSavingErrorException;
 import com.amalto.core.util.BeforeSavingFormatException;
 import com.amalto.core.util.CVCException;
+import com.amalto.core.util.RoutingException;
 import com.amalto.core.util.ValidateException;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItemWithReport;
@@ -49,6 +50,9 @@ public class WebSaver {
 
     // define beforesaving report xml format error in studio
     public static final String BEFORESAVING_FORMATE_ERROR_MESSAGE = "save_failure_beforesaving_format_error"; //$NON-NLS-1$ 
+    
+    // define trigger to excute process error in studio
+    public static final String ROUTING_ERROR_MESSAGE = "save_success_rounting_fail"; //$NON-NLS-1$
 
     String dataClusterName;
 
@@ -111,13 +115,14 @@ public class WebSaver {
         } else if (BeforeSavingFormatException.class.isInstance(throwable)) {
             webCoreException = new WebCoreException(BEFORESAVING_FORMATE_ERROR_MESSAGE, throwable);
             webCoreException.setClient(true);
+        } else if (RoutingException.class.isInstance(throwable)) {
+            webCoreException = new WebCoreException(ROUTING_ERROR_MESSAGE, throwable);
         } else {
             if (throwable.getCause() != null) {
                 return handleException(throwable.getCause());
             } else {
                 webCoreException = new WebCoreException(SAVE_EXCEPTION_MESSAGE, throwable);
             }
-
         }
         return new RemoteException("", webCoreException); //$NON-NLS-1$
     }

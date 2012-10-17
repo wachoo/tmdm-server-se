@@ -30,6 +30,7 @@ import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJOPK;
 import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.RoutingException;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.WhereAnd;
@@ -329,7 +330,7 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 
 		putRoutingOrder(failedRO);
 		
-		throw new XtentisException(message);
+		throw new RoutingException(message);
     }
 
     

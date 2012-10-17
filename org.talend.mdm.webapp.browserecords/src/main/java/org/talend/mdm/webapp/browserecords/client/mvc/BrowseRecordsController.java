@@ -137,7 +137,7 @@ public class BrowseRecordsController extends Controller {
                         progressBar.close();
                         String err = caught.getMessage();
                         if (err != null) {
-                            MessageBox.alert(MessagesFactory.getMessages().error_title(), XmlUtil.transformXmlToString(err), null);
+                            MessageBox.alert(MessagesFactory.getMessages().error_title(), XmlUtil.transformXmlToString(err), null).setIcon(MessageBox.ERROR);
                         } else {
                             super.doOnFailure(caught);
                         }
@@ -149,7 +149,7 @@ public class BrowseRecordsController extends Controller {
                         MessageBox msgBox = null;
                         if (result.getStatus() == ItemResult.FAILURE) {
                             MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                    MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null);
+                                    MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null).setIcon(MessageBox.ERROR);
                             return;
                         }
                         if (result.getDescription() != "") { //$NON-NLS-1$

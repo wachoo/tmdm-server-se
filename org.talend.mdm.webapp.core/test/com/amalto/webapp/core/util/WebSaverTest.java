@@ -14,6 +14,8 @@ import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.util.BeforeSavingErrorException;
 import com.amalto.core.util.CVCException;
 import com.amalto.core.util.ValidateException;
+import com.amalto.core.util.BeforeSavingFormatException;
+import com.amalto.core.util.RoutingException;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
@@ -39,7 +41,9 @@ public class WebSaverTest extends TestCase {
         saver = new TestWebSaver();
         exceptionList.add(new RuntimeException(new ValidateException("ValidateException"))); //$NON-NLS-1$
         exceptionList.add(new RuntimeException(new CVCException("CVCException"))); //$NON-NLS-1$
-        exceptionList.add(new RuntimeException(new JobNotFoundException("job", "0.1"))); //$NON-NLS-1$ //$NON-NLS-2$
+        exceptionList.add(new RuntimeException(new JobNotFoundException("job", "0.1"))); //$NON-NLS-1$ //$NON-NLS-2$       
+        exceptionList.add(new RuntimeException(new BeforeSavingFormatException("BeforeSavingFormatException"))); //$NON-NLS-1$ 
+        exceptionList.add(new RuntimeException(new RoutingException("RoutingException"))); //$NON-NLS-1$
 
         // beforesaving exception
         BeforeSavingErrorException beforesavingException = new BeforeSavingErrorException("Error beforesaving"); //$NON-NLS-1$
@@ -49,12 +53,17 @@ public class WebSaverTest extends TestCase {
         titleList.add(WebSaver.VALIDATE_EXCEPTION_MESSAGE);
         titleList.add(WebSaver.CVC_EXCEPTION_MESSAGE);
         titleList.add(WebSaver.JOBNOTFOUND_EXCEPTION_MESSAGE);
+        titleList.add(WebSaver.BEFORESAVING_FORMATE_ERROR_MESSAGE);
+        titleList.add(WebSaver.ROUTING_ERROR_MESSAGE);
         titleList.add(WebSaver.SAVE_PROCESS_BEFORESAVING_FAILURE_MESSAGE);
 
         messageList.add("ValidateException"); //$NON-NLS-1$
         messageList.add("CVCException"); //$NON-NLS-1$
         messageList.add("job 0.1"); //$NON-NLS-1$
+        messageList.add("BeforeSavingFormatException"); //$NON-NLS-1$
+        messageList.add("RoutingException"); //$NON-NLS-1$
         messageList.add("Error beforesaving"); //$NON-NLS-1$
+        
     }
 
     public void testSaveItemWithReport() {
