@@ -104,6 +104,8 @@ public class ForeignKeyListWindow extends Window {
 
     private int pageSize = 20;
 
+    private String previousFilterText;
+
     private TextField<String> filter = new TextField<String>();
 
     private ComboBoxField<BaseModel> typeComboBox;
@@ -290,16 +292,21 @@ public class ForeignKeyListWindow extends Window {
                     return;
                 }
                 if (be.getKeyCode() == KeyCodes.KEY_ENTER) {
-                    ForeignKeyBean fkBean = relatedRecordGrid.getSelectionModel().getSelectedItem();
-                    fkBean.setForeignKeyPath(xPath);
-                    fkBean.setDisplayInfo(fkBean.toString() != null ? fkBean.toString() : fkBean.getId());
-                    returnCriteriaFK.setCriteriaFK(fkBean);
-                    closeOrHideWindow();
+                    if (filter.getRawValue().equals(previousFilterText)) {
+                        ForeignKeyBean fkBean = relatedRecordGrid.getSelectionModel().getSelectedItem();
+                        fkBean.setForeignKeyPath(xPath);
+                        fkBean.setDisplayInfo(fkBean.toString() != null ? fkBean.toString() : fkBean.getId());
+                        returnCriteriaFK.setCriteriaFK(fkBean);
+                        closeOrHideWindow();
+                    } else {
+                        previousFilterText = filter.getRawValue();
+                        loader.load(0, pageSize);
+                    }
+
                 }
                 if (be.getKeyCode() == KeyCodes.KEY_LEFT || be.getKeyCode() == KeyCodes.KEY_RIGHT) {
                     return;
                 }
-                loader.load(0, pageSize);
             }
         });
         filter.setWidth(WINDOW_WIDTH - 80);
@@ -350,10 +357,17 @@ public class ForeignKeyListWindow extends Window {
         Button filterBtn = new Button();
         filterBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.funnel()));
         filterBtn.setWidth(30);
+        filterBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                loader.load(0, pageSize);
+            }
+        });
         filter.setWidth(200);
         typeComboBox.setWidth(WINDOW_WIDTH - 250);
-        toolBar.add(filterBtn);
         toolBar.add(filter);
+        toolBar.add(filterBtn);
         panel.setTopComponent(toolBar);
 
         List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
