@@ -79,6 +79,9 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
 
     private boolean isMDMInternal(String clusterName) {
         if (clusterName != null) {
+            if (clusterName.isEmpty()) { // Consider an empty cluster name as internal
+                return true;
+            }
             // TMDM-4507: Update report now stored in SQL storage (user space).
             if (XSystemObjects.DC_UPDATE_PREPORT.getName().equals(clusterName)) {
                 return false; // Consider update reports as user data.
