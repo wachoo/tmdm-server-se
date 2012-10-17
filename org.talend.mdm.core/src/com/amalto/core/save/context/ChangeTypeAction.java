@@ -13,7 +13,7 @@ package com.amalto.core.save.context;
 
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
-import com.amalto.core.metadata.*;
+import com.amalto.core.metadata.ComplexTypeMetadata;
 import org.w3c.dom.Document;
 
 import javax.xml.XMLConstants;
@@ -26,6 +26,10 @@ class ChangeTypeAction extends AbstractChangeTypeAction {
     }
 
     public MutableDocument perform(MutableDocument document) {
+        if (!hasChangedType) {
+            document.createAccessor(path).touch();
+            return document;
+        }
         // Ensure xsi prefix is declared
         Document domDocument = document.asDOM();
         String xsi = domDocument.lookupNamespaceURI("xsi"); //$NON-NLS-1$
@@ -48,13 +52,21 @@ class ChangeTypeAction extends AbstractChangeTypeAction {
     }
 
     public MutableDocument undo(MutableDocument document) {
+        if (!hasChangedType) {
+            document.createAccessor(path).touch();
+            return document;
+        }
         Accessor accessor = document.createAccessor(path + "/@xsi:type"); //$NON-NLS-1$
         accessor.delete();
         return document;
     }
 
     public String getDetails() {
-        return "Change type to " + newType.getName(); //$NON-NLS-1$
+        if (hasChangedType) {
+            return "Change type to " + newType.getName(); //$NON-NLS-1$
+        } else {
+            return "Change type to " + newType.getName() + " (NO OP)"; //$NON-NLS-1$ //$NON-NLS-2$
+        }
     }
 
     @Override
@@ -62,6 +74,7 @@ class ChangeTypeAction extends AbstractChangeTypeAction {
         return "ChangeTypeAction{" +  //$NON-NLS-1$
                 "path='" + path + '\'' + //$NON-NLS-1$
                 ", newType=" + newType + //$NON-NLS-1$
+                ", changedType= " + hasChangedType + //$NON-NLS-1$
                 '}';
     }
 }
