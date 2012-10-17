@@ -15,7 +15,6 @@ import com.amalto.core.metadata.*;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
-import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -24,9 +23,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.engine.TypedValue;
 
 import java.sql.Timestamp;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
 
@@ -40,23 +37,23 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         }
     };
 
-    protected static final int JDBC_FETCH_SIZE = 20;
+    static final int JDBC_FETCH_SIZE = 20;
 
-    protected final ValueAdapter VALUE_ADAPTER = new ValueAdapter();
+    final ValueAdapter VALUE_ADAPTER = new ValueAdapter();
 
-    protected final Session session;
+    final Session session;
 
-    protected final MappingRepository mappingMetadataRepository;
+    final MappingRepository mappingMetadataRepository;
 
-    protected final Storage storage;
+    final Storage storage;
 
-    protected final StorageClassLoader storageClassLoader;
+    final StorageClassLoader storageClassLoader;
 
-    protected final Select select;
+    final Select select;
 
-    protected final Set<EndOfResultsCallback> callbacks;
+    final Set<EndOfResultsCallback> callbacks;
 
-    protected final List<TypedExpression> selectedFields;
+    final List<TypedExpression> selectedFields;
 
     AbstractQueryHandler(Storage storage,
                          MappingRepository mappingMetadataRepository,
@@ -130,9 +127,6 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         public Object visit(Id id) {
             ComplexTypeMetadata type = id.getType();
             List<FieldMetadata> keyFields = type.getKeyFields();
-            if (keyFields.size() > 1) {
-                throw new UnsupportedOperationException("Cannot perform search on composite FK.");
-            }
             List<String> ids = new LinkedList<String>();
             StringBuilder builder = null;
             String idAsString = id.getId();
@@ -160,7 +154,15 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
             } else {
                 ids.add(idAsString);
             }
-            return MetadataUtils.convert(ids.get(0), keyFields.get(0));
+            if (ids.size() == 1) {
+                return MetadataUtils.convert(ids.get(0), keyFields.get(0));
+            } else {
+                Object[] convertedId = new Object[ids.size()];
+                for (int i = 0; i< ids.size(); i++) {
+                    convertedId[i] = MetadataUtils.convert(ids.get(i), keyFields.get(i));
+                }
+                return convertedId;
+            }
         }
 
         @Override
