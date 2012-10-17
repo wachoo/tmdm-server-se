@@ -714,10 +714,9 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
             } else {
                 res = col.createResource(encodedID, "XMLResource");
             }
-            col.removeResource(res);
-            // remove item from cache
-            // ItemCacheKey key1=new ItemCacheKey(revisionID,uniqueID,clusterName);
-            // itemsCache.remove(key1);
+            if (col.getResource(encodedID) != null) {
+                col.removeResource(res);
+            }
         } catch (Exception e) {
             String err = "Unable to delete the document " + uniqueID + "on " + getFullURL(revisionID, clusterName) + ": "
                     + e.getLocalizedMessage();
