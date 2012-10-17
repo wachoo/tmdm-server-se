@@ -16,11 +16,7 @@ import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -41,41 +37,37 @@ public abstract class StorageClassLoader extends ClassLoader {
 
     public static final String EHCACHE_XML_CONFIG = "ehcache.xml";
 
-    public static final String HIBERNATE_CONFIG_TEMPLATE = "hibernate.cfg.template.xml"; //$NON-NLS-1$
+    static final String HIBERNATE_CONFIG_TEMPLATE = "hibernate.cfg.template.xml"; //$NON-NLS-1$
 
-    public static final String HIBERNATE_MAPPING = "hibernate.hbm.xml"; //$NON-NLS-1$
+    static final String HIBERNATE_MAPPING = "hibernate.hbm.xml"; //$NON-NLS-1$
 
-    public static final String HIBERNATE_MAPPING_TEMPLATE = "hibernate.hbm.template.xml"; //$NON-NLS-1$
+    static final String HIBERNATE_MAPPING_TEMPLATE = "hibernate.hbm.template.xml"; //$NON-NLS-1$
 
-    protected final Map<String, ComplexTypeMetadata> knownTypes = new HashMap<String, ComplexTypeMetadata>();
+    final Map<String, ComplexTypeMetadata> knownTypes = new HashMap<String, ComplexTypeMetadata>();
 
-    protected final Map<String, Class<? extends Wrapper>> registeredClasses = new TreeMap<String, Class<? extends Wrapper>>();
+    final Map<String, Class<? extends Wrapper>> registeredClasses = new TreeMap<String, Class<? extends Wrapper>>();
 
-    protected final String storageName;
+    final String storageName;
 
-    protected final StorageType type;
+    final StorageType type;
 
-    protected RDBMSDataSource dataSource;
+    RDBMSDataSource dataSource;
 
-    protected TableResolver resolver;
+    TableResolver resolver;
 
     private boolean isClosed;
 
-    public StorageClassLoader(ClassLoader parent, String storageName, StorageType type) {
+    StorageClassLoader(ClassLoader parent, String storageName, StorageType type) {
         super(parent);
         this.storageName = storageName;
         this.type = type;
     }
 
-    public abstract InputStream generateHibernateMapping();
+    protected abstract InputStream generateHibernateMapping();
 
-    public abstract MappingGenerator getMappingGenerator(Document document, TableResolver resolver);
+    protected abstract InputStream generateHibernateConfig();
 
-    public abstract InputStream generateHibernateConfig();
-
-    public abstract InputStream generateEhCacheConfig();
-
-    public abstract Document generateHibernateConfiguration(RDBMSDataSource rdbmsDataSource) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException;
+    protected abstract InputStream generateEhCacheConfig();
 
     @Override
     public InputStream getResourceAsStream(String name) {

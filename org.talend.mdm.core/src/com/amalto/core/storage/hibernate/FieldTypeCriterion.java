@@ -24,7 +24,7 @@ class FieldTypeCriterion extends SQLCriterion {
 
     private final String typeName;
 
-    protected FieldTypeCriterion(Criteria typeSelectionCriteria, String typeName) {
+    FieldTypeCriterion(Criteria typeSelectionCriteria, String typeName) {
         super(StringUtils.EMPTY, new Object[0], new Type[0]);
         this.criteria = typeSelectionCriteria;
         this.typeName = typeName;

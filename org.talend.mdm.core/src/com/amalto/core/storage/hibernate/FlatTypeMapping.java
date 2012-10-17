@@ -149,7 +149,7 @@ class FlatTypeMapping extends TypeMapping {
                         if (containedDataRecord == null) {
                             // Nullify all fields reachable from contained data record.
                             Set<FieldMetadata> reachableFields = field.getType().accept(new DefaultMetadataVisitor<Set<FieldMetadata>>() {
-                                Set<FieldMetadata> fields = new HashSet<FieldMetadata>();
+                                final Set<FieldMetadata> fields = new HashSet<FieldMetadata>();
 
                                 @Override
                                 public Set<FieldMetadata> visit(ComplexTypeMetadata complexType) {

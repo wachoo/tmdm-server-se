@@ -8,9 +8,9 @@ import java.util.Collections;
 /**
  *
  */
-public class UpdateReportMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
+class UpdateReportMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
-    public MappingRepository mappings;
+    private MappingRepository mappings;
 
     private final ComplexTypeMetadata DATABASE_UPDATE_REPORT_TYPE;
 

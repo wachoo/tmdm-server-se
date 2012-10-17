@@ -63,7 +63,7 @@ class QuartzTaskSubmitter implements TaskSubmitter {
         }
     }
 
-    public void submit(Task task, Trigger trigger) {
+    void submit(Task task, Trigger trigger) {
         JobDetail detail = new JobDetail(task.getId(), "group", Task.class); //$NON-NLS-1$
         try {
             scheduler.scheduleJob(detail, TaskTrigger.decorate(trigger, task));
@@ -72,30 +72,4 @@ class QuartzTaskSubmitter implements TaskSubmitter {
         }
     }
 
-    public void submit(TaskExecutor executor) {
-        Task task = executor.getTask();
-        Trigger trigger = executor.getTrigger();
-        JobDetail detail = new JobDetail(task.getId(), "group", Task.class); //$NON-NLS-1$
-        try {
-            scheduler.scheduleJob(detail, TaskTrigger.decorate(trigger, task));
-        } catch (SchedulerException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void submitAndWait(TaskExecutor executor) {
-        Task task = executor.getTask();
-        Trigger trigger = executor.getTrigger();
-        JobDetail detail = new JobDetail(task.getId(), "group", Task.class); //$NON-NLS-1$
-        try {
-            scheduler.scheduleJob(detail, TaskTrigger.decorate(trigger, task));
-        } catch (SchedulerException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            task.waitForCompletion();
-        } catch (InterruptedException e) {
-            throw new RuntimeException("Exception occurred during wait for task's end.", e);
-        }
-    }
 }

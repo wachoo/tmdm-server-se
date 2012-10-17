@@ -17,6 +17,9 @@ import java.sql.Types;
 
 // Dynamically called, don't remove
 public class H2CustomDialect extends H2Dialect {
+    /**
+     * Hibernate 3.5.6 forgot to map some JDBC types. This custom implementation adds them.
+     */
     public H2CustomDialect() {
         registerColumnType(Types.BOOLEAN, "boolean"); //$NON-NLS-1$
         registerHibernateType(Types.BOOLEAN, "boolean"); //$NON-NLS-1$

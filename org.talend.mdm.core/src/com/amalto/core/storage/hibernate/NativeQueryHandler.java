@@ -33,7 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public class NativeQueryHandler extends AbstractQueryHandler {
+class NativeQueryHandler extends AbstractQueryHandler {
 
     private static final String SELECT_KEYWORD = "SELECT"; //$NON-NLS-1$
 
@@ -83,7 +83,7 @@ public class NativeQueryHandler extends AbstractQueryHandler {
 
         private final List list;
 
-        private NativeIterator nativeIterator;
+        private final NativeIterator nativeIterator;
 
         public NativeQueryStorageResults(List list, Set<EndOfResultsCallback> callbacks) {
             this.list = list;

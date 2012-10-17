@@ -66,14 +66,14 @@ class IdQueryHandler extends AbstractQueryHandler {
         }
         select.getCondition().accept(this);
         if (idValue == null) {
-            return noResult(select, EMPTY_ITERATOR);
+            return noResult(select);
         }
         ComplexTypeMetadata mainType = select.getTypes().get(0);
         String mainTypeName = mainType.getName();
         String className = ClassCreator.PACKAGE_PREFIX + mainTypeName;
         Wrapper loadedObject = (Wrapper) session.get(className, (Serializable) idValue);
         if (loadedObject == null) {
-            return noResult(select, EMPTY_ITERATOR);
+            return noResult(select);
         } else {
             Iterator objectIterator = Collections.singleton(loadedObject).iterator();
             CloseableIterator<DataRecord> iterator;
@@ -106,11 +106,11 @@ class IdQueryHandler extends AbstractQueryHandler {
         }
     }
 
-    private StorageResults noResult(final Select select, final CloseableIterator<DataRecord> emptyIterator) {
+    private StorageResults noResult(final Select select) {
         for (EndOfResultsCallback callback : callbacks) {
             callback.onEndOfResults();
         }
-        return new HibernateStorageResults(storage, select, emptyIterator) {
+        return new HibernateStorageResults(storage, select, IdQueryHandler.EMPTY_ITERATOR) {
             @Override
             public int getCount() {
                 return 0;

@@ -29,7 +29,7 @@ import java.util.*;
 /**
  * Represents type mapping between data model as specified by the user and data model as used by hibernate storage.
  */
-public class ScatteredTypeMapping extends TypeMapping {
+class ScatteredTypeMapping extends TypeMapping {
 
     private Map<String, FieldMetadata> userToDatabase = new HashMap<String, FieldMetadata>();
 

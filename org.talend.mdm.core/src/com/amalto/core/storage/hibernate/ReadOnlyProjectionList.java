@@ -18,9 +18,9 @@ import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.type.Type;
 
-public class ReadOnlyProjectionList extends ProjectionList {
+class ReadOnlyProjectionList extends ProjectionList {
 
-    private ProjectionList delegate;
+    private final ProjectionList delegate;
 
     private ReadOnlyProjectionList(ProjectionList projectionList) {
         delegate = projectionList;

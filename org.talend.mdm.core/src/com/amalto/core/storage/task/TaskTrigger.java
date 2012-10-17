@@ -23,7 +23,7 @@ class TaskTrigger extends Trigger {
 
     private final Trigger delegate;
 
-    TaskTrigger(Trigger delegate, Task task) {
+    private TaskTrigger(Trigger delegate, Task task) {
         this.task = task;
         this.delegate = delegate;
     }

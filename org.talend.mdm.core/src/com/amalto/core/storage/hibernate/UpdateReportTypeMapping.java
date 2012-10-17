@@ -23,11 +23,11 @@ class UpdateReportTypeMapping extends TypeMapping {
 
     private static final String MAPPING_NAME = "FIXED UPDATE REPORT MAPPING"; //$NON-NLS-1$
 
-    private ComplexTypeMetadata updateReportType;
+    private final ComplexTypeMetadata updateReportType;
 
-    private ComplexTypeMetadata databaseUpdateReportType;
+    private final ComplexTypeMetadata databaseUpdateReportType;
 
-    private MetadataRepository repository;
+    private final MetadataRepository repository;
 
     private Map<String, FieldMetadata> userToDatabase = new HashMap<String, FieldMetadata>();
 

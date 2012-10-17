@@ -54,7 +54,7 @@ public class DataRecordXmlWriter implements DataRecordWriter {
         return rootElementName == null ? record.getType().getName() : rootElementName;
     }
 
-    private class FieldPrinter extends DefaultMetadataVisitor<Void> {
+    private static class FieldPrinter extends DefaultMetadataVisitor<Void> {
 
         private final DataRecord record;
 

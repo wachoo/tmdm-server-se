@@ -32,7 +32,7 @@ abstract class MetadataRepositoryTask implements Task {
 
     private final Object currentTypeTaskMonitor = new Object();
 
-    protected final ClosureExecutionStats stats;
+    final ClosureExecutionStats stats;
 
     private long startTime;
 

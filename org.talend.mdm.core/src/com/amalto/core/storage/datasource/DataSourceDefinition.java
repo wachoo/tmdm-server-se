@@ -25,10 +25,6 @@ public class DataSourceDefinition {
         this.staging = staging;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public boolean hasStaging() {
         return staging != null;
     }

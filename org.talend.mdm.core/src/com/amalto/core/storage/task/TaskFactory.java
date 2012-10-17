@@ -13,11 +13,8 @@ package com.amalto.core.storage.task;
 
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.storage.Storage;
-import org.apache.log4j.Logger;
 
 public class TaskFactory {
-
-    public static final Logger LOGGER = Logger.getLogger(TaskFactory.class);
 
     public static Task createStagingTask(StagingConfiguration config) {
         Storage stagingStorage = config.getOrigin();

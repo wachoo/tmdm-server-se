@@ -36,13 +36,6 @@ public class ExecutionStatistics {
     public ExecutionStatistics() {
     }
 
-    public ExecutionStatistics(String uuid, int processedRecords, String startDate, String endDate) {
-        this.id = uuid;
-        this.processedRecords = processedRecords;
-        this.startDate = startDate;
-        this.endDate = endDate;
-    }
-
     @XmlElement(name = "id")
     public String getId() {
         return id;
