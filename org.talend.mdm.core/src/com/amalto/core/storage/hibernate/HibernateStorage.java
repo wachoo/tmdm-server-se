@@ -78,9 +78,9 @@ public class HibernateStorage implements Storage {
 
     public static final HibernateStorage.LocalEntityResolver ENTITY_RESOLVER = new HibernateStorage.LocalEntityResolver();
 
-    public static final String CLASS_LOADER = "com.amalto.core.storage.hibernate.DefaultStorageClassLoader"; //$NON-NLS-1$
+    private static final String CLASS_LOADER = "com.amalto.core.storage.hibernate.DefaultStorageClassLoader"; //$NON-NLS-1$
 
-    public static final String ALTERNATE_CLASS_LOADER = "com.amalto.core.storage.hibernate.FullStorageClassLoader"; //$NON-NLS-1$
+    private static final String ALTERNATE_CLASS_LOADER = "com.amalto.core.storage.hibernate.FullStorageClassLoader"; //$NON-NLS-1$
 
     private static final Logger LOGGER = Logger.getLogger(HibernateStorage.class);
 
@@ -443,11 +443,15 @@ public class HibernateStorage implements Storage {
         if (!transaction.isActive()) {
             throw new IllegalStateException("Can not commit transaction, no transaction is active.");
         }
-        session.flush();
-        if (!transaction.wasCommitted()) {
-            transaction.commit();
-        } else {
-            LOGGER.warn("Transaction was already committed.");
+        try {
+            session.flush();
+            if (!transaction.wasCommitted()) {
+                transaction.commit();
+            } else {
+                LOGGER.warn("Transaction was already committed.");
+            }
+        } catch (ConstraintViolationException e) {
+            throw new com.amalto.core.storage.exception.ConstraintViolationException(e);
         }
 
     }
