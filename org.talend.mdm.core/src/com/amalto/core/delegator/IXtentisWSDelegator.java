@@ -12,7 +12,13 @@
 // ============================================================================
 package com.amalto.core.delegator;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -115,6 +121,7 @@ import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.util.ArrayListHolder;
 import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.RemoteExceptionFactory;
 import com.amalto.core.util.TransformerPluginContext;
 import com.amalto.core.util.TransformerPluginSpec;
 import com.amalto.core.util.Util;
@@ -325,7 +332,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             session.end();
             return wsDataModelPK;
         } catch (Exception e) {
-           throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+            throw RemoteExceptionFactory.newDefaultRemoteExceptionWithFullCauseDetail(e, true);
         }
     }
 
@@ -537,7 +544,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             return new WSDataClusterPK(Util.getDataClusterCtrlLocal().putDataCluster(WS2VO(wsDataCluster.getWsDataCluster()))
                     .getUniqueId());
         } catch (Exception e) {
-           throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+            throw RemoteExceptionFactory.newDefaultRemoteExceptionWithFullCauseDetail(e, true);
         }
     }
 
