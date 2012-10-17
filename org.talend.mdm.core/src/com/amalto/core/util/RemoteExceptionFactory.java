@@ -46,7 +46,7 @@ public class RemoteExceptionFactory {
     // FIXME is there any other better approach?
     private static String genCausedByMsg(Throwable t, boolean ignoreClassName) {
         StringBuilder msg = new StringBuilder();
-        msg.append("\n\tCaused by: ");//$NON-NLS-1$
+        msg.append("\n\t[Caused by]: ");//$NON-NLS-1$
         if (!ignoreClassName)
             msg.append(t.getClass().getName() + ": ");//$NON-NLS-1$
         msg.append(t.getLocalizedMessage());
