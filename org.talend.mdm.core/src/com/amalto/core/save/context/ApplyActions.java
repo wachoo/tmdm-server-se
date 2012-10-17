@@ -11,16 +11,16 @@
 
 package com.amalto.core.save.context;
 
-import com.amalto.core.history.Action;
-import com.amalto.core.history.MutableDocument;
-import com.amalto.core.save.DocumentSaverContext;
-import com.amalto.core.save.SaverSession;
-import com.amalto.core.save.UserAction;
-import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.amalto.core.history.Action;
+import com.amalto.core.history.MutableDocument;
+import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.SaverSession;
+import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 
 class ApplyActions implements DocumentSaver {
 
@@ -37,15 +37,9 @@ class ApplyActions implements DocumentSaver {
             action.perform(databaseDocument);
             action.perform(validationDocument);
         }
-
         // Never store empty elements in database
         clean(databaseDocument.asDOM().getDocumentElement(), EmptyElementCleaner.INSTANCE, false);
-        if (context.getUserAction() == UserAction.CREATE || context.getUserAction() == UserAction.REPLACE) {
-            // See TMDM-4038
-            clean(validationDocument.asDOM().getDocumentElement(), EmptyElementCleaner.INSTANCE, true);
-        } else {
-            clean(validationDocument.asDOM().getDocumentElement(), EmptyElementCleaner.INSTANCE, false);
-        }
+        clean(validationDocument.asDOM().getDocumentElement(), EmptyElementCleaner.INSTANCE, true);
         next.save(session, context);
     }
 

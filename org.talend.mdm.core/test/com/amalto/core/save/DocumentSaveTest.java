@@ -296,9 +296,9 @@ public class DocumentSaveTest extends TestCase {
 
     public void testCreateWithForeignKeyType() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
-        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata9.xsd"));
 
-        SaverSource source = new TestSaverSource(repository, false, "", "metadata1.xsd");
+        SaverSource source = new TestSaverSource(repository, false, "", "metadata9.xsd");
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test26.xml");
@@ -317,9 +317,9 @@ public class DocumentSaveTest extends TestCase {
 
     public void testReplaceWithForeignKeyType() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
-        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata9.xsd"));
 
-        SaverSource source = new TestSaverSource(repository, true, "test26_original.xml", "metadata1.xsd");
+        SaverSource source = new TestSaverSource(repository, true, "test26_original.xml", "metadata9.xsd");
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test26.xml");
@@ -1720,6 +1720,28 @@ public class DocumentSaveTest extends TestCase {
         Element committedElement = committer.getCommittedElement();
         assertEquals("Purchasing", evaluate(committedElement, "/Create_Supplier/Contact_Details/contact_role"));
         assertEquals("Test", evaluate(committedElement, "/Create_Supplier/Supplier_Address/postal_code"));
+    }
+
+    public void testPolymorphismForeignKey() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata10.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test46_original.xml", "metadata10.xsd");
+        source.setUserName("Demo_Manager");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test46.xml");
+        DocumentSaverContext context = session.getContextFactory().create("TestFK", "Product", "Source", recordXml, false, true,
+                true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("CompanyType", evaluate(committedElement, "/Product/supplier/@tmdm:type"));
+        assertEquals("[company]", evaluate(committedElement, "/Product/supplier"));
     }
 
     private static class MockCommitter implements SaverSession.Committer {

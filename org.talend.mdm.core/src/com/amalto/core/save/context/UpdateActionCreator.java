@@ -65,7 +65,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     private String lastMatchPath;
 
     public UpdateActionCreator(MutableDocument originalDocument, MutableDocument newDocument,
-            boolean preserveCollectionOldValues, String source, String userName, MetadataRepository repository) {
+                               boolean preserveCollectionOldValues, String source, String userName, MetadataRepository repository) {
         this.preserveCollectionOldValues = preserveCollectionOldValues;
         this.originalDocument = originalDocument;
         this.newDocument = newDocument;
@@ -213,6 +213,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                             : oldValue, null, comparedField));
                 }
             } else { // new accessor exist
+                String newValue = newAccessor.get();
                 if (newAccessor.get() != null && !(comparedField instanceof ContainedTypeFieldMetadata)) {
                     if (comparedField.isMany() && preserveCollectionOldValues) {
                         // Append at the end of the collection
@@ -266,16 +267,16 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 }
 
                 if (!newType.isEmpty()) {
-                    ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(newType);
-                    ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(previousType);
+                    ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, newType);
+                    ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, previousType);
                     // Perform some checks about the xsi:type value (valid or not?).
                     if (newTypeMetadata == null) {
                         throw new IllegalArgumentException("Type '" + newType + "' was not found.");
                     }
                     // Check if type of element isn't a subclass of declared type (use of xsi:type).
                     if (!newTypeMetadata.isAssignableFrom(field.getType())) {
-                        throw new IllegalArgumentException("Type '" + newTypeMetadata.getName()
-                                + "' is not assignable from type '" + field.getType().getName() + "'");
+                        throw new IllegalArgumentException("Type '" + field.getType().getName()
+                                + "' is not assignable from type '" + newTypeMetadata.getName() + "'");
                     }
 
                     actions.add(new ChangeTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata));
@@ -297,6 +298,34 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
         public void execute(FieldMetadata field) {
             compare(field);
+            if (field instanceof ReferenceFieldMetadata) {
+                Accessor leftAccessor = originalDocument.createAccessor(getLeftPath());
+                Accessor rightAccessor = newDocument.createAccessor(getRightPath());
+                if (rightAccessor.exist()) {
+                    String newType = rightAccessor.getActualType();
+                    String previousType = StringUtils.EMPTY;
+                    if (leftAccessor.exist()) {
+                        previousType = leftAccessor.getActualType();
+                    }
+
+                    if (!newType.isEmpty()) {
+                        ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, newType);
+                        ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, previousType);
+                        // Perform some checks about the xsi:type value (valid or not?).
+                        if (newTypeMetadata == null) {
+                            throw new IllegalArgumentException("Type '" + newType + "' was not found.");
+                        }
+                        // TODO Check if type of element isn't a subclass of declared type (use of xsi:type).
+                        actions.add(new ChangeReferenceTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata));
+                    }
+                }
+                Action before = actions.getLast();
+                // Way to detect if there is a change in elements below: check if last action in list changed.
+                boolean hasActions = actions.getLast() != before;
+                if (leftAccessor.exist() || (rightAccessor.exist() && hasActions)) {
+                    lastMatchPath = getLeftPath();
+                }
+            }
         }
     }
 }

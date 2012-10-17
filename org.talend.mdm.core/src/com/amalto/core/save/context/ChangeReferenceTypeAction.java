@@ -11,29 +11,34 @@
 
 package com.amalto.core.save.context;
 
-import com.amalto.core.history.MutableDocument;
-import com.amalto.core.history.accessor.Accessor;
-import com.amalto.core.metadata.*;
-import org.w3c.dom.Document;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.XMLConstants;
-import java.util.Date;
 
-class ChangeTypeAction extends AbstractChangeTypeAction {
+import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
+import org.w3c.dom.Document;
 
-    public ChangeTypeAction(Date date, String source, String userName, String path, ComplexTypeMetadata previousType, ComplexTypeMetadata newType) {
+import com.amalto.core.history.Action;
+import com.amalto.core.history.MutableDocument;
+import com.amalto.core.history.accessor.Accessor;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+
+class ChangeReferenceTypeAction extends AbstractChangeTypeAction {
+
+    public ChangeReferenceTypeAction(Date date, String source, String userName, String path, ComplexTypeMetadata previousType, ComplexTypeMetadata newType) {
         super(date, source, userName, path, previousType, newType);
     }
 
     public MutableDocument perform(MutableDocument document) {
-        // Ensure xsi prefix is declared
+        // Ensure tmdm prefix is declared
         Document domDocument = document.asDOM();
-        String xsi = domDocument.lookupNamespaceURI("xsi"); //$NON-NLS-1$
+        String xsi = domDocument.lookupNamespaceURI(SkipAttributeDocumentBuilder.TALEND_NAMESPACE); //$NON-NLS-1$
         if (xsi == null) {
-            domDocument.getDocumentElement().setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);  //$NON-NLS-1$
+            domDocument.getDocumentElement().setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:tmdm", SkipAttributeDocumentBuilder.TALEND_NAMESPACE); //$NON-NLS-1$
         }
-
-        Accessor typeAccessor = document.createAccessor(path + "/@xsi:type"); //$NON-NLS-1$
+        Accessor typeAccessor = document.createAccessor(path + "/@tmdm:type"); //$NON-NLS-1$
         String typeName = newType.getName();
         if (typeAccessor.exist() && !typeName.equals(typeAccessor.get())) {
             for (String currentPathToDelete : pathToClean) {
@@ -48,20 +53,21 @@ class ChangeTypeAction extends AbstractChangeTypeAction {
     }
 
     public MutableDocument undo(MutableDocument document) {
-        Accessor accessor = document.createAccessor(path + "/@xsi:type"); //$NON-NLS-1$
+        Accessor accessor = document.createAccessor(path + "/@tmdm:type"); //$NON-NLS-1$
         accessor.delete();
         return document;
     }
 
     public String getDetails() {
-        return "Change type to " + newType.getName(); //$NON-NLS-1$
+        return "Change FK type to " + newType.getName(); //$NON-NLS-1$
     }
 
     @Override
     public String toString() {
-        return "ChangeTypeAction{" +  //$NON-NLS-1$
+        return "ChangeReferenceTypeAction{" + //$NON-NLS-1$
                 "path='" + path + '\'' + //$NON-NLS-1$
                 ", newType=" + newType + //$NON-NLS-1$
                 '}';
     }
+
 }
