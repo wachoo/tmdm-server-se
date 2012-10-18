@@ -36,6 +36,8 @@ public class StorageTestCase extends TestCase {
 
     protected static final ComplexTypeMetadata product;
 
+    protected static final ComplexTypeMetadata ff;
+
     protected static final ComplexTypeMetadata productFamily;
 
     protected static final ComplexTypeMetadata supplier;
@@ -84,6 +86,7 @@ public class StorageTestCase extends TestCase {
         c = repository.getComplexType("C");
         d = repository.getComplexType("D");
         updateReport = repository.getComplexType("Update");
+        ff = repository.getComplexType("ff");
 
         storage.init(getDatasource(DATABASE + "-Default"));
         storage.prepare(repository, Collections.singleton(person.getField("firstname")), true, true);

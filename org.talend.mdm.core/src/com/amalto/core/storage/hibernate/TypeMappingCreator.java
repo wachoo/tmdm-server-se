@@ -12,6 +12,7 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.*;
+import org.apache.log4j.Logger;
 
 import javax.xml.XMLConstants;
 import java.util.Collection;
@@ -20,6 +21,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
+
+    private static final Logger LOGGER = Logger.getLogger(TypeMappingCreator.class);
 
     private final LinkedList<String> prefix = new LinkedList<String>();
 
@@ -51,6 +54,14 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         return "x_" + (buffer.toString().replace('-', '_') + name).toLowerCase(); //$NON-NLS-1$
     }
 
+    private static boolean isDatabaseMandatory(FieldMetadata field, TypeMetadata declaringType) {
+        boolean isDatabaseMandatory = field.isMandatory() && declaringType.isInstantiable();
+        if (field.isMandatory() && !isDatabaseMandatory) {
+            LOGGER.warn("Field '" + field.getName() + "' is mandatory but constraint cannot be enforced in database schema.");
+        }
+        return isDatabaseMandatory;
+    }
+
     @Override
     public TypeMapping visit(ReferenceFieldMetadata referenceField) {
         String name = getColumnName(referenceField, true);
@@ -61,7 +72,18 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         FieldMetadata newFlattenField;
         if (referenceField.getContainingType() == referenceField.getDeclaringType()) {
             ComplexTypeMetadata database = typeMapping.getDatabase();
-            newFlattenField = new ReferenceFieldMetadata(database, referenceField.isKey(), referenceField.isMany(), referenceField.isMandatory(), name, referencedType, referencedField, foreignKeyInfoField, referenceField.isFKIntegrity(), referenceField.allowFKIntegrityOverride(), referenceField.getWriteUsers(), referenceField.getHideUsers());
+            newFlattenField = new ReferenceFieldMetadata(database,
+                    referenceField.isKey(),
+                    referenceField.isMany(),
+                    isDatabaseMandatory(referenceField, referenceField.getDeclaringType()),
+                    name,
+                    referencedType,
+                    referencedField,
+                    foreignKeyInfoField,
+                    referenceField.isFKIntegrity(),
+                    referenceField.allowFKIntegrityOverride(),
+                    referenceField.getWriteUsers(),
+                    referenceField.getHideUsers());
             database.addField(newFlattenField);
         } else {
             newFlattenField = new SoftFieldRef(internalRepository, getColumnName(referenceField, true), referenceField.getContainingType());
@@ -101,7 +123,14 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         ComplexTypeMetadata database = typeMapping.getDatabase();
         TypeMetadata declaringType = simpleField.getDeclaringType();
         if (simpleField.getContainingType() == declaringType) {
-            newFlattenField = new SimpleTypeFieldMetadata(database, false, simpleField.isMany(), simpleField.isMandatory(), getColumnName(simpleField, true), simpleField.getType(), simpleField.getWriteUsers(), simpleField.getHideUsers());
+            newFlattenField = new SimpleTypeFieldMetadata(database,
+                    false,
+                    simpleField.isMany(),
+                    isDatabaseMandatory(simpleField, declaringType),
+                    getColumnName(simpleField, true),
+                    simpleField.getType(),
+                    simpleField.getWriteUsers(),
+                    simpleField.getHideUsers());
             database.addField(newFlattenField);
         } else {
             SoftTypeRef internalDeclaringType;
@@ -110,7 +139,14 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             } else {
                 internalDeclaringType = new SoftTypeRef(internalRepository, declaringType.getNamespace(), declaringType.getName(), declaringType.isInstantiable());
             }
-            newFlattenField = new SimpleTypeFieldMetadata(database, false, simpleField.isMany(), simpleField.isMandatory(), getColumnName(simpleField, true), simpleField.getType(), simpleField.getWriteUsers(), simpleField.getHideUsers());
+            newFlattenField = new SimpleTypeFieldMetadata(database,
+                    false,
+                    simpleField.isMany(),
+                    isDatabaseMandatory(simpleField, declaringType),
+                    getColumnName(simpleField, true),
+                    simpleField.getType(),
+                    simpleField.getWriteUsers(),
+                    simpleField.getHideUsers());
             newFlattenField.setDeclaringType(internalDeclaringType);
             database.addField(newFlattenField);
         }
@@ -125,7 +161,14 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         FieldMetadata newFlattenField;
         if (enumField.getContainingType() == enumField.getDeclaringType()) {
             ComplexTypeMetadata database = typeMapping.getDatabase();
-            newFlattenField = new EnumerationFieldMetadata(database, isKey, enumField.isMany(), enumField.isMandatory(), getColumnName(enumField, true), enumField.getType(), enumField.getWriteUsers(), enumField.getHideUsers());
+            newFlattenField = new EnumerationFieldMetadata(database,
+                    isKey,
+                    enumField.isMany(),
+                    isDatabaseMandatory(enumField, enumField.getDeclaringType()),
+                    getColumnName(enumField, true),
+                    enumField.getType(),
+                    enumField.getWriteUsers(),
+                    enumField.getHideUsers());
             database.addField(newFlattenField);
         } else {
             newFlattenField = new SoftFieldRef(internalRepository, getColumnName(enumField, true), enumField.getContainingType());

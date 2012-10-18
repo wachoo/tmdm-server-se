@@ -295,4 +295,27 @@ public class StorageRecordCreationTest extends StorageTestCase {
             results.close();
         }
     }
+
+    public void testNotNullConstraintOnFlatMapping() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords.add(factory.read(1, repository, ff, "<ff>\n"
+                + "    <fd>Id</fd>"
+                + "</ff>"));
+        storage.begin();
+        try {
+            storage.update(allRecords);
+            storage.commit();
+        } catch (Exception e) {
+            storage.rollback();
+            throw e;
+        }
+        UserQueryBuilder qb = from(ff);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
 }
