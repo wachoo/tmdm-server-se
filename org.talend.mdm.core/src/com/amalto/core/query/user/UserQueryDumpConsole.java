@@ -610,7 +610,7 @@ public class UserQueryDumpConsole implements Visitor<Void> {
                 indentString.append('\t');
             }
             indentString.append(message);
-            logger.info(indentString.toString());
+            logger.debug(indentString.toString());
         } else {
             for (int i = 0; i < indent; i++) {
                 System.out.print('\t');
