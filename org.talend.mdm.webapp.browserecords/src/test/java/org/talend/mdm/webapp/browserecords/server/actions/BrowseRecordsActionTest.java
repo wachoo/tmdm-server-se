@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,6 +62,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.amalto.core.util.Util;
+import com.amalto.webapp.core.util.WebCoreException;
 import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSInt;
@@ -565,6 +567,12 @@ public class BrowseRecordsActionTest extends TestCase {
 	    assertEquals("1", parsingNodeValue(docXml, xpath, conceptName));
 	    xpath = "TaxonomyCategory/X-BusinessType/Id";
 	    assertEquals("2", parsingNodeValue(docXml, xpath, conceptName));
+	}
+	
+	public void  testGetErrorMessageFromWebCoreException(){
+	    RuntimeException runtimeException = new RuntimeException("throw a runtimeException");
+	    WebCoreException webCoreException = new WebCoreException("delete_failure_constraint_violation",runtimeException);
+	    assertEquals("Unable to delete TestModel.1,integrity constraint check failed.", action.getErrorMessageFromWebCoreException(webCoreException, "TestModel", "1", new Locale("en")));	    
 	}
 	
 	private String parsingNodeValue(Document docXml, String xpath, String conceptName) throws Exception {

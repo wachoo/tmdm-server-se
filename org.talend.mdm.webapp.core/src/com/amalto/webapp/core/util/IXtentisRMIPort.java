@@ -12,7 +12,13 @@
 // ============================================================================
 package com.amalto.webapp.core.util;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -92,7 +98,6 @@ import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.save.SaveException;
 import com.amalto.core.save.SaverHelper;
 import com.amalto.core.save.SaverSession;
-import com.amalto.core.save.context.BeforeSaving;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
@@ -106,6 +111,8 @@ import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 public abstract class IXtentisRMIPort implements XtentisPort {
 
     private static Logger LOG = Logger.getLogger(IXtentisRMIPort.class);
+    
+    private String INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE = "delete_failure_constraint_violation"; //$NON-NLS-1$
 
     /***************************************************************************
      * 
@@ -823,8 +830,10 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     wsDeleteItem.getWsItemPK().getConceptName(), wsDeleteItem.getWsItemPK().getIds());
             ItemPOJOPK ipk = com.amalto.core.util.Util.getItemCtrl2Local().deleteItem(itemPK, wsDeleteItem.getOverride());
             return ipk == null ? null : wsDeleteItem.getWsItemPK();
-
-        } catch (com.amalto.core.util.XtentisException e) {
+        } catch (com.amalto.core.util.XtentisException e) {            
+            if (com.amalto.webapp.core.util.Util.causeIs(e, com.amalto.core.storage.exception.ConstraintViolationException.class)) {
+                throw new RemoteException("", new WebCoreException(INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE, e.getCause())); //$NON-NLS-1$                     
+            }
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
@@ -838,6 +847,9 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     XConverter.WS2VO(wsDeleteItems.getWsWhereItem()), wsDeleteItems.getSpellTreshold(), wsDeleteItems.isOverride());
             return new WSInt(numItems);
         } catch (com.amalto.core.util.XtentisException e) {
+            if (com.amalto.webapp.core.util.Util.causeIs(e, com.amalto.core.storage.exception.ConstraintViolationException.class)) {
+                throw new RemoteException("", new WebCoreException(INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE, e.getCause())); //$NON-NLS-1$                     
+            }
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);

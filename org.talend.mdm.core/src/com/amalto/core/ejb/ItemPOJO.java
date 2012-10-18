@@ -525,12 +525,11 @@ public class ItemPOJO implements Serializable {
                     .getUniqueId());
             cachedPojo.remove(key);
             return itemPOJOPK;
-
         } catch (Exception e) {
             String err = "Unable to remove the item " + itemPOJOPK.getUniqueID() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
             LOG.error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err,e);
         }
 
     }

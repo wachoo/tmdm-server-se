@@ -228,9 +228,15 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getMessage());
+        } catch (Exception exception) {
+            String errorMessage;
+            if (WebCoreException.class.isInstance(exception.getCause())){
+                errorMessage = getErrorMessageFromWebCoreException(((WebCoreException) exception.getCause()),item.getConcept(),item.getIds(),new Locale(language));
+            }else{
+                errorMessage = exception.getMessage();
+            }    
+            LOG.error(errorMessage, exception);
+            throw new ServiceException(errorMessage);
         }
     }
 
@@ -1799,22 +1805,19 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;
-        } catch (RemoteException remoteException) {
-            WebCoreException webCoreException = (WebCoreException) remoteException.getCause();
-            String errorMessage = MESSAGES.getMessage(locale, webCoreException.getTitle(),
-                    concept + ((ids != null && !"".equals(ids)) ? "." + ids : ""), webCoreException.getCause() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                            .getLocalizedMessage());
-            LOG.error(webCoreException.getMessage(), webCoreException);
-            if (webCoreException.isClient()) {
-                throw new ServiceException(errorMessage);
+        } catch (Exception exception) {
+            String errorMessage;
+            if (WebCoreException.class.isInstance(exception.getCause())){
+                WebCoreException webCoreException = (WebCoreException) exception.getCause();
+                errorMessage = getErrorMessageFromWebCoreException(webCoreException,concept,ids,locale);
+                if (webCoreException.isClient()) {
+                    throw new ServiceException(errorMessage);
+                }
+            }else{     
+                errorMessage = exception.getLocalizedMessage();
             }
+            LOG.error(errorMessage, exception);
             return new ItemResult(ItemResult.FAILURE, errorMessage);
-        } catch (Exception e) {
-            if (ServiceException.class.isInstance(e)) {
-                throw (ServiceException) e;
-            }
-            LOG.error(e.getMessage(), e);
-            return new ItemResult(ItemResult.FAILURE, e.getLocalizedMessage());
         }
     }
 
@@ -2372,5 +2375,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         } catch (TypeModelNotFoundException e) {
             throw new ServiceException(MESSAGES.getMessage(new Locale(language), "typemodel_notfound", e.getXpathNotFound())); //$NON-NLS-1$
         }
+    }
+    
+    public String getErrorMessageFromWebCoreException(WebCoreException webCoreException,String concept,String ids,Locale locale){
+        String errorMessage = MESSAGES.getMessage(locale, webCoreException.getTitle(),
+                concept + ((ids != null && !"".equals(ids)) ? "." + ids : ""), webCoreException.getCause() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        .getLocalizedMessage() !=null ? webCoreException.getCause().getLocalizedMessage() : ""); //$NON-NLS-1$
+        return errorMessage;
     }
 }
