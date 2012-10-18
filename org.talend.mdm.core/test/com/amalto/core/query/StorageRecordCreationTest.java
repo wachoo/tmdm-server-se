@@ -318,4 +318,36 @@ public class StorageRecordCreationTest extends StorageTestCase {
             results.close();
         }
     }
+
+    public void testCollectionOnCompositeIDEntity() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                address,
+                                "<Address><Id>1111</Id><Street>Street1</Street><country>[1000]</country><ZipCode>10000</ZipCode>" +
+                                        "<City>City1</City><enterprise>false</enterprise><Remark>City1</Remark>" +
+                                        "<Remark>City2</Remark></Address>"));
+        storage.begin();
+        try {
+            storage.update(allRecords);
+            storage.commit();
+        } catch (Exception e) {
+            storage.rollback();
+            throw e;
+        }
+        UserQueryBuilder qb = from(address).where(eq(address.getField("Id"), "1111"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+        for (DataRecord result : results) {
+            Object optionalCity = result.get("Remark");
+            assertTrue(optionalCity instanceof List);
+            List optionalCities = (List) optionalCity;
+            assertEquals("City1", optionalCities.get(0));
+            assertEquals("City2", optionalCities.get(1));
+        }
+    }
+
 }

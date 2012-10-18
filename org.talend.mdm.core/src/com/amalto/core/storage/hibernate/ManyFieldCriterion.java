@@ -43,6 +43,9 @@ class ManyFieldCriterion extends SQLCriterion {
                 throw new UnsupportedOperationException("Do not support collection search criteria with multiple values.");
             }
             ComplexTypeMetadata type = field.getContainingType();
+            if (type.getKeyFields().size() > 1) {
+                throw new UnsupportedOperationException("Do not support collection search if main type has a composite key.");
+            }
             String containingTypeAlias = criteriaQuery.getSQLAlias(typeCriteria);
             String containingType = type.getName().toUpperCase();
             String fieldName = field.getName().toUpperCase();
@@ -59,7 +62,9 @@ class ManyFieldCriterion extends SQLCriterion {
                     .append(containingTypeKey)
                     .append(" = ") //$NON-NLS-1$
                     .append(joinedTableName)
-                    .append(".id WHERE ") //$NON-NLS-1$
+                    .append(".") //$NON-NLS-1$
+                    .append(containingTypeKey)
+                    .append(" WHERE ") //$NON-NLS-1$
                     .append(joinedTableName)
                     .append(".value = '") //$NON-NLS-1$
                     .append(value)

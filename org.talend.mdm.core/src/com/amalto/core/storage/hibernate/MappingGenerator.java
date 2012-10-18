@@ -265,22 +265,18 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 Attr name = document.createAttribute("name"); //$NON-NLS-1$
                 name.setValue(fieldName);
                 propertyElement.getAttributes().setNamedItem(name);
-
                 Attr lazy = document.createAttribute("lazy"); //$NON-NLS-1$
                 lazy.setValue("false"); //$NON-NLS-1$
                 propertyElement.getAttributes().setNamedItem(lazy);
-
                 Attr joinAttribute = document.createAttribute("fetch"); //$NON-NLS-1$
                 joinAttribute.setValue("select"); // Keep it "select" (Hibernate tends to duplicate results when using "fetch")
                 propertyElement.getAttributes().setNamedItem(joinAttribute);
-
                 // cascade="true"
                 if (Boolean.parseBoolean(referenceField.<String>getData("SQL_DELETE_CASCADE"))) { //$NON-NLS-1$
                     Attr cascade = document.createAttribute("cascade"); //$NON-NLS-1$
                     cascade.setValue("save-update, delete"); //$NON-NLS-1$
                     propertyElement.getAttributes().setNamedItem(cascade);
                 }
-
                 Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
                 tableName.setValue(shortString((referenceField.getContainingType().getName() + '_' + fieldName + '_' + referencedType.getName()).toUpperCase()));
                 propertyElement.getAttributes().setNamedItem(tableName);
@@ -295,22 +291,16 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                         elementColumn.getAttributes().setNamedItem(columnName);
                         key.appendChild(elementColumn);
                     }
-
-
                     // <index column="idx" />
                     Element index = document.createElement("index"); //$NON-NLS-1$
                     Attr indexColumn = document.createAttribute("column"); //$NON-NLS-1$
                     indexColumn.setValue("pos"); //$NON-NLS-1$
                     index.getAttributes().setNamedItem(indexColumn);
                     propertyElement.appendChild(index);
-
                     // many to many element
                     Element manyToMany = newManyToManyElement(enforceDataBaseIntegrity, referenceField);
-
                     propertyElement.appendChild(manyToMany);
                 }
-
-
                 return propertyElement;
             }
         }
@@ -543,9 +533,14 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 listElement.getAttributes().setNamedItem(cascade);
 
                 Element key = document.createElement("key"); //$NON-NLS-1$
-                Attr column = document.createAttribute("column"); //$NON-NLS-1$
-                column.setValue("id"); //$NON-NLS-1$
-                key.getAttributes().setNamedItem(column);
+                List<FieldMetadata> keyFields = field.getContainingType().getKeyFields();
+                for (FieldMetadata keyField : keyFields) {
+                    Element column = document.createElement("column"); //$NON-NLS-1$
+                    Attr columnName = document.createAttribute("name"); //$NON-NLS-1$
+                    column.getAttributes().setNamedItem(columnName);
+                    columnName.setValue(keyField.getName());
+                    key.appendChild(column);
+                }
 
                 // <element column="name" type="string"/>
                 Element element = document.createElement("element"); //$NON-NLS-1$
