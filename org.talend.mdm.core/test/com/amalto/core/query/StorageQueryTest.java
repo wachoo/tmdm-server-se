@@ -1487,4 +1487,43 @@ public class StorageQueryTest extends StorageTestCase {
             storageResults.close();
         }
     }
+
+    public void testValueCollectionSearchInNested() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                person,
+                                "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John" +
+                                        "</middlename><firstname>Juste</firstname><addresses><address>[3][false]" +
+                                        "</address><address>[1][false]</address></addresses><age>30</age>" +
+                                        "<knownAddresses><knownAddress><Street>Street 1</Street><City>City 1</City>" +
+                                        "<Phone>012345</Phone></knownAddress>" +
+                                        "<knownAddress><Street>Street 2</Street><City>City 2</City><Phone>567890" +
+                                        "</Phone></knownAddress></knownAddresses>" +
+                                        "<Status>Friend</Status></Person>"));
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+        UserQueryBuilder qb = from(person)
+                .selectId(person)
+                .where(eq(person.getField("knownAddresses/knownAddress/City"), "City 1"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+        qb = from(person)
+                .selectId(person)
+                .where(eq(person.getField("knownAddresses/knownAddress/City"), "City 0"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
 }
