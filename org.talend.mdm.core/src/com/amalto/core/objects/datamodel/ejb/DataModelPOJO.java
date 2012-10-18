@@ -120,7 +120,7 @@ public class DataModelPOJO extends ObjectPOJO{
             MetadataRepositoryAdmin metadataRepositoryAdmin = server.getMetadataRepositoryAdmin();
             metadataRepositoryAdmin.remove(updatedDataModelName);
             StorageAdmin storageAdmin = server.getStorageAdmin();
-            Storage storage = storageAdmin.get(updatedDataModelName);
+            Storage storage = storageAdmin.get(updatedDataModelName, revisionID);
             if (storage != null) {
                 // Storage already exists so update it.
                 MetadataRepository repository = metadataRepositoryAdmin.get(updatedDataModelName);
@@ -130,7 +130,7 @@ public class DataModelPOJO extends ObjectPOJO{
                 LOGGER.warn("No SQL storage defined for data model '" + updatedDataModelName + "'. No SQL storage to update."); //$NON-NLS-1$//$NON-NLS-2$
             }
 
-            Storage stagingStorage = storageAdmin.get(updatedDataModelName + StorageAdmin.STAGING_SUFFIX);
+            Storage stagingStorage = storageAdmin.get(updatedDataModelName + StorageAdmin.STAGING_SUFFIX, revisionID);
             if (stagingStorage != null) {
                 // Storage already exists so update it.
                 MetadataRepository stagingRepository = metadataRepositoryAdmin.get(updatedDataModelName

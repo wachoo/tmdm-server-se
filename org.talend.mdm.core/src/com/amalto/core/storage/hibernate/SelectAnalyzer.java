@@ -189,7 +189,6 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     @Override
     public AbstractQueryHandler visit(Revision revision) {
-        isOnlyId = false;
         return null;
     }
 

@@ -45,7 +45,7 @@ public class ServerTest extends TestCase {
 
         StorageAdmin storageAdmin = server.getStorageAdmin();
         assertNotNull(storageAdmin);
-        Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1");
+        Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1", null);
         assertNotNull(storage);
 
         ComplexTypeMetadata person = metadataRepository.getComplexType("Person");
@@ -72,7 +72,7 @@ public class ServerTest extends TestCase {
 
         StorageAdmin storageAdmin = server.getStorageAdmin();
         assertNotNull(storageAdmin);
-        Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1");
+        Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1", null);
         assertNotNull(storage);
 
         storage.prepare(metadataRepository, Collections.<FieldMetadata>emptySet(), true, true);
@@ -88,7 +88,7 @@ public class ServerTest extends TestCase {
 
         StorageAdmin storageAdmin = server.getStorageAdmin();
         assertNotNull(storageAdmin);
-        Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1");
+        Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1", null);
         assertNotNull(storage);
 
         storage.reindex();
@@ -107,11 +107,11 @@ public class ServerTest extends TestCase {
         Storage storage = null;
         Storage storage2 = null;
         try {
-            storage = storageAdmin.create(storageName + "/MyTypeNameThatShouldBeSkipped", "Storage", "H2-DS1");
+            storage = storageAdmin.create(storageName + "/MyTypeNameThatShouldBeSkipped", "Storage", "H2-DS1", null);
             assertNotNull(storage);
             assertEquals(storageName, storage.getName());
 
-            storage2 = storageAdmin.create(storageName, "Storage", "H2-DS1");
+            storage2 = storageAdmin.create(storageName, "Storage", "H2-DS1", null);
             assertSame(storage2, storage);
         } finally {
             if (storage != null) {
@@ -147,7 +147,7 @@ public class ServerTest extends TestCase {
         StorageAdmin storageAdmin = server.getStorageAdmin();
         assertNotNull(storageAdmin);
         try {
-            storageAdmin.create("dataModelNameThatFailsFirstTime", "Storage", "H2-DS1");
+            storageAdmin.create("dataModelNameThatFailsFirstTime", "Storage", "H2-DS1", null);
             fail("Expected exception because data model does not exist.");
         } catch (Exception e) {
             // Expected
@@ -163,7 +163,7 @@ public class ServerTest extends TestCase {
         assertNotNull(metadataRepository);
         StorageAdmin storageAdmin = server.getStorageAdmin();
         assertNotNull(storageAdmin);
-        Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1");
+        Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1", null);
         assertNotNull(storage);
         ComplexTypeMetadata person = metadataRepository.getComplexType("Person");
         assertNotNull(person);
@@ -178,7 +178,7 @@ public class ServerTest extends TestCase {
         // Destroy storage (and data).
         storageAdmin.delete(null, "Storage", true);
         // Re create a storage.
-        storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1");
+        storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1", null);
         assertNotNull(storage);
         qb = UserQueryBuilder.from(person);
         fetch = storage.fetch(qb.getSelect());

@@ -33,8 +33,6 @@ public interface Storage {
 
     String METADATA_TASK_ID = "x_talend_task_id"; //$NON-NLS-1$
 
-    String METADATA_REVISION_ID = "x_talend_revision_id"; //$NON-NLS-1$
-
     String METADATA_STAGING_SOURCE = "x_talend_staging_source"; //$NON-NLS-1$
 
     String METADATA_STAGING_STATUS = "x_talend_staging_status"; //$NON-NLS-1$

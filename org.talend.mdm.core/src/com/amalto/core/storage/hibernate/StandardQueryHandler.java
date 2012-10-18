@@ -201,7 +201,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Revision revision) {
-        projectionList.add(Projections.property(Storage.METADATA_REVISION_ID));
+        projectionList.add(new ConstantStringProjection(currentAliasName, select.getRevisionId()));
         return null;
     }
 
@@ -676,7 +676,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
             FieldCondition leftFieldCondition = condition.getLeft().accept(criterionFieldCondition);
             FieldCondition rightFieldCondition = condition.getRight().accept(criterionFieldCondition);
             if (!leftFieldCondition.isProperty) {
-                throw new IllegalArgumentException("Expect left part of condition to be a field.");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Query on '" + leftFieldCondition + "' is not a user set property. Ignore this condition.");
+                }
+                return NO_OP_CRITERION;
             }
             TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(mainType);
             if (condition.getLeft() instanceof Field) {
@@ -803,7 +806,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         @Override
         public FieldCondition visit(Revision revision) {
-            return createInternalCondition(Storage.METADATA_REVISION_ID);
+            return createConstantCondition();
         }
 
         @Override

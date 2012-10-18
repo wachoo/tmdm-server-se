@@ -41,6 +41,10 @@ public class DataSourceFactory {
 
     private static final XPath xPath = XPathFactory.newInstance().newXPath();
 
+    private static final String CONTAINER_PLACEHOLDER = "${container}"; //$NON-NLS-1$
+
+    private static final String REVISION_PLACEHOLDER = "${revision}"; //$NON-NLS-1$
+
     private DataSourceFactory() {
         factory = DocumentBuilderFactory.newInstance();
     }
@@ -61,11 +65,11 @@ public class DataSourceFactory {
         return dataSourceMap.get(dataSourceName) != null;
     }
 
-    public DataSourceDefinition getDataSource(String dataSourceName, String container) {
-        return getDataSource(readDataSourcesConfiguration(), dataSourceName, container);
+    public DataSourceDefinition getDataSource(String dataSourceName, String container, String revisionId) {
+        return getDataSource(readDataSourcesConfiguration(), dataSourceName, container, revisionId);
     }
 
-    public DataSourceDefinition getDataSource(InputStream configurationStream, String dataSourceName, String container) {
+    public DataSourceDefinition getDataSource(InputStream configurationStream, String dataSourceName, String container, String revisionId) {
         if (dataSourceName == null) {
             throw new IllegalArgumentException("Data source name can not be null.");
         }
@@ -78,27 +82,34 @@ public class DataSourceFactory {
             throw new IllegalArgumentException("Data source '" + dataSourceName + "' can not be found in configuration.");
         }
         // Additional post parsing (replace potential ${container} with container parameter value).
-        replaceContainerName(container, dataSource.getMaster());
+        replacePlaceholder(dataSource.getMaster(), CONTAINER_PLACEHOLDER, container);
         if (dataSource.hasStaging()) {
-            replaceContainerName(container, dataSource.getStaging());
+            replacePlaceholder(dataSource.getStaging(), CONTAINER_PLACEHOLDER, container);
+        }
+        if (revisionId != null && !"HEAD".equals(revisionId)) {
+            // Additional post parsing (replace potential ${revision} with revision id parameter value).
+            replacePlaceholder(dataSource.getMaster(), REVISION_PLACEHOLDER, revisionId);
+            if (dataSource.hasStaging()) {
+                replacePlaceholder(dataSource.getStaging(), REVISION_PLACEHOLDER, revisionId);
+            }
         }
         return dataSource;
     }
 
-    private static void replaceContainerName(String container, DataSource dataSource) {
+    private static void replacePlaceholder(DataSource dataSource, String placeholderName, String value) {
         if (dataSource instanceof RDBMSDataSource) {
             RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) dataSource;
             String connectionURL = rdbmsDataSource.getConnectionURL();
             String processedConnectionURL;
             if (((RDBMSDataSource) dataSource).getDialectName() == RDBMSDataSource.DataSourceDialect.POSTGRES) {
                 // Postgres always creates lower case database name
-                processedConnectionURL = connectionURL.replace("${container}", container.toLowerCase()); //$NON-NLS-1$
+                processedConnectionURL = connectionURL.replace(placeholderName, value.toLowerCase());
             } else {
-                processedConnectionURL = connectionURL.replace("${container}", container); //$NON-NLS-1$
+                processedConnectionURL = connectionURL.replace(placeholderName, value);
             }
             rdbmsDataSource.setConnectionURL(processedConnectionURL);
             String databaseName = rdbmsDataSource.getDatabaseName();
-            String processedDatabaseName = databaseName.replace("${container}", container); //$NON-NLS-1$
+            String processedDatabaseName = databaseName.replace(placeholderName, value);
             if (((RDBMSDataSource) dataSource).getDialectName() == RDBMSDataSource.DataSourceDialect.POSTGRES) {
                 // Postgres always creates lower case database name
                 processedDatabaseName = processedDatabaseName.toLowerCase();
@@ -110,13 +121,10 @@ public class DataSourceFactory {
     private static synchronized InputStream readDataSourcesConfiguration() {
         Properties configuration = MDMConfiguration.getConfiguration();
         String dataSourcesFileName = (String) configuration.get(DB_DATASOURCES);
-        // DB_DATASOURCES property is mandatory to continue.
-        if (dataSourcesFileName == null) {
+        if (dataSourcesFileName == null) { // DB_DATASOURCES property is mandatory to continue.
             throw new IllegalStateException(DB_DATASOURCES + " is not defined in MDM configuration.");
         }
-
         InputStream configurationAsStream = null;
-
         // 1- Try from file (direct lookup)
         File file = new File(dataSourcesFileName);
         if (file.exists()) {
@@ -127,7 +135,6 @@ public class DataSourceFactory {
                 throw new IllegalStateException("Unexpected state (file exists but can't create a stream from it).", e);
             }
         }
-
         // 1- Try from file (lookup from user.dir)
         if (configurationAsStream == null) {
             file = new File(System.getProperty("user.dir") + "/bin/" + dataSourcesFileName); //$NON-NLS-1$ //$NON-NLS-2$
@@ -140,7 +147,6 @@ public class DataSourceFactory {
                 }
             }
         }
-
         // 2- From class path
         if (configurationAsStream == null) {
             List<String> filePaths = Arrays.asList(dataSourcesFileName);
@@ -155,7 +161,6 @@ public class DataSourceFactory {
                 LOGGER.info("Reading from datasource file at '" + currentFilePath + "'.");
             }
         }
-
         // 3- error: configuration was not found
         if (configurationAsStream == null) {
             throw new IllegalStateException("Could not find datasources configuration file '" + dataSourcesFileName + "'.");
@@ -185,7 +190,7 @@ public class DataSourceFactory {
                     throw new IllegalArgumentException("Data source '" + name + "'does not declare a master data section");
                 }
                 DataSource staging = getDataSourceConfiguration(currentDataSourceElement, name, "staging");
-                nameToDataSources.put(name, new DataSourceDefinition(name, master, staging));
+                nameToDataSources.put(name, new DataSourceDefinition(master, staging));
             }
             return nameToDataSources;
         } catch (XPathExpressionException e) {

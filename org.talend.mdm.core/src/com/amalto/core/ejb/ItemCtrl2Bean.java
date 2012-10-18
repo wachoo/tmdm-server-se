@@ -61,7 +61,6 @@ import java.io.*;
 import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.alias;
-import static com.amalto.core.query.user.UserQueryBuilder.count;
 import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 /**
@@ -503,7 +502,7 @@ public class ItemCtrl2Bean implements SessionBean {
                 String err = "The list of viewable xPaths must contain at least one element";
                 LOGGER.error(err);
                 throw new XtentisException(err);
-    }
+            }
 
             // Check if user is allowed to read the cluster
             ILocalUser user = LocalUser.getLocalUser();
@@ -527,7 +526,7 @@ public class ItemCtrl2Bean implements SessionBean {
             }
 
             Server server = ServerContext.INSTANCE.get();
-            Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId());
+            Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), universe.getDefaultItemRevisionID());
 
             if (storage == null) {
                 // build the patterns to revision ID map
@@ -699,18 +698,17 @@ public class ItemCtrl2Bean implements SessionBean {
     public long count(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem, int spellThreshold)
             throws XtentisException {
         try {
+            // get the universe and revision ID
+            UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
+            if (universe == null) {
+                String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
+                LOGGER.error(err);
+                throw new XtentisException(err);
+            }
             Server mdmServer = ServerContext.INSTANCE.get();
-            Storage storage = mdmServer.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId());
+            Storage storage = mdmServer.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), universe.getDefaultItemRevisionID());
 
             if (storage == null) {
-                // get the universe and revision ID
-                UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-                if (universe == null) {
-                    String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-                    LOGGER.error(err);
-                    throw new XtentisException(err);
-                }
-
                 // build the patterns to revision ID map
                 LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
                         universe.getItemsRevisionIDs());
@@ -1099,9 +1097,8 @@ public class ItemCtrl2Bean implements SessionBean {
             throws XtentisException {
         try {
             Map<String, String> concepts = new LinkedHashMap<String, String>();
-
             Server mdmServer = ServerContext.INSTANCE.get();
-            Storage storage = mdmServer.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId());
+            Storage storage = mdmServer.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), null);
 
             if (storage == null) {
                 ILocalUser user = LocalUser.getLocalUser();
@@ -1118,8 +1115,9 @@ public class ItemCtrl2Bean implements SessionBean {
 
                 // This should be moved to ItemCtrl
                 // get the universe
-                if (universe == null)
+                if (universe == null) {
                     universe = user.getUniverse();
+                }
 
                 // make sure we do not check a revision twice
                 Set<String> revisionsChecked = new HashSet<String>();

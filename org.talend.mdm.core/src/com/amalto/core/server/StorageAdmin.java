@@ -28,7 +28,7 @@ public interface StorageAdmin {
 
     void deleteAll(String revisionID, boolean dropExistingData);
 
-    Storage create(String dataModelName, String storageName, String dataSourceName);
+    Storage create(String dataModelName, String storageName, String dataSourceName, String revisionId);
 
     boolean exist(String revision, String storageName, StorageType storageType);
 
@@ -36,9 +36,11 @@ public interface StorageAdmin {
 
     /**
      *
+     *
      * @param storageName A {@link com.amalto.core.storage.Storage} name.
+     * @param revisionId
      * @return A previously created {@link Storage} or <code>null</code> if no storage was previously created.
-     * @see #create(String, String, String)
+     * @see #create(String, String, String, String)
      */
-    Storage get(String storageName);
+    Storage get(String storageName, String revisionId);
 }

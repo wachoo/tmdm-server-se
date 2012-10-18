@@ -30,7 +30,7 @@ public class StorageAdminImpl implements StorageAdmin {
     public void create(String dataModelName) {
         com.amalto.core.server.StorageAdmin storageAdmin = getServerStorageAdmin();
         // TODO Data source name
-        storageAdmin.create(dataModelName, dataModelName, Storage.DEFAULT_DATA_SOURCE_NAME);
+        storageAdmin.create(dataModelName, dataModelName, Storage.DEFAULT_DATA_SOURCE_NAME, null);
     }
 
     public void delete(String dataModelName) {

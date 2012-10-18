@@ -232,22 +232,6 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                 newClass.addMethod(setTimeStamp);
             }
 
-            if (complexType.hasField(Storage.METADATA_REVISION_ID)) {
-                // Get revision method
-                CtMethod getRevision = createFixedFieldGetter(newClass, Storage.METADATA_REVISION_ID, "revision"); //$NON-NLS-1$
-                newClass.addMethod(getRevision);
-                // Set revision method
-                CtMethod setRevision = createFixedSetter(newClass, Storage.METADATA_REVISION_ID, "revision"); //$NON-NLS-1$
-                newClass.addMethod(setRevision);
-            } else {
-                // Get revision method
-                CtMethod getRevision = createConstantGetter(newClass, "revision"); //$NON-NLS-1$
-                newClass.addMethod(getRevision);
-                // Set revision method
-                CtMethod setRevision = createEmptySetter(newClass, "revision"); //$NON-NLS-1$
-                newClass.addMethod(setRevision);
-            }
-
             if (complexType.hasField(Storage.METADATA_TASK_ID)) {
                 // Get task id method
                 StringBuilder getTaskIdMethodBody = new StringBuilder();

@@ -142,9 +142,6 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
 
                     @Override
                     public FieldMetadata visit(Revision revision) {
-                        if (!isAlias) {
-                            return createField(Revision.REVISION_TYPE_NAME, Storage.METADATA_REVISION_ID);
-                        }
                         return null;
                     }
 

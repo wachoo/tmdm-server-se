@@ -234,7 +234,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             }
 
             Server server = ServerContext.INSTANCE.get();
-            Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId());
+            Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), universe.getDefaultItemRevisionID());
 
             if (storage != null) {
                 MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
@@ -445,9 +445,16 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                                       String conceptName, IWhereItem whereItem, int spellThreshold,
                                       String orderBy, String direction, int start, int limit,
                                       boolean totalCountOnFirstRow) throws XtentisException {
-
+        // get the universe and revision ID
+        ILocalUser user = getLocalUser();
+        UniversePOJO universe = user.getUniverse();
+        if (universe == null) {
+            String err = "ERROR: no Universe set for user '" + user.getUsername() + "'";
+            logger.error(err);
+            throw new XtentisException(err);
+        }
         Server server = ServerContext.INSTANCE.get();
-        Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId());
+        Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), universe.getDefaultItemRevisionID());
 
         if (storage != null) {
             MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
@@ -504,16 +511,6 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             return resultsAsString;
         } else {
             // ******* Old behavior **********
-            // get the universe and revision ID
-            ILocalUser user = getLocalUser();
-            UniversePOJO universe = user.getUniverse();
-            if (universe == null) {
-                String err = "ERROR: no Universe set for user '"
-                        + user.getUsername() + "'";
-                logger.error(err);
-                throw new XtentisException(err);
-            }
-
             // build the patterns to revision ID map
             LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
                     universe.getItemsRevisionIDs());

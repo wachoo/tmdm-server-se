@@ -39,7 +39,7 @@ public class MockServer implements Server {
     public boolean hasDataSource(String dataSourceName, String container, StorageType type) {
         boolean isDataSourceDefinitionPresent = dataSourceFactory.hasDataSource(MockServer.class.getResourceAsStream("datasources.xml"), dataSourceName);
         if (isDataSourceDefinitionPresent) {
-            DataSourceDefinition dataSource = dataSourceFactory.getDataSource(dataSourceName, container);
+            DataSourceDefinition dataSource = dataSourceFactory.getDataSource(dataSourceName, container, null);
             switch (type) {
                 case MASTER:
                     return dataSource.getMaster() != null;
@@ -52,8 +52,13 @@ public class MockServer implements Server {
         return isDataSourceDefinitionPresent;
     }
 
+    @Override
     public DataSource getDataSource(String dataSourceName, String container, StorageType type) {
-        DataSourceDefinition configuration = dataSourceFactory.getDataSource(MockServer.class.getResourceAsStream("datasources.xml"), dataSourceName, container);
+        return getDataSource(dataSourceName, container, null, type);
+    }
+
+    public DataSource getDataSource(String dataSourceName, String container, String revisionId, StorageType type) {
+        DataSourceDefinition configuration = dataSourceFactory.getDataSource(MockServer.class.getResourceAsStream("datasources.xml"), dataSourceName, container, revisionId);
         switch (type) {
             case MASTER:
                 return configuration.getMaster();
@@ -79,10 +84,6 @@ public class MockServer implements Server {
             metadataRepositoryAdmin = ServerContext.INSTANCE.getLifecycle().createMetadataRepositoryAdmin();
         }
         return metadataRepositoryAdmin;
-    }
-
-    public MBeanServer getMBeanServer() {
-        return platformMBeanServer;
     }
 
     public void close() {

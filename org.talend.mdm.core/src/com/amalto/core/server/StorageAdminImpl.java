@@ -60,7 +60,7 @@ public class StorageAdminImpl implements StorageAdmin {
         }
     }
 
-    public Storage create(String dataModelName, String storageName, String dataSourceName) {
+    public Storage create(String dataModelName, String storageName, String dataSourceName, String revisionId) {
         if (MDMConfiguration.getConfiguration().get(DataSourceFactory.DB_DATASOURCES) == null) {
             LOGGER.warn("Configuration does not allow creation of SQL storage for '" + dataModelName + "'.");
             return null;
@@ -68,11 +68,11 @@ public class StorageAdminImpl implements StorageAdmin {
         String actualStorageName = StringUtils.substringBefore(storageName, STAGING_SUFFIX);
         String actualDataModelName = StringUtils.substringBefore(dataModelName, STAGING_SUFFIX);
         try {
-            Storage masterDataModelStorage = internalCreateStorage(actualDataModelName, actualStorageName, dataSourceName, StorageType.MASTER);
+            Storage masterDataModelStorage = internalCreateStorage(actualDataModelName, actualStorageName, dataSourceName, StorageType.MASTER, revisionId);
             if (!XSystemObjects.DC_UPDATE_PREPORT.getName().equalsIgnoreCase(actualStorageName)) { //TODO would be better to decide whether a staging area should be created or not in a method.
                 boolean hasDataSource = ServerContext.INSTANCE.get().hasDataSource(dataSourceName, actualStorageName, StorageType.STAGING);
                 if (hasDataSource) {
-                    internalCreateStorage(actualDataModelName + STAGING_SUFFIX, actualStorageName, dataSourceName, StorageType.STAGING);
+                    internalCreateStorage(actualDataModelName + STAGING_SUFFIX, actualStorageName, dataSourceName, StorageType.STAGING, revisionId);
                 }
             }
             return masterDataModelStorage;
@@ -82,23 +82,23 @@ public class StorageAdminImpl implements StorageAdmin {
     }
 
     // Returns null if storage can not be created (e.g. because of missing data source configuration).
-    private Storage internalCreateStorage(String dataModelName, String storageName, String dataSourceName, StorageType storageType) {
+    private Storage internalCreateStorage(String dataModelName, String storageName, String dataSourceName, StorageType storageType, String revisionId) {
         ServerContext instance = ServerContext.INSTANCE;
-        DataSource dataSource = instance.get().getDataSource(dataSourceName, storageName, storageType);
+        DataSource dataSource = instance.get().getDataSource(dataSourceName, storageName, revisionId, storageType);
         if (dataSource instanceof RDBMSDataSource) {
             // May get request for "StorageName/Concept", but for SQL it does not make any sense.
             // See com.amalto.core.storage.StorageWrapper.createCluster()
             storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
             if (exist(null, storageName, storageType)) {
                 LOGGER.warn("Storage for '" + storageName + "' already exists. It needs to be deleted before it can be recreated.");
-                return get(storageName);
+                return get(storageName, revisionId);
             }
             dataModelName = StringUtils.substringBefore(dataModelName, "/"); //$NON-NLS-1$
             if (storageType == StorageType.STAGING && !dataModelName.endsWith(STAGING_SUFFIX)) {
                 dataModelName += STAGING_SUFFIX;
             }
             // Replace all container name, so re-read the configuration.
-            dataSource = instance.get().getDataSource(dataSourceName, storageName, storageType);
+            dataSource = instance.get().getDataSource(dataSourceName, storageName, revisionId, storageType);
         }
         if (!instance.get().hasDataSource(dataSourceName, storageName, storageType)) {
             LOGGER.warn("Can not initialize " + storageType + " storage for '" + storageName + "': data source '" + dataSourceName + "' configuration is incomplete.");
@@ -138,8 +138,13 @@ public class StorageAdminImpl implements StorageAdmin {
         deleteAll(null, false);
     }
 
-    public Storage get(String storageName) {
-        Storage storage = storages.get(storageName);
+    public Storage get(String storageName, String revisionId) {
+        Storage storage;
+        if (revisionId == null || "HEAD".equals(revisionId)) {
+            storage = storages.get(storageName);
+        } else {
+            storage = storages.get(storageName + 'R' + revisionId);
+        }
         if (storage == null) {
             // May get request for "StorageName/Concept", but for SQL it does not make any sense.
             storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$

@@ -391,7 +391,6 @@ public class HibernateStorage implements Storage {
                 TypeMapping mapping = mappingRepository.getMappingFromUser(currentDataRecord.getType());
                 Wrapper o = (Wrapper) currentDataRecord.convert(converter, mapping);
                 o.timestamp(System.currentTimeMillis());
-                o.revision(currentDataRecord.getRevisionId());
 
                 DataRecordMetadata recordMetadata = currentDataRecord.getRecordMetadata();
                 o.taskId(recordMetadata.getTaskId());

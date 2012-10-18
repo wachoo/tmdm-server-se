@@ -23,12 +23,12 @@ public interface Server {
     boolean hasDataSource(String dataSourceName, String container, StorageType type);
 
     DataSource getDataSource(String dataSourceName, String container, StorageType type);
+
+    DataSource getDataSource(String dataSourceName, String container, String revisionId, StorageType type);
     
     StorageAdmin getStorageAdmin();
 
     MetadataRepositoryAdmin getMetadataRepositoryAdmin();
-
-    MBeanServer getMBeanServer();
 
     void close();
 

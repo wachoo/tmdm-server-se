@@ -13,14 +13,11 @@ package com.amalto.core.storage.datasource;
 
 public class DataSourceDefinition {
 
-    private final String name;
-
     private final DataSource master;
 
     private final DataSource staging;
 
-    public DataSourceDefinition(String name, DataSource master, DataSource staging) {
-        this.name = name;
+    public DataSourceDefinition(DataSource master, DataSource staging) {
         this.master = master;
         this.staging = staging;
     }

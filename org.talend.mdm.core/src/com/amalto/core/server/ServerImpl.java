@@ -13,24 +13,15 @@
 
 package com.amalto.core.server;
 
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocal;
-import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.datasource.DataSourceFactory;
-import com.amalto.core.util.Util;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.commmon.util.webapp.XObjectType;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import javax.management.MBeanServer;
 import java.lang.management.ManagementFactory;
-import java.util.Collection;
-import java.util.Map;
 
 class ServerImpl implements Server {
 
@@ -51,7 +42,7 @@ class ServerImpl implements Server {
     public boolean hasDataSource(String dataSourceName, String container, StorageType type) {
         boolean isDataSourceDefinitionPresent = dataSourceFactory.hasDataSource(dataSourceName);
         if (isDataSourceDefinitionPresent) {
-            DataSourceDefinition dataSource = dataSourceFactory.getDataSource(dataSourceName, container);
+            DataSourceDefinition dataSource = dataSourceFactory.getDataSource(dataSourceName, container, null);
             switch (type) {
                 case MASTER:
                     return dataSource.getMaster() != null;
@@ -64,8 +55,13 @@ class ServerImpl implements Server {
         return isDataSourceDefinitionPresent;
     }
 
+    @Override
     public DataSource getDataSource(String dataSourceName, String container, StorageType type) {
-        DataSourceDefinition configuration = dataSourceFactory.getDataSource(dataSourceName, container);
+        return getDataSource(dataSourceName, container, null, type);
+    }
+
+    public DataSource getDataSource(String dataSourceName, String container, String revisionId, StorageType type) {
+        DataSourceDefinition configuration = dataSourceFactory.getDataSource(dataSourceName, container, revisionId);
         switch (type) {
             case MASTER:
                 return configuration.getMaster();
@@ -93,10 +89,6 @@ class ServerImpl implements Server {
             metadataRepositoryAdmin = lifecycle.createMetadataRepositoryAdmin();
         }
         return metadataRepositoryAdmin;
-    }
-
-    public MBeanServer getMBeanServer() {
-        return platformMBeanServer;
     }
 
     public void close() {

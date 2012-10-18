@@ -66,9 +66,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         for (FieldMetadata keyField : keyFields) {
             qb.where(eq(keyField, splitUniqueId[currentIndex++]));
         }
-        if (!"Update".equals(type.getName()) && !"TALEND_TASK_EXECUTION".equals(type.getName())) { // TODO Not good: add a method on type to tell whether type supports revisions or not.
-            qb.where(eq(revision(), String.valueOf(parseRevisionId(revisionId))));
-        }
+        qb.getSelect().setRevisionId(revisionId);
         return qb.getSelect();
     }
 
@@ -119,7 +117,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     public long createCluster(String revisionID, String clusterName) throws XmlServerException {
         long start = System.currentTimeMillis();
         {
-            getStorageAdmin().create(clusterName, clusterName, Storage.DEFAULT_DATA_SOURCE_NAME);
+            getStorageAdmin().create(clusterName, clusterName, Storage.DEFAULT_DATA_SOURCE_NAME, null);
         }
         return System.currentTimeMillis() - start;
     }
@@ -145,7 +143,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         String typeName = getTypeName(uniqueID);
         long start = System.currentTimeMillis();
         {
-            Storage storage = getStorage(clusterName);
+            Storage storage = getStorage(clusterName, revisionID);
             MetadataRepository repository = storage.getMetadataRepository();
             DataRecord record = xmlStringReader.read(parseRevisionId(revisionID), repository, repository.getComplexType(typeName), xmlString);
             try {
@@ -162,7 +160,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         long start = System.currentTimeMillis();
         {
             DataRecordReader<Element> reader = new XmlDOMDataRecordReader();
-            Storage storage = getStorage(clusterName);
+            Storage storage = getStorage(clusterName, revisionID);
             MetadataRepository repository = storage.getMetadataRepository();
             DataRecord record = reader.read(parseRevisionId(revisionID), repository, repository.getComplexType(typeName), root);
             storage.update(record);
@@ -181,7 +179,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         String typeName = getTypeName(input.getPublicId());
         long start = System.currentTimeMillis();
         {
-            Storage storage = getStorage(dataClusterName);
+            Storage storage = getStorage(dataClusterName, revisionId);
             if (storage == null) {
                 throw new XmlServerException("Data cluster '" + dataClusterName + "' does not exist.");
             }
@@ -209,7 +207,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
 
         String[] splitUniqueId = uniqueID.split("\\."); //$NON-NLS-1$
 
-        Storage storage = getStorage(clusterName);
+        Storage storage = getStorage(clusterName, revisionID);
         MetadataRepository repository = storage.getMetadataRepository();
         String typeName = splitUniqueId[1];
         ComplexTypeMetadata type = repository.getComplexType(typeName);
@@ -258,7 +256,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
 
     public String[] getAllDocumentsUniqueID(String revisionID, String clusterName) throws XmlServerException {
         List<String> uniqueIds = new LinkedList<String>();
-        Storage storage = getStorage(clusterName);
+        Storage storage = getStorage(clusterName, revisionID);
         MetadataRepository repository = storage.getMetadataRepository();
         Collection<ComplexTypeMetadata> typeToQuery;
         if(clusterName.contains("/")) { //$NON-NLS-1$
@@ -295,7 +293,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         {
             String typeName = getTypeName(uniqueID);
             String[] splitUniqueID = uniqueID.split("\\."); //$NON-NLS-1$
-            Storage storage = getStorage(clusterName);
+            Storage storage = getStorage(clusterName, revisionID);
             ComplexTypeMetadata type = storage.getMetadataRepository().getComplexType(typeName);
             Select select = getSelectTypeById(type, revisionID, splitUniqueID);
             try {
@@ -338,7 +336,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 break;
             }
         }
-        Storage storage = getStorage(clusterName);
+        Storage storage = getStorage(clusterName, revisionId);
         MetadataRepository repository = storage.getMetadataRepository();
         ComplexTypeMetadata type = repository.getComplexType(conceptName);
         if (type == null) {
@@ -346,7 +344,6 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
         UserQueryBuilder qb = from(type);
         qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
-        qb.where(eq(revision(), String.valueOf(parseRevisionId(revisionId))));
         StorageResults records = storage.fetch(qb.getSelect());
         int count;
         try {
@@ -392,11 +389,10 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 break;
             }
         }
-        Storage storage = getStorage(clusterName);
+        Storage storage = getStorage(clusterName, revisionId);
         MetadataRepository repository = storage.getMetadataRepository();
         UserQueryBuilder qb = from(repository.getComplexType(conceptName));
         UserQueryHelper.buildCondition(qb, whereItem, repository);
-        qb.where(eq(revision(), String.valueOf(parseRevisionId(revisionId))));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             return results.getCount();
@@ -445,7 +441,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters, int start, int limit, boolean withTotalCount) throws XmlServerException {
-        Storage storage = storageAdmin.get(clusterName);
+        Storage storage = storageAdmin.get(clusterName, revisionID);
          // replace parameters in the procedure
         if (parameters != null) {
             for (int i = 0; i < parameters.length; i++) {
@@ -472,7 +468,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
 
     public List<String> getItemPKsByCriteria(ItemPKCriteria criteria) throws XmlServerException {
         String clusterName = criteria.getClusterName();
-        Storage storage = getStorage(clusterName);
+        Storage storage = getStorage(clusterName, criteria.getRevisionId());
         MetadataRepository repository = storage.getMetadataRepository();
 
         int totalCount = 0;
@@ -599,7 +595,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public void start(String dataClusterName) throws XmlServerException {
-        Storage storage = getStorage(dataClusterName);
+        Storage storage = getStorage(dataClusterName, null);
         storage.begin();
     }
 
@@ -611,16 +607,16 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public void commit(String dataClusterName) throws XmlServerException {
-        Storage storage = getStorage(dataClusterName);
+        Storage storage = getStorage(dataClusterName, null);
         storage.commit();
     }
 
-    private Storage getStorage(String dataClusterName) {
-        Storage storage = getStorageAdmin().get(dataClusterName);
+    private Storage getStorage(String dataClusterName, String revisionId) {
+        Storage storage = getStorageAdmin().get(dataClusterName, revisionId);
         if (storage == null) {
             if (dataClusterName.contains("/")) { //$NON-NLS-1$
                 String dataCluster = StringUtils.substringBefore(dataClusterName, "/"); //$NON-NLS-1$
-                storage = getStorageAdmin().get(dataCluster);
+                storage = getStorageAdmin().get(dataCluster, revisionId);
                 if (storage != null && storage.getDataSource() instanceof RDBMSDataSource) {
                     throw new IllegalStateException("'" + dataClusterName + "' did not match any existing storage, but '"
                             + dataCluster + "' did (and is not a SQL storage).");
@@ -632,12 +628,12 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public void rollback(String dataClusterName) throws XmlServerException {
-        Storage storage = getStorage(dataClusterName);
+        Storage storage = getStorage(dataClusterName, null);
         storage.rollback();
     }
 
     public void end(String dataClusterName) throws XmlServerException {
-        Storage storage = getStorage(dataClusterName);
+        Storage storage = getStorage(dataClusterName, null);
         storage.end();
     }
 
@@ -646,7 +642,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws XmlServerException {
-        Storage storage = getStorage(dataCluster);
+        Storage storage = getStorage(dataCluster, null);
         MetadataRepository repository = storage.getMetadataRepository();
         Iterator<ComplexTypeMetadata> types = repository.getUserComplexTypes().iterator();
 

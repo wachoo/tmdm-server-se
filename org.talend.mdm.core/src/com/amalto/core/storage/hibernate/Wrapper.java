@@ -60,17 +60,4 @@ public interface Wrapper {
      */
     void taskId(String value);
 
-    /**
-     * @return Returns MDM revision id for the object with value greater than equals 1. If method returns 0, this means
-     * revision id is not set.
-     */
-    long revision();
-
-    /**
-     * Set the MDM revision id for the object.
-     *
-     * @param value A revision id.
-     */
-    void revision(long value);
-
 }

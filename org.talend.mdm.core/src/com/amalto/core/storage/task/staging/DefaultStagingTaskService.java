@@ -84,7 +84,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
     public StagingContainerSummary getContainerSummary(String dataContainer, String dataModel) {
         Server server = ServerContext.INSTANCE.get();
-        Storage storage = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX);
+        Storage storage = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX, null);
         if (storage == null) {
             throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
         }
@@ -110,11 +110,11 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
                 return runningTask.getId();
             }
             Server server = ServerContext.INSTANCE.get();
-            Storage staging = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX);
+            Storage staging = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX, null);
             if (staging == null) {
                 throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
             }
-            Storage user = server.getStorageAdmin().get(dataContainer);
+            Storage user = server.getStorageAdmin().get(dataContainer, null);
             if (user == null) {
                 throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
             }
@@ -136,7 +136,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
     public List<String> listCompletedExecutions(String dataContainer, String beforeDate, int start, int size) {
         Server server = ServerContext.INSTANCE.get();
-        Storage staging = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX);
+        Storage staging = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX, null);
         if (staging == null) {
             throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
         }
@@ -215,7 +215,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
     public ExecutionStatistics getExecutionStats(String dataContainer, String dataModel, String executionId) {
         Server server = ServerContext.INSTANCE.get();
-        Storage staging = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX);
+        Storage staging = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX, null);
         if (staging == null) {
             throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
         }

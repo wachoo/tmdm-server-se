@@ -24,7 +24,6 @@ public class ObjectDataRecordReader {
         DataRecordMetadataImpl recordMetadata = new DataRecordMetadataImpl(input.timestamp(), input.taskId());
         DataRecord record = new DataRecord(mapping.getUser(), recordMetadata);
         mapping.setValues(input, record);
-        record.setRevisionId(input.revision());
         return record;
     }
 }
