@@ -1,13 +1,24 @@
 package com.amalto.core.ejb;
 
+import static com.amalto.core.query.user.UserQueryBuilder.alias;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
+
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -17,18 +28,6 @@ import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.metadata.MetadataUtils;
-import com.amalto.core.query.user.*;
-import com.amalto.core.server.Server;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordWriter;
-import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -41,6 +40,10 @@ import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.integrity.FKIntegrityChecker;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
@@ -51,17 +54,29 @@ import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
+import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.TypedExpression;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.core.server.Server;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.JazzyConfiguration;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
-
-import java.io.*;
-import java.util.*;
-
-import static com.amalto.core.query.user.UserQueryBuilder.alias;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
+import com.amalto.xmlserver.interfaces.CustomWhereCondition;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.xmlserver.interfaces.WhereOr;
+import com.amalto.xmlserver.interfaces.XmlServerException;
 
 /**
  * @author Bruno Grieder
@@ -1111,6 +1126,17 @@ public class ItemCtrl2Bean implements SessionBean {
                 if (!authorized) {
                     throw new RemoteException("Unauthorized read access on data cluster " + dataClusterPOJOPK.getUniqueId()
                             + " by user " + user.getUsername());
+                }
+
+                // Check the threshold number
+                long totalItemsInDataContainer = count(dataClusterPOJOPK, "*", null, -1);
+                int threshold = MDMConfiguration.getAutoEntityFindThreshold();
+                if (totalItemsInDataContainer > threshold) {
+                    if(LOGGER.isDebugEnabled())
+                        LOGGER.debug("Won't calculate concepts in DataCluster \"" + dataClusterPOJOPK.getUniqueId() //$NON-NLS-1$
+                                + "\", because total items in data container " + totalItemsInDataContainer //$NON-NLS-1$
+                                + " is over the limit " + threshold + "! "); //$NON-NLS-1$ //$NON-NLS-2$
+                    return null;
                 }
 
                 // This should be moved to ItemCtrl
