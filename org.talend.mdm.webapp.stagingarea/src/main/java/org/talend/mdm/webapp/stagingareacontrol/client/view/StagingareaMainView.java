@@ -74,12 +74,15 @@ public class StagingareaMainView extends AbstractView {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 ControllerContainer.get().getSummaryController().refreshView();
-                ControllerContainer.get().getCurrentValidationController().refreshView();
+                if (!ControllerContainer.get().getSummaryController().isEnabledStartValidation()) {
+                    ControllerContainer.get().getCurrentValidationController().refreshView();
+                }
             }
         });
         toolBar.add(refresh);
 
-        final ToggleButton autoRefreshToggle = new ToggleButton(messages.off());
+        final ToggleButton autoRefreshToggle = new ToggleButton(messages.on());
+        autoRefreshToggle.toggle(true);
         autoRefreshToggle.setTitle(messages.auto_refresh());
         autoRefreshToggle.addListener(Events.Toggle, new Listener<BaseEvent>() {
             public void handleEvent(BaseEvent be) {
@@ -87,6 +90,7 @@ public class StagingareaMainView extends AbstractView {
                 ControllerContainer.get().getCurrentValidationController().autoRefresh(autoRefreshToggle.isPressed());
             }
         });
+
         toolBar.add(autoRefreshToggle);
         mainPanel.add(toolBar, new RowData(1, -1, new Margins(0, 23, 0, 0)));
         mainPanel.add(wrapFieldSet(summaryView, messages.status()), new RowData(1, -1, new Margins(0, 23, 0, 0)));

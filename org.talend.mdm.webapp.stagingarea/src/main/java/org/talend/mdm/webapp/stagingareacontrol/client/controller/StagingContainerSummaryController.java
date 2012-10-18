@@ -27,7 +27,7 @@ public class StagingContainerSummaryController extends AbstractController {
         setBindingView(view);
         this.view = (StagingContainerSummaryView) bindingView;
     }
-
+    
     public void refreshView() {
         final UserContextModel ucx = UserContextUtil.getUserContext();
         RestServiceHandler.get().getStagingContainerSummary(ucx.getDataContainer(), ucx.getDataModel(),
@@ -50,16 +50,17 @@ public class StagingContainerSummaryController extends AbstractController {
     }
 
     public native void openInvalidRecordToBrowseRecord(Integer state)/*-{
-        if ($wnd.amalto.stagingareabrowse && $wnd.amalto.stagingareabrowse.StagingareaBrowse){
-            $wnd.amalto.stagingareabrowse.StagingareaBrowse.init(state);
-        }
+		if ($wnd.amalto.stagingareabrowse
+				&& $wnd.amalto.stagingareabrowse.StagingareaBrowse) {
+			$wnd.amalto.stagingareabrowse.StagingareaBrowse.init(state);
+		}
     }-*/;
 
     public void setEnabledStartValidation(boolean enabled) {
-        if (enabled) {
-            view.enabledStartValidation();
-        } else {
-            view.disabledStartValidation();
-        }
+        view.setEnabledStartValidation(enabled);
+    }
+
+    public boolean isEnabledStartValidation() {
+        return view.isEnabledStartValidation();
     }
 }
