@@ -20,6 +20,7 @@ import org.talend.mdm.webapp.stagingareacontrol.client.view.ResourceMockWrapper;
 import org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView;
 
 import com.google.gwt.junit.client.GWTTestCase;
+import com.google.gwt.user.client.ui.RootPanel;
 
 @SuppressWarnings("nls")
 public class CurrentValidationTest extends GWTTestCase {
@@ -39,6 +40,8 @@ public class CurrentValidationTest extends GWTTestCase {
 
         summaryView = (StagingContainerSummaryView) ControllerContainer.get().getSummaryController().getBindingView();
         validationView = (CurrentValidationView) ControllerContainer.get().getCurrentValidationController().getBindingView();
+        RootPanel.get().add(summaryView);
+        RootPanel.get().add(validationView);
     }
 
     public void testValidationStatusAfterStartValidation() {

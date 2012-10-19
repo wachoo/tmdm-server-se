@@ -71,7 +71,7 @@ public class CurrentValidationController extends AbstractController {
     }
 
     public void refreshView() {
-        timer.schedule(1);
+        timer.run();
     }
 
     private void refreshView(final Callback callback) {
