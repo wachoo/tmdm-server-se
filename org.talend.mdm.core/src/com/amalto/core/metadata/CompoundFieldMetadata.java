@@ -25,6 +25,10 @@ public class CompoundFieldMetadata implements FieldMetadata {
         this.fields = fields;
     }
 
+    public FieldMetadata[] getFields() {
+        return fields;
+    }
+
     public String getName() {
         throw new UnsupportedOperationException();
     }
@@ -100,7 +104,7 @@ public class CompoundFieldMetadata implements FieldMetadata {
     }
 
     public boolean isMany() {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     public boolean isMandatory() {

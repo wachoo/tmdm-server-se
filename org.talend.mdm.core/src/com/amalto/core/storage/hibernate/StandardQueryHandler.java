@@ -20,7 +20,10 @@ import com.amalto.core.storage.record.DataRecord;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.*;
+import org.hibernate.Criteria;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
 import org.hibernate.criterion.*;
 import org.hibernate.impl.CriteriaImpl;
 import org.hibernate.sql.JoinFragment;
@@ -246,7 +249,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
     }
 
     @Override
-    public StorageResults visit(Field field) {
+    public StorageResults visit(final Field field) {
         FieldMetadata userFieldMetadata = field.getFieldMetadata();
         if (userFieldMetadata.isMany() && !(projectionList instanceof ReadOnlyProjectionList)) {
             throw new UnsupportedOperationException("Support for collections in projections is not supported.");
@@ -289,7 +292,27 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     projectionList.add(Projections.property(getFieldName(field, mappingMetadataRepository)));
                 }
             } else {
-                projectionList.add(Projections.property(getFieldName(field, mappingMetadataRepository)));
+                field.getFieldMetadata().accept(new DefaultMetadataVisitor<Void>() {
+                    @Override
+                    public Void visit(ReferenceFieldMetadata referenceField) {
+                        // Automatically selects referenced ID in case of FK.
+                        FieldMetadata referencedField = referenceField.getReferencedField();
+                        referencedField.accept(this);
+                        return null;
+                    }
+
+                    @Override
+                    public Void visit(SimpleTypeFieldMetadata simpleField) {
+                        projectionList.add(Projections.property(getFieldName(simpleField, mappingMetadataRepository, true, true)));
+                        return null;
+                    }
+
+                    @Override
+                    public Void visit(EnumerationFieldMetadata enumField) {
+                        projectionList.add(Projections.property(getFieldName(enumField, mappingMetadataRepository, true, true)));
+                        return null;
+                    }
+                });
             }
         }
         return null;

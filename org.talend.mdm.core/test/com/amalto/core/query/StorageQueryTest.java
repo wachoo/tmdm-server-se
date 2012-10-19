@@ -13,6 +13,7 @@
 
 package com.amalto.core.query;
 
+import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.StorageResults;
@@ -54,31 +55,31 @@ public class StorageQueryTest extends StorageTestCase {
                         .read(1,
                                 repository,
                                 address,
-                                "<Address><Id>1</Id><enterprise>false</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
+                                "<Address><id>1</id><enterprise>false</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
         allRecords
                 .add(factory
                         .read(1,
                                 repository,
                                 address,
-                                "<Address><Id>1</Id><enterprise>true</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
+                                "<Address><id>1</id><enterprise>true</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
         allRecords
                 .add(factory
                         .read(1,
                                 repository,
                                 address,
-                                "<Address><Id>2</Id><enterprise>true</enterprise><Street>Street2</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
+                                "<Address><id>2</id><enterprise>true</enterprise><Street>Street2</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
         allRecords
                 .add(factory
                         .read(1,
                                 repository,
                                 address,
-                                "<Address><Id>3</Id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
+                                "<Address><id>3</id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
         allRecords
                 .add(factory
                         .read(1,
                                 repository,
                                 address,
-                                "<Address><Id>4</Id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><OptionalCity>City2</OptionalCity><country>[1]</country></Address>"));
+                                "<Address><id>4</id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><OptionalCity>City2</OptionalCity><country>[1]</country></Address>"));
         allRecords
                 .add(factory
                         .read(1,
@@ -961,7 +962,10 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testFKSearch() throws Exception {
-        UserQueryBuilder qb = from(address).selectId(address).where(eq(address.getField("country"), "[1]"));
+        UserQueryBuilder qb = from(address)
+                .selectId(address)
+                .select(address.getField("country"))
+                .where(eq(address.getField("country"), "[1]"));
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -1522,6 +1526,44 @@ public class StorageQueryTest extends StorageTestCase {
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testSelectCompositeFK() throws Exception {
+        ComplexTypeMetadata a1 = repository.getComplexType("a1");
+        ComplexTypeMetadata a2 = repository.getComplexType("a2");
+
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                a2,
+                                "<a2><subelement>1</subelement><subelement1>10</subelement1><b3>String b3</b3><b4>String b4</b4></a2>"));
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                a1,
+                                "<a1><subelement>1</subelement><subelement1>11</subelement1><b1>String b1</b1><b2>[1][10]</b2></a1>"));
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+
+        UserQueryBuilder qb = from(a1).selectId(a1).select(a1.getField("b1")).select(a1.getField("b2"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                Object b2Value = result.get("b2");
+                assertTrue(b2Value instanceof Object[]);
+                Object[] b2Values = (Object[]) b2Value;
+                assertEquals("1", b2Values[0]);
+                assertEquals("10", b2Values[1]);
+            }
         } finally {
             results.close();
         }

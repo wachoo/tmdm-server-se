@@ -46,7 +46,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
                         .read(1,
                                 repository,
                                 address,
-                                "<Address><Id>1000</Id><Street>Street1</Street><country>[1000]</country><ZipCode>10000</ZipCode><City>City1</City><enterprise>false</enterprise></Address>"));
+                                "<Address><id>1000</id><Street>Street1</Street><country>[1000]</country><ZipCode>10000</ZipCode><City>City1</City><enterprise>false</enterprise></Address>"));
         allRecords.add(factory.read(1, repository, product, "<Product>\n"
                 + "    <Id>1</Id>\n"
                 + "    <Name>Product name</Name>\n"
@@ -277,7 +277,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
                         .read(1,
                                 repository,
                                 address,
-                                "<Address><Id>9999</Id><Street>Street1</Street><country>1000</country><ZipCode>10000</ZipCode><City>City1</City><enterprise>false</enterprise></Address>"));
+                                "<Address><id>9999</id><Street>Street1</Street><country>1000</country><ZipCode>10000</ZipCode><City>City1</City><enterprise>false</enterprise></Address>"));
         try {
             storage.begin();
             storage.update(allRecords);
@@ -327,7 +327,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
                         .read(1,
                                 repository,
                                 address,
-                                "<Address><Id>1111</Id><Street>Street1</Street><country>[1000]</country><ZipCode>10000</ZipCode>" +
+                                "<Address><id>1111</id><Street>Street1</Street><country>[1000]</country><ZipCode>10000</ZipCode>" +
                                         "<City>City1</City><enterprise>false</enterprise><Remark>City1</Remark>" +
                                         "<Remark>City2</Remark></Address>"));
         storage.begin();
@@ -338,7 +338,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
             storage.rollback();
             throw e;
         }
-        UserQueryBuilder qb = from(address).where(eq(address.getField("Id"), "1111"));
+        UserQueryBuilder qb = from(address).where(eq(address.getField("id"), "1111"));
         StorageResults results = storage.fetch(qb.getSelect());
         assertEquals(1, results.getCount());
         for (DataRecord result : results) {

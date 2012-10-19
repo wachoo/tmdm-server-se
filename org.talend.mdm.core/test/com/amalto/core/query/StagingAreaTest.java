@@ -511,13 +511,13 @@ public class StagingAreaTest extends TestCase {
 
     private String newAddress(int id1, boolean id2, boolean validData) {
         if (validData) {
-            return "<Address><Id>" + id1 + "</Id><enterprise>" + id2
+            return "<Address><id>" + id1 + "</id><enterprise>" + id2
                     + "</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[" + id1
                     + "]</country></Address>";
         } else {
-            return "<Address><Id>"
+            return "<Address><id>"
                     + id1
-                    + "</Id><enterprise>"
+                    + "</id><enterprise>"
                     + id2
                     + "</enterprise><Street>Street1</Street><ZipCode>300</ZipCode><City>City</City><country>[-1]</country></Address>";
         }

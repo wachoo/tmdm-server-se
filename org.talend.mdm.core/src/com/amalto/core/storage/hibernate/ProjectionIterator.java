@@ -91,7 +91,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             }
 
             int i = 0;
-            for (Object value : values) {
+            for (int j = 0; j < values.length; j++) {
                 TypedExpression typedExpression = selectedFields.get(i++);
                 FieldMetadata field = typedExpression.accept(new VisitorAdapter<FieldMetadata>() {
                     boolean isAlias = false;
@@ -178,7 +178,16 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                     }
                 });
                 explicitProjectionType.addField(field);
-                record.set(field, value);
+                if (field instanceof ReferenceFieldMetadata && ((ReferenceFieldMetadata) field).getReferencedField() instanceof CompoundFieldMetadata) {
+                    FieldMetadata referencedField = ((ReferenceFieldMetadata) field).getReferencedField();
+                    int length = ((CompoundFieldMetadata) referencedField).getFields().length;
+                    Object[] fieldValues = new Object[length];
+                    System.arraycopy(values, j, fieldValues, 0, length);
+                    record.set(field, fieldValues);
+                    j += length;
+                } else {
+                    record.set(field, values[j]);
+                }
             }
             explicitProjectionType.freeze();
         } catch (Exception e) {
