@@ -179,6 +179,9 @@ public class MetadataUtils {
     }
 
     public static Object convert(String dataAsString, FieldMetadata field, TypeMetadata actualType) {
+        if (actualType == null) {
+            throw new IllegalArgumentException("Actual type for field '" + field.getName() + "' cannot be null.");
+        }
         if (field instanceof ReferenceFieldMetadata) {
             List<String> ids = new LinkedList<String>();
             if (dataAsString.startsWith("[")) {
