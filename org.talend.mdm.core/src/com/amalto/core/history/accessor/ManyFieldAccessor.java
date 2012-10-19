@@ -118,7 +118,11 @@ class ManyFieldAccessor implements DOMAccessor {
                     while (currentCollectionSize <= index) {
                         node = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
                         if (lastAccessedNode == parentNode) {
-                            parentNode.appendChild(node);
+                            if(lastAccessedNode == document.asDOM().getDocumentElement() 
+                                    && lastAccessedNode.getChildNodes().getLength() > 0)
+                                parentNode.insertBefore(node, parentNode.getFirstChild());
+                            else
+                                parentNode.appendChild(node);
                         } else if (refNode != null) {
                             parentNode.insertBefore(node, refNode);
                         } else {
