@@ -113,6 +113,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     private static Logger LOG = Logger.getLogger(IXtentisRMIPort.class);
     
     private String INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE = "delete_failure_constraint_violation"; //$NON-NLS-1$
+    
+    private String ENTITY_NOT_FOUND_ERROR_MESSAGE = "entity_not_found"; //$NON-NLS-1$
 
     /***************************************************************************
      * 
@@ -668,6 +670,9 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     wsGetItem.getWsItemPK().getConceptName(), wsGetItem.getWsItemPK().getIds(), vo.getInsertionTime(),
                     vo.getTaskId(), vo.getProjectionAsString());
         } catch (com.amalto.core.util.XtentisException e) {
+            if (com.amalto.webapp.core.util.Util.causeIs(e, com.amalto.core.util.EntityNotFoundException.class)) {
+                throw new RemoteException("", new WebCoreException(ENTITY_NOT_FOUND_ERROR_MESSAGE, com.amalto.webapp.core.util.Util.cause(e, com.amalto.core.util.EntityNotFoundException.class))); //$NON-NLS-1$                     
+            }
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
@@ -832,7 +837,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             return ipk == null ? null : wsDeleteItem.getWsItemPK();
         } catch (com.amalto.core.util.XtentisException e) {            
             if (com.amalto.webapp.core.util.Util.causeIs(e, com.amalto.core.storage.exception.ConstraintViolationException.class)) {
-                throw new RemoteException("", new WebCoreException(INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE, e.getCause())); //$NON-NLS-1$                     
+                throw new RemoteException("", new WebCoreException(INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE, com.amalto.webapp.core.util.Util.cause(e, com.amalto.core.storage.exception.ConstraintViolationException.class))); //$NON-NLS-1$                     
             }
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {

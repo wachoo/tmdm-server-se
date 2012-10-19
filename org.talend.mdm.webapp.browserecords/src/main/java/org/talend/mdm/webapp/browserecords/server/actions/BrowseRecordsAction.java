@@ -549,9 +549,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             dynamicAssemble(itemBean, entityModel, language);
 
             return itemBean;
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
+        } catch (Exception exception) {
+            String errorMessage;
+            if (WebCoreException.class.isInstance(exception.getCause())){
+                WebCoreException webCoreException = (WebCoreException) exception.getCause();
+                errorMessage = getErrorMessageFromWebCoreException(webCoreException,itemBean.getConcept(),itemBean.getIds(),new Locale(language));
+            }else{
+                errorMessage = exception.getLocalizedMessage();
+            }
+            LOG.error(errorMessage, exception);
+            throw new ServiceException(errorMessage);
         }
     }
 
@@ -2377,7 +2384,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
     
-    public String getErrorMessageFromWebCoreException(WebCoreException webCoreException,String concept,String ids,Locale locale){
+    private String getErrorMessageFromWebCoreException(WebCoreException webCoreException,String concept,String ids,Locale locale){
         String errorMessage = MESSAGES.getMessage(locale, webCoreException.getTitle(),
                 concept + ((ids != null && !"".equals(ids)) ? "." + ids : ""), webCoreException.getCause() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         .getLocalizedMessage() !=null ? webCoreException.getCause().getLocalizedMessage() : ""); //$NON-NLS-1$

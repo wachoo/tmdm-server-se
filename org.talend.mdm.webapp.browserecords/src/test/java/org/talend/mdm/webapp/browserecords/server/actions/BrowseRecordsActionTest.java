@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -569,10 +570,19 @@ public class BrowseRecordsActionTest extends TestCase {
 	    assertEquals("2", parsingNodeValue(docXml, xpath, conceptName));
 	}
 	
-	public void  testGetErrorMessageFromWebCoreException(){
+	public void  testGetErrorMessageFromWebCoreException() throws Exception {
 	    RuntimeException runtimeException = new RuntimeException("throw a runtimeException");
 	    WebCoreException webCoreException = new WebCoreException("delete_failure_constraint_violation",runtimeException);
-	    assertEquals("Unable to delete TestModel.1,integrity constraint check failed.", action.getErrorMessageFromWebCoreException(webCoreException, "TestModel", "1", new Locale("en")));	    
+	    Method[] methods = BrowseRecordsAction.class.getDeclaredMethods();	
+	    for (int i=0;i<methods.length;i++) {
+	        if ("getErrorMessageFromWebCoreException".equals(methods[i].getName())){
+	            methods[i].setAccessible(true);
+	            Object para[] = {webCoreException,"TestModel", "1", new Locale("en")};
+	            Object result = methods[i].invoke(action, para);
+	            assertEquals("Unable to delete TestModel.1,integrity constraint check failed.", result);
+	            break;
+	        }
+	    }
 	}
 	
 	private String parsingNodeValue(Document docXml, String xpath, String conceptName) throws Exception {
