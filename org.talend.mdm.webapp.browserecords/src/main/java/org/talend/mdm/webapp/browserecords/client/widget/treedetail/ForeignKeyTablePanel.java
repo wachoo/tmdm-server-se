@@ -322,6 +322,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         
         // grid.setWidth(Window.getClientWidth() - ItemsListPanel.getInstance().getInnerWidth());
         grid.setBorders(false);
+        this.removeAll();
         this.add(grid);
 
         pagingBar.bind(loader);
@@ -352,6 +353,9 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     }
 
     private void addListener() {
+    	addFkButton.removeAllListeners();
+        removeFkButton.removeAllListeners();
+        createFkButton.removeAllListeners();
         addFkButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
