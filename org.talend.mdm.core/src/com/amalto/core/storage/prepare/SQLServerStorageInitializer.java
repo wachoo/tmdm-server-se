@@ -26,6 +26,7 @@ class SQLServerStorageInitializer implements StorageInitializer {
     public boolean isInitialized(Storage storage) {
         try {
             RDBMSDataSource dataSource = getDataSource(storage);
+            Class.forName(dataSource.getDriverClassName());
             Connection connection = DriverManager.getConnection(dataSource.getConnectionURL(), dataSource.getUserName(), dataSource.getPassword());
             connection.close();
             return true;
@@ -39,6 +40,7 @@ class SQLServerStorageInitializer implements StorageInitializer {
     public void initialize(Storage storage) {
         try {
             RDBMSDataSource dataSource = getDataSource(storage);
+            Class.forName(dataSource.getDriverClassName());
             Connection connection = DriverManager.getConnection(dataSource.getInitConnectionURL(), dataSource.getInitUserName(), dataSource.getInitPassword());
             try {
                 Statement statement = connection.createStatement();
