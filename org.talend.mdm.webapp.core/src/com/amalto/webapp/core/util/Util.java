@@ -1497,27 +1497,37 @@ public class Util {
                 results[i] = results[i].replaceAll("\\n", "");// replace \n //$NON-NLS-1$ //$NON-NLS-2$
                 results[i] = results[i].replaceAll(">(\\s+)<", "><"); // replace spaces between elements //$NON-NLS-1$ //$NON-NLS-2$
                 Element root = parse(results[i]).getDocumentElement();
-                NodeList list = root.getChildNodes();
 
-                // recover keys - which are last
+                // recover keys - change the parsing method(It is different order when db is SQL but not XML db)
                 String keys = ""; //$NON-NLS-1$
-                for (int j = "".equals(xpathInfoForeignKey) ? 1 : xpathInfos.length; j < list.getLength(); j++) { //$NON-NLS-1$
-                    Node textNode = list.item(j).getFirstChild();
-                    keys += "[" + (textNode == null ? "" : textNode.getNodeValue()) + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                NodeList nodes = getNodeList(root, "//i"); //$NON-NLS-1$
+                if (nodes != null) {
+                    // when isCount = false, SQL db result(<result><Name>test</Name><Id>1</Id></result>)
+                    if (nodes.getLength() == 0) {
+                        nodes = getNodeList(root, xpathForeignKey.split("/")[1]); //$NON-NLS-1$
+                    }
+                    for (int j = 0; j < nodes.getLength(); j++) {
+                        if (nodes.item(j) instanceof Element) {
+                            keys += "[" + (nodes.item(j).getTextContent() == null ? "" : nodes.item(j).getTextContent()) + "]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$
+                        }
+                    }
                 }
 
                 // recover xPathInfos
-                String infos = null;
-
+                String infos = ""; //$NON-NLS-1$
                 // if no xPath Infos given, use the key values
                 if (xpathInfos.length == 0 || "".equals(xpathInfoForeignKey) || xpathInfoForeignKey == null) { //$NON-NLS-1$
                     infos = keys;
                 } else {
                     // build a dash separated string of xPath Infos
-                    for (int j = 0; j < xpathInfos.length; j++) {
-                        infos = (infos == null ? "" : infos + "-"); //$NON-NLS-1$ //$NON-NLS-2$
-                        Node textNode = list.item(j).getFirstChild();
-                        infos += textNode == null ? "" : textNode.getNodeValue(); //$NON-NLS-1$
+                    for (String xpath : xpathInfos) {
+                        String fkInfoValue = getFirstTextNode(root, xpath.split("/")[1]); //$NON-NLS-1$
+                        fkInfoValue = fkInfoValue != null && fkInfoValue.trim().length() > 0 ? fkInfoValue : ""; //$NON-NLS-1$
+                        if (infos.length() == 0) {
+                            infos += fkInfoValue;
+                        } else {
+                            infos += "-" + fkInfoValue; //$NON-NLS-1$
+                        }
                     }
                 }
 
