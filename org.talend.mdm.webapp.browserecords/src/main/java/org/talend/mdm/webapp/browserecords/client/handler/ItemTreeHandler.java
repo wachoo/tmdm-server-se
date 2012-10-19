@@ -179,7 +179,7 @@ public class ItemTreeHandler implements IsSerializable {
                     elValue = value.toString();
                 }
                 root.appendChild(doc.createTextNode(elValue));
-                return root;
+
             }
         }
 
