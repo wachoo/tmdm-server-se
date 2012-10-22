@@ -22,15 +22,22 @@ import java.util.logging.Logger;
  *
  */
 public class InputStreamMerger extends InputStream {
+
     private static final Logger log = Logger.getLogger(InputStreamMerger.class.getName());
 
     private final Queue<InputStream> inputStreamBuffer = new ConcurrentLinkedQueue<InputStream>();
+
     private final Object readLock = new Object();
+
     private final Object exhaustLock = new Object();
 
     private boolean isClosed;
+
     private InputStream currentStream;
+
     private boolean hasFinishedRead;
+
+    private Throwable lastFailure;
 
     public void push(InputStream inputStream) throws IOException {
         if (inputStream == null) {
@@ -39,9 +46,16 @@ public class InputStreamMerger extends InputStream {
         if (isClosed) {
             throw new IOException("Stream is closed");
         }
-
         inputStreamBuffer.add(inputStream);
         debug("Added a new input stream (buffer now has " + inputStreamBuffer.size() + " streams)");
+    }
+
+    public void reportFailure(Throwable e) {
+        debug("Exception occurred in consumer thread: " + e.getMessage());
+        lastFailure = e;
+        synchronized (exhaustLock) {
+            exhaustLock.notifyAll();
+        }
     }
 
     @Override
@@ -74,25 +88,33 @@ public class InputStreamMerger extends InputStream {
                 read = currentStream.read();
             }
         }
-
         if (read < 0) {
             moveToNextInputStream();
             if (currentStream != null) {
                 read = currentStream.read();
             }
         }
-
         if (read < 0) {
             synchronized (exhaustLock) {
                 debug("Notify exhaust lock");
                 exhaustLock.notifyAll();
             }
         }
-
+        // Throw any exception that might have occurred during last record processing.
+        throwLastFailure();
         return read;
     }
 
+    private void throwLastFailure() throws IOException {
+        if (lastFailure != null) {
+            debug("Report last failure exception to producer.");
+            throw new IOException("An exception occurred while processing last record.", lastFailure);
+        }
+    }
+
     private void moveToNextInputStream() throws IOException {
+        // Throw any exception that might have occurred during previous records
+        throwLastFailure();
         // Check the isClosed flag in case we've got waken up by a close()
         while (inputStreamBuffer.isEmpty() && !isClosed) {
             synchronized (readLock) {
@@ -105,7 +127,6 @@ public class InputStreamMerger extends InputStream {
                 }
             }
         }
-
         if (!inputStreamBuffer.isEmpty()) {
             if (currentStream != null) {
                 currentStream.close();
@@ -115,7 +136,6 @@ public class InputStreamMerger extends InputStream {
             currentStream = null;
             hasFinishedRead = true;
         }
-
         debug("Remaining buffers : " + inputStreamBuffer.size());
     }
 
@@ -134,13 +154,11 @@ public class InputStreamMerger extends InputStream {
     public void close() throws IOException {
         super.close();
         isClosed = true;
-
         synchronized (readLock) {
             readLock.notifyAll();
         }
-
-        debug("Input stream buffer size: "+ + inputStreamBuffer.size());
-        debug("Has finished read: "+ hasFinishedRead);
+        debug("Input stream buffer size: " + +inputStreamBuffer.size());
+        debug("Has finished read: " + hasFinishedRead);
         debug("Stop condition: " + (!inputStreamBuffer.isEmpty() && !hasFinishedRead));
         while (!inputStreamBuffer.isEmpty() && !hasFinishedRead) {
             try {
@@ -148,12 +166,15 @@ public class InputStreamMerger extends InputStream {
                 synchronized (exhaustLock) {
                     exhaustLock.wait();
                 }
+                // In case we got woken up due to a failure
+                throwLastFailure();
                 debug("Waiting for exhaust done.");
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
-
+        // In case failure happened on very last read.
+        throwLastFailure();
         debug("Close completed.");
     }
 
@@ -164,4 +185,7 @@ public class InputStreamMerger extends InputStream {
         }
     }
 
+    public Throwable getLastReportedFailure() {
+        return lastFailure;
+    }
 }

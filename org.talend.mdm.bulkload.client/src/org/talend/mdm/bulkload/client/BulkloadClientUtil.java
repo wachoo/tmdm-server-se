@@ -77,19 +77,30 @@ public class BulkloadClientUtil {
     }
 
     private static class AsyncLoadRunnable implements Runnable {
+
         private final String url;
+
         private final String cluster;
+
         private final String concept;
+
         private final String dataModel;
+
         private final boolean validate;
+
         private final boolean smartPK;
-        private final InputStream inputStream;
+
+        private final InputStreamMerger inputStream;
+
         private final String userName;
+
         private final String password;
+
         private final String universe;
+
         private final AtomicInteger startedBulkloadCount;
 
-        public AsyncLoadRunnable(String url, String cluster, String concept, String dataModel, boolean validate, boolean smartPK, InputStream inputStream, String userName, String password, String universe, AtomicInteger startedBulkloadCount) {
+        public AsyncLoadRunnable(String url, String cluster, String concept, String dataModel, boolean validate, boolean smartPK, InputStreamMerger inputStream, String userName, String password, String universe, AtomicInteger startedBulkloadCount) {
             this.url = url;
             this.cluster = cluster;
             this.concept = concept;
@@ -107,10 +118,8 @@ public class BulkloadClientUtil {
             try {
                 startedBulkloadCount.incrementAndGet();
                 bulkload(url, cluster, concept, dataModel, validate, smartPK, inputStream, userName, password, universe);
-            } catch (BulkloadException e) {
-                throw e;
             } catch (Throwable e) {
-                throw new RuntimeException(e);
+                inputStream.reportFailure(e);
             } finally {
                 startedBulkloadCount.decrementAndGet();
                 synchronized (startedBulkloadCount) {
