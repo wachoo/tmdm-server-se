@@ -32,7 +32,6 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
-import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
@@ -125,7 +124,6 @@ public class BrowseRecordsController extends Controller {
         final Boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
         final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
         final ItemDetailToolBar detailToolBar = event.getData("itemDetailToolBar"); //$NON-NLS-1$
-        final ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
         final MessageBox progressBar = MessageBox.wait(MessagesFactory.getMessages().save_progress_bar_title(), MessagesFactory
                 .getMessages().save_progress_bar_message(), MessagesFactory.getMessages().please_wait());
 
@@ -138,7 +136,9 @@ public class BrowseRecordsController extends Controller {
                         progressBar.close();
                         String err = caught.getMessage();
                         if (err != null) {
-                            MessageBox.alert(MessagesFactory.getMessages().error_title(), XmlUtil.transformXmlToString(err), null).setIcon(MessageBox.ERROR);
+                            MessageBox
+                                    .alert(MessagesFactory.getMessages().error_title(), XmlUtil.transformXmlToString(err), null)
+                                    .setIcon(MessageBox.ERROR);
                         } else {
                             super.doOnFailure(caught);
                         }
@@ -150,7 +150,8 @@ public class BrowseRecordsController extends Controller {
                         MessageBox msgBox = null;
                         if (result.getStatus() == ItemResult.FAILURE) {
                             MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                    MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null).setIcon(MessageBox.ERROR);
+                                    MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null).setIcon(
+                                    MessageBox.ERROR);
                             return;
                         }
                         if (result.getDescription() != "") { //$NON-NLS-1$
@@ -181,13 +182,6 @@ public class BrowseRecordsController extends Controller {
                                         .get(itemBean.getConcept());
                                 String tabText = typeModel.getLabel(Locale.getLanguage()) + " " + result.getReturnValue(); //$NON-NLS-1$
                                 detailToolBar.updateOutTabPanel(tabText);
-
-                                if (ItemsMainTabPanel.getInstance().getDefaultViewTabItem() != null
-                                        && ItemsMainTabPanel.getInstance().getDefaultViewTabItem().getFirstTabWidget() instanceof ItemPanel) {
-                                    ItemPanel mainPanel = (ItemPanel) ItemsMainTabPanel.getInstance().getDefaultViewTabItem()
-                                            .getFirstTabWidget();
-                                    mainPanel.refreshTree();
-                                }
                             }
                         }
                         // TMDM-3349 button 'save and close' function
@@ -200,14 +194,9 @@ public class BrowseRecordsController extends Controller {
                         if (!detailToolBar.isOutMost() && !detailToolBar.isFkToolBar() && !detailToolBar.isHierarchyCall()) {
                             itemBean.setIds(result.getReturnValue());
                             ItemsListPanel.getInstance().refreshGrid(itemBean);
-                        } else if (detailToolBar.isFkToolBar()) {
-                            AppEvent event = new AppEvent(BrowseRecordsEvents.ViewForeignKey);
-                            event.setData("ids", itemBean.getIds()); //$NON-NLS-1$ 
-                            event.setData("concept", itemBean.getConcept()); //$NON-NLS-1$
-                            event.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, detailPanel);
-                            onViewForeignKey(event);
                         }
-                        if (detailToolBar.isFkToolBar() && !isClose) {
+                        // TMDM-4814, TMDM-4815 (reload data to refresh ui)
+                        if ((detailToolBar.isFkToolBar() || detailToolBar.isOutMost()) && !isClose) {
                             detailToolBar.refresh(result.getReturnValue());
                         }
                         // Only Hierarchy call the next method

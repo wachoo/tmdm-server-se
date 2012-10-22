@@ -257,14 +257,18 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     /**
-     * call it only when save the created foreignKey in primaryKey view
+     * call it only when save the foreignKey in primaryKey view or save the outMost entity
      */
     public void refresh(String ids) {
-        if (this.operation.equals(CREATE_OPERATION) || this.operation.equals(DUPLICATE_OPERATION)) {
+        if (this.operation.equals(CREATE_OPERATION) || this.operation.equals(DUPLICATE_OPERATION)
+                || this.operation.equals(VIEW_OPERATION)) {
             this.removeAll();
+            final boolean isClearBreadCrumb = this.operation.equals(CREATE_OPERATION)
+                    || this.operation.equals(DUPLICATE_OPERATION);
             this.operation = VIEW_OPERATION;
-            if (!this.isOutMost)
+            if (!this.isOutMost) {
                 this.openTab = true;
+            }
             service.getForeignKeyModel(itemBean.getConcept(), ids, Locale.getLanguage(),
                     new SessionAwareAsyncCallback<ForeignKeyModel>() {
 
@@ -279,20 +283,22 @@ public class ItemDetailToolBar extends ToolBar {
                             // refresh itemsDetailPanel(include tab title, banner, breadCrumb)
                             TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(itemBean.getConcept());
                             String tabText = typeModel.getLabel(Locale.getLanguage()) + " " + itemBean.getIds(); //$NON-NLS-1$
-                            if (!ItemDetailToolBar.this.isOutMost)
-                                ItemsMainTabPanel.getInstance().getSelectedItem().setText(tabText);
-                            else
-                                updateOutTabPanel(tabText);
-                            itemsDetailPanel.clearBreadCrumb();
+                            if (isClearBreadCrumb) {
+                                if (!ItemDetailToolBar.this.isOutMost) {
+                                    ItemsMainTabPanel.getInstance().getSelectedItem().setText(tabText);
+                                } else {
+                                    updateOutTabPanel(tabText);
+                                }
+                                itemsDetailPanel.clearBreadCrumb();
+                                List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
+                                breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
+                                breads.add(new BreadCrumbModel(itemBean.getConcept(), itemBean.getLabel(), itemBean.getIds(),
+                                        itemBean.getDisplayPKInfo().equals(itemBean.getLabel()) ? null : itemBean
+                                                .getDisplayPKInfo(), true));
+                                itemsDetailPanel.initBreadCrumb(new BreadCrumb(breads, itemsDetailPanel));
+                            }
                             itemsDetailPanel.clearBanner();
-                            List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
-                            breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
-                            breads.add(new BreadCrumbModel(itemBean.getConcept(), itemBean.getLabel(), itemBean.getIds(),
-                                    itemBean.getDisplayPKInfo().equals(itemBean.getLabel()) ? null : itemBean.getDisplayPKInfo(),
-                                    true));
                             itemsDetailPanel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
-                            itemsDetailPanel.initBreadCrumb(new BreadCrumb(breads, itemsDetailPanel));
-
                         };
                     });
         }
