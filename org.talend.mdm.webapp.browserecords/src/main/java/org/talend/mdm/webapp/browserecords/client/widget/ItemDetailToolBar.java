@@ -28,6 +28,7 @@ import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
@@ -791,9 +792,9 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native boolean initDSC(String taskId)/*-{
-                                                 $wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
-                                                 return true;
-                                                 }-*/;
+		$wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
+		return true;
+    }-*/;
 
     public void initSmartViewToolBar() {
         addGeneratedViewButton();
@@ -928,19 +929,19 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native boolean initJournal(String ids, String concept)/*-{
-                                                                  $wnd.amalto.updatereport.UpdateReport
-                                                                  .browseUpdateReportWithSearchCriteria(concept, ids, true);
-                                                                  return true;
-                                                                  }-*/;
+		$wnd.amalto.updatereport.UpdateReport
+				.browseUpdateReportWithSearchCriteria(concept, ids, true);
+		return true;
+    }-*/;
 
     // Please note that this method is duplicated in
     // org.talend.mdm.webapp.browserecords.client.widget.integrity.SingletonDeleteStrategy.initSearchEntityPanel()
     private native boolean initSearchEntityPanel(String arrStr, String ids, String dataObject)/*-{
-                                                                                              var lineageEntities = arrStr.split(",");
-                                                                                              $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids,
-                                                                                              dataObject);
-                                                                                              return true;
-                                                                                              }-*/;
+		var lineageEntities = arrStr.split(",");
+		$wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids,
+				dataObject);
+		return true;
+    }-*/;
 
     public void saveItemAndClose(final boolean isClose) {
         if (itemBean.getIds().trim().equals("")) { //$NON-NLS-1$
@@ -1029,6 +1030,8 @@ public class ItemDetailToolBar extends ToolBar {
         app.setData(model);
         app.setData("isClose", isClose); //$NON-NLS-1$
         app.setData("itemDetailToolBar", this); //$NON-NLS-1$
+        app.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
+
         if (validate) {
             dispatch.dispatch(app);
         } else {
@@ -1101,14 +1104,14 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     public native void closeOutTabPanel()/*-{
-                                         var tabPanel = $wnd.amalto.core.getTabPanel();
-                                         tabPanel.closeCurrentTab();
-                                         }-*/;
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		tabPanel.closeCurrentTab();
+    }-*/;
 
     public native void updateOutTabPanel(String tabText)/*-{
-                                                        var tabPanel = $wnd.amalto.core.getTabPanel();
-                                                        tabPanel.updateCurrentTabText(tabText);
-                                                        }-*/;
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		tabPanel.updateCurrentTabText(tabText);
+    }-*/;
 
     class MenuEx extends Menu {
 
@@ -1158,8 +1161,8 @@ public class ItemDetailToolBar extends ToolBar {
         }
 
         private native El getExtrasTr()/*-{
-                                       return this.@com.extjs.gxt.ui.client.widget.layout.ToolBarLayout::extrasTr;
-                                       }-*/;
+			return this.@com.extjs.gxt.ui.client.widget.layout.ToolBarLayout::extrasTr;
+        }-*/;
 
         @SuppressWarnings("unchecked")
         protected void addComponentToMenu(Menu menu, Component c) {
@@ -1259,8 +1262,8 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native void openWindow(String url)/*-{
-                                              window.open(url);
-                                              }-*/;
+		window.open(url);
+    }-*/;
 
     public boolean isFkToolBar() {
         return isFkToolBar;
