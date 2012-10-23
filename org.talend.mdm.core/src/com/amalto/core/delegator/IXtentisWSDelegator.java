@@ -611,6 +611,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             // get conceptRevisions
             Map concepts = Util.getItemCtrl2Local().getConceptsInDataCluster(
                     new DataClusterPOJOPK(wsGetConceptsInDataClusterWithRevisions.getDataClusterPOJOPK().getPk()), pojo);
+            if (concepts == null)
+                return null;
 
             // convert
             WSConceptRevisionMapMapEntry[] mapEntry = new WSConceptRevisionMapMapEntry[concepts.size()];
