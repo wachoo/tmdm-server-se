@@ -90,7 +90,7 @@
       </chainer>
 
       <!-- Description: Implementation of the authentication service. -->
-      <authentication-service name='authentication-service' class='org.ow2.bonita.services.impl.DbAuthentication'>
+      <authentication-service name='authentication-service' class='org.talend.mdm.workflow.service.BonitaAuthenticationService'>
         <arg><string value='bonita-session:core' /></arg>
       </authentication-service>
 
