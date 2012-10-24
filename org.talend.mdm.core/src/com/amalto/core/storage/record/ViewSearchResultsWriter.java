@@ -27,7 +27,7 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
         writer.write("<result>\n"); //$NON-NLS-1$
         for (FieldMetadata fieldMetadata : record.getSetFields()) {
             Object value = record.get(fieldMetadata);
-            Object valueAsString = String.valueOf(value);
+            String valueAsString = getValueAsString(value);
             if (fieldMetadata instanceof ReferenceFieldMetadata) {
                 if (value instanceof DataRecord) {
                     DataRecord referencedRecord = (DataRecord) value;
@@ -37,16 +37,30 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
                     }
                     valueAsString = fkValueAsString.toString();
                 } else {
-                    valueAsString = "[" + valueAsString + ']'; //$NON-NLS-1$
+                    if (!valueAsString.startsWith("[")) { //$NON-NLS-1$
+                        valueAsString = "[" + valueAsString + ']'; //$NON-NLS-1$
+                    }
                 }
             }
             if (value != null) {
-                writer.append("\t<").append(fieldMetadata.getName()).append(">");
-                writer.append(StringEscapeUtils.escapeXml(String.valueOf(valueAsString)));
-                writer.append("</").append(fieldMetadata.getName()).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                writer.append("\t<").append(fieldMetadata.getName()).append(">"); //$NON-NLS-1$ //$NON-NLS-2$
+                writer.append(StringEscapeUtils.escapeXml(getValueAsString(valueAsString)));
+                writer.append("</").append(fieldMetadata.getName()).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
         writer.append("</result>"); //$NON-NLS-1$
         writer.flush();
+    }
+
+    private String getValueAsString(Object value) {
+        if (value instanceof Object[]) {
+            StringBuilder valueAsString = new StringBuilder();
+            for (Object current : ((Object[]) value)) {
+                valueAsString.append('[').append(String.valueOf(current)).append(']');
+            }
+            return valueAsString.toString();
+        } else {
+            return String.valueOf(value);
+        }
     }
 }
