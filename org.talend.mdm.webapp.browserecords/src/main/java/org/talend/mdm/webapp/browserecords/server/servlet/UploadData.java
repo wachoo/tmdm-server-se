@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -176,7 +177,10 @@ public class UploadData extends HttpServlet {
 
             fileInputStream = new FileInputStream(file);
 
-            String[] importHeader = UploadUtil.getDefaultHeader(header);
+            String[] modelHeader = UploadUtil.getDefaultHeader(header);
+            String[] importHeader = headersOnFirstLine ? null : modelHeader;
+            Map recordMap;
+            StringBuffer field;
             String fieldValue = ""; //$NON-NLS-1$
 
             Configuration configuration = Configuration.loadConfigurationFromDBDirectly();
@@ -202,11 +206,15 @@ public class UploadData extends HttpServlet {
                     StringBuffer xml = new StringBuffer();
 
                     boolean allCellsEmpty = true;
+                    recordMap = new HashMap();                   
                     xml.append("<" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$
+                    
                     for (int i = 0; i < importHeader.length; i++) {
                         Cell tmpCell = row.getCell(i);
-                        if (tmpCell != null) {
-                            xml.append("<" + importHeader[i] + ">");//$NON-NLS-1$//$NON-NLS-2$
+                        field = new StringBuffer();
+                        if (tmpCell != null) {                            
+                            field.append("<" + importHeader[i] + ">");//$NON-NLS-1$//$NON-NLS-2$
+                            
                             int cellType = tmpCell.getCellType();
                             switch (cellType) {
                             case Cell.CELL_TYPE_NUMERIC: {
@@ -250,14 +258,28 @@ public class UploadData extends HttpServlet {
                                 allCellsEmpty = false;
                             }
                             if (visibleMap.get(importHeader[i])) {
-                                xml.append(StringEscapeUtils.escapeXml(fieldValue));
+                                field.append(StringEscapeUtils.escapeXml(fieldValue));
                             }
-                            xml.append("</" + importHeader[i] + ">");//$NON-NLS-1$//$NON-NLS-2$  
+                            field.append("</" + importHeader[i] + ">");//$NON-NLS-1$//$NON-NLS-2$  
 
                         } else {
-                            xml.append("<" + importHeader[i] + "/>"); //$NON-NLS-1$ //$NON-NLS-2$
+                            field.append("<" + importHeader[i] + "/>"); //$NON-NLS-1$ //$NON-NLS-2$
                         }
+                        if (headersOnFirstLine){
+                            recordMap.put(importHeader[i], field.toString());  
+                        }else{
+                            xml.append(field.toString());
+                        }                                      
                     }
+                    if (headersOnFirstLine)
+                    {
+                        for (int i=0;i<modelHeader.length;i++){
+                            if (recordMap.get(modelHeader[i]) != null){
+                                xml.append(recordMap.get(modelHeader[i]));
+                            }                            
+                        }
+                    } 
+                    
                     xml.append("</" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$
                     if (!allCellsEmpty) {
                         wSPutItemWithReportList.add(getWSPutItemWithReport(xml.toString(), language, concept,
@@ -283,16 +305,30 @@ public class UploadData extends HttpServlet {
                     xml.append("<" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$            
 
                     // build xml
-                    if (record.length > 0) {
-                        for (int j = 0; j < importHeader.length; j++) {
-                            xml.append("<" + importHeader[j] + ">");//$NON-NLS-1$//$NON-NLS-2$
+                    recordMap = new HashMap();
+                    if (record.length > 0) {                        
+                        field = new StringBuffer();
+                        for (int j = 0; j < importHeader.length; j++) {                            
+                            field.append("<" + importHeader[j] + ">");//$NON-NLS-1$//$NON-NLS-2$
                             if (j < record.length && visibleMap.get(importHeader[j])) {
-                                fieldValue = StringEscapeUtils.escapeXml(record[j]);
-                                xml.append(fieldValue);
+                                field.append(StringEscapeUtils.escapeXml(record[j]));
                             }
-                            xml.append("</" + importHeader[j] + ">");//$NON-NLS-1$//$NON-NLS-2$
+                            field.append("</" + importHeader[j] + ">");//$NON-NLS-1$//$NON-NLS-2$
+                            if (headersOnFirstLine){
+                                recordMap.put(importHeader[i], field.toString());  
+                            }else{
+                                xml.append(field.toString());
+                            } 
                         }
                     }
+                    if (headersOnFirstLine)
+                    {
+                        for (int k=0;k<modelHeader.length;k++){
+                            if (recordMap.get(modelHeader[k]) != null){
+                                xml.append(recordMap.get(modelHeader[k]));
+                            } 
+                        }
+                    } 
                     xml.append("</" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$                 
                     LOG.debug("Added line " + rowNumber + 1);//$NON-NLS-1$
                     LOG.trace("--val:\n" + xml);//$NON-NLS-1$
