@@ -62,7 +62,6 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         }
 
         FieldMetadata referencedFieldCopy = new SoftIdFieldRef(internalRepository, referencedType.getName());
-        FieldMetadata foreignKeyInfoFieldCopy = referenceField.hasForeignKeyInfo() ? referenceField.getForeignKeyInfoField().copy(internalRepository) : null;
 
         ComplexTypeMetadata database = currentType.peek();
 
@@ -74,7 +73,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 name,
                 referencedType,
                 referencedFieldCopy,
-                foreignKeyInfoFieldCopy,
+                null,
                 fkIntegrity,
                 referenceField.allowFKIntegrityOverride(),
                 referenceField.getWriteUsers(),

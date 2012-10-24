@@ -67,7 +67,6 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         String name = getColumnName(referenceField, true);
         ComplexTypeMetadata referencedType = new SoftTypeRef(internalRepository, referenceField.getReferencedType().getNamespace(), referenceField.getReferencedType().getName(), true);
         FieldMetadata referencedField = new SoftIdFieldRef(internalRepository, referenceField.getReferencedType().getName());
-        FieldMetadata foreignKeyInfoField = referenceField.hasForeignKeyInfo() ? new SoftFieldRef(internalRepository, getColumnName(referenceField.getForeignKeyInfoField(), false), referencedType) : null;
 
         FieldMetadata newFlattenField;
         if (referenceField.getContainingType() == referenceField.getDeclaringType()) {
@@ -79,7 +78,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     name,
                     referencedType,
                     referencedField,
-                    foreignKeyInfoField,
+                    null,
                     referenceField.isFKIntegrity(),
                     referenceField.allowFKIntegrityOverride(),
                     referenceField.getWriteUsers(),
