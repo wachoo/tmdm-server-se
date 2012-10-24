@@ -33,7 +33,7 @@ public class RangeOptimizer extends Optimizer {
 
         private Expression rangeEnd;
 
-        private Expression rangeExpression;
+        private TypedExpression rangeExpression;
 
         @Override
         public Condition visit(Select select) {
@@ -110,7 +110,7 @@ public class RangeOptimizer extends Optimizer {
         public Condition visit(Compare condition) {
             Predicate predicate = condition.getPredicate();
             if (predicate == Predicate.GREATER_THAN_OR_EQUALS) {
-                rangeExpression = condition.getLeft();
+                rangeExpression = (TypedExpression) condition.getLeft();  //TODO What if left isn't a TypedExpression?
                 rangeStart = condition.getRight();
             }
             if (predicate == Predicate.LOWER_THAN_OR_EQUALS) {

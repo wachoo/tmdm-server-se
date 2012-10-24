@@ -20,10 +20,7 @@ import com.amalto.core.storage.record.DataRecord;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.Criteria;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
+import org.hibernate.*;
 import org.hibernate.criterion.*;
 import org.hibernate.impl.CriteriaImpl;
 import org.hibernate.sql.JoinFragment;
@@ -320,7 +317,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private String getAlias(TypeMapping mapping, FieldMetadata databaseField) {
         ComplexTypeMetadata mainType = mapping.getDatabase();
-        String previousAlias = mainType.getName();
+        String previousAlias = mapping.getUser().getName();
         String alias;
         for (FieldMetadata next : MetadataUtils.path(mainType, databaseField)) {
             if (next instanceof ReferenceFieldMetadata) {
@@ -451,11 +448,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
         int pageSize = paging.getLimit();
         boolean hasPaging = pageSize < Integer.MAX_VALUE;
         if (!hasPaging) {
-            return createResults(criteria.scroll(ScrollMode.FORWARD_ONLY), select.isProjection());
+                return createResults(criteria.scroll(ScrollMode.FORWARD_ONLY), select.isProjection());
         } else {
-            return createResults(criteria.list(), select.isProjection());
+                return createResults(criteria.list(), select.isProjection());
+            }
         }
-    }
 
     @Override
     public StorageResults visit(Paging paging) {
@@ -550,11 +547,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Range range) {
-        Object start = range.getStart().accept(VALUE_ADAPTER);
-        Object end = range.getEnd().accept(VALUE_ADAPTER);
-        FieldCondition condition = range.getExpression().accept(new CriterionFieldCondition());
-        if (condition != null) {
-            criteria.add(Restrictions.between(condition.criterionFieldName, start, end));
+        Criterion criterion = range.accept(CRITERION_VISITOR);
+        if (criterion != null) {
+            criteria.add(criterion);
         }
         return null;
     }
@@ -691,6 +686,32 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 return or(left, right);
             } else {
                 throw new NotImplementedException("No support for predicate '" + predicate + "'");
+            }
+        }
+
+        @Override
+        public Criterion visit(Range range) {
+            FieldCondition condition = range.getExpression().accept(new CriterionFieldCondition());
+            TypedExpression expression = range.getExpression();
+            Object start;
+            Object end;
+            String startValue = String.valueOf(range.getStart().accept(VALUE_ADAPTER));
+            String endValue = String.valueOf(range.getEnd().accept(VALUE_ADAPTER));
+            if (expression instanceof Field) {
+                TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(mainType);
+                Field field = (Field) expression;
+                FieldMetadata fieldMetadata = field.getFieldMetadata();
+                FieldMetadata databaseField = mapping.getDatabase(fieldMetadata);
+                start = MetadataUtils.convert(startValue, databaseField);
+                end = MetadataUtils.convert(endValue, databaseField);
+            } else {
+                start = MetadataUtils.convert(startValue, expression.getTypeName());
+                end = MetadataUtils.convert(endValue, expression.getTypeName());
+            }
+            if (condition != null) {
+                return Restrictions.between(condition.criterionFieldName, start, end);
+            } else {
+                return null;
             }
         }
 

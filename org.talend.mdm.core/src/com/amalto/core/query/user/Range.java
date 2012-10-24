@@ -2,19 +2,19 @@ package com.amalto.core.query.user;
 
 public class Range extends Condition {
 
-    private final Expression expression;
+    private final TypedExpression expression;
 
     private final Expression start;
 
     private final Expression end;
 
-    public Range(Expression expression, Expression start, Expression end) {
+    public Range(TypedExpression expression, Expression start, Expression end) {
         this.expression = expression;
         this.start = start;
         this.end = end;
     }
 
-    public Range(Expression expression, int start, int end) {
+    public Range(TypedExpression expression, int start, int end) {
         this(expression, new IntegerConstant(start), new IntegerConstant(end));
     }
 
@@ -26,7 +26,7 @@ public class Range extends Condition {
         return visitor.visit(this);
     }
 
-    public Expression getExpression() {
+    public TypedExpression getExpression() {
         return expression;
     }
 
