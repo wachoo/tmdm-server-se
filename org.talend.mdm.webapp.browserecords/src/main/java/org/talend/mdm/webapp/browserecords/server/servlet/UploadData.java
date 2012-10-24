@@ -306,16 +306,16 @@ public class UploadData extends HttpServlet {
 
                     // build xml
                     recordMap = new HashMap();
-                    if (record.length > 0) {                        
-                        field = new StringBuffer();
-                        for (int j = 0; j < importHeader.length; j++) {                            
+                    if (record.length > 0) {                              
+                        for (int j = 0; j < importHeader.length; j++) {
+                            field = new StringBuffer();
                             field.append("<" + importHeader[j] + ">");//$NON-NLS-1$//$NON-NLS-2$
                             if (j < record.length && visibleMap.get(importHeader[j])) {
                                 field.append(StringEscapeUtils.escapeXml(record[j]));
                             }
                             field.append("</" + importHeader[j] + ">");//$NON-NLS-1$//$NON-NLS-2$
                             if (headersOnFirstLine){
-                                recordMap.put(importHeader[i], field.toString());  
+                                recordMap.put(importHeader[j], field.toString());  
                             }else{
                                 xml.append(field.toString());
                             } 
