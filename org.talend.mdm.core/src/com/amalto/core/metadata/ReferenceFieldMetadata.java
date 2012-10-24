@@ -226,6 +226,8 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
         int result = (isKey ? 1 : 0);
         result = 31 * result + (isMany ? 1 : 0);
         result = 31 * result + (foreignKeyInfo != null ? foreignKeyInfo.hashCode() : 0);
+        result = 31 * result + (containingType != null ? containingType.hashCode() : 0);
+        result = 31 * result + (declaringType != null ? declaringType.hashCode() : 0);
         result = 31 * result + (allowFKIntegrityOverride ? 1 : 0);
         result = 31 * result + (isFKIntegrity ? 1 : 0);
         result = 31 * result + (isMandatory ? 1 : 0);
