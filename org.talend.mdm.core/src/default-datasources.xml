@@ -38,43 +38,4 @@
         </staging>
     </datasource>
 
-    <!-- ==================================================================== -->
-    <!-- MySQL DEFAULT DATASOURCE                                             -->
-    <!-- ==================================================================== -->
-    <datasource name="RDBMS-2">
-        <master>
-            <type>RDBMS</type>
-            <rdbms-configuration>
-                <dialect>MySQL</dialect>
-                <connection-driver-class>com.mysql.jdbc.Driver</connection-driver-class>
-                <connection-url>jdbc:mysql://localhost:3306/${container}-MASTER</connection-url>
-                <connection-username>root</connection-username>
-                <connection-password></connection-password>
-                <fulltext-index-directory>/var/lucene/indexes/RDBMS-2</fulltext-index-directory>
-                <init>
-                    <database-name>${container}-MASTER</database-name>
-                    <connection-url>jdbc:mysql://localhost:3306/</connection-url>
-                    <connection-username>root</connection-username>
-                    <connection-password></connection-password>
-                </init>
-            </rdbms-configuration>
-        </master>
-        <staging>
-            <type>RDBMS</type>
-            <rdbms-configuration>
-                <dialect>MySQL</dialect>
-                <connection-driver-class>com.mysql.jdbc.Driver</connection-driver-class>
-                <connection-url>jdbc:mysql://localhost:3306/${container}-STAGING</connection-url>
-                <connection-username>root</connection-username>
-                <connection-password></connection-password>
-                <init>
-                    <database-name>${container}-STAGING</database-name>
-                    <connection-url>jdbc:mysql://localhost:3306/</connection-url>
-                    <connection-username>root</connection-username>
-                    <connection-password></connection-password>
-                </init>
-            </rdbms-configuration>
-        </staging>
-    </datasource>
-
 </datasources>
