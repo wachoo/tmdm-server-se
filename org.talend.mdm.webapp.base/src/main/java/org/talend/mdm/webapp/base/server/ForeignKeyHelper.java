@@ -84,7 +84,10 @@ public class ForeignKeyHelper {
             }
 
             if (sortDir != null) {
-                xpath = model.getXpath() + "/" + config.getSortField(); //$NON-NLS-1$
+                if (model.getForeignKeyInfo() != null && model.getForeignKeyInfo().size() > 0)
+                    xpath = model.getXpath() + "/" + config.getSortField(); //$NON-NLS-1$
+                else
+                    xpath = model.getXpath() + "/../../i"; //$NON-NLS-1$
             } else {
                 xpath = null;
             }
