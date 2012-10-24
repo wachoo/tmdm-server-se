@@ -277,8 +277,6 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 ArrayList<String> resultsAsString = new ArrayList<String>();
                 resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
                 DataRecordWriter writer = new ViewSearchResultsWriter();
-
-                results = storage.fetch(qb.getSelect());
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 for (DataRecord result : results) {
                     try {
