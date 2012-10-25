@@ -220,8 +220,6 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
                 } finally {
                     output.reset();
                 }
-
-                stats.reportSuccess();
             } catch (XMLStreamException e) {
                 throw new RuntimeException(e);
             }

@@ -68,7 +68,6 @@ public class ClusterTask extends MetadataRepositoryTask {
             recordMetadata.setTaskId(taskId);
             recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_IDENTIFIED_CLUSTERS);
             storage.update(stagingRecord);
-            stats.reportSuccess();
         }
 
         public void end(ClosureExecutionStats stats) {

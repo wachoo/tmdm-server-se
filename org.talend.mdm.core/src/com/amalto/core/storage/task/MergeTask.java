@@ -72,7 +72,7 @@ public class MergeTask extends MetadataRepositoryTask {
             if (!groupRecord.isEmpty()) {
                 String lastTaskId = groupRecord.getLast().getRecordMetadata().getTaskId();
                 String currentTaskId = stagingRecord.getRecordMetadata().getTaskId();
-                if (!lastTaskId.equals(currentTaskId)) { // Update status of last record of group.
+                if (!lastTaskId.equals(currentTaskId) || (currentTaskId == null || "null".equals(currentTaskId))) { //$NON-NLS-1$ // Update status of last record of group.
                     setGoldenRecord(groupRecord, stats);
                     groupRecord.clear();
                 }
@@ -87,14 +87,12 @@ public class MergeTask extends MetadataRepositoryTask {
                 Map<String, String> recordProperties = recordMetadata.getRecordProperties();
                 recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_MERGED_RECORD);
                 storage.update(stagingRecord);
-                stats.reportSuccess();
             } else {
                 for (DataRecord stagingRecord : stagingRecords) {
                     DataRecordMetadata recordMetadata = stagingRecord.getRecordMetadata();
                     Map<String, String> recordProperties = recordMetadata.getRecordProperties();
                     recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_MERGE_CLUSTER_TO_RESOLVE);
                     storage.update(stagingRecord);
-                    stats.reportSuccess();
                 }
             }
         }

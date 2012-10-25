@@ -65,10 +65,14 @@ public class StagingTask implements Task {
         this.stagingStorage = stagingStorage;
         this.executionId = UUID.randomUUID().toString();
         this.executionType = stagingRepository.getComplexType("TALEND_TASK_EXECUTION");
+        tasks = Arrays.<MetadataRepositoryTask>asList(new MDMValidationTask(stagingStorage, destinationStorage, userRepository, source, committer, stats));
+        // Below: an actual validation chain.
+        /*
         tasks = Arrays.asList(new ClusterTask(stagingStorage, userRepository, stats),
                 new MergeTask(stagingStorage, userRepository, stats),
-                new MDMValidationTask(stagingStorage, destinationStorage, userRepository, source, committer, stats));
-        // new DSCUpdaterTask(stagingStorage, destinationStorage, userRepository));
+                new MDMValidationTask(stagingStorage, destinationStorage, userRepository, source, committer, stats),
+                new DSCUpdaterTask(stagingStorage, destinationStorage, userRepository));
+        */
     }
 
     public String getId() {
@@ -78,9 +82,9 @@ public class StagingTask implements Task {
     public int getRecordCount() {
         synchronized (currentTaskMonitor) {
             if (currentTask != null) {
-                return recordCount.get() + currentTask.getRecordCount();
+                return currentTask.getRecordCount();
             } else {
-                return recordCount.get();
+                return 0;
             }
         }
     }
@@ -177,7 +181,6 @@ public class StagingTask implements Task {
                 }
                 LOGGER.info("--> " + task.toString());
                 taskSubmitter.submitAndWait(currentTask);
-                recordCount.addAndGet(currentTask.getRecordCount());
                 LOGGER.info("<-- DONE " + task.toString());
             }
 
@@ -187,7 +190,7 @@ public class StagingTask implements Task {
                 long endTime = System.currentTimeMillis();
                 execution.set(executionType.getField("end_time"), new Timestamp(endTime)); //$NON-NLS-1$
                 execution.set(executionType.getField("error_count"), new BigDecimal(getErrorCount())); //$NON-NLS-1$
-                execution.set(executionType.getField("record_count"), new BigDecimal(getRecordCount())); //$NON-NLS-1$
+                execution.set(executionType.getField("record_count"), new BigDecimal(getProcessedRecords())); //$NON-NLS-1$
                 execution.set(executionType.getField("completed"), Boolean.TRUE); //$NON-NLS-1$
                 stagingStorage.update(execution);
             }

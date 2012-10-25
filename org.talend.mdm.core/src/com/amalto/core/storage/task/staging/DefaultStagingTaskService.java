@@ -99,6 +99,8 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         containerStagingSummary.setWaitingForValidation(newRecords);
         containerStagingSummary.setValidRecords(validRecords);
         containerStagingSummary.setInvalidRecords(invalidRecords);
+        containerStagingSummary.setDataContainer(dataContainer);
+        containerStagingSummary.setDataModel(dataModel);
 
         return containerStagingSummary;
     }
