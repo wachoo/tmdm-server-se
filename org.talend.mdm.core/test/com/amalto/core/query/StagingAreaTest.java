@@ -181,14 +181,13 @@ public class StagingAreaTest extends TestCase {
         TaskSubmitterFactory.getSubmitter().submitAndWait(stagingTask);
 
         assertNotNull(stagingTask.getId());
-        assertEquals(COUNT * 3 * 3, stagingTask.getProcessedRecords());
+        assertEquals(COUNT * 3, stagingTask.getProcessedRecords());
         assertNotNull(stagingTask.getPerformance());
         assertTrue(stagingTask.getPerformance() > 0);
-        // TODO MT Issue here
-        // assertEquals(COUNT * 3 * 3, stagingTask.getRecordCount());
+        assertEquals(COUNT * 3, stagingTask.getRecordCount());
         assertTrue(Math.abs(stagingTask.getStartDate() - now) < 1000);
 
-        assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
+        assertEquals(50, destination.fetch(selectEmptyTaskId).getCount());
         assertEquals(COUNT, destination.fetch(select).getCount());
         assertEquals(COUNT, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
         assertEquals(COUNT, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());

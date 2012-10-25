@@ -12,7 +12,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -84,7 +83,7 @@ public class StagingTask implements Task {
             if (currentTask != null) {
                 return currentTask.getRecordCount();
             } else {
-                return 0;
+                return tasks.get(tasks.size() - 1).getRecordCount();
             }
         }
     }
@@ -166,7 +165,7 @@ public class StagingTask implements Task {
             {
                 execution.set(executionType.getField("id"), executionId); //$NON-NLS-1$
                 startTime = System.currentTimeMillis();
-                execution.set(executionType.getField("start_time"), new Timestamp(startTime)); //$NON-NLS-1$
+                execution.set(executionType.getField("start_time"), startTime); //$NON-NLS-1$
                 stagingStorage.update(execution);
             }
             stagingStorage.commit();
@@ -187,8 +186,7 @@ public class StagingTask implements Task {
             // Execution recording end.
             stagingStorage.begin();
             {
-                long endTime = System.currentTimeMillis();
-                execution.set(executionType.getField("end_time"), new Timestamp(endTime)); //$NON-NLS-1$
+                execution.set(executionType.getField("end_time"), System.currentTimeMillis()); //$NON-NLS-1$
                 execution.set(executionType.getField("error_count"), new BigDecimal(getErrorCount())); //$NON-NLS-1$
                 execution.set(executionType.getField("record_count"), new BigDecimal(getProcessedRecords())); //$NON-NLS-1$
                 execution.set(executionType.getField("completed"), Boolean.TRUE); //$NON-NLS-1$
