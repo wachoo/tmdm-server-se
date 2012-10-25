@@ -26,6 +26,10 @@ public class DateUtil {
 
     public static String formatDateTimePattern = "yyyy-MM-dd'T'HH:mm:ss";//$NON-NLS-1$
 
+    public static String formatDateTimePattern2 = "yyyy-MM-dd'T'HH:mm:ss.S"; //$NON-NLS-1$
+
+    public static String formatDateTimePattern3 = "yyyy-MM-dd HH:mm:ss.S"; //$NON-NLS-1$
+
     public static final Date convertStringToDate(String aMask, String strDate) {
         if (strDate != null && strDate.trim().length() != 0) {
             DateTimeFormat df = DateTimeFormat.getFormat(aMask);
@@ -38,6 +42,23 @@ public class DateUtil {
         return convertStringToDate(datePattern, strDate);
     }
 
+    public static Date tryConvertStringToDate(String strDate){
+        String[] formats = new String[] { formatDateTimePattern3,
+                formatDateTimePattern2, formatDateTimePattern,
+                dateTimePattern, timePattern, datePattern };
+        RuntimeException re = null;
+        for (String format : formats){
+            try {
+                Date d = convertStringToDate(format, strDate);
+                return d;
+            } catch (RuntimeException e){
+                re = (RuntimeException) e;
+                continue;
+            }
+        }
+        throw re;
+    }
+    
     public static final String convertDateToString(Date aDate) {
         return getDateTime(aDate);
     }

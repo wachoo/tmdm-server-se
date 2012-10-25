@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.exception.ParserException;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
@@ -468,7 +469,11 @@ public class ItemsListPanel extends ContentPanel {
                     } else {
                         if (originalMap.containsKey(path)) {
                             Date date = originalMap.get(path);
-                            value = DateUtil.getDate(date);
+                            if (DataTypeConstants.DATE.equals(tm.getType())) {
+                                value = DateUtil.getDate(date);
+                            } else if (DataTypeConstants.DATETIME.equals(tm.getType())) {
+                                value = DateUtil.getDateTime(date);
+                            }
                         }
                         changedField.put(path, value != null ? value : ""); //$NON-NLS-1$                        
                     }
