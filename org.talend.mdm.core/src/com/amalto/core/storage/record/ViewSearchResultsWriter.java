@@ -35,24 +35,9 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
         writer.write("<result>\n"); //$NON-NLS-1$
         for (FieldMetadata fieldMetadata : record.getSetFields()) {
             Object value = record.get(fieldMetadata);
-            String valueAsString = getValueAsString(value);
-            if (fieldMetadata instanceof ReferenceFieldMetadata) {
-                if (value instanceof DataRecord) {
-                    DataRecord referencedRecord = (DataRecord) value;
-                    StringBuilder fkValueAsString = new StringBuilder();
-                    for (FieldMetadata keyField : referencedRecord.getType().getKeyFields()) {
-                        fkValueAsString.append('[').append(referencedRecord.get(keyField)).append(']');
-                    }
-                    valueAsString = fkValueAsString.toString();
-                } else {
-                    if (!valueAsString.startsWith("[")) { //$NON-NLS-1$
-                        valueAsString = "[" + valueAsString + ']'; //$NON-NLS-1$
-                    }
-                }
-            }
             if (value != null) {
                 writer.append("\t<").append(fieldMetadata.getName()).append(">"); //$NON-NLS-1$ //$NON-NLS-2$
-                handleSimpleValue(writer, fieldMetadata, getValueAsString(valueAsString));
+                handleSimpleValue(writer, fieldMetadata, value);
                 writer.append("</").append(fieldMetadata.getName()).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
@@ -60,37 +45,53 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
         writer.flush();
     }
 
-
-    private void handleSimpleValue(Writer out, FieldMetadata simpleField, Object value) throws IOException {
+    private void handleSimpleValue(Writer out, FieldMetadata fieldMetadata, Object value) throws IOException {
         if (value == null) {
             throw new IllegalArgumentException("Not supposed to write null values to XML."); //$NON-NLS-1$
         }
-        if ("date".equals(simpleField.getType().getName())) { //$NON-NLS-1$
+        if ("date".equals(fieldMetadata.getType().getName())) { //$NON-NLS-1$
             synchronized (DateConstant.DATE_FORMAT) {
                 out.write((DateConstant.DATE_FORMAT).format(value));
             }
-        } else if ("dateTime".equals(simpleField.getType().getName())) { //$NON-NLS-1$
+        } else if ("dateTime".equals(fieldMetadata.getType().getName())) { //$NON-NLS-1$
             synchronized (DateTimeConstant.DATE_FORMAT) {
                 out.write((DateTimeConstant.DATE_FORMAT).format(value));
             }
-        } else if ("time".equals(simpleField.getType().getName())) { //$NON-NLS-1$
+        } else if ("time".equals(fieldMetadata.getType().getName())) { //$NON-NLS-1$
             synchronized (TimeConstant.TIME_FORMAT) {
                 out.write((TimeConstant.TIME_FORMAT).format(value));
             }
         } else {
-            out.write(StringEscapeUtils.escapeXml(String.valueOf(value)));
+            out.write(StringEscapeUtils.escapeXml(getValueAsString(fieldMetadata, value)));
         }
     }
 
-    private String getValueAsString(Object value) {
+    private String getValueAsString(FieldMetadata fieldMetadata, Object value) {
+        String valueAsString;
         if (value instanceof Object[]) {
-            StringBuilder valueAsString = new StringBuilder();
+            StringBuilder buildString = new StringBuilder();
             for (Object current : ((Object[]) value)) {
-                valueAsString.append('[').append(String.valueOf(current)).append(']');
+                buildString.append('[').append(String.valueOf(current)).append(']');
             }
-            return valueAsString.toString();
+            valueAsString = buildString.toString();
         } else {
-            return String.valueOf(value);
+            valueAsString = String.valueOf(value);
         }
+
+        if (fieldMetadata instanceof ReferenceFieldMetadata) {
+            if (value instanceof DataRecord) {
+                DataRecord referencedRecord = (DataRecord) value;
+                StringBuilder fkValueAsString = new StringBuilder();
+                for (FieldMetadata keyField : referencedRecord.getType().getKeyFields()) {
+                    fkValueAsString.append('[').append(referencedRecord.get(keyField)).append(']');
+                }
+                valueAsString = fkValueAsString.toString();
+            } else {
+                if (!valueAsString.startsWith("[")) { //$NON-NLS-1$
+                    valueAsString = "[" + valueAsString + ']'; //$NON-NLS-1$
+                }
+            }
+        }
+        return String.valueOf(valueAsString);
     }
 }
