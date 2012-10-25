@@ -11,11 +11,19 @@
 
 package com.amalto.core.storage.record;
 
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+
 import org.apache.commons.lang.StringEscapeUtils;
 
-import java.io.*;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.query.user.DateConstant;
+import com.amalto.core.query.user.DateTimeConstant;
+import com.amalto.core.query.user.TimeConstant;
 
 public class ViewSearchResultsWriter implements DataRecordWriter {
     public void write(DataRecord record, OutputStream output) throws IOException {
@@ -44,12 +52,34 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
             }
             if (value != null) {
                 writer.append("\t<").append(fieldMetadata.getName()).append(">"); //$NON-NLS-1$ //$NON-NLS-2$
-                writer.append(StringEscapeUtils.escapeXml(getValueAsString(valueAsString)));
+                handleSimpleValue(writer, fieldMetadata, getValueAsString(valueAsString));
                 writer.append("</").append(fieldMetadata.getName()).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
         writer.append("</result>"); //$NON-NLS-1$
         writer.flush();
+    }
+
+
+    private void handleSimpleValue(Writer out, FieldMetadata simpleField, Object value) throws IOException {
+        if (value == null) {
+            throw new IllegalArgumentException("Not supposed to write null values to XML."); //$NON-NLS-1$
+        }
+        if ("date".equals(simpleField.getType().getName())) { //$NON-NLS-1$
+            synchronized (DateConstant.DATE_FORMAT) {
+                out.write((DateConstant.DATE_FORMAT).format(value));
+            }
+        } else if ("dateTime".equals(simpleField.getType().getName())) { //$NON-NLS-1$
+            synchronized (DateTimeConstant.DATE_FORMAT) {
+                out.write((DateTimeConstant.DATE_FORMAT).format(value));
+            }
+        } else if ("time".equals(simpleField.getType().getName())) { //$NON-NLS-1$
+            synchronized (TimeConstant.TIME_FORMAT) {
+                out.write((TimeConstant.TIME_FORMAT).format(value));
+            }
+        } else {
+            out.write(StringEscapeUtils.escapeXml(String.valueOf(value)));
+        }
     }
 
     private String getValueAsString(Object value) {
