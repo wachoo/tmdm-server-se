@@ -120,7 +120,6 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             }
             MetadataRepository stagingRepository = staging.getMetadataRepository();
             MetadataRepository userRepository = user.getMetadataRepository();
-            String newTaskUUID = UUID.randomUUID().toString();
             StagingConfiguration stagingConfig = new StagingConfiguration(staging,
                     stagingRepository,
                     userRepository,
@@ -130,7 +129,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             Task stagingTask = TaskFactory.createStagingTask(stagingConfig);
             TaskSubmitterFactory.getSubmitter().submit(stagingTask);
             runningTasks.put(dataContainer, stagingTask);
-            return newTaskUUID;
+            return stagingTask.getId();
         }
     }
 
@@ -218,6 +217,13 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         Storage staging = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX, null);
         if (staging == null) {
             throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
+        }
+        // TMDM-4827: Returns current execution if execution id is current execution.
+        synchronized (runningTasks) {
+            Task declaredTask = runningTasks.get(dataContainer);
+            if (declaredTask != null && declaredTask.getId().equals(executionId)) {
+                return getCurrentExecutionStats(dataContainer, dataModel);
+            }
         }
         MetadataRepository stagingRepository = staging.getMetadataRepository();
         ComplexTypeMetadata executionType = stagingRepository.getComplexType(EXECUTION_LOG_TYPE);
