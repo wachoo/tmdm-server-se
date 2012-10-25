@@ -155,7 +155,7 @@ public class ForeignKeyCellField extends TextField<ForeignKeyBean> implements Re
                 ForeignKeyBean fkBean = ForeignKeyCellField.this.getValue();
                 if (fkBean == null || fkBean.getId() == null || "".equals(fkBean.getId())) //$NON-NLS-1$
                     return;
-                String ids = ForeignKeyCellField.this.getValue().getId().replace("[", "").replace("]", "");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+                String ids = ForeignKeyCellField.this.getValue().getId().replaceAll("^\\[|\\]$", "").replace("][", ".");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
                 ForeignKeyUtil.checkChange(false, ForeignKeyCellField.this.foreignKeyName, ids, itemsDetailPanel);
             }
         });
