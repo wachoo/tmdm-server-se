@@ -11,17 +11,27 @@
 
 package com.amalto.core.storage.record;
 
-import com.amalto.core.metadata.*;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ContainedTypeFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
 import com.amalto.core.storage.hibernate.TypeMapping;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
-
-import java.util.*;
 
 public class DataRecord {
 
     private final ComplexTypeMetadata type;
 
-    private final Map<FieldMetadata, Object> fieldToValue = new HashMap<FieldMetadata, Object>();
+    private final Map<FieldMetadata, Object> fieldToValue = new LinkedHashMap<FieldMetadata, Object>();
 
     private final DataRecordMetadata recordMetadata;
 

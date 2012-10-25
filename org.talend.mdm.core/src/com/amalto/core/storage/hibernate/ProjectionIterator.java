@@ -11,21 +11,41 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.*;
-import com.amalto.core.query.user.*;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.hibernate.ScrollableResults;
-
-import javax.xml.XMLConstants;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import javax.xml.XMLConstants;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.hibernate.ScrollableResults;
+
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ComplexTypeMetadataImpl;
+import com.amalto.core.metadata.CompoundFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.SimpleTypeFieldMetadata;
+import com.amalto.core.metadata.SimpleTypeMetadata;
+import com.amalto.core.query.user.Alias;
+import com.amalto.core.query.user.Count;
+import com.amalto.core.query.user.Field;
+import com.amalto.core.query.user.Revision;
+import com.amalto.core.query.user.StagingError;
+import com.amalto.core.query.user.StagingSource;
+import com.amalto.core.query.user.StagingStatus;
+import com.amalto.core.query.user.StringConstant;
+import com.amalto.core.query.user.TaskId;
+import com.amalto.core.query.user.Timestamp;
+import com.amalto.core.query.user.Type;
+import com.amalto.core.query.user.TypedExpression;
+import com.amalto.core.query.user.VisitorAdapter;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 
 class ProjectionIterator extends CloseableIterator<DataRecord> {
 
@@ -101,6 +121,23 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                         return new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, fieldName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList());
                     }
 
+                    private SimpleTypeFieldMetadata createKeyField(String typeName, String aliasName, String realFieldName){
+                        SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
+                        SimpleTypeFieldMetadata keyFieldMetadata = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, aliasName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList()){
+                            @Override
+                            public boolean equals(Object o) {
+                                 boolean result = super.equals(o);
+                                 if (result){
+                                    SimpleTypeFieldMetadata another = (SimpleTypeFieldMetadata) o;
+                                    return this.getData("realFieldName").equals(another.getData("realFieldName")); //$NON-NLS-1$ //$NON-NLS-2$
+                                 }
+                                 return false;
+                            }
+                        };
+                        keyFieldMetadata.setData("realFieldName", realFieldName); //$NON-NLS-1$
+                        return keyFieldMetadata;
+                    }
+
                     @Override
                     public FieldMetadata visit(Count count) {
                         // Do nothing, count is expected to be nested in a com.amalto.core.query.user.Alias.
@@ -111,6 +148,10 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                     public FieldMetadata visit(Alias alias) {
                         isAlias = true;
                         alias.getTypedExpression().accept(this);
+                        if ("i".equals(alias.getAliasName()) && alias.getTypedExpression() instanceof Field) { //$NON-NLS-1$
+                            String realFieldName = ((Field) alias.getTypedExpression()).getFieldMetadata().getName();
+                            return createKeyField(alias.getTypeName(), alias.getAliasName(), realFieldName);
+                        }
                         return createField(alias.getTypeName(), alias.getAliasName());
                     }
 
