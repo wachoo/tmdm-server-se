@@ -65,7 +65,7 @@ public class UniqueIdTransformer implements DocumentTransformer {
         return document;
     }
 
-    private void addIds(org.w3c.dom.Document document) {
+    public void addIds(org.w3c.dom.Document document) {
         Stack<Integer> levels = new Stack<Integer>();
         levels.push(0);
         {
@@ -92,14 +92,16 @@ public class UniqueIdTransformer implements DocumentTransformer {
         String prefix = builder.toString().isEmpty() ? StringUtils.EMPTY : builder.toString() + '-';
         id.setValue(prefix + element.getNodeName() + '-' + thisElementId);
         attributes.setNamedItem(id);
-
+        
         levels.push(thisElementId);
         {
             levels.push(0);
-            NodeList children = element.getElementsByTagName("*"); //$NON-NLS-1$
+            NodeList children = element.getChildNodes();
             for (int i = 0; i < children.getLength(); i++) {
-                Element child = (Element) children.item(i);
-                _addIds(document, child, levels);
+                if(children.item(i).getNodeType() == Node.ELEMENT_NODE) {
+                    Element child = (Element) children.item(i);
+                    _addIds(document, child, levels);
+                }
             }
             levels.pop();
         }
