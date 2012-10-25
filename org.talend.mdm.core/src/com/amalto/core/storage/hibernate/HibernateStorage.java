@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import com.amalto.core.query.user.UserQueryDumpConsole;
 import net.sf.ehcache.CacheManager;
 
 import org.apache.log4j.Logger;
@@ -660,6 +661,10 @@ public class HibernateStorage implements Storage {
             for (Optimizer optimizer : OPTIMIZERS) {
                 optimizer.optimize((Select) expression);
             }
+        }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Query after optimizations:");
+            userQuery.accept(new UserQueryDumpConsole(LOGGER));
         }
         return expression.accept(queryHandler);
     }
