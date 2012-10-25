@@ -250,7 +250,11 @@ public class ForeignKeyHelper {
                 if (whereItem != null) {
                     condition.add(whereItem);
                 }
+                
                 String fkWhere = initxpathForeignKey + "/../* CONTAINS " + value; //$NON-NLS-1$
+                if (MDMConfiguration.isExistDefaultDataSource()) {
+                    fkWhere = initxpathForeignKey + "/../../i CONTAINS " + value; //$NON-NLS-1$
+                }
                 if (xpathInfoForeignKey.trim().length() > 0) {
                     StringBuffer ids = new StringBuffer();
                     String realXpathForeignKey = null; // In studio, ForeignKey = ConceptName, but not ConceptName/Id

@@ -271,6 +271,23 @@ public class ForeignKeyHelperTest extends TestCase {
         result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model, ifFKFilter, "");
         assertNull(result.whereItem);
         assertEquals("$CFFP:Id=\"[3]\" and Name=\"Shirts\"", result.fkFilter);
+        
+        // 11. foreignKeyinfo is null, DB is MySQL
+        MDMConfiguration.getConfiguration().setProperty("db.default.datasource", "MySQL-Default");
+        xml = null;
+        model.setFkFilter(null);
+        ifFKFilter = false;
+        foreignKeyInfos.clear();
+        value = "1";
+        model.setForeignkey("ProductFamily/Id");
+        result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model, ifFKFilter, value);
+        whereItem = result.whereItem;
+        whereItem1 = whereItem.getWhereAnd().getWhereItems()[0];
+        condition1 = whereItem1.getWhereOr().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
+                .getWhereCondition();
+        assertEquals("ProductFamily/../../i", condition1.getLeftPath());
+        assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
+        assertEquals("1", condition1.getRightValueOrPath());
 
     }
     
