@@ -22,6 +22,7 @@ import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerCont
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerModel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.IconAlign;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Label;
@@ -88,11 +89,12 @@ public class StagingContainerSummaryView extends AbstractView {
     @Override
     protected void initComponents() {
         UserContextModel ucx = UserContextUtil.getUserContext();
-        titleLabel = new Label(messages.staging_area_title());
-        titleLabel.setTagName("h3"); //$NON-NLS-1$
-        titleLabel.setStyleAttribute("margin-right", "20px"); //$NON-NLS-1$//$NON-NLS-2$
-        containerLabel = new Label(messages.data_container());
 
+        titleLabel = new Label(messages.staging_area_title());
+        titleLabel.setTagName("div"); //$NON-NLS-1$
+        titleLabel.setStyleAttribute("font-weight", "bold"); //$NON-NLS-1$//$NON-NLS-2$
+        titleLabel.setStyleAttribute("font-size", "14px"); //$NON-NLS-1$//$NON-NLS-2$
+        containerLabel = new Label(messages.data_container());
         containerName = new Label(ucx.getDataContainer());
         containerName.setStyleAttribute("font-weight", "bold"); //$NON-NLS-1$//$NON-NLS-2$
 
@@ -106,7 +108,7 @@ public class StagingContainerSummaryView extends AbstractView {
         chartPanel.getElement().setInnerHTML(messages.loading());
 
         StringBuilder buffer = new StringBuilder();
-        buffer.append("<div style='margin-bottom:10px; font-size:16px;' id='" + STAGING_AREA_TITLE + "'></div>"); //$NON-NLS-1$ //$NON-NLS-2$
+        buffer.append("<div style='margin-bottom:10px; font-weight: bold;' id='" + STAGING_AREA_TITLE + "'></div>"); //$NON-NLS-1$ //$NON-NLS-2$
         buffer.append("<div style='margin-left:20px; color:#0000ff; margin-bottom:5px;' id='" + STAGING_AREA_WAITING + "'></div>"); //$NON-NLS-1$ //$NON-NLS-2$
         buffer.append("<div style='margin-left:20px; color:#ff0000; margin-bottom:5px;' id='" + STAGING_AREA_INVALID + "'></div>"); //$NON-NLS-1$//$NON-NLS-2$
         buffer.append("<div style='margin-left:20px; color:#00aa00; margin-bottom:5px;' id='" + STAGING_AREA_VALID + "'></div>"); //$NON-NLS-1$//$NON-NLS-2$
@@ -118,6 +120,7 @@ public class StagingContainerSummaryView extends AbstractView {
         startValidate = new Button(messages.start_validation());
         startValidate.setSize(200, 30);
         startValidate.setEnabled(false);
+        startValidate.setIconAlign(IconAlign.TOP);
 
         mainPanel.setAutoHeight(true);
         mainPanel.setBodyBorder(false);
@@ -175,23 +178,25 @@ public class StagingContainerSummaryView extends AbstractView {
             waitingEl.setInnerHTML(messages.waiting_desc("<b>" + waiting + "</b>")); //$NON-NLS-1$ //$NON-NLS-2$
 
             Element invalidEl = detailPanel.getElementById(STAGING_AREA_INVALID);
-            invalidEl.setInnerHTML(messages.invalid_desc("<b>" + invalid + "</b>") + " <b><span id=\"open_invalid_record\" style=\"color:red; text-decoration:underline; cursor:pointer;\">" + messages.open_invalid_record() + "</span><b>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            invalidEl.setInnerHTML(messages.invalid_desc("<span id=\"open_invalid_record\" style=\"color:red; text-decoration:underline; cursor:pointer;\">", "<b>" + invalid + "</b>", "</span>")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             Element open_invalid_record = detailPanel.getElementById("open_invalid_record"); //$NON-NLS-1$
-            addClickForOpenInvalidRecord(2, open_invalid_record);
+            addClickForRecord(2, open_invalid_record);
 
             Element validEl = detailPanel.getElementById(STAGING_AREA_VALID);
-            validEl.setInnerHTML(messages.valid_desc("<b>" + valid + "</b>")); //$NON-NLS-1$ //$NON-NLS-2$
+            validEl.setInnerHTML(messages.valid_desc("<span id=\"open_valid_record\" style=\"color:green; text-decoration:underline; cursor:pointer;\">", "<b>" + valid + "</b>", "</span>")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            Element open_valid_record = detailPanel.getElementById("open_valid_record"); //$NON-NLS-1$
+            addClickForRecord(3, open_valid_record);
         }
     }
 
-    private native void addClickForOpenInvalidRecord(Integer state, Element el)/*-{
+    private native void addClickForRecord(Integer state, Element el)/*-{
 		var instance = this;
 		el.onclick = function() {
-			instance.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::onOpenInvalidRecord1(Ljava/lang/Integer;)(state);
+			instance.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::onOpenRecord(Ljava/lang/Integer;)(state);
 		};
     }-*/;
 
-    void onOpenInvalidRecord1(Integer state) {
+    void onOpenRecord(Integer state) {
         ControllerContainer.get().getSummaryController().openInvalidRecordToBrowseRecord(state);
     }
 

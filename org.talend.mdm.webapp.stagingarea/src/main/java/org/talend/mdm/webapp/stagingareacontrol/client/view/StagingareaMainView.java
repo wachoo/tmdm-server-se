@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
+import org.talend.mdm.webapp.stagingareacontrol.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -29,6 +30,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public class StagingareaMainView extends AbstractView {
     
@@ -55,21 +57,10 @@ public class StagingareaMainView extends AbstractView {
         super.initComponents();
         mainPanel.setBodyBorder(false);
         mainPanel.setScrollMode(Scroll.AUTOY);
-        mainPanel.setStyleAttribute("font-size", "12px"); //$NON-NLS-1$//$NON-NLS-2$
-        mainPanel.setStyleAttribute("margin", "3px"); //$NON-NLS-1$//$NON-NLS-2$
-        summaryView = new StagingContainerSummaryView();
-        currentValidationView = new CurrentValidationView();
-        previousExecutionValidationView = new PreviousExecutionView();
-        ControllerContainer.initController(this, summaryView, currentValidationView, previousExecutionValidationView);
-    }
-
-    @Override
-    protected void initLayout() {
-        RowLayout layout = new RowLayout();
-        mainPanel.setLayout(layout);
-
+        this.setStyleAttribute("font-family", "tahoma,arial,helvetica,sans-serif"); //$NON-NLS-1$//$NON-NLS-2$
+        this.setStyleAttribute("font-size", "11px"); //$NON-NLS-1$//$NON-NLS-2$
         ToolBar toolBar = new ToolBar();
-        Button refresh = new Button(messages.refresh());
+        Button refresh = new Button(messages.refresh(), AbstractImagePrototype.create(Icons.INSTANCE.refresh()));
         refresh.addSelectionListener(new SelectionListener<ButtonEvent>() {
             @Override
             public void componentSelected(ButtonEvent ce) {
@@ -90,12 +81,22 @@ public class StagingareaMainView extends AbstractView {
                 ControllerContainer.get().getCurrentValidationController().autoRefresh(autoRefreshToggle.isPressed());
             }
         });
-
         toolBar.add(autoRefreshToggle);
-        mainPanel.add(toolBar, new RowData(1, -1, new Margins(0, 23, 0, 0)));
-        mainPanel.add(wrapFieldSet(summaryView, messages.status()), new RowData(1, -1, new Margins(0, 23, 0, 0)));
-        mainPanel.add(wrapFieldSet(currentValidationView, messages.current_validation()), new RowData(1, -1, new Margins(0, 23, 0, 0)));
-        mainPanel.add(wrapFieldSet(previousExecutionValidationView, messages.previous_validation()), new RowData(1, -1, new Margins(0, 23, 0, 0)));
+        mainPanel.setTopComponent(toolBar);
+
+        summaryView = new StagingContainerSummaryView();
+        currentValidationView = new CurrentValidationView();
+        previousExecutionValidationView = new PreviousExecutionView();
+        ControllerContainer.initController(this, summaryView, currentValidationView, previousExecutionValidationView);
+    }
+
+    @Override
+    protected void initLayout() {
+        RowLayout layout = new RowLayout();
+        mainPanel.setLayout(layout);
+        mainPanel.add(wrapFieldSet(summaryView, messages.status()), new RowData(1, -1, new Margins(0, 10, 0, 10)));
+        mainPanel.add(wrapFieldSet(currentValidationView, messages.current_validation()), new RowData(1, -1, new Margins(0, 10, 0, 10)));
+        mainPanel.add(wrapFieldSet(previousExecutionValidationView, messages.previous_validation()), new RowData(1, -1, new Margins(0, 10, 0, 10)));
     }
 
     public void doLayout() {

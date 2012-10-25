@@ -42,11 +42,11 @@ public interface StagingareaMessages extends Messages {
 
     String waiting_desc(String waiting);
 
-    String invalid_desc(String invalid);
+    String invalid_desc(String prefix, String invalid, String postfix);
 
     String open_invalid_record();
 
-    String valid_desc(String valid);
+    String valid_desc(String prefix, String valid, String postfix);
     String start_validation();
 
     String no_validation();
