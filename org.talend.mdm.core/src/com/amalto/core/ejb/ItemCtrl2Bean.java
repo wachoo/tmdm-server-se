@@ -951,16 +951,18 @@ public class ItemCtrl2Bean implements SessionBean {
             // This should be moved to ItemCtrl
             String query = "distinct-values(/ii/n/text())";
 
-            // Check the threshold number
-            long totalItemsInDataContainer = count(dataClusterPOJOPK, "*", null, -1);
-            int threshold = MDMConfiguration.getAutoEntityFindThreshold();
-            if (totalItemsInDataContainer > threshold) {
-                if (LOGGER.isDebugEnabled())
-                    LOGGER.debug("Won't calculate concepts in DataCluster \"" + dataClusterPOJOPK.getUniqueId() //$NON-NLS-1$
-                            + "\", because total items in data container " + totalItemsInDataContainer //$NON-NLS-1$
-                            + " is over the limit " + threshold + "! "); //$NON-NLS-1$ //$NON-NLS-2$
-                return null;
-            }
+                if (!Util.isSystemDC(dataClusterPOJOPK)) {
+                    // Check the threshold number
+                    long totalItemsInDataContainer = count(dataClusterPOJOPK, "*", null, -1);
+                    int threshold = MDMConfiguration.getAutoEntityFindThreshold();
+                    if (totalItemsInDataContainer > threshold) {
+                        if (LOGGER.isDebugEnabled())
+                            LOGGER.debug("Won't calculate concepts in DataCluster \"" + dataClusterPOJOPK.getUniqueId() //$NON-NLS-1$
+                                    + "\", because total items in data container " + totalItemsInDataContainer //$NON-NLS-1$
+                                    + " is over the limit " + threshold + "! "); //$NON-NLS-1$ //$NON-NLS-2$
+                        return null;
+                    }
+                }
 
             // get the concepts
             TreeMap<String, String> concepts = new TreeMap<String, String>();
