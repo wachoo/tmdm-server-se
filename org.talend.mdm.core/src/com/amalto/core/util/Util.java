@@ -89,6 +89,7 @@ import org.talend.mdm.commmon.util.core.ITransformerConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.SchemaManager;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -3822,5 +3823,22 @@ public class Util {
 
     public static String getDefaultSystemLocale() {
         return MDMConfiguration.getConfiguration().getProperty("system.locale.default");//$NON-NLS-1$
+    }
+
+    public static boolean isSystemDC(DataClusterPOJOPK dataClusterPOJOPK) {
+        if (dataClusterPOJOPK != null && dataClusterPOJOPK.getUniqueId() != null) {
+            String dcName = dataClusterPOJOPK.getUniqueId();
+            if (dcName.equals(XSystemObjects.DC_JCAADAPTERS.getName()) 
+                    || dcName.equals(XSystemObjects.DC_INBOX.getName())
+                    || dcName.equals(XSystemObjects.DC_CONF.getName())
+                    || dcName.equals(XSystemObjects.DC_CROSSREFERENCING.getName())
+                    || dcName.equals(XSystemObjects.DC_MDMITEMSTRASH.getName())
+                    || dcName.equals(XSystemObjects.DC_PROVISIONING.getName())
+                    || dcName.equals(XSystemObjects.DC_UPDATE_PREPORT.getName())
+                    || dcName.equals(XSystemObjects.DC_SEARCHTEMPLATE.getName())
+                    || dcName.equals(XSystemObjects.DC_XTENTIS_COMMON_REPORTING.getName()))
+                return true;
+        }
+        return false;
     }
 }
