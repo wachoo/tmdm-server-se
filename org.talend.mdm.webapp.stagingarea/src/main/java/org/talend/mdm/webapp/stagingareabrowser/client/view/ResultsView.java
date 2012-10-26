@@ -58,14 +58,16 @@ public class ResultsView extends AbstractView {
 
     private void initErrorTitles() {
         errorTitles = new HashMap<Integer, String>();
-        errorTitles.put(RecordStatus.New_Record.getStatusCode(), messages.status_000());
-        errorTitles.put(RecordStatus.Identify_Success.getStatusCode(), messages.status_201(ucx.getDataContainer()));
-        errorTitles.put(RecordStatus.Merge_Success.getStatusCode(), messages.status_202(ucx.getDataContainer()));
-        errorTitles.put(RecordStatus.Validation_Success.getStatusCode(), messages.status_203());
-        errorTitles.put(RecordStatus.Identify_Fail.getStatusCode(), messages.status_401(ucx.getDataContainer()));
-        errorTitles.put(RecordStatus.Merge_Fail.getStatusCode(), messages.status_402(ucx.getDataContainer()));
-        errorTitles.put(RecordStatus.Model_Validation_Fail.getStatusCode(), messages.status_403());
-        errorTitles.put(RecordStatus.FK_Constrain_Fail.getStatusCode(), messages.status_404());
+        errorTitles.put(RecordStatus.NEW.getStatusCode(), messages.status_000());
+        errorTitles.put(RecordStatus.SUCCESS_IDENTIFIED_CLUSTERS.getStatusCode(), messages.status_201(ucx.getDataContainer()));
+        errorTitles.put(RecordStatus.SUCCESS_MERGE_CLUSTERS.getStatusCode(), messages.status_202(ucx.getDataContainer()));
+        errorTitles.put(RecordStatus.SUCCESS_MERGE_CLUSTER_TO_RESOLVE.getStatusCode(), messages.status_203(ucx.getDataContainer()));
+        errorTitles.put(RecordStatus.SUCCESS_MERGED_RECORD.getStatusCode(), messages.status_204(ucx.getDataContainer()));
+        errorTitles.put(RecordStatus.SUCCESS_VALIDATE.getStatusCode(), messages.status_205());
+        errorTitles.put(RecordStatus.FAIL_IDENTIFIED_CLUSTERS.getStatusCode(), messages.status_401(ucx.getDataContainer()));
+        errorTitles.put(RecordStatus.FAIL_MERGE_CLUSTERS.getStatusCode(), messages.status_402(ucx.getDataContainer()));
+        errorTitles.put(RecordStatus.FAIL_VALIDATE_VALIDATION.getStatusCode(), messages.status_403());
+        errorTitles.put(RecordStatus.FAIL_VALIDATE_CONSTRAINTS.getStatusCode(), messages.status_404());
     }
 
     @Override
@@ -117,7 +119,8 @@ public class ResultsView extends AbstractView {
                 if(color!=null)g.getElement().getStyle().setColor(color);
                 if(icon!=null)g.setWidget(0, 0, icon);
                 g.setText(0, 1, Integer.toString(model.getStatus()));
-                g.setTitle(model.getStatus() + ": " + errorTitles.get(model.getStatus())); //$NON-NLS-1$
+                g.setTitle(model.getStatus()
+                        + ": " + (errorTitles.get(model.getStatus()) == null ? "" : errorTitles.get(model.getStatus()))); //$NON-NLS-1$ //$NON-NLS-2$
                 return g;
             }
         });

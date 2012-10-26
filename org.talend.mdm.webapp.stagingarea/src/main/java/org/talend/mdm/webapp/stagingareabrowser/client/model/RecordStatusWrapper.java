@@ -37,17 +37,24 @@ public class RecordStatusWrapper implements IsSerializable {
         if (status == null)
             throw new IllegalArgumentException("Record status can be empty! "); //$NON-NLS-1$
 
-        if (status.equals(RecordStatus.Identify_Success) || status.equals(RecordStatus.Merge_Success)
-                || status.equals(RecordStatus.Validation_Success)) {
+        if (status.equals(RecordStatus.SUCCESS) 
+                || status.equals(RecordStatus.SUCCESS_IDENTIFIED_CLUSTERS)
+                || status.equals(RecordStatus.SUCCESS_MERGE_CLUSTERS)
+                || status.equals(RecordStatus.SUCCESS_MERGE_CLUSTER_TO_RESOLVE)
+                || status.equals(RecordStatus.SUCCESS_MERGED_RECORD)
+                || status.equals(RecordStatus.SUCCESS_VALIDATE)) {
             isValid = true;
             icon = Resources.ICONS.statusValid();
             color = "green"; //$NON-NLS-1$
-        } else if (status.equals(RecordStatus.Identify_Fail) || status.equals(RecordStatus.Merge_Fail)
-                || status.equals(RecordStatus.Model_Validation_Fail) || status.equals(RecordStatus.FK_Constrain_Fail)) {
+        } else if (status.equals(RecordStatus.FAIL) 
+                || status.equals(RecordStatus.FAIL_IDENTIFIED_CLUSTERS)
+                || status.equals(RecordStatus.FAIL_MERGE_CLUSTERS)
+                || status.equals(RecordStatus.FAIL_VALIDATE_VALIDATION)
+                || status.equals(RecordStatus.FAIL_VALIDATE_CONSTRAINTS)) {
             isValid = false;
             icon = Resources.ICONS.statusInvalid();
             color = "red"; //$NON-NLS-1$
-        } else if (status.equals(RecordStatus.New_Record)) {
+        } else if (status.equals(RecordStatus.NEW)) {
             isValid = false;
             icon = null;
             color = null;

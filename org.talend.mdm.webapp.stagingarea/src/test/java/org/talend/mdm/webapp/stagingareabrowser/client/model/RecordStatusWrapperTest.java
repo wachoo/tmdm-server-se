@@ -19,12 +19,12 @@ public class RecordStatusWrapperTest extends GWTTestCase {
 
     public void testCheckStatus() {
 
-        RecordStatusWrapper wrapper = new RecordStatusWrapper(RecordStatus.Model_Validation_Fail);
+        RecordStatusWrapper wrapper = new RecordStatusWrapper(RecordStatus.FAIL_VALIDATE_VALIDATION);
         assertTrue(!wrapper.isValid());
         assertEquals("statusInvalid", wrapper.getIcon().getName());
         assertEquals("red", wrapper.getColor());
 
-        wrapper = new RecordStatusWrapper(RecordStatus.Validation_Success);
+        wrapper = new RecordStatusWrapper(RecordStatus.SUCCESS_VALIDATE);
         assertTrue(wrapper.isValid());
         assertEquals("statusValid", wrapper.getIcon().getName());
         assertEquals("green", wrapper.getColor());

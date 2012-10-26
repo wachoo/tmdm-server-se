@@ -16,15 +16,19 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 public enum RecordStatus implements IsSerializable {
     
-    New_Record(000),
-    Identify_Success(201),
-    Merge_Success(202),
-    Validation_Success(203),
-    Identify_Fail(401),
-    Merge_Fail(402),
-    Model_Validation_Fail(403),
-    FK_Constrain_Fail(404),
-    Unknown(999);
+    NEW(000),
+    SUCCESS(200),
+    SUCCESS_IDENTIFIED_CLUSTERS(201),
+    SUCCESS_MERGE_CLUSTERS(202),
+    SUCCESS_MERGE_CLUSTER_TO_RESOLVE(203),
+    SUCCESS_MERGED_RECORD(204),
+    SUCCESS_VALIDATE(205),
+    FAIL(400),
+    FAIL_IDENTIFIED_CLUSTERS(401),
+    FAIL_MERGE_CLUSTERS(402),
+    FAIL_VALIDATE_VALIDATION(403),
+    FAIL_VALIDATE_CONSTRAINTS(404),
+    UNKNOWN(999);
     
     private int statusCode;
 
@@ -41,23 +45,31 @@ public enum RecordStatus implements IsSerializable {
 
         switch (statusCode) {
         case 000:
-            return New_Record;
+            return NEW;
+        case 200:
+            return SUCCESS;
         case 201:
-            return Identify_Success;
+            return SUCCESS_IDENTIFIED_CLUSTERS;
         case 202:
-            return Merge_Success;
+            return SUCCESS_MERGE_CLUSTERS;
         case 203:
-            return Validation_Success;
+            return SUCCESS_MERGE_CLUSTER_TO_RESOLVE;
+        case 204:
+            return SUCCESS_MERGED_RECORD;
+        case 205:
+            return SUCCESS_VALIDATE;
+        case 400:
+            return FAIL;
         case 401:
-            return Identify_Fail;
+            return FAIL_IDENTIFIED_CLUSTERS;
         case 402:
-            return Merge_Fail;
+            return FAIL_MERGE_CLUSTERS;
         case 403:
-            return Model_Validation_Fail;
+            return FAIL_VALIDATE_VALIDATION;
         case 404:
-            return FK_Constrain_Fail;
+            return FAIL_VALIDATE_CONSTRAINTS;
         default:
-            return Unknown;
+            return UNKNOWN;
         }
 
 
