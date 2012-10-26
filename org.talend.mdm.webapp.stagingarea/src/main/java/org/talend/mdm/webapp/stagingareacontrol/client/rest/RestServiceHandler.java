@@ -14,7 +14,9 @@ package org.talend.mdm.webapp.stagingareacontrol.client.rest;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.restlet.client.Request;
 import org.restlet.client.Response;
@@ -214,31 +216,33 @@ public class RestServiceHandler {
 
             public void process(Request request, Response response) {
                 try {
-                    final List<String> exeIds = new ArrayList<String>();
+                    final Map<String, StagingAreaExecutionModel> exeIds = new LinkedHashMap<String, StagingAreaExecutionModel>();
                     DomRepresentation rep = new DomRepresentation(response.getEntity());
                     NodeList list = rep.getDocument().getDocumentElement().getChildNodes();
                     if (list != null) {
                         for (int i = 0; i < list.getLength(); i++) {
                             Node node = list.item(i);
                             if (node.getNodeType() == Node.ELEMENT_NODE)
-                                exeIds.add(node.getFirstChild().getNodeValue());
+                                exeIds.put(node.getFirstChild().getNodeValue(), null);
                         }
                     }
-                    final List<StagingAreaExecutionModel> models = new ArrayList<StagingAreaExecutionModel>();
                     if (exeIds.size() == 0) {
-                        callback.onSuccess(models);
+                        callback.onSuccess(new ArrayList<StagingAreaExecutionModel>());
                         return;
                     }
-                    for (String exeId : exeIds) {
+                    final int[] counter = new int[1];
+                    for (final String exeId : exeIds.keySet()) {
                         getStagingAreaExecution(dataContainer, exeId, new SessionAwareAsyncCallback<StagingAreaExecutionModel>() {
 
                             public void onSuccess(StagingAreaExecutionModel result) {
-                                models.add(result);
-                                if (models.size() == exeIds.size())
-                                    callback.onSuccess(models);
+                                exeIds.put(exeId, result);
+                                counter[0]++;
+                                if (counter[0] == exeIds.size())
+                                    callback.onSuccess(new ArrayList<StagingAreaExecutionModel>(exeIds.values()));
                             }
 
                             protected void doOnFailure(Throwable caught) {
+                                counter[0]++;
                                 alertStagingError(caught);
                             }
                         });

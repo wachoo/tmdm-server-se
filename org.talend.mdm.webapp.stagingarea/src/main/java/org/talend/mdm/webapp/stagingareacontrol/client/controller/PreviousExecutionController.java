@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class PreviousExecutionController extends AbstractController {
@@ -44,11 +45,14 @@ public class PreviousExecutionController extends AbstractController {
 
     private static Date beforeDate;
 
+    private static Button searchButton;
+
     static {
         proxy = new RestDataProxy<PagingLoadResult<StagingAreaExecutionModel>>() {
 
             protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<StagingAreaExecutionModel>> callback) {
                 final PagingLoadConfig config = (PagingLoadConfig) loadConfig;
+                searchButton.setEnabled(false);
                 RestServiceHandler.get().countStagingAreaExecutions(dataContainer, null,
                         new SessionAwareAsyncCallback<Integer>() {
 
@@ -60,6 +64,7 @@ public class PreviousExecutionController extends AbstractController {
                                                 BasePagingLoadResult<StagingAreaExecutionModel> pagingResult = new BasePagingLoadResult<StagingAreaExecutionModel>(
                                                         result, config.getOffset(), total);
                                                 callback.onSuccess(pagingResult);
+                                                searchButton.setEnabled(true);
                                             }
                                         });
                             }
@@ -80,6 +85,7 @@ public class PreviousExecutionController extends AbstractController {
 
     public void searchByBeforeDate() {
         PreviousExecutionController.beforeDate = view.getBeforeDate();
+        PreviousExecutionController.searchButton = view.getSearchButton();
         loader.load();
     }
 

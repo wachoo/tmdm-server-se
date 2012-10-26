@@ -116,6 +116,10 @@ public class PreviousExecutionView extends AbstractView {
         return beforeDateField.getValue();
     }
 
+    public Button getSearchButton() {
+        return searchButton;
+    }
+
     protected void registerEvent() {
         searchButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
