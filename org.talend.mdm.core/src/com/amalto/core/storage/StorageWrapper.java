@@ -101,7 +101,9 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     public long deleteCluster(String revisionID, String clusterName) throws XmlServerException {
         long start = System.currentTimeMillis();
         {
+            // TMDM-4692 Delete both master and staging data containers.
             getStorageAdmin().delete(revisionID, clusterName, true);
+            getStorageAdmin().delete(revisionID, clusterName + StorageAdmin.STAGING_SUFFIX, true);
         }
         return System.currentTimeMillis() - start;
     }
