@@ -106,7 +106,7 @@
 
         <delete dir="${basedir}/target/test-reports" />
         <mkdir dir="${basedir}/target/test-reports" />
-        
+
         <delete dir="${basedir}/target/data" />
         <delete dir="${basedir}/target/indexes" />
 
@@ -172,8 +172,6 @@
                 <fileset dir="target/test-classes">
                     <include name="**/*Test.class" />
                     <include name="**/*TestCase.class" />
-                    <!-- Temporary exclusion see TMDM-4839 -->
-                    <exclude name="**/ServerTest.class" />
                 </fileset>
             </batchtest>
 

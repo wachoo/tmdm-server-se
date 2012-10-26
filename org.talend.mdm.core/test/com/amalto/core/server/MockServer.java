@@ -13,18 +13,19 @@
 
 package com.amalto.core.server;
 
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
+
+import org.apache.commons.lang.NotImplementedException;
+
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.datasource.DataSourceFactory;
-import org.apache.commons.lang.NotImplementedException;
 
-import javax.management.MBeanServer;
-import java.lang.management.ManagementFactory;
-
+@SuppressWarnings("nls")
 public class MockServer implements Server {
-
-    private final MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
 
     private final DataSourceFactory dataSourceFactory = DataSourceFactory.getInstance();
 
@@ -32,21 +33,35 @@ public class MockServer implements Server {
 
     private MetadataRepositoryAdmin metadataRepositoryAdmin;
 
+    private static final String DATASOURCES_FILE = "com/amalto/core/server/datasources-test.xml";
+
     public MockServer() {
+    }
+
+    static String getDatasourcesFilePath() {
+        URL url = MockServer.class.getClassLoader().getResource(DATASOURCES_FILE);
+        junit.framework.Assert.assertNotNull(url);
+        return new File(url.getFile()).getAbsolutePath();
+    }
+
+    static InputStream getDatasourcesInputStream() {
+        InputStream is = MockServer.class.getClassLoader().getResourceAsStream(DATASOURCES_FILE);
+        junit.framework.Assert.assertNotNull(is);
+        return is;
     }
 
     @Override
     public boolean hasDataSource(String dataSourceName, String container, StorageType type) {
-        boolean isDataSourceDefinitionPresent = dataSourceFactory.hasDataSource(MockServer.class.getResourceAsStream("datasources.xml"), dataSourceName);
+        boolean isDataSourceDefinitionPresent = dataSourceFactory.hasDataSource(getDatasourcesInputStream(), dataSourceName);
         if (isDataSourceDefinitionPresent) {
             DataSourceDefinition dataSource = dataSourceFactory.getDataSource(dataSourceName, container, null);
             switch (type) {
-                case MASTER:
-                    return dataSource.getMaster() != null;
-                case STAGING:
-                    return dataSource.getStaging() != null;
-                default:
-                    throw new NotImplementedException("Not supported: " + type);
+            case MASTER:
+                return dataSource.getMaster() != null;
+            case STAGING:
+                return dataSource.getStaging() != null;
+            default:
+                throw new NotImplementedException("Not supported: " + type);
             }
         }
         return isDataSourceDefinitionPresent;
@@ -57,21 +72,24 @@ public class MockServer implements Server {
         return getDataSource(dataSourceName, container, null, type);
     }
 
+    @Override
     public DataSource getDataSource(String dataSourceName, String container, String revisionId, StorageType type) {
-        DataSourceDefinition configuration = dataSourceFactory.getDataSource(MockServer.class.getResourceAsStream("datasources.xml"), dataSourceName, container, revisionId);
+        DataSourceDefinition configuration = dataSourceFactory.getDataSource(getDatasourcesInputStream(), dataSourceName,
+                container, revisionId);
         switch (type) {
-            case MASTER:
-                return configuration.getMaster();
-            case STAGING:
-                if (!configuration.hasStaging()) {
-                    throw new IllegalArgumentException("Datasource '" + dataSourceName + "' does not declare a staging area.");
-                }
-                return configuration.getStaging();
-            default:
-                throw new NotImplementedException("Not supported: " + type);
+        case MASTER:
+            return configuration.getMaster();
+        case STAGING:
+            if (!configuration.hasStaging()) {
+                throw new IllegalArgumentException("Datasource '" + dataSourceName + "' does not declare a staging area.");
+            }
+            return configuration.getStaging();
+        default:
+            throw new NotImplementedException("Not supported: " + type);
         }
     }
 
+    @Override
     public StorageAdmin getStorageAdmin() {
         if (storageAdmin == null) {
             storageAdmin = ServerContext.INSTANCE.getLifecycle().createStorageAdmin();
@@ -79,6 +97,7 @@ public class MockServer implements Server {
         return storageAdmin;
     }
 
+    @Override
     public MetadataRepositoryAdmin getMetadataRepositoryAdmin() {
         if (metadataRepositoryAdmin == null) {
             metadataRepositoryAdmin = ServerContext.INSTANCE.getLifecycle().createMetadataRepositoryAdmin();
@@ -86,6 +105,7 @@ public class MockServer implements Server {
         return metadataRepositoryAdmin;
     }
 
+    @Override
     public void close() {
         ServerLifecycle lifecycle = ServerContext.INSTANCE.getLifecycle();
         if (metadataRepositoryAdmin != null) {
@@ -96,6 +116,8 @@ public class MockServer implements Server {
         }
     }
 
+    @Override
     public void init() {
+        // nothing to do
     }
 }
