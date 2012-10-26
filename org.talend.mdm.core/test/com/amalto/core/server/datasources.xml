@@ -15,8 +15,8 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:data/h2_default</connection-url>
-                <fulltext-index-directory>indexes/H2_DEFAULT</fulltext-index-directory>
+                <connection-url>jdbc:h2:target/data/h2_default</connection-url>
+                <fulltext-index-directory>target/indexes/H2_DEFAULT</fulltext-index-directory>
             </rdbms-configuration>
         </master>
 
@@ -28,8 +28,8 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:data/h2_ds1</connection-url>
-                <fulltext-index-directory>indexes/H2_DS1</fulltext-index-directory>
+                <connection-url>jdbc:h2:target/data/h2_ds1</connection-url>
+                <fulltext-index-directory>target/indexes/H2_DS1</fulltext-index-directory>
             </rdbms-configuration>
         </master>
 
@@ -41,8 +41,8 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:data/h2_ds2</connection-url>
-                <fulltext-index-directory>indexes/H2_DS2</fulltext-index-directory>
+                <connection-url>jdbc:h2:target/data/h2_ds2</connection-url>
+                <fulltext-index-directory>target/indexes/H2_DS2</fulltext-index-directory>
             </rdbms-configuration>
         </master>
         <staging>
@@ -50,7 +50,7 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:data/h2_staging_ds2</connection-url>
+                <connection-url>jdbc:h2:target/data/h2_staging_ds2</connection-url>
             </rdbms-configuration>
         </staging>
 
@@ -62,7 +62,7 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:data/rdbms_1_no_ft</connection-url>
+                <connection-url>jdbc:h2:target/data/rdbms_1_no_ft</connection-url>
             </rdbms-configuration>
         </master>
 
