@@ -142,6 +142,9 @@ class UpdateReportTypeMapping extends TypeMapping {
     }
 
     public FieldMetadata getDatabase(FieldMetadata from) {
+        if (!from.getContainingType().equals(updateReportType)) {
+            throw new IllegalArgumentException("Field '" + from.getName() + "' does not exist in database.");
+        }
         return userToDatabase.get(from.getName());
     }
 

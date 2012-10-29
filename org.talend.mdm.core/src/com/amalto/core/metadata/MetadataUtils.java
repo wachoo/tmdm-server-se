@@ -110,7 +110,9 @@ public class MetadataUtils {
         if (target == null) {
             throw new IllegalArgumentException("Target field can not be null");
         }
-
+        if (target.getContainingType().equals(origin)) { // Optimization: don't compute paths if field is contained in origin type
+            return Collections.singletonList(origin.getField(target.getName()));
+        }
         Stack<FieldMetadata> stack = new Stack<FieldMetadata>();
         Set<TypeMetadata> processedTypes = new HashSet<TypeMetadata>();
         for (FieldMetadata fieldMetadata : origin.getFields()) {
@@ -140,7 +142,6 @@ public class MetadataUtils {
                 } else {
                     referencedType = ((ContainedTypeFieldMetadata) metadata).getContainedType();
                 }
-
                 Set<FieldMetadata> fields = new HashSet<FieldMetadata>(referencedType.getFields());
                 for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
                     fields.addAll(subType.getFields());
