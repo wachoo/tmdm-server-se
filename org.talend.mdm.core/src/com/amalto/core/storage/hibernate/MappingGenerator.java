@@ -55,14 +55,30 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         this.generateConstrains = generateConstrains;
     }
 
-    public static String shortString(String s) {
-        if (s.length() < 30) {
+    /**
+     * Short a string so it doesn't exceed <code>maxLength</code> length. Consecutive calls to this method with same input
+     * always return the same value.
+     * Additionally, this method will replace all '-' characters by '_' in the returned string.
+     * @param s A non null string.
+     * @param maxLength A value greater than 0 that indicates the max length for the returned string.
+     * @return <code>null</code> if <code>s</code> is null, a shorten string so it doesn't exceed <code>maxLength</code>.
+     * @see com.amalto.core.storage.hibernate.TableResolver#getNameMaxLength()
+     */
+    public static String formatSQLName(String s, int maxLength) {
+        if (maxLength < 1) {
+            throw new IllegalArgumentException("Max length must be greater than 0 (was " + maxLength + ").");
+        }
+        if (s == null) {
+            return s;
+        }
+        if (s.length() < maxLength) {
             return s;
         }
         char[] chars = s.toCharArray();
-        return __shortString(chars, 30);
+        return __shortString(chars, maxLength);
     }
 
+    // Internal method for recursion.
     private static String __shortString(char[] chars, int threshold) {
         if (chars.length < threshold) {
             return new String(chars).replace('-', '_');
@@ -96,7 +112,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         className.setValue(generatedClassName);
         classElement.getAttributes().setNamedItem(className);
         Attr classTable = document.createAttribute("table"); //$NON-NLS-1$
-        classTable.setValue(shortString(table));
+        classTable.setValue(formatSQLName(table, resolver.getNameMaxLength()));
         classElement.getAttributes().setNamedItem(classTable);
 
         // <cache usage="read-write" include="non-lazy"/>
@@ -180,7 +196,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     unionSubclass.setAttributeNode(name);
 
                     Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
-                    tableName.setValue(shortString(resolver.get(subType)));
+                    tableName.setValue(formatSQLName(resolver.get(subType), resolver.getNameMaxLength()));
                     unionSubclass.setAttributeNode(tableName);
 
                     List<FieldMetadata> subTypeFields = subType.getFields();
@@ -278,7 +294,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     propertyElement.getAttributes().setNamedItem(cascade);
                 }
                 Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
-                tableName.setValue(shortString((referenceField.getContainingType().getName() + '_' + fieldName + '_' + referencedType.getName()).toUpperCase()));
+                tableName.setValue(formatSQLName((referenceField.getContainingType().getName() + '_' + fieldName + '_' + referencedType.getName()).toUpperCase(), resolver.getNameMaxLength()));
                 propertyElement.getAttributes().setNamedItem(tableName);
                 {
                     // <key column="foo_id"/>
@@ -423,7 +439,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         if (isDoingColumns) {
             Element column = document.createElement("column"); //$NON-NLS-1$
             Attr columnName = document.createAttribute("name"); //$NON-NLS-1$
-            columnName.setValue(shortString(compositeKeyPrefix + "_" + fieldName)); //$NON-NLS-1$
+            columnName.setValue(formatSQLName(compositeKeyPrefix + "_" + fieldName, resolver.getNameMaxLength())); //$NON-NLS-1$
             column.getAttributes().setNamedItem(columnName);
             if (generateConstrains) {
                 Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
@@ -452,7 +468,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
             Attr idName = document.createAttribute("name"); //$NON-NLS-1$
             idName.setValue(fieldName);
             Attr columnName = document.createAttribute("column"); //$NON-NLS-1$
-            columnName.setValue(shortString(fieldName));
+            columnName.setValue(formatSQLName(fieldName, resolver.getNameMaxLength()));
 
             idElement.getAttributes().setNamedItem(idName);
             idElement.getAttributes().setNamedItem(columnName);
@@ -463,13 +479,13 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 Attr propertyName = document.createAttribute("name"); //$NON-NLS-1$
                 propertyName.setValue(fieldName);
                 Attr columnName = document.createAttribute("column"); //$NON-NLS-1$
-                columnName.setValue(shortString(fieldName));
+                columnName.setValue(formatSQLName(fieldName, resolver.getNameMaxLength()));
                 if (resolver.isIndexed(field)) { // Create indexes for fields that should be indexed.
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Creating index for field '" + field.getName() + "'.");
                     }
                     Attr indexName = document.createAttribute("index"); //$NON-NLS-1$
-                    indexName.setValue(shortString(fieldName) + "_index"); //$NON-NLS-1$
+                    indexName.setValue(formatSQLName(fieldName, resolver.getNameMaxLength()) + "_index"); //$NON-NLS-1$
                     propertyElement.getAttributes().setNamedItem(indexName);
                 } else {
                     if (LOGGER.isDebugEnabled()) {
@@ -514,7 +530,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 Attr name = document.createAttribute("name"); //$NON-NLS-1$
                 name.setValue(fieldName);
                 Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
-                tableName.setValue(shortString((field.getContainingType().getName() + '_' + fieldName).toUpperCase()));
+                tableName.setValue(formatSQLName((field.getContainingType().getName() + '_' + fieldName).toUpperCase(), resolver.getNameMaxLength()));
                 listElement.getAttributes().setNamedItem(tableName);
 
                 // lazy="false"

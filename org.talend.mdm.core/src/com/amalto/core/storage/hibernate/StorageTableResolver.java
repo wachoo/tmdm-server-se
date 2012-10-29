@@ -20,8 +20,15 @@ class StorageTableResolver implements TableResolver {
 
     private final Set<FieldMetadata> indexedFields;
 
+    private final int maxLength;
+
     public StorageTableResolver(Set<FieldMetadata> indexedFields) {
+        this(indexedFields, Integer.MAX_VALUE);
+    }
+
+    public StorageTableResolver(Set<FieldMetadata> indexedFields, int maxLength) {
         this.indexedFields = indexedFields;
+        this.maxLength = maxLength;
     }
 
     public String get(ComplexTypeMetadata type) {
@@ -34,5 +41,10 @@ class StorageTableResolver implements TableResolver {
 
     public boolean isIndexed(FieldMetadata field) {
         return indexedFields.contains(field);
+    }
+
+    @Override
+    public int getNameMaxLength() {
+        return maxLength;
     }
 }

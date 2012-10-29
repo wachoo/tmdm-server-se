@@ -117,6 +117,8 @@ public class HibernateStorage implements Storage {
 
     private MetadataRepository userMetadataRepository;
 
+    private TableResolver tableResolver;
+
     /**
      * Create a {@link StorageType#MASTER} storage.
      * 
@@ -232,7 +234,17 @@ public class HibernateStorage implements Storage {
                 TypeMapping mapping = mappingRepository.getMappingFromUser(indexedField.getContainingType());
                 databaseIndexedFields.add(mapping.getDatabase(indexedField));
             }
-            TableResolver tableResolver = new StorageTableResolver(databaseIndexedFields);
+            if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Oracle database is being used. Limit table name length to 30.");
+                }
+                tableResolver = new StorageTableResolver(databaseIndexedFields, 30);
+            } else {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("No limitation for table names.");
+                }
+                tableResolver = new StorageTableResolver(databaseIndexedFields);
+            }
             storageClassLoader.setTableResolver(tableResolver);
             // Master and Staging share same class creator.
             switch (storageType) {
@@ -657,7 +669,7 @@ public class HibernateStorage implements Storage {
     }
 
     private StorageResults internalFetch(Session session, Expression userQuery, Set<EndOfResultsCallback> callbacks) {
-        SelectAnalyzer selectAnalysis = new SelectAnalyzer(mappingRepository, storageClassLoader, session, callbacks, this);
+        SelectAnalyzer selectAnalysis = new SelectAnalyzer(mappingRepository, storageClassLoader, session, callbacks, this, tableResolver);
         AbstractQueryHandler queryHandler = userQuery.accept(selectAnalysis);
         // Always normalize the query to ensure query has expected format.
         Expression expression = userQuery.normalize();

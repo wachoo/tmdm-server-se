@@ -39,18 +39,21 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     private final Storage storage;
 
+    private final TableResolver resolver;
+
     private boolean isFullText = false;
 
     private boolean isOnlyId = false;
 
     private boolean isCheckingProjection;
 
-    SelectAnalyzer(MappingRepository storageRepository, StorageClassLoader storageClassLoader, Session session, Set<EndOfResultsCallback> callbacks, Storage storage) {
+    SelectAnalyzer(MappingRepository storageRepository, StorageClassLoader storageClassLoader, Session session, Set<EndOfResultsCallback> callbacks, Storage storage, TableResolver resolver) {
         this.storageRepository = storageRepository;
         this.storageClassLoader = storageClassLoader;
         this.session = session;
         this.callbacks = callbacks;
         this.storage = storage;
+        this.resolver = resolver;
     }
 
     @Override
@@ -68,7 +71,6 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
             }
         }
         isCheckingProjection = false;
-
         Condition condition = select.getCondition();
         if (condition != null) {
             condition.accept(this);
@@ -81,7 +83,6 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
                 return new IdQueryHandler(storage, storageRepository, storageClassLoader, session, select, this.selectedFields, callbacks);
             }
         }
-
         if (isFullText) {
             DataSource dataSource = storage.getDataSource();
             RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) dataSource;
@@ -94,11 +95,10 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
                 throw new IllegalArgumentException("Storage '" + storage.getName() + "' is not configured to support full text queries.");
             }
         }
-
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Using \"standard query\" strategy");
         }
-        return new StandardQueryHandler(storage, storageRepository, storageClassLoader, session, select, this.selectedFields, callbacks);
+        return new StandardQueryHandler(storage, storageRepository, resolver, storageClassLoader, session, select, this.selectedFields, callbacks);
     }
 
     @Override

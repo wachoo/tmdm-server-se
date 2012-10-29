@@ -27,9 +27,12 @@ class ManyFieldCriterion extends SQLCriterion {
 
     private final Object value;
 
-    ManyFieldCriterion(Criteria typeSelectionCriteria, FieldMetadata field, Object value) {
+    private final TableResolver resolver;
+
+    ManyFieldCriterion(Criteria typeSelectionCriteria, TableResolver resolver, FieldMetadata field, Object value) {
         super(StringUtils.EMPTY, new Object[0], new Type[0]);
         this.typeCriteria = typeSelectionCriteria;
+        this.resolver = resolver;
         this.field = field;
         this.value = value;
     }
@@ -51,7 +54,8 @@ class ManyFieldCriterion extends SQLCriterion {
             String fieldName = field.getName().toUpperCase();
             String containingTypeKey = type.getKeyFields().get(0).getName();
             StringBuilder builder = new StringBuilder();
-            String joinedTableName = MappingGenerator.shortString(containingType + '_' + fieldName);
+            String joinedTableName = MappingGenerator.formatSQLName(containingType + '_' + fieldName,
+                    resolver.getNameMaxLength());
             builder.append("(SELECT COUNT(1) FROM ") //$NON-NLS-1$
                     .append(containingType)
                     .append(" INNER JOIN ") //$NON-NLS-1$

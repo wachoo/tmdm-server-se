@@ -37,17 +37,19 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private final CriterionAdapter CRITERION_VISITOR = new CriterionAdapter();
 
+    private final StandardQueryHandler.CriterionFieldCondition criterionFieldCondition;
+
+    private final Map<FieldMetadata, String> joinFieldsToAlias = new HashMap<FieldMetadata, String>();
+
+    private final TableResolver resolver;
+
     private Criteria criteria;
 
     private ProjectionList projectionList;
 
     private ComplexTypeMetadata mainType;
 
-    private final StandardQueryHandler.CriterionFieldCondition criterionFieldCondition;
-
     private int aliasCount = 0;
-
-    private final Map<FieldMetadata, String> joinFieldsToAlias = new HashMap<FieldMetadata, String>();
 
     private List<ComplexTypeMetadata> selectedTypes;
 
@@ -55,12 +57,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     public StandardQueryHandler(Storage storage,
                                 MappingRepository mappingMetadataRepository,
+                                TableResolver resolver,
                                 StorageClassLoader storageClassLoader,
                                 Session session,
                                 Select select,
                                 List<TypedExpression> selectedFields,
                                 Set<EndOfResultsCallback> callbacks) {
         super(storage, mappingMetadataRepository, storageClassLoader, session, select, selectedFields, callbacks);
+        this.resolver = resolver;
         criterionFieldCondition = new CriterionFieldCondition();
     }
 
@@ -756,7 +760,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                                 break;
                             }
                         }
-                        return new ManyFieldCriterion(typeCheckCriteria, left, condition.getRight().accept(VALUE_ADAPTER));
+                        return new ManyFieldCriterion(typeCheckCriteria, resolver, left, condition.getRight().accept(VALUE_ADAPTER));
                     } else {
                         throw new IllegalStateException("Expected a criteria instance of " + CriteriaImpl.class.getName() + ".");
                     }
