@@ -1256,7 +1256,52 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();
     }
+
+    public void testUpdateReportCreationWithoutSource() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest_NoSource.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord report = dataRecordReader.read(1, repository, updateReport, builder.toString());
+
+        try {
+            storage.begin();
+            assertNull(report.get("Source"));
+            storage.update(report);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        UserQueryBuilder qb = from(updateReport);
+        StorageResults results = storage.fetch(qb.getSelect());
+        StringWriter storedDocument = new StringWriter();
+        try {
+            DataRecordXmlWriter writer = new DataRecordXmlWriter();
+            for (DataRecord result : results) {
+                writer.write(result, storedDocument);
+                assertEquals("none", result.get("Source"));
+            }
+            assertNotSame(builder.toString(), storedDocument.toString());
+        } finally {
+            results.close();
+        }
+
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();
+    }
+
 
     public void testUpdateReportTimeStampQuery() throws Exception {
         StringBuilder builder = new StringBuilder();
@@ -1284,6 +1329,10 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();
     }
 
     public void testUpdateReportTaskIdQuery() throws Exception {
@@ -1312,6 +1361,10 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();
     }
 
     public void testNativeQueryWithReturn() throws Exception {

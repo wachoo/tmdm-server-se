@@ -572,7 +572,11 @@ public class HibernateStorage implements Storage {
             Iterable<DataRecord> records = internalFetch(session, userQuery, Collections.<EndOfResultsCallback> emptySet());
             for (DataRecord currentDataRecord : records) {
                 ComplexTypeMetadata currentType = currentDataRecord.getType();
-                Class<?> clazz = storageClassLoader.getClassFromType(currentType);
+                TypeMapping mapping = mappingRepository.getMappingFromUser(currentType);
+                if (mapping == null) {
+                    throw new IllegalArgumentException("Type '" + currentType.getName() + "' does not have a database mapping.");
+                }
+                Class<?> clazz = storageClassLoader.getClassFromType(mapping.getDatabase());
 
                 Serializable idValue;
                 List<FieldMetadata> keyFields = currentType.getKeyFields();

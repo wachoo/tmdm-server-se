@@ -23,6 +23,8 @@ class UpdateReportTypeMapping extends TypeMapping {
 
     private static final String MAPPING_NAME = "FIXED UPDATE REPORT MAPPING"; //$NON-NLS-1$
 
+    private static final String NO_SOURCE = "none"; //$NON-NLS-1$
+
     private final ComplexTypeMetadata updateReportType;
 
     private final ComplexTypeMetadata databaseUpdateReportType;
@@ -63,7 +65,12 @@ class UpdateReportTypeMapping extends TypeMapping {
     @Override
     public void setValues(Session session, DataRecord from, Wrapper to) {
         to.set("x_user_name", from.get("UserName")); //$NON-NLS-1$ //$NON-NLS-2$
-        to.set("x_source", from.get("Source")); //$NON-NLS-1$ //$NON-NLS-2$
+        Object source = from.get("Source");
+        if (source == null) {
+            // TMDM-4856: In case source is null, put "none" as the source.
+            source = NO_SOURCE;
+        }
+        to.set("x_source", source); //$NON-NLS-1$ //$NON-NLS-2$
         to.set("x_time_in_millis", Long.parseLong(String.valueOf(from.get("TimeInMillis")))); //$NON-NLS-1$ //$NON-NLS-2$
         to.set("x_operation_type", from.get("OperationType")); //$NON-NLS-1$ //$NON-NLS-2$
         to.set("x_revision_id", from.get("RevisionID")); //$NON-NLS-1$ //$NON-NLS-2$
