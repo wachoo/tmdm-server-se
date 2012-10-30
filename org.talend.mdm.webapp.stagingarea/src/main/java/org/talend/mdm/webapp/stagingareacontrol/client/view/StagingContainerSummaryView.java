@@ -12,13 +12,10 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
-import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
+import org.talend.mdm.webapp.stagingareacontrol.client.model.PieChartData;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerModel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -29,18 +26,32 @@ import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
-import com.google.gwt.ajaxloader.client.AjaxLoader;
-import com.google.gwt.ajaxloader.client.AjaxLoader.AjaxLoaderOptions;
-import com.google.gwt.ajaxloader.client.ArrayHelper;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.editor.client.Editor.Path;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
-import com.google.gwt.visualization.client.DataTable;
-import com.google.gwt.visualization.client.LegendPosition;
-import com.google.gwt.visualization.client.visualizations.PieChart;
-import com.google.gwt.visualization.client.visualizations.PieChart.Options;
+import com.sencha.gxt.chart.client.chart.Chart;
+import com.sencha.gxt.chart.client.chart.Chart.Position;
+import com.sencha.gxt.chart.client.chart.Legend;
+import com.sencha.gxt.chart.client.chart.series.PieSeries;
+import com.sencha.gxt.chart.client.chart.series.Series.LabelPosition;
+import com.sencha.gxt.chart.client.chart.series.SeriesLabelConfig;
+import com.sencha.gxt.chart.client.chart.series.SeriesLabelProvider;
+import com.sencha.gxt.chart.client.chart.series.SeriesToolTipConfig;
+import com.sencha.gxt.chart.client.draw.Gradient;
+import com.sencha.gxt.chart.client.draw.RGB;
+import com.sencha.gxt.chart.client.draw.Stop;
+import com.sencha.gxt.chart.client.draw.sprite.TextSprite;
+import com.sencha.gxt.chart.client.draw.sprite.TextSprite.TextAnchor;
+import com.sencha.gxt.chart.client.draw.sprite.TextSprite.TextBaseline;
+import com.sencha.gxt.core.client.ValueProvider;
+import com.sencha.gxt.data.shared.LabelProvider;
+import com.sencha.gxt.data.shared.ListStore;
+import com.sencha.gxt.data.shared.ModelKeyProvider;
+import com.sencha.gxt.data.shared.PropertyAccess;
 
 
 
@@ -72,13 +83,9 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private SimplePanel chartPanel;
 
-    private boolean chartInitialize = false;
+    private Chart<PieChartData> chart;
 
-    private PieChart chart;
-
-    private DataTable chartData;
-
-    private Options chartOptions;
+    private ListStore<PieChartData> chartStore;
 
     private final int CHART_WIDTH = 400;
 
@@ -86,9 +93,104 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private HTMLPanel detailPanel;
 
+    public interface DataPropertyAccess extends PropertyAccess<PieChartData> {
+
+        ValueProvider<PieChartData, Integer> value();
+
+        ValueProvider<PieChartData, String> name();
+
+        ValueProvider<PieChartData, PieChartData> self();
+
+        @Path("name")
+        ModelKeyProvider<PieChartData> nameKey();
+    }
+
+    private static final DataPropertyAccess dataAccess = GWT.create(DataPropertyAccess.class);
+
+    private void initPieChart() {
+        chartStore = new ListStore<PieChartData>(dataAccess.nameKey());
+
+        chart = new Chart<PieChartData>();
+        chart.setDefaultInsets(10);
+        chart.setStore(chartStore);
+        chart.setShadowChart(true);
+        chart.setAnimated(false);
+
+        Gradient slice1 = new Gradient("sliceWaiting", 45); //$NON-NLS-1$
+        slice1.addStop(new Stop(0, RGB.BLUE));
+        slice1.addStop(new Stop(100, RGB.BLUE));
+        chart.addGradient(slice1);
+        //
+        Gradient slice2 = new Gradient("sliceInvalid", 45); //$NON-NLS-1$
+        slice2.addStop(new Stop(0, RGB.RED));
+        slice2.addStop(new Stop(100, RGB.RED));
+        chart.addGradient(slice2);
+        //
+        Gradient slice3 = new Gradient("sliceValid", 45); //$NON-NLS-1$
+        slice3.addStop(new Stop(0, RGB.GREEN));
+        slice3.addStop(new Stop(100, RGB.GREEN));
+        chart.addGradient(slice3);
+
+        final PieSeries<PieChartData> series = new PieSeries<PieChartData>();
+        SeriesToolTipConfig<PieChartData> tipConfig = new SeriesToolTipConfig<PieChartData>();
+        tipConfig.setLabelProvider(new SeriesLabelProvider<PieChartData>() {
+
+            public String getLabel(PieChartData item, ValueProvider<? super PieChartData, ? extends Number> valueProvider) {
+                return item.getName() + ": " + item.getValue(); //$NON-NLS-1$
+            }
+        });
+
+        tipConfig.setShowDelay(250);
+        series.setToolTipConfig(tipConfig);
+        series.setAngleField(dataAccess.value());
+        series.addColor(slice1);
+        series.addColor(slice2);
+        series.addColor(slice3);
+        TextSprite textConfig = new TextSprite();
+        textConfig.setTextBaseline(TextBaseline.MIDDLE);
+        textConfig.setTextAnchor(TextAnchor.MIDDLE);
+        SeriesLabelConfig<PieChartData> labelConfig = new SeriesLabelConfig<PieChartData>();
+        labelConfig.setSpriteConfig(textConfig);
+        labelConfig.setLabelPosition(LabelPosition.START);
+        labelConfig.setValueProvider(dataAccess.value(), new LabelProvider<Integer>() {
+
+            public String getLabel(Integer item) {
+                if (item == 0)
+                    return null;
+                double sum = 0D;
+                for (int i = 0; i < chartStore.size(); i++) {
+                    PieChartData data = chartStore.get(i);
+                    sum += data.getValue();
+                }
+                return NumberFormat.getFormat("00%").format(item / sum); //$NON-NLS-1$
+            }
+        });
+
+        series.setLabelConfig(labelConfig);
+        series.setHighlighting(true);
+        series.setLegendValueProvider(dataAccess.self(), new LabelProvider<PieChartData>() {
+
+            public String getLabel(PieChartData item) {
+                return item.getName();
+            }
+        });
+        chart.addSeries(series);
+
+        final Legend<PieChartData> legend = new Legend<PieChartData>();
+        legend.setPosition(Position.RIGHT);
+        legend.setItemHighlighting(true);
+        legend.setItemHiding(true);
+        chart.setLegend(legend);
+        chart.setSize(CHART_WIDTH + "px", CHART_HEIGHT + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        chartPanel = new SimplePanel();
+        chartPanel.setWidget(chart);
+    }
+
     @Override
     protected void initComponents() {
         UserContextModel ucx = UserContextUtil.getUserContext();
+        initPieChart();
 
         titleLabel = new Label(messages.staging_area_title());
         titleLabel.setTagName("div"); //$NON-NLS-1$
@@ -103,9 +205,7 @@ public class StagingContainerSummaryView extends AbstractView {
         dataModelName.setStyleAttribute("font-weight", "bold"); //$NON-NLS-1$//$NON-NLS-2$
 
         titleGrid = new Grid(2, 6);
-        chartPanel = new SimplePanel();
-        chartPanel.setSize(CHART_WIDTH + "px", CHART_HEIGHT + "px"); //$NON-NLS-1$ //$NON-NLS-2$
-        chartPanel.getElement().setInnerHTML(messages.loading());
+
 
         StringBuilder buffer = new StringBuilder();
         buffer.append("<div style='margin-bottom:10px; font-weight: bold;' id='" + STAGING_AREA_TITLE + "'></div>"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -203,67 +303,23 @@ public class StagingContainerSummaryView extends AbstractView {
     public void refresh(StagingContainerModel stagingContainerModel) {
         this.stagingContainerModel = stagingContainerModel;
         initDetailPanel();
-
-        if (!chartInitialize) {
-            chartInitialize = true;
-            AjaxLoaderOptions options = AjaxLoaderOptions.newInstance();
-            options.setPackages(ArrayHelper.createJsArray(PieChart.PACKAGE));
-            options.setLanguage(UrlUtil.getLanguage());
-            AjaxLoader.loadApi("visualization", "1", new Runnable() { //$NON-NLS-1$ //$NON-NLS-2$
-
-                        public void run() {
-                            chartData = DataTable.create();
-                            chartData.addColumn(ColumnType.STRING);
-                            chartData.addColumn(ColumnType.NUMBER);
-                            chartData.addRows(3);
-                            updateChartData();
-                            chart = new PieChart(chartData, chartOptions);
-                            chartPanel.clear();
-                            chartPanel.getElement().setInnerHTML(""); //$NON-NLS-1$
-                            chartPanel.setWidget(chart);
-                        }
-                    }, options);
-
-        } else {
-            if (chart != null) {
-                updateChartData();
-                chart.draw(chartData, chartOptions);
-            }
-        }
+        updateChartData();
     }
 
-    private Options createOptions() {
-        Options options = Options.create();
-        options.setWidth(CHART_WIDTH);
-        options.setHeight(CHART_HEIGHT);
-        options.setLegend(LegendPosition.RIGHT);
-        options.set3D(true);
-        return options;
-    }
 
     private void updateChartData() {
-        chartOptions = createOptions();
         if (stagingContainerModel != null) {
             int waiting = stagingContainerModel.getWaitingValidationRecords();
             int valid = stagingContainerModel.getValidRecords();
             int invalid = stagingContainerModel.getInvalidRecords();
-            List<String> colors = new ArrayList<String>();
-            chartData.setValue(0, 0, messages.waiting());
-            chartData.setValue(0, 1, waiting);
-            if (waiting > 0) {
-                colors.add("blue"); //$NON-NLS-1$
-            }
-            chartData.setValue(1, 0, messages.invalid());
-            chartData.setValue(1, 1, invalid);
-            if (invalid > 0) {
-                colors.add("red"); //$NON-NLS-1$
-            }
-            chartData.setValue(2, 0, messages.valid());
-            chartData.setValue(2, 1, valid);
-            if (valid > 0) {
-                colors.add("green"); //$NON-NLS-1$
-            }
-            chartOptions.setColors(ArrayHelper.createJsArray(colors.toArray(new String[colors.size()])));
+            chartStore.clear();
+            PieChartData waitingData = new PieChartData(messages.waiting(), waiting);
+            chartStore.add(waitingData);
+            PieChartData invalidData = new PieChartData(messages.invalid(), invalid);
+            chartStore.add(invalidData);
+            PieChartData validData = new PieChartData(messages.valid(), valid);
+            chartStore.add(validData);
+            chart.redrawChartForced();
         }
     }
 

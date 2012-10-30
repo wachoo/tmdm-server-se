@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module rename-to='stagingarea'>
-
-  <inherits name='com.google.gwt.visualization.Visualization'/>
   <inherits name="org.talend.mdm.webapp.base.BASE" />
   <inherits name="com.extjs.gxt.charts.Chart" />
   <inherits name="org.restlet.Restlet"/>
   <inherits name="org.restlet.JSON"/>
   <inherits name="org.restlet.XML"/>
+  <inherits name='com.sencha.gxt.chart.Chart' />
   <!-- Specify the app entry point class.                         -->
   <entry-point class='org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl'/>
 

@@ -55,6 +55,11 @@
             <artifactId>gxt</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.sencha.gxt</groupId>
+            <artifactId>gxt-chart</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.restlet.gwt</groupId>
             <artifactId>org.restlet</artifactId>
         </dependency>
@@ -81,10 +86,6 @@
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.commmon</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.gwt.google-apis</groupId>
-            <artifactId>gwt-visualization</artifactId>
         </dependency>
     </dependencies>
 
