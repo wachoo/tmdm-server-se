@@ -37,7 +37,7 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
             Object value = record.get(fieldMetadata);
             if (value != null) {
                 writer.append("\t<").append(fieldMetadata.getName()).append(">"); //$NON-NLS-1$ //$NON-NLS-2$
-                handleSimpleValue(writer, fieldMetadata, value);
+                processValue(writer, fieldMetadata, value);
                 writer.append("</").append(fieldMetadata.getName()).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
@@ -45,37 +45,34 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
         writer.flush();
     }
 
-    private void handleSimpleValue(Writer out, FieldMetadata fieldMetadata, Object value) throws IOException {
+    private void processValue(Writer out, FieldMetadata fieldMetadata, Object value) throws IOException {
+
         if (value == null) {
             throw new IllegalArgumentException("Not supposed to write null values to XML."); //$NON-NLS-1$
         }
+
+        String stringValue;
+
         if ("date".equals(fieldMetadata.getType().getName())) { //$NON-NLS-1$
             synchronized (DateConstant.DATE_FORMAT) {
-                out.write((DateConstant.DATE_FORMAT).format(value));
+                stringValue = (DateConstant.DATE_FORMAT).format(value);
             }
         } else if ("dateTime".equals(fieldMetadata.getType().getName())) { //$NON-NLS-1$
             synchronized (DateTimeConstant.DATE_FORMAT) {
-                out.write((DateTimeConstant.DATE_FORMAT).format(value));
+                stringValue = (DateTimeConstant.DATE_FORMAT).format(value);
             }
         } else if ("time".equals(fieldMetadata.getType().getName())) { //$NON-NLS-1$
             synchronized (TimeConstant.TIME_FORMAT) {
-                out.write((TimeConstant.TIME_FORMAT).format(value));
+                stringValue = (TimeConstant.TIME_FORMAT).format(value);
             }
-        } else {
-            out.write(StringEscapeUtils.escapeXml(getValueAsString(fieldMetadata, value)));
-        }
-    }
-
-    private String getValueAsString(FieldMetadata fieldMetadata, Object value) {
-        String valueAsString;
-        if (value instanceof Object[]) {
-            StringBuilder buildString = new StringBuilder();
+        } else if (value instanceof Object[]) {
+            StringBuilder valueAsString = new StringBuilder();
             for (Object current : ((Object[]) value)) {
-                buildString.append('[').append(String.valueOf(current)).append(']');
+                valueAsString.append('[').append(String.valueOf(current)).append(']');
             }
-            valueAsString = buildString.toString();
-        } else {
-            valueAsString = String.valueOf(value);
+            stringValue = valueAsString.toString();
+        }else {
+            stringValue = String.valueOf(value);
         }
 
         if (fieldMetadata instanceof ReferenceFieldMetadata) {
@@ -85,13 +82,15 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
                 for (FieldMetadata keyField : referencedRecord.getType().getKeyFields()) {
                     fkValueAsString.append('[').append(referencedRecord.get(keyField)).append(']');
                 }
-                valueAsString = fkValueAsString.toString();
+                stringValue = fkValueAsString.toString();
             } else {
-                if (!valueAsString.startsWith("[")) { //$NON-NLS-1$
-                    valueAsString = "[" + valueAsString + ']'; //$NON-NLS-1$
+                if (!stringValue.startsWith("[")) { //$NON-NLS-1$
+                    stringValue = "[" + stringValue + ']'; //$NON-NLS-1$
                 }
             }
         }
-        return String.valueOf(valueAsString);
+
+        out.append(StringEscapeUtils.escapeXml(stringValue));
     }
+
 }

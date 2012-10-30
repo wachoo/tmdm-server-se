@@ -13,23 +13,64 @@
 
 package com.amalto.core.query;
 
+import static com.amalto.core.query.user.UserQueryBuilder.alias;
+import static com.amalto.core.query.user.UserQueryBuilder.and;
+import static com.amalto.core.query.user.UserQueryBuilder.contains;
+import static com.amalto.core.query.user.UserQueryBuilder.emptyOrNull;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
+import static com.amalto.core.query.user.UserQueryBuilder.gt;
+import static com.amalto.core.query.user.UserQueryBuilder.gte;
+import static com.amalto.core.query.user.UserQueryBuilder.isNull;
+import static com.amalto.core.query.user.UserQueryBuilder.lt;
+import static com.amalto.core.query.user.UserQueryBuilder.lte;
+import static com.amalto.core.query.user.UserQueryBuilder.neq;
+import static com.amalto.core.query.user.UserQueryBuilder.not;
+import static com.amalto.core.query.user.UserQueryBuilder.or;
+import static com.amalto.core.query.user.UserQueryBuilder.revision;
+import static com.amalto.core.query.user.UserQueryBuilder.startsWith;
+import static com.amalto.core.query.user.UserQueryBuilder.taskId;
+import static com.amalto.core.query.user.UserQueryBuilder.timestamp;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.BinaryLogicOperator;
+import com.amalto.core.query.user.Compare;
+import com.amalto.core.query.user.Condition;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.Field;
+import com.amalto.core.query.user.IntegerConstant;
+import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.Predicate;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.StringConstant;
+import com.amalto.core.query.user.Timestamp;
+import com.amalto.core.query.user.TypedExpression;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.ViewSearchResultsWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
-
-import java.io.*;
-import java.util.*;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 @SuppressWarnings("nls")
 public class StorageQueryTest extends StorageTestCase {
@@ -1039,6 +1080,27 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+    }
+
+    public void testDate() throws Exception {
+        UserQueryBuilder qb = from(country).where(lte(country.getField("creationTime"), "2010-10-10T00:00:01"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+
+            ViewSearchResultsWriter writer = new ViewSearchResultsWriter();
+            StringWriter resultWriter = new StringWriter();
+            for (DataRecord result : results) {
+                writer.write(result, resultWriter);
+            }
+            assertEquals("<result>\n" + "\t<id>1</id>\n" + "\t<creationDate>2010-10-10</creationDate>\n"
+                    + "\t<creationTime>2010-10-10T00:00:01</creationTime>\n"
+                    + "\t<name>France</name>\n" + "</result>",
+                    resultWriter.toString());
+        } finally {
+            results.close();
+        }
+
     }
 
     public void testInterFieldCondition() throws Exception {
