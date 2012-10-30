@@ -39,7 +39,7 @@ public class FormatModel implements IsSerializable {
     }
 
     public String getLanguage() {
-        return language;
+        return language == null ? "en" : language; //$NON-NLS-1$
     }
 
     public void setLanguage(String language) {

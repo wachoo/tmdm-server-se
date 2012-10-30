@@ -1905,6 +1905,7 @@ public class Util {
         return str;
     }
 
+    @Deprecated
     public static String formatDate(String formats, Calendar date) {
         String formatValue = formats;
 

@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,6 +40,7 @@ import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
@@ -585,6 +587,21 @@ public class BrowseRecordsActionTest extends TestCase {
 	    }
 	}
 	
+    public void testFormatValue() throws Exception {
+        FormatModel formatModel = new FormatModel();
+
+        formatModel.setObject(new Date());
+        formatModel.setFormat("%tD");
+        String result = action.formatValue(formatModel);
+        assertTrue(result.indexOf("/") != -1);
+
+        formatModel.setLanguage("en");
+        formatModel.setObject(1);
+        formatModel.setFormat("%03d");
+        result = action.formatValue(formatModel);
+        assertEquals(result, "001");
+    }
+
 	private String parsingNodeValue(Document docXml, String xpath, String conceptName) throws Exception {
 	    NodeList nodes = Util.getNodeList(docXml, xpath.replaceFirst(conceptName + "/", "./"));
         if (nodes.getLength() > 0) {
