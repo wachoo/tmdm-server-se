@@ -29,7 +29,7 @@ class OracleStorageInitializer implements StorageInitializer {
         try {
             RDBMSDataSource dataSource = getDataSource(storage);
             Class.forName(dataSource.getDriverClassName());
-            Connection connection = DriverManager.getConnection(dataSource.getInitConnectionURL(), dataSource.getInitUserName(),
+            Connection connection = DriverManager.getConnection(dataSource.getConnectionURL(), dataSource.getInitUserName(),
                     dataSource.getInitPassword());
             connection.close();
             return true;
@@ -44,7 +44,7 @@ class OracleStorageInitializer implements StorageInitializer {
         try {
             RDBMSDataSource dataSource = getDataSource(storage);
             Class.forName(dataSource.getDriverClassName());
-            Connection connection = DriverManager.getConnection(dataSource.getInitConnectionURL(), dataSource.getInitUserName(),
+            Connection connection = DriverManager.getConnection(dataSource.getConnectionURL(), dataSource.getInitUserName(),
                     dataSource.getInitPassword());
             try {
                 Statement statement = connection.createStatement();
