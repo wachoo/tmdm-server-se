@@ -231,7 +231,15 @@ class FlatTypeMapping extends TypeMapping {
                         if (path.hasNext()) {
                             DataRecord containedRecord = (DataRecord) to.get(nextField);
                             if (containedRecord == null) {
-                                containedRecord = new DataRecord((ComplexTypeMetadata) nextField.getType(), UnsupportedDataRecordMetadata.INSTANCE);
+                                ComplexTypeMetadata type;
+                                if (nextField instanceof ContainedTypeFieldMetadata) {
+                                    type = (ComplexTypeMetadata) nextField.getType();
+                                } else if (nextField instanceof ReferenceFieldMetadata) {
+                                    type = ((ReferenceFieldMetadata) nextField).getReferencedType();
+                                } else {
+                                    throw new IllegalArgumentException("Did not expect an instance of '" + nextField.getClass().getName() + "'.");
+                                }
+                                containedRecord = new DataRecord(type, UnsupportedDataRecordMetadata.INSTANCE);
                                 to.set(nextField, containedRecord);
                             }
                             to = containedRecord;

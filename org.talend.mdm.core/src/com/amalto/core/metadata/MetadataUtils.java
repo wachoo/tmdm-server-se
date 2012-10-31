@@ -15,6 +15,7 @@ import com.amalto.core.integrity.ForeignKeyIntegrity;
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
+import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
@@ -91,7 +92,7 @@ public class MetadataUtils {
      * Find <b>a</b> path (<b>not necessarily the shortest</b>) from type <code>origin</code> to field <code>target</code>.
      * </p>
      * <p>
-     * Method is expected to run in linear time (but uses recursion, so not-so-good performance is to expect), depending on:
+     * Method is expected to run in linear time, depending on:
      * <ul>
      * <li>Number of fields in <code>origin</code>.</li>
      * <li>Number of references fields accessible from <code>origin</code>.</li>
@@ -110,55 +111,50 @@ public class MetadataUtils {
         if (target == null) {
             throw new IllegalArgumentException("Target field can not be null");
         }
-        if (target.getContainingType().equals(origin)) { // Optimization: don't compute paths if field is contained in origin type
+        if (Storage.PROJECTION_TYPE.equals(origin.getName()) && origin.hasField(target.getName())) {
             return Collections.singletonList(origin.getField(target.getName()));
         }
-        Stack<FieldMetadata> stack = new Stack<FieldMetadata>();
-        Set<TypeMetadata> processedTypes = new HashSet<TypeMetadata>();
-        for (FieldMetadata fieldMetadata : origin.getFields()) {
-            List<FieldMetadata> path = path(fieldMetadata, target, stack, processedTypes);
-            if (path != null) {
-                return path;
-            } else {
-                stack.clear();
-                processedTypes.clear();
-            }
+        if (target.getContainingType().equals(origin)) { // Optimization: don't compute paths if field is defined in origin type.
+            return Collections.singletonList(origin.getField(target.getName()));
         }
-
-        return stack;
-    }
-
-    // Internal method for recursion
-    private static List<FieldMetadata> path(FieldMetadata field, FieldMetadata target, Stack<FieldMetadata> currentPath, Set<TypeMetadata> processedTypes) {
-        currentPath.push(field);
-        if (field.equals(target)) {
-            return currentPath;
-        } else {
-            FieldMetadata metadata = currentPath.peek();
-            if (metadata instanceof ReferenceFieldMetadata || metadata instanceof ContainedTypeFieldMetadata) {
-                ComplexTypeMetadata referencedType;
-                if (metadata instanceof ReferenceFieldMetadata) {
-                    referencedType = ((ReferenceFieldMetadata) metadata).getReferencedType();
-                } else {
-                    referencedType = ((ContainedTypeFieldMetadata) metadata).getContainedType();
-                }
-                Set<FieldMetadata> fields = new HashSet<FieldMetadata>(referencedType.getFields());
-                for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
-                    fields.addAll(subType.getFields());
-                }
-                if (!processedTypes.contains(referencedType)) {
-                    processedTypes.add(referencedType);
-                    for (FieldMetadata fieldMetadata : fields) {
-                        List<FieldMetadata> subPath = path(fieldMetadata, target, currentPath, processedTypes);
-                        if (subPath != null) {
-                            return currentPath;
-                        }
+        Stack<FieldMetadata> processStack = new Stack<FieldMetadata>();
+        LinkedList<FieldMetadata> path = new LinkedList<FieldMetadata>();
+        processStack.addAll(origin.getFields());
+        Set<FieldMetadata> processedFields = new HashSet<FieldMetadata>();
+        while (!processStack.isEmpty()) {
+            FieldMetadata current = processStack.pop();
+            if (!path.isEmpty() && path.getLast().getContainingType().equals(current.getContainingType())) {
+                path.removeLast();
+            }
+            path.add(current);
+            if (current.equals(target)) {
+                int lastIndex = path.size() - 1;
+                Iterator<FieldMetadata> iterator = path.descendingIterator();
+                while (iterator.hasNext()) {
+                    if (iterator.next().getContainingType().equals(origin)) {
+                        break;
                     }
+                    lastIndex--;
+                }
+                for (int j = 0; j < lastIndex; j++) {
+                    path.remove(0);
+                }
+                return path;
+            }
+            if (!processedFields.contains(current)) {
+                processedFields.add(current);
+                if (current instanceof ContainedTypeFieldMetadata) {
+                    processStack.addAll(((ContainedTypeFieldMetadata) current).getContainedType().getFields());
+                } else if (current instanceof ReferenceFieldMetadata) {
+                    processStack.addAll(((ReferenceFieldMetadata) current).getReferencedType().getFields());
+                } else if (current instanceof SimpleTypeFieldMetadata
+                        || current instanceof EnumerationFieldMetadata
+                        || current instanceof CompoundFieldMetadata) {
+                    path.removeLast();
                 }
             }
-            currentPath.pop();
         }
-        return null;
+        return path;
     }
 
     /**
