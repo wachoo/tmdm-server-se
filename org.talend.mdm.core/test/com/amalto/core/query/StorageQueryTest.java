@@ -13,64 +13,21 @@
 
 package com.amalto.core.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.alias;
-import static com.amalto.core.query.user.UserQueryBuilder.and;
-import static com.amalto.core.query.user.UserQueryBuilder.contains;
-import static com.amalto.core.query.user.UserQueryBuilder.emptyOrNull;
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
-import static com.amalto.core.query.user.UserQueryBuilder.gt;
-import static com.amalto.core.query.user.UserQueryBuilder.gte;
-import static com.amalto.core.query.user.UserQueryBuilder.isNull;
-import static com.amalto.core.query.user.UserQueryBuilder.lt;
-import static com.amalto.core.query.user.UserQueryBuilder.lte;
-import static com.amalto.core.query.user.UserQueryBuilder.neq;
-import static com.amalto.core.query.user.UserQueryBuilder.not;
-import static com.amalto.core.query.user.UserQueryBuilder.or;
-import static com.amalto.core.query.user.UserQueryBuilder.revision;
-import static com.amalto.core.query.user.UserQueryBuilder.startsWith;
-import static com.amalto.core.query.user.UserQueryBuilder.taskId;
-import static com.amalto.core.query.user.UserQueryBuilder.timestamp;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.query.user.BinaryLogicOperator;
-import com.amalto.core.query.user.Compare;
-import com.amalto.core.query.user.Condition;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.Field;
-import com.amalto.core.query.user.IntegerConstant;
-import com.amalto.core.query.user.OrderBy;
-import com.amalto.core.query.user.Predicate;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.query.user.StringConstant;
-import com.amalto.core.query.user.Timestamp;
-import com.amalto.core.query.user.TypedExpression;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.core.query.user.*;
 import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordReader;
-import com.amalto.core.storage.record.DataRecordXmlWriter;
-import com.amalto.core.storage.record.ViewSearchResultsWriter;
-import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import com.amalto.core.storage.record.*;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
+import org.apache.commons.io.output.NullOutputStream;
+
+import java.io.*;
+import java.util.*;
+
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 @SuppressWarnings("nls")
 public class StorageQueryTest extends StorageTestCase {
@@ -181,7 +138,7 @@ public class StorageQueryTest extends StorageTestCase {
                 + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
                 + "            <Color>Blue 2</Color>\n" + "            <Color>Blue 1</Color>\n"
                 + "            <Color>Klein blue2</Color>\n" + "        </Colors>\n" + "    </Features>\n"
-                + "    <Family>[1]</Family>\n" + "    <Status>Pending</Status>\n" + "    <Supplier>[2]</Supplier>\n"
+                + "    <Family/>\n" + "    <Status>Pending</Status>\n" + "    <Supplier>[2]</Supplier>\n"
                 + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
         try {
             storage.begin();
@@ -1011,6 +968,28 @@ public class StorageQueryTest extends StorageTestCase {
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testNonMandatoryFKSelection() throws Exception {
+        UserQueryBuilder qb = from(product)
+                .selectId(product)
+                .select(product.getField("Name"))
+                .select(product.getField("Family"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+            int actualIterationCount = 0;
+            ViewSearchResultsWriter writer = new ViewSearchResultsWriter();
+            for (DataRecord result : results) {
+                assertTrue("2".equals(result.get("Family")) || result.get("Family") == null);
+                actualIterationCount++;
+                writer.write(result, new NullOutputStream());
+            }
+            assertEquals(2, actualIterationCount);
         } finally {
             results.close();
         }

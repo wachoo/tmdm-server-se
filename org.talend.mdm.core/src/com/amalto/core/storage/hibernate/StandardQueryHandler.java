@@ -286,7 +286,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 if (!selectedTypes.contains(fieldMetadata.getReferencedType())) {
                     selectedTypes.add(fieldMetadata.getReferencedType());
                     Field rightField = new Field(fieldMetadata.getReferencedField());
-                    Join join = new Join(new Field(fieldMetadata), rightField, JoinType.INNER);
+                    // TMDM-4866: Do a left outer join if reference field is not mandatory.
+                    Join join = new Join(new Field(fieldMetadata), rightField, fieldMetadata.isMandatory() ? JoinType.INNER : JoinType.LEFT_OUTER);
                     join.accept(this);
                     rightField.accept(this);
                 } else {
@@ -329,7 +330,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 if (alias == null) {
                     alias = "a" + aliasCount++; //$NON-NLS-1$
                     joinFieldsToAlias.put(next, alias);
-                    criteria.createAlias(previousAlias + '.' + next.getName(), alias, CriteriaSpecification.INNER_JOIN);
+                    int joinType;
+                    // TMDM-4866: Do a left join in case FK is not mandatory.
+                    if (next.isMandatory()) {
+                        joinType = CriteriaSpecification.INNER_JOIN;
+                    } else {
+                        joinType = CriteriaSpecification.LEFT_JOIN;
+                    }
+                    criteria.createAlias(previousAlias + '.' + next.getName(), alias, joinType);
                 }
                 previousAlias = alias;
             }
@@ -452,11 +460,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
         int pageSize = paging.getLimit();
         boolean hasPaging = pageSize < Integer.MAX_VALUE;
         if (!hasPaging) {
-                return createResults(criteria.scroll(ScrollMode.FORWARD_ONLY), select.isProjection());
+            return createResults(criteria.scroll(ScrollMode.FORWARD_ONLY), select.isProjection());
         } else {
-                return createResults(criteria.list(), select.isProjection());
-            }
+            return createResults(criteria.list(), select.isProjection());
         }
+    }
 
     @Override
     public StorageResults visit(Paging paging) {
