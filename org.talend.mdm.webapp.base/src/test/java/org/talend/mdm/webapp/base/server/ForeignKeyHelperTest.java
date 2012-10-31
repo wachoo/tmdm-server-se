@@ -272,8 +272,8 @@ public class ForeignKeyHelperTest extends TestCase {
         assertNull(result.whereItem);
         assertEquals("$CFFP:Id=\"[3]\" and Name=\"Shirts\"", result.fkFilter);
         
-        // 11. foreignKeyinfo is null, DB is MySQL
-        MDMConfiguration.getConfiguration().setProperty("db.default.datasource", "MySQL-Default");
+        // 11. foreignKeyinfo is null, DB is SQL db
+        MDMConfiguration.getConfiguration().setProperty("xmlserver.class", "com.amalto.core.storage.DispatchWrapper");
         xml = null;
         model.setFkFilter(null);
         ifFKFilter = false;
@@ -285,7 +285,8 @@ public class ForeignKeyHelperTest extends TestCase {
         whereItem1 = whereItem.getWhereAnd().getWhereItems()[0];
         condition1 = whereItem1.getWhereOr().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
                 .getWhereCondition();
-        assertEquals("ProductFamily/../../i", condition1.getLeftPath());
+        assertTrue(MDMConfiguration.isSqlDataBase());
+        assertEquals("ProductFamily/../*", condition1.getLeftPath());
         assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
         assertEquals("1", condition1.getRightValueOrPath());
 

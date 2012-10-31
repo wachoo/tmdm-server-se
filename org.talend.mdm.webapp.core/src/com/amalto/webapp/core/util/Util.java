@@ -1409,9 +1409,6 @@ public class Util {
                     condition.add(whereItem);
                 String queryKeyWord = isCount ? " CONTAINS " : " EQUALS "; //$NON-NLS-1$ //$NON-NLS-2$
                 String fkWhere = initXpathForeignKey + "/../*" + queryKeyWord + value; //$NON-NLS-1$ 
-                if (MDMConfiguration.isExistDefaultDataSource()) {
-                    fkWhere = initXpathForeignKey + "/../../i" + queryKeyWord + value; //$NON-NLS-1$
-                }
                 if (xpathInfoForeignKey.trim().length() > 0) {
                     StringBuffer ids = new StringBuffer();
                     String realXpathForeignKey = null; // In studio, ForeignKey = ConceptName, but not ConceptName/Id
