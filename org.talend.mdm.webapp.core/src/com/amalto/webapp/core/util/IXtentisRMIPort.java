@@ -492,7 +492,6 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
     public WSStringArray viewSearch(WSViewSearch wsViewSearch) throws RemoteException {
         try {
-
             Collection res = Util.getItemCtrl2Local().viewSearch(
                     new DataClusterPOJOPK(wsViewSearch.getWsDataClusterPK().getPk()),
                     new ViewPOJOPK(wsViewSearch.getWsViewPK().getPk()), XConverter.WS2VO(wsViewSearch.getWhereItem()),
@@ -672,6 +671,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         } catch (com.amalto.core.util.XtentisException e) {
             if (com.amalto.webapp.core.util.Util.causeIs(e, com.amalto.core.util.EntityNotFoundException.class)) {
                 throw new RemoteException("", new WebCoreException(ENTITY_NOT_FOUND_ERROR_MESSAGE, com.amalto.webapp.core.util.Util.cause(e, com.amalto.core.util.EntityNotFoundException.class))); //$NON-NLS-1$                     
+            } else if (com.amalto.webapp.core.util.Util.causeIs(e, org.hibernate.ObjectNotFoundException.class)) {
+                throw new RemoteException("", new WebCoreException(ENTITY_NOT_FOUND_ERROR_MESSAGE, com.amalto.webapp.core.util.Util.cause(e, org.hibernate.ObjectNotFoundException.class))); //$NON-NLS-1$
             }
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
