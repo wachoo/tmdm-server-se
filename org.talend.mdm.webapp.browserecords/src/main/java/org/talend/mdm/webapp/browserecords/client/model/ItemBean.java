@@ -60,6 +60,12 @@ public class ItemBean extends org.talend.mdm.webapp.base.client.model.ItemBean {
     public ItemBean(String concept, String ids, String itemXml) {
         super(concept, ids, itemXml);
     }
+    
+    public ItemBean(String concept, String ids, String itemXml, String description, List<String> pkInfoList) {
+        this(concept, ids, itemXml);
+        this.description = description;
+        this.pkInfoList = pkInfoList;
+    }
 
     public String getDescription() {
         return description;

@@ -434,30 +434,21 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-                    if (!isFkToolBar)
+                    if (!isFkToolBar) {
                         ItemsListPanel.getInstance().setCreate(true);
-                    String title = itemBean.getLabel();
-                    ItemsDetailPanel panel = new ItemsDetailPanel();
-                    panel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
-                    panel.clearBreadCrumb();
-
-                    ItemBean duplicateItemBean = new ItemBean(itemBean.getConcept(), itemBean.getIds(), itemBean.getItemXml());
-                    duplicateItemBean.copy(itemBean);
-                    duplicateItemBean.setIds(""); //$NON-NLS-1$
-                    
-                    if (!isOutMost) {
-                        ItemPanel itemPanel = new ItemPanel(viewBean, duplicateItemBean, ItemDetailToolBar.DUPLICATE_OPERATION, panel);
-                        itemPanel.getToolBar().setFkToolBar(isFkToolBar);
-                        itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
-                        panel.addTabItem(title, itemPanel, ItemsDetailPanel.SINGLETON, title);
-                        ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, duplicateItemBean.getConcept());
-                    } else {
-                        TreeDetailUtil.initItemsDetailPanelByItemPanel(viewBean, duplicateItemBean, isFkToolBar, isHierarchyCall);
                     }
 
+                    ItemBean duplicateItemBean = new ItemBean(itemBean.getConcept(), itemBean.getIds(), itemBean.getItemXml(),
+                            itemBean.getDescription(), itemBean.getPkInfoList());
+                    duplicateItemBean.copy(itemBean);
+                    duplicateItemBean.setIds(""); //$NON-NLS-1$
+
+                    TreeDetailUtil.initItemsDetailPanelByItemPanel(viewBean, duplicateItemBean, isFkToolBar, isHierarchyCall,
+                            isOutMost);
                     if (!isOutMost && !isFkToolBar) {
-                        if (ItemsListPanel.getInstance().getGrid() != null)
+                        if (ItemsListPanel.getInstance().getGrid() != null) {
                             ItemsListPanel.getInstance().getGrid().getSelectionModel().deselectAll();
+                        }
                     }
                 }
             });

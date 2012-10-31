@@ -33,6 +33,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.TabItemListener;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -127,13 +128,13 @@ public class TreeDetailUtil {
     }
 
     public static void initItemsDetailPanelByItemPanel(ViewBean viewBean, ItemBean itemBean, boolean isFkToolBar,
-            boolean isHierarchyCall) {
+            boolean isHierarchyCall, boolean isOutMost) {
 
         final ItemsDetailPanel itemsDetailPanel = new ItemsDetailPanel();
-        itemsDetailPanel.setOutMost(true);
+        itemsDetailPanel.setOutMost(isOutMost);
 
         ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, itemsDetailPanel);
-        itemPanel.getToolBar().setOutMost(true);
+        itemPanel.getToolBar().setOutMost(isOutMost);
         itemPanel.getToolBar().setFkToolBar(isFkToolBar);
         itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
         
@@ -142,20 +143,22 @@ public class TreeDetailUtil {
             breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
             breads.add(new BreadCrumbModel(itemBean.getConcept(), itemBean.getLabel(), itemBean.getIds(), itemBean
                     .getDisplayPKInfo().equals(itemBean.getLabel()) ? null : itemBean.getDisplayPKInfo(), true));
+            itemsDetailPanel.setId(itemBean.getIds());
+            itemsDetailPanel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
+            itemsDetailPanel.addTabItem(itemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getIds());
+            itemsDetailPanel.initBreadCrumb(new BreadCrumb(breads, itemsDetailPanel));
+
+            if (isOutMost) {
+                TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(itemBean.getConcept());
+                String tabItemId = typeModel.getLabel(Locale.getLanguage()) + " " + new Date().getTime(); //$NON-NLS-1$
+                itemsDetailPanel.setHeading(typeModel.getLabel(Locale.getLanguage()));
+                itemsDetailPanel.setItemId(tabItemId);
+                renderTreeDetailPanel(tabItemId, itemsDetailPanel);
+            } else {
+                ItemsMainTabPanel.getInstance().addMainTabItem(itemBean.getLabel(), itemsDetailPanel, itemBean.getConcept());
+            }
+            CommonUtil.setCurrentCachedEntity(itemBean.getConcept() + itemsDetailPanel.isOutMost(), itemPanel);
         }
-
-        itemsDetailPanel.setId(itemBean.getIds());
-        itemsDetailPanel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
-        itemsDetailPanel.addTabItem(itemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getIds());
-        itemsDetailPanel.initBreadCrumb(new BreadCrumb(breads, itemsDetailPanel));
-
-        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(itemBean.getConcept());
-        String tabItemId = typeModel.getLabel(Locale.getLanguage()) + " " + new Date().getTime(); //$NON-NLS-1$
-        itemsDetailPanel.setHeading(typeModel.getLabel(Locale.getLanguage()));
-        itemsDetailPanel.setItemId(tabItemId);
-        renderTreeDetailPanel(tabItemId, itemsDetailPanel);
-        CommonUtil.setCurrentCachedEntity(itemBean.getConcept() + itemsDetailPanel.isOutMost(), itemPanel);
-
     }
 
     /**
