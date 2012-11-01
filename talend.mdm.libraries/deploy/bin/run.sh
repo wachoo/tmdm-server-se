@@ -178,6 +178,8 @@ fi
 # Setup JBoss specific properties
 JAVA_OPTS="-Dprogram.name=$PROGNAME $JAVA_OPTS"
 
+# Setup logging.properties
+JAVA_OPTS="$JAVA_OPTS -Djava.util.logging.config.file=$JBOSS_HOME/server/default/conf/logging.properties"
 
 # Bonita environment
 BONITA_OPTS="-DBONITA_HOME=$JBOSS_HOME/bonita -Dorg.ow2.bonita.api-type=EJB2"
