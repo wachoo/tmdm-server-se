@@ -81,6 +81,8 @@ public class StagingContainerSummaryView extends AbstractView {
         chartFrame.setSize("400px", "200px"); //$NON-NLS-1$ //$NON-NLS-2$
         chartFrame.getElement().getStyle().setBorderWidth(0D, Unit.PX);
         chartFrame.getElement().getStyle().setOverflow(Overflow.HIDDEN);
+        chartFrame.getElement().setAttribute("frameborder", "no"); //$NON-NLS-1$//$NON-NLS-2$
+        chartFrame.getElement().setAttribute("scrolling", "no"); //$NON-NLS-1$//$NON-NLS-2$
         chartPanel = new SimplePanel();
         chartPanel.setWidget(chartFrame);
     }

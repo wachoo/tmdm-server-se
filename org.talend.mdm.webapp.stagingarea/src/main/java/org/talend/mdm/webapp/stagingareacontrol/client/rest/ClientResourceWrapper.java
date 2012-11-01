@@ -53,7 +53,7 @@ public class ClientResourceWrapper {
 
             public void handle(Request request, Response response) {
                 int statusCode = response.getStatus().getCode();
-                if (statusCode >= 200 && statusCode <= 299) {
+                if (statusCode >= 200 && statusCode <= 299 || statusCode == 1223) {
                     callbackHandler.process(request, response);
                 } else {
                     MessageBox.alert(MessagesFactory.getMessages().server_error(),
