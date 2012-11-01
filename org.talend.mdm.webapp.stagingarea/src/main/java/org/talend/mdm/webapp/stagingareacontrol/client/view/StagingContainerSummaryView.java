@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
 import org.moxieapps.gwt.highcharts.client.Chart;
+import org.moxieapps.gwt.highcharts.client.Credits;
 import org.moxieapps.gwt.highcharts.client.Legend;
 import org.moxieapps.gwt.highcharts.client.Point;
 import org.moxieapps.gwt.highcharts.client.Series;
@@ -89,6 +90,7 @@ public class StagingContainerSummaryView extends AbstractView {
         chart.setPlotBorderWidth(null);
         chart.setPlotShadow(true);
         chart.setLegend(new Legend().setEnabled(false));
+        chart.setCredits(new Credits().setText(null));
         chart.setPiePlotOptions(new PiePlotOptions().setAllowPointSelect(true).setCursor(PlotOptions.Cursor.POINTER)
                 .setPieDataLabels(new PieDataLabels().setEnabled(false)).setShowInLegend(true));
         chart.setToolTip(new ToolTip().setFormatter(new ToolTipFormatter() {

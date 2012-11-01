@@ -90,6 +90,7 @@ public class CurrentValidationController extends AbstractController {
                             ControllerContainer.get().getSummaryController().setEnabledStartValidation(true);
                             ControllerContainer.get().getSummaryController().refreshView();
                             view.setStatus(CurrentValidationView.Status.None);
+                            ControllerContainer.get().getPreviousExecutionController().searchByBeforeDate();
                         }
                     }
 
@@ -98,6 +99,7 @@ public class CurrentValidationController extends AbstractController {
                         ControllerContainer.get().getSummaryController().setEnabledStartValidation(true);
                         ControllerContainer.get().getSummaryController().refreshView();
                         view.setStatus(CurrentValidationView.Status.None);
+                        ControllerContainer.get().getPreviousExecutionController().searchByBeforeDate();
                     }
                 });
     }
@@ -111,6 +113,7 @@ public class CurrentValidationController extends AbstractController {
                     ControllerContainer.get().getSummaryController().setEnabledStartValidation(true);
                     ControllerContainer.get().getSummaryController().refreshView();
                     view.setStatus(CurrentValidationView.Status.None);
+                    ControllerContainer.get().getPreviousExecutionController().searchByBeforeDate();
                 }
             }
         });

@@ -24,9 +24,11 @@ import org.talend.mdm.webapp.stagingareacontrol.client.view.PreviousExecutionVie
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.DataProxy;
+import com.extjs.gxt.ui.client.data.LoadEvent;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.event.LoadListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -46,6 +48,8 @@ public class PreviousExecutionController extends AbstractController {
     private static Date beforeDate;
 
     private static Button searchButton;
+
+    private static boolean loadDone = true;
 
     static {
         proxy = new RestDataProxy<PagingLoadResult<StagingAreaExecutionModel>>() {
@@ -72,9 +76,28 @@ public class PreviousExecutionController extends AbstractController {
             }
         };
 
-        loader = new BasePagingLoader<PagingLoadResult<StagingAreaExecutionModel>>(proxy);
-        loader.setRemoteSort(true);
+        loader = new BasePagingLoader<PagingLoadResult<StagingAreaExecutionModel>>(proxy) {
 
+            @Override
+            public boolean load(Object loadConfig) {
+                if (loadDone) {
+                    loadDone = false;
+                    return super.load(loadConfig);
+                }
+                return false;
+            }
+        };
+
+        loader.addLoadListener(new LoadListener() {
+
+            public void loaderLoad(LoadEvent le) {
+                loadDone = true;
+            }
+
+            public void loaderLoadException(LoadEvent le) {
+                loadDone = true;
+            }
+        });
 
     }
     
@@ -105,7 +128,7 @@ public class PreviousExecutionController extends AbstractController {
     }
 
     public void setDataContainer(String dataContainer) {
-        this.dataContainer = dataContainer;
+        PreviousExecutionController.dataContainer = dataContainer;
         searchByBeforeDate();
     }
 

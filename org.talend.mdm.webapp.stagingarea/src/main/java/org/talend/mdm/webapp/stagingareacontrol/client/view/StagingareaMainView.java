@@ -68,6 +68,7 @@ public class StagingareaMainView extends AbstractView {
                 if (!ControllerContainer.get().getSummaryController().isEnabledStartValidation()) {
                     ControllerContainer.get().getCurrentValidationController().refreshView();
                 }
+                ControllerContainer.get().getPreviousExecutionController().searchByBeforeDate();
             }
         });
         toolBar.add(refresh);
