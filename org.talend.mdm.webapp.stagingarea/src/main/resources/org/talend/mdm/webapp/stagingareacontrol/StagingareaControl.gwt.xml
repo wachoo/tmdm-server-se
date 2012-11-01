@@ -4,7 +4,6 @@
   <inherits name="org.restlet.Restlet"/>
   <inherits name="org.restlet.JSON"/>
   <inherits name="org.restlet.XML"/>
-  <inherits name="org.moxieapps.gwt.highcharts.Highcharts"/>
 
   <!-- Specify the app entry point class.                         -->
   <entry-point class='org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl'/>

@@ -68,10 +68,6 @@
         </dependency>
         <!-- MDM dependencies -->
         <dependency>
-            <groupId>org.moxieapps</groupId>
-            <artifactId>org.moxieapps.gwt.highcharts</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.base</artifactId>
             <version>${project.version}</version>

@@ -12,17 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
-import org.moxieapps.gwt.highcharts.client.Chart;
-import org.moxieapps.gwt.highcharts.client.Credits;
-import org.moxieapps.gwt.highcharts.client.Legend;
-import org.moxieapps.gwt.highcharts.client.Point;
-import org.moxieapps.gwt.highcharts.client.Series;
-import org.moxieapps.gwt.highcharts.client.ToolTip;
-import org.moxieapps.gwt.highcharts.client.ToolTipData;
-import org.moxieapps.gwt.highcharts.client.ToolTipFormatter;
-import org.moxieapps.gwt.highcharts.client.labels.PieDataLabels;
-import org.moxieapps.gwt.highcharts.client.plotOptions.PiePlotOptions;
-import org.moxieapps.gwt.highcharts.client.plotOptions.PlotOptions;
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
@@ -36,8 +25,14 @@ import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.RepeatingCommand;
+import com.google.gwt.dom.client.Style.Overflow;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -70,11 +65,9 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private SimplePanel chartPanel;
 
-    private Chart chart;
+    private Frame chartFrame;
 
-    private Series series;
-
-    private Point[] points;
+    private JavaScriptObject chartOpt;
 
     private final int CHART_WIDTH = 400;
 
@@ -83,35 +76,29 @@ public class StagingContainerSummaryView extends AbstractView {
     private HTMLPanel detailPanel;
 
     private void initPieChart() {
-        chart = new Chart();
-        chart.setType(Series.Type.PIE);
-        chart.setChartTitleText(""); //$NON-NLS-1$
-        chart.setPlotBackgroundColor((String) null);
-        chart.setPlotBorderWidth(null);
-        chart.setPlotShadow(true);
-        chart.setLegend(new Legend().setEnabled(false));
-        chart.setCredits(new Credits().setText(null));
-        chart.setPiePlotOptions(new PiePlotOptions().setAllowPointSelect(true).setCursor(PlotOptions.Cursor.POINTER)
-                .setPieDataLabels(new PieDataLabels().setEnabled(false)).setShowInLegend(true));
-        chart.setToolTip(new ToolTip().setFormatter(new ToolTipFormatter() {
-
-            public String format(ToolTipData toolTipData) {
-                int sum = 0;
-                for (Point p : points) {
-                    sum += (Integer) p.getY();
-                }
-                double percentage = toolTipData.getYAsDouble() / sum;
-                return "<b>" + toolTipData.getPointName() + "</b>: " + NumberFormat.getFormat("#0%").format(percentage); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            }
-        }));
-        points = new Point[] { new Point(messages.waiting(), 0), new Point(messages.invalid(), 0), new Point(messages.valid(), 0) };
-        series = chart.createSeries();
-        series.setPoints(points);
-        chart.addSeries(series);
+        initChartCallback();
+        chartFrame = new Frame("/stagingarea/chart/Chart.html"); //$NON-NLS-1$
+        chartFrame.setSize("400px", "200px"); //$NON-NLS-1$ //$NON-NLS-2$
+        chartFrame.getElement().getStyle().setBorderWidth(0D, Unit.PX);
+        chartFrame.getElement().getStyle().setOverflow(Overflow.HIDDEN);
         chartPanel = new SimplePanel();
-        chart.setSize(CHART_WIDTH, CHART_HEIGHT);
-        chartPanel.setWidget(chart);
+        chartPanel.setWidget(chartFrame);
     }
+
+    private native void initChartCallback()/*-{
+		var instance = this;
+		$wnd.chartReady = function(opt) {
+			instance.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::chartOpt = opt;
+		};
+    }-*/;
+
+    private native void updateChart(String waitstr, double waiting, String invalidStr, double invalid, String validStr, double valid)/*-{
+		var opt = this.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::chartOpt;
+		if (opt) {
+			opt.updateData(waitstr, waiting, invalidStr, invalid, validStr,
+					valid);
+		}
+    }-*/;
 
     @Override
     protected void initComponents() {
@@ -238,13 +225,29 @@ public class StagingContainerSummaryView extends AbstractView {
             int waiting = stagingContainerModel.getWaitingValidationRecords();
             int invalid = stagingContainerModel.getInvalidRecords();
             int valid = stagingContainerModel.getValidRecords();
+            double sum = waiting + invalid + valid;
+            NumberFormat format = NumberFormat.getFormat("#0"); //$NON-NLS-1$
+            final double waitingPer = format.parse(format.format(waiting / sum * 100));
+            final double invalidPer = format.parse(format.format(invalid / sum * 100));
+            final double validPer = format.parse(format.format(valid / sum * 100));
 
-            points[0] = new Point(messages.waiting(), waiting);
-            points[1] = new Point(messages.invalid(), invalid);
-            points[2] = new Point(messages.valid(), valid);
-            series.setPoints(points);
+            if (chartOpt == null) {
+                Scheduler.get().scheduleIncremental(new RepeatingCommand() {
+
+                    public boolean execute() {
+                        if (chartOpt == null) {
+                            return true;
+                        }
+                        updateChart(messages.waiting(), waitingPer, messages.invalid(), invalidPer, messages.valid(), validPer);
+                        return false;
+                    }
+                });
+            } else {
+                updateChart(messages.waiting(), waitingPer, messages.invalid(), invalidPer, messages.valid(), validPer);
+            }
         }
     }
+
 
     public StagingContainerModel getStagingContainerModel() {
         return stagingContainerModel;
