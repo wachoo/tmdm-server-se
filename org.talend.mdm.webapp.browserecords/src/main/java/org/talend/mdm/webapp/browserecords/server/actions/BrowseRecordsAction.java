@@ -2385,9 +2385,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
     
     private String getErrorMessageFromWebCoreException(WebCoreException webCoreException,String concept,String ids,Locale locale){
+        String localizedMessage = ""; //$NON-NLS-1$
+        if (webCoreException.getCause() != null && webCoreException.getCause().getLocalizedMessage() != null){
+            localizedMessage = webCoreException.getCause().getLocalizedMessage();
+        }
         String errorMessage = MESSAGES.getMessage(locale, webCoreException.getTitle(),
-                concept + ((ids != null && !"".equals(ids)) ? "." + ids : ""), webCoreException.getCause() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                        .getLocalizedMessage() !=null ? webCoreException.getCause().getLocalizedMessage() : ""); //$NON-NLS-1$
+                concept + ((ids != null && !"".equals(ids)) ? "." + ids : ""), localizedMessage); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         return errorMessage;
     }
 }

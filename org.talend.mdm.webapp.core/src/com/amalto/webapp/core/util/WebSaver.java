@@ -24,6 +24,7 @@ import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.util.BeforeSavingErrorException;
 import com.amalto.core.util.BeforeSavingFormatException;
 import com.amalto.core.util.CVCException;
+import com.amalto.core.util.OutputReportMissingException;
 import com.amalto.core.util.RoutingException;
 import com.amalto.core.util.ValidateException;
 import com.amalto.webapp.util.webservices.WSItemPK;
@@ -39,6 +40,9 @@ public class WebSaver {
 
     // don't exist job was called
     public static final String JOBNOTFOUND_EXCEPTION_MESSAGE = "save_failure_job_notfound"; //$NON-NLS-1$
+    
+    // don't exist job was called
+    public static final String JOBOX_EXCEPTION_MESSAGE = "save_failure_job_ox"; //$NON-NLS-1$
 
     // call by core util.defaultValidate,but it will be wrap as ValidateException
     public static final String CVC_EXCEPTION_MESSAGE = "save_fail_cvc_exception"; //$NON-NLS-1$
@@ -53,6 +57,8 @@ public class WebSaver {
     
     // define trigger to excute process error in studio
     public static final String ROUTING_ERROR_MESSAGE = "save_success_rounting_fail"; //$NON-NLS-1$
+    
+    public static final String OUTPUT_REPORT_MISSING_ERROR_MESSAGE = "output_report_missing"; //$NON-NLS-1$
 
     String dataClusterName;
 
@@ -102,7 +108,7 @@ public class WebSaver {
 
     public static RemoteException handleException(Throwable throwable) {
         WebCoreException webCoreException;
-        if (WebCoreException.class.isInstance(throwable)) {
+        if (WebCoreException.class.isInstance(throwable)) { 
             webCoreException = (WebCoreException) throwable;
         } else if (ValidateException.class.isInstance(throwable)) {
             webCoreException = new WebCoreException(VALIDATE_EXCEPTION_MESSAGE, throwable);
@@ -110,11 +116,16 @@ public class WebSaver {
             webCoreException = new WebCoreException(CVC_EXCEPTION_MESSAGE, throwable);
         } else if (JobNotFoundException.class.isInstance(throwable)) {
             webCoreException = new WebCoreException(JOBNOTFOUND_EXCEPTION_MESSAGE, throwable);
+        } else if (com.amalto.core.jobox.util.JoboxException.class.isInstance(throwable)) {
+            webCoreException = new WebCoreException(JOBOX_EXCEPTION_MESSAGE, throwable);
         } else if (BeforeSavingErrorException.class.isInstance(throwable)) {
             webCoreException = new WebCoreException(SAVE_PROCESS_BEFORESAVING_FAILURE_MESSAGE, throwable);
-        } else if (BeforeSavingFormatException.class.isInstance(throwable)) {
+        }            
+        else if (BeforeSavingFormatException.class.isInstance(throwable)) {
             webCoreException = new WebCoreException(BEFORESAVING_FORMATE_ERROR_MESSAGE, throwable);
             webCoreException.setClient(true);
+        } else if (OutputReportMissingException.class.isInstance(throwable)) {
+            webCoreException = new WebCoreException(OUTPUT_REPORT_MISSING_ERROR_MESSAGE, throwable);
         } else if (RoutingException.class.isInstance(throwable)) {
             webCoreException = new WebCoreException(ROUTING_ERROR_MESSAGE, throwable);
         } else {

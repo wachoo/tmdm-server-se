@@ -25,6 +25,7 @@ import com.amalto.core.save.UserAction;
 import com.amalto.core.util.BeforeSavingErrorException;
 import com.amalto.core.util.BeforeSavingFormatException;
 import com.amalto.core.util.OutputReport;
+import com.amalto.core.util.OutputReportMissingException;
 import com.amalto.core.util.Util;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 
@@ -65,7 +66,7 @@ public class BeforeSaving implements DocumentSaver {
                     if (child instanceof org.w3c.dom.Text) {
                         message = child.getTextContent();
                     }else{
-                        message = "Output variable 'output_report' is missing"; //$NON-NLS-1$
+                        throw new OutputReportMissingException("Output variable 'output_report' is missing"); //$NON-NLS-1$
                     }
                 }
 
