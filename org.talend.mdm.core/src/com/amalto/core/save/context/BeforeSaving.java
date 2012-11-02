@@ -65,8 +65,9 @@ public class BeforeSaving implements DocumentSaver {
                     Node child = errorElement.getFirstChild();
                     if (child instanceof org.w3c.dom.Text) {
                         message = child.getTextContent();
-                    }else{
-                        throw new OutputReportMissingException("Output variable 'output_report' is missing"); //$NON-NLS-1$
+                    }
+                    else{  
+                        message = ""; //$NON-NLS-1$   
                     }
                 }
 

@@ -2573,14 +2573,18 @@ public class Util {
                 String message = "<report><message type=\"error\"/></report> "; //$NON-NLS-1$;
                 String item = null;
                 // Scan the entries - in priority, taka the content of the 'output_error_message' entry,
+                boolean hasOutputReport = false;
                 for (Entry<String, TypedContent> entry : context.getPipelineClone().entrySet()) {
-
                     if (ITransformerConstants.VARIABLE_OUTPUT_OF_BEFORESAVINGTRANFORMER.equals(entry.getKey())) {
+                        hasOutputReport = true;
                         message = new String(entry.getValue().getContentBytes(), "UTF-8"); //$NON-NLS-1$                        
                     }
                     if (ITransformerConstants.VARIABLE_OUTPUTITEM_OF_BEFORESAVINGTRANFORMER.equals(entry.getKey())) {
                         item = new String(entry.getValue().getContentBytes(), "UTF-8"); //$NON-NLS-1$                        
-                    }
+                    }                    
+                }
+                if (!hasOutputReport){
+                    throw new OutputReportMissingException("Output variable 'output_report' is missing"); //$NON-NLS-1$
                 }
                 return new OutputReport(message, item);
             } catch (Exception e) {

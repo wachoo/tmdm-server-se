@@ -150,7 +150,7 @@ public class BrowseRecordsController extends Controller {
                         MessageBox msgBox = null;
                         if (result.getStatus() == ItemResult.FAILURE) {
                             MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                    MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null).setIcon(
+                                    "".equals(MultilanguageMessageParser.pickOutISOMessage(result.getDescription())) ? MessagesFactory.getMessages().output_report_null() : MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null).setIcon( //$NON-NLS-1$
                                     MessageBox.ERROR);
                             return;
                         }

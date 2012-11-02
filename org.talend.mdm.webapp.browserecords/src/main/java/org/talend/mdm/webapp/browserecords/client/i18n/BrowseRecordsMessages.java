@@ -428,4 +428,8 @@ public interface BrowseRecordsMessages extends Messages {
     String criteria_AND();
 
     String criteria_OR();
+    
+    String date_format_error();
+    
+    String output_report_null();
 }
