@@ -11,10 +11,13 @@
 
 package com.amalto.core.storage;
 
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
-import com.amalto.xmlserver.interfaces.ItemPKCriteria;
-import com.amalto.xmlserver.interfaces.XmlServerException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
@@ -23,8 +26,10 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import java.io.OutputStream;
-import java.util.*;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
+import com.amalto.xmlserver.interfaces.XmlServerException;
 
 public class DispatchWrapper implements IXmlServerSLWrapper {
 
@@ -90,6 +95,7 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
             return XSystemObjects.isXSystemObject(xDataClustersMap, XObjectType.DATA_CLUSTER, clusterName)
                     || clusterName.startsWith("amalto") //$NON-NLS-1$
                     || "MDMDomainObjects".equals(clusterName) //$NON-NLS-1$
+                    || "FailedAutoCommitSvnMessage".equals(clusterName)//$NON-NLS-1$
                     || "twitter".equals(clusterName) //$NON-NLS-1$
                     || "system".equals(clusterName); //$NON-NLS-1$
         } else {

@@ -259,6 +259,13 @@ public class UtilTestCase extends TestCase {
         assertNull(dataModel);
     }
 
+    public void testIsSystemDC() throws Exception {
+        assertFalse(Util.isSystemDC(null));
+        assertTrue(Util.isSystemDC(new DataClusterPOJOPK("PROVISIONING")));
+        assertTrue(Util.isSystemDC(new DataClusterPOJOPK("MDMDomainObjects")));
+        assertFalse(Util.isSystemDC(new DataClusterPOJOPK("Product")));
+    }
+
     class SchemaTestAgent extends SchemaManager {
 
         public SchemaTestAgent() {
