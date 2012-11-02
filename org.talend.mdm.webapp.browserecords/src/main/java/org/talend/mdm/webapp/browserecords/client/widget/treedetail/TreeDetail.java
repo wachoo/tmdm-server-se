@@ -53,7 +53,6 @@ import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.BoxComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -63,7 +62,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Style.Display;
@@ -164,9 +163,7 @@ public class TreeDetail extends ContentPanel {
 
     public TreeDetail(ItemsDetailPanel itemsDetailPanel) {
         this.setHeaderVisible(false);
-        // this.setAutoWidth(true);
-        this.setLayout(new FlowLayout());
-        this.setScrollMode(Scroll.AUTO);
+        this.setLayout(new FitLayout());
         this.setBorders(false);
         this.setBodyBorder(false);
         this.itemsDetailPanel = itemsDetailPanel;

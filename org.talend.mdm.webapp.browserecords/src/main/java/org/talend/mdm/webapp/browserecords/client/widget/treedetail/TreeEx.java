@@ -1,6 +1,6 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
-
+import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
@@ -11,6 +11,7 @@ public class TreeEx extends Tree {
     public TreeEx() {
         super();
         this.getElement().getStyle().setMarginTop(3D, Unit.PX);
+        this.getElement().getStyle().setOverflow(Overflow.AUTO);
     }
     public void onBrowserEvent(Event event) {
         int eventType = DOM.eventGetType(event);
