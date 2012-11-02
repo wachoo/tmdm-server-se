@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.rest;
 
+import java.util.Date;
+
 import org.restlet.client.Request;
 import org.restlet.client.Response;
 import org.restlet.client.Uniform;
@@ -45,7 +47,13 @@ public class ClientResourceWrapper {
     public void init(Method method, String uri) {
         this.method = method;
         this.uri = uri;
-        client = new ClientResource(method, uri);
+        String timestamp = "timestamp=" + new Date().getTime(); //$NON-NLS-1$
+        if (uri.lastIndexOf('?') == -1) {
+            timestamp = "?" + timestamp; //$NON-NLS-1$
+        } else {
+            timestamp = "&" + timestamp; //$NON-NLS-1$
+        }
+        client = new ClientResource(method, uri + timestamp); //
     }
 
     public void setCallback(final ResourceCallbackHandler callbackHandler) {

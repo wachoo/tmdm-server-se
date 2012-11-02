@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
+import java.util.Date;
+
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
@@ -77,7 +79,7 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private void initPieChart() {
         initChartCallback();
-        chartFrame = new Frame("/stagingarea/chart/Chart.html"); //$NON-NLS-1$
+        chartFrame = new Frame("/stagingarea/chart/Chart.html?&timestamp=" + new Date().getTime()); //$NON-NLS-1$
         chartFrame.setSize("400px", "200px"); //$NON-NLS-1$ //$NON-NLS-2$
         chartFrame.getElement().getStyle().setBorderWidth(0D, Unit.PX);
         chartFrame.getElement().getStyle().setOverflow(Overflow.HIDDEN);
