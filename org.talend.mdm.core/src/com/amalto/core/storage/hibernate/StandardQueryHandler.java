@@ -11,23 +11,12 @@
 
 package com.amalto.core.storage.hibernate;
 
-import static org.hibernate.criterion.Restrictions.and;
-import static org.hibernate.criterion.Restrictions.eq;
-import static org.hibernate.criterion.Restrictions.ge;
-import static org.hibernate.criterion.Restrictions.gt;
-import static org.hibernate.criterion.Restrictions.isNull;
-import static org.hibernate.criterion.Restrictions.le;
-import static org.hibernate.criterion.Restrictions.like;
-import static org.hibernate.criterion.Restrictions.lt;
-import static org.hibernate.criterion.Restrictions.not;
-import static org.hibernate.criterion.Restrictions.or;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.amalto.core.metadata.*;
+import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.record.DataRecord;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -35,73 +24,13 @@ import org.hibernate.Criteria;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
-import org.hibernate.criterion.CriteriaSpecification;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projection;
-import org.hibernate.criterion.ProjectionList;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.*;
 import org.hibernate.impl.CriteriaImpl;
 import org.hibernate.sql.JoinFragment;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.CompoundFieldMetadata;
-import com.amalto.core.metadata.ContainedComplexTypeMetadata;
-import com.amalto.core.metadata.DefaultMetadataVisitor;
-import com.amalto.core.metadata.EnumerationFieldMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataUtils;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
-import com.amalto.core.metadata.SimpleTypeFieldMetadata;
-import com.amalto.core.query.user.Alias;
-import com.amalto.core.query.user.BigDecimalConstant;
-import com.amalto.core.query.user.BinaryLogicOperator;
-import com.amalto.core.query.user.BooleanConstant;
-import com.amalto.core.query.user.ByteConstant;
-import com.amalto.core.query.user.Compare;
-import com.amalto.core.query.user.ComplexTypeExpression;
-import com.amalto.core.query.user.Condition;
-import com.amalto.core.query.user.Count;
-import com.amalto.core.query.user.DateConstant;
-import com.amalto.core.query.user.DateTimeConstant;
-import com.amalto.core.query.user.DoubleConstant;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.Field;
-import com.amalto.core.query.user.FloatConstant;
-import com.amalto.core.query.user.FullText;
-import com.amalto.core.query.user.Id;
-import com.amalto.core.query.user.IntegerConstant;
-import com.amalto.core.query.user.IsEmpty;
-import com.amalto.core.query.user.IsNull;
-import com.amalto.core.query.user.Isa;
-import com.amalto.core.query.user.Join;
-import com.amalto.core.query.user.JoinType;
-import com.amalto.core.query.user.LongConstant;
-import com.amalto.core.query.user.NotIsEmpty;
-import com.amalto.core.query.user.NotIsNull;
-import com.amalto.core.query.user.OrderBy;
-import com.amalto.core.query.user.Paging;
-import com.amalto.core.query.user.Predicate;
-import com.amalto.core.query.user.Range;
-import com.amalto.core.query.user.Revision;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.query.user.ShortConstant;
-import com.amalto.core.query.user.StagingError;
-import com.amalto.core.query.user.StagingSource;
-import com.amalto.core.query.user.StagingStatus;
-import com.amalto.core.query.user.StringConstant;
-import com.amalto.core.query.user.TaskId;
-import com.amalto.core.query.user.TimeConstant;
-import com.amalto.core.query.user.Timestamp;
-import com.amalto.core.query.user.Type;
-import com.amalto.core.query.user.TypedExpression;
-import com.amalto.core.query.user.UnaryLogicOperator;
-import com.amalto.core.query.user.UserQueryHelper;
-import com.amalto.core.query.user.VisitorAdapter;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.record.DataRecord;
+import java.util.*;
+
+import static org.hibernate.criterion.Restrictions.*;
 
 class StandardQueryHandler extends AbstractQueryHandler {
 
@@ -765,7 +694,6 @@ class StandardQueryHandler extends AbstractQueryHandler {
             Predicate predicate = condition.getPredicate();
             Criterion left = condition.getLeft().accept(this);
             Criterion right = condition.getRight().accept(this);
-
             if (predicate == Predicate.AND) {
                 return and(left, right);
             } else if (predicate == Predicate.OR) {
@@ -874,18 +802,21 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         Field leftField = (Field) condition.getLeft();
                         FieldMetadata fieldMetadata = leftField.getFieldMetadata();
                         FieldMetadata left = mapping.getDatabase(fieldMetadata);
+                        FieldMetadata referencedField = ((ReferenceFieldMetadata) left).getReferencedField();
+                        if (!(referencedField instanceof CompoundFieldMetadata)) {
+                            throw new IllegalArgumentException("Expected field '" + referencedField + "' to be a composite key.");
+                        }
                         String alias = getAlias(mapping, left);
-                        FieldMetadata[] fields = ((CompoundFieldMetadata) ((ReferenceFieldMetadata) left).getReferencedField())
-                                .getFields();
+                        FieldMetadata[] fields = ((CompoundFieldMetadata) referencedField).getFields();
                         Object[] keyValues = (Object[]) compareValue;
-                        Criterion[] keyValueCriterions = new Criterion[keyValues.length];
+                        Criterion[] keyValueCriteria = new Criterion[keyValues.length];
                         int i = 0;
                         for (FieldMetadata keyField : fields) {
                             Object keyValue = MetadataUtils.convert(String.valueOf(keyValues[i]), keyField);
-                            keyValueCriterions[i] = eq(alias + "." + keyField.getName(), keyValue); //$NON-NLS-1$
+                            keyValueCriteria[i] = eq(alias + "." + keyField.getName(), keyValue); //$NON-NLS-1$
                             i++;
                         }
-                        return concatAndExp(keyValueCriterions);
+                        return makeAnd(keyValueCriteria);
                     } else {
                         return eq(leftFieldCondition.criterionFieldName, compareValue);
                     }
@@ -938,13 +869,13 @@ class StandardQueryHandler extends AbstractQueryHandler {
         }
     }
 
-    private Criterion concatAndExp(Criterion... criterions) {
+    private static Criterion makeAnd(Criterion... criterions) {
         if (criterions.length == 1) {
             return criterions[0];
         }
         Criterion current = NO_OP_CRITERION;
         for (Criterion cri : criterions) {
-            current = and(current, cri);
+            current = Restrictions.and(current, cri);
         }
         return current;
     }
