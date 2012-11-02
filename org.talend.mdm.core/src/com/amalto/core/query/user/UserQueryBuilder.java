@@ -465,8 +465,8 @@ public class UserQueryBuilder {
         if (!expressionAsSelect().getTypes().contains(rightField.getContainingType())) {
             expressionAsSelect().addType(rightField.getContainingType());
         }
-
-        expressionAsSelect().addJoin(new Join(leftUserField, rightUserField, JoinType.INNER));
+        JoinType joinType = leftField.isMandatory() ? JoinType.INNER : JoinType.LEFT_OUTER;
+        expressionAsSelect().addJoin(new Join(leftUserField, rightUserField, joinType));
         return this;
     }
 

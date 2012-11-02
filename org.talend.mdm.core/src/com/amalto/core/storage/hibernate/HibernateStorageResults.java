@@ -11,11 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.query.user.Paging;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.query.user.TypedExpression;
-import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
@@ -23,7 +19,6 @@ import com.amalto.core.storage.record.DataRecord;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 class HibernateStorageResults implements StorageResults {
 
@@ -56,21 +51,15 @@ class HibernateStorageResults implements StorageResults {
             List<TypedExpression> selectedFields = countSelect.getSelectedFields();
             Paging paging = countSelect.getPaging();
             selectedFields.clear();
-            selectedFields.add(UserQueryBuilder.count());
+            selectedFields.add(new Alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
             paging.setLimit(1);
             paging.setStart(0);
             countSelect.setProjection(true);
             countSelect.setOrderBy(null);
-
             StorageResults countResult = storage.fetch(countSelect);
             Iterator<DataRecord> resultIterator = countResult.iterator();
             DataRecord count = resultIterator.next();
-
-            Set<FieldMetadata> setFields = count.getSetFields();
-            String countAsString = null;
-            for (FieldMetadata setField : setFields) {
-                countAsString = String.valueOf(count.get(setField));
-            }
+            String countAsString = String.valueOf(count.get("count")); //$NON-NLS-1$
             if (countAsString == null) {
                 throw new RuntimeException("Count returned no result");
             }

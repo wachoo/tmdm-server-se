@@ -532,6 +532,19 @@
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                     </xsd:annotation>
                 </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="Stores">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element maxOccurs="unbounded" minOccurs="0" name="Store" type="xsd:string">
+                                <xsd:annotation>
+                                    <xsd:appinfo source="X_ForeignKey">Store/Id</xsd:appinfo>
+                                    <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                                </xsd:annotation>
+                            </xsd:element>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
             </xsd:sequence>
         </xsd:complexType>
         <xsd:unique name="Product">
@@ -562,6 +575,32 @@
             <xsd:enumeration value="Khaki"/>
         </xsd:restriction>
     </xsd:simpleType>
+    <xsd:element name="Store">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:all maxOccurs="1" minOccurs="1">
+                <xsd:element maxOccurs="1" minOccurs="1" name="Id" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="Name" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="Store">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="Id"/>
+        </xsd:unique>
+    </xsd:element>
     <xsd:element name="ProductFamily">
         <xsd:annotation>
             <xsd:appinfo source="X_Label_FR">Famille Produit</xsd:appinfo>

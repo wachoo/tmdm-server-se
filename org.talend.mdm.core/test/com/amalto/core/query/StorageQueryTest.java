@@ -28,6 +28,7 @@ import java.io.*;
 import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 @SuppressWarnings("nls")
 public class StorageQueryTest extends StorageTestCase {
@@ -124,6 +125,8 @@ public class StorageQueryTest extends StorageTestCase {
                 + "    <Name>Product family #1</Name>\n" + "</ProductFamily>"));
         allRecords.add(factory.read(1, repository, productFamily, "<ProductFamily>\n" + "    <Id>2</Id>\n"
                 + "    <Name>Product family #2</Name>\n" + "</ProductFamily>"));
+        allRecords.add(factory.read(1, repository, store, "<Store>\n" + "    <Id>1</Id>\n"
+                        + "    <Name>Store #1</Name>\n" + "</Store>"));
         allRecords.add(factory.read(1, repository, product, "<Product>\n" + "    <Id>1</Id>\n"
                 + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
                 + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
@@ -139,7 +142,7 @@ public class StorageQueryTest extends StorageTestCase {
                 + "            <Color>Blue 2</Color>\n" + "            <Color>Blue 1</Color>\n"
                 + "            <Color>Klein blue2</Color>\n" + "        </Colors>\n" + "    </Features>\n"
                 + "    <Family/>\n" + "    <Status>Pending</Status>\n" + "    <Supplier>[2]</Supplier>\n"
-                + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
+                + "    <Supplier>[1]</Supplier>\n" + "<Stores><Store>[1]</Store></Stores></Product>"));
         try {
             storage.begin();
             storage.update(allRecords);
@@ -1657,6 +1660,25 @@ public class StorageQueryTest extends StorageTestCase {
                 Object[] b2Values = (Object[]) b2Value;
                 assertEquals("1", b2Values[0]);
                 assertEquals("10", b2Values[1]);
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testJoinAndSelectJoinField() throws Exception {
+        UserQueryBuilder qb = from(product)
+                .selectId(product)
+                .select(product.getField("Family"))
+                .select(store.getField("Name"))
+                .join(product.getField("Stores/Store"))
+                .where(eq(store.getField("Name"), "Store #1"))
+                .limit(20);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertEquals("Store #1", result.get("Name"));
             }
         } finally {
             results.close();

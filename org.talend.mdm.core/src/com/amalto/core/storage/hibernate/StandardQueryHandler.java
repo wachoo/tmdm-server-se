@@ -745,8 +745,13 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 FieldMetadata fieldMetadata = leftField.getFieldMetadata();
                 String alias = mainType.getName();
                 FieldMetadata left = mapping.getDatabase(fieldMetadata);
+                // TODO Ugly code path to fix once test coverage is ok.
                 if (!mainType.equals(fieldMetadata.getContainingType()) || fieldMetadata instanceof ReferenceFieldMetadata) {
                     (new Field(fieldMetadata)).accept(StandardQueryHandler.this);
+                    if (left == null) {
+                        mapping = mappingMetadataRepository.getMappingFromUser(fieldMetadata.getContainingType());
+                        left = mapping.getDatabase(fieldMetadata);
+                    }
                     alias = getAlias(mapping, left);
                     if (!fieldMetadata.isMany()) {
                         if (fieldMetadata instanceof ReferenceFieldMetadata) {
