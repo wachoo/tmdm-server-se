@@ -34,8 +34,8 @@ import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Frame;
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 
@@ -53,7 +53,7 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private Button startValidate;
 
-    private Grid titleGrid;
+    private FlexTable titleGrid;
 
     private Label titleLabel;
 
@@ -104,6 +104,13 @@ public class StagingContainerSummaryView extends AbstractView {
 		}
     }-*/;
 
+    private native void clearChart(String title)/*-{
+		var opt = this.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::chartOpt;
+		if (opt) {
+			opt.clearChart(title);
+		}
+    }-*/;
+
     @Override
     protected void initComponents() {
         UserContextModel ucx = UserContextUtil.getUserContext();
@@ -121,7 +128,7 @@ public class StagingContainerSummaryView extends AbstractView {
         dataModelName = new Label(ucx.getDataModel());
         dataModelName.setStyleAttribute("font-weight", "bold"); //$NON-NLS-1$//$NON-NLS-2$
 
-        titleGrid = new Grid(2, 6);
+        titleGrid = new FlexTable();
 
 
         StringBuilder buffer = new StringBuilder();
@@ -161,6 +168,7 @@ public class StagingContainerSummaryView extends AbstractView {
         titleData.setRowspan(1);
 
         titleGrid.setWidget(0, 0, titleLabel);
+        titleGrid.getCellFormatter().getElement(0, 0).setAttribute("colSpan", "6"); //$NON-NLS-1$//$NON-NLS-2$
         titleGrid.setWidget(1, 0, containerLabel);
         titleGrid.setWidget(1, 1, containerName);
         containerName.setStyleAttribute("margin-right", "10px"); //$NON-NLS-1$//$NON-NLS-2$
@@ -230,6 +238,10 @@ public class StagingContainerSummaryView extends AbstractView {
             int invalid = stagingContainerModel.getInvalidRecords();
             int valid = stagingContainerModel.getValidRecords();
             double sum = waiting + invalid + valid;
+            if (sum == 0.0) {
+                clearChart("no data");
+                return;
+            }
             NumberFormat format = NumberFormat.getFormat("#0"); //$NON-NLS-1$
             final double waitingPer = format.parse(format.format(waiting / sum * 100));
             final double invalidPer = format.parse(format.format(invalid / sum * 100));

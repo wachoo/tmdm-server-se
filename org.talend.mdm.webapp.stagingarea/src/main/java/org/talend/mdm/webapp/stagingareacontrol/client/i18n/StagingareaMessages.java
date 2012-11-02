@@ -36,6 +36,8 @@ public interface StagingareaMessages extends Messages {
     String invalid();
     String waiting();
 
+    String nodata();
+
     String staging_area_title();
 
     String total_desc(String total);
