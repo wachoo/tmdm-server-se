@@ -239,7 +239,7 @@ public class StagingContainerSummaryView extends AbstractView {
             int valid = stagingContainerModel.getValidRecords();
             double sum = waiting + invalid + valid;
             if (sum == 0.0) {
-                clearChart("no data");
+                clearChart(messages.nodata());
                 return;
             }
             NumberFormat format = NumberFormat.getFormat("#0"); //$NON-NLS-1$
