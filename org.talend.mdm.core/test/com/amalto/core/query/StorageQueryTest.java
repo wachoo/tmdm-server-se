@@ -681,6 +681,15 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+
+        qb = from(person).where(startsWith(person.getField("firstname"), "^Ju"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
     }
 
     public void testContainsCondition() throws Exception {

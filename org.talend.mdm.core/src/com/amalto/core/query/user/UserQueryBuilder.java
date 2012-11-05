@@ -78,11 +78,14 @@ public class UserQueryBuilder {
     public static Condition startsWith(FieldMetadata field, String constant) {
         assertValueConditionArguments(field, constant);
         Field userField = new Field(field);
-        return new Compare(userField, Predicate.STARTS_WITH, createConstant(userField, constant));
+        return startsWith(userField, constant);
     }
 
     public static Condition startsWith(TypedExpression field, String constant) {
         assertValueConditionArguments(field, constant);
+        if (constant.charAt(0) == '^') {
+            constant = constant.substring(1);
+        }
         return new Compare(field, Predicate.STARTS_WITH, createConstant(field, constant));
     }
 
