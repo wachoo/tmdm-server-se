@@ -140,7 +140,7 @@ public class MetadataUtils {
                     path.remove(0);
                 }
                 return path;
-            } else if(!(current instanceof SimpleTypeFieldMetadata)){
+            } else if(!(current instanceof SimpleTypeFieldMetadata || current instanceof EnumerationFieldMetadata)){
                 path.add(current);
             }
             if (!processedFields.contains(current)) {
