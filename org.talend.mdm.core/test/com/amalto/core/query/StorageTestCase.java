@@ -10,6 +10,12 @@
 
 package com.amalto.core.query;
 
+import java.util.Collections;
+
+import junit.framework.TestCase;
+
+import org.apache.log4j.Logger;
+
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
@@ -20,10 +26,6 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.hibernate.HibernateStorage;
-import junit.framework.TestCase;
-import org.apache.log4j.Logger;
-
-import java.util.Collections;
 
 @SuppressWarnings("nls")
 public class StorageTestCase extends TestCase {
@@ -60,6 +62,10 @@ public class StorageTestCase extends TestCase {
 
     protected static final ComplexTypeMetadata d;
 
+    protected static final ComplexTypeMetadata e2;
+
+    protected static final ComplexTypeMetadata e1;
+
     protected static final ComplexTypeMetadata updateReport;
 
     protected static TestUserDelegator userSecurity = new TestUserDelegator();
@@ -90,6 +96,10 @@ public class StorageTestCase extends TestCase {
         d = repository.getComplexType("D");
         updateReport = repository.getComplexType("Update");
         ff = repository.getComplexType("ff");
+
+        e2 = repository.getComplexType("E2");
+
+        e1 = repository.getComplexType("E1");
 
         storage.init(getDatasource(DATABASE + "-Default"));
         storage.prepare(repository, Collections.singleton(person.getField("firstname")), true, true);

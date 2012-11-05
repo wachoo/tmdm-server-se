@@ -13,25 +13,87 @@
 
 package com.amalto.core.query;
 
+import static com.amalto.core.query.user.UserQueryBuilder.alias;
+import static com.amalto.core.query.user.UserQueryBuilder.and;
+import static com.amalto.core.query.user.UserQueryBuilder.contains;
+import static com.amalto.core.query.user.UserQueryBuilder.emptyOrNull;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
+import static com.amalto.core.query.user.UserQueryBuilder.gt;
+import static com.amalto.core.query.user.UserQueryBuilder.gte;
+import static com.amalto.core.query.user.UserQueryBuilder.isNull;
+import static com.amalto.core.query.user.UserQueryBuilder.lt;
+import static com.amalto.core.query.user.UserQueryBuilder.lte;
+import static com.amalto.core.query.user.UserQueryBuilder.neq;
+import static com.amalto.core.query.user.UserQueryBuilder.not;
+import static com.amalto.core.query.user.UserQueryBuilder.or;
+import static com.amalto.core.query.user.UserQueryBuilder.revision;
+import static com.amalto.core.query.user.UserQueryBuilder.startsWith;
+import static com.amalto.core.query.user.UserQueryBuilder.taskId;
+import static com.amalto.core.query.user.UserQueryBuilder.timestamp;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.io.output.NullOutputStream;
+
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.BinaryLogicOperator;
+import com.amalto.core.query.user.Compare;
+import com.amalto.core.query.user.Condition;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.Field;
+import com.amalto.core.query.user.IntegerConstant;
+import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.Predicate;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.StringConstant;
+import com.amalto.core.query.user.Timestamp;
+import com.amalto.core.query.user.TypedExpression;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.record.*;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.ViewSearchResultsWriter;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
-import org.apache.commons.io.output.NullOutputStream;
-
-import java.io.*;
-import java.util.*;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 @SuppressWarnings("nls")
 public class StorageQueryTest extends StorageTestCase {
+
+    private final String E1_Record1 = "<E1><subelement>aaa</subelement><subelement1>bbb</subelement1><name>asdf</name></E1>";
+
+    private final String E1_Record2 = "<E1><subelement>ccc</subelement><subelement1>ddd</subelement1><name>cvcvc</name></E1>";
+
+    private final String E1_Record3 = "<E1><subelement>ttt</subelement><subelement1>yyy</subelement1><name>nhhn</name></E1>";
+
+    private final String E2_Record1 = "<E2><subelement>111</subelement><subelement1>222</subelement1><name>qwe</name><fk>[ccc][ddd]</fk></E2>";
+
+    private final String E2_Record2 = "<E2><subelement>344</subelement><subelement1>544</subelement1><name>55</name><fk>[aaa][bbb]</fk></E2>";
+
+    private final String E2_Record3 = "<E2><subelement>333</subelement><subelement1>444</subelement1><name>tyty</name><fk>[ttt][yyy]</fk></E2>";
+
+    private final String E2_Record4 = "<E2><subelement>666</subelement><subelement1>777</subelement1><name>iuj</name><fk>[aaa][bbb]</fk></E2>";
+
+    private final String E2_Record5 = "<E2><subelement>6767</subelement><subelement1>7878</subelement1><name>ioiu</name><fk>[ccc][ddd]</fk></E2>";
+
+    private final String E2_Record6 = "<E2><subelement>999</subelement><subelement1>888</subelement1><name>iuiiu</name><fk>[ccc][ddd]</fk></E2>";
 
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
@@ -143,6 +205,18 @@ public class StorageQueryTest extends StorageTestCase {
                 + "            <Color>Klein blue2</Color>\n" + "        </Colors>\n" + "    </Features>\n"
                 + "    <Family/>\n" + "    <Status>Pending</Status>\n" + "    <Supplier>[2]</Supplier>\n"
                 + "    <Supplier>[1]</Supplier>\n" + "<Stores><Store>[1]</Store></Stores></Product>"));
+
+        allRecords.add(factory.read(1, repository, e1, E1_Record1));
+        allRecords.add(factory.read(1, repository, e1, E1_Record2));
+        allRecords.add(factory.read(1, repository, e1, E1_Record3));
+
+        allRecords.add(factory.read(1, repository, e2, E2_Record1));
+        allRecords.add(factory.read(1, repository, e2, E2_Record2));
+        allRecords.add(factory.read(1, repository, e2, E2_Record3));
+        allRecords.add(factory.read(1, repository, e2, E2_Record4));
+        allRecords.add(factory.read(1, repository, e2, E2_Record5));
+        allRecords.add(factory.read(1, repository, e2, E2_Record6));
+
         try {
             storage.begin();
             storage.update(allRecords);
@@ -173,6 +247,11 @@ public class StorageQueryTest extends StorageTestCase {
                 qb = from(country);
                 storage.delete(qb.getSelect());
 
+                qb = from(e1);
+                storage.delete(qb.getSelect());
+
+                qb = from(e2);
+                storage.delete(qb.getSelect());
             }
             storage.commit();
         } finally {
@@ -1683,5 +1762,90 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+    }
+
+    public void testFatchAllE1() {
+        UserQueryBuilder qb = from(e1);
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(3, results.getCount());
+        DataRecordXmlWriter writer = new DataRecordXmlWriter();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        String actual = new String(output.toByteArray());
+        assertEquals(E1_Record1 + E1_Record2 + E1_Record3, actual);
+    }
+
+    public void testFatchE2ByForeignKeyToCompositeKeys() {
+        UserQueryBuilder qb = from(e2).where(eq(e2.getField("fk"), "[ccc][ddd]"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(3, results.getCount());
+
+        DataRecordXmlWriter writer = new DataRecordXmlWriter();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        String actual = new String(output.toByteArray());
+        assertEquals(E2_Record1 + E2_Record5 + E2_Record6, actual);
+
+        qb = from(e2).where(eq(e2.getField("fk"), "[aaa][bbb]"));
+        results = storage.fetch(qb.getSelect());
+        assertEquals(2, results.getCount());
+
+        writer = new DataRecordXmlWriter();
+        output = new ByteArrayOutputStream();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        actual = new String(output.toByteArray());
+        assertEquals(E2_Record2 + E2_Record4, actual);
+
+        qb = from(e2).where(eq(e2.getField("fk"), "[ttt][yyy]"));
+        results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+
+        writer = new DataRecordXmlWriter();
+        output = new ByteArrayOutputStream();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        actual = new String(output.toByteArray());
+        assertEquals(E2_Record3, actual);
+    }
+
+    public void testFatchAllE2() {
+        UserQueryBuilder qb = from(e2);
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(6, results.getCount());
+
+        DataRecordXmlWriter writer = new DataRecordXmlWriter();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        String actual = new String(output.toByteArray());
+        assertEquals(E2_Record1 + E2_Record2 + E2_Record3 + E2_Record4 + E2_Record5 + E2_Record6, actual);
     }
 }
