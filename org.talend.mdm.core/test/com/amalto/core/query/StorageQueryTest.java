@@ -702,6 +702,19 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
     }
+    
+    public void testContainsConditionWithAllSimpledTypeFields() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(product);
+        String fieldName = "Product/../*";
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition(fieldName, WhereCondition.CONTAINS, "1", WhereCondition.NO_OPERATOR)));
+        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+        }
+    }
 
     public void testConditionOr() throws Exception {
         UserQueryBuilder qb = from(person).where(
@@ -1764,7 +1777,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
-    public void testFatchAllE1() {
+    public void testFetchAllE1() {
         UserQueryBuilder qb = from(e1);
         StorageResults results = storage.fetch(qb.getSelect());
         assertEquals(3, results.getCount());
@@ -1781,7 +1794,7 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(E1_Record1 + E1_Record2 + E1_Record3, actual);
     }
 
-    public void testFatchE2ByForeignKeyToCompositeKeys() {
+    public void testFetchE2ByForeignKeyToCompositeKeys() {
         UserQueryBuilder qb = from(e2).where(eq(e2.getField("fk"), "[ccc][ddd]"));
         StorageResults results = storage.fetch(qb.getSelect());
         assertEquals(3, results.getCount());
@@ -1831,7 +1844,7 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(E2_Record3, actual);
     }
 
-    public void testFatchAllE2() {
+    public void testFetchAllE2() {
         UserQueryBuilder qb = from(e2);
         StorageResults results = storage.fetch(qb.getSelect());
         assertEquals(6, results.getCount());

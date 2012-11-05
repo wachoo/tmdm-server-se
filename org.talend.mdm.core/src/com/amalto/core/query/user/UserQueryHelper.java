@@ -14,6 +14,7 @@
 package com.amalto.core.query.user;
 
 import com.amalto.core.metadata.*;
+import com.amalto.core.webservice.WSStringPredicate;
 import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
@@ -63,6 +64,18 @@ public class UserQueryHelper {
             ComplexTypeMetadata type = repository.getComplexType(typeName);
             if (leftFieldName.endsWith("xsi:type") || leftFieldName.endsWith("tmdm:type")) { //$NON-NLS-1$ //$NON-NLS-2$
                 isPerformingTypeCheck = true;
+            }
+            if (UserQueryBuilder.ALL_FIELD.equals(leftFieldName)) {
+                List<FieldMetadata> list = type.getFields();
+                Condition condition = NO_OP_CONDITION;
+                for (FieldMetadata fieldMetadata : list) {
+                    if (fieldMetadata instanceof SimpleTypeFieldMetadata){
+                        condition = or(condition, buildCondition(queryBuilder, 
+                                new WhereCondition(typeName + '/' + fieldMetadata.getName(), operator, value,
+                                        WSStringPredicate.NONE.getValue()), repository));
+                    }
+                }
+                return condition;
             }
             TypedExpression field = getField(repository, typeName, leftFieldName);
             // Field comparisons

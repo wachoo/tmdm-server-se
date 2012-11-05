@@ -46,6 +46,8 @@ public class UserQueryBuilder {
     public static final String ID_FIELD = "../../i"; //$NON-NLS-1$
 
     public static final String ID_ALIAS = "i"; //$NON-NLS-1$
+    
+    public static final String ALL_FIELD = "../*";  //$NON-NLS-1$
 
     private static final Logger LOGGER = Logger.getLogger(UserQueryBuilder.class);
 
