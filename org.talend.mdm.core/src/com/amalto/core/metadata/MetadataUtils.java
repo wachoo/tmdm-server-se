@@ -126,8 +126,8 @@ public class MetadataUtils {
             if (!path.isEmpty() && path.getLast().getContainingType().equals(current.getContainingType())) {
                 path.removeLast();
             }
-            path.add(current);
             if (current.equals(target)) {
+                path.add(current);
                 int lastIndex = path.size() - 1;
                 Iterator<FieldMetadata> iterator = path.descendingIterator();
                 while (iterator.hasNext()) {
@@ -140,6 +140,8 @@ public class MetadataUtils {
                     path.remove(0);
                 }
                 return path;
+            } else if(!(current instanceof SimpleTypeFieldMetadata)){
+                path.add(current);
             }
             if (!processedFields.contains(current)) {
                 processedFields.add(current);
@@ -147,10 +149,6 @@ public class MetadataUtils {
                     processStack.addAll(((ContainedTypeFieldMetadata) current).getContainedType().getFields());
                 } else if (current instanceof ReferenceFieldMetadata) {
                     processStack.addAll(((ReferenceFieldMetadata) current).getReferencedType().getFields());
-                } else if (current instanceof SimpleTypeFieldMetadata
-                        || current instanceof EnumerationFieldMetadata
-                        || current instanceof CompoundFieldMetadata) {
-                    path.removeLast();
                 }
             }
         }

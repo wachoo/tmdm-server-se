@@ -418,6 +418,9 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                     referencedType = new ContainedComplexTypeRef(currentTypeStack.peek(), targetNamespace, element.getName(), new SoftTypeRef(this, targetNamespace, schemaType.getName(), false));
                     isContained = true;
                 } else {
+                    if (schemaType == null) {
+                        throw new IllegalArgumentException("Field '" + fieldName + "' from type '" + containingType.getName() + "' has an invalid type.");
+                    }
                     if (schemaType instanceof XmlSchemaComplexType) {
                         referencedType = new ContainedComplexTypeRef(currentTypeStack.peek(), targetNamespace, element.getName(), new SoftTypeRef(this, targetNamespace, schemaType.getName(), false));
                         isContained = true;

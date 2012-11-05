@@ -38,8 +38,9 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         SimpleTypeFieldMetadata newFlattenField;
         String name = getFieldName(field);
         newFlattenField = new SimpleTypeFieldMetadata(currentType.peek(), false, field.isMany(), field.isMandatory(), name, field.getType(), field.getWriteUsers(), field.getHideUsers());
-        if (field.getDeclaringType() != field.getContainingType()) {
-            newFlattenField.setDeclaringType(new SoftTypeRef(internalRepository, field.getDeclaringType().getNamespace(), field.getDeclaringType().getName(), true));
+        TypeMetadata declaringType = field.getDeclaringType();
+        if (declaringType != field.getContainingType() && declaringType.isInstantiable()) {
+            newFlattenField.setDeclaringType(new SoftTypeRef(internalRepository, declaringType.getNamespace(), declaringType.getName(), true));
         }
         currentType.peek().addField(newFlattenField);
         mapping.map(field, newFlattenField);
