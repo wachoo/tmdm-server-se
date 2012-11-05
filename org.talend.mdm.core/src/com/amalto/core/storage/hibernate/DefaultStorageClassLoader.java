@@ -152,7 +152,7 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
 
         Node sessionFactoryElement = document.getElementsByTagName("session-factory").item(0); //$NON-NLS-1$
         if (rdbmsDataSource.supportFullText()) {
-            addProperty(document, sessionFactoryElement, "hibernate.search.default.directory_provider", "org.hibernate.search.store.FSMasterDirectoryProvider"); //$NON-NLS-1$ //$NON-NLS-2$
+            addProperty(document, sessionFactoryElement, "hibernate.search.default.directory_provider", "org.hibernate.search.store.FSDirectoryProvider"); //$NON-NLS-1$ //$NON-NLS-2$
             addProperty(document, sessionFactoryElement, "hibernate.search.default.indexBase", indexBase + '/' + storageName); //$NON-NLS-1$
             addProperty(document, sessionFactoryElement, "hibernate.search.default.sourceBase", indexBase + '/' + storageName); //$NON-NLS-1$
             addProperty(document, sessionFactoryElement, "hibernate.search.default.source", ""); //$NON-NLS-1$ //$NON-NLS-2$
