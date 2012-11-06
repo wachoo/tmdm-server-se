@@ -16,13 +16,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.WeakHashMap;
+import java.util.*;
 
 import com.amalto.core.query.user.UserQueryDumpConsole;
 import net.sf.ehcache.CacheManager;
@@ -42,6 +36,7 @@ import org.hibernate.search.Search;
 import org.hibernate.search.event.ContextHolder;
 import org.hibernate.search.impl.SearchFactoryImpl;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -241,7 +236,7 @@ public class HibernateStorage implements Storage {
                 tableResolver = new StorageTableResolver(databaseIndexedFields, 30);
             } else {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("No limitation for table names.");
+                    LOGGER.debug("No limitation for table name length.");
                 }
                 tableResolver = new StorageTableResolver(databaseIndexedFields);
             }
@@ -270,6 +265,22 @@ public class HibernateStorage implements Storage {
                 // This method is deprecated but using a 4.1+ hibernate initialization, Hibernate Search can't be
                 // started
                 // (wait for Hibernate Search 4.1 to be ready before considering changing this).
+                if (autoPrepare) {
+                    SchemaUpdate schemaUpdate = new SchemaUpdate(configuration);
+                    schemaUpdate.execute(false, true);
+                    if (!schemaUpdate.getExceptions().isEmpty()) {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("Could not prepare database schema: ");
+                        Iterator iterator = schemaUpdate.getExceptions().iterator();
+                        while (iterator.hasNext()) {
+                            sb.append(((Exception) iterator.next()).getMessage());
+                            if (iterator.hasNext()) {
+                                sb.append('\n');
+                            }
+                        }
+                        throw new IllegalStateException(sb.toString());
+                    }
+                }
                 factory = configuration.buildSessionFactory();
             } catch (Exception e) {
                 throw new RuntimeException("Exception occurred during Hibernate initialization.", e);
