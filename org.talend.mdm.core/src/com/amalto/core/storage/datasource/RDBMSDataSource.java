@@ -40,12 +40,18 @@ public class RDBMSDataSource implements DataSource {
     private String connectionURL;
 
     private String databaseName;
+    
+    private int connectionPoolMinSize;
+    
+    private int connectionPoolMaxSize;
 
     public RDBMSDataSource(String name,
                            String dialectName,
                            String driverClassName,
                            String userName,
                            String password,
+                           int connectionPoolMinSize,
+                           int connectionPoolMaxSize,
                            String indexDirectory,
                            String cacheDirectory,
                            String connectionURL,
@@ -75,6 +81,8 @@ public class RDBMSDataSource implements DataSource {
         this.driverClassName = driverClassName;
         this.userName = userName;
         this.password = password;
+        this.connectionPoolMinSize = connectionPoolMinSize;
+        this.connectionPoolMaxSize = connectionPoolMaxSize;
         this.indexDirectory = indexDirectory;
         this.cacheDirectory = cacheDirectory;
         this.connectionURL = connectionURL;
@@ -137,6 +145,14 @@ public class RDBMSDataSource implements DataSource {
 
     public String getInitPassword() {
         return initPassword;
+    }
+
+    public int getConnectionPoolMinSize() {
+        return this.connectionPoolMinSize;
+    }
+    
+    public int getConnectionPoolMaxSize() {
+        return this.connectionPoolMaxSize;
     }
 
     public boolean hasInit() {

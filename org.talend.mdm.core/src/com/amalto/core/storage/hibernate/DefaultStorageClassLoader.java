@@ -143,12 +143,23 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         String dialect = getDialect(dialectType);
         String password = rdbmsDataSource.getPassword();
         String indexBase = rdbmsDataSource.getIndexDirectory();
+        int connectionPoolMinSize = rdbmsDataSource.getConnectionPoolMinSize();
+        int connectionPoolMaxSize = rdbmsDataSource.getConnectionPoolMaxSize();
 
         setPropertyValue(document, "hibernate.connection.url", connectionUrl); //$NON-NLS-1$
         setPropertyValue(document, "hibernate.connection.username", userName); //$NON-NLS-1$
         setPropertyValue(document, "hibernate.connection.driver_class", driverClass); //$NON-NLS-1$
         setPropertyValue(document, "hibernate.dialect", dialect); //$NON-NLS-1$
         setPropertyValue(document, "hibernate.connection.password", password); //$NON-NLS-1$
+        
+        if (connectionPoolMinSize > 0 && connectionPoolMaxSize > 0 && connectionPoolMaxSize >= connectionPoolMinSize) {
+            setPropertyValue(document, "hibernate.c3p0.min_size", String.valueOf(connectionPoolMinSize)); //$NON-NLS-1$
+            setPropertyValue(document, "hibernate.c3p0.max_size", String.valueOf(connectionPoolMaxSize)); //$NON-NLS-1$
+        }
+        if (connectionPoolMaxSize < connectionPoolMinSize) {
+            LOGGER.warn("Connection max size pool for datasource '" + rdbmsDataSource.getName() + "' is incorrect (lower than min size). " + //$NON-NLS-1$//$NON-NLS-2$
+                    "Connection pool is created by using the system default value (minSize=5, maxSize=50)."); //$NON-NLS-1$
+        }
 
         Node sessionFactoryElement = document.getElementsByTagName("session-factory").item(0); //$NON-NLS-1$
         if (rdbmsDataSource.supportFullText()) {
@@ -234,6 +245,6 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
     private static void setPropertyValue(Document document, String propertyName, String value) throws XPathExpressionException {
         XPathExpression compile = pathFactory.compile("hibernate-configuration/session-factory/property[@name='" + propertyName + "']"); //$NON-NLS-1$ //$NON-NLS-2$
         Node node = (Node) compile.evaluate(document, XPathConstants.NODE);
-        node.appendChild(document.createTextNode(value));
+        node.setTextContent(value);
     }
 }

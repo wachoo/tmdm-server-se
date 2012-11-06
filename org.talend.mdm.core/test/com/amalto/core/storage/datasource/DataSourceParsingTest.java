@@ -1,19 +1,18 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.datasource;
 
-import junit.framework.TestCase;
-
 import java.io.InputStream;
+
+import junit.framework.TestCase;
 
 public class DataSourceParsingTest extends TestCase {
 
@@ -62,6 +61,8 @@ public class DataSourceParsingTest extends TestCase {
         assertEquals("Test-0", rdbmsDataSource.getName());
         assertEquals("toor", rdbmsDataSource.getPassword());
         assertEquals("root", rdbmsDataSource.getUserName());
+        assertEquals(5, rdbmsDataSource.getConnectionPoolMinSize());
+        assertEquals(50, rdbmsDataSource.getConnectionPoolMaxSize());
         assertEquals("jdbc:mysql://10.42.150.15:3306/", rdbmsDataSource.getInitConnectionURL());
         assertEquals("root", rdbmsDataSource.getInitUserName());
         assertEquals("toor", rdbmsDataSource.getInitPassword());
@@ -78,6 +79,8 @@ public class DataSourceParsingTest extends TestCase {
         assertTrue(rdbmsDataSource.hasInit());
         assertEquals("jdbc:mysql://10.42.150.15:3306/MDM", rdbmsDataSource.getConnectionURL());
         assertEquals("MDM", rdbmsDataSource.getDatabaseName());
+        assertEquals(0, rdbmsDataSource.getConnectionPoolMinSize());
+        assertEquals(50, rdbmsDataSource.getConnectionPoolMaxSize());
     }
 
     public void testContainerChange2() throws Exception {
@@ -91,6 +94,8 @@ public class DataSourceParsingTest extends TestCase {
         assertTrue(rdbmsDataSource.hasInit());
         assertEquals("jdbc:mysql://10.42.150.15:3306/mdm_dev2", rdbmsDataSource.getConnectionURL());
         assertEquals("mdm_dev2", rdbmsDataSource.getDatabaseName());
+        assertEquals(0, rdbmsDataSource.getConnectionPoolMinSize());
+        assertEquals(0, rdbmsDataSource.getConnectionPoolMaxSize());
     }
 
 }

@@ -210,6 +210,8 @@ public class DataSourceFactory {
             String connectionURL = (String) evaluate(dataSource, "rdbms-configuration/connection-url", XPathConstants.STRING); //$NON-NLS-1$
             String userName = (String) evaluate(dataSource, "rdbms-configuration/connection-username", XPathConstants.STRING); //$NON-NLS-1$
             String password = (String) evaluate(dataSource, "rdbms-configuration/connection-password", XPathConstants.STRING); //$NON-NLS-1$
+            int connectionPoolMinSize = ((Double) evaluate(dataSource, "rdbms-configuration/connection-pool-minsize", XPathConstants.NUMBER)).intValue(); //$NON-NLS-1$
+            int connectionPoolMaxSize = ((Double) evaluate(dataSource, "rdbms-configuration/connection-pool-maxsize", XPathConstants.NUMBER)).intValue(); //$NON-NLS-1$
             String indexDirectory = (String) evaluate(dataSource, "rdbms-configuration/fulltext-index-directory", XPathConstants.STRING); //$NON-NLS-1$
             String cacheDirectory = (String) evaluate(dataSource, "rdbms-configuration/cache-directory", XPathConstants.STRING); //$NON-NLS-1$
             String initConnectionURL = (String) evaluate(dataSource, "rdbms-configuration/init/connection-url", XPathConstants.STRING); //$NON-NLS-1$
@@ -222,6 +224,8 @@ public class DataSourceFactory {
                     driverClassName,
                     userName,
                     password,
+                    connectionPoolMinSize,
+                    connectionPoolMaxSize,
                     indexDirectory,
                     cacheDirectory,
                     connectionURL,
