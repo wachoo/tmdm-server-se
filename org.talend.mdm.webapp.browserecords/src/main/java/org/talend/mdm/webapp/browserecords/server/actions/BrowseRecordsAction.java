@@ -17,6 +17,7 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.rmi.RemoteException;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -176,6 +177,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             "org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages", BrowseRecordsAction.class.getClassLoader()); //$NON-NLS-1$
 
     private static final Pattern extractIdPattern = Pattern.compile("\\[.*?\\]"); //$NON-NLS-1$
+
+    private final List<String> dateTypeNames = Arrays.asList("date", "dateTime"); //$NON-NLS-1$//$NON-NLS-2$
+
+    private final List<String> numberTypeNmes = Arrays.asList("double", "float", "decimal", "int", "integer", "long", "short"); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$
 
     public String deleteItemBean(ItemBean item, boolean override, String language) throws ServiceException {
         try {
@@ -499,7 +504,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             for (String key : keySet) {
                 String[] value = formatMap.get(key);
                 org.dom4j.Document doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(itemBean.getItemXml());
-                String xpath = entityModel.getMetaDataTypes().get(key).getXpath();
+                TypeModel tm = entityModel.getMetaDataTypes().get(key);
+                String xpath = tm.getXpath();
                 org.dom4j.Node node = null;
                 if (!key.equals(xpath)) {
                     Namespace namespace = new Namespace("xsi", "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$//$NON-NLS-2$
@@ -519,26 +525,39 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
 
                 if (node != null && itemBean.getOriginalMap() != null) {
-                    String dateText = node.getText();
+                    String dataText = node.getText();
 
-                    if (dateText != null) {
-                        if (dateText.trim().length() != 0) {
-                            if (value[1].equalsIgnoreCase("DATE")) { //$NON-NLS-1$
-                                sdf = new SimpleDateFormat(dateFormat, java.util.Locale.ENGLISH);
-                            } else if (value[1].equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
-                                sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
-                            }
+                    if (dataText != null) {
+                        if (dataText.trim().length() != 0) {
+                            if (dateTypeNames.contains(tm.getType().getTypeName())) {
+                                if (value[1].equalsIgnoreCase("DATE")) { //$NON-NLS-1$
+                                    sdf = new SimpleDateFormat(dateFormat, java.util.Locale.ENGLISH);
+                                } else if (value[1].equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
+                                    sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
+                                }
 
-                            try {
-                                Date date = sdf.parse(dateText.trim());
-                                itemBean.getOriginalMap().put(key, date);
-                                Calendar calendar = Calendar.getInstance();
-                                calendar.setTime(date);
-                                String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
-                                itemBean.getFormateMap().put(key, formatValue);
-                            } catch (Exception e) {
-                                itemBean.getOriginalMap().remove(key);
-                                itemBean.getFormateMap().remove(key);
+                                try {
+                                    Date date = sdf.parse(dataText.trim());
+                                    itemBean.getOriginalMap().put(key, date);
+                                    Calendar calendar = Calendar.getInstance();
+                                    calendar.setTime(date);
+                                    String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
+                                    itemBean.getFormateMap().put(key, formatValue);
+                                } catch (Exception e) {
+                                    itemBean.getOriginalMap().remove(key);
+                                    itemBean.getFormateMap().remove(key);
+                                }
+                            } else if (numberTypeNmes.contains(tm.getType().getTypeName())) {
+                                try {
+                                    NumberFormat nf = NumberFormat.getInstance();
+                                    Number num = nf.parse(dataText.trim());
+                                    itemBean.getOriginalMap().put(key, num);
+                                    String formatValue = String.format(value[0], num);
+                                    itemBean.getFormateMap().put(key, formatValue);
+                                } catch (Exception e) {
+                                    itemBean.getOriginalMap().remove(key);
+                                    itemBean.getFormateMap().remove(key);
+                                }
                             }
                         }
                     }
@@ -891,14 +910,15 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
 
             Set<String> keySet = formatMap.keySet();
-            Map<String, Date> originalMap = new HashMap<String, Date>();
+            Map<String, Object> originalMap = new HashMap<String, Object>();
             Map<String, String> formateValueMap = new HashMap<String, String>();
-            SimpleDateFormat sdf = null;
+            
 
             for (String key : keySet) {
                 String[] value = formatMap.get(key);
-                String xpath = entityModel.getMetaDataTypes().get(key).getXpath();
-                String dateText = null;
+                TypeModel tm = entityModel.getMetaDataTypes().get(key);
+                String xpath = tm.getXpath();
+                String dataText = null;
                 if (!key.equals(xpath)) {
                     NodeList list = Util.getNodeList(doc.getDocumentElement(), xpath.replaceFirst(concept + "/", "./")); //$NON-NLS-1$//$NON-NLS-2$
                     if (list != null) {
@@ -906,34 +926,49 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             Node node = list.item(k);
                             String realType = ((Element) node.getParentNode()).getAttribute("xsi:type"); //$NON-NLS-1$
                             if (key.replaceAll(":" + realType, "").equals(xpath)) { //$NON-NLS-1$//$NON-NLS-2$
-                                dateText = node.getTextContent();
+                                dataText = node.getTextContent();
                                 break;
                             }
                         }
                     }
                 } else {
-                    dateText = Util.getFirstTextNode(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")); //$NON-NLS-1$ //$NON-NLS-2$
+                    dataText = Util.getFirstTextNode(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")); //$NON-NLS-1$ //$NON-NLS-2$
                 }
 
-                if (dateText != null) {
-                    if (dateText.trim().length() != 0) {
-                        if (value[1].equalsIgnoreCase("DATE")) { //$NON-NLS-1$
-                            sdf = new SimpleDateFormat(dateFormat, java.util.Locale.ENGLISH);
-                        } else if (value[1].equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
-                            sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
-                        }
-
-                        try {
-                            Date date = sdf.parse(dateText.trim());
-                            originalMap.put(key, date);
-                            Calendar calendar = Calendar.getInstance();
-                            calendar.setTime(date);
-                            String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
-                            formateValueMap.put(key, formatValue);
-                            Util.getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
-                        } catch (Exception e) {
-                            originalMap.remove(key);
-                            formateValueMap.remove(key);
+                if (dataText != null) {
+                    if (dataText.trim().length() != 0) {
+                        if (dateTypeNames.contains(tm.getType().getTypeName())) {
+                            SimpleDateFormat sdf = null;
+                            if (value[1].equalsIgnoreCase("DATE")) { //$NON-NLS-1$
+                                sdf = new SimpleDateFormat(dateFormat, java.util.Locale.ENGLISH);
+                            } else if (value[1].equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
+                                sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
+                            }
+    
+                            try {
+                                Date date = sdf.parse(dataText.trim());
+                                originalMap.put(key, date);
+                                Calendar calendar = Calendar.getInstance();
+                                calendar.setTime(date);
+                                String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
+                                formateValueMap.put(key, formatValue);
+                                Util.getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
+                            } catch (Exception e) {
+                                originalMap.remove(key);
+                                formateValueMap.remove(key);
+                            }
+                        } else if (numberTypeNmes.contains(tm.getType().getTypeName())) {
+                            try {
+                                NumberFormat nf = NumberFormat.getInstance();
+                                Number num = nf.parse(dataText.trim());
+                                originalMap.put(key, num);
+                                String formatValue = String.format(value[0], num);
+                                formateValueMap.put(key, formatValue);
+                                Util.getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
+                            } catch (Exception e) {
+                                originalMap.remove(key);
+                                formateValueMap.remove(key);
+                            }
                         }
                     }
                 }
@@ -965,17 +1000,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         Set<String> keySet = metaData.keySet();
         for (String key : keySet) {
             TypeModel typeModel = metaData.get(key);
-            if (typeModel.getType().getTypeName().equalsIgnoreCase("DATE") //$NON-NLS-1$
-                    || typeModel.getType().getTypeName().equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
-                if (typeModel.getDisplayFomats() != null) {
-                    if (typeModel.getDisplayFomats().size() > 0) {
-                        if (typeModel.getDisplayFomats().containsKey(languageStr)) {
-                            formatMap.put(key, new String[] { typeModel.getDisplayFomats().get(languageStr),
-                                    typeModel.getType().getTypeName() });
-                        }
+            if (dateTypeNames.contains(typeModel.getType().getTypeName())
+                    || numberTypeNmes.contains(typeModel.getType().getTypeName())) {
+                if (typeModel.getDisplayFomats() != null && typeModel.getDisplayFomats().size() > 0) {
+                    if (typeModel.getDisplayFomats().containsKey(languageStr)) {
+                        formatMap.put(key, new String[] { typeModel.getDisplayFomats().get(languageStr),
+                                typeModel.getType().getTypeName() });
                     }
                 }
             }
+
         }
         return formatMap;
     }

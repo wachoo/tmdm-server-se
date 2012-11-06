@@ -326,6 +326,92 @@ public class BrowseRecordsActionTest extends TestCase {
         assertEquals("true", fifthItemBean.get("Product/Availability"));
     }
 
+    public void test_queryItemBeansWithDisplayFormat() throws Exception {
+        // Create QueryModel parameter
+        QueryModel config = new QueryModel();
+        RecordsPagingConfig pagingConfig = new RecordsPagingConfig();
+        pagingConfig.setLimit(10);
+        pagingConfig.setSortDir("ASC");
+        pagingConfig.setSortField("FormatTest/subelement");
+        config.setPagingLoadConfig(pagingConfig);
+        config.setLanguage("en");
+        config.setDataClusterPK("FormatTest");
+        String concept = "FormatTest";
+        String fileName = "FormatTest.xsd";
+        String viewPK = "Browse_items_FormatTest";
+        // Create ViewBean
+        ViewBean viewBean = getViewBean(concept, fileName);
+        viewBean.setViewPK(viewPK);
+        String keys[] = new String[] { "FormatTest/subelement" };
+        viewBean.getBindingEntityModel().setKeys(keys);
+        // Set viewable elements and searchable elements
+        parseElements(concept, viewBean, getXml("Browse_items_FormatTest.item"));
+        // Reference View file: 'Browse_items_Product.item' to check the parsing results
+        assertEquals(5, viewBean.getViewables().length);
+        assertEquals("FormatTest/subelement", viewBean.getViewables()[0]);
+        assertEquals("FormatTest/name", viewBean.getViewables()[1]);
+        assertEquals("FormatTest/d1", viewBean.getViewables()[2]);
+        assertEquals("FormatTest/dt1", viewBean.getViewables()[3]);
+        assertEquals("FormatTest/num", viewBean.getViewables()[4]);
+        assertEquals(5, viewBean.getSearchables().size());
+        // Set entityModel and viewBean
+        config.setModel(viewBean.getBindingEntityModel());
+        config.setView(viewBean);
+        // Mock get result from server-side
+        PowerMockito.mockStatic(org.talend.mdm.webapp.base.server.util.CommonUtil.class);
+        XtentisPort port = PowerMockito.mock(XtentisPort.class);
+        String[] results = getMockResultsFromServerForDisplayFormat();
+        WSStringArray wsStringArray = new WSStringArray(results);
+        Mockito.when(org.talend.mdm.webapp.base.server.util.CommonUtil.getPort()).thenReturn(port);
+        Mockito.when(port.viewSearch(Mockito.any(WSViewSearch.class))).thenReturn(wsStringArray);
+        Mockito.when(port.isPagingAccurate(Mockito.any(WSInt.class))).thenReturn(new WSBoolean(true));
+        // Mock get SmartViewDescriptions
+        PowerMockito.mockStatic(SmartViewUtil.class);
+        SmartViewDescriptions svd = PowerMockito.mock(SmartViewDescriptions.class);
+        Mockito.when(SmartViewUtil.build(Mockito.any(SmartViewProvider.class), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(svd);
+        // Mock private method
+        BrowseRecordsAction newAction = PowerMockito.spy(action);
+        Whitebox.<Boolean> invokeMethod(newAction, "checkSmartViewExists", Mockito.anyString(), Mockito.anyString());
+        Whitebox.<Boolean> invokeMethod(newAction, "checkSmartViewExistsByOpt", Mockito.anyString(), Mockito.anyString());
+        // Call queryItemBeans
+        ItemBasePageLoadResult<ItemBean> itemBeans = action.queryItemBeans(config);
+        // Total record size
+        assertEquals(results[0], "<totalCount>" + itemBeans.getTotalLength() + "</totalCount>");
+        // Query record size
+        assertEquals(results.length - 1, itemBeans.getData().size());
+        // First record
+        ItemBean firstItemBean = itemBeans.getData().get(0);
+        // First record (xml)
+        String result = "<result><subelement>1111</subelement><name>qqqqq8</name><d1>2012-11-01</d1><dt1>2012-11-02T12:00:00</dt1><num>55</num></result>";
+        assertEquals(result, results[1]);
+        // First record (property name list size)
+        assertEquals(viewBean.getViewables().length, firstItemBean.getPropertyNames().size());
+        // First record (property: subelement)
+        assertEquals("1111", firstItemBean.get("FormatTest/subelement"));
+        // First record (property: Name)
+        assertEquals("qqqqq8", firstItemBean.get("FormatTest/name"));
+        // First record (property: d1)
+        assertEquals("Thu Nov 01 00:00:00 CST 2012", firstItemBean.get("FormatTest/d1"));
+        // First record (property: dt1)
+        assertEquals("Fri Nov 02 12:00:00 CST 2012", firstItemBean.get("FormatTest/dt1"));
+        // First record (property: num)
+        assertEquals("055", firstItemBean.get("FormatTest/num"));
+        // Second record
+        ItemBean secondItemBean = itemBeans.getData().get(1);
+        // Second record (property name list size)
+        assertEquals(viewBean.getViewables().length, secondItemBean.getPropertyNames().size());
+        // Second record (property: subelement)
+        assertEquals("222", secondItemBean.get("FormatTest/subelement"));
+        // Second record (property: Name)
+        assertEquals("www8", secondItemBean.get("FormatTest/name"));
+        // Second record (property: d1)
+        assertEquals("Tue Nov 06 00:00:00 CST 2012", secondItemBean.get("FormatTest/d1"));
+        // Second record (property: dt1)
+        assertEquals("Fri Nov 30 12:00:00 CST 2012", secondItemBean.get("FormatTest/dt1"));
+        // Second record (property: num)
+        assertEquals("087", secondItemBean.get("FormatTest/num"));
+    }
     /**
      * Using the ContractInheritance.xsd to test getItemNodeModel<br>
      * Data File: ContractSampleTwo.xml
@@ -378,6 +464,18 @@ public class BrowseRecordsActionTest extends TestCase {
     private String[] getMockResultsFromServer() throws IOException {
         List<String> results = new ArrayList<String>();
         InputStream is = BrowseRecordsActionTest.class.getResourceAsStream("../../ProductQueryResult.properties");
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        String ln = br.readLine();
+        while (ln != null) {
+            results.add(ln);
+            ln = br.readLine();
+        }
+        return results.toArray(new String[results.size()]);
+    }
+
+    private String[] getMockResultsFromServerForDisplayFormat() throws IOException {
+        List<String> results = new ArrayList<String>();
+        InputStream is = BrowseRecordsActionTest.class.getResourceAsStream("../../FormatTestQueryResult.properties");
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         String ln = br.readLine();
         while (ln != null) {

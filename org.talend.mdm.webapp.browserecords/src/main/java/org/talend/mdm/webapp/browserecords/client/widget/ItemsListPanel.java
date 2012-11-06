@@ -452,7 +452,7 @@ public class ItemsListPanel extends ContentPanel {
 
                 EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
                 final ItemBean itemBean = grid.getSelectionModel().getSelectedItem();
-                Map<String, Date> originalMap = itemBean.getOriginalMap();
+                Map<String, Object> originalMap = itemBean.getOriginalMap();
 
                 while (iterator.hasNext()) {
                     String path = iterator.next();
@@ -468,11 +468,13 @@ public class ItemsListPanel extends ContentPanel {
                         }
                     } else {
                         if (originalMap.containsKey(path)) {
-                            Date date = originalMap.get(path);
+                            Object data = originalMap.get(path);
                             if (DataTypeConstants.DATE.equals(tm.getType())) {
-                                value = DateUtil.getDate(date);
+                                value = DateUtil.getDate((Date) data);
                             } else if (DataTypeConstants.DATETIME.equals(tm.getType())) {
-                                value = DateUtil.getDateTime(date);
+                                value = DateUtil.getDateTime((Date) data);
+                            } else {
+                                value = String.valueOf(data);
                             }
                         }
                         changedField.put(path, value != null ? value : ""); //$NON-NLS-1$                        
@@ -540,6 +542,7 @@ public class ItemsListPanel extends ContentPanel {
                                         return;
                                     }
                                     gridUpdateLock = true;
+                                    refresh(itemBean.getIds(), false);
                                     Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, itemBean);
                                     gridUpdateLock = false;
                                 }
