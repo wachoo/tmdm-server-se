@@ -57,7 +57,9 @@ public class PreviousExecutionController extends AbstractController {
             protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<StagingAreaExecutionModel>> callback) {
                 final PagingLoadConfig config = (PagingLoadConfig) loadConfig;
                 searchButton.setEnabled(false);
-                RestServiceHandler.get().countStagingAreaExecutions(dataContainer, null,
+                StagingAreaExecutionModel criteria = new StagingAreaExecutionModel();
+                criteria.setStartDate(beforeDate);
+                RestServiceHandler.get().countStagingAreaExecutions(dataContainer, criteria,
                         new SessionAwareAsyncCallback<Integer>() {
 
                             public void onSuccess(final Integer total) {
