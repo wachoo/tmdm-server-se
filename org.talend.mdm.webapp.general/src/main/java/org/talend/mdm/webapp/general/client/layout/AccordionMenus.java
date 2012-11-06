@@ -26,6 +26,7 @@ import org.talend.mdm.webapp.general.model.MenuGroup;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -172,6 +173,10 @@ public class AccordionMenus extends ContentPanel {
         public void onClick(ClickEvent event) {
             final HTMLMenuItem item = (HTMLMenuItem) event.getSource();
             final MenuBean menuBean = item.getMenuBean();
+            if (menuBean.isDisabled()) {
+                MessageBox.alert(null, menuBean.getDisabledDesc(), null);
+                return;
+            }
             if (!menuBean.getContext().toLowerCase().equals("licensemanager")) //$NON-NLS-1$
                 service.isExpired(new SessionAwareAsyncCallback<Boolean>() {
 
@@ -218,6 +223,10 @@ public class AccordionMenus extends ContentPanel {
             super(html);
             this.setWordWrap(false);
             this.setStyleName("menu-item"); //$NON-NLS-1$
+            if (menuBean.isDisabled()) {
+                this.addStyleName("x-item-disabled"); //$NON-NLS-1$
+                this.setTitle(menuBean.getDisabledDesc());
+            }
             this.menuBean = menuBean;
             this.getElement().setAttribute("id", "menu-" + menuBean.getContext()); //$NON-NLS-1$//$NON-NLS-2$
         }

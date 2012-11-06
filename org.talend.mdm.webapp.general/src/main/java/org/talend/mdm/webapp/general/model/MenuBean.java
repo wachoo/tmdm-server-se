@@ -32,6 +32,10 @@ public class MenuBean implements Serializable, IsSerializable {
 	String url;
 	String application;
 	
+    boolean disabled;
+
+    String disabledDesc;
+
 	public MenuBean(){}
 
 	public int getId() {
@@ -97,6 +101,21 @@ public class MenuBean implements Serializable, IsSerializable {
 	public void setApplication(String application) {
 		this.application = application;
 	}
-	
-	
+
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+    }
+
+    public String getDisabledDesc() {
+        return disabledDesc;
+    }
+
+    public void setDisabledDesc(String disabledDesc) {
+        this.disabledDesc = disabledDesc;
+    }
+
 }

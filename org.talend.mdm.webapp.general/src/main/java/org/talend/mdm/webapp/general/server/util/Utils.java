@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -24,6 +25,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.webapp.general.model.GroupItem;
 import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
@@ -33,6 +35,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.SystemLocale;
 import com.amalto.webapp.core.util.SystemLocaleFactory;
@@ -53,6 +57,9 @@ public class Utils {
 
     /** a reference to the factory used to create Gxt instances */
     private static GxtFactory gxtFactory = new GxtFactory(GXT_PROPERTIES, EXCLUDING_PROPERTIES, GXT_CSS_RESOURCES);
+
+    private static final Messages MESSAGES = MessagesFactory.getMessages(
+            "org.talend.mdm.webapp.general.client.i18n.GeneralMessages", Utils.class.getClassLoader()); //$NON-NLS-1$
 
     public static void getJavascriptImportDetail(List<String> imports) {
         try {
@@ -80,12 +87,22 @@ public class Utils {
             }
             item.setName(name);
             item.setApplication(subMenu.getApplication() == null ? "" : subMenu.getApplication()); //$NON-NLS-1$
+            disabledMenuItemIf(subMenu, item, language);
             rows.add(item);
             i++;
             if (subMenu.getSubMenus().size() > 0)
                 i = getSubMenus(subMenu, language, rows, level + 1, i);
         }
         return i;
+    }
+
+    private static void disabledMenuItemIf(Menu menu, MenuBean menuBean, String language) {
+        if ("stagingarea".equals(menu.getContext()) && "Stagingarea".equals(menu.getApplication())) { //$NON-NLS-1$ //$NON-NLS-2$
+            if (!MDMConfiguration.isSqlDataBase()) {
+                menuBean.setDisabled(true);
+                menuBean.setDisabledDesc(MESSAGES.getMessage(new Locale(language), "stagingarea_unavailable")); //$NON-NLS-1$
+            }
+        }
     }
 
     public static ArrayList<String> getCssImport() throws Exception {
