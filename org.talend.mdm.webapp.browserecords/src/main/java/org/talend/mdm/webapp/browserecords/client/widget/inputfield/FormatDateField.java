@@ -77,6 +77,7 @@ public class FormatDateField extends DateField {
             }
             return value == null ? "" : propertyEditor.getStringValue(value); //$NON-NLS-1$
         } catch (Exception e) {
+            super.validateValue(rawValue);
             return value == null ? "" : propertyEditor.getStringValue(value); //$NON-NLS-1$
         }
     }
