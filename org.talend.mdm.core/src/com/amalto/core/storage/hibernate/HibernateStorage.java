@@ -10,25 +10,25 @@
 
 package com.amalto.core.storage.hibernate;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.util.*;
-
+import com.amalto.core.metadata.*;
+import com.amalto.core.query.optimization.ContainsOptimizer;
+import com.amalto.core.query.optimization.Optimizer;
+import com.amalto.core.query.optimization.RangeOptimizer;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryDumpConsole;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
+import com.amalto.core.storage.prepare.*;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordConverter;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import net.sf.ehcache.CacheManager;
-
 import org.apache.log4j.Logger;
-import org.hibernate.FlushMode;
-import org.hibernate.HibernateException;
-import org.hibernate.NonUniqueObjectException;
-import org.hibernate.PropertyValueException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.search.MassIndexer;
@@ -42,33 +42,13 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.ContainedTypeFieldMetadata;
-import com.amalto.core.metadata.DefaultMetadataVisitor;
-import com.amalto.core.metadata.EnumerationFieldMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.metadata.MetadataUtils;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
-import com.amalto.core.metadata.SimpleTypeFieldMetadata;
-import com.amalto.core.query.optimization.ContainsOptimizer;
-import com.amalto.core.query.optimization.Optimizer;
-import com.amalto.core.query.optimization.RangeOptimizer;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.datasource.DataSource;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
-import com.amalto.core.storage.prepare.FullTextIndexCleaner;
-import com.amalto.core.storage.prepare.JDBCStorageCleaner;
-import com.amalto.core.storage.prepare.JDBCStorageInitializer;
-import com.amalto.core.storage.prepare.StorageCleaner;
-import com.amalto.core.storage.prepare.StorageInitializer;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordConverter;
-import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.*;
 
 public class HibernateStorage implements Storage {
 
@@ -80,7 +60,7 @@ public class HibernateStorage implements Storage {
 
     private static final Logger LOGGER = Logger.getLogger(HibernateStorage.class);
 
-    private static final Optimizer[] OPTIMIZERS = new Optimizer[] { new RangeOptimizer(), new ContainsOptimizer() };
+    private static final Optimizer[] OPTIMIZERS = new Optimizer[]{new RangeOptimizer(), new ContainsOptimizer()};
 
     private static final String FORBIDDEN_PREFIX = "x_talend_"; //$NON-NLS-1$
 
@@ -116,7 +96,7 @@ public class HibernateStorage implements Storage {
 
     /**
      * Create a {@link StorageType#MASTER} storage.
-     * 
+     *
      * @param storageName Name for this storage. <b>by convention</b>, this is the MDM container name.
      * @see StorageType#MASTER
      */
@@ -126,7 +106,7 @@ public class HibernateStorage implements Storage {
 
     /**
      * @param storageName Name for this storage. <b>By convention</b>, this is the MDM container name.
-     * @param type Tells whether this storage is a staging area or not.
+     * @param type        Tells whether this storage is a staging area or not.
      * @see StorageType
      */
     public HibernateStorage(String storageName, StorageType type) {
@@ -160,7 +140,7 @@ public class HibernateStorage implements Storage {
 
     @Override
     public synchronized void prepare(MetadataRepository repository, Set<FieldMetadata> indexedFields, boolean force,
-            boolean dropExistingData) {
+                                     boolean dropExistingData) {
         if (!force && isPrepared) {
             return; // No op operation
         }
@@ -229,24 +209,46 @@ public class HibernateStorage implements Storage {
                 TypeMapping mapping = mappingRepository.getMappingFromUser(indexedField.getContainingType());
                 databaseIndexedFields.add(mapping.getDatabase(indexedField));
             }
-            if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Oracle database is being used. Limit table name length to 30.");
-                }
-                tableResolver = new StorageTableResolver(databaseIndexedFields, 30);
-            } else {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("No limitation for table name length.");
-                }
-                tableResolver = new StorageTableResolver(databaseIndexedFields);
+            // Set table/column name length limitation
+            switch (dataSource.getDialectName()) {
+                case ORACLE_10G:
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Oracle database is being used. Limit table name length to 30.");
+                    }
+                    tableResolver = new StorageTableResolver(databaseIndexedFields, 30);
+                    break;
+                case MYSQL:
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("MySQL database is being used. Limit table name length to 64.");
+                    }
+                    tableResolver = new StorageTableResolver(databaseIndexedFields, 64);
+                    break;
+                case SQL_SERVER:
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("SQL Server database is being used. Limit table name length to 128.");
+                    }
+                    tableResolver = new StorageTableResolver(databaseIndexedFields, 128);
+                    break;
+                case POSTGRES:
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Postgres database is being used. Limit table name length to 63.");
+                    }
+                    tableResolver = new StorageTableResolver(databaseIndexedFields, 63);
+                    break;
+                case H2:
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("No limitation for table name length.");
+                    }
+                    tableResolver = new StorageTableResolver(databaseIndexedFields);
+                    break;
             }
             storageClassLoader.setTableResolver(tableResolver);
             // Master and Staging share same class creator.
             switch (storageType) {
-            case MASTER:
-            case STAGING:
-                hibernateClassCreator = new ClassCreator(storageClassLoader);
-                break;
+                case MASTER:
+                case STAGING:
+                    hibernateClassCreator = new ClassCreator(storageClassLoader);
+                    break;
             }
             // Create Hibernate classes (after some modifications to the types).
             try {
@@ -290,7 +292,7 @@ public class HibernateStorage implements Storage {
             if (LOGGER.isTraceEnabled()) {
                 traceDDL();
             }
-            
+
         } catch (Throwable t) {
             try {
                 // This prevent PermGen OOME in case of multiple failures to start.
@@ -330,14 +332,14 @@ public class HibernateStorage implements Storage {
     private InternalRepository getTypeEnhancer() {
         if (typeMappingRepository == null) {
             switch (storageType) {
-            case MASTER:
-                typeMappingRepository = new UserTypeMappingRepository();
-                break;
-            case STAGING:
-                typeMappingRepository = new StagingTypeMappingRepository();
-                break;
-            default:
-                throw new IllegalArgumentException("Storage type '" + storageType + "' is not supported.");
+                case MASTER:
+                    typeMappingRepository = new UserTypeMappingRepository();
+                    break;
+                case STAGING:
+                    typeMappingRepository = new StagingTypeMappingRepository();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Storage type '" + storageType + "' is not supported.");
             }
         }
         return typeMappingRepository;
@@ -346,7 +348,7 @@ public class HibernateStorage implements Storage {
     @Override
     public synchronized void prepare(MetadataRepository repository, boolean dropExistingData) {
         if (!isPrepared) {
-            prepare(repository, Collections.<FieldMetadata> emptySet(), false, dropExistingData);
+            prepare(repository, Collections.<FieldMetadata>emptySet(), false, dropExistingData);
         }
     }
 
@@ -372,7 +374,7 @@ public class HibernateStorage implements Storage {
             transaction.begin();
         }
         // Call back closes session once calling code has consumed all results.
-        Set<EndOfResultsCallback> callbacks = Collections.<EndOfResultsCallback> singleton(new EndOfResultsCallback() {
+        Set<EndOfResultsCallback> callbacks = Collections.<EndOfResultsCallback>singleton(new EndOfResultsCallback() {
 
             @Override
             public void onEndOfResults() {
@@ -590,7 +592,7 @@ public class HibernateStorage implements Storage {
             Thread.currentThread().setContextClassLoader(storageClassLoader);
             Session session = factory.getCurrentSession();
 
-            Iterable<DataRecord> records = internalFetch(session, userQuery, Collections.<EndOfResultsCallback> emptySet());
+            Iterable<DataRecord> records = internalFetch(session, userQuery, Collections.<EndOfResultsCallback>emptySet());
             for (DataRecord currentDataRecord : records) {
                 ComplexTypeMetadata currentType = currentDataRecord.getType();
                 TypeMapping mapping = mappingRepository.getMappingFromUser(currentType);
