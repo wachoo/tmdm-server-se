@@ -13,12 +13,8 @@
 package org.talend.mdm.webapp.base.client.model;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
-import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 
 public class ItemBean extends ItemBaseModel {
 
@@ -32,7 +28,7 @@ public class ItemBean extends ItemBaseModel {
 
     private Map<String, ForeignKeyBean> foreignkeyDesc = new HashMap<String, ForeignKeyBean>();
 
-    private Map<String, Date> originalMap;
+    private Map<String, Object> originalMap;
     
     private Map<String, String> formateMap;
     
@@ -122,11 +118,11 @@ public class ItemBean extends ItemBaseModel {
         return item.ids == this.ids;
     }
    
-    public Map<String, Date> getOriginalMap() {
+    public Map<String, Object> getOriginalMap() {
         return originalMap;
     }
     
-    public void setOriginalMap(Map<String, Date> originalMap) {
+    public void setOriginalMap(Map<String, Object> originalMap) {
         this.originalMap = originalMap;
     }
 
