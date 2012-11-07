@@ -265,21 +265,19 @@ public class HibernateStorage implements Storage {
                 // This method is deprecated but using a 4.1+ hibernate initialization, Hibernate Search can't be
                 // started
                 // (wait for Hibernate Search 4.1 to be ready before considering changing this).
-                if (autoPrepare) {
-                    SchemaUpdate schemaUpdate = new SchemaUpdate(configuration);
-                    schemaUpdate.execute(false, true);
-                    if (!schemaUpdate.getExceptions().isEmpty()) {
-                        StringBuilder sb = new StringBuilder();
-                        sb.append("Could not prepare database schema: ");
-                        Iterator iterator = schemaUpdate.getExceptions().iterator();
-                        while (iterator.hasNext()) {
-                            sb.append(((Exception) iterator.next()).getMessage());
-                            if (iterator.hasNext()) {
-                                sb.append('\n');
-                            }
+                SchemaUpdate schemaUpdate = new SchemaUpdate(configuration);
+                schemaUpdate.execute(false, true);
+                if (!schemaUpdate.getExceptions().isEmpty()) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("Could not prepare database schema: ");
+                    Iterator iterator = schemaUpdate.getExceptions().iterator();
+                    while (iterator.hasNext()) {
+                        sb.append(((Exception) iterator.next()).getMessage());
+                        if (iterator.hasNext()) {
+                            sb.append('\n');
                         }
-                        throw new IllegalStateException(sb.toString());
                     }
+                    throw new IllegalStateException(sb.toString());
                 }
                 factory = configuration.buildSessionFactory();
             } catch (Exception e) {
