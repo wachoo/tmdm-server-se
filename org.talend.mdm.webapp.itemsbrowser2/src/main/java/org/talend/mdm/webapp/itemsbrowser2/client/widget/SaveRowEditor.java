@@ -53,7 +53,7 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
             Map<String, Element> elementSet = new HashMap<String, Element>();
 
             final ItemBean itemBean = grid.getSelectionModel().getSelectedItem();
-            Map<String, Date> originalMap = itemBean.getOriginalMap();
+            Map<String, Object> originalMap = itemBean.getOriginalMap();
             Map<String, TypeModel> metaType = Itemsbrowser2.getSession().getCurrentEntityModel().getMetaDataTypes();
             
             for (String index : metaType.keySet()) {
@@ -71,8 +71,12 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
                         value = str.substring(str.lastIndexOf("-") + 1, str.length()); //$NON-NLS-1$
                     }else{
                         if(originalMap.containsKey(key)){
-                            Date date = originalMap.get(key);
-                            value = DateUtil.getDate(date);
+                            Object data = originalMap.get(key);
+                            if (data instanceof Date) {
+                                value = DateUtil.getDate((Date) data);
+                            } else {
+                                value = String.valueOf(data);
+                            }
                         }
                     }
                     createElements(typeModel.getXpath(), value == null ? "" : value.toString(), elementSet, doc);//$NON-NLS-1$

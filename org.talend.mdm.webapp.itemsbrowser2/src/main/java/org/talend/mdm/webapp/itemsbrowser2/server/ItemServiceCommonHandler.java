@@ -182,7 +182,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 }
 
                 Set<String> keySet = formatMap.keySet();
-                Map<String, Date> originalMap = new HashMap<String, Date>();
+                Map<String, Object> originalMap = new HashMap<String, Object>();
                 SimpleDateFormat sdf = null;
 
                 for (String key : keySet) {
