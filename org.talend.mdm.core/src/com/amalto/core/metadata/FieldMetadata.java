@@ -17,7 +17,7 @@ import java.util.List;
  * Represents a "field" in a {@link ComplexTypeMetadata}. A field is an element in a MDM entity where user can specify
  * values.
  */
-public interface FieldMetadata extends MetadataVisitable {
+public interface FieldMetadata extends MetadataVisitable, MetadataExtensible {
 
     /**
      * @return The field's name that should be unique within the type

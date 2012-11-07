@@ -60,6 +60,16 @@ public class SoftIdFieldRef implements FieldMetadata {
         }
     }
 
+    @Override
+    public synchronized void setData(String key, Object data) {
+        getField().setData(key, data);
+    }
+
+    @Override
+    public <X> X getData(String key) {
+        return getField().getData(key);
+    }
+
     public String getName() {
         if (fieldName != null) {
             return fieldName;

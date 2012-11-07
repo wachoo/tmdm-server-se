@@ -239,27 +239,27 @@
             </xsd:element>
         </xsd:all>
     </xsd:complexType>
-    <xsd:complexType name="Test"> 
-    <xsd:sequence> 
+    <xsd:complexType name="Test">
+        <xsd:sequence>
 
-                <xsd:element maxOccurs="1" minOccurs="1" name="Id" type="AUTO_INCREMENT">
-                    <xsd:annotation>
-                        <xsd:appinfo source="X_Label_EN">Id (sequence)</xsd:appinfo>
-                        <xsd:appinfo source="X_Label_FR">Id (sequence)</xsd:appinfo>
-                        <xsd:appinfo source="X_Write">User</xsd:appinfo>
-                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
-                    </xsd:annotation>
-                </xsd:element>
-                <xsd:element maxOccurs="1" minOccurs="1" name="Name" type="xsd:string">
-                    <xsd:annotation>
-                        <xsd:appinfo source="X_Label_EN">Name</xsd:appinfo>
-                        <xsd:appinfo source="X_Label_FR">Nom</xsd:appinfo>
-                        <xsd:appinfo source="X_Write">User</xsd:appinfo>
-                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
-                    </xsd:annotation>
-                </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="1" name="Id" type="AUTO_INCREMENT">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Label_EN">Id (sequence)</xsd:appinfo>
+                    <xsd:appinfo source="X_Label_FR">Id (sequence)</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">User</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="1" name="Name" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Label_EN">Name</xsd:appinfo>
+                    <xsd:appinfo source="X_Label_FR">Nom</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">User</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
 
-    </xsd:sequence> 
+        </xsd:sequence>
     </xsd:complexType>
     <xsd:element name="Product">
         <xsd:annotation>

@@ -56,6 +56,16 @@ public class SoftFieldRef implements FieldMetadata {
         }
     }
 
+    @Override
+    public synchronized void setData(String key, Object data) {
+        getField().setData(key, data);
+    }
+
+    @Override
+    public <X> X getData(String key) {
+        return getField().getData(key);
+    }
+
     public String getName() {
         return fieldName;
     }

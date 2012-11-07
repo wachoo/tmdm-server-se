@@ -16,6 +16,7 @@ import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.metadata.*;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 
@@ -297,6 +298,8 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private class CompareClosure implements Closure {
 
+        private Logger LOGGER = Logger.getLogger(CompareClosure.class);
+
         public void execute(FieldMetadata field) {
             compare(field);
             if (field instanceof ReferenceFieldMetadata) {
@@ -311,12 +314,30 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
                     if (!newType.isEmpty()) {
                         ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, newType);
-                        ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, previousType);
-                        // Perform some checks about the xsi:type value (valid or not?).
-                        if (newTypeMetadata == null) {
-                            throw new IllegalArgumentException("Type '" + newType + "' was not found.");
+                        if (!newTypeMetadata.isInstantiable()) {
+                            ComplexTypeMetadata actualNewTypeMetadata = null;
+                            Collection<TypeMetadata> instantiableTypes = repository.getInstantiableTypes();
+                            for (TypeMetadata instantiableType : instantiableTypes) {
+                                if (newType.equals(instantiableType.getData(MetadataRepository.COMPLEX_TYPE_NAME))) {
+                                    if (actualNewTypeMetadata != null) {
+                                        // Multiple candidates for inheritance are forbidden / not supported.
+                                        throw new IllegalArgumentException("Reusable type '" + newType + "'is at least used by " +
+                                                "'" + actualNewTypeMetadata.getName() + "' and '" + instantiableType.getName() + "'.");
+                                    }
+                                    actualNewTypeMetadata = (ComplexTypeMetadata) instantiableType;
+                                }
+                            }
+                            if (actualNewTypeMetadata == null) {
+                                // Type is still a 'reusable' type (not entity): this is an error case.
+                                throw new IllegalStateException("Can not find entity type using reusable type '" + newType + "'.");
+                            }
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("Replacing type '" + newType + "' with '" + actualNewTypeMetadata.getName() + ".");
+                            }
+                            newTypeMetadata = actualNewTypeMetadata;
                         }
-                        // TODO Check if type of element isn't a subclass of declared type (use of xsi:type).
+                        ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, previousType);
+                        // TODO Perform some checks about the tmdm:type value (valid or not?).
                         actions.add(new ChangeReferenceTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata));
                     }
                 }

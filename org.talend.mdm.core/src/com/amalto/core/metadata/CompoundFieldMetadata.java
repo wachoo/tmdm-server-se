@@ -15,7 +15,7 @@ import javax.xml.XMLConstants;
 import java.util.Arrays;
 import java.util.List;
 
-public class CompoundFieldMetadata implements FieldMetadata {
+public class CompoundFieldMetadata extends AbstractMetadataExtensible implements FieldMetadata {
 
     private final FieldMetadata[] fields;
 

@@ -20,7 +20,7 @@ import java.util.Collection;
  * <li>Complex: for user defined entity types and usually represented as {@link ComplexTypeMetadata}</li>.
  * </ul>
  */
-public interface TypeMetadata extends MetadataVisitable {
+public interface TypeMetadata extends MetadataVisitable, MetadataExtensible {
 
     /**
      * Returns a <b>READ ONLY</b> collection of super types. For adding super type see {@link #addSuperType(TypeMetadata, MetadataRepository)}

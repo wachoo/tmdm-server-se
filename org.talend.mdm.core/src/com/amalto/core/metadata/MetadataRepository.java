@@ -30,6 +30,8 @@ import java.util.*;
  */
 public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
+    public static final String COMPLEX_TYPE_NAME = "metadata.complex.type.name"; //$NON-NLS-1$
+
     private static final String ANONYMOUS_PREFIX = "X_ANONYMOUS";
 
     private static final Logger LOGGER = Logger.getLogger(MetadataRepository.class);
@@ -130,8 +132,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
         if (inputStream == null) {
             throw new IllegalArgumentException("Input stream can not be null.");
         }
+        // TMDM-4444: Adds standard Talend types such as UUID.
         try {
-            // TMDM-4444: Adds standard Talend types such as UUID.
             XmlSchemaCollection collection = new XmlSchemaCollection();
             InputStream internalTypes = MetadataRepository.class.getResourceAsStream("talend_types.xsd"); //$NON-NLS-1$
             if (internalTypes == null) {
@@ -142,6 +144,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Could not parse internal data model.", e); //$NON-NLS-1$
         }
+        // Load user defined data model now
         try {
             XmlSchemaCollection collection = new XmlSchemaCollection();
             collection.read(new InputStreamReader(inputStream, "UTF-8"), new ValidationEventHandler()); //$NON-NLS-1$
@@ -149,9 +152,38 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Could not parse data model.", e); //$NON-NLS-1$
         }
+        // TMDM-4876 Additional processing for entity inheritance
+        resolveAdditionalSuperTypes();
         // "Freeze" all types (a consequence of this will be validation of all fields).
         for (TypeMetadata type : getTypes()) {
             type.freeze();
+        }
+    }
+
+    private void resolveAdditionalSuperTypes() {
+        Map<String, TypeMetadata> userEntityTypes = entityTypes.get(USER_NAMESPACE);
+        for (TypeMetadata current : userEntityTypes.values()) {
+            String complexTypeName = current.getData(COMPLEX_TYPE_NAME);
+            if (complexTypeName != null) {
+                TypeMetadata nonInstantiableType = getNonInstantiableType(USER_NAMESPACE, complexTypeName);
+                if (!nonInstantiableType.getSuperTypes().isEmpty()) {
+                    if (nonInstantiableType.getSuperTypes().size() > 1) {
+                        throw new UnsupportedOperationException("Multiple inheritance is not supported.");
+                    }
+                    TypeMetadata superType = nonInstantiableType.getSuperTypes().iterator().next();
+                    Collection<TypeMetadata> entities = userEntityTypes.values();
+                    ComplexTypeMetadata entitySuperType = null;
+                    for (TypeMetadata entity : entities) {
+                        if (superType.getName().equals(entity.getData(COMPLEX_TYPE_NAME))) {
+                            entitySuperType = (ComplexTypeMetadata) entity;
+                            break;
+                        }
+                    }
+                    if (entitySuperType != null) {
+                        current.addSuperType(entitySuperType, this);
+                    }
+                }
+            }
         }
     }
 
@@ -241,8 +273,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                     throw new IllegalArgumentException("Constraint of type '" + nextConstraint.getClass().getName() + "' not supported.");
                 }
             }
-            ComplexTypeMetadata type = getComplexType(typeName);
-            if (type == null) { // Take type from repository if already built
+            ComplexTypeMetadata type = getComplexType(typeName); // Take type from repository if already built
+            if (type == null) {
                 XmlSchemaAnnotationProcessorState state;
                 try {
                     XmlSchemaAnnotation annotation = element.getAnnotation();
@@ -306,6 +338,9 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
             ComplexTypeMetadata nonInstantiableType = new ComplexTypeMetadataImpl(targetNamespace, typeName, false);
             addTypeMetadata(nonInstantiableType);
             currentTypeStack.push(nonInstantiableType);
+        } else {
+            // Keep track of the complex type used for entity type (especially for inheritance).
+            currentTypeStack.peek().setData(MetadataRepository.COMPLEX_TYPE_NAME, typeName);
         }
         XmlSchemaParticle contentTypeParticle = type.getParticle();
         if (contentTypeParticle != null && contentTypeParticle instanceof XmlSchemaGroupBase) {
@@ -483,5 +518,9 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
     public void close() {
         entityTypes.clear();
         nonInstantiableTypes.clear();
+    }
+
+    public Collection<TypeMetadata> getInstantiableTypes() {
+        return entityTypes.get(USER_NAMESPACE).values();
     }
 }

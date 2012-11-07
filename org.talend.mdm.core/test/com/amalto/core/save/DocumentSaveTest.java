@@ -312,7 +312,7 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
         assertEquals("16.99", evaluate(committedElement, "/Product/Price"));
-        assertEquals("Test", evaluate(committedElement, "/Product/Family/@tmdm:type"));
+        assertEquals("ProductFamily", evaluate(committedElement, "/Product/Family/@tmdm:type"));
     }
 
     public void testReplaceWithForeignKeyType() throws Exception {
@@ -333,7 +333,7 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
         assertEquals("16.99", evaluate(committedElement, "/Product/Price"));
-        assertEquals("Test", evaluate(committedElement, "/Product/Family/@tmdm:type"));
+        assertEquals("ProductFamily", evaluate(committedElement, "/Product/Family/@tmdm:type"));
     }
 
     public void testPartialUpdate() throws Exception {
@@ -1734,7 +1734,7 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
-        assertEquals("CompanyType", evaluate(committedElement, "/Product/supplier/@tmdm:type"));
+        assertEquals("Company", evaluate(committedElement, "/Product/supplier/@tmdm:type"));
         assertEquals("[company]", evaluate(committedElement, "/Product/supplier"));
     }
 

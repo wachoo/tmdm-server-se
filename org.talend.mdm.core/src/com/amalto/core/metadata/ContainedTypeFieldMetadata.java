@@ -16,7 +16,7 @@ import java.util.List;
 /**
  *
  */
-public class ContainedTypeFieldMetadata implements FieldMetadata {
+public class ContainedTypeFieldMetadata extends AbstractMetadataExtensible implements FieldMetadata {
 
     private final boolean isMany;
 

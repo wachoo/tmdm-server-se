@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *
  */
-public class SimpleTypeMetadata implements TypeMetadata {
+public class SimpleTypeMetadata extends AbstractMetadataExtensible implements TypeMetadata {
 
     private final String nameSpace;
 
@@ -32,7 +32,6 @@ public class SimpleTypeMetadata implements TypeMetadata {
         if (name == null) {
             throw new IllegalArgumentException("Name cannot be null.");
         }
-
         this.name = name;
         this.nameSpace = nameSpace;
     }
@@ -57,8 +56,20 @@ public class SimpleTypeMetadata implements TypeMetadata {
     }
 
     public boolean isAssignableFrom(TypeMetadata type) {
-        // Don't support inheritance with simple types.
-        return false;
+        // Check one level of inheritance
+        Collection<TypeMetadata> superTypes = getSuperTypes();
+        for (TypeMetadata superType : superTypes) {
+            if (type.getName().equals(superType.getName())) {
+                return true;
+            }
+        }
+        // Checks in type inheritance hierarchy.
+        for (TypeMetadata superType : superTypes) {
+            if (superType.isAssignableFrom(type)) {
+                return true;
+            }
+        }
+        return getName().equals(type.getName());
     }
 
     public TypeMetadata copy(MetadataRepository repository) {

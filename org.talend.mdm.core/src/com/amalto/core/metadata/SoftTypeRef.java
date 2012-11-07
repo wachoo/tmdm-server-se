@@ -84,6 +84,16 @@ public class SoftTypeRef implements ComplexTypeMetadata {
         return (ComplexTypeMetadata) type;
     }
 
+    @Override
+    public synchronized void setData(String key, Object data) {
+        getType().setData(key, data);
+    }
+
+    @Override
+    public <X> X getData(String key) {
+        return getType().getData(key);
+    }
+
     public Collection<TypeMetadata> getSuperTypes() {
         return getType().getSuperTypes();
     }
