@@ -752,13 +752,13 @@
             <xsd:field xpath="id"/>
         </xsd:unique>
     </xsd:element>
-    <xsd:element name="C" substitutionGroup="A" type="C">
+    <xsd:element name="C" type="C">
         <xsd:unique name="C">
             <xsd:selector xpath="."/>
             <xsd:field xpath="id"/>
         </xsd:unique>
     </xsd:element>
-    <xsd:element name="D" substitutionGroup="B" type="D">
+    <xsd:element name="D" type="D">
         <xsd:unique name="D">
             <xsd:selector xpath="."/>
             <xsd:field xpath="id"/>
@@ -961,68 +961,68 @@
         </xsd:unique>
     </xsd:element>
     <xsd:element name="E1">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
-</xsd:annotation>
-<xsd:complexType>
-<xsd:all>
-<xsd:element name="subelement" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-<xsd:element maxOccurs="1" minOccurs="0" name="subelement1" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-<xsd:element maxOccurs="1" minOccurs="0" name="name" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-</xsd:all>
-</xsd:complexType>
-<xsd:unique name="E1">
-<xsd:selector xpath="."/>
-<xsd:field xpath="subelement"/>
-<xsd:field xpath="subelement1"/>
-</xsd:unique>
-</xsd:element>
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element name="subelement" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="subelement1" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="name" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="E1">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="subelement"/>
+            <xsd:field xpath="subelement1"/>
+        </xsd:unique>
+    </xsd:element>
     <xsd:element name="E2">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
-</xsd:annotation>
-<xsd:complexType>
-<xsd:all>
-<xsd:element name="subelement" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-<xsd:element maxOccurs="1" minOccurs="0" name="subelement1" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-<xsd:element maxOccurs="1" minOccurs="0" name="name" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-<xsd:element maxOccurs="1" minOccurs="0" name="fk" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_ForeignKey">E1</xsd:appinfo>
-<xsd:appinfo source="X_ForeignKey_NotSep">false</xsd:appinfo>
-<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-</xsd:all>
-</xsd:complexType>
-<xsd:unique name="E2">
-<xsd:selector xpath="."/>
-<xsd:field xpath="subelement"/>
-<xsd:field xpath="subelement1"/>
-</xsd:unique>
-</xsd:element>
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element name="subelement" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="subelement1" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="name" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="fk" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_ForeignKey">E1</xsd:appinfo>
+                        <xsd:appinfo source="X_ForeignKey_NotSep">false</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="E2">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="subelement"/>
+            <xsd:field xpath="subelement1"/>
+        </xsd:unique>
+    </xsd:element>
 </xsd:schema>

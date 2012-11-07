@@ -98,7 +98,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             // Adds super type
             Collection<TypeMetadata> superTypes = complexType.getSuperTypes();
             if (superTypes.size() > 1) {
-                throw new IllegalArgumentException("Cannot handle multiple inheritance (type '" + complexType.getName() + "' has " + superTypes.size() + " super types.");
+                throw new IllegalArgumentException("Cannot handle multiple inheritance (type '" + complexType.getName() + "' has " + superTypes.size() + " super types).");
             }
             Iterator<TypeMetadata> superTypesIterator = superTypes.iterator();
             if (superTypesIterator.hasNext()) {
