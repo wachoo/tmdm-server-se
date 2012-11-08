@@ -129,7 +129,7 @@ public class DisplayRuleEngine {
                         for (Object node : nodes) {
                             Element el = (Element) node;
                             String preciseXPath = getRealXPath(el);
-                            String style = genDefaultValueStyle(concept, preciseXPath, model.getDefaultValueExpression());
+                            String style = genDefaultValueStyle(concept, preciseXPath, model.getDefaultValueExpression(), model);
                             org.dom4j.Document transformedDocumentValue = XmlUtil.styleDocument(dom4jDoc, style);
 
                             int beginIndex = preciseXPath.lastIndexOf("/"); //$NON-NLS-1$
@@ -190,7 +190,7 @@ public class DisplayRuleEngine {
     }
 
 
-    private String genDefaultValueStyle(String concept, String xpath, String defaultValueRule) {
+    private String genDefaultValueStyle(String concept, String xpath, String defaultValueRule, TypeModel typeModel) {
         StringBuffer style = new StringBuffer();
         style
                 .append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:fn=\"http://www.w3.org/2005/xpath-functions\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"2.0\">"); //$NON-NLS-1$
@@ -205,7 +205,12 @@ public class DisplayRuleEngine {
         style.append("<xsl:template match=\"/" + xpath + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
         style.append("<xsl:copy>"); //$NON-NLS-1$
         style.append("<xsl:choose>"); //$NON-NLS-1$
-        style.append("<xsl:when test=\"not(text())\">"); //$NON-NLS-1$
+        if ("boolean".equals(typeModel.getType().getTypeName())) { //$NON-NLS-1$
+            style.append("<xsl:when test=\"not(text()) or . = 'false'\">"); //$NON-NLS-1$
+        } else {
+            style.append("<xsl:when test=\"not(text())\">"); //$NON-NLS-1$
+        }
+        
         style.append("<xsl:value-of select=\"" + XmlUtil.escapeXml(defaultValueRule) + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
         style.append("</xsl:when> "); //$NON-NLS-1$
         style.append("<xsl:otherwise>"); //$NON-NLS-1$

@@ -21,6 +21,7 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.dom4j.Node;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.server.ruleengine.DisplayRuleEngine;
@@ -48,7 +49,7 @@ public class CommonUtilTest extends TestCase {
         metaDataTypes.put(idEdaType.getTypePath(), idEdaType);
         edaType.addSubType(idEdaType);
 
-        SimpleTypeModel statutEdaType = new SimpleTypeModel("statutEda", null); //$NON-NLS-1
+        SimpleTypeModel statutEdaType = new SimpleTypeModel("statutEda", DataTypeConstants.STRING); //$NON-NLS-1
         statutEdaType.setTypePath("Eda/statutEda"); //$NON-NLS-1
         statutEdaType.setDefaultValueExpression("\"Brouillon\""); //$NON-NLS-1
         metaDataTypes.put(statutEdaType.getTypePath(), statutEdaType);
