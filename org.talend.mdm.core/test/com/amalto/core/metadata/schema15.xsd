@@ -341,7 +341,7 @@
     <xsd:element name="Company" type="Company">
         <xsd:unique name="Company">
             <xsd:selector xpath="."/>
-            <xsd:field xpath="name"/>
+            <xsd:field xpath="code"/>
         </xsd:unique>
     </xsd:element>
     <xsd:complexType name="Company">
@@ -356,7 +356,7 @@
     <xsd:element name="Individual" type="Individual">
         <xsd:unique name="Individual">
             <xsd:selector xpath="."/>
-            <xsd:field xpath="firstName"/>
+            <xsd:field xpath="code"/>
         </xsd:unique>
     </xsd:element>
     <xsd:complexType name="Individual">

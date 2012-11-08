@@ -63,13 +63,13 @@
     <xsd:element name="man2" type="man">
         <xsd:unique name="man2">
             <xsd:selector xpath="."/>
-            <xsd:field xpath="address/country"/>
+            <xsd:field xpath="id"/>
         </xsd:unique>
     </xsd:element>
     <xsd:element name="Sman" type="Sman">
         <xsd:unique name="Sman">
             <xsd:selector xpath="."/>
-            <xsd:field xpath="sp1"/>
+            <xsd:field xpath="id"/>
         </xsd:unique>
     </xsd:element>
 </xsd:schema>
