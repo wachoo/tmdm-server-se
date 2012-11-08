@@ -815,9 +815,18 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     throw new ServiceException(MESSAGES.getMessage("dropItem_null")); //$NON-NLS-1$
                 }
             }
-        } catch (Exception e) {
+        } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
+            throw e;
+        } catch (Exception exception) {
+            String errorMessage;
+            if (WebCoreException.class.isInstance(exception.getCause())){
+                errorMessage = getErrorMessageFromWebCoreException(((WebCoreException) exception.getCause()),item.getConcept(),item.getIds(),new Locale(com.amalto.core.util.Util.getDefaultSystemLocale()));
+            }else{
+                errorMessage = exception.getMessage();
+            }    
+            LOG.error(errorMessage, exception);
+            throw new ServiceException(errorMessage);
         }
     }
 

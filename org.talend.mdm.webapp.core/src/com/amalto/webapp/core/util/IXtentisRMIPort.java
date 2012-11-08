@@ -2116,7 +2116,10 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
             return XConverter.POJO2WS(droppedItemPOJOPK);
 
-        } catch (XtentisException e) {
+        }catch (com.amalto.core.util.XtentisException e) {
+            if (com.amalto.webapp.core.util.Util.causeIs(e, com.amalto.core.storage.exception.ConstraintViolationException.class)) {
+                throw new RemoteException("", new WebCoreException(INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE, com.amalto.webapp.core.util.Util.cause(e, com.amalto.core.storage.exception.ConstraintViolationException.class))); //$NON-NLS-1$                     
+            }
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
