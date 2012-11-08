@@ -162,25 +162,27 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
     private void resolveAdditionalSuperTypes() {
         Map<String, TypeMetadata> userEntityTypes = entityTypes.get(USER_NAMESPACE);
-        for (TypeMetadata current : userEntityTypes.values()) {
-            String complexTypeName = current.getData(COMPLEX_TYPE_NAME);
-            if (complexTypeName != null) {
-                TypeMetadata nonInstantiableType = getNonInstantiableType(USER_NAMESPACE, complexTypeName);
-                if (!nonInstantiableType.getSuperTypes().isEmpty()) {
-                    if (nonInstantiableType.getSuperTypes().size() > 1) {
-                        throw new UnsupportedOperationException("Multiple inheritance is not supported.");
-                    }
-                    TypeMetadata superType = nonInstantiableType.getSuperTypes().iterator().next();
-                    Collection<TypeMetadata> entities = userEntityTypes.values();
-                    ComplexTypeMetadata entitySuperType = null;
-                    for (TypeMetadata entity : entities) {
-                        if (superType.getName().equals(entity.getData(COMPLEX_TYPE_NAME))) {
-                            entitySuperType = (ComplexTypeMetadata) entity;
-                            break;
+        if (userEntityTypes != null) {
+            for (TypeMetadata current : userEntityTypes.values()) {
+                String complexTypeName = current.getData(COMPLEX_TYPE_NAME);
+                if (complexTypeName != null) {
+                    TypeMetadata nonInstantiableType = getNonInstantiableType(USER_NAMESPACE, complexTypeName);
+                    if (!nonInstantiableType.getSuperTypes().isEmpty()) {
+                        if (nonInstantiableType.getSuperTypes().size() > 1) {
+                            throw new UnsupportedOperationException("Multiple inheritance is not supported.");
                         }
-                    }
-                    if (entitySuperType != null) {
-                        current.addSuperType(entitySuperType, this);
+                        TypeMetadata superType = nonInstantiableType.getSuperTypes().iterator().next();
+                        Collection<TypeMetadata> entities = userEntityTypes.values();
+                        ComplexTypeMetadata entitySuperType = null;
+                        for (TypeMetadata entity : entities) {
+                            if (superType.getName().equals(entity.getData(COMPLEX_TYPE_NAME))) {
+                                entitySuperType = (ComplexTypeMetadata) entity;
+                                break;
+                            }
+                        }
+                        if (entitySuperType != null) {
+                            current.addSuperType(entitySuperType, this);
+                        }
                     }
                 }
             }
@@ -340,7 +342,9 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
             currentTypeStack.push(nonInstantiableType);
         } else {
             // Keep track of the complex type used for entity type (especially for inheritance).
-            currentTypeStack.peek().setData(MetadataRepository.COMPLEX_TYPE_NAME, typeName);
+            if (typeName != null) {
+                currentTypeStack.peek().setData(MetadataRepository.COMPLEX_TYPE_NAME, typeName);
+            }
         }
         XmlSchemaParticle contentTypeParticle = type.getParticle();
         if (contentTypeParticle != null && contentTypeParticle instanceof XmlSchemaGroupBase) {
