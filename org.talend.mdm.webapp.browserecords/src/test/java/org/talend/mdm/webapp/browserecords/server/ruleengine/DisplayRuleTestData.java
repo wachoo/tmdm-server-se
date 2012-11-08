@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
@@ -30,21 +31,21 @@ public class DisplayRuleTestData {
     public static Map<String, TypeModel> get_Basic_DefaultValue_Rule() {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
-        SimpleTypeModel subElementType = new SimpleTypeModel();
+        SimpleTypeModel subElementType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         subElementType.setTypePath("TestDefaultModel/subelement"); //$NON-NLS-1$
         metaDatas.put(subElementType.getTypePath(), subElementType);
 
-        SimpleTypeModel nameType = new SimpleTypeModel();
+        SimpleTypeModel nameType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         nameType.setTypePath("TestDefaultModel/name"); //$NON-NLS-1$
         nameType.setDefaultValueExpression("'zhang'"); //$NON-NLS-1$
         metaDatas.put(nameType.getTypePath(), nameType);
 
-        SimpleTypeModel ct_titleType = new SimpleTypeModel();
+        SimpleTypeModel ct_titleType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         ct_titleType.setTypePath("TestDefaultModel/cp/title"); //$NON-NLS-1$
         ct_titleType.setDefaultValueExpression("'hello'"); //$NON-NLS-1$
         metaDatas.put(ct_titleType.getTypePath(), ct_titleType);
 
-        SimpleTypeModel cp_contentType = new SimpleTypeModel();
+        SimpleTypeModel cp_contentType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         cp_contentType.setTypePath("TestDefaultModel/cp/content"); //$NON-NLS-1$
         cp_contentType.setDefaultValueExpression("1+2"); //$NON-NLS-1$
         metaDatas.put(cp_contentType.getTypePath(), cp_contentType);
@@ -55,21 +56,21 @@ public class DisplayRuleTestData {
     public static Map<String, TypeModel> get_Basic_DefaultValue_Rule_WithFunction() {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
-        SimpleTypeModel subelementType = new SimpleTypeModel();
+        SimpleTypeModel subelementType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         subelementType.setTypePath("TestDefaultModel/subelement"); //$NON-NLS-1$
         metaDatas.put(subelementType.getTypePath(), subelementType);
 
-        SimpleTypeModel nameType = new SimpleTypeModel();
+        SimpleTypeModel nameType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         nameType.setTypePath("TestDefaultModel/name"); //$NON-NLS-1$
         nameType.setDefaultValueExpression("'zhang'"); //$NON-NLS-1$
         metaDatas.put(nameType.getTypePath(), nameType);
 
-        SimpleTypeModel cp_titleType = new SimpleTypeModel();
+        SimpleTypeModel cp_titleType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         cp_titleType.setTypePath("TestDefaultModel/cp/title"); //$NON-NLS-1$
         cp_titleType.setDefaultValueExpression("fn:concat('hello', 'world!!!')"); //$NON-NLS-1$
         metaDatas.put(cp_titleType.getTypePath(), cp_titleType);
 
-        SimpleTypeModel cp_contentType = new SimpleTypeModel();
+        SimpleTypeModel cp_contentType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         cp_contentType.setTypePath("TestDefaultModel/cp/content"); //$NON-NLS-1$
         cp_contentType.setDefaultValueExpression("fn:abs(-5) + fn:abs(-5)"); //$NON-NLS-1$
         metaDatas.put(cp_contentType.getTypePath(), cp_contentType);
@@ -80,21 +81,21 @@ public class DisplayRuleTestData {
     public static Map<String, TypeModel> get_DefaultValue_Rule_WithFunctionAndXPath() {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
-        SimpleTypeModel subelementType = new SimpleTypeModel();
+        SimpleTypeModel subelementType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         subelementType.setTypePath("DefaultRuleWithFunctionAndXPath/subelement"); //$NON-NLS-1$
         metaDatas.put(subelementType.getTypePath(), subelementType);
 
-        SimpleTypeModel titleType = new SimpleTypeModel();
+        SimpleTypeModel titleType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         titleType.setTypePath("DefaultRuleWithFunctionAndXPath/title"); //$NON-NLS-1$
         titleType.setDefaultValueExpression("fn:concat('detail name is [', ../detail/name,']')"); //$NON-NLS-1$
         metaDatas.put(titleType.getTypePath(), titleType);
 
-        SimpleTypeModel detail_nameType = new SimpleTypeModel();
+        SimpleTypeModel detail_nameType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         detail_nameType.setTypePath("DefaultRuleWithFunctionAndXPath/detail/name"); //$NON-NLS-1$
         detail_nameType.setDefaultValueExpression("fn:concat('zhang ','yang')"); //$NON-NLS-1$
         metaDatas.put(detail_nameType.getTypePath(), detail_nameType);
 
-        SimpleTypeModel detail_contentType = new SimpleTypeModel();
+        SimpleTypeModel detail_contentType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         detail_contentType.setTypePath("DefaultRuleWithFunctionAndXPath/detail/content"); //$NON-NLS-1$
         detail_contentType.setDefaultValueExpression("fn:concat('name is [',../name,string,'] title is [', /DefaultRuleWithFunctionAndXPath/title,']')"); //$NON-NLS-1$
         metaDatas.put(detail_contentType.getTypePath(), detail_contentType);
@@ -105,31 +106,31 @@ public class DisplayRuleTestData {
     public static Map<String, TypeModel> get_DefaultValueForBoolean() {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
-        SimpleTypeModel subelementType = new SimpleTypeModel();
+        SimpleTypeModel subelementType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         subelementType.setTypePath("TestBoolean/subelement"); //$NON-NLS-1$
         metaDatas.put(subelementType.getTypePath(), subelementType);
 
-        SimpleTypeModel nameType = new SimpleTypeModel();
+        SimpleTypeModel nameType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         nameType.setTypePath("TestBoolean/name"); //$NON-NLS-1$
         nameType.setDefaultValueExpression("'zhang'"); //$NON-NLS-1$
         metaDatas.put(nameType.getTypePath(), nameType);
 
-        SimpleTypeModel finishedType = new SimpleTypeModel();
+        SimpleTypeModel finishedType = new SimpleTypeModel(null, DataTypeConstants.BOOLEAN);
         finishedType.setTypePath("TestBoolean/finished"); //$NON-NLS-1$
         finishedType.setDefaultValueExpression("fn:true()"); //$NON-NLS-1$
         metaDatas.put(finishedType.getTypePath(), finishedType);
 
-        SimpleTypeModel finished1Type = new SimpleTypeModel();
+        SimpleTypeModel finished1Type = new SimpleTypeModel(null, DataTypeConstants.BOOLEAN);
         finished1Type.setTypePath("TestBoolean/finished1"); //$NON-NLS-1$
         finished1Type.setDefaultValueExpression("fn:false()"); //$NON-NLS-1$
         metaDatas.put(finished1Type.getTypePath(), finished1Type);
 
-        SimpleTypeModel finished2Type = new SimpleTypeModel();
+        SimpleTypeModel finished2Type = new SimpleTypeModel(null, DataTypeConstants.BOOLEAN);
         finished2Type.setTypePath("TestBoolean/finished2"); //$NON-NLS-1$
         finished2Type.setDefaultValueExpression("1 != 2"); //$NON-NLS-1$
         metaDatas.put(finished2Type.getTypePath(), finished2Type);
 
-        SimpleTypeModel finished3Type = new SimpleTypeModel();
+        SimpleTypeModel finished3Type = new SimpleTypeModel(null, DataTypeConstants.BOOLEAN);
         finished3Type.setTypePath("TestBoolean/finished3"); //$NON-NLS-1$
         finished3Type.setDefaultValueExpression("1 = 2"); //$NON-NLS-1$
         metaDatas.put(finished3Type.getTypePath(), finished3Type);
@@ -140,26 +141,26 @@ public class DisplayRuleTestData {
     public static Map<String, TypeModel> get_DefaultValueForEnumeration() {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
-        SimpleTypeModel subelementType = new SimpleTypeModel();
+        SimpleTypeModel subelementType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         subelementType.setTypePath("TestEnumeration/subelement"); //$NON-NLS-1$
         metaDatas.put(subelementType.getTypePath(), subelementType);
 
-        SimpleTypeModel nameType = new SimpleTypeModel();
+        SimpleTypeModel nameType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         nameType.setTypePath("TestEnumeration/name"); //$NON-NLS-1$
         nameType.setDefaultValueExpression("'zhang'"); //$NON-NLS-1$
         metaDatas.put(nameType.getTypePath(), nameType);
 
-        SimpleTypeModel ageType = new SimpleTypeModel();
+        SimpleTypeModel ageType = new SimpleTypeModel(null, DataTypeConstants.INT);
         ageType.setTypePath("TestEnumeration/age"); //$NON-NLS-1$
         ageType.setDefaultValueExpression("'21-30'"); //$NON-NLS-1$
         metaDatas.put(ageType.getTypePath(), ageType);
 
-        SimpleTypeModel favoriteType = new SimpleTypeModel();
+        SimpleTypeModel favoriteType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         favoriteType.setTypePath("TestEnumeration/favorite"); //$NON-NLS-1$
         favoriteType.setDefaultValueExpression("'Orange'"); //$NON-NLS-1$
         metaDatas.put(favoriteType.getTypePath(), favoriteType);
 
-        SimpleTypeModel numType = new SimpleTypeModel();
+        SimpleTypeModel numType = new SimpleTypeModel(null, DataTypeConstants.INT);
         numType.setTypePath("TestEnumeration/num"); //$NON-NLS-1$
         numType.setDefaultValueExpression("6"); //$NON-NLS-1$
         metaDatas.put(numType.getTypePath(), numType);
@@ -170,24 +171,24 @@ public class DisplayRuleTestData {
     public static Map<String, TypeModel> get_Multiple_Occurence_DefaultValueRule() {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
-        SimpleTypeModel subelementType = new SimpleTypeModel();
+        SimpleTypeModel subelementType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         subelementType.setTypePath("MultipleOccurence/subelement"); //$NON-NLS-1$
         metaDatas.put(subelementType.getTypePath(), subelementType);
 
-        SimpleTypeModel nameType = new SimpleTypeModel();
+        SimpleTypeModel nameType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         nameType.setTypePath("MultipleOccurence/name"); //$NON-NLS-1$
         metaDatas.put(nameType.getTypePath(), nameType);
 
-        SimpleTypeModel cp_titleType = new SimpleTypeModel();
+        SimpleTypeModel cp_titleType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         cp_titleType.setTypePath("MultipleOccurence/cp/title"); //$NON-NLS-1$
         metaDatas.put(cp_titleType.getTypePath(), cp_titleType);
 
-        SimpleTypeModel cp_addressType = new SimpleTypeModel();
+        SimpleTypeModel cp_addressType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         cp_addressType.setTypePath("MultipleOccurence/cp/address"); //$NON-NLS-1$
         cp_addressType.setDefaultValueExpression("fn:concat('hello ','this is address')"); //$NON-NLS-1$
         metaDatas.put(cp_addressType.getTypePath(), cp_addressType);
 
-        SimpleTypeModel telType = new SimpleTypeModel();
+        SimpleTypeModel telType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         telType.setTypePath("MultipleOccurence/tel"); //$NON-NLS-1$
         telType.setDefaultValueExpression("fn:concat('phone',': 1323234323')"); //$NON-NLS-1$
         metaDatas.put(telType.getTypePath(), telType);
@@ -198,29 +199,29 @@ public class DisplayRuleTestData {
     public static Map<String, TypeModel> get_DefaultRuleForInheritance() {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
-        SimpleTypeModel subelementType = new SimpleTypeModel();
+        SimpleTypeModel subelementType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         subelementType.setTypePath("DefaultRuleForInheritance/subelement"); //$NON-NLS-1$
         metaDatas.put(subelementType.getTypePath(), subelementType);
 
-        SimpleTypeModel nameType = new SimpleTypeModel();
+        SimpleTypeModel nameType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         nameType.setTypePath("DefaultRuleForInheritance/name"); //$NON-NLS-1$
         nameType.setDefaultValueExpression("fn:concat('zhang ','yang')"); //$NON-NLS-1$
         metaDatas.put(nameType.getTypePath(), nameType);
 
-        SimpleTypeModel person_nameType = new SimpleTypeModel();
+        SimpleTypeModel person_nameType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         person_nameType.setTypePath("DefaultRuleForInheritance/person/name"); //$NON-NLS-1$
         metaDatas.put(person_nameType.getTypePath(), person_nameType);
 
-        SimpleTypeModel personNameType = new SimpleTypeModel();
+        SimpleTypeModel personNameType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         personNameType.setTypePath("DefaultRuleForInheritance/person/name"); //$NON-NLS-1$
         metaDatas.put(personNameType.getTypePath(), personNameType);
 
-        ComplexTypeModel person_StudentType = new ComplexTypeModel();
+        ComplexTypeModel person_StudentType = new ComplexTypeModel(null, DataTypeConstants.INT);
         person_StudentType.setTypePath("DefaultRuleForInheritance/person/score"); //$NON-NLS-1$
         person_StudentType.setDefaultValueExpression("fn:concat(/DefaultRuleForInheritance/name,'''s score is 100')"); //$NON-NLS-1$
         metaDatas.put(person_StudentType.getTypePath(), person_StudentType);
 
-        ComplexTypeModel person_TeacherType = new ComplexTypeModel();
+        ComplexTypeModel person_TeacherType = new ComplexTypeModel(null, DataTypeConstants.INT);
         person_TeacherType.setTypePath("DefaultRuleForInheritance/person/salary"); //$NON-NLS-1$
         person_TeacherType.setDefaultValueExpression("fn:concat(/DefaultRuleForInheritance/name,'''s salary is 1000')"); //$NON-NLS-1$
         metaDatas.put(person_TeacherType.getTypePath(), person_TeacherType);
