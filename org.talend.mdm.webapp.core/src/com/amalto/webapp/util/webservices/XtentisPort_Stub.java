@@ -13784,4 +13784,9 @@ public class XtentisPort_Stub
     public WSBoolean isPagingAccurate(WSInt currentTotalSize) throws RemoteException {
         throw new RuntimeException("Not implemented in web service");
     }
+
+    @Override
+    public WSBoolean supportStaging() throws RemoteException {
+        throw new RuntimeException("Not implemented in web service");
+    }
 }

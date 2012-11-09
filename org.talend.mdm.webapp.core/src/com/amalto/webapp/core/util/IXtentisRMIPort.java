@@ -105,6 +105,7 @@ import com.amalto.core.util.Version;
 import com.amalto.core.util.WhereConditionForcePivotFilter;
 import com.amalto.core.util.XSDKey;
 import com.amalto.core.util.XtentisException;
+import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.util.webservices.*;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 
@@ -2472,6 +2473,19 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     result.set_true(false);
                 }
             }
+        }
+        return result;
+    }
+
+    public WSBoolean supportStaging() throws RemoteException {
+        WSBoolean result = new WSBoolean(false);
+        try {
+            Configuration config = Configuration.getConfiguration();
+            result.set_true(Util.getXmlServerCtrlLocal().supportStaging(config.getCluster()));
+        } catch (com.amalto.core.util.XtentisException e) {
+            throw (new RemoteException(e.getLocalizedMessage(), e));
+        } catch (Exception e) {
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
         return result;
     }
