@@ -985,6 +985,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
             SelectionChangedEvent<D> se = new SelectionChangedEvent<D>(this, getSelection());
             fireEvent(Events.SelectionChange, se);
         }
+        this.setTitle(this.getRawValue());
     }
 
     /**
