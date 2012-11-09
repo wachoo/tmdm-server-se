@@ -11,8 +11,43 @@
 
 package com.amalto.core.storage;
 
+import static com.amalto.core.query.user.UserQueryBuilder.alias;
+import static com.amalto.core.query.user.UserQueryBuilder.contains;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
+import static com.amalto.core.query.user.UserQueryBuilder.fullText;
+import static com.amalto.core.query.user.UserQueryBuilder.gte;
+import static com.amalto.core.query.user.UserQueryBuilder.lte;
+import static com.amalto.core.query.user.UserQueryBuilder.or;
+import static com.amalto.core.query.user.UserQueryBuilder.taskId;
+import static com.amalto.core.query.user.UserQueryBuilder.timestamp;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+
 import com.amalto.core.load.io.ResettableStringWriter;
-import com.amalto.core.metadata.*;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ContainedTypeFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.Condition;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -20,24 +55,17 @@ import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
-import com.amalto.core.storage.record.*;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.XmlDOMDataRecordReader;
+import com.amalto.core.storage.record.XmlSAXDataRecordReader;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.XmlServerException;
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringUtils;
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.*;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 public class StorageWrapper implements IXmlServerSLWrapper {
 
@@ -448,7 +476,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         if (parameters != null) {
             for (int i = 0; i < parameters.length; i++) {
                 String param = parameters[i];
-                query = query.replaceAll("([^\\\\])%" + i + "([^\\d])", "$1" + param + "$2"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                query = query.replaceAll("([^\\\\])%" + i + "([^\\d]*)", "$1" + param + "$2"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             }
         }
         UserQueryBuilder qb = from(query);
