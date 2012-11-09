@@ -42,4 +42,6 @@ public interface GeneralService extends RemoteService {
     public void logout() throws ServiceException;
 
     public boolean isExpired() throws ServiceException;
+
+    public boolean supportStaging(String dataCluster) throws ServiceException;
 }

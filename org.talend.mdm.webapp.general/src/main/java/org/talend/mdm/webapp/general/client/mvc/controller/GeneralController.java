@@ -21,6 +21,7 @@ import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
+import org.talend.mdm.webapp.general.client.layout.AccordionMenus;
 import org.talend.mdm.webapp.general.client.layout.ActionsPanel;
 import org.talend.mdm.webapp.general.client.layout.BrandingBar;
 import org.talend.mdm.webapp.general.client.layout.WorkSpace;
@@ -52,6 +53,7 @@ public class GeneralController extends Controller {
         registerEventTypes(GeneralEvent.LoadActions);
         registerEventTypes(GeneralEvent.LoadWelcome);
         registerEventTypes(GeneralEvent.SwitchClusterAndModel);
+        registerEventTypes(GeneralEvent.SupportStaging);
     }
 
     @Override
@@ -78,6 +80,8 @@ public class GeneralController extends Controller {
             switchClusterAndModel(event);
         } else if (type == GeneralEvent.LoadWelcome) {
             forwardToView(view, event);
+        } else if (type == GeneralEvent.SupportStaging) {
+            supportStaging(event);
         }
     }
  
@@ -141,6 +145,20 @@ public class GeneralController extends Controller {
                 UserContextUtil.setDataModel(dataModel);
                 WorkSpace.getInstance().clearTabs();
                 WorkSpace.getInstance().loadApp(GeneralView.WELCOMECONTEXT, GeneralView.WELCOMEAPP);
+                Dispatcher dispatcher = Dispatcher.get();
+                AppEvent event = new AppEvent(GeneralEvent.SupportStaging);
+                event.setData("dataCluster", dataCluster); //$NON-NLS-1$
+                dispatcher.dispatch(event);
+            }
+        });
+    }
+
+    private void supportStaging(AppEvent event) {
+        String dataCluster = event.getData("dataCluster"); //$NON-NLS-1$
+        service.supportStaging(dataCluster, new SessionAwareAsyncCallback<Boolean>() {
+
+            public void onSuccess(Boolean support) {
+                AccordionMenus.getInstance().disabledMenuItem("stagingarea", "Stagingarea", !support); //$NON-NLS-1$//$NON-NLS-2$
             }
         });
     }

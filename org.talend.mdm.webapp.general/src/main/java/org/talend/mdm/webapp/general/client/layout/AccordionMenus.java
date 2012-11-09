@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.general.client.layout;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
@@ -25,8 +26,10 @@ import org.talend.mdm.webapp.general.model.MenuGroup;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -112,7 +115,7 @@ public class AccordionMenus extends ContentPanel {
     }
     private MenuBean getMenuBean(String menuName, List<MenuBean> menus) {
         for (MenuBean mb : menus) {
-            if ((mb.getContext() + "." + mb.getApplication()).equals(menuName))
+            if ((mb.getContext() + "." + mb.getApplication()).equals(menuName)) //$NON-NLS-1$
                 return mb;
         }
         return null;
@@ -166,6 +169,27 @@ public class AccordionMenus extends ContentPanel {
         }
         item.addStyleName("selected"); //$NON-NLS-1$
         activeItem = item;
+    }
+
+    public void disabledMenuItem(String context, String application, boolean disabled) {
+        Iterator<Component> groupIter = this.iterator();
+        while (groupIter.hasNext()) {
+            ContentPanel panel = (ContentPanel) groupIter.next();
+            Iterator<Component> itemIter = panel.iterator();
+            while (itemIter.hasNext()){
+                Component comp = itemIter.next();
+                if (comp instanceof WidgetComponent){
+                    WidgetComponent widgetComp = (WidgetComponent) comp;
+                    if (widgetComp.getWidget() instanceof HTMLMenuItem){
+                        HTMLMenuItem item = (HTMLMenuItem) widgetComp.getWidget();
+                        MenuBean menuBean = item.getMenuBean();
+                        if (context.equals(menuBean.getContext()) && application.equals(menuBean.getApplication())){
+                            item.setDisabled(disabled);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     ClickHandler clickHander = new ClickHandler() {
@@ -223,12 +247,20 @@ public class AccordionMenus extends ContentPanel {
             super(html);
             this.setWordWrap(false);
             this.setStyleName("menu-item"); //$NON-NLS-1$
-            if (menuBean.isDisabled()) {
+            this.menuBean = menuBean;
+            setDisabled(menuBean.isDisabled());
+            this.getElement().setAttribute("id", "menu-" + menuBean.getContext()); //$NON-NLS-1$//$NON-NLS-2$
+        }
+
+        public void setDisabled(boolean disabled) {
+            menuBean.setDisabled(disabled);
+            if (disabled) {
                 this.addStyleName("x-item-disabled"); //$NON-NLS-1$
                 this.setTitle(menuBean.getDisabledDesc());
+            } else {
+                this.removeStyleName("x-item-disabled"); //$NON-NLS-1$
+                this.setTitle(null);
             }
-            this.menuBean = menuBean;
-            this.getElement().setAttribute("id", "menu-" + menuBean.getContext()); //$NON-NLS-1$//$NON-NLS-2$
         }
 
         public MenuBean getMenuBean() {

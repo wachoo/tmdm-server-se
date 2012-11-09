@@ -39,4 +39,6 @@ public interface GeneralServiceAsync {
     void logout(AsyncCallback<Void> callback);
 
     void isExpired(AsyncCallback<Boolean> callback);
+
+    void supportStaging(String dataCluster, AsyncCallback<Boolean> callback);
 }

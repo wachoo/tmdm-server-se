@@ -25,7 +25,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.webapp.general.model.GroupItem;
 import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
@@ -40,6 +39,7 @@ import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.SystemLocale;
 import com.amalto.webapp.core.util.SystemLocaleFactory;
+import com.amalto.webapp.core.util.Util;
 
 public class Utils {
 
@@ -98,9 +98,13 @@ public class Utils {
 
     private static void disabledMenuItemIf(Menu menu, MenuBean menuBean, String language) {
         if ("stagingarea".equals(menu.getContext()) && "Stagingarea".equals(menu.getApplication())) { //$NON-NLS-1$ //$NON-NLS-2$
-            if (!MDMConfiguration.isSqlDataBase()) {
-                menuBean.setDisabled(true);
-                menuBean.setDisabledDesc(MESSAGES.getMessage(new Locale(language), "stagingarea_unavailable")); //$NON-NLS-1$
+            menuBean.setDisabledDesc(MESSAGES.getMessage(new Locale(language), "stagingarea_unavailable")); //$NON-NLS-1$
+            try {
+                if (!Util.getPort().supportStaging().is_true()) {
+                    menuBean.setDisabled(true);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
     }

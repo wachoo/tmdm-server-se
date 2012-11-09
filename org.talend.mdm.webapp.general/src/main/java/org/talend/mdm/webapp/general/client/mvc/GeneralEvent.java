@@ -30,4 +30,6 @@ public class GeneralEvent {
 
     public static final EventType SwitchClusterAndModel  = new EventType();
 
+    public static final EventType SupportStaging = new EventType();
+
 }
