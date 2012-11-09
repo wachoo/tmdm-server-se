@@ -33,6 +33,7 @@ import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.CloseTabPostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.ContainerUpdate;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.DeleteAction;
@@ -118,9 +119,9 @@ public class ItemDetailToolBar extends ToolBar {
 
     private Button launchProcessButton;
 
-    private ComboBox<ItemBaseModel> smartViewCombo;
+    private ComboBoxField<ItemBaseModel> smartViewCombo;
 
-    private ComboBox<ItemBaseModel> workFlowCombo;
+    private ComboBoxField<ItemBaseModel> workFlowCombo;
 
     private ItemBean itemBean;
 
@@ -670,7 +671,7 @@ public class ItemDetailToolBar extends ToolBar {
         ListStore<ItemBaseModel> workFlowList = new ListStore<ItemBaseModel>();
         workFlowList.add(processList);
         if (workFlowCombo == null) {
-            workFlowCombo = new ComboBox<ItemBaseModel>();
+            workFlowCombo = new ComboBoxField<ItemBaseModel>();
             workFlowCombo.setId("workFlowCombo"); //$NON-NLS-1$
             workFlowCombo.setStore(workFlowList);
             workFlowCombo.setDisplayField("value");//$NON-NLS-1$
@@ -855,7 +856,7 @@ public class ItemDetailToolBar extends ToolBar {
     private void addSmartViewCombo() {
         final ListStore<ItemBaseModel> smartViewList = new ListStore<ItemBaseModel>();
         if (smartViewCombo == null) {
-            smartViewCombo = new ComboBox<ItemBaseModel>();
+            smartViewCombo = new ComboBoxField<ItemBaseModel>();
             smartViewCombo.setId("smartViewCombo"); //$NON-NLS-1$
             smartViewCombo.setStore(smartViewList);
             smartViewCombo.setDisplayField("value"); //$NON-NLS-1$
