@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.metadata;
@@ -63,47 +62,57 @@ public class SoftFieldRef implements FieldMetadata {
 
     @Override
     public <X> X getData(String key) {
-        return getField().getData(key);
+        return getField().<X> getData(key);
     }
 
+    @Override
     public String getName() {
         return fieldName;
     }
 
+    @Override
     public boolean isKey() {
         return getField().isKey();
     }
 
+    @Override
     public TypeMetadata getType() {
         return getField().getType();
     }
 
+    @Override
     public ComplexTypeMetadata getContainingType() {
         return getField().getContainingType();
     }
 
+    @Override
     public void setContainingType(ComplexTypeMetadata typeMetadata) {
         getField().setContainingType(typeMetadata);
     }
 
+    @Override
     public FieldMetadata freeze() {
         return getField().freeze();
     }
 
+    @Override
     public void promoteToKey() {
         getField().promoteToKey();
     }
 
+    @Override
     public TypeMetadata getDeclaringType() {
         return getField().getDeclaringType();
     }
 
+    @Override
     public void adopt(ComplexTypeMetadata metadata, MetadataRepository repository) {
         FieldMetadata copy = getField().copy(this.repository);
         copy.setContainingType(metadata);
         metadata.addField(copy);
     }
 
+    @Override
     public FieldMetadata copy(MetadataRepository repository) {
         if (containingType == null) {
             return new SoftFieldRef(repository, fieldName, containingField);
@@ -112,22 +121,27 @@ public class SoftFieldRef implements FieldMetadata {
         }
     }
 
+    @Override
     public List<String> getHideUsers() {
         return getField().getHideUsers();
     }
 
+    @Override
     public List<String> getWriteUsers() {
         return getField().getWriteUsers();
     }
 
+    @Override
     public boolean isMany() {
         return getField().isMany();
     }
 
+    @Override
     public boolean isMandatory() {
         return getField().isMandatory();
     }
 
+    @Override
     public <T> T accept(MetadataVisitor<T> visitor) {
         return getField().accept(visitor);
     }

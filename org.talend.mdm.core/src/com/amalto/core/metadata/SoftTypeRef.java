@@ -1,20 +1,19 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.metadata;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import java.util.Collection;
 import java.util.List;
+
+import org.apache.commons.lang.NotImplementedException;
 
 /**
  * Represents a reference to a {@link ComplexTypeMetadata} type where methods are evaluated using
@@ -65,9 +64,11 @@ public class SoftTypeRef implements ComplexTypeMetadata {
             }
             if (type == null) {
                 if (instantiable) {
-                    throw new IllegalArgumentException("Entity type '" + typeName + "' (namespace: '" + namespace + "') is not present in type repository.");
+                    throw new IllegalArgumentException("Entity type '" + typeName + "' (namespace: '" + namespace
+                            + "') is not present in type repository.");
                 } else {
-                    throw new IllegalArgumentException("Non entity type '" + typeName + "' (namespace: '" + namespace + "') is not present in type repository.");
+                    throw new IllegalArgumentException("Non entity type '" + typeName + "' (namespace: '" + namespace
+                            + "') is not present in type repository.");
                 }
             }
             return type;
@@ -79,7 +80,8 @@ public class SoftTypeRef implements ComplexTypeMetadata {
     private ComplexTypeMetadata getTypeAsComplex() {
         TypeMetadata type = getType();
         if (!(type instanceof ComplexTypeMetadata)) {
-            throw new IllegalArgumentException("Type '" + typeName + "' was expected to be a complex type (but was " + type.getClass().getName() + ").");
+            throw new IllegalArgumentException("Type '" + typeName + "' was expected to be a complex type (but was "
+                    + type.getClass().getName() + ").");
         }
         return (ComplexTypeMetadata) type;
     }
@@ -91,37 +93,45 @@ public class SoftTypeRef implements ComplexTypeMetadata {
 
     @Override
     public <X> X getData(String key) {
-        return getType().getData(key);
+        return getType().<X> getData(key);
     }
 
+    @Override
     public Collection<TypeMetadata> getSuperTypes() {
         return getType().getSuperTypes();
     }
 
+    @Override
     public String getName() {
         return typeName;
     }
 
+    @Override
     public void setName(String name) {
         getType().setName(name);
     }
 
+    @Override
     public String getNamespace() {
         return namespace;
     }
 
+    @Override
     public FieldMetadata getField(String fieldName) {
         return getTypeAsComplex().getField(fieldName);
     }
 
+    @Override
     public List<FieldMetadata> getFields() {
         return getTypeAsComplex().getFields();
     }
 
+    @Override
     public boolean isAssignableFrom(TypeMetadata type) {
         return getType().isAssignableFrom(type);
     }
 
+    @Override
     public TypeMetadata copy(MetadataRepository repository) {
         if (typeName != null) {
             return new SoftTypeRef(repository, namespace, typeName, instantiable);
@@ -130,18 +140,22 @@ public class SoftTypeRef implements ComplexTypeMetadata {
         }
     }
 
+    @Override
     public TypeMetadata copyShallow() {
         throw new NotImplementedException(); // Not supported
     }
 
+    @Override
     public TypeMetadata freeze() {
         return getType().freeze();
     }
 
+    @Override
     public void addSuperType(TypeMetadata superType, MetadataRepository repository) {
         getType().addSuperType(superType, repository);
     }
 
+    @Override
     public <T> T accept(MetadataVisitor<T> visitor) {
         return getType().accept(visitor);
     }
@@ -161,6 +175,7 @@ public class SoftTypeRef implements ComplexTypeMetadata {
         return obj instanceof TypeMetadata && getType().equals(obj);
     }
 
+    @Override
     public boolean isInstantiable() {
         return instantiable;
     }
@@ -170,46 +185,57 @@ public class SoftTypeRef implements ComplexTypeMetadata {
         return getType().isFrozen();
     }
 
+    @Override
     public List<FieldMetadata> getKeyFields() {
         return getTypeAsComplex().getKeyFields();
     }
 
+    @Override
     public void addField(FieldMetadata fieldMetadata) {
         getTypeAsComplex().addField(fieldMetadata);
     }
 
+    @Override
     public List<String> getWriteUsers() {
         return getTypeAsComplex().getWriteUsers();
     }
 
+    @Override
     public List<String> getHideUsers() {
         return getTypeAsComplex().getHideUsers();
     }
 
+    @Override
     public List<String> getDenyCreate() {
         return getTypeAsComplex().getDenyCreate();
     }
 
+    @Override
     public List<String> getDenyDelete(DeleteType type) {
         return getTypeAsComplex().getDenyDelete(type);
     }
 
+    @Override
     public String getSchematron() {
         return getTypeAsComplex().getSchematron();
     }
 
+    @Override
     public boolean hasField(String fieldName) {
         return getTypeAsComplex().hasField(fieldName);
     }
 
+    @Override
     public Collection<ComplexTypeMetadata> getSubTypes() {
         return getTypeAsComplex().getSubTypes();
     }
 
+    @Override
     public void registerSubType(ComplexTypeMetadata type) {
         getTypeAsComplex().registerSubType(type);
     }
 
+    @Override
     public void registerKey(FieldMetadata keyField) {
         getTypeAsComplex().registerKey(keyField);
     }
@@ -218,6 +244,5 @@ public class SoftTypeRef implements ComplexTypeMetadata {
     public int hashCode() {
         return getType().hashCode();
     }
-
 
 }

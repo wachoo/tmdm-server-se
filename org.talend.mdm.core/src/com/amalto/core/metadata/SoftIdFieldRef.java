@@ -1,19 +1,18 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.metadata;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  *
@@ -67,9 +66,10 @@ public class SoftIdFieldRef implements FieldMetadata {
 
     @Override
     public <X> X getData(String key) {
-        return getField().getData(key);
+        return getField().<X> getData(key);
     }
 
+    @Override
     public String getName() {
         if (fieldName != null) {
             return fieldName;
@@ -78,58 +78,72 @@ public class SoftIdFieldRef implements FieldMetadata {
         }
     }
 
+    @Override
     public boolean isKey() {
         return true; // No need to look for the field, this is an id
     }
 
+    @Override
     public TypeMetadata getType() {
         return getField().getType();
     }
 
+    @Override
     public ComplexTypeMetadata getContainingType() {
         return getField().getContainingType();
     }
 
+    @Override
     public void setContainingType(ComplexTypeMetadata typeMetadata) {
         getField().setContainingType(typeMetadata);
     }
 
+    @Override
     public FieldMetadata freeze() {
         return getField().freeze();
     }
 
+    @Override
     public void promoteToKey() {
         getField().promoteToKey();
     }
 
+    @Override
     public TypeMetadata getDeclaringType() {
         return getField().getDeclaringType();
     }
 
+    @Override
     public void adopt(ComplexTypeMetadata metadata, MetadataRepository repository) {
         getField().adopt(metadata, repository);
     }
 
+    @Override
     public FieldMetadata copy(MetadataRepository repository) {
         return new SoftIdFieldRef(this.repository, typeName);
     }
 
+    @Override
     public List<String> getHideUsers() {
         return getField().getHideUsers();
     }
 
+    @Override
     public List<String> getWriteUsers() {
         return getField().getHideUsers();
     }
 
+    @Override
     public boolean isMany() {
         return getField().isMany();
     }
 
+    @Override
     public boolean isMandatory() {
         return getField().isMandatory();
     }
 
+    @Override
     public <T> T accept(MetadataVisitor<T> visitor) {
         return getField().accept(visitor);
     }
