@@ -4,7 +4,8 @@
  */
 package com.amalto.core.ejb.remote;
 
-import java.util.*;
+import java.util.List;
+import java.util.Observable;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -422,4 +423,9 @@ public class XmlServerSLWrapperRemote extends Observable
   	setChanged();
 	notifyObservers();
   }
+
+    public boolean supportStaging(String dataCluster) throws com.amalto.core.util.XtentisException, java.rmi.RemoteException {
+        return getSession().supportStaging(dataCluster);
+    }
+
 }

@@ -382,4 +382,7 @@ public interface XmlServerSLWrapper
     
    public void exportDocuments( String revisionId, String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+   
+    public boolean supportStaging(String dataCluster)
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 }

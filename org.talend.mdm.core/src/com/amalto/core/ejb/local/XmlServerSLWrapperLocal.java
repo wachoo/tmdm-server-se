@@ -438,4 +438,6 @@ public interface XmlServerSLWrapperLocal extends javax.ejb.EJBLocalObject {
     public void exportDocuments(String revisionId, String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws com.amalto.core.util.XtentisException;
     
     public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws com.amalto.core.util.XtentisException;
+
+    public boolean supportStaging(String dataCluster) throws com.amalto.core.util.XtentisException;
 }

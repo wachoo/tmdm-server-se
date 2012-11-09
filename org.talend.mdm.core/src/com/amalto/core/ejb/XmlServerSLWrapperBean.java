@@ -28,7 +28,6 @@ import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
-import com.amalto.core.server.StorageAdmin;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -38,6 +37,10 @@ import org.xml.sax.XMLReader;
 
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.server.Server;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.Storage;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerEBJLifeCycle;
@@ -1322,5 +1325,22 @@ public class XmlServerSLWrapperBean implements SessionBean {
             throw new XtentisException(e);
         }
     }
-	
+
+    /**
+     * @return boolean
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method
+     */
+    public boolean supportStaging(String dataCluster) {
+        if (dataCluster == null || dataCluster.trim().length() == 0) {
+            return false;
+        }
+        Server server = ServerContext.INSTANCE.get();
+        Storage storage = server.getStorageAdmin().get(dataCluster + StorageAdmin.STAGING_SUFFIX, null);
+        if (storage == null) {
+            return false;
+        }
+        return true;
+    }
 }
