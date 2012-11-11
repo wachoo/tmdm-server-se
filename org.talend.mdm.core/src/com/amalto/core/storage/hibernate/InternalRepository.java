@@ -51,7 +51,7 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
     }
 
     MetadataVisitor<TypeMapping> getTypeMappingCreator(TypeMetadata type, HibernateStorage.TypeMappingStrategy strategy) {
-        if("Update".equals(type.getName())) { //$NON-NLS-1$
+        if ("Update".equals(type.getName())) { //$NON-NLS-1$
             return new UpdateReportMappingCreator(type, userRepository, mappings);
         }
         switch (strategy) {
@@ -123,26 +123,17 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
             if (!complexType.getSubTypes().isEmpty()) {
                 return HibernateStorage.TypeMappingStrategy.SCATTERED;
             }
-            if(!complexType.isInstantiable()) {
+            if (!complexType.isInstantiable()) {
                 return HibernateStorage.TypeMappingStrategy.SCATTERED;
             }
-
-            fieldCount += complexType.getFields().size();
-            {
-                HibernateStorage.TypeMappingStrategy contentResult;
-                Collection<FieldMetadata> fields = complexType.getFields();
-                for (FieldMetadata field : fields) {
-                    contentResult = field.accept(this);
-                    if (contentResult == HibernateStorage.TypeMappingStrategy.SCATTERED) {
-                        return contentResult;
-                    }
+            Collection<FieldMetadata> fields = complexType.getFields();
+            for (FieldMetadata field : fields) {
+                HibernateStorage.TypeMappingStrategy result = field.accept(this);
+                if (fieldCount > fieldThreshold || result == HibernateStorage.TypeMappingStrategy.SCATTERED) {
+                    return HibernateStorage.TypeMappingStrategy.SCATTERED;
                 }
             }
-            if (fieldCount > fieldThreshold) {
-                return HibernateStorage.TypeMappingStrategy.SCATTERED;
-            } else {
-                return HibernateStorage.TypeMappingStrategy.FLAT;
-            }
+            return HibernateStorage.TypeMappingStrategy.FLAT;
         }
 
         @Override
@@ -164,6 +155,12 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
                 return HibernateStorage.TypeMappingStrategy.SCATTERED;
             }
             return super.visit(containedField);
+        }
+
+        @Override
+        public HibernateStorage.TypeMappingStrategy visit(SimpleTypeFieldMetadata simpleField) {
+            fieldCount++;
+            return HibernateStorage.TypeMappingStrategy.AUTO;
         }
     }
 }

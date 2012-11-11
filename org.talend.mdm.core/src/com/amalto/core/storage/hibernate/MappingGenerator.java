@@ -27,7 +27,12 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     public static final String DISCRIMINATOR_NAME = "x_talend_class"; //$NON-NLS-1$
 
+    public static final String SQL_DELETE_CASCADE = "SQL_DELETE_CASCADE"; //$NON-NLS-1$
+
     private static final Logger LOGGER = Logger.getLogger(MappingGenerator.class);
+
+    // Max limit for a string restriction (greater then this -> use CLOB).
+    private static final int MAX_VARCHAR_TEXT_LIMIT = 255;
 
     private final Document document;
 
@@ -288,7 +293,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 joinAttribute.setValue("select"); // Keep it "select" (Hibernate tends to duplicate results when using "fetch")
                 propertyElement.getAttributes().setNamedItem(joinAttribute);
                 // cascade="true"
-                if (Boolean.parseBoolean(referenceField.<String>getData("SQL_DELETE_CASCADE"))) { //$NON-NLS-1$
+                if (Boolean.parseBoolean(referenceField.<String>getData(SQL_DELETE_CASCADE))) {
                     Attr cascade = document.createAttribute("cascade"); //$NON-NLS-1$
                     cascade.setValue("save-update, delete"); //$NON-NLS-1$
                     propertyElement.getAttributes().setNamedItem(cascade);
@@ -297,7 +302,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 tableName.setValue(formatSQLName((referenceField.getContainingType().getName() + '_' + fieldName + '_' + referencedType.getName()).toUpperCase(), resolver.getNameMaxLength()));
                 propertyElement.getAttributes().setNamedItem(tableName);
                 {
-                    // <key column="foo_id"/>
+                    // <key column="foo_id"/> (one per key in referenced entity).
                     Element key = document.createElement("key"); //$NON-NLS-1$
                     propertyElement.appendChild(key);
                     for (FieldMetadata keyField : referenceField.getContainingType().getKeyFields()) {
@@ -307,7 +312,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                         elementColumn.getAttributes().setNamedItem(columnName);
                         key.appendChild(elementColumn);
                     }
-                    // <index column="idx" />
+                    // <index column="pos" />
                     Element index = document.createElement("index"); //$NON-NLS-1$
                     Attr indexColumn = document.createAttribute("column"); //$NON-NLS-1$
                     indexColumn.setValue("pos"); //$NON-NLS-1$
@@ -328,16 +333,13 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         propertyName.setValue(fieldName);
         Attr className = document.createAttribute("class"); //$NON-NLS-1$
         className.setValue(ClassCreator.PACKAGE_PREFIX + referencedField.getReferencedType().getName());
-
         // fetch="join" lazy="false"
         Attr lazy = document.createAttribute("lazy"); //$NON-NLS-1$
         lazy.setValue("false"); //$NON-NLS-1$
         propertyElement.getAttributes().setNamedItem(lazy);
-
         Attr joinAttribute = document.createAttribute("fetch"); //$NON-NLS-1$
         joinAttribute.setValue("join"); //$NON-NLS-1$
         propertyElement.getAttributes().setNamedItem(joinAttribute);
-
         // Not null
         if (referencedField.isMandatory() && generateConstrains) {
             Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
@@ -348,7 +350,6 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
             notNull.setValue("false"); //$NON-NLS-1$
             propertyElement.getAttributes().setNamedItem(notNull);
         }
-
         // If data model authorizes fk integrity override, don't enforce database FK integrity.
         if (enforceDataBaseIntegrity) {
             // Ensure default settings for Hibernate are set (in case they change).
@@ -370,10 +371,14 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
             notFound.setValue("ignore"); //$NON-NLS-1$
             propertyElement.getAttributes().setNamedItem(notFound);
         }
-
         propertyElement.getAttributes().setNamedItem(propertyName);
         propertyElement.getAttributes().setNamedItem(className);
-
+        // Cascade delete
+        if (Boolean.parseBoolean(referencedField.<String>getData(SQL_DELETE_CASCADE))) {
+            Attr cascade = document.createAttribute("cascade"); //$NON-NLS-1$
+            cascade.setValue("save-update, delete"); //$NON-NLS-1$
+            propertyElement.getAttributes().setNamedItem(cascade);
+        }
         isDoingColumns = true;
         isColumnMandatory = referencedField.isMandatory() && generateConstrains;
         this.parentElement = propertyElement;
@@ -382,14 +387,12 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
             referencedField.getReferencedField().accept(this);
         }
         isDoingColumns = false;
-
         return propertyElement;
     }
 
     private Element newManyToManyElement(boolean enforceDataBaseIntegrity, ReferenceFieldMetadata referencedField) {
         // <many-to-many column="bar_id" class="Bar"/>
         Element manyToMany = document.createElement("many-to-many"); //$NON-NLS-1$
-
         // If data model authorizes fk integrity override, don't enforce database FK integrity.
         if (enforceDataBaseIntegrity) {
             // Ensure default settings for Hibernate are set (in case they change).
@@ -411,11 +414,9 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
             notFound.setValue("ignore"); //$NON-NLS-1$
             manyToMany.getAttributes().setNamedItem(notFound);
         }
-
         Attr className = document.createAttribute("class"); //$NON-NLS-1$
         className.setValue(ClassCreator.PACKAGE_PREFIX + referencedField.getReferencedType().getName());
         manyToMany.getAttributes().setNamedItem(className);
-
         isDoingColumns = true;
         this.parentElement = manyToMany;
         isColumnMandatory = referencedField.isMandatory() && generateConstrains;
@@ -424,7 +425,6 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
             referencedField.getReferencedField().accept(this);
         }
         isDoingColumns = false;
-
         return manyToMany;
     }
 
@@ -435,7 +435,6 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     private Element handleSimpleField(FieldMetadata field) {
         String fieldName = resolver.get(field);
-
         if (isDoingColumns) {
             Element column = document.createElement("column"); //$NON-NLS-1$
             Attr columnName = document.createAttribute("name"); //$NON-NLS-1$
@@ -449,7 +448,6 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
             parentElement.appendChild(column);
             return column;
         }
-
         if (field.isKey()) {
             Element idElement;
             if (!compositeId) {
@@ -520,22 +518,19 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
                 tableName.setValue(formatSQLName((field.getContainingType().getName() + '_' + fieldName).toUpperCase(), resolver.getNameMaxLength()));
                 listElement.getAttributes().setNamedItem(tableName);
-
                 // lazy="false"
                 Attr lazyAttribute = document.createAttribute("lazy"); //$NON-NLS-1$
                 lazyAttribute.setValue("false"); //$NON-NLS-1$
                 listElement.getAttributes().setNamedItem(lazyAttribute);
-
                 // fetch="join"
                 Attr fetchAttribute = document.createAttribute("fetch"); //$NON-NLS-1$
                 fetchAttribute.setValue("select"); //$NON-NLS-1$
                 listElement.getAttributes().setNamedItem(fetchAttribute);
-
                 // cascade="delete"
                 Attr cascade = document.createAttribute("cascade"); //$NON-NLS-1$
                 cascade.setValue("delete"); //$NON-NLS-1$
                 listElement.getAttributes().setNamedItem(cascade);
-
+                // Keys
                 Element key = document.createElement("key"); //$NON-NLS-1$
                 List<FieldMetadata> keyFields = field.getContainingType().getKeyFields();
                 for (FieldMetadata keyField : keyFields) {
@@ -545,25 +540,21 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     columnName.setValue(keyField.getName());
                     key.appendChild(column);
                 }
-
                 // <element column="name" type="string"/>
                 Element element = document.createElement("element"); //$NON-NLS-1$
                 Attr elementColumn = document.createAttribute("column"); //$NON-NLS-1$
                 elementColumn.setValue("value"); //$NON-NLS-1$
                 element.getAttributes().setNamedItem(elementColumn);
                 addFieldTypeAttribute(field, element);
-
-                // Not null
+                // Not null warning
                 if (field.isMandatory()) {
                     LOGGER.warn("Field '" + field.getName() + "' is mandatory and a collection. Constraint can not be expressed in database schema.");
                 }
-
                 // <index column="pos" />
                 Element index = document.createElement("index"); //$NON-NLS-1$
                 Attr indexColumn = document.createAttribute("column"); //$NON-NLS-1$
                 indexColumn.setValue("pos"); //$NON-NLS-1$
                 index.getAttributes().setNamedItem(indexColumn);
-
                 listElement.getAttributes().setNamedItem(name);
                 listElement.appendChild(key);
                 listElement.appendChild(index);
@@ -589,7 +580,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 Object maxLength = field.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
                 if (maxLength != null) {
                     int maxLengthInt = Integer.parseInt(String.valueOf(maxLength));
-                    if (maxLengthInt > 255) {
+                    if (maxLengthInt > MAX_VARCHAR_TEXT_LIMIT) {
                         elementType.setValue("text"); //$NON-NLS-1$
                     } else {
                         elementType.setValue(getFieldType(field));

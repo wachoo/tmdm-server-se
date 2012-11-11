@@ -117,7 +117,7 @@ class TestDataRecordCreator extends DefaultMetadataVisitor<DataRecord> {
             } else if ("anyURI".equals(type.getName())) {
                 return "http://www.talend.com";
             } else if ("short".equals(type.getName()) || "unsignedShort".equals(type.getName())) {
-                return random.nextInt() % 255;
+                return new Short(String.valueOf(random.nextInt() % 255));
             } else if ("QName".equals(type.getName())) {
                 return "Qname";
             } else if ("base64Binary".equals(type.getName())) {

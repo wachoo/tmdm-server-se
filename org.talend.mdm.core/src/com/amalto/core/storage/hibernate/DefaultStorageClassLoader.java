@@ -53,12 +53,10 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
             factory.setExpandEntityReferences(false);
             DocumentBuilder documentBuilder = factory.newDocumentBuilder();
             Document document = documentBuilder.parse(this.getClass().getResourceAsStream(EHCACHE_XML_CONFIG));
-
             // <diskStore path="java.io.tmpdir"/>
             XPathExpression compile = pathFactory.compile("ehcache/diskStore"); //$NON-NLS-1$ //$NON-NLS-2$
             Node node = (Node) compile.evaluate(document, XPathConstants.NODE);
             node.getAttributes().getNamedItem("path").setNodeValue(dataSource.getCacheDirectory() + '/' + dataSource.getName()); //$NON-NLS-1$
-
             OutputFormat format = new OutputFormat(document);
             StringWriter stringOut = new StringWriter();
             XMLSerializer serial = new XMLSerializer(stringOut, format);
@@ -81,7 +79,6 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
             DocumentBuilder documentBuilder = factory.newDocumentBuilder();
             documentBuilder.setEntityResolver(HibernateStorage.ENTITY_RESOLVER);
             Document document = documentBuilder.parse(this.getClass().getResourceAsStream(HIBERNATE_MAPPING_TEMPLATE));
-
             MappingGenerator mappingGenerator = getMappingGenerator(document, resolver);
             for (Map.Entry<String, Class<? extends Wrapper>> classNameToClass : registeredClasses.entrySet()) {
                 ComplexTypeMetadata typeMetadata = knownTypes.get(classNameToClass.getKey());
@@ -92,7 +89,6 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
                     }
                 }
             }
-
             OutputFormat format = new OutputFormat(document);
             StringWriter stringOut = new StringWriter();
             XMLSerializer serial = new XMLSerializer(stringOut, format);
@@ -200,10 +196,8 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
             addEvent(document, sessionFactoryElement, "post-update", "org.hibernate.search.event.FullTextIndexEventListener"); //$NON-NLS-1$ //$NON-NLS-2$
             addEvent(document, sessionFactoryElement, "post-insert", "org.hibernate.search.event.FullTextIndexEventListener"); //$NON-NLS-1$ //$NON-NLS-2$
             addEvent(document, sessionFactoryElement, "post-delete", "org.hibernate.search.event.FullTextIndexEventListener"); //$NON-NLS-1$ //$NON-NLS-2$
-        } else {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Hibernate configuration does not define full text extensions due to datasource configuration."); //$NON-NLS-1$
-            }
+        } else if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Hibernate configuration does not define full text extensions due to datasource configuration."); //$NON-NLS-1$
         }
 
         return document;
@@ -212,7 +206,8 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
     protected String getDialect(RDBMSDataSource.DataSourceDialect dialectType) {
         switch (dialectType) {
             case H2:
-                return "com.amalto.core.storage.hibernate.H2CustomDialect"; //$NON-NLS-1$
+                // Default Hibernate configuration for Hibernate forgot some JDBC type mapping.
+                return H2CustomDialect.class.getName();
             default:
                 throw new IllegalArgumentException("Not supported database type '" + dialectType + "'");
         }

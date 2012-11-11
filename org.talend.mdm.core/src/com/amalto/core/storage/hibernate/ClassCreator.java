@@ -59,9 +59,6 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             for (ComplexTypeMetadata sortedType : sortedTypes) {
                 sortedType.accept(this);
             }
-            for (ComplexTypeMetadata type : MetadataUtils.sortNonInstantiableTypes(repository)) {
-                type.accept(this);
-            }
             return null;
         } finally {
             // Clean up processed types.
@@ -268,7 +265,10 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         } catch (Exception e) {
             throw new RuntimeException("Error during processing of type '" + typeName + "'", e);
         }
-
+        // Process sub types (if any).
+        for (ComplexTypeMetadata subType : complexType.getSubTypes()) {
+            subType.accept(this);
+        }
         return null;
     }
 

@@ -432,38 +432,10 @@ public class MetadataUtils {
      *         any other type of the list.
      * @throws IllegalArgumentException If repository contains types that creates a cyclic dependency. Error message contains
      *                                  information on where the cycle is.
-     * @see #sortNonInstantiableTypes(MetadataRepository)
      */
     public static List<ComplexTypeMetadata> sortTypes(MetadataRepository repository) {
         Collection<ComplexTypeMetadata> userDefinedTypes = repository.getUserComplexTypes();
         return _sortTypes(userDefinedTypes, true);
-    }
-
-    /**
-     * <p>
-     * Sorts type in inverse order of dependency (topological sort). A dependency to <i>type</i> might be:
-     * <ul>
-     * <li>FK reference to <i>type</i> (sub types of <i>type</i> are all included as a dependency).</li>
-     * <li>Use of <i>type</i> as a super type.</li>
-     * </ul>
-     * This method runs in linear time <i>O(n+p)</i> (<i>n</i> number of types and <i>p</i> number of dependencies
-     * between types). This method uses <i>n²</i> bytes in memory for processing (<i>n</i> still being the number of types
-     * in <code>repository</code>).
-     * </p>
-     * <p>
-     * This method is thread safe.
-     * </p>
-     *
-     * @param repository The repository that contains <b>non instantiable</b> (aka "reusable") types to sort.
-     * @return A sorted list of {@link ComplexTypeMetadata} types. First type of list is a type that has no dependency on
-     *         any other type of the list.
-     * @throws IllegalArgumentException If repository contains types that creates a cyclic dependency. Error message contains
-     *                                  information on where the cycle is.
-     * @see #sortTypes(MetadataRepository)
-     */
-    public static List<ComplexTypeMetadata> sortNonInstantiableTypes(MetadataRepository repository) {
-        Collection<ComplexTypeMetadata> nonInstantiableTypes = repository.getNonInstantiableTypes();
-        return _sortTypes(nonInstantiableTypes, false);
     }
 
     private static List<ComplexTypeMetadata> _sortTypes(Collection<ComplexTypeMetadata> typesToSort, final boolean isInstantiable) {
