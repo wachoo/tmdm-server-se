@@ -99,6 +99,7 @@ public class DataSourceFactory {
     private static void replacePlaceholder(DataSource dataSource, String placeholderName, String value) {
         if (dataSource instanceof RDBMSDataSource) {
             RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) dataSource;
+            // JDBC URL
             String connectionURL = rdbmsDataSource.getConnectionURL();
             String processedConnectionURL;
             if (((RDBMSDataSource) dataSource).getDialectName() == RDBMSDataSource.DataSourceDialect.POSTGRES) {
@@ -115,6 +116,8 @@ public class DataSourceFactory {
                 processedDatabaseName = processedDatabaseName.toLowerCase();
             }
             rdbmsDataSource.setDatabaseName(processedDatabaseName);
+            // User name
+            rdbmsDataSource.setUserName(rdbmsDataSource.getUserName().replace(placeholderName, value));
         }
     }
 

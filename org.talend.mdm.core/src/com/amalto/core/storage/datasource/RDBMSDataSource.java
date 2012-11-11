@@ -31,18 +31,18 @@ public class RDBMSDataSource implements DataSource {
 
     private final String driverClassName;
 
-    private final String userName;
-
     private final String password;
 
     private final String indexDirectory;
 
+    private String userName;
+
     private String connectionURL;
 
     private String databaseName;
-    
+
     private int connectionPoolMinSize;
-    
+
     private int connectionPoolMaxSize;
 
     public RDBMSDataSource(String name,
@@ -99,6 +99,10 @@ public class RDBMSDataSource implements DataSource {
 
     public String getUserName() {
         return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getPassword() {
