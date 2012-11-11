@@ -175,4 +175,21 @@ public class MetadataRepositoryTest extends TestCase {
         assertNotNull(simpleType);
         assertNotSame(entityType, simpleType);
     }
+
+    public void test18() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema18.xsd");
+        repository.load(stream);
+
+        ComplexTypeMetadata entityType = repository.getComplexType("A");
+        assertNotNull(entityType);
+        assertTrue(entityType.hasField("string20"));
+        assertTrue(entityType.hasField("string30"));
+
+        TypeMetadata string20Field = entityType.getField("string20").getType();
+        assertEquals("20", string20Field.getData(MetadataRepository.DATA_MAX_LENGTH));
+        TypeMetadata string30Field = entityType.getField("string30").getType();
+        assertEquals("30", string30Field.getData(MetadataRepository.DATA_MAX_LENGTH));
+    }
+
 }

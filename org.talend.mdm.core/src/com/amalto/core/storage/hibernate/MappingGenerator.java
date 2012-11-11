@@ -509,19 +509,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     propertyElement.getAttributes().setNamedItem(notNull);
                 }
 
-                if ("base64Binary".equals(field.getType().getName())) { //$NON-NLS-1$
-                    Attr elementType = document.createAttribute("type"); //$NON-NLS-1$
-                    elementType.setValue("text"); //$NON-NLS-1$
-                    propertyElement.getAttributes().setNamedItem(elementType);
-                } else if(field instanceof SimpleTypeFieldMetadata) {
-                    Object sqlType = ((SimpleTypeFieldMetadata) field).getData("SQL_TYPE"); //$NON-NLS-1$
-                    if(sqlType != null) {
-                        Attr elementType = document.createAttribute("type"); //$NON-NLS-1$
-                        elementType.setValue(String.valueOf(sqlType));
-                        propertyElement.getAttributes().setNamedItem(elementType);
-                    }
-                }
-
+                addFieldTypeAttribute(field, propertyElement);
                 propertyElement.getAttributes().setNamedItem(propertyName);
                 propertyElement.getAttributes().setNamedItem(columnName);
                 return propertyElement;
@@ -563,20 +551,14 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 Attr elementColumn = document.createAttribute("column"); //$NON-NLS-1$
                 elementColumn.setValue("value"); //$NON-NLS-1$
                 element.getAttributes().setNamedItem(elementColumn);
-                Attr elementType = document.createAttribute("type"); //$NON-NLS-1$
-                if ("base64Binary".equals(field.getType().getName())) {
-                    elementType.setValue("text"); //$NON-NLS-1$
-                } else {
-                    elementType.setValue(getFieldType(field));
-                }
-                element.getAttributes().setNamedItem(elementType);
+                addFieldTypeAttribute(field, element);
 
                 // Not null
                 if (field.isMandatory()) {
                     LOGGER.warn("Field '" + field.getName() + "' is mandatory and a collection. Constraint can not be expressed in database schema.");
                 }
 
-                // <index column="idx" />
+                // <index column="pos" />
                 Element index = document.createElement("index"); //$NON-NLS-1$
                 Attr indexColumn = document.createAttribute("column"); //$NON-NLS-1$
                 indexColumn.setValue("pos"); //$NON-NLS-1$
@@ -591,7 +573,37 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         }
     }
 
-    String getFieldType(FieldMetadata field) {
+    private static void addFieldTypeAttribute(FieldMetadata field, Element propertyElement) {
+        Document document = propertyElement.getOwnerDocument();
+        Attr elementType = document.createAttribute("type"); //$NON-NLS-1$
+        elementType.setValue(getFieldType(field));
+        if ("base64Binary".equals(field.getType().getName())) { //$NON-NLS-1$
+            elementType.setValue("text"); //$NON-NLS-1$
+        } else if (field instanceof SimpleTypeFieldMetadata) {
+            Object sqlType = field.getData("SQL_TYPE"); //$NON-NLS-1$
+            if (sqlType != null) {
+                elementType.setValue(String.valueOf(sqlType));
+            } else if("MULTILINGUAL".equalsIgnoreCase(field.getType().getName())) { //$NON-NLS-1$
+                elementType.setValue("text"); //$NON-NLS-1$
+            } else if ("string".equals(field.getType().getName())) { //$NON-NLS-1$
+                Object maxLength = field.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
+                if (maxLength != null) {
+                    int maxLengthInt = Integer.parseInt(String.valueOf(maxLength));
+                    if (maxLengthInt > 255) {
+                        elementType.setValue("text"); //$NON-NLS-1$
+                    } else {
+                        elementType.setValue(getFieldType(field));
+                        Attr length = document.createAttribute("length"); //$NON-NLS-1$
+                        length.setValue(String.valueOf(maxLength));
+                        propertyElement.getAttributes().setNamedItem(length);
+                    }
+                }
+            }
+        }
+        propertyElement.getAttributes().setNamedItem(elementType);
+    }
+
+    private static String getFieldType(FieldMetadata field) {
         return MetadataUtils.getJavaType(field.getType());
     }
 }

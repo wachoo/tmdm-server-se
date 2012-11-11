@@ -32,6 +32,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
     public static final String COMPLEX_TYPE_NAME = "metadata.complex.type.name"; //$NON-NLS-1$
 
+    public static final String DATA_MAX_LENGTH = "metadata.data.length"; //$NON-NLS-1$
+
     private static final String ANONYMOUS_PREFIX = "X_ANONYMOUS";
 
     private static final Logger LOGGER = Logger.getLogger(MetadataRepository.class);
@@ -214,6 +216,10 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
     public void visitSimpleType(XmlSchemaSimpleType type) {
         String typeName = type.getName();
+        TypeMetadata typeMetadata = getNonInstantiableType(targetNamespace, typeName);
+        if (typeMetadata == null) {
+            typeMetadata = new SimpleTypeMetadata(targetNamespace, typeName);
+        }
         List<TypeMetadata> superTypes = new LinkedList<TypeMetadata>();
         if (typeName == null) {
             // Anonymous simple type (expects this is a restriction of a simple type or fails).
@@ -233,14 +239,23 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
             XmlSchemaSimpleTypeContent content = type.getContent();
             if (content != null) {
                 if (content instanceof XmlSchemaSimpleTypeRestriction) {
-                    QName baseTypeName = ((XmlSchemaSimpleTypeRestriction) content).getBaseTypeName();
+                    XmlSchemaSimpleTypeRestriction simpleTypeRestriction = (XmlSchemaSimpleTypeRestriction) content;
+                    QName baseTypeName = simpleTypeRestriction.getBaseTypeName();
                     superTypes.add(new SoftTypeRef(this, baseTypeName.getNamespaceURI(), baseTypeName.getLocalPart(), false));
+                    XmlSchemaObjectCollection facets = simpleTypeRestriction.getFacets();
+                    Iterator facetsIterator = facets.getIterator();
+                    while(facetsIterator.hasNext()) {
+                        Object currentFacet = facetsIterator.next();
+                        if (currentFacet instanceof XmlSchemaMaxLengthFacet) {
+                            typeMetadata.setData(MetadataRepository.DATA_MAX_LENGTH, String.valueOf(((XmlSchemaMaxLengthFacet) currentFacet).getValue()));
+                        } else if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Ignore simple type facet on type '" + typeName + "': " + currentFacet);
+                        }
+                    }
                 }
             }
         }
-        TypeMetadata typeMetadata = getNonInstantiableType(targetNamespace, typeName);
-        if (typeMetadata == null) {
-            typeMetadata = new SimpleTypeMetadata(targetNamespace, typeName);
+        if (getNonInstantiableType(targetNamespace, typeName) == null) {
             for (TypeMetadata superType : superTypes) {
                 typeMetadata.addSuperType(superType, this);
             }
