@@ -47,7 +47,9 @@ public class Select implements Expression {
     }
 
     public void addType(ComplexTypeMetadata metadata) {
-        types.add(metadata);
+        if (!types.contains(metadata)) {
+            types.add(metadata);
+        }
     }
 
     public void setRevisionId(String revisionId) {

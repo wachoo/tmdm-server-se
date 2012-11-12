@@ -58,26 +58,26 @@ public class UserQueryHelper {
                 return fullText(value);
             }
             String leftPath = whereCondition.getLeftPath();
-            String typeName = leftPath.substring(0, leftPath.indexOf('/')); //$NON-NLS-1$
+            String leftTypeName = leftPath.substring(0, leftPath.indexOf('/')); //$NON-NLS-1$
             String leftFieldName = StringUtils.substringAfter(leftPath, "/"); //$NON-NLS-1$
             boolean isPerformingTypeCheck = false;
-            ComplexTypeMetadata type = repository.getComplexType(typeName);
+            ComplexTypeMetadata leftType = repository.getComplexType(leftTypeName);
             if (leftFieldName.endsWith("xsi:type") || leftFieldName.endsWith("tmdm:type")) { //$NON-NLS-1$ //$NON-NLS-2$
                 isPerformingTypeCheck = true;
             }
             if (UserQueryBuilder.ALL_FIELD.equals(leftFieldName)) {
-                List<FieldMetadata> list = type.getFields();
+                List<FieldMetadata> list = leftType.getFields();
                 Condition condition = NO_OP_CONDITION;
                 for (FieldMetadata fieldMetadata : list) {
                     if (fieldMetadata instanceof SimpleTypeFieldMetadata){
                         condition = or(condition, buildCondition(queryBuilder, 
-                                new WhereCondition(typeName + '/' + fieldMetadata.getName(), operator, value,
+                                new WhereCondition(leftTypeName + '/' + fieldMetadata.getName(), operator, value,
                                         WSStringPredicate.NONE.getValue()), repository));
                     }
                 }
                 return condition;
             }
-            TypedExpression field = getField(repository, typeName, leftFieldName);
+            TypedExpression field = getField(repository, leftTypeName, leftFieldName);
             // Field comparisons
             if (!whereCondition.isRightValueXPath()) { // Value based comparison
                 if (isPerformingTypeCheck) {
@@ -119,11 +119,14 @@ public class UserQueryHelper {
                 }
             } else {
                 // Right value is another field name
-                String rightPath = whereCondition.getRightValueOrPath();
-                rightPath = StringUtils.substringAfter(rightPath, "/"); //$NON-NLS-1$;
-                FieldMetadata leftField = type.getField(leftFieldName);
-                FieldMetadata rightField = type.getField(rightPath);
-                if (WhereCondition.LOWER_THAN_OR_EQUAL.equals(operator)) {
+                String rightTypeName = StringUtils.substringBefore(whereCondition.getRightValueOrPath(), "/"); //$NON-NLS-1$
+                String rightFieldName = StringUtils.substringAfter(whereCondition.getRightValueOrPath(), "/"); //$NON-NLS-1$
+                FieldMetadata leftField = leftType.getField(leftFieldName);
+                ComplexTypeMetadata rightType = repository.getComplexType(rightTypeName);
+                FieldMetadata rightField = rightType.getField(rightFieldName);
+                if (WhereCondition.EQUALS.equals(operator)) {
+                    return eq(leftField, rightField);
+                } else if (WhereCondition.LOWER_THAN_OR_EQUAL.equals(operator)) {
                     return lte(leftField, rightField);
                 } else if (WhereCondition.JOINS.equals(operator)) {
                     if (field instanceof Field) {

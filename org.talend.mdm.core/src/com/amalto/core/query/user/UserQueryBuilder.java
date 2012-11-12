@@ -135,6 +135,10 @@ public class UserQueryBuilder {
         return new Compare(new Field(left), Predicate.LOWER_THAN_OR_EQUALS, new Field(right));
     }
 
+    public static Compare eq(FieldMetadata left, FieldMetadata right) {
+        return new Compare(new Field(left), Predicate.EQUALS, new Field(right));
+    }
+
     public static Condition eq(TypedExpression expression, String constant) {
         assertValueConditionArguments(expression, constant);
         if (expression instanceof Field) {
