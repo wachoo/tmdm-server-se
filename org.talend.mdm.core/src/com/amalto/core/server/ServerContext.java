@@ -21,10 +21,6 @@ import com.amalto.core.storage.StorageLogger;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 public class ServerContext {
 
     public static ServerContext INSTANCE = new ServerContext();
@@ -101,7 +97,6 @@ public class ServerContext {
                     return false;
                 }
             });
-            // TODO This is a prototype, but we should be able configure this dump on error behavior
             storage = new StorageLogger(storage);
             return storage;
         }

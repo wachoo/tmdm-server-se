@@ -49,7 +49,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.log4j.Logger;
-import org.jboss.security.Base64Encoder;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -138,6 +137,7 @@ import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereOr;
 import com.sun.org.apache.xpath.internal.XPathAPI;
+import sun.misc.BASE64Encoder;
 
 public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
@@ -2120,7 +2120,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     ObjectOutputStream oos = new ObjectOutputStream(baos);
                     oos.writeObject(value);
-                    String base64Value = Base64Encoder.encode(baos.toByteArray());
+                    String base64Value = new BASE64Encoder().encode(baos.toByteArray());
                     keyValues[i] = new WSBase64KeyValue();
                     keyValues[i].setKey(key);
                     keyValues[i].setBase64StringValue(base64Value);

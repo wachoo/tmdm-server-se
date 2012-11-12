@@ -18,16 +18,8 @@ import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.datasource.DataSourceFactory;
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.log4j.Logger;
-
-import javax.management.MBeanServer;
-import java.lang.management.ManagementFactory;
 
 class ServerImpl implements Server {
-
-    private static final Logger LOGGER = Logger.getLogger(ServerImpl.class);
-
-    private final MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
 
     private final DataSourceFactory dataSourceFactory = DataSourceFactory.getInstance();
 
