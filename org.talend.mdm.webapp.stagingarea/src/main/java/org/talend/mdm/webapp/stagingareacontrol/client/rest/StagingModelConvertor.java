@@ -16,6 +16,7 @@ import java.io.IOException;
 
 import org.restlet.client.Response;
 import org.restlet.client.ext.xml.DomRepresentation;
+import org.restlet.client.representation.EmptyRepresentation;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaExecutionModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaValidationModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerModel;
@@ -27,7 +28,7 @@ import com.google.gwt.xml.client.NodeList;
 public class StagingModelConvertor {
 
     public static StagingContainerModel response2StagingContainerModel(Response response) throws IOException {
-        if (response == null || response.getEntity() == null)
+        if (response == null || response.getEntity() == null || response.getEntity() instanceof EmptyRepresentation)
             return null;
 
         StagingContainerModel stagingContainerModel = new StagingContainerModel();
@@ -59,7 +60,7 @@ public class StagingModelConvertor {
     }
 
     public static StagingAreaValidationModel response2StagingAreaValidationModel(Response response) throws IOException {
-        if (response == null || response.getEntity() == null)
+        if (response == null || response.getEntity() == null || response.getEntity() instanceof EmptyRepresentation)
             return null;
 
         StagingAreaValidationModel model = new StagingAreaValidationModel();
@@ -89,7 +90,7 @@ public class StagingModelConvertor {
     }
 
     public static StagingAreaExecutionModel response2StagingAreaExecutionModel(Response response) throws IOException {
-        if (response == null || response.getEntity() == null)
+        if (response == null || response.getEntity() == null || response.getEntity() instanceof EmptyRepresentation)
             return null;
 
         StagingAreaExecutionModel model = new StagingAreaExecutionModel();
