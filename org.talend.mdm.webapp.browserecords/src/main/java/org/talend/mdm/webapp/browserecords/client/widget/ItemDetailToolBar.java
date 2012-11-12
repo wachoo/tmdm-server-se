@@ -1207,6 +1207,24 @@ public class ItemDetailToolBar extends ToolBar {
                 if (cb.getValue() != null)
                     comboBoxClone.setValue(cb.getValue());
                 menu.add(comboBoxClone);
+            } else if (c instanceof ComboBoxField<?>) {
+                final ComboBoxField<ItemBaseModel> cb = (ComboBoxField<ItemBaseModel>) c;
+                ComboBoxField<ItemBaseModel> comboBoxClone = new ComboBoxField<ItemBaseModel>();
+                comboBoxClone.setStore(cb.getStore());
+                comboBoxClone.setDisplayField("value");//$NON-NLS-1$
+                comboBoxClone.setValueField("key");//$NON-NLS-1$
+                comboBoxClone.setTypeAhead(true);
+                comboBoxClone.setTriggerAction(TriggerAction.ALL);
+                comboBoxClone.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
+
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
+                        cb.setValue(se.getSelectedItem());
+                    }
+                });
+                if (cb.getValue() != null)
+                    comboBoxClone.setValue(cb.getValue());
+                menu.add(comboBoxClone);
             } else if (c instanceof Button) {
                 final Button b = (Button) c;
                 String menuText = b.getText();
