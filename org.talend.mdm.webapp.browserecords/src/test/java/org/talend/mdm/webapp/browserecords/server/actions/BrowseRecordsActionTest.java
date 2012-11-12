@@ -17,8 +17,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -392,9 +394,23 @@ public class BrowseRecordsActionTest extends TestCase {
         // First record (property: Name)
         assertEquals("qqqqq8", firstItemBean.get("FormatTest/name"));
         // First record (property: d1)
-        assertEquals("Thu Nov 01 00:00:00 CST 2012", firstItemBean.get("FormatTest/d1"));
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ENGLISH);
+        Date date = sdf.parse("2012-11-01");
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        String formatValue = com.amalto.webapp.core.util.Util.formatDate("%tc", calendar);
+
+        assertEquals(formatValue, firstItemBean.get("FormatTest/d1"));
         // First record (property: dt1)
-        assertEquals("Fri Nov 02 12:00:00 CST 2012", firstItemBean.get("FormatTest/dt1"));
+
+        sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.ENGLISH);
+        date = sdf.parse("2012-11-02T12:00:00");
+        calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        formatValue = com.amalto.webapp.core.util.Util.formatDate("%tc", calendar);
+
+        assertEquals(formatValue, firstItemBean.get("FormatTest/dt1"));
         // First record (property: num)
         assertEquals("055", firstItemBean.get("FormatTest/num"));
         // Second record
@@ -406,9 +422,23 @@ public class BrowseRecordsActionTest extends TestCase {
         // Second record (property: Name)
         assertEquals("www8", secondItemBean.get("FormatTest/name"));
         // Second record (property: d1)
-        assertEquals("Tue Nov 06 00:00:00 CST 2012", secondItemBean.get("FormatTest/d1"));
+
+        sdf = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ENGLISH);
+        date = sdf.parse("2012-11-06");
+        calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        formatValue = com.amalto.webapp.core.util.Util.formatDate("%tc", calendar);
+
+        assertEquals(formatValue, secondItemBean.get("FormatTest/d1"));
         // Second record (property: dt1)
-        assertEquals("Fri Nov 30 12:00:00 CST 2012", secondItemBean.get("FormatTest/dt1"));
+
+        sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.ENGLISH);
+        date = sdf.parse("2012-11-30T12:00:00");
+        calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        formatValue = com.amalto.webapp.core.util.Util.formatDate("%tc", calendar);
+
+        assertEquals(formatValue, secondItemBean.get("FormatTest/dt1"));
         // Second record (property: num)
         assertEquals("087", secondItemBean.get("FormatTest/num"));
     }
