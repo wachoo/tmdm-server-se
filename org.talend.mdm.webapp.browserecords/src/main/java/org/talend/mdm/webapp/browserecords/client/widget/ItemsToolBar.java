@@ -197,14 +197,14 @@ public class ItemsToolBar extends ToolBar {
                 qm.setErrorValue(simpCriterion.getValue());
             }
         } else {
-            if (!advancedPanel.isVisible()) {
+            if (!advancedPanel.isVisible() && BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE) != null) {
                 advancedPanel.setVisible(true);
                 advancedBut.toggle(true);
                 advancedPanelVisible = true;
                 ItemsSearchContainer.getInstance().resizeTop(30 + advancedPanel.getOffsetHeight());
             }
             qm.setCriteria(advancedPanel.getCriteria());
-            MultipleCriteria multipleCriteria = (MultipleCriteria) BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE);
+            MultipleCriteria multipleCriteria = (MultipleCriteria) (BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE) == null ? BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE) : BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE));
             List<SimpleCriterion> simpleCriterions = CriteriaUtil.getSimpleCriterions(multipleCriteria);
             for (SimpleCriterion criteria : simpleCriterions){
                 if (!CommonUtil.validateSearchValue(entityModel.getMetaDataTypes(),criteria.getValue())){
@@ -912,6 +912,7 @@ public class ItemsToolBar extends ToolBar {
                 @Override
                 public void componentSelected(ButtonEvent ce) {
                     advancedPanel.cleanCriteria();
+                    BrowseRecords.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE, null);
                     advancedPanel.layout(true);
                     ItemsSearchContainer.getInstance().resizeTop(30 + advancedPanel.getOffsetHeight());
 

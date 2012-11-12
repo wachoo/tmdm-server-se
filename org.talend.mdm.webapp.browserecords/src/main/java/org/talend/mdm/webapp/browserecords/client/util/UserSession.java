@@ -49,6 +49,8 @@ public class UserSession implements Serializable {
     public static final String CUSTOMIZE_MODEL_VIEW_MAP = "customizeModelViewMap"; //$NON-NLS-1$
 
     public static final String CUSTOMIZE_CRITERION_STORE = "customizeCriterionStore"; //$NON-NLS-1$
+        
+    public static final String CUSTOMIZE_CRITERION_STORE_ADVANCE = "advanceCustomizeCriterionStore"; //$NON-NLS-1$
 
     private Map<String, Object> sessionMap = null;
 

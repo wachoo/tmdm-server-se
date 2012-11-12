@@ -140,7 +140,7 @@ public class AdvancedSearchPanel extends FormPanel {
             if (!s.isEmpty()) {
                 char[] sa = s.toCharArray();
                 BrowseRecords.getSession().put(
-                        UserSession.CUSTOMIZE_CRITERION_STORE,
+                        UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE,
                         sa[1] == '(' ? CommonUtil.parseMultipleSearchExpression(sa, 0).cr : CommonUtil
                                 .parseSimpleSearchExpression(sa, 0).cr);
             }
@@ -154,7 +154,7 @@ public class AdvancedSearchPanel extends FormPanel {
     }
 
     public String getCriteria() {
-        MultipleCriteria criteriaStore = (MultipleCriteria) BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE);
+        MultipleCriteria criteriaStore = (MultipleCriteria) (BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE) == null ? BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE) : BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE));
         String express = criteriaStore != null ? criteriaStore.toString() : null;// expressionTextField.getValue();
         String curCriteria = null, curDate = null;
         if (instance.getItemByItemId("modifiedon") != null) { //$NON-NLS-1$ 
@@ -182,7 +182,7 @@ public class AdvancedSearchPanel extends FormPanel {
     }
 
     public void cleanCriteria() {
-        setCriteria(""); //$NON-NLS-1$
+        setCriteria(""); //$NON-NLS-1$    
     }
 
     private LayoutContainer addCriteriaContainer(String id) {
@@ -266,8 +266,8 @@ public class AdvancedSearchPanel extends FormPanel {
 
                     @Override
                     public void componentSelected(ButtonEvent ce) {
-                        MultipleCriteria mutilCriteria = multiCriteria.getCriteria();
-                        BrowseRecords.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE, mutilCriteria);
+                        MultipleCriteria mutilCriteria = multiCriteria.getCriteria();                        
+                        BrowseRecords.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE, mutilCriteria);
                         mutilCriteria.requestShowAppearance();
                         setCriteria(mutilCriteria.toString());
                         winFilter.close();
