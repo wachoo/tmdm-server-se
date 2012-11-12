@@ -9,6 +9,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.Storage;
+import org.directwebremoting.ServerContextFactory;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.core.objects.configurationinfo.assemble.AssembleConcreteBuilder;
@@ -54,8 +57,6 @@ public class RunServlet extends HttpServlet {
 
         req.setCharacterEncoding("UTF-8");
         String action = req.getParameter("action");
-//        String parameters = req.getParameter("parameters");
-        
 
         resp.setContentType("text/html; charset=\"UTF-8\"");
         resp.setCharacterEncoding("UTF-8");
@@ -103,14 +104,24 @@ public class RunServlet extends HttpServlet {
     				
         		Util.getConfigurationInfoCtrlLocal().autoUpgradeInBackground(assembleProc);
     			
-    		} else {
-    			writer.write(
-   					"<p><b>Unknown action: </b>"+action+"<br/>"
-    			);
-    			
-    		}
-    	
-    	} catch (Exception e) {
+    		} else if ("reindex".equals(action)) {
+                String container = req.getParameter("container");
+                if (container == null) {
+                    writer.write(
+                            "<p><b>Container parameter is mandatory for action " + action + "</b><br/>"
+                    );
+                } else {
+                    String revision = req.getParameter("revision");
+                    Storage storage = ServerContext.INSTANCE.get().getStorageAdmin().get(container, revision);
+                    storage.reindex();
+                }
+            } else {
+                writer.write(
+                        "<p><b>Unknown action: </b>" + action + "<br/>"
+                );
+            }
+
+        } catch (Exception e) {
     		writer.write("<h1>An error occured: "+e.getLocalizedMessage()+"</h1>");
     	}
         writer.write("</body></html>");
