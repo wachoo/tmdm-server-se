@@ -108,7 +108,6 @@
         <taglib-location>/WEB-INF/c.tld</taglib-location>
     </taglib>
 
-
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Run</web-resource-name>
@@ -140,6 +139,16 @@
         </auth-constraint>
     </security-constraint>
 
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Services</web-resource-name>
+            <url-pattern>/services/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>administration</role-name>
+            <role-name>authenticated</role-name>
+        </auth-constraint>
+    </security-constraint>
 
     <login-config>
         <auth-method>BASIC</auth-method>
