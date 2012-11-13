@@ -19,18 +19,12 @@ import java.util.Set;
 
 import javax.xml.XMLConstants;
 
+import com.amalto.core.metadata.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.ScrollableResults;
 
-import com.amalto.core.metadata.AliasKeyFieldMetadata;
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.ComplexTypeMetadataImpl;
-import com.amalto.core.metadata.CompoundFieldMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
-import com.amalto.core.metadata.SimpleTypeFieldMetadata;
-import com.amalto.core.metadata.SimpleTypeMetadata;
+import com.amalto.core.metadata.AliasedFieldMetadata;
 import com.amalto.core.query.user.Alias;
 import com.amalto.core.query.user.Count;
 import com.amalto.core.query.user.Field;
@@ -122,12 +116,11 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                         return new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, fieldName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList());
                     }
 
-                    private AliasKeyFieldMetadata createKeyField(String typeName, String aliasName, String realFieldName) {
+                    private FieldMetadata createKeyField(String typeName, String aliasName, String realFieldName) {
                         SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
-                        AliasKeyFieldMetadata keyFieldMetadata = new AliasKeyFieldMetadata(explicitProjectionType, false, false,
+                        return new AliasedFieldMetadata(explicitProjectionType, false, false,
                                 false, aliasName, fieldType, Collections.<String> emptyList(), Collections.<String> emptyList(),
                                 realFieldName);
-                        return keyFieldMetadata;
                     }
 
                     @Override
@@ -140,8 +133,9 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                     public FieldMetadata visit(Alias alias) {
                         isAlias = true;
                         alias.getTypedExpression().accept(this);
-                        if ("i".equals(alias.getAliasName()) && alias.getTypedExpression() instanceof Field) { //$NON-NLS-1$
-                            String realFieldName = ((Field) alias.getTypedExpression()).getFieldMetadata().getName();
+                        if (alias.getTypedExpression() instanceof Field) {
+                            Field fieldExpression = (Field) alias.getTypedExpression();
+                            String realFieldName = fieldExpression.getFieldMetadata().getName();
                             return createKeyField(alias.getTypeName(), alias.getAliasName(), realFieldName);
                         }
                         return createField(alias.getTypeName(), alias.getAliasName());
