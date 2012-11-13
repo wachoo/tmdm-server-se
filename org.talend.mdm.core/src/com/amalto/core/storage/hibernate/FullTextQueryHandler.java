@@ -135,16 +135,25 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                         @Override
                         public Void visit(Field field) {
                             FieldMetadata fieldMetadata = field.getFieldMetadata();
+                            if (aliasName != null) {
+                                SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName == null ? fieldMetadata.getType().getName() : typeName);
+                                fieldMetadata = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, aliasName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList());
+                                explicitProjectionType.addField(fieldMetadata);
+                            } else {
+                                explicitProjectionType.addField(fieldMetadata);
+                            }
                             Object value;
                             if (fieldMetadata instanceof ReferenceFieldMetadata) {
                                 value = getReferencedId(next, (ReferenceFieldMetadata) fieldMetadata);
                             } else {
                                 value = next.get(fieldMetadata);
                             }
-                            SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName == null ? fieldMetadata.getType().getName() : typeName);
-                            SimpleTypeFieldMetadata newField = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, aliasName == null ? fieldMetadata.getName() : aliasName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList());
-                            explicitProjectionType.addField(newField);
-                            nextRecord.set(newField, value);
+                            nextRecord.set(fieldMetadata, value);
+                            return null;
+                        }
+
+                        @Override
+                        public Void visit(StringConstant constant) {
                             return null;
                         }
 
