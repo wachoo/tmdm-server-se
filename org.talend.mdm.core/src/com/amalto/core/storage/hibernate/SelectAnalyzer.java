@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.metadata.CompoundFieldMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
@@ -44,6 +45,8 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
     private boolean isFullText = false;
 
     private boolean isOnlyId = false;
+
+    private FieldMetadata keyField = null;
 
     private boolean isCheckingProjection;
 
@@ -219,13 +222,19 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
     @Override
     public AbstractQueryHandler visit(Field field) {
         if (!isCheckingProjection) {
-            if (!field.getFieldMetadata().isKey()) {
-                isOnlyId = false;
-            } else {
-                List<FieldMetadata> keyFields = field.getFieldMetadata().getContainingType().getKeyFields();
-                // TODO Support composite keys
-                isOnlyId = keyFields.size() == 1 && keyFields.get(0).equals(field.getFieldMetadata());
-            }
+            FieldMetadata fieldMetadata = field.getFieldMetadata();
+            if(fieldMetadata.getContainingType().getKeyFields().size() == 1) {
+                if (fieldMetadata.isKey() && !(fieldMetadata instanceof CompoundFieldMetadata)) {
+                    if (keyField != null) {
+                        // At least twice an Id field means different Id values
+                        // TODO Support for "entity/id = n AND entity/id = n" (could simplified to "entity/id = n").
+                        isOnlyId = false;
+                    } else {
+                        keyField = fieldMetadata;
+                        isOnlyId = true;
+                    }
+                }
+            } // TODO Support compound key field.
         }
         selectedFields.add(field);
         return null;

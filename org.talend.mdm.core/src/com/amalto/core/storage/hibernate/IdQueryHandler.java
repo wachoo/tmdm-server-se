@@ -222,6 +222,22 @@ class IdQueryHandler extends AbstractQueryHandler {
         }
 
         @Override
+        public Void visit(Count count) {
+            // Count always return 1 as value.
+            SimpleTypeFieldMetadata fieldType = new SimpleTypeFieldMetadata(explicitProjectionType,
+                    false,
+                    false,
+                    false,
+                    currentAliasName,
+                    new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "long"),
+                    Collections.<String>emptyList(),
+                    Collections.<String>emptyList());
+            explicitProjectionType.addField(fieldType);
+            nextRecord.set(fieldType, 1L);
+            return null;
+        }
+
+        @Override
         public Void visit(Alias alias) {
             currentAliasName = alias.getAliasName();
             alias.getTypedExpression().accept(this);
