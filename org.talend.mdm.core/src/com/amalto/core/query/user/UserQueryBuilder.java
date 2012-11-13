@@ -184,8 +184,13 @@ public class UserQueryBuilder {
         if (expression == null || expressionAsSelect().getTypes().isEmpty()) {
             throw new IllegalStateException("No type is currently selected.");
         }
-        where(new Isa(new ComplexTypeExpression(expressionAsSelect().getTypes().get(0)), type));
-        return this;
+        if (type.getSuperTypes().isEmpty() && type.getSubTypes().isEmpty()) {
+            LOGGER.warn("Ignore 'is a' statement of type '" + type.getName() + "' since it is not part of an inheritance tree.");
+            return this;
+        } else {
+            where(new Isa(new ComplexTypeExpression(expressionAsSelect().getTypes().get(0)), type));
+            return this;
+        }
     }
 
     private static Expression createConstant(TypedExpression expression, String constant) {
