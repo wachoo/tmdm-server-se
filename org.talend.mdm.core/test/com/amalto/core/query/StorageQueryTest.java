@@ -33,11 +33,15 @@ import static com.amalto.core.query.user.UserQueryBuilder.taskId;
 import static com.amalto.core.query.user.UserQueryBuilder.timestamp;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,6 +50,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.output.NullOutputStream;
+import org.apache.commons.lang.StringEscapeUtils;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
@@ -66,6 +71,7 @@ import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.ViewSearchResultsWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
@@ -1801,6 +1807,51 @@ public class StorageQueryTest extends StorageTestCase {
         }
         String actual = new String(output.toByteArray());
         assertEquals(E1_Record1 + E1_Record2 + E1_Record3, actual);
+    }
+
+    public void testFetchAllE1ByAliasI() {
+        UserQueryBuilder qb = from(e1);
+        qb.selectId(e1);
+        qb.select(e1, "../../i");
+        qb.select(e1, "name");
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(3, results.getCount());
+
+        DataRecordWriter writer = new DataRecordWriter() {
+
+            public void write(DataRecord record, OutputStream output) throws IOException {
+                Writer out = new BufferedWriter(new OutputStreamWriter(output, "UTF-8")); //$NON-NLS-1$
+                write(record, out);
+            }
+
+            public void write(DataRecord record, Writer writer) throws IOException {
+                writer.write("<result>"); //$NON-NLS-1$
+                for (FieldMetadata fieldMetadata : record.getSetFields()) {
+                    Object value = record.get(fieldMetadata);
+                    if (value != null) {
+                        writer.append("<").append(fieldMetadata.getName()).append(">");
+                        writer.append(StringEscapeUtils.escapeXml(String.valueOf(value)));
+                        writer.append("</").append(fieldMetadata.getName()).append(">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    }
+                }
+                writer.append("</result>"); //$NON-NLS-1$
+                writer.flush();
+            }
+        };
+
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        String actual = new String(output.toByteArray());
+        String r1 = "<result><subelement>aaa</subelement><subelement1>bbb</subelement1><i>aaa</i><i>bbb</i><name>asdf</name></result>";
+        String r2 = "<result><subelement>ccc</subelement><subelement1>ddd</subelement1><i>ccc</i><i>ddd</i><name>cvcvc</name></result>";
+        String r3 = "<result><subelement>ttt</subelement><subelement1>yyy</subelement1><i>ttt</i><i>yyy</i><name>nhhn</name></result>";
+        assertEquals(r1 + r2 + r3, actual);
     }
 
     public void testFetchE2ByForeignKeyToCompositeKeys() {

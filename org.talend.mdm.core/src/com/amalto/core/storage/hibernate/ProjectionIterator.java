@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.ScrollableResults;
 
+import com.amalto.core.metadata.AliasKeyFieldMetadata;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.ComplexTypeMetadataImpl;
 import com.amalto.core.metadata.CompoundFieldMetadata;
@@ -121,20 +122,11 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                         return new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, fieldName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList());
                     }
 
-                    private SimpleTypeFieldMetadata createKeyField(String typeName, String aliasName, String realFieldName){
+                    private AliasKeyFieldMetadata createKeyField(String typeName, String aliasName, String realFieldName) {
                         SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
-                        SimpleTypeFieldMetadata keyFieldMetadata = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, aliasName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList()){
-                            @Override
-                            public boolean equals(Object o) {
-                                 boolean result = super.equals(o);
-                                 if (result){
-                                    SimpleTypeFieldMetadata another = (SimpleTypeFieldMetadata) o;
-                                    return this.getData("realFieldName").equals(another.getData("realFieldName")); //$NON-NLS-1$ //$NON-NLS-2$
-                                 }
-                                 return false;
-                            }
-                        };
-                        keyFieldMetadata.setData("realFieldName", realFieldName); //$NON-NLS-1$
+                        AliasKeyFieldMetadata keyFieldMetadata = new AliasKeyFieldMetadata(explicitProjectionType, false, false,
+                                false, aliasName, fieldType, Collections.<String> emptyList(), Collections.<String> emptyList(),
+                                realFieldName);
                         return keyFieldMetadata;
                     }
 
