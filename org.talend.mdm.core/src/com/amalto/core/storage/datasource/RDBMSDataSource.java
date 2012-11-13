@@ -11,13 +11,23 @@
 
 package com.amalto.core.storage.datasource;
 
-public class RDBMSDataSource implements DataSource {
+import java.util.Map;
 
-    private final String name;
+public class RDBMSDataSource implements DataSource {
 
     public static enum DataSourceDialect {
         H2, ORACLE_10G, MYSQL, POSTGRES, SQL_SERVER
     }
+
+    public static enum SchemaGeneration {
+        CREATE, VALIDATE, UPDATE
+    }
+
+    private final String name;
+
+    private final SchemaGeneration schemaGeneration;
+
+    private final Map<String, String> advancedProperties;
 
     private final String cacheDirectory;
 
@@ -54,6 +64,8 @@ public class RDBMSDataSource implements DataSource {
                            int connectionPoolMaxSize,
                            String indexDirectory,
                            String cacheDirectory,
+                           String schemaGeneration,
+                           Map<String, String> advancedProperties,
                            String connectionURL,
                            String databaseName,
                            String initPassword,
@@ -72,7 +84,16 @@ public class RDBMSDataSource implements DataSource {
         } else if ("Postgres".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
             dialect = DataSourceDialect.POSTGRES;
         } else {
-            throw new IllegalArgumentException("No support for type '" + dialectName + "'.");
+            throw new IllegalArgumentException("No support for database '" + dialectName + "'.");
+        }
+        if ("update".equalsIgnoreCase(schemaGeneration)) { //$NON-NLS-1$
+            this.schemaGeneration = SchemaGeneration.UPDATE;
+        } else if ("validate".equalsIgnoreCase(schemaGeneration)) { //$NON-NLS-1$
+            this.schemaGeneration = SchemaGeneration.VALIDATE;
+        } else if ("create".equalsIgnoreCase(schemaGeneration)) { //$NON-NLS-1$
+            this.schemaGeneration = SchemaGeneration.CREATE;
+        } else {
+            throw new IllegalArgumentException("No support for schema generation '" + schemaGeneration + "'.");
         }
         this.initPassword = initPassword;
         this.initUserName = initUserName;
@@ -87,6 +108,7 @@ public class RDBMSDataSource implements DataSource {
         this.cacheDirectory = cacheDirectory;
         this.connectionURL = connectionURL;
         this.databaseName = databaseName;
+        this.advancedProperties = advancedProperties;
     }
 
     public DataSourceDialect getDialectName() {
@@ -166,5 +188,13 @@ public class RDBMSDataSource implements DataSource {
     @Override
     public String getName() {
         return name;
+    }
+
+    public SchemaGeneration getSchemaGeneration() {
+        return schemaGeneration;
+    }
+
+    public Map<String, String> getAdvancedProperties() {
+        return advancedProperties;
     }
 }

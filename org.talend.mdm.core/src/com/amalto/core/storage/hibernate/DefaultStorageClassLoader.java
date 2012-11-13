@@ -131,7 +131,11 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         DocumentBuilder documentBuilder = factory.newDocumentBuilder();
         documentBuilder.setEntityResolver(HibernateStorage.ENTITY_RESOLVER);
         Document document = documentBuilder.parse(DefaultStorageClassLoader.class.getResourceAsStream(HIBERNATE_CONFIG_TEMPLATE));
-
+        // Override default configuration with values from configuration
+        Map<String, String> advancedProperties = rdbmsDataSource.getAdvancedProperties();
+        for (Map.Entry<String, String> currentAdvancedProperty : advancedProperties.entrySet()) {
+            setPropertyValue(document, currentAdvancedProperty.getKey(), currentAdvancedProperty.getValue());
+        }
         String connectionUrl = rdbmsDataSource.getConnectionURL();
         String userName = rdbmsDataSource.getUserName();
         String driverClass = rdbmsDataSource.getDriverClassName();

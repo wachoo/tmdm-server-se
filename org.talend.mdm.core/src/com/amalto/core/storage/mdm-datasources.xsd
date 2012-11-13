@@ -140,6 +140,23 @@
                     <xs:element type="xs:int" name="connection-pool-maxsize" minOccurs="0" maxOccurs="1"/>
                     <xs:element type="xs:string" name="fulltext-index-directory" minOccurs="0" maxOccurs="1"/>
                     <xs:element type="xs:string" name="cache-directory" minOccurs="0" maxOccurs="1"/>
+                    <xs:element type="schemaGenerationType" name="schema-generation" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="properties" minOccurs="0" maxOccurs="1">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="property" minOccurs="0" maxOccurs="unbounded">
+                                    <xs:complexType>
+                                        <xs:simpleContent>
+                                            <xs:extension base="xs:string">
+                                                <xs:attribute name="name" type="xs:string"/>
+                                            </xs:extension>
+                                        </xs:simpleContent>
+                                    </xs:complexType>
+                                </xs:element>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+
                     <xs:element name="init" minOccurs="0" maxOccurs="1">
                         <xs:complexType>
                             <xs:sequence>
@@ -155,4 +172,12 @@
         </xs:complexContent>
     </xs:complexType>
     <xs:element type="rdbms-configurationType" name="rdbms-configuration" substitutionGroup="configuration"/>
+
+    <xs:simpleType name="schemaGenerationType">
+        <xs:restriction base="xsd:string">
+            <xs:enumeration value="update"/>
+            <xs:enumeration value="create"/>
+            <xs:enumeration value="validate"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

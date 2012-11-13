@@ -11,6 +11,7 @@
 package com.amalto.core.storage.datasource;
 
 import java.io.InputStream;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -63,6 +64,7 @@ public class DataSourceParsingTest extends TestCase {
         assertEquals("root", rdbmsDataSource.getUserName());
         assertEquals(5, rdbmsDataSource.getConnectionPoolMinSize());
         assertEquals(50, rdbmsDataSource.getConnectionPoolMaxSize());
+        assertEquals(RDBMSDataSource.SchemaGeneration.UPDATE, rdbmsDataSource.getSchemaGeneration());
         assertEquals("jdbc:mysql://10.42.150.15:3306/", rdbmsDataSource.getInitConnectionURL());
         assertEquals("root", rdbmsDataSource.getInitUserName());
         assertEquals("toor", rdbmsDataSource.getInitPassword());
@@ -81,6 +83,7 @@ public class DataSourceParsingTest extends TestCase {
         assertEquals("MDM", rdbmsDataSource.getDatabaseName());
         assertEquals(0, rdbmsDataSource.getConnectionPoolMinSize());
         assertEquals(50, rdbmsDataSource.getConnectionPoolMaxSize());
+        assertEquals(RDBMSDataSource.SchemaGeneration.UPDATE, rdbmsDataSource.getSchemaGeneration());
     }
 
     public void testContainerChange2() throws Exception {
@@ -96,6 +99,32 @@ public class DataSourceParsingTest extends TestCase {
         assertEquals("mdm_dev2", rdbmsDataSource.getDatabaseName());
         assertEquals(0, rdbmsDataSource.getConnectionPoolMinSize());
         assertEquals(0, rdbmsDataSource.getConnectionPoolMaxSize());
+        assertEquals(RDBMSDataSource.SchemaGeneration.UPDATE, rdbmsDataSource.getSchemaGeneration());
     }
 
+    public void testSchemaGeneration() throws Exception {
+        InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-3", "MDM", null);
+        DataSource dataSource = dataSourceDefinition.getMaster();
+        assertNotNull(dataSource);
+        assertTrue(dataSource instanceof RDBMSDataSource);
+
+        RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) dataSource;
+        assertEquals(RDBMSDataSource.SchemaGeneration.VALIDATE, rdbmsDataSource.getSchemaGeneration());
+    }
+
+    public void testAdvancedProperties() throws Exception {
+        InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-3", "MDM", null);
+        DataSource dataSource = dataSourceDefinition.getMaster();
+        assertNotNull(dataSource);
+        assertTrue(dataSource instanceof RDBMSDataSource);
+
+        RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) dataSource;
+        Map<String,String> advancedProperties = rdbmsDataSource.getAdvancedProperties();
+        assertEquals(3, advancedProperties.size());
+        assertEquals("value1", advancedProperties.get("property1"));
+        assertEquals("value2", advancedProperties.get("property2"));
+        assertEquals("value3", advancedProperties.get("property3"));
+    }
 }

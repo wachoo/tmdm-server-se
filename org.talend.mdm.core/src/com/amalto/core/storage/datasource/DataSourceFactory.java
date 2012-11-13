@@ -217,6 +217,19 @@ public class DataSourceFactory {
             int connectionPoolMaxSize = ((Double) evaluate(dataSource, "rdbms-configuration/connection-pool-maxsize", XPathConstants.NUMBER)).intValue(); //$NON-NLS-1$
             String indexDirectory = (String) evaluate(dataSource, "rdbms-configuration/fulltext-index-directory", XPathConstants.STRING); //$NON-NLS-1$
             String cacheDirectory = (String) evaluate(dataSource, "rdbms-configuration/cache-directory", XPathConstants.STRING); //$NON-NLS-1$
+            String schemaGeneration = (String) evaluate(dataSource, "rdbms-configuration/schema-generation", XPathConstants.STRING); //$NON-NLS-1$
+            if (schemaGeneration == null || schemaGeneration.isEmpty()) {
+                // Default value is "update".
+                schemaGeneration = "update"; //$NON-NLS-1$
+            }
+            Map<String, String> advancedProperties = new HashMap<String, String>();
+            NodeList properties = (NodeList) evaluate(dataSource, "rdbms-configuration/properties/property", XPathConstants.NODESET); //$NON-NLS-1$
+            for (int i = 0; i < properties.getLength(); i++) {
+                Node item = properties.item(i);
+                String propertyName = item.getAttributes().getNamedItem("name").getNodeValue(); //$NON-NLS-1$
+                String propertyValue = item.getTextContent();
+                advancedProperties.put(propertyName, propertyValue);
+            }
             String initConnectionURL = (String) evaluate(dataSource, "rdbms-configuration/init/connection-url", XPathConstants.STRING); //$NON-NLS-1$
             String initUserName = (String) evaluate(dataSource, "rdbms-configuration/init/connection-username", XPathConstants.STRING); //$NON-NLS-1$
             String initPassword = (String) evaluate(dataSource, "rdbms-configuration/init/connection-password", XPathConstants.STRING); //$NON-NLS-1$
@@ -231,6 +244,8 @@ public class DataSourceFactory {
                     connectionPoolMaxSize,
                     indexDirectory,
                     cacheDirectory,
+                    schemaGeneration,
+                    advancedProperties,
                     connectionURL,
                     databaseName,
                     initPassword,
