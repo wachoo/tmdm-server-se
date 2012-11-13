@@ -336,7 +336,7 @@ public class HibernateStorage implements Storage {
 
     private void traceDDL() {
         try {
-            String jbossServerTempDir = System.getProperty("jboss.server.temp.dir"); //$NON-NLS-1$
+            String jbossServerTempDir = System.getProperty("java.io.tmpdir"); //$NON-NLS-1$
             RDBMSDataSource.DataSourceDialect dialectType = dataSource.getDialectName();
             SchemaExport export = new SchemaExport(configuration);
             export.setFormat(false);
