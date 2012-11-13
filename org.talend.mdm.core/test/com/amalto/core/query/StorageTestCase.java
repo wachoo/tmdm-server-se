@@ -10,7 +10,9 @@
 
 package com.amalto.core.query;
 
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -102,7 +104,8 @@ public class StorageTestCase extends TestCase {
         e1 = repository.getComplexType("E1");
 
         storage.init(getDatasource(DATABASE + "-Default"));
-        storage.prepare(repository, Collections.singleton(person.getField("firstname")), true, true);
+        List<FieldMetadata> indexedFields = Arrays.asList(person.getField("firstname"), person.getField("score"), address.getField("score"));
+        storage.prepare(repository, new HashSet<FieldMetadata>(indexedFields), true, true);
         LOG.info("Storage prepared.");
     }
 

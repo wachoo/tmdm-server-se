@@ -483,7 +483,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                         LOGGER.debug("Creating index for field '" + field.getName() + "'.");
                     }
                     Attr indexName = document.createAttribute("index"); //$NON-NLS-1$
-                    indexName.setValue(formatSQLName(fieldName, resolver.getNameMaxLength()) + "_index"); //$NON-NLS-1$
+                    indexName.setValue(formatSQLName(field.getContainingType().getName() + '_' + fieldName + "_index", resolver.getNameMaxLength())); //$NON-NLS-1$
                     propertyElement.getAttributes().setNamedItem(indexName);
                 } else {
                     if (LOGGER.isDebugEnabled()) {
