@@ -37,6 +37,7 @@ import org.hibernate.search.event.ContextHolder;
 import org.hibernate.search.impl.SearchFactoryImpl;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
+import org.hibernate.tool.hbm2ddl.SchemaValidator;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -264,15 +265,37 @@ public class HibernateStorage implements Storage {
                     CacheManager.create(ehCacheConfig);
                 }
                 configuration.configure(StorageClassLoader.HIBERNATE_CONFIG);
-                // This method is deprecated but using a 4.1+ hibernate initialization, Hibernate Search can't be
-                // started
-                // (wait for Hibernate Search 4.1 to be ready before considering changing this).
-                SchemaUpdate schemaUpdate = new SchemaUpdate(configuration);
-                schemaUpdate.execute(false, true);
-                if (!schemaUpdate.getExceptions().isEmpty()) {
+                // Customize schema generation according to datasource content.
+                RDBMSDataSource.SchemaGeneration schemaGeneration = dataSource.getSchemaGeneration();
+                List exceptions = Collections.emptyList();
+                switch (schemaGeneration) {
+                    case CREATE:
+                        SchemaExport schemaExport = new SchemaExport(configuration);
+                        schemaExport.create(false, true);
+                        // Exception may happen during recreation (hibernate may perform statements on tables that does
+                        // not exist): these exceptions are supposed to be harmless (but log them to DEBUG just in case).
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Exception(s) occurred during schema creation:");
+                            for (Object exceptionObject : schemaExport.getExceptions()) {
+                                LOGGER.debug(((Exception) exceptionObject).getMessage());
+                            }
+                        }
+                        break;
+                    case VALIDATE:
+                        SchemaValidator schemaValidator = new SchemaValidator(configuration);
+                        schemaValidator.validate(); // This is supposed to throw exception on validation issue.
+                        break;
+                    case UPDATE:
+                        SchemaUpdate schemaUpdate = new SchemaUpdate(configuration);
+                        schemaUpdate.execute(false, true);
+                        exceptions = schemaUpdate.getExceptions();
+                        break;
+                }
+                // Throw an exception if schema update met issue(s).
+                if (!exceptions.isEmpty()) {
                     StringBuilder sb = new StringBuilder();
                     sb.append("Could not prepare database schema: ");
-                    Iterator iterator = schemaUpdate.getExceptions().iterator();
+                    Iterator iterator = exceptions.iterator();
                     while (iterator.hasNext()) {
                         sb.append(((Exception) iterator.next()).getMessage());
                         if (iterator.hasNext()) {
@@ -281,6 +304,9 @@ public class HibernateStorage implements Storage {
                     }
                     throw new IllegalStateException(sb.toString());
                 }
+                // This method is deprecated but using a 4.1+ hibernate initialization, Hibernate Search can't be
+                // started
+                // (wait for Hibernate Search 4.1 to be ready before considering changing this).
                 factory = configuration.buildSessionFactory();
             } catch (Exception e) {
                 throw new RuntimeException("Exception occurred during Hibernate initialization.", e);
