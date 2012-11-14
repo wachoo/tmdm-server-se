@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareabrowser.client.controller;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.stagingareabrowser.client.StagingareaBrowse;
 import org.talend.mdm.webapp.stagingareabrowser.client.model.ResultItem;
 import org.talend.mdm.webapp.stagingareabrowser.client.model.SearchModel;
@@ -52,16 +53,17 @@ public class ResultsController extends AbstractController {
                 }
                 searchModel.setSortDir(sortDir);
                 StagingareaBrowse.service.searchStaging(searchModel,
-                        new AsyncCallback<PagingLoadResult<ResultItem>>() {
+                        new SessionAwareAsyncCallback<PagingLoadResult<ResultItem>>() {
 
-                    public void onSuccess(PagingLoadResult<ResultItem> result) {
-                        callback.onSuccess(result);
-                    }
+                            public void onSuccess(PagingLoadResult<ResultItem> result) {
+                                callback.onSuccess(result);
+                            }
 
-                    public void onFailure(Throwable caught) {
-                        alertStagingError(caught);
-                    }
-                });
+                            @Override
+                            public void doOnFailure(Throwable caught) {
+                                alertStagingError(caught);
+                            }
+                        });
             }
         };
         loader = new BasePagingLoader<PagingLoadResult<ResultItem>>(proxy);
@@ -69,13 +71,10 @@ public class ResultsController extends AbstractController {
         loader.setRemoteSort(true);
     }
 
-    private ResultsView view;
-
     private static SearchModel searchModel;
 
     public ResultsController(ResultsView view) {
         setBindingView(view);
-        this.view = (ResultsView) bindingView;
     }
 
     public static BasePagingLoader<PagingLoadResult<ResultItem>> getLoader() {
