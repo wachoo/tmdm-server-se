@@ -184,7 +184,8 @@ public class UserQueryBuilder {
         if (expression == null || expressionAsSelect().getTypes().isEmpty()) {
             throw new IllegalStateException("No type is currently selected.");
         }
-        if (type.getSuperTypes().isEmpty() && type.getSubTypes().isEmpty()) {
+        ComplexTypeMetadata mainType = getSelect().getTypes().get(0);
+        if (mainType.getSubTypes().isEmpty()) {
             LOGGER.warn("Ignore 'is a' statement of type '" + type.getName() + "' since it is not part of an inheritance tree.");
             return this;
         } else {
