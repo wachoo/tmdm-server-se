@@ -201,4 +201,9 @@ class Checker extends VisitorAdapter<Boolean> {
     public Boolean visit(Isa isa) {
         return isa.getExpression().accept(this);
     }
+
+    @Override
+    public Boolean visit(ComplexTypeExpression expression) {
+        return true;
+    }
 }

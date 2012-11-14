@@ -82,6 +82,11 @@ class SecurityQueryCleaner extends VisitorAdapter<Expression> {
     }
 
     @Override
+    public Expression visit(ComplexTypeExpression expression) {
+        return expression;
+    }
+
+    @Override
     public Expression visit(Isa isa) {
         if(!isa.getExpression().accept(checker)) {
             return UserQueryHelper.NO_OP_CONDITION;

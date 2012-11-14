@@ -1032,5 +1032,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
         public FieldCondition visit(FloatConstant constant) {
             return createConstantCondition();
         }
+
+        @Override
+        public FieldCondition visit(ComplexTypeExpression expression) {
+            FieldCondition fieldCondition = new FieldCondition();
+            fieldCondition.criterionFieldName = StringUtils.EMPTY;
+            fieldCondition.isMany = false;
+            fieldCondition.isProperty = true;
+            return fieldCondition;
+        }
     }
 }
