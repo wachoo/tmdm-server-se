@@ -189,6 +189,11 @@ public class QizxQueryModelConverter implements Visitor<Expression> {
         throw new NotImplementedException("Support for 'is a' to be implemented");
     }
 
+    @Override
+    public Expression visit(ComplexTypeExpression expression) {
+        throw new NotImplementedException("Support for typed expressions to be implemented");
+    }
+
     public Expression visit(Predicate.Contains contains) {
         throw new NotImplementedException("No support for '" + contains + "'");
     }

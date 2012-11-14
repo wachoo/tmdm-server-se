@@ -573,6 +573,12 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(ComplexTypeExpression expression) {
+        print("Type: " + expression.getTypeName());
+        return null;
+    }
+
     public Void visit(OrderBy orderBy) {
         print("[ORDER BY]");
         increaseIndent();
