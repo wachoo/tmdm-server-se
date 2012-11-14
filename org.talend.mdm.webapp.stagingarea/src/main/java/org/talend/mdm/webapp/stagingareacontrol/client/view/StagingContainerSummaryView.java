@@ -12,8 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
-import java.util.Date;
-
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
@@ -27,15 +25,8 @@ import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.RepeatingCommand;
-import com.google.gwt.dom.client.Style.Overflow;
-import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 
@@ -67,10 +58,6 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private SimplePanel chartPanel;
 
-    private Frame chartFrame;
-
-    private JavaScriptObject chartOpt;
-
     private final int CHART_WIDTH = 400;
 
     private final int CHART_HEIGHT = 200;
@@ -78,38 +65,9 @@ public class StagingContainerSummaryView extends AbstractView {
     private HTMLPanel detailPanel;
 
     private void initPieChart() {
-        initChartCallback();
-        chartFrame = new Frame("/stagingarea/chart/Chart.html?&timestamp=" + new Date().getTime()); //$NON-NLS-1$
-        chartFrame.setSize("400px", "200px"); //$NON-NLS-1$ //$NON-NLS-2$
-        chartFrame.getElement().getStyle().setBorderWidth(0D, Unit.PX);
-        chartFrame.getElement().getStyle().setOverflow(Overflow.HIDDEN);
-        chartFrame.getElement().setAttribute("frameborder", "no"); //$NON-NLS-1$//$NON-NLS-2$
-        chartFrame.getElement().setAttribute("scrolling", "no"); //$NON-NLS-1$//$NON-NLS-2$
         chartPanel = new SimplePanel();
-        chartPanel.setWidget(chartFrame);
+        chartPanel.setSize(CHART_WIDTH + "px", CHART_HEIGHT + "px"); //$NON-NLS-1$//$NON-NLS-2$
     }
-
-    private native void initChartCallback()/*-{
-		var instance = this;
-		$wnd.chartReady = function(opt) {
-			instance.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::chartOpt = opt;
-		};
-    }-*/;
-
-    private native void updateChart(String waitstr, double waiting, String invalidStr, double invalid, String validStr, double valid)/*-{
-		var opt = this.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::chartOpt;
-		if (opt) {
-			opt.updateData(waitstr, waiting, invalidStr, invalid, validStr,
-					valid);
-		}
-    }-*/;
-
-    private native void clearChart(String title)/*-{
-		var opt = this.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::chartOpt;
-		if (opt) {
-			opt.clearChart(title);
-		}
-    }-*/;
 
     @Override
     protected void initComponents() {
@@ -233,35 +191,7 @@ public class StagingContainerSummaryView extends AbstractView {
 
 
     private void updateChartData() {
-        if (stagingContainerModel != null) {
-            int waiting = stagingContainerModel.getWaitingValidationRecords();
-            int invalid = stagingContainerModel.getInvalidRecords();
-            int valid = stagingContainerModel.getValidRecords();
-            double sum = waiting + invalid + valid;
-            if (sum == 0.0) {
-                clearChart(messages.nodata());
-                return;
-            }
-            NumberFormat format = NumberFormat.getFormat("#0"); //$NON-NLS-1$
-            final double waitingPer = format.parse(format.format(waiting / sum * 100));
-            final double invalidPer = format.parse(format.format(invalid / sum * 100));
-            final double validPer = format.parse(format.format(valid / sum * 100));
-
-            if (chartOpt == null) {
-                Scheduler.get().scheduleIncremental(new RepeatingCommand() {
-
-                    public boolean execute() {
-                        if (chartOpt == null) {
-                            return true;
-                        }
-                        updateChart(messages.waiting(), waitingPer, messages.invalid(), invalidPer, messages.valid(), validPer);
-                        return false;
-                    }
-                });
-            } else {
-                updateChart(messages.waiting(), waitingPer, messages.invalid(), invalidPer, messages.valid(), validPer);
-            }
-        }
+        // TODO paint a chartPie
     }
 
 
