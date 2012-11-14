@@ -63,6 +63,8 @@ public class StagingAreaTest extends TestCase {
 
     private ComplexTypeMetadata person;
 
+    private ComplexTypeMetadata update;
+
     private MetadataRepository repository;
 
     private MetadataRepository stagingRepository;
@@ -72,6 +74,9 @@ public class StagingAreaTest extends TestCase {
     private ComplexTypeMetadata country;
 
     private ClassLoader contextClassLoader;
+
+    private Map<String, Storage> storages;
+
 
     @Override
     public void setUp() throws Exception {
@@ -93,9 +98,14 @@ public class StagingAreaTest extends TestCase {
         person = repository.getComplexType("Person");
         address = repository.getComplexType("Address");
         country = repository.getComplexType("Country");
+        update = repository.getComplexType("Update");
 
         origin = new HibernateStorage("Origin", StorageType.STAGING);
         destination = new HibernateStorage("Destination", StorageType.MASTER);
+        storages = new HashMap<String, Storage>();
+        storages.put(origin.getName(), origin);
+        storages.put(destination.getName(), destination);
+        storages.put("UpdateReport", destination);
 
         origin.init(ServerContext.INSTANCE.get().getDataSource("H2-DS2", "MDM", StorageType.MASTER));
         origin.prepare(stagingRepository, true);
@@ -172,7 +182,7 @@ public class StagingAreaTest extends TestCase {
         assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
 
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
-        SaverSession.Committer committer = new TestCommitter(destination);
+        SaverSession.Committer committer = new TestCommitter(storages);
         StagingConfiguration config = new StagingConfiguration(origin, stagingRepository, repository, source, committer, destination);
         long now = System.currentTimeMillis();
         Task stagingTask = TaskFactory.createStagingTask(config);
@@ -191,6 +201,7 @@ public class StagingAreaTest extends TestCase {
         assertEquals(COUNT, destination.fetch(select).getCount());
         assertEquals(COUNT, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
         assertEquals(COUNT, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
+        assertEquals(COUNT * 3, destination.fetch(UserQueryBuilder.from(update).getSelect()).getCount());
         assertEquals(COUNT, origin.fetch(UserQueryBuilder.from(person).getSelect()).getCount());
         assertEquals(COUNT,
                 origin.fetch(UserQueryBuilder.from(person).where(eq(status(), StagingConstants.SUCCESS_VALIDATE)).getSelect())
@@ -226,7 +237,7 @@ public class StagingAreaTest extends TestCase {
         assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
 
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
-        SaverSession.Committer committer = new TestCommitter(destination);
+        SaverSession.Committer committer = new TestCommitter(storages);
         TaskSubmitter submitter = TaskSubmitterFactory.getSubmitter();
         Task stagingTask = new StagingTask(submitter, origin, stagingRepository, repository, source, committer, destination);
         submitter.submit(stagingTask);
@@ -246,7 +257,7 @@ public class StagingAreaTest extends TestCase {
         assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
 
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
-        SaverSession.Committer committer = new TestCommitter(destination);
+        SaverSession.Committer committer = new TestCommitter(storages);
         TaskSubmitter submitter = TaskSubmitterFactory.getSubmitter();
         Task stagingTask = new StagingTask(submitter, origin, stagingRepository, repository, source, committer, destination);
         submitter.submitAndWait(stagingTask);
@@ -468,24 +479,27 @@ public class StagingAreaTest extends TestCase {
 
     private class TestCommitter implements SaverSession.Committer {
 
-        private final Storage storage;
+        private final Map<String, Storage> storages;
 
         private final XmlDOMDataRecordReader reader;
 
-        private TestCommitter(Storage storage) {
-            this.storage = storage;
+        private Storage currentStorage;
+
+        private TestCommitter(Map<String, Storage> storages) {
+            this.storages = storages;
             reader = new XmlDOMDataRecordReader();
         }
 
         @Override
         public void begin(String dataCluster) {
-            storage.begin();
+            getCurrent(dataCluster);
+            currentStorage.begin();
         }
 
         @Override
         public void commit(String dataCluster) {
-            storage.commit();
-            storage.end();
+            getCurrent(dataCluster);
+            currentStorage.commit();
         }
 
         @Override
@@ -496,7 +510,7 @@ public class StagingAreaTest extends TestCase {
                 DataRecordMetadata recordMetadata = dataRecord.getRecordMetadata();
                 recordMetadata.setLastModificationTime(item.getInsertionTime());
                 recordMetadata.setTaskId(item.getTaskId());
-                storage.update(dataRecord);
+                currentStorage.update(dataRecord);
             } catch (XtentisException e) {
                 throw new RuntimeException(e);
             }
@@ -504,7 +518,15 @@ public class StagingAreaTest extends TestCase {
 
         @Override
         public void rollback(String dataCluster) {
-            storage.rollback();
+            getCurrent(dataCluster);
+            currentStorage.rollback();
+        }
+
+        private void getCurrent(String dataCluster) {
+            currentStorage = storages.get(dataCluster);
+            if (currentStorage == null) {
+                throw new RuntimeException("Unexpected: no storage for '" + dataCluster + "'.");
+            }
         }
     }
 

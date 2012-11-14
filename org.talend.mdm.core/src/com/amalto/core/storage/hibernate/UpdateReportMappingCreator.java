@@ -29,15 +29,15 @@ class UpdateReportMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         ComplexTypeMetadata databaseUpdateReportType = new ComplexTypeMetadataImpl("", "X_UPDATE_REPORT", true); //$NON-NLS-1$ //$NON-NLS-2$
         TypeMetadata stringType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"); //$NON-NLS-1$
         TypeMetadata longType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "long"); //$NON-NLS-1$
-        databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_user_name", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, true, false, true, "x_source", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, true, false, true, "x_time_in_millis", longType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_operation_type", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
+        databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_user_name", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_revision_id", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_data_cluster", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_data_model", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_concept", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
-        databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_key", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
+        databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, true, false, true, "x_key", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         SimpleTypeFieldMetadata items_xml = new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_items_xml", stringType, Collections.<String>emptyList(), Collections.<String>emptyList()); //$NON-NLS-1$
         items_xml.setData("SQL_TYPE", "text"); //$NON-NLS-1$ //$NON-NLS-2$
         databaseUpdateReportType.addField(items_xml);

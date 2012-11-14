@@ -109,7 +109,14 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            DocumentSaverContext context = session.getContextFactory().create(destinationStorage.getName(), destinationStorage.getName(), true, new ByteArrayInputStream(output.toByteArray()));
+            DocumentSaverContext context = session.getContextFactory().create(destinationStorage.getName(),
+                    destinationStorage.getName(),
+                    "Staging", //$NON-NLS-1$
+                    new ByteArrayInputStream(output.toByteArray()),
+                    true,
+                    true,
+                    true,
+                    false);
             context.setTaskId(stagingRecord.getRecordMetadata().getTaskId());
             DocumentSaver saver = context.createSaver();
             Map<String, String> recordProperties = stagingRecord.getRecordMetadata().getRecordProperties();

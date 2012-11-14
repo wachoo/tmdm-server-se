@@ -831,6 +831,7 @@
             <xsd:selector xpath="."/>
             <xsd:field xpath="Source"/>
             <xsd:field xpath="TimeInMillis"/>
+            <xsd:field xpath="Key"/>
         </xsd:unique>
     </xsd:element>
     <xsd:complexType abstract="false" mixed="false" name="Update">
