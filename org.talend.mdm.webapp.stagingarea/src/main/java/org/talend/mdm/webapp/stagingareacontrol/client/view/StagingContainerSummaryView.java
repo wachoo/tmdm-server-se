@@ -66,7 +66,7 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private void initPieChart() {
         chartPanel = new SimplePanel();
-        chartPanel.setSize(CHART_WIDTH + "px", CHART_HEIGHT + "px"); //$NON-NLS-1$//$NON-NLS-2$
+        chartPanel.setSize(50 + "px", CHART_HEIGHT + "px"); //$NON-NLS-1$//$NON-NLS-2$
     }
 
     @Override
