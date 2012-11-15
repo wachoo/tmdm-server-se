@@ -49,6 +49,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.util.*;
 
 public class HibernateStorage implements Storage {
@@ -216,7 +217,33 @@ public class HibernateStorage implements Storage {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Oracle database is being used. Limit table name length to 30.");
                     }
-                    tableResolver = new StorageTableResolver(databaseIndexedFields, 30);
+                    final TableResolver delegate = new StorageTableResolver(databaseIndexedFields, 30);
+                    if (storageType == StorageType.STAGING) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Oracle database is being used for staging. Table names will have a prefix.");
+                        }
+                        tableResolver = (new TableResolver() {
+                            public static final String PREFIX = "S_"; //$NON-NLS-1$
+
+                            public String get(ComplexTypeMetadata type) {
+                                return PREFIX + delegate.get(type);
+                            }
+
+                            public String get(FieldMetadata field) {
+                                return delegate.get(field);
+                            }
+
+                            public boolean isIndexed(FieldMetadata field) {
+                                return delegate.isIndexed(field);
+                            }
+
+                            public int getNameMaxLength() {
+                                return delegate.getNameMaxLength();
+                            }
+                        });
+                    } else {
+                        tableResolver = delegate;
+                    }
                     break;
                 case MYSQL:
                     if (LOGGER.isDebugEnabled()) {
@@ -265,6 +292,10 @@ public class HibernateStorage implements Storage {
                     CacheManager.create(ehCacheConfig);
                 }
                 configuration.configure(StorageClassLoader.HIBERNATE_CONFIG);
+                // Logs DDL *before* initialization in case initialization (useful for debugging).
+                if (LOGGER.isTraceEnabled()) {
+                    traceDDL();
+                }
                 // Customize schema generation according to datasource content.
                 RDBMSDataSource.SchemaGeneration schemaGeneration = dataSource.getSchemaGeneration();
                 List exceptions = Collections.emptyList();
@@ -297,7 +328,17 @@ public class HibernateStorage implements Storage {
                     sb.append("Could not prepare database schema: ");
                     Iterator iterator = exceptions.iterator();
                     while (iterator.hasNext()) {
-                        sb.append(((Exception) iterator.next()).getMessage());
+                        Exception exception = (Exception) iterator.next();
+                        if (exception instanceof SQLException) {
+                            SQLException currentSQLException = (SQLException) exception;
+                            while (currentSQLException != null) {
+                                sb.append(currentSQLException.getMessage());
+                                sb.append('\n');
+                                currentSQLException = currentSQLException.getNextException();
+                            }
+                        } else if(exception != null) {
+                            sb.append(exception.getMessage());
+                        }
                         if (iterator.hasNext()) {
                             sb.append('\n');
                         }
@@ -314,11 +355,6 @@ public class HibernateStorage implements Storage {
             // All set: set prepared flag to true.
             isPrepared = true;
             LOGGER.info("Storage '" + storageName + "' (" + storageType + ") is ready.");
-
-            if (LOGGER.isTraceEnabled()) {
-                traceDDL();
-            }
-
         } catch (Throwable t) {
             try {
                 // This prevent PermGen OOME in case of multiple failures to start.
@@ -336,6 +372,9 @@ public class HibernateStorage implements Storage {
 
     private void traceDDL() {
         try {
+            if (configuration == null) {
+                throw new IllegalStateException("Expect a Hibernate configuration to be set.");
+            }
             String jbossServerTempDir = System.getProperty("java.io.tmpdir"); //$NON-NLS-1$
             RDBMSDataSource.DataSourceDialect dialectType = dataSource.getDialectName();
             SchemaExport export = new SchemaExport(configuration);
