@@ -463,13 +463,14 @@ public class DroppedItemPOJO implements Serializable{
     	XmlServerSLWrapperLocal server=obtainXmlServerSLWrapperLocal();
     	
         try {
- 
+            server.start("MDMItemsTrash"); //$NON-NLS-1$
             //remove the record
             long res = server.deleteDocument(
             		null,
             		"MDMItemsTrash",
             		droppedItemPOJOPK.getUniquePK()
             );
+            server.commit("MDMItemsTrash"); //$NON-NLS-1$
             if (res==-1) return null;
             
             return droppedItemPOJOPK;
