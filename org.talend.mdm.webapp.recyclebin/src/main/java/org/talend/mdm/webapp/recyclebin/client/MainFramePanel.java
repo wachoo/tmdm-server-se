@@ -419,16 +419,24 @@ public class MainFramePanel extends ContentPanel {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
-                        .restoreSelectedConfirm(), new Listener<MessageBoxEvent>() {
 
-                    public void handleEvent(MessageBoxEvent be) {
+                GridSelectionModel<ItemsTrashItem> sm = grid.getSelectionModel();
+                final List<ItemsTrashItem> selectedRecords = sm.getSelectedItems();
+                if (selectedRecords != null && selectedRecords.size() > 0) {
+                    MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
+                            .restoreSelectedConfirm(), new Listener<MessageBoxEvent>() {
 
-                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                            restoreSelected();
+                        public void handleEvent(MessageBoxEvent be) {
+
+                            if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                restoreSelected(selectedRecords);
+                            }
                         }
-                    }
-                });
+                    });
+                } else {
+                    MessageBox.alert(BaseMessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                            .select_warning(), null);
+                }
             }
 
         });
@@ -441,16 +449,24 @@ public class MainFramePanel extends ContentPanel {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
-                        .deleteSelectedConfirm(), new Listener<MessageBoxEvent>() {
 
-                    public void handleEvent(MessageBoxEvent be) {
+                GridSelectionModel<ItemsTrashItem> sm = grid.getSelectionModel();
+                final List<ItemsTrashItem> selectedRecords = sm.getSelectedItems();
+                if (selectedRecords != null && selectedRecords.size() > 0) {
+                    MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
+                            .deleteSelectedConfirm(), new Listener<MessageBoxEvent>() {
 
-                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                            deleteSelected();
+                        public void handleEvent(MessageBoxEvent be) {
+
+                            if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                deleteSelected(selectedRecords);
+                            }
                         }
-                    }
-                });
+                    });
+                } else {
+                    MessageBox.alert(BaseMessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                            .select_warning(), null);
+                }
             }
 
         });
@@ -459,49 +475,38 @@ public class MainFramePanel extends ContentPanel {
         this.setTopComponent(bar);
     }
 
-    public void restoreSelected() {
-        if (grid != null) {
-            GridSelectionModel<ItemsTrashItem> sm = grid.getSelectionModel();
+    public void restoreSelected(List<ItemsTrashItem> selectedRecords) {
+        if (selectedRecords == null || selectedRecords.size() == 0)
+            return;
+        for (final ItemsTrashItem r : selectedRecords) {
+            ++outstandingRestoreCallCount;
+            service.checkConflict(r.get("itemPK").toString(), r //$NON-NLS-1$
+                    .get("conceptName").toString(), r.get("ids").toString(), //$NON-NLS-1$ //$NON-NLS-2$
+                    new AsyncCallback<Boolean>() {
 
-            if (sm != null) {
-                List<ItemsTrashItem> selectedRecords = sm.getSelectedItems();
+                        public void onSuccess(Boolean result) {
+                            if (result) {
+                                MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory
+                                        .getMessages().restoreSelectedOverwriteConfirm(r.get("ids").toString()), //$NON-NLS-1$
+                                        new Listener<MessageBoxEvent>() {
 
-                if (selectedRecords != null && selectedRecords.size() > 0) {
+                                            public void handleEvent(MessageBoxEvent be) {
+                                                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                                    restoreSelectedItem(r);
+                                                } else {
+                                                    restoreSelectedCheckFinished(r, false);
+                                                }
+                                            }
+                                        });
+                            } else {
+                                restoreSelectedItem(r);
+                            }
+                        }
 
-                    for (final ItemsTrashItem r : selectedRecords) {
-
-                        ++outstandingRestoreCallCount;
-
-                        service.checkConflict(r.get("itemPK").toString(), r //$NON-NLS-1$
-                                .get("conceptName").toString(), r.get("ids").toString(), //$NON-NLS-1$ //$NON-NLS-2$
-                                new AsyncCallback<Boolean>() {
-
-                                    public void onSuccess(Boolean result) {
-                                        if (result) {
-                                            MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory
-                                                    .getMessages().restoreSelectedOverwriteConfirm(r.get("ids").toString()), //$NON-NLS-1$
-                                                    new Listener<MessageBoxEvent>() {
-
-                                                        public void handleEvent(MessageBoxEvent be) {
-                                                            if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                                                restoreSelectedItem(r);
-                                                            } else {
-                                                                restoreSelectedCheckFinished(r, false);
-                                                            }
-                                                        }
-                                                    });
-                                        } else {
-                                            restoreSelectedItem(r);
-                                        }
-                                    }
-
-                                    public void onFailure(Throwable arg0) {
-                                        restoreSelectedCheckFinished(r, false);
-                                    }
-                                });
-                    }
-                }
-            }
+                        public void onFailure(Throwable arg0) {
+                            restoreSelectedCheckFinished(r, false);
+                        }
+                    });
         }
     }
 
@@ -556,82 +561,71 @@ public class MainFramePanel extends ContentPanel {
         }
     }
 
-    public void deleteSelected() {
-        if (grid != null) {
-            GridSelectionModel<ItemsTrashItem> sm = grid.getSelectionModel();
+    public void deleteSelected(List<ItemsTrashItem> selectedRecords) {
+        if (selectedRecords == null || selectedRecords.size() == 0)
+            return;
+        for (final ItemsTrashItem r : selectedRecords) {
 
-            if (sm != null) {
-                List<ItemsTrashItem> selectedRecords = sm.getSelectedItems();
+            ++outstandingDeleteCallCount;
 
-                if (selectedRecords != null && selectedRecords.size() > 0) {
+            service.isEntityPhysicalDeletable(r.get("conceptName").toString(), new SessionAwareAsyncCallback<Boolean>() {//$NON-NLS-1$
 
-                    for (final ItemsTrashItem r : selectedRecords) {
+                        protected void doOnFailure(Throwable caught) {
+                            deleteSelectedCheckFinished(r, false, caught.getMessage());
+                        }
 
-                        ++outstandingDeleteCallCount;
+                        public void onSuccess(Boolean result) {
+                            if (r.get("projection") != null && !r.get("projection").equals("")) {//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                                String[] picArray = r.get("projection").toString().split(//$NON-NLS-1$
+                                        "/imageserver/");//$NON-NLS-1$
+                                for (int i = 1; i < picArray.length; i++) {
+                                    String array = picArray[i];
+                                    if (!array.isEmpty()) {
+                                        String uri = array.substring(0, array.indexOf("?"));//$NON-NLS-1$
 
-                        service.isEntityPhysicalDeletable(
-                                r.get("conceptName").toString(), new SessionAwareAsyncCallback<Boolean>() {//$NON-NLS-1$
+                                        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST,
+                                                "/imageserver/secure/ImageDeleteServlet?uri=" + uri);//$NON-NLS-1$
+                                        builder.setCallback(new RequestCallback() {
 
-                                    protected void doOnFailure(Throwable caught) {
-                                        deleteSelectedCheckFinished(r, false, caught.getMessage());
-                                    }
-
-                                    public void onSuccess(Boolean result) {
-                                        if (r.get("projection") != null && !r.get("projection").equals("")) {//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-                                            String[] picArray = r.get("projection").toString().split(//$NON-NLS-1$
-                                                    "/imageserver/");//$NON-NLS-1$
-                                            for (int i = 1; i < picArray.length; i++) {
-                                                String array = picArray[i];
-                                                if (!array.isEmpty()) {
-                                                    String uri = array.substring(0, array.indexOf("?"));//$NON-NLS-1$
-
-                                                    RequestBuilder builder = new RequestBuilder(RequestBuilder.POST,
-                                                            "/imageserver/secure/ImageDeleteServlet?uri=" + uri);//$NON-NLS-1$
-                                                    builder.setCallback(new RequestCallback() {
-
-                                                        public void onResponseReceived(Request request, Response response) {
-                                                        }
-
-                                                        public void onError(Request request, Throwable e) {
-                                                        }
-                                                    });
-
-                                                    try {
-                                                        builder.send();
-                                                    } catch (RequestException e) {
-                                                    }
-                                                }
+                                            public void onResponseReceived(Request request, Response response) {
                                             }
+
+                                            public void onError(Request request, Throwable e) {
+                                            }
+                                        });
+
+                                        try {
+                                            builder.send();
+                                        } catch (RequestException e) {
+                                        }
+                                    }
+                                }
+                            }
+
+                            service.removeDroppedItem(r.get("itemPK").toString(), r.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
+                                    r.get("revisionId") == null ? null : r.get("revisionId").toString(), r //$NON-NLS-1$//$NON-NLS-2$
+                                            .get("conceptName").toString(), r.get("ids").toString(), UrlUtil.getLanguage(), //$NON-NLS-1$//$NON-NLS-2$
+                                    new SessionAwareAsyncCallback<String>() {
+
+                                        public void onSuccess(String msg) {
+                                            deleteSelectedCheckFinished(r, true, msg);
                                         }
 
-                                        service.removeDroppedItem(r.get("itemPK").toString(), r.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
-                                                        r.get("revisionId") == null ? null : r.get("revisionId").toString(), r //$NON-NLS-1$//$NON-NLS-2$
-                                                                .get("conceptName").toString(), r.get("ids").toString(), UrlUtil.getLanguage(), //$NON-NLS-1$//$NON-NLS-2$
-                                                        new SessionAwareAsyncCallback<String>() {
-
-                                                            public void onSuccess(String msg) {
-                                                                deleteSelectedCheckFinished(r, true, msg);
-                                                            }
-
-                                                            @Override
-                                                            protected void doOnFailure(Throwable caught) {
-                                                                String errorMsg = caught.getLocalizedMessage();
-                                                                if (errorMsg == null) {
-                                                                    if (Log.isDebugEnabled())
-                                                                        errorMsg = caught.toString(); // for debugging
-                                                                    // purpose
-                                                                    else
-                                                                        errorMsg = BaseMessagesFactory.getMessages()
-                                                                                .unknown_error();
-                                                                }
-                                                                deleteSelectedCheckFinished(r, false, errorMsg);
-                                                            }
-                                                        });
-                                    }
-                                });
-                    }
-                }
-            }
+                                        @Override
+                                        protected void doOnFailure(Throwable caught) {
+                                            String errorMsg = caught.getLocalizedMessage();
+                                            if (errorMsg == null) {
+                                                if (Log.isDebugEnabled())
+                                                    errorMsg = caught.toString(); // for debugging
+                                                // purpose
+                                                else
+                                                    errorMsg = BaseMessagesFactory.getMessages().unknown_error();
+                                                    }
+                                            deleteSelectedCheckFinished(r, false, errorMsg);
+                                                }
+                                    });
+                        }
+                    });
         }
     }
 
@@ -735,6 +729,6 @@ public class MainFramePanel extends ContentPanel {
     }
 
     private native void refreshBrowseRecordsGrid()/*-{
-        $wnd.amalto.browserecords.BrowseRecords.refreshGrid();
+		$wnd.amalto.browserecords.BrowseRecords.refreshGrid();
     }-*/;
 }
