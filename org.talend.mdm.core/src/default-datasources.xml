@@ -24,6 +24,13 @@
                 <connection-username>sa</connection-username>
                 <connection-password></connection-password>
                 <fulltext-index-directory>/var/lucene/indexes/RDBMS-1</fulltext-index-directory>
+                <!-- Schema generation behavior (optional)                -->
+                <!-- Possible values: update (default)/ create / validate -->
+                <schema-generation>update</schema-generation>
+                <!-- Additional properties (optional) -->
+                <properties>
+                    <property name="hibernate.show_sql">false</property>
+                </properties>
             </rdbms-configuration>
         </master>
         <staging>
@@ -34,6 +41,13 @@
                 <connection-url>jdbc:h2://tmp/data/staging/${container}</connection-url>
                 <connection-username>sa</connection-username>
                 <connection-password></connection-password>
+                <!-- Schema generation behavior (optional)                -->
+                <!-- Possible values: update (default)/ create / validate -->
+                <schema-generation>update</schema-generation>
+                <!-- Additional properties (optional) -->
+                <properties>
+                    <property name="hibernate.show_sql">false</property>
+                </properties>
             </rdbms-configuration>
         </staging>
     </datasource>
