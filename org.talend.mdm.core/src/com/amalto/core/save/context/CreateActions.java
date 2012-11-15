@@ -11,6 +11,7 @@
 package com.amalto.core.save.context;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,7 +60,7 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
 
     private final String dataCluster;
 
-    private final List<String> idValues = new LinkedList<String>();
+    private final Map<String,String> idValueMap = new HashMap<String,String>();
 
     private final MutableDocument document;
 
@@ -182,13 +183,13 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
                 actions.add(new FieldUpdateAction(date, source, userName, currentPath, StringUtils.EMPTY, autoIncrementValue,
                         simpleField));
                 if (simpleField.isKey()) {
-                    idValues.add(autoIncrementValue);
+                    idValueMap.put(currentPath, autoIncrementValue);
                 }
                 hasMetAutoIncrement = true; // Remembers we've just met an auto increment value
             } else if (EUUIDCustomType.UUID.getName().equalsIgnoreCase(simpleField.getType().getName()) && doCreate) {
                 String uuidValue = UUID.randomUUID().toString();
                 if (simpleField.isKey()) {
-                    idValues.add(uuidValue);
+                    idValueMap.put(currentPath, uuidValue);
                 }
                 actions.add(new FieldUpdateAction(date, source, userName, currentPath, StringUtils.EMPTY, uuidValue, simpleField));
             } else {
@@ -198,7 +199,7 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
                         throw new IllegalStateException("Document was expected to contain id information at '" + currentPath
                                 + "'");
                     }
-                    idValues.add(accessor.get());
+                    idValueMap.put(currentPath, accessor.get());
                 }
             }
         }
@@ -210,7 +211,7 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
         return hasMetAutoIncrement;
     }
 
-    public List<String> getIdValues() {
-        return idValues;
+    public Map<String,String> getIdValueMap() {
+        return idValueMap;
     }
 }

@@ -13,6 +13,7 @@ package com.amalto.core.save.context;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
@@ -20,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.ReportDocumentSaverContext;
@@ -71,7 +73,16 @@ class GenerateActions implements DocumentSaver {
             actions.addAll(type.accept(createActions));
             actions.addAll(type.accept(updateActions));
             context.setHasMetAutoIncrement(createActions.hasMetAutoIncrement());
-            List<String> idValues = createActions.getIdValues();
+            List<String> idValues = new LinkedList<String>();
+            Map<String,String> idValueMap = createActions.getIdValueMap();
+
+            List<FieldMetadata> keys = type.getKeyFields();
+            for (int i=0;i<keys.size();i++){
+                FieldMetadata fieldMetadata = keys.get(i);
+                if (idValueMap.get(fieldMetadata.getName()) != null){
+                    idValues.add(idValueMap.get(fieldMetadata.getName()));
+                }
+            }
             // TODO This does not guarantee key values are in correct order with key fields (for cases where ID is
             // composed of mixed AUTO_INCREMENT and user fields).
             // Join ids read from XML document and generated ID values.

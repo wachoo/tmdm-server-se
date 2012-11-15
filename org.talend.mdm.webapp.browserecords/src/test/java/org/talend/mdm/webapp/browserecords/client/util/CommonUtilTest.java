@@ -28,10 +28,11 @@ import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
-import org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.AdvancedSearchPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
 import org.talend.mdm.webapp.browserecords.server.util.TestData;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.browserecords.shared.EntityModel;
+import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.amalto.webapp.core.util.Util;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -341,32 +342,42 @@ public class CommonUtilTest extends TestCase {
         ItemNodeModel model = new ItemNodeModel();
 
         ItemNodeModel child = new ItemNodeModel();
+        child.setTypePath("Product/Id");
         child.setKey(true);
         child.setObjectValue("1");
         model.add(child);
 
         child = new ItemNodeModel();
+        child.setTypePath("Product/Name");
         child.setKey(false);
         child.setObjectValue("2");
         model.add(child);
 
         child = new ItemNodeModel();
+        child.setTypePath("Product/Price");
         child.setKey(true);
         child.setObjectValue("3");
         model.add(child);
 
         child = new ItemNodeModel();
+        child.setTypePath("Product/Desription");
         child.setKey(false);
         child.setObjectValue("4");
         model.add(child);
+        
+        ViewBean viewBean = new ViewBean();
+        EntityModel bindingEntityModel = new EntityModel();        
+        String[] keyPath = {"Product/Price","Product/Id"};        
+        bindingEntityModel.setKeys(keyPath);
+        viewBean.setBindingEntityModel(bindingEntityModel);
 
-        String[] keys = CommonUtil.extractIDs(model);
+        String[] keys = CommonUtil.extractIDs(model,viewBean);
         assertTrue(keys.length == 2);
-        assertTrue(keys[0].equals("1"));
-        assertTrue(keys[1].equals("3"));
+        assertTrue(keys[0].equals("3"));
+        assertTrue(keys[1].equals("1"));
 
         model = new ItemNodeModel();
-        keys = CommonUtil.extractIDs(model);
+        keys = CommonUtil.extractIDs(model,viewBean);
         assertTrue(keys.length == 0);
     }
 

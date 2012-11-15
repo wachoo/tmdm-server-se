@@ -974,7 +974,7 @@ public class ItemDetailToolBar extends ToolBar {
         if (widget instanceof ItemPanel) {
             ItemPanel itemPanel = (ItemPanel) widget;
             ItemNodeModel model = (ItemNodeModel) itemPanel.getTree().getRootModel();
-            String[] keyArray = CommonUtil.extractIDs(model);
+            String[] keyArray = CommonUtil.extractIDs(model,viewBean);
 
             service.isExistId(this.itemBean.getConcept(), keyArray, Locale.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
 

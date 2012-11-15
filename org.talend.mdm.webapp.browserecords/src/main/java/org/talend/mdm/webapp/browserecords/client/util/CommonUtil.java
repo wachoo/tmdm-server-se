@@ -18,6 +18,8 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.browserecords.shared.EntityModel;
+import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 
@@ -380,11 +382,14 @@ public class CommonUtil {
         return isReadOnly;
     }
 
-    public static String[] extractIDs(ItemNodeModel model) {
+    public static String[] extractIDs(ItemNodeModel model,ViewBean viewBean) {
 
         List<String> keys = new Vector<String>();
 
         if (model != null) {
+            
+            Map<String,String> keyMap = new HashMap<String,String>();
+            
             List<ModelData> modelChildren = model.getChildren();
 
             if (modelChildren != null) {
@@ -401,11 +406,21 @@ public class CommonUtil {
 
                                 String valString = val.toString();
                                 if (valString != null && !valString.isEmpty()) {
-                                    keys.add(valString);
+                                    keyMap.put(childModel.getTypePath(), valString);
                                 }
                             }
                         }
                     }
+                }
+            }
+            
+            if (viewBean != null){
+                EntityModel entityModel = viewBean.getBindingEntityModel();                
+                String[] keyArray = entityModel.getKeys();                
+                for (int i=0;i<keyArray.length;i++){
+                    if (keyMap.get(keyArray[i]) != null){
+                        keys.add(keyMap.get(keyArray[i])); 
+                    }                                             
                 }
             }
         }
