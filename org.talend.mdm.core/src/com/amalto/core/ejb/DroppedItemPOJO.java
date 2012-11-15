@@ -33,7 +33,6 @@ import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.util.LRUCache;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -303,11 +302,13 @@ public class DroppedItemPOJO implements Serializable{
                 server.commit(refItemPOJOPK.getDataClusterPOJOPK().getUniqueId());
         	}
         	//delete dropped item
+            server.start("MDMItemsTrash");
         	long res = server.deleteDocument(
             		null,
             		"MDMItemsTrash", //$NON-NLS-1$
             		droppedItemPOJOPK.getUniquePK()
             );
+            server.commit("MDMItemsTrash");
         	
         	if(res==-1){
         		//roll back
@@ -323,9 +324,11 @@ public class DroppedItemPOJO implements Serializable{
                     server.commit(refItemPOJOPK.getDataClusterPOJOPK().getUniqueId());
         		}
         	}
-        	
+
             //It need to remove it from cache, because it still be load on cache
-        	ItemPOJO.getCache().remove(new ItemCacheKey(droppedItemPOJOPK.getRevisionId(),droppedItemPOJOPK.getRefItemPOJOPK().getUniqueID(), droppedItemPOJOPK.getRefItemPOJOPK().getDataClusterPOJOPK().getUniqueId()));            
+            ItemPOJO.getCache().remove(
+                    new ItemCacheKey(droppedItemPOJOPK.getRevisionId(), droppedItemPOJOPK.getRefItemPOJOPK().getUniqueID(),
+                            droppedItemPOJOPK.getRefItemPOJOPK().getDataClusterPOJOPK().getUniqueId()));
         	return refItemPOJOPK;  
             
 	    } catch (SAXException e) {
