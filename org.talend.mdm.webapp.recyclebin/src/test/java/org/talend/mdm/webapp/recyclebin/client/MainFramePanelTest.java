@@ -40,22 +40,22 @@ public class MainFramePanelTest extends GWTTestCase {
         assertEquals(10, count);
 
         grid.getSelectionModel().select(0, 2, true);
-        mainPanel.deleteSelected();
+        mainPanel.deleteSelected(grid.getSelectionModel().getSelectedItems());
         count = grid.getStore().getCount();
         assertEquals(7, count);
 
         grid.getSelectionModel().select(0, 3, true);
-        mainPanel.deleteSelected();
+        mainPanel.deleteSelected(grid.getSelectionModel().getSelectedItems());
         count = grid.getStore().getCount();
         assertEquals(3, count);
 
         grid.getSelectionModel().select(0, 1, true);
-        mainPanel.deleteSelected();
+        mainPanel.deleteSelected(grid.getSelectionModel().getSelectedItems());
         count = grid.getStore().getCount();
         assertEquals(1, count);
     }
 
     private native Grid<ItemsTrashItem> getGrid(MainFramePanel mainPanel)/*-{
-        return mainPanel.@org.talend.mdm.webapp.recyclebin.client.MainFramePanel::grid;
+		return mainPanel.@org.talend.mdm.webapp.recyclebin.client.MainFramePanel::grid;
     }-*/;
 }
