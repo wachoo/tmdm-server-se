@@ -302,13 +302,13 @@ public class DroppedItemPOJO implements Serializable{
                 server.commit(refItemPOJOPK.getDataClusterPOJOPK().getUniqueId());
         	}
         	//delete dropped item
-            server.start("MDMItemsTrash");
+            server.start("MDMItemsTrash"); //$NON-NLS-1$
         	long res = server.deleteDocument(
             		null,
             		"MDMItemsTrash", //$NON-NLS-1$
             		droppedItemPOJOPK.getUniquePK()
             );
-            server.commit("MDMItemsTrash");
+            server.commit("MDMItemsTrash"); //$NON-NLS-1$
         	
         	if(res==-1){
         		//roll back
