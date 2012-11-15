@@ -271,18 +271,14 @@
       <priority value="INFO"/>
    </category>
    
-<!-- Limit hibernate used by Bonita which is very verbose -->
-
+  <!-- Limit hibernate used by Bonita which is very verbose -->
    <category name="org.hibernate">
-
       <priority value="WARN"/>
-
    </category>
    
-   <!-- Limit error information used by Bonita -->
-   <category name="STDERR" additivity="false">
+   <!-- Limit dispatcher information used by Bonita -->
+   <category name="org.ow2.bonita.runtime.event.EventDispatcherThread">
       <priority value="WARN"/>
-      <appender-ref ref="FILE"/>
    </category>
    
    <!-- Decrease the priority threshold for the org.jboss.varia category

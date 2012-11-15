@@ -23,6 +23,7 @@
     <property name="war" value="zz.30.core.war" />
     <property name="ejbs" value="zz.20.core.jar" />
     <property name="lib" value="z.mdm.core.jar" />
+    <property name="service" value="org.talend.mdm.jullog4jservice.jar" />
     <property name="conf" value="mdm.conf" />
     <property name="conf.template" value="mdm.conf.template" />
     <property name="svn.revision" value="36233" />
@@ -227,6 +228,17 @@
             <zipfileset dir="bin" includes="**/*POJO*.class" />
         </jar>
 
+        <!-- JUL to log4j service MBean -->
+        <jar destfile="target/${service}" manifest="src/META-INF/MANIFEST.MF">
+            <zipfileset dir=".">
+                <include name="${version.props}" />
+            </zipfileset>
+            <zipfileset dir=".">
+                <include name="RELEASE.NOTES" />
+            </zipfileset>
+            <zipfileset dir="bin" includes="com/amalto/core/util/JULLog4j*.class" />
+        </jar>
+        
         <jar destfile="${war}" manifest="src/META-INF/MANIFEST.MF">
             <zipfileset dir="src/WEB-INF" prefix="WEB-INF">
                 <include name="web.xml" />
@@ -251,6 +263,7 @@
     <target name="undeploy" description="remove packages">
         <delete>
             <fileset dir="${jboss.lib.dir}" includes="${lib}" />
+            <fileset dir="${jboss.lib.dir}" includes="${service}" />
             <fileset dir="${jboss.deploy.dir}" includes="${ejbs}" />
             <fileset dir="${jboss.deploy.dir}" includes="${war}" />
             <fileset dir="${jboss.bin.dir}" includes="${conf}" />
@@ -260,9 +273,10 @@
     </target>
 
     <target name="deploy">
-        <echo>Deploying ${ejbs}, ${war} ${lib} and ${conf}</echo>
+        <echo>Deploying ${ejbs}, ${war}, ${lib}, ${service} and ${conf}</echo>
 
         <copy file="${lib}" tofile="${jboss.lib.dir}/${lib}" />
+        <copy file="target/${service}" tofile="${jboss.lib.dir}/${service}" />
         <copy file="${ejbs}" tofile="${jboss.deploy.dir}/${ejbs}" />
         <copy file="${war}" tofile="${jboss.deploy.dir}/${war}" />
         <copy file="${conf}" tofile="${jboss.bin.dir}/${conf}" />
