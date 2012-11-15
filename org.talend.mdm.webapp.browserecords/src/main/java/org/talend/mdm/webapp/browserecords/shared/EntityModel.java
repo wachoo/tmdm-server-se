@@ -55,6 +55,19 @@ public class EntityModel implements IsSerializable {
         }
         return conceptName;
     }
+    
+    /**
+     * It can be called by action class
+     * @param language
+     * @return
+     */
+    public String getConceptLabel(String language) {
+        TypeModel typeModel = getTypeModel(conceptName);
+        if (typeModel != null) {
+            return typeModel.getLabel(language);
+        }
+        return conceptName;
+    }
 
     public String[] getKeys() {
         return keys;

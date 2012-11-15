@@ -256,5 +256,17 @@ public class ItemTreeHandlerGWTTest extends GWTTestCase {
         assertEquals(expectedXml, actualXml);
 
     }
+    
+    public void testSerializeItemWhenSaveForPolymorphismForeignKey() {
+        ViewBean viewBean = new ViewBean();
+        EntityModel entity = CommonUtilTestData.getEntityModel(ClientResourceData.getModelProductWithSupplier());
+        viewBean.setBindingEntityModel(entity);
+
+        ItemNodeModel nodeModel = CommonUtilTestData.getItemNodeModel(ClientResourceData.getRecordProductWithSupplier(), entity);
+        ItemTreeHandler itemHandler = new ItemTreeHandler(nodeModel, viewBean, ItemTreeHandlingStatus.ToSave);
+        String expectedXml = "<Product xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id>1</Id><Name>Talend MDM</Name><Family>[1]</Family><Supplier tmdm:type=\"Company\">[1]</Supplier></Product>";
+        String actualXml = itemHandler.serializeItem();
+        assertEquals(expectedXml, actualXml);
+    }
 
 }

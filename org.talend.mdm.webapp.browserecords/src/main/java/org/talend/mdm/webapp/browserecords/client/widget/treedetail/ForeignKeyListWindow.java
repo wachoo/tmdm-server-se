@@ -328,7 +328,7 @@ public class ForeignKeyListWindow extends Window {
 
             @Override
             public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
-                String targetType = se.getSelectedItem().get("value").toString();//$NON-NLS-1$
+                String targetEntity = se.getSelectedItem().get("value").toString();//$NON-NLS-1$
                 StringBuffer sb = new StringBuffer();
                 for (int i = 0; i < typeModel.getForeignKeyInfo().size(); i++) {
                     sb.append(typeModel.getForeignKeyInfo().get(i));
@@ -337,23 +337,18 @@ public class ForeignKeyListWindow extends Window {
                     }
                 }
                 String fkInfo = sb.toString();
-                service.switchForeignKeyType(targetType, typeModel.getForeignkey(), fkInfo, getFilterValue(),
-                        new SessionAwareAsyncCallback<ForeignKeyDrawer>() {
+                ForeignKeyDrawer fkDrawer = CommonUtil.switchForeignKeyEntityType(targetEntity, typeModel.getForeignkey(), fkInfo);
+                typeModel.setForeignkey(fkDrawer.getXpathForeignKey());
+                List<String> fkinfo = new ArrayList<String>();
+                if (fkDrawer.getXpathInfoForeignKey() != null) {
+                    String[] foreignKeyList = fkDrawer.getXpathInfoForeignKey().split(","); //$NON-NLS-1$
+                    for (String info : foreignKeyList) {
+                        fkinfo.add(info);
+                    }
+                }
 
-                            public void onSuccess(ForeignKeyDrawer fkDrawer) {
-                                typeModel.setForeignkey(fkDrawer.getXpathForeignKey());
-                                List<String> fkinfo = new ArrayList<String>();
-                                if (fkDrawer.getXpathInfoForeignKey() != null) {
-                                    String[] foreignKeyList = fkDrawer.getXpathInfoForeignKey().split(","); //$NON-NLS-1$
-                                    for (String element2 : foreignKeyList) {
-                                        fkinfo.add(element2);
-                                    }
-                                }
-
-                                typeModel.setForeignKeyInfo(fkinfo);
-                                loader.load(0, pageSize);
-                            }
-                        });
+                typeModel.setForeignKeyInfo(fkinfo);
+                loader.load(0, pageSize);
             }
         });
         toolBar.add(typeComboBox);

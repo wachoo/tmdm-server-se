@@ -58,7 +58,6 @@ import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
-import org.talend.mdm.webapp.base.client.model.SubTypeBean;
 import org.talend.mdm.webapp.base.client.util.FormatUtil;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
@@ -365,11 +364,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String conceptName = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
                 // get deriveType's conceptName, otherwise getItem() method will throw exception.
                 if (modelType != null && modelType.trim().length() > 0) {
-                    BusinessConcept businessConcept = SchemaWebAgent.getInstance().getFirstBusinessConceptFromRootType(modelType);
-                    if (businessConcept != null) {
-                        conceptName = businessConcept.getName();
-                        bean.setConceptName(conceptName);
-                    }
+                    conceptName = modelType;
+                    bean.setConceptName(conceptName);
                 }
                 pk.setConceptName(conceptName);
                 pk.setDataClusterPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()));
@@ -412,7 +408,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         try {
             String fkEntityType = null;
             ReusableType entityReusableType = null;
-            List<SubTypeBean> derivedTypes = new ArrayList<SubTypeBean>();
+            List<Restriction> ret = new ArrayList<Restriction>();
 
             if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
                 if (xpathForeignKey.startsWith("/")) { //$NON-NLS-1$
@@ -432,41 +428,31 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (entityReusableType != null) {
                     entityReusableType.load();
                 }
-
                 List<ReusableType> subtypes = SchemaWebAgent.getInstance().getMySubtypes(fkEntityType, true);
-                for (ReusableType reusableType : subtypes) {
-                    reusableType.load();
-                    SubTypeBean subTypeBean = new SubTypeBean();
-                    subTypeBean.setName(reusableType.getName());
-                    subTypeBean.setLabel(reusableType.getLabelMap().get(language) == null ? reusableType.getName() : reusableType
-                            .getLabelMap().get(language));
-                    subTypeBean.setOrderValue(reusableType.getOrderValue());
-                    if (reusableType.isAbstract()) {
-                        continue;
-                    }
-                    derivedTypes.add(subTypeBean);
+                if (fkEntityType != null && entityReusableType != null && !entityReusableType.isAbstract()) {
+                    subtypes.add(0, entityReusableType);
                 }
-
+                List<BusinessConcept> list = SchemaWebAgent.getInstance().getAllBusinessConcepts();
+                LinkedHashMap<String, String> businessConceptMap = new LinkedHashMap<String, String>();
+                if (list != null) {
+                    for (BusinessConcept businessConcept : list) {
+                        if (businessConcept.getCorrespondTypeName() != null
+                                && businessConcept.getCorrespondTypeName().trim().length() > 0) {
+                            businessConceptMap.put(businessConcept.getCorrespondTypeName(), businessConcept.getName());
+                        }
+                    }
+                }
+                for (ReusableType reusableType : subtypes) {
+                    if (businessConceptMap.containsKey(reusableType.getName())) {
+                        Restriction re = new Restriction();
+                        EntityModel entityModel = getEntityModel(businessConceptMap.get(reusableType.getName()), language);
+                        re.setName(entityModel.getConceptLabel(language));
+                        re.setValue(entityModel.getConceptName());
+                        ret.add(re);
+                    }
+                }
             }
 
-            Collections.sort(derivedTypes);
-
-            List<Restriction> ret = new ArrayList<Restriction>();
-
-            if (fkEntityType != null && entityReusableType != null && !entityReusableType.isAbstract()) {
-                Restriction re = new Restriction();
-                re.setName(entityReusableType.getName());
-                re.setValue(entityReusableType.getLabelMap().get(language) == null ? entityReusableType.getName()
-                        : entityReusableType.getLabelMap().get(language));
-                ret.add(re);
-            }
-
-            for (SubTypeBean type : derivedTypes) {
-                Restriction re = new Restriction();
-                re.setName(type.getName());
-                re.setValue(type.getLabel());
-                ret.add(re);
-            }
             return ret;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

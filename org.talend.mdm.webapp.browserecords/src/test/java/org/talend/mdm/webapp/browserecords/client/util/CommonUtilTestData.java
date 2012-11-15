@@ -90,6 +90,10 @@ public class CommonUtilTestData {
                 if (el.getFirstChild().getNodeType() == Node.TEXT_NODE && el.getFirstChild().getNodeValue() != null
                         && el.getFirstChild().getNodeValue().trim().length() > 0) {
                     ForeignKeyBean fkBean = new ForeignKeyBean();
+                    String entityType = el.getAttribute("tmdm:type"); //$NON-NLS-1$
+                    if (entityType != null && entityType.trim().length() > 0) {
+                        fkBean.setConceptName(entityType);
+                    }
                     fkBean.setId(el.getFirstChild().getNodeValue());
                     node.setObjectValue(fkBean);
                 } else {

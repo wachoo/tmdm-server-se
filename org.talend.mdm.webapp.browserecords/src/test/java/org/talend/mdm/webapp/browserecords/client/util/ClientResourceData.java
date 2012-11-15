@@ -201,7 +201,7 @@ public class ClientResourceData {
         modelC.append("</models>");
         return modelC.toString();
     }
-    
+
     public static String getRecordD() {
         StringBuffer recordD = new StringBuffer();
         recordD.append("<Test>");
@@ -250,7 +250,7 @@ public class ClientResourceData {
         modelE.append("</models>");
         return modelE.toString();
     }
-    
+
     public static String getRecordF() {
         StringBuffer recordF = new StringBuffer();
         recordF.append("<Test>");
@@ -381,5 +381,28 @@ public class ClientResourceData {
         model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"ProductFamily/Name\"/>");
         model.append("</models>");
         return model.toString();
+    }
+
+    public static String getModelProductWithSupplier() {
+        StringBuffer model = new StringBuffer();
+        model.append("<models concept=\"Product\">");
+        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Product\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Id\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Name\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"true\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Family\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"true\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Supplier\"/>");
+        model.append("</models>");
+        return model.toString();
+    }
+
+    public static String getRecordProductWithSupplier() {
+        StringBuffer record = new StringBuffer();
+        record.append("<Product xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
+        record.append("<Id>1</Id>");
+        record.append("<Name>Talend MDM</Name>");
+        record.append("<Family>[1]</Family>");
+        record.append("<Supplier tmdm:type=\"Company\">[1]</Supplier>");
+        record.append("</Product>");
+        return record.toString();
     }
 }

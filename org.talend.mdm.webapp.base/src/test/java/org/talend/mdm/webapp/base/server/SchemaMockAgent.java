@@ -88,4 +88,9 @@ public class SchemaMockAgent extends SchemaAbstractWebAgent {
         return businessConcept;
     }
 
+    @Override
+    public List<BusinessConcept> getAllBusinessConcepts() throws Exception {
+        return getBusinessConcepts(dataModelID);
+    }
+
 }

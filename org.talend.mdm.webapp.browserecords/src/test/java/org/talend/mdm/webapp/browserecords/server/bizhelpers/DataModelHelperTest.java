@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit3.PowerMockSuite;
+import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.webapp.base.client.model.DataTypeCustomized;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
@@ -344,6 +346,8 @@ public class DataModelHelperTest extends TestCase {
         Map<String, TypeModel> metaDataTypes = entityModel.getMetaDataTypes();
         assertNotSame(0, metaDataTypes.size());
         assertEquals(concept, entityModel.getConceptName());
+        assertEquals("Product", entityModel.getConceptLabel("en"));
+        assertEquals("Produit", entityModel.getConceptLabel("fr"));
         assertEquals(16, metaDataTypes.size());
         
         Set<String> keySet = metaDataTypes.keySet();
@@ -519,5 +523,21 @@ public class DataModelHelperTest extends TestCase {
 
         }
 
+    }
+    
+    public void testGetAllBusinessConcept() throws Exception {
+        String datamodelName = "Product";
+        List<String> entityList = new ArrayList<String>();
+        entityList.add("Product");
+        entityList.add("ProductFamily");
+        entityList.add("Store");
+        entityList.add("MyTest");
+        String xsd = inputStream2String(this.getClass().getResourceAsStream("Product.xsd"));
+        SchemaMockAgent schemaAgent = new SchemaMockAgent(xsd, new DataModelID(datamodelName, null));
+        List<BusinessConcept> list = schemaAgent.getAllBusinessConcepts();
+        assertEquals(4, list.size());
+        for (BusinessConcept businessConcept : list) {
+            assertTrue(entityList.contains(businessConcept.getName()));
+        }
     }
 }

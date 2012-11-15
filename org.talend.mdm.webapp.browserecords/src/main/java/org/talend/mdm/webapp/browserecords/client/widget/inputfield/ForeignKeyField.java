@@ -37,6 +37,8 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
     private Image relationFKBtn = new Image(Icons.INSTANCE.link_go());
 
     private String foreignKeyName;
+    
+    private String foreignKey;
 
     private ForeignKeyListWindow fkWindow = new ForeignKeyListWindow();
 
@@ -52,6 +54,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
             ItemsDetailPanel itemsDetailPanel) {
         this.validateFlag = BrowseRecords.getSession().getAppHeader().isAutoValidate();
         this.itemsDetailPanel = itemsDetailPanel;
+        this.foreignKey = foreignKey;
         this.foreignKeyName = foreignKey.split("/")[0]; //$NON-NLS-1$
         this.setFireChangeEventOnSetValue(true);
         this.setReturnCriteriaFK();
@@ -162,7 +165,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         selectFKBtn.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent arg0) {
                 Dispatcher dispatch = Dispatcher.get();
-                AppEvent event = new AppEvent(BrowseRecordsEvents.SelectForeignKeyView, foreignKeyName);
+                AppEvent event = new AppEvent(BrowseRecordsEvents.SelectForeignKeyView, ForeignKeyField.this.foreignKey.split("/")[0]); //$NON-NLS-1$
                 event.setData("detailPanel", itemsDetailPanel); //$NON-NLS-1$
                 event.setSource(ForeignKeyField.this.getFkWindow());
                 dispatch.dispatch(event);
@@ -211,6 +214,9 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
     }
 
     public void setCriteriaFK(final ForeignKeyBean fk) {
+        if (fk != null && fk.getConceptName() != null && fk.getConceptName().trim().length() > 0) {
+            this.foreignKeyName = fk.getConceptName();
+        }
         setValue(fk);
     }
 

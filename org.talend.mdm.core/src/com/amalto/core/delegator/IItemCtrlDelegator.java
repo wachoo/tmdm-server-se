@@ -259,7 +259,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
                 qb.start(start < 0 ? 0 : start); // UI can send negative start index
                 qb.limit(limit);
-
+                qb.isa(type);
                 // Order by
                 if (orderBy != null) {
                     FieldMetadata field = type.getField(StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$

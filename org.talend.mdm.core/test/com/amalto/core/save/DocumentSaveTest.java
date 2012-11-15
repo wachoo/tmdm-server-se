@@ -1775,6 +1775,28 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
     }
     
+    public void testPolymorphismForeignKeys() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata10.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test49_original.xml", "metadata10.xsd");
+        source.setUserName("Demo_Manager");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test49.xml");
+        DocumentSaverContext context = session.getContextFactory().create("TestFK", "Product", "Source", recordXml, false, true,
+                true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("Company", evaluate(committedElement, "/Product/supplier/@tmdm:type"));
+        assertEquals("[companyEntity]", evaluate(committedElement, "/Product/supplier"));
+    }
+    
     private static class MockCommitter implements SaverSession.Committer {
 
         private Element committedElement;

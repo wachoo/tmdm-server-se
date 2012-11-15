@@ -980,16 +980,8 @@ public class ItemDetailToolBar extends ToolBar {
 
                 public void onSuccess(Boolean flag) {
                     if (flag){
-                        MessageBox
-                        .confirm(MessagesFactory.getMessages().confirm_title(),
-                                MessagesFactory.getMessages().record_exists(), new Listener<MessageBoxEvent>() {
-
-                                    public void handleEvent(MessageBoxEvent be) {
-                                        if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                            saveItem(isClose);
-                                        }
-                                    }
-                                }).getDialog().setWidth(400);
+                        MessageBox.alert(MessagesFactory.getMessages().info_title(),
+                                MessagesFactory.getMessages().record_exists(), null).getDialog().setWidth(400);
                     }else{
                         saveItem(isClose);
                     }

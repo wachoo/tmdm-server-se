@@ -1,0 +1,18 @@
+<?xml version='1.0'?>
+<ii>
+    <c>TestFK</c>
+    <n>Product</n>
+    <dmn>TestFK</dmn>
+    <i>12</i>
+    <t>1349946048250</t>
+    <taskId/>
+    <p> 
+        <Product xmlns:tmdm="http://www.talend.com/mdm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <Id>12</Id>
+        <Name>12</Name>
+        <Description>12</Description>
+        <Price>12</Price>
+        <supplier tmdm:type="Party">[partyEntity]</supplier>
+        </Product>
+    </p>
+</ii>

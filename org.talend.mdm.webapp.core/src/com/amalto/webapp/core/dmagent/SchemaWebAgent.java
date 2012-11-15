@@ -677,4 +677,8 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
         }
 
     }
+    
+    public List<BusinessConcept> getAllBusinessConcepts() throws Exception {
+        return super.getBusinessConcepts(getMyDataModelTicket());
+    }
 }

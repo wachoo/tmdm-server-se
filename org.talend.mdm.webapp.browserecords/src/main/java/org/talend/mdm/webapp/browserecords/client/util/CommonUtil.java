@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
@@ -15,12 +16,14 @@ import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 public class CommonUtil {
@@ -475,5 +478,37 @@ public class CommonUtil {
             this.cr = cr;
             this.c = c;
         }
+    }
+    
+    public static ForeignKeyDrawer switchForeignKeyEntityType(String targetEntity, String xpathForeignKey, String xpathInfoForeignKey) {
+        ForeignKeyDrawer fkDrawer = new ForeignKeyDrawer();
+
+        if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
+            xpathForeignKey = replaceXpathRoot(targetEntity, xpathForeignKey);
+        }
+
+        if (xpathInfoForeignKey != null && xpathInfoForeignKey.length() > 0) {
+            String[] fkInfoPaths = xpathInfoForeignKey.split(",");//$NON-NLS-1$
+            xpathInfoForeignKey = "";//$NON-NLS-1$
+            for (String fkInfoPath : fkInfoPaths) {
+                String relacedFkInfoPath = replaceXpathRoot(targetEntity, fkInfoPath);
+                if (relacedFkInfoPath != null && relacedFkInfoPath.length() > 0) {
+                    if (xpathInfoForeignKey.length() > 0) {
+                        xpathInfoForeignKey += ",";//$NON-NLS-1$
+                    }
+                    xpathInfoForeignKey += relacedFkInfoPath;
+                }
+            }
+        }
+        fkDrawer.setXpathForeignKey(xpathForeignKey);
+        fkDrawer.setXpathInfoForeignKey(xpathInfoForeignKey);
+        return fkDrawer;
+    }
+    
+    private static String replaceXpathRoot(String targetEntity, String xpath) {
+        if (xpath.indexOf("/") != -1) { //$NON-NLS-1$
+            return targetEntity + xpath.substring(xpath.indexOf("/"));//$NON-NLS-1$
+        }
+        return targetEntity;
     }
 }

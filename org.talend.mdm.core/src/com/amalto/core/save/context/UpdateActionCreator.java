@@ -15,6 +15,7 @@ import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.metadata.*;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -314,7 +315,8 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
                     if (!newType.isEmpty()) {
                         ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, newType);
-                        if (!newTypeMetadata.isInstantiable()) {
+                        ComplexTypeMetadata previousTypeMetadata = null;
+                        if (newTypeMetadata != null && !newTypeMetadata.isInstantiable()) {
                             ComplexTypeMetadata actualNewTypeMetadata = null;
                             Collection<TypeMetadata> instantiableTypes = repository.getInstantiableTypes();
                             for (TypeMetadata instantiableType : instantiableTypes) {
@@ -335,8 +337,12 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                                 LOGGER.debug("Replacing type '" + newType + "' with '" + actualNewTypeMetadata.getName() + ".");
                             }
                             newTypeMetadata = actualNewTypeMetadata;
+                            previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, previousType);
+                        } else if (newTypeMetadata == null) {
+                            newTypeMetadata = (ComplexTypeMetadata) repository.getType(newType);
+                            previousTypeMetadata = (ComplexTypeMetadata) repository.getType(previousType);
                         }
-                        ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, previousType);
+                        
                         // TODO Perform some checks about the tmdm:type value (valid or not?).
                         actions.add(new ChangeReferenceTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata));
                     }

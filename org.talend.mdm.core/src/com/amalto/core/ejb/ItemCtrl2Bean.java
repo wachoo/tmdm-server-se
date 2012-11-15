@@ -569,6 +569,7 @@ public class ItemCtrl2Bean implements SessionBean {
                 qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
                 qb.start(start);
                 qb.limit(limit);
+                qb.isa(type);
                 if (orderBy != null) {
                     TypedExpression field = UserQueryHelper.getField(repository, typeName, StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
                     if (field == null) {

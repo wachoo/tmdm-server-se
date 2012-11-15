@@ -175,6 +175,7 @@ public class ItemTreeHandler implements IsSerializable {
                 String elValue = null;
                 if (value instanceof ForeignKeyBean) {
                     elValue = ((ForeignKeyBean) value).getId();
+                    currentNodeModel.setTypeName(((ForeignKeyBean) value).getConceptName());
                 } else {
                     elValue = value.toString();
                 }
