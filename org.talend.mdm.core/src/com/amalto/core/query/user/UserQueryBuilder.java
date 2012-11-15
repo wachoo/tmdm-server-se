@@ -185,11 +185,14 @@ public class UserQueryBuilder {
             throw new IllegalStateException("No type is currently selected.");
         }
         ComplexTypeMetadata mainType = getSelect().getTypes().get(0);
-        if (mainType.getSubTypes().isEmpty()) {
-            LOGGER.warn("Ignore 'is a' statement of type '" + type.getName() + "' since it is not part of an inheritance tree.");
+        if (mainType.getSubTypes().isEmpty() || type.equals(mainType)) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Ignore 'is a' statement of type '" + type.getName() + "' since it is not part of an " +
+                        "inheritance tree OR a expression like 'type1 isa type1' was detected.");
+            }
             return this;
         } else {
-            where(new Isa(new ComplexTypeExpression(expressionAsSelect().getTypes().get(0)), type));
+            where(new Isa(new ComplexTypeExpression(mainType), type));
             return this;
         }
     }
