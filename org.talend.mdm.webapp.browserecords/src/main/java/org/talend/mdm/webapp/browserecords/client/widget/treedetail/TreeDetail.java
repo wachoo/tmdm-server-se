@@ -66,6 +66,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Style.Display;
+import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
@@ -178,9 +179,13 @@ public class TreeDetail extends ContentPanel {
                     td.setFiledWidth(root, width, 400, 0);
                 } else if (td.getWidget(0) instanceof FlexTable && columnTrees.size() > 0) {
                     int columnWidth = width / columnTrees.size();
-                    for(Tree columnTree : columnTrees)
+                    for (Tree columnTree : columnTrees) {
                         td.setFiledWidth(columnTree.getItem(0), columnWidth, 300, 0);
-                }
+                    }
+               		if (td.bwrap != null) {
+               			td.bwrap.repaint();	
+               		}
+               	}
             }     
         });
     }
@@ -455,6 +460,7 @@ public class TreeDetail extends ContentPanel {
             for (ColumnTreeModel ctm : columnLayoutModel.getColumnTreeModels()) {
                 // Tree columnTree = displayGWTTree(ctm);
                 Tree columnTree = ViewUtil.transformToCustomLayout(root, ctm, viewBean);
+                columnTree.getElement().getStyle().setOverflow(Overflow.HIDDEN);
                 if(columnWidth > 500)
                     this.setFiledWidth(columnTree.getItem(0), columnWidth, 300, 0);
                 columnTrees.add(columnTree);
@@ -464,12 +470,10 @@ public class TreeDetail extends ContentPanel {
                 columnNum++;
                 addTreeListener(columnTree);
             }
-            //            hp.setHeight("570px"); //$NON-NLS-1$
-            // HorizontalPanel spacehp = new HorizontalPanel();
-            //            spacehp.setHeight("10px"); //$NON-NLS-1$
-            // add(spacehp);
             add(htable);
-
+			if (this.bwrap != null && this.bwrap.getChildElement(0) != null) {
+				this.bwrap.getChildElement(0).getStyle().setOverflow(Overflow.AUTO);
+			}
         } else {
             tree = new TreeEx();
             tree.getElement().setId("TreeDetail-tree"); //$NON-NLS-1$ 
