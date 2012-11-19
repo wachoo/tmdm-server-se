@@ -17,6 +17,12 @@
         </xsd:restriction>
     </xsd:simpleType>
 
+    <xsd:simpleType name="limitedString_15">
+        <xsd:restriction base="xsd:string">
+            <xsd:maxLength value="15"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
     <!-- PERSON DATA MODEL -->
 
     <xsd:element name="Person">
@@ -379,7 +385,7 @@
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                     </xsd:annotation>
                 </xsd:element>
-                <xsd:element maxOccurs="1" minOccurs="1" name="Name" type="xsd:string">
+                <xsd:element maxOccurs="1" minOccurs="1" name="Name" type="limitedString_15">
                     <xsd:annotation>
                         <xsd:appinfo source="X_Label_FR">Nom</xsd:appinfo>
 

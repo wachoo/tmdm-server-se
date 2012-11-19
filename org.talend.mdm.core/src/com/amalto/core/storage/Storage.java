@@ -147,6 +147,7 @@ public interface Storage {
 
     /**
      * Commit changes done during transaction for current thread. {@link #begin()} must have previously been called.
+     * <b>Note</b>: Callers are expected to call {@link #rollback()} if any commit exception occurs.
      */
     void commit();
 

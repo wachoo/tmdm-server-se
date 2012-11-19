@@ -576,15 +576,19 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         Document document = propertyElement.getOwnerDocument();
         Attr elementType = document.createAttribute("type"); //$NON-NLS-1$
         String elementTypeName = getFieldType(field);
-        if ("base64Binary".equals(field.getType().getName())) { //$NON-NLS-1$
+        TypeMetadata fieldType = field.getType();
+        while (!fieldType.getSuperTypes().isEmpty()) {
+            fieldType = fieldType.getSuperTypes().iterator().next();
+        }
+        if ("base64Binary".equals(fieldType.getName())) { //$NON-NLS-1$
             elementTypeName = TEXT_TYPE_NAME;
         } else if (field instanceof SimpleTypeFieldMetadata) {
             Object sqlType = field.getData("SQL_TYPE"); //$NON-NLS-1$
             if (sqlType != null) {
                 elementTypeName = String.valueOf(sqlType);
-            } else if("MULTILINGUAL".equalsIgnoreCase(field.getType().getName())) { //$NON-NLS-1$
+            } else if("MULTILINGUAL".equalsIgnoreCase(fieldType.getName())) { //$NON-NLS-1$
                 elementTypeName = TEXT_TYPE_NAME;
-            } else if ("string".equals(field.getType().getName())) { //$NON-NLS-1$
+            } else if ("string".equals(fieldType.getName())) { //$NON-NLS-1$
                 Object maxLength = field.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
                 if (maxLength != null) {
                     int maxLengthInt = Integer.parseInt(String.valueOf(maxLength));

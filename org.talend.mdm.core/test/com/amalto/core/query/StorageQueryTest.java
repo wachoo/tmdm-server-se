@@ -1921,4 +1921,47 @@ public class StorageQueryTest extends StorageTestCase {
         String actual = new String(output.toByteArray());
         assertEquals(E2_Record1 + E2_Record2 + E2_Record3 + E2_Record4 + E2_Record5 + E2_Record6, actual);
     }
+
+    public void testStringFieldConstraint() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        DataRecord dataRecord = factory.read(1, repository, product, "<Product>\n" + "    <Id>3</Id>\n" + "    <Name>A long name to be short due to constraints</Name>\n"
+                + "    <ShortDescription>A car</ShortDescription>\n"
+                + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
+                + "            <Color>Blue 2</Color>\n" + "            <Color>Blue 1</Color>\n"
+                + "            <Color>Klein blue2</Color>\n" + "        </Colors>\n" + "    </Features>\n"
+                + "    <Family/>\n" + "    <Status>Pending</Status>\n" + "    <Supplier>[2]</Supplier>\n"
+                + "    <Supplier>[1]</Supplier>\n" + "<Stores><Store>[1]</Store></Stores></Product>");
+        storage.begin();
+        storage.update(dataRecord);
+        try {
+            storage.commit();
+            fail("Expected an exception (value too long for name)");
+        } catch (Exception e) {
+            // Expected
+            storage.rollback();
+        }
+
+        dataRecord = factory.read(1, repository, product, "<Product>\n" + "    <Id>3</Id>\n" + "    <Name>A long nam</Name>\n"
+                + "    <ShortDescription>A car</ShortDescription>\n"
+                + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
+                + "            <Color>Blue 2</Color>\n" + "            <Color>Blue 1</Color>\n"
+                + "            <Color>Klein blue2</Color>\n" + "        </Colors>\n" + "    </Features>\n"
+                + "    <Family/>\n" + "    <Status>Pending</Status>\n" + "    <Supplier>[2]</Supplier>\n"
+                + "    <Supplier>[1]</Supplier>\n" + "<Stores><Store>[1]</Store></Stores></Product>");
+        storage.begin();
+        storage.update(dataRecord);
+        storage.commit(); // This one should work.
+
+        UserQueryBuilder qb = from(product)
+                .select(product.getField("Name"))
+                .where(eq(product.getField("Id"), "3"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+        for (DataRecord result : results) {
+            assertEquals("A long nam", result.get("Name"));
+        }
+
+    }
 }
