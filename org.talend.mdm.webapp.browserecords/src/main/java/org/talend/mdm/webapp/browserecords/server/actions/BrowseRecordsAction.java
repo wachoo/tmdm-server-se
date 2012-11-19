@@ -976,7 +976,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (checkSmartViewExists(concept, language)) {
                 itemBean.setSmartViewMode(ItemBean.SMARTMODE);
             } else if (checkSmartViewExistsByOpt(concept, language)) {
-                itemBean.setSmartViewMode(ItemBean.SMARTMODE);
+                itemBean.setSmartViewMode(ItemBean.PERSOMODE);
             }
             dynamicAssembleByResultOrder(itemBean, viewBean, entityModel);
             itemBeans.add(itemBean);

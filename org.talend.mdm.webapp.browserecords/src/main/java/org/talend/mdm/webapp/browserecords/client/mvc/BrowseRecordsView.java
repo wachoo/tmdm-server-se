@@ -185,19 +185,16 @@ public class BrowseRecordsView extends View {
 
         // show breadcrumb
         // ItemsDetailPanel.getInstance().clearBreadCrumb();
+        itemConcept = item.getConcept();
+        itemLabel = item.getLabel();
+        itemDisplayPKInfo = item.getDisplayPKInfo();
+        itemIds = item.getIds();
+        itemPkInfoList = item.getPkInfoList();
+        itemDescription = item.getDescription();
 
-        if (item != null) {
-            itemConcept = item.getConcept();
-            itemLabel = item.getLabel();
-            itemDisplayPKInfo = item.getDisplayPKInfo();
-            itemIds = item.getIds();
-            itemPkInfoList = item.getPkInfoList();
-            itemDescription = item.getDescription();
-
-            breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$           
-            breads.add(new BreadCrumbModel(itemConcept, itemLabel, itemIds, itemDisplayPKInfo.equals(itemLabel) ? null
-                    : itemDisplayPKInfo, true));
-        }
+        breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$           
+        breads.add(new BreadCrumbModel(itemConcept, itemLabel, itemIds, itemDisplayPKInfo.equals(itemLabel) ? null
+                : itemDisplayPKInfo, true));
 
         ItemsMainTabPanel itemsMainTabPanel = ItemsMainTabPanel.getInstance();
 
