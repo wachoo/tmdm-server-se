@@ -25,15 +25,10 @@ import org.restlet.client.data.Method;
 import org.restlet.client.ext.xml.DomRepresentation;
 import org.restlet.client.representation.InputRepresentation;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.stagingareacontrol.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.stagingareacontrol.client.i18n.StagingareaMessages;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaExecutionModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaValidationModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerModel;
 
-import com.extjs.gxt.ui.client.util.Format;
-import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.xml.client.Node;
@@ -45,15 +40,13 @@ public class RestServiceHandler {
 
     public static final String BASE_URL = (GWT.isScript() ? GWT.getHostPageBaseURL().replaceAll("/general/secure", "") : //$NON-NLS-1$ //$NON-NLS-2$
             GWT.getHostPageBaseURL().replaceAll(GWT.getModuleName() + SEPARATE, "")) //$NON-NLS-1$
-            + "datamanager/services/tasks/staging"; //$NON-NLS-1$
+            + "core/services/tasks/staging"; //$NON-NLS-1$
 
     public static final DateTimeFormat DEFAULT_DATE_FORMAT = DateTimeFormat.getFormat("yyyy-MM-dd'T'HH:mm:ss");//$NON-NLS-1$
 
     private ClientResourceWrapper client;
 
     private static RestServiceHandler handler;
-
-    private StagingareaMessages messages = MessagesFactory.getMessages();
 
     private RestServiceHandler() {
         client = new ClientResourceWrapper();
@@ -78,15 +71,13 @@ public class RestServiceHandler {
     public void getDefaultStagingContainerSummary(final SessionAwareAsyncCallback<StagingContainerModel> callback) {
 
         client.init(Method.GET, BASE_URL);
-        client.setCallback(new ResourceCallbackHandler() {
+        client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
-            public void process(Request request, Response response) {
-                try {
-                    StagingContainerModel model = StagingModelConvertor.response2StagingContainerModel(response);
-                    callback.onSuccess(model);
-                } catch (Exception e) {
-                    alertStagingError(e);
-                }
+            public void doProcess(Request request, Response response) throws Exception {
+
+                StagingContainerModel model = StagingModelConvertor.response2StagingContainerModel(response);
+                callback.onSuccess(model);
+
             }
         });
         client.request();
@@ -109,15 +100,13 @@ public class RestServiceHandler {
                 .append("?model=").append(dataModel); //$NON-NLS-1$
 
         client.init(Method.GET, uri.toString());
-        client.setCallback(new ResourceCallbackHandler() {
+        client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
-            public void process(Request request, Response response) {
-                try {
-                    StagingContainerModel model = StagingModelConvertor.response2StagingContainerModel(response);
-                    callback.onSuccess(model);
-                } catch (Exception e) {
-                    alertStagingError(e);
-                }
+            public void doProcess(Request request, Response response) throws Exception {
+
+                StagingContainerModel model = StagingModelConvertor.response2StagingContainerModel(response);
+                callback.onSuccess(model);
+
             }
         });
         client.request();
@@ -139,24 +128,22 @@ public class RestServiceHandler {
             url += ("?start=" + start + "&size=" + pageSize);//$NON-NLS-1$ //$NON-NLS-2$
 
         client.init(Method.GET, url);
-        client.setCallback(new ResourceCallbackHandler() {
+        client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
-            public void process(Request request, Response response) {
-                try {
-                    final List<String> exeIds = new ArrayList<String>();
-                    DomRepresentation rep = new DomRepresentation(response.getEntity());
-                    NodeList list = rep.getDocument().getDocumentElement().getChildNodes();
-                    if (list != null) {
-                        for (int i = 0; i < list.getLength(); i++) {
-                            Node node = list.item(i);
-                            if (node.getNodeType() == Node.ELEMENT_NODE)
-                                exeIds.add(node.getFirstChild().getNodeValue());
-                        }
+            public void doProcess(Request request, Response response) throws Exception {
+
+                final List<String> exeIds = new ArrayList<String>();
+                DomRepresentation rep = new DomRepresentation(response.getEntity());
+                NodeList list = rep.getDocument().getDocumentElement().getChildNodes();
+                if (list != null) {
+                    for (int i = 0; i < list.getLength(); i++) {
+                        Node node = list.item(i);
+                        if (node.getNodeType() == Node.ELEMENT_NODE)
+                            exeIds.add(node.getFirstChild().getNodeValue());
                     }
-                    callback.onSuccess(exeIds);
-                } catch (Exception e) {
-                    alertStagingError(e);
                 }
+                callback.onSuccess(exeIds);
+
             }
         });
         client.request();
@@ -175,15 +162,13 @@ public class RestServiceHandler {
 
         String url = BASE_URL + "/" + dataContainer + "/execs/" + exeId; //$NON-NLS-1$ //$NON-NLS-2$
         client.init(Method.GET, url);
-        client.setCallback(new ResourceCallbackHandler() {
+        client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
-            public void process(Request request, Response response) {
-                try {
-                    StagingAreaExecutionModel model = StagingModelConvertor.response2StagingAreaExecutionModel(response);
-                    callback.onSuccess(model);
-                } catch (Exception e) {
-                    alertStagingError(e);
-                }
+            public void doProcess(Request request, Response response) throws Exception {
+
+                StagingAreaExecutionModel model = StagingModelConvertor.response2StagingAreaExecutionModel(response);
+                callback.onSuccess(model);
+
             }
         });
         client.request();
@@ -200,56 +185,54 @@ public class RestServiceHandler {
      */
     public void getStagingAreaExecutionsWithPaging(final String dataContainer, int start, int pageSize, Date before,
             final SessionAwareAsyncCallback<List<StagingAreaExecutionModel>> callback) {
-        
+
         // build URI
         StringBuilder uri = new StringBuilder(BASE_URL + SEPARATE + dataContainer + "/execs/");//$NON-NLS-1$
-        StringBuilder parameters=new StringBuilder();
-        if(start!=-1&&pageSize!=-1)
+        StringBuilder parameters = new StringBuilder();
+        if (start != -1 && pageSize != -1)
             parameters.append("start=").append(start).append("&size=").append(pageSize);//$NON-NLS-1$ //$NON-NLS-2$
-        if(before!=null)
+        if (before != null)
             parameters.append("&before=").append(DEFAULT_DATE_FORMAT.format(before));//$NON-NLS-1$
         if (parameters.length() > 0)
             uri.append("?").append(parameters.toString());//$NON-NLS-1$
 
         client.init(Method.GET, uri.toString());
-        client.setCallback(new ResourceCallbackHandler() {
+        client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
-            public void process(Request request, Response response) {
-                try {
-                    final Map<String, StagingAreaExecutionModel> exeIds = new LinkedHashMap<String, StagingAreaExecutionModel>();
-                    DomRepresentation rep = new DomRepresentation(response.getEntity());
-                    NodeList list = rep.getDocument().getDocumentElement().getChildNodes();
-                    if (list != null) {
-                        for (int i = 0; i < list.getLength(); i++) {
-                            Node node = list.item(i);
-                            if (node.getNodeType() == Node.ELEMENT_NODE)
-                                exeIds.put(node.getFirstChild().getNodeValue(), null);
-                        }
-                    }
-                    if (exeIds.size() == 0) {
-                        callback.onSuccess(new ArrayList<StagingAreaExecutionModel>());
-                        return;
-                    }
-                    final int[] counter = new int[1];
-                    for (final String exeId : exeIds.keySet()) {
-                        getStagingAreaExecution(dataContainer, exeId, new SessionAwareAsyncCallback<StagingAreaExecutionModel>() {
+            public void doProcess(Request request, Response response) throws Exception {
 
-                            public void onSuccess(StagingAreaExecutionModel result) {
-                                exeIds.put(exeId, result);
-                                counter[0]++;
-                                if (counter[0] == exeIds.size())
-                                    callback.onSuccess(new ArrayList<StagingAreaExecutionModel>(exeIds.values()));
-                            }
-
-                            protected void doOnFailure(Throwable caught) {
-                                counter[0]++;
-                                alertStagingError(caught);
-                            }
-                        });
+                final Map<String, StagingAreaExecutionModel> exeIds = new LinkedHashMap<String, StagingAreaExecutionModel>();
+                DomRepresentation rep = new DomRepresentation(response.getEntity());
+                NodeList list = rep.getDocument().getDocumentElement().getChildNodes();
+                if (list != null) {
+                    for (int i = 0; i < list.getLength(); i++) {
+                        Node node = list.item(i);
+                        if (node.getNodeType() == Node.ELEMENT_NODE)
+                            exeIds.put(node.getFirstChild().getNodeValue(), null);
                     }
-                } catch (Exception e) {
-                    alertStagingError(e);
                 }
+                if (exeIds.size() == 0) {
+                    callback.onSuccess(new ArrayList<StagingAreaExecutionModel>());
+                    return;
+                }
+                final int[] counter = new int[1];
+                for (final String exeId : exeIds.keySet()) {
+                    getStagingAreaExecution(dataContainer, exeId, new SessionAwareAsyncCallback<StagingAreaExecutionModel>() {
+
+                        public void onSuccess(StagingAreaExecutionModel result) {
+                            exeIds.put(exeId, result);
+                            counter[0]++;
+                            if (counter[0] == exeIds.size())
+                                callback.onSuccess(new ArrayList<StagingAreaExecutionModel>(exeIds.values()));
+                        }
+
+                        protected void doOnFailure(Throwable caught) {
+                            counter[0]++;
+                            alertStagingError(caught);
+                        }
+                    });
+                }
+
             }
         });
         client.request();
@@ -266,15 +249,13 @@ public class RestServiceHandler {
 
         String url = BASE_URL + "/" + dataContainer + "/execs/current"; //$NON-NLS-1$ //$NON-NLS-2$
         client.init(Method.GET, url);
-        client.setCallback(new ResourceCallbackHandler() {
+        client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
-            public void process(Request request, Response response) {
-                try {
-                    StagingAreaValidationModel model = StagingModelConvertor.response2StagingAreaValidationModel(response);
-                    callback.onSuccess(model);
-                } catch (Exception e) {
-                    alertStagingError(e);
-                }
+            public void doProcess(Request request, Response response) throws Exception {
+
+                StagingAreaValidationModel model = StagingModelConvertor.response2StagingAreaValidationModel(response);
+                callback.onSuccess(model);
+
             }
         });
         client.request();
@@ -300,19 +281,17 @@ public class RestServiceHandler {
 
         client.init(Method.POST, uri.toString());
         client.setPostEntity(entity);
-        client.setCallback(new ResourceCallbackHandler() {
+        client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
-            public void process(Request request, Response response) {
-                try {
-                    String taskId = null;
-                    if (response.getEntity() != null) {
-                        InputRepresentation rep = (InputRepresentation) response.getEntity();
-                        taskId = rep.getText();
-                    }
-                    callback.onSuccess(taskId);
-                } catch (Exception e) {
-                    alertStagingError(e);
+            public void doProcess(Request request, Response response) throws Exception {
+
+                String taskId = null;
+                if (response.getEntity() != null) {
+                    InputRepresentation rep = (InputRepresentation) response.getEntity();
+                    taskId = rep.getText();
                 }
+                callback.onSuccess(taskId);
+
             }
         });
         client.request();
@@ -329,9 +308,9 @@ public class RestServiceHandler {
 
         String url = BASE_URL + "/" + dataContainer + "/execs/current"; //$NON-NLS-1$ //$NON-NLS-2$
         client.init(Method.DELETE, url);
-        client.setCallback(new ResourceCallbackHandler() {
+        client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
-            public void process(Request request, Response response) {
+            public void doProcess(Request request, Response response) throws Exception {
                 try {
                     callback.onSuccess(response.getStatus().isSuccess());
                 } catch (Exception e) {
@@ -342,13 +321,13 @@ public class RestServiceHandler {
         client.request();
 
     }
-    
+
     public void countStagingAreaExecutions(final String dataContainer, StagingAreaExecutionModel criteria,
             final SessionAwareAsyncCallback<Integer> callback) {
-                
+
         // build URI
         StringBuilder uri = new StringBuilder(BASE_URL + SEPARATE + dataContainer + "/execs/count");//$NON-NLS-1$
-        StringBuilder parameters=new StringBuilder();
+        StringBuilder parameters = new StringBuilder();
         if (criteria != null && criteria.getStartDate() != null)
             parameters.append("&before=").append(DEFAULT_DATE_FORMAT.format(criteria.getStartDate()));//$NON-NLS-1$
         if (parameters.length() > 0)
@@ -356,40 +335,24 @@ public class RestServiceHandler {
 
         // do request
         client.init(Method.GET, uri.toString());
-        client.setCallback(new ResourceCallbackHandler() {
+        client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
-            public void process(Request request, Response response) {
-                try {
-                    int count = 0;
-                    if (response.getEntity() != null && response.getEntity().getText() != null) {
-                        try {
-                            count = Integer.parseInt(response.getEntity().getText());
-                        } catch (NumberFormatException e) {
-                            count = Integer.MAX_VALUE;
-                        }
+            public void doProcess(Request request, Response response) throws Exception {
+
+                int count = 0;
+                if (response.getEntity() != null && response.getEntity().getText() != null) {
+                    try {
+                        count = Integer.parseInt(response.getEntity().getText());
+                    } catch (NumberFormatException e) {
+                        count = Integer.MAX_VALUE;
                     }
-                    callback.onSuccess(new Integer(count));
-                } catch (Exception e) {
-                    alertStagingError(e);
                 }
+                callback.onSuccess(new Integer(count));
+
             }
         });
         client.request(MediaType.TEXT_PLAIN);
 
     }
 
-    private void alertStagingError(Throwable e) {
-        String errorTitle = messages.staging_area_error();
-        String errorDetail;
-        if (e.getMessage() == null || e.getMessage().trim().length() == 0) {
-            errorDetail = messages.staging_area_exception();
-        } else {
-            errorDetail = messages.staging_area_exception() + "</br>" + messages.underlying_cause() //$NON-NLS-1$
-                    + "<div style='width:300px; height:80px; overflow:auto; margin-top: 5px; margin-left: 50px; border: dashed 1px #777777;'>" //$NON-NLS-1$
-                    + Format.htmlEncode(e.getMessage()) + "</div>"; //$NON-NLS-1$
-        }
-        Dialog dialog = MessageBox.alert(errorTitle, errorDetail, null).getDialog();
-        dialog.setWidth(400);
-        dialog.center();
-    }
 }

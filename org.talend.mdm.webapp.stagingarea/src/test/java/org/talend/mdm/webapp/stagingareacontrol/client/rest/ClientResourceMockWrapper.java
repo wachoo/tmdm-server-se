@@ -40,7 +40,7 @@ public class ClientResourceMockWrapper extends ClientResourceWrapper {
     public void request() {
 
         Response response = new Response(null);
-        if (method.equals(Method.GET) && uri.matches("^.+/datamanager/services/tasks/staging$")) {
+        if (method.equals(Method.GET) && uri.matches("^.+/core/services/tasks/staging$")) {
 
             StringBuilder sb = new StringBuilder();
             sb.append("<staging> ");
@@ -55,7 +55,7 @@ public class ClientResourceMockWrapper extends ClientResourceWrapper {
             DomRepresentation representation = new DomRepresentation(MediaType.TEXT_XML, XMLParser.parse(messageXml));
             response.setEntity(representation);
 
-        } else if (method.equals(Method.GET) && uri.matches("^.+/datamanager/services/tasks/staging/Product/\\?model=Product$")) {
+        } else if (method.equals(Method.GET) && uri.matches("^.+/core/services/tasks/staging/Product/\\?model=Product$")) {
 
             StringBuilder sb = new StringBuilder();
             sb.append("<staging> ");
@@ -71,14 +71,14 @@ public class ClientResourceMockWrapper extends ClientResourceWrapper {
             response.setEntity(representation);
 
         } else if (method.equals(Method.GET)
-                && uri.matches("^.+/datamanager/services/tasks/staging/TestDataContainer/execs/(\\?start=1&size=10&before=2012-12-12T00:00:00)?$")) {
+                && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/(\\?start=1&size=10&before=2012-12-12T00:00:00)?$")) {
 
             String messageXml = "<executions><execution>fa011993-648f-48b3-9e4d-9c71de82f91a</execution><execution>4ad4e1c7-7769-45c1-90ad-16b54aa0262b</execution></executions>";
             DomRepresentation representation = new DomRepresentation(MediaType.TEXT_XML, XMLParser.parse(messageXml));
             response.setEntity(representation);
 
         } else if (method.equals(Method.GET)
-                && uri.matches("^.+/datamanager/services/tasks/staging/TestDataContainer/execs/fa011993-648f-48b3-9e4d-9c71de82f91a$")) {
+                && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/fa011993-648f-48b3-9e4d-9c71de82f91a$")) {
 
             StringBuilder sb = new StringBuilder();
             // sb.append("<?xml version=”1.0″ encoding=”UTF-8″ standalone=”yes”?> ");
@@ -95,7 +95,7 @@ public class ClientResourceMockWrapper extends ClientResourceWrapper {
             response.setEntity(representation);
 
         } else if (method.equals(Method.GET)
-                && uri.matches("^.+/datamanager/services/tasks/staging/TestDataContainer/execs/current$")) {
+ && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/current$")) {
             StringBuilder sb = new StringBuilder();
             sb.append("<execution> ");
             sb.append(" <id>1ad084c1-5f70-4b89-aeef-613e7e44f134</id> ");
@@ -109,13 +109,13 @@ public class ClientResourceMockWrapper extends ClientResourceWrapper {
             response.setEntity(representation);
 
         } else if (method.equals(Method.POST)
-                && uri.matches("^.+/datamanager/services/tasks/staging/TestDataContainer/\\?model=TestDataModel$")) {
+                && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/\\?model=TestDataModel$")) {
             String message = "1ad084c1-5f70-4b89-aeef-613e7e44f134";
             StringInputStream stringStream = new StringInputStream(message);
             InputRepresentation representation = new InputRepresentation(stringStream);
             response.setEntity(representation);
         } else if (method.equals(Method.DELETE)
-                && uri.matches("^.+/datamanager/services/tasks/staging/TestDataContainer/execs/current$")) {
+                && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/current$")) {
             response.setStatus(Status.SUCCESS_OK);
         }
 
