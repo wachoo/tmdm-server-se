@@ -12,6 +12,7 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.*;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
@@ -31,12 +32,16 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     private static final Logger LOGGER = Logger.getLogger(MappingGenerator.class);
 
-    // Max limit for a string restriction (greater then this -> use CLOB).
+    // Max limit for a string restriction (greater then this -> use CLOB or TEXT).
     private static final int MAX_VARCHAR_TEXT_LIMIT = 255;
+
+    private static final String TEXT_TYPE_NAME = "text"; //$NON-NLS-1$
 
     private final Document document;
 
     private final TableResolver resolver;
+
+    private final RDBMSDataSource.DataSourceDialect dialect;
 
     private boolean compositeId;
 
@@ -50,13 +55,14 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     private boolean generateConstrains;
 
-    public MappingGenerator(Document document, TableResolver resolver) {
-        this(document, resolver, true);
+    public MappingGenerator(Document document, TableResolver resolver, RDBMSDataSource.DataSourceDialect dialect) {
+        this(document, resolver, dialect, true);
     }
 
-    public MappingGenerator(Document document, TableResolver resolver, boolean generateConstrains) {
+    public MappingGenerator(Document document, TableResolver resolver, RDBMSDataSource.DataSourceDialect dialect, boolean generateConstrains) {
         this.document = document;
         this.resolver = resolver;
+        this.dialect = dialect;
         this.generateConstrains = generateConstrains;
     }
 
@@ -507,7 +513,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     propertyElement.getAttributes().setNamedItem(notNull);
                 }
 
-                addFieldTypeAttribute(field, propertyElement);
+                addFieldTypeAttribute(field, propertyElement, dialect);
                 propertyElement.getAttributes().setNamedItem(propertyName);
                 propertyElement.getAttributes().setNamedItem(columnName);
                 return propertyElement;
@@ -545,7 +551,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 Attr elementColumn = document.createAttribute("column"); //$NON-NLS-1$
                 elementColumn.setValue("value"); //$NON-NLS-1$
                 element.getAttributes().setNamedItem(elementColumn);
-                addFieldTypeAttribute(field, element);
+                addFieldTypeAttribute(field, element, dialect);
                 // Not null warning
                 if (field.isMandatory()) {
                     LOGGER.warn("Field '" + field.getName() + "' is mandatory and a collection. Constraint can not be expressed in database schema.");
@@ -564,26 +570,27 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         }
     }
 
-    private static void addFieldTypeAttribute(FieldMetadata field, Element propertyElement) {
+    private static void addFieldTypeAttribute(FieldMetadata field,
+                                              Element propertyElement,
+                                              RDBMSDataSource.DataSourceDialect dialect) {
         Document document = propertyElement.getOwnerDocument();
         Attr elementType = document.createAttribute("type"); //$NON-NLS-1$
-        elementType.setValue(getFieldType(field));
+        String elementTypeName = getFieldType(field);
         if ("base64Binary".equals(field.getType().getName())) { //$NON-NLS-1$
-            elementType.setValue("text"); //$NON-NLS-1$
+            elementTypeName = TEXT_TYPE_NAME;
         } else if (field instanceof SimpleTypeFieldMetadata) {
             Object sqlType = field.getData("SQL_TYPE"); //$NON-NLS-1$
             if (sqlType != null) {
-                elementType.setValue(String.valueOf(sqlType));
+                elementTypeName = String.valueOf(sqlType);
             } else if("MULTILINGUAL".equalsIgnoreCase(field.getType().getName())) { //$NON-NLS-1$
-                elementType.setValue("text"); //$NON-NLS-1$
+                elementTypeName = TEXT_TYPE_NAME;
             } else if ("string".equals(field.getType().getName())) { //$NON-NLS-1$
                 Object maxLength = field.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
                 if (maxLength != null) {
                     int maxLengthInt = Integer.parseInt(String.valueOf(maxLength));
                     if (maxLengthInt > MAX_VARCHAR_TEXT_LIMIT) {
-                        elementType.setValue("text"); //$NON-NLS-1$
+                        elementTypeName = TEXT_TYPE_NAME;
                     } else {
-                        elementType.setValue(getFieldType(field));
                         Attr length = document.createAttribute("length"); //$NON-NLS-1$
                         length.setValue(String.valueOf(maxLength));
                         propertyElement.getAttributes().setNamedItem(length);
@@ -591,6 +598,11 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 }
             }
         }
+        // TMDM-4975: Oracle doesn't like when there's too much text columns.
+        if (TEXT_TYPE_NAME.equals(elementTypeName) && dialect == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
+            elementTypeName = "clob"; //$NON-NLS-1$
+        }
+        elementType.setValue(elementTypeName);
         propertyElement.getAttributes().setNamedItem(elementType);
     }
 

@@ -159,9 +159,14 @@ public class HibernateStorage implements Storage {
             } catch (ClassNotFoundException e) {
                 clazz = (Class<? extends StorageClassLoader>) Class.forName(CLASS_LOADER);
             }
-            Constructor<? extends StorageClassLoader> constructor = clazz.getConstructor(ClassLoader.class, String.class,
+            Constructor<? extends StorageClassLoader> constructor = clazz.getConstructor(ClassLoader.class,
+                    String.class,
+                    RDBMSDataSource.DataSourceDialect.class,
                     StorageType.class);
-            storageClassLoader = constructor.newInstance(contextClassLoader, storageName, storageType);
+            storageClassLoader = constructor.newInstance(contextClassLoader,
+                    storageName,
+                    dataSource.getDialectName(),
+                    storageType);
             storageClassLoader.setDataSourceConfiguration(dataSource);
             storageClassLoader.generateHibernateConfig(); // Checks if configuration can be generated.
         } catch (Exception e) {

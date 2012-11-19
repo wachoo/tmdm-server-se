@@ -51,15 +51,21 @@ public abstract class StorageClassLoader extends ClassLoader {
 
     final StorageType type;
 
+    final RDBMSDataSource.DataSourceDialect dialect;
+
     RDBMSDataSource dataSource;
 
     TableResolver resolver;
 
     private boolean isClosed;
 
-    StorageClassLoader(ClassLoader parent, String storageName, StorageType type) {
+    StorageClassLoader(ClassLoader parent,
+                       String storageName,
+                       RDBMSDataSource.DataSourceDialect dialect,
+                       StorageType type) {
         super(parent);
         this.storageName = storageName;
+        this.dialect = dialect;
         this.type = type;
     }
 
