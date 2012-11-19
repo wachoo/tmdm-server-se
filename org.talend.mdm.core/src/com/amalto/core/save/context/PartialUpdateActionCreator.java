@@ -290,7 +290,8 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
             String oldValue = originalAccessor.get();
             lastMatchPath = leftPath;
             if (newAccessor.exist()) {
-                if (newAccessor.get() != null && !newAccessor.get().isEmpty()) {
+                String newValue = newAccessor.get();
+                if (newValue != null) {
                     if (comparedField.isMany()) {
                         // Append at the end of the collection
                         if (!originalFieldToLastIndex.containsKey(comparedField)) {
@@ -300,10 +301,10 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                         int newIndex = originalFieldToLastIndex.get(comparedField);
                         enterLeft(comparedField, (newIndex + 1));
                         actions.add(new FieldUpdateAction(date, source, userName, getLeftPath(), StringUtils.EMPTY,
-                                newAccessor.get(), comparedField));
+                                newValue, comparedField));
                         originalFieldToLastIndex.put(comparedField, newIndex + 1);
-                    } else if (oldValue != null && !oldValue.equals(newAccessor.get())) {
-                        actions.add(new FieldUpdateAction(date, source, userName, leftPath, oldValue, newAccessor.get(),
+                    } else if (oldValue != null && !oldValue.equals(newValue)) {
+                        actions.add(new FieldUpdateAction(date, source, userName, leftPath, oldValue, newValue,
                                 comparedField));
                     }
                 }
