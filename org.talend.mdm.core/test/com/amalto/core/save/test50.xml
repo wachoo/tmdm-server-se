@@ -1,0 +1,30 @@
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<Personne>
+  <IdMDM>1</IdMDM>
+  <IdVINCI>00000067</IdVINCI>
+  <TypePersonneFk>[1]</TypePersonneFk>
+  <StatutPersonneFk>[8]</StatutPersonneFk>
+  <CiviliteFk>[0]</CiviliteFk>
+  <NomUsuel>BLOTINT</NomUsuel>
+  <PrenomUsuel>Adrien</PrenomUsuel>
+  <Contextes>
+    <Contexte>
+      <IdContexte>2</IdContexte>
+      <TypeContexteFk>[1]</TypeContexteFk>
+      <StatutContexteFk>[1]</StatutContexteFk>
+      <DateFinContexte></DateFinContexte>
+      <OrganisationFk>[1]</OrganisationFk>
+      <Service>test3</Service>
+    </Contexte>
+  </Contextes>
+</Personne>

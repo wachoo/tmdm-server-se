@@ -289,7 +289,7 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
             lastMatchPath = leftPath;
             if (newAccessor.exist()) {
                 String newValue = newAccessor.get();
-                if (newValue != null && !newValue.isEmpty()) {
+                if (newValue != null) {
                     if (comparedField.isMany()) {
                         // Append at the end of the collection
                         if (!originalFieldToLastIndex.containsKey(comparedField)) {

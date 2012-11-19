@@ -1797,6 +1797,27 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("[companyEntity]", evaluate(committedElement, "/Product/supplier"));
     }
     
+    public void testPartialUpdateWithEmptyString() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test50_original.xml", "metadata7.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test50.xml");
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test50", "Source", recordXml, true,
+                false, "Personne/Contextes/Contexte", "IdContexte", true);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        assertEquals("", evaluate(committer.getCommittedElement(), "/Personne/Contextes/Contexte[2]/DateFinContexte"));
+        assertEquals("[1]", evaluate(committer.getCommittedElement(), "/Personne/Contextes/Contexte[2]/OrganisationFk"));
+    }
+    
     private static class MockCommitter implements SaverSession.Committer {
 
         private Element committedElement;
