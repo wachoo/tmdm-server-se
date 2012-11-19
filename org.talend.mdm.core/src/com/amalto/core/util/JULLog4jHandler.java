@@ -35,7 +35,10 @@ public class JULLog4jHandler extends Handler {
         }
         // add our own
         logger.addHandler(new JULLog4jHandler());
-        logger.setLevel(getJULLevelFromLog4jLevel(log4jLevel));
+        Level level = getJULLevelFromLog4jLevel(log4jLevel);
+        logger.setLevel(level);
+        String loggerName = logger.getParent() == null ? "root" : logger.getName(); //$NON-NLS-1$
+        log4jLogger.info("JUL " + loggerName + " logger set to " + level.getName()); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public static Level getJULLevelFromLog4jLevel(int log4jLevel) {
@@ -63,10 +66,12 @@ public class JULLog4jHandler extends Handler {
 
     @Override
     public void close() throws SecurityException {
+        // do nothing
     }
 
     @Override
     public void flush() {
+        // do nothing
     }
 
     @Override
@@ -83,25 +88,29 @@ public class JULLog4jHandler extends Handler {
         Throwable throwable = record.getThrown();
 
         if (level <= Level.CONFIG.intValue()) {
-            if (throwable != null)
+            if (throwable != null) {
                 log4jLogger.debug(message, throwable);
-            else
+            } else {
                 log4jLogger.debug(message);
+            }
         } else if (level == Level.INFO.intValue()) {
-            if (throwable != null)
+            if (throwable != null) {
                 log4jLogger.info(message, throwable);
-            else
+            } else {
                 log4jLogger.info(message);
+            }
         } else if (level == Level.WARNING.intValue()) {
-            if (throwable != null)
+            if (throwable != null) {
                 log4jLogger.warn(message, throwable);
-            else
+            } else {
                 log4jLogger.warn(message);
+            }
         } else if (level == Level.SEVERE.intValue()) {
-            if (throwable != null)
+            if (throwable != null) {
                 log4jLogger.error(message, throwable);
-            else
+            } else {
                 log4jLogger.error(message);
+            }
         }
     }
 }
