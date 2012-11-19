@@ -265,7 +265,8 @@ public class PictureField extends TextField<String> {
         if (inputValue == null || inputValue.trim().length() == 0) {
             return inputValue;
         }
-
+        image.getElement().removeAttribute("width"); //$NON-NLS-1$
+        image.getElement().removeAttribute("height"); //$NON-NLS-1$
         return inputValue += "?width=" + size + "&height=" + size + "&preserveAspectRatio=true"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
     }
 
