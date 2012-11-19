@@ -217,33 +217,7 @@ public class HibernateStorage implements Storage {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Oracle database is being used. Limit table name length to 30.");
                     }
-                    final TableResolver delegate = new StorageTableResolver(databaseIndexedFields, 30);
-                    if (storageType == StorageType.STAGING) {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Oracle database is being used for staging. Table names will have a prefix.");
-                        }
-                        tableResolver = (new TableResolver() {
-                            public static final String PREFIX = "S_"; //$NON-NLS-1$
-
-                            public String get(ComplexTypeMetadata type) {
-                                return PREFIX + delegate.get(type);
-                            }
-
-                            public String get(FieldMetadata field) {
-                                return delegate.get(field);
-                            }
-
-                            public boolean isIndexed(FieldMetadata field) {
-                                return delegate.isIndexed(field);
-                            }
-
-                            public int getNameMaxLength() {
-                                return delegate.getNameMaxLength();
-                            }
-                        });
-                    } else {
-                        tableResolver = delegate;
-                    }
+                    tableResolver = new StorageTableResolver(databaseIndexedFields, 30);
                     break;
                 case MYSQL:
                     if (LOGGER.isDebugEnabled()) {
