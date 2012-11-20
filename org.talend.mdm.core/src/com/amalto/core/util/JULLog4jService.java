@@ -53,7 +53,7 @@ public class JULLog4jService extends ServiceMBeanSupport implements JULLog4jServ
 
     @Override
     public String getRootLog4jLevel() {
-        return rootlog4jLevel.toString();
+        return rootlog4jLevel == null ? null : rootlog4jLevel.toString();
     }
 
 }
