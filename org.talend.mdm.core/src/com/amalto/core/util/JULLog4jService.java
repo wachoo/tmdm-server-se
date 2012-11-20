@@ -21,11 +21,19 @@ public class JULLog4jService extends ServiceMBeanSupport implements JULLog4jServ
 
     private boolean removeExistingHandlers = true;
 
+    private org.apache.log4j.Level rootlog4jLevel = null;
+
     @Override
     protected void startService() throws Exception {
         Logger rootLogger = LogManager.getLogManager().getLogger(""); //$NON-NLS-1$
-        int log4jLevel = org.apache.log4j.LogManager.getRootLogger().getLevel().toInt();
-        JULLog4jHandler.JULToLog4j(rootLogger, log4jLevel, removeExistingHandlers);
+        int rootLog4jLevelToUse;
+        if (rootlog4jLevel == null) {
+            // if not specified by config, use same root level for JUL as the default root logger in Log4J
+            rootLog4jLevelToUse = org.apache.log4j.LogManager.getRootLogger().getLevel().toInt();
+        } else {
+            rootLog4jLevelToUse = rootlog4jLevel.toInt();
+        }
+        JULLog4jHandler.JULToLog4j(rootLogger, rootLog4jLevelToUse, removeExistingHandlers);
     }
 
     @Override
@@ -36,6 +44,16 @@ public class JULLog4jService extends ServiceMBeanSupport implements JULLog4jServ
     @Override
     public void setRemoveExistingHandlers(boolean removeExistingHandlers) {
         this.removeExistingHandlers = removeExistingHandlers;
+    }
+
+    @Override
+    public void setRootLog4jLevel(String rootlog4jLevelStr) {
+        this.rootlog4jLevel = org.apache.log4j.Level.toLevel(rootlog4jLevelStr);
+    }
+
+    @Override
+    public String getRootLog4jLevel() {
+        return rootlog4jLevel.toString();
     }
 
 }

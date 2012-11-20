@@ -19,4 +19,8 @@ public interface JULLog4jServiceMBean extends ServiceMBean {
     boolean isRemoveExistingHandlers();
 
     void setRemoveExistingHandlers(boolean removeExistingHandlers);
+
+    void setRootLog4jLevel(String log4jLevel);
+
+    String getRootLog4jLevel();
 }
