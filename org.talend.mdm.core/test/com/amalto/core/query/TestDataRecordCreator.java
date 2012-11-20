@@ -78,6 +78,8 @@ class TestDataRecordCreator extends DefaultMetadataVisitor<DataRecord> {
                 return 1;
             } else if ("unsignedShort".equals(type.getName())) {
                 return ((short) 1);
+            } else if ("boolean".equals(type.getName())) {
+                return false;
             } else {
                 throw new NotImplementedException("Support for key with type " + type.getName());
             }
@@ -93,7 +95,18 @@ class TestDataRecordCreator extends DefaultMetadataVisitor<DataRecord> {
         Random random = new Random(System.currentTimeMillis());
         if (!(field instanceof ContainedTypeFieldMetadata)) { // Don't set contained (anonymous types) values
             if ("string".equals(type.getName())) {
-                return "" + random.nextLong();
+                Object maxLength = field.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
+                if (maxLength != null) {
+                    int i = Integer.parseInt(maxLength.toString());
+                    String s = "" + Math.abs(random.nextLong());
+                    if (s.length() > i) {
+                        return s.substring(0, i);
+                    } else {
+                        return s;
+                    }
+                } else {
+                    return "" + random.nextLong();
+                }
             } else if ("integer".equals(type.getName())
                     || "positiveInteger".equals(type.getName())
                     || "negativeInteger".equals(type.getName())
@@ -125,7 +138,7 @@ class TestDataRecordCreator extends DefaultMetadataVisitor<DataRecord> {
             } else if ("hexBinary".equals(type.getName())) {
                 return "EF56AE";
             } else if ("byte".equals(type.getName()) || "unsignedByte".equals(type.getName())) {
-                return random.nextInt() % 2;
+                return (byte) (random.nextInt() % 2);
             } else if ("double".equals(type.getName()) || "unsignedDouble".equals(type.getName())) {
                 return random.nextDouble();
             } else if ("duration".equals(type.getName()) || "time".equals(type.getName())) {
