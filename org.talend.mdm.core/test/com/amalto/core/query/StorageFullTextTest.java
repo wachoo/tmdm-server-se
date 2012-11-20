@@ -214,7 +214,7 @@ public class StorageFullTextTest extends StorageTestCase {
             for (DataRecord result : results) {
                 writer.write(result, resultWriter);
             }
-            assertEquals("<result>\n" +
+            assertEquals("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">\n" +
                     "\t<Family>[1]</Family>\n" +
                     "</result>", resultWriter.toString());
         } finally {

@@ -1182,7 +1182,7 @@ public class StorageQueryTest extends StorageTestCase {
             for (DataRecord result : results) {
                 writer.write(result, resultWriter);
             }
-            assertEquals("<result>\n" + "\t<id>1</id>\n" + "\t<creationDate>2010-10-10</creationDate>\n"
+            assertEquals("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">\n" + "\t<id>1</id>\n" + "\t<creationDate>2010-10-10</creationDate>\n"
                     + "\t<creationTime>2010-10-10T00:00:01</creationTime>\n"
                     + "\t<name>France</name>\n" + "</result>",
                     resultWriter.toString());

@@ -251,8 +251,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 for (String viewableBusinessElement : viewableBusinessElements.getList()) {
                     String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
                     String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
-                    ComplexTypeMetadata viewableType = repository.getComplexType(viewableTypeName);
-                    qb.select(viewableType.getField(viewablePath));
+                    qb.select(UserQueryHelper.getField(repository, viewableTypeName, viewablePath));
                 }
 
                 // Condition and paging

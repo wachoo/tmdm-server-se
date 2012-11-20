@@ -85,10 +85,15 @@ public class UserQueryHelper {
                     if (!(typeForCheck instanceof ComplexTypeMetadata)) {
                         throw new IllegalArgumentException("Expected type '" + value + "' to be a complex type.");
                     }
-                    if (!(field instanceof Field)) {
-                        throw new IllegalArgumentException("Expected field '" + leftFieldName + "' to be a element path.");
+                    if (!(field instanceof Alias)) {
+                        throw new IllegalArgumentException("Expected field '" + leftFieldName + "' to be an alias.");
                     }
-                    return isa(((Field) field).getFieldMetadata(), ((ComplexTypeMetadata) typeForCheck));
+                    Alias alias = (Alias) field;
+                    if(!(alias.getTypedExpression() instanceof Type)) {
+                        throw new IllegalArgumentException("Expected alias '" + leftFieldName + "' to be an alias of type.");
+                    }
+                    Type fieldExpression = (Type) alias.getTypedExpression();
+                    return isa(fieldExpression.getField().getFieldMetadata(), ((ComplexTypeMetadata) typeForCheck));
                 }
                 String fieldTypeName = field.getTypeName();
                 boolean isFk = field instanceof Field && ((Field) field).getFieldMetadata() instanceof ReferenceFieldMetadata;
@@ -154,7 +159,8 @@ public class UserQueryHelper {
             throw new IllegalArgumentException("Type '" + typeName + "' does not exist.");
         }
         if (fieldName.endsWith("xsi:type") || fieldName.endsWith("tmdm:type")) { //$NON-NLS-1$ //$NON-NLS-2$
-            return getField(repository, typeName, StringUtils.substringBeforeLast(fieldName, "/")); //$NON-NLS-1$
+            FieldMetadata field = repository.getComplexType(typeName).getField(StringUtils.substringBeforeLast(fieldName, "/")); //$NON-NLS-1$
+            return alias(type(field), "xsi:type");
         } else if (UserQueryBuilder.TIMESTAMP_FIELD.equals(fieldName)) {
             return timestamp();
         } else if (UserQueryBuilder.TASK_ID_FIELD.equals(fieldName)) {

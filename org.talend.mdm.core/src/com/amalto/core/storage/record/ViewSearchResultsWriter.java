@@ -25,6 +25,8 @@ import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
 
+import javax.xml.XMLConstants;
+
 public class ViewSearchResultsWriter implements DataRecordWriter {
     public void write(DataRecord record, OutputStream output) throws IOException {
         Writer out = new BufferedWriter(new OutputStreamWriter(output, "UTF-8")); //$NON-NLS-1$
@@ -32,7 +34,7 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
     }
 
     public void write(DataRecord record, Writer writer) throws IOException {
-        writer.write("<result>\n"); //$NON-NLS-1$
+        writer.write("<result xmlns:xsi=\"" + XMLConstants.W3C_XML_SCHEMA_NS_URI + "\">\n"); //$NON-NLS-1$ //$NON-NLS-2$
         for (FieldMetadata fieldMetadata : record.getSetFields()) {
             Object value = record.get(fieldMetadata);
             if (value != null) {

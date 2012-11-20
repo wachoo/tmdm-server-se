@@ -186,9 +186,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Type type) {
-        Projection p = new ClassNameProjection(currentAliasName);
         if (currentAliasName != null) {
-            projectionList.add(p, currentAliasName);
+            type.getField().accept(this);
+            projectionList.add(new ClassNameProjection(currentAliasName), currentAliasName);
         } else {
             throw new IllegalStateException("Expected an alias for a type expression.");
         }
@@ -254,72 +254,38 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(final Field field) {
-        FieldMetadata userFieldMetadata = field.getFieldMetadata();
+        final FieldMetadata userFieldMetadata = field.getFieldMetadata();
         if (userFieldMetadata.isMany() && !(projectionList instanceof ReadOnlyProjectionList)) {
             throw new UnsupportedOperationException("Support for collections in projections is not supported.");
         }
-        TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(mainType);
-        final FieldMetadata database = mapping.getDatabase(userFieldMetadata);
-        ComplexTypeMetadata containingType = userFieldMetadata.getContainingType();
-        if (!selectedTypes.contains(containingType)) {
-            final String alias = getAlias(mapping, database);
-            database.accept(new DefaultMetadataVisitor<Void>() {
-                @Override
-                public Void visit(ReferenceFieldMetadata referenceField) {
-                    // Automatically selects referenced ID in case of FK.
-                    referenceField.getReferencedField().accept(this);
-                    return null;
-                }
-
-                @Override
-                public Void visit(SimpleTypeFieldMetadata simpleField) {
-                    projectionList.add(Projections.property(alias + '.' + simpleField.getName()));
-                    return null;
-                }
-
-                @Override
-                public Void visit(EnumerationFieldMetadata enumField) {
-                    return null;
-                }
-            });
-        } else {
-            if (userFieldMetadata instanceof ReferenceFieldMetadata) {
-                ReferenceFieldMetadata fieldMetadata = (ReferenceFieldMetadata) userFieldMetadata;
-                // TODO This code cause issues for some recursive queries
-                if (!selectedTypes.contains(fieldMetadata.getReferencedType())) {
-                    selectedTypes.add(fieldMetadata.getReferencedType());
-                    Field rightField = new Field(fieldMetadata.getReferencedField());
-                    // TMDM-4866: Do a left outer join if reference field is not mandatory.
-                    Join join = new Join(new Field(fieldMetadata), rightField, fieldMetadata.isMandatory() ? JoinType.INNER : JoinType.LEFT_OUTER);
-                    join.accept(this);
-                    rightField.accept(this);
-                } else {
-                    projectionList.add(Projections.property(getFieldName(field, mappingMetadataRepository)));
-                }
-            } else {
-                field.getFieldMetadata().accept(new DefaultMetadataVisitor<Void>() {
-                    @Override
-                    public Void visit(ReferenceFieldMetadata referenceField) {
-                        // Automatically selects referenced ID in case of FK.
-                        FieldMetadata referencedField = referenceField.getReferencedField();
-                        referencedField.accept(this);
-                        return null;
-                    }
-
-                    @Override
-                    public Void visit(SimpleTypeFieldMetadata simpleField) {
-                        projectionList.add(Projections.property(getFieldName(simpleField, mappingMetadataRepository, true, true)));
-                        return null;
-                    }
-
-                    @Override
-                    public Void visit(EnumerationFieldMetadata enumField) {
-                        projectionList.add(Projections.property(getFieldName(enumField, mappingMetadataRepository, true, true)));
-                        return null;
-                    }
-                });
-            }
+        ComplexTypeMetadata containingType = field.getFieldMetadata().getContainingType();
+        if (!containingType.isInstantiable()) {
+            containingType = mainType;
         }
+        TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(containingType);
+        final FieldMetadata database = mapping.getDatabase(userFieldMetadata);
+        final String alias = getAlias(mapping, database);
+        database.accept(new DefaultMetadataVisitor<Void>() {
+            @Override
+            public Void visit(ReferenceFieldMetadata referenceField) {
+                // Automatically selects referenced ID in case of FK.
+                if (userFieldMetadata instanceof ReferenceFieldMetadata) {
+                    referenceField.getReferencedField().accept(this);
+                }
+                return null;
+            }
+
+            @Override
+            public Void visit(SimpleTypeFieldMetadata simpleField) {
+                projectionList.add(Projections.property(alias + '.' + simpleField.getName()));
+                return null;
+            }
+
+            @Override
+            public Void visit(EnumerationFieldMetadata enumField) {
+                return null;
+            }
+        });
         return null;
     }
 
@@ -613,7 +579,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     throw new IllegalStateException("Expected field '" + field.getName() + "' to be reachable from '" + database.getName() + "'.");
                 }
                 // Generate the joins
-                String alias = field.getType().getName();
+                String alias = getAlias(typeMapping, field);
                 generateJoinPath(alias, JoinFragment.INNER_JOIN, path);
                 // Find the criteria that does the join to the table to check (only way to get the SQL alias for table).
                 if (criteria instanceof CriteriaImpl) {
@@ -627,7 +593,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         }
                     }
                     if (typeCheckCriteria == null) {
-                        throw new IllegalStateException("Could not criteria for type check.");
+                        throw new IllegalStateException("Could not find criteria for type check.");
                     }
                     TypeMapping isaType = mappingMetadataRepository.getMappingFromUser(isa.getType());
                     String name = storageClassLoader.getClassFromType(isaType.getDatabase()).getName();

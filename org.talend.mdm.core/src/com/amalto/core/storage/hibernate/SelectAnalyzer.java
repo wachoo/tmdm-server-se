@@ -154,6 +154,12 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
     }
 
     @Override
+    public AbstractQueryHandler visit(Type type) {
+        selectedFields.add(type);
+        return null;
+    }
+
+    @Override
     public AbstractQueryHandler visit(BinaryLogicOperator condition) {
         condition.getLeft().accept(this);
         condition.getRight().accept(this);
