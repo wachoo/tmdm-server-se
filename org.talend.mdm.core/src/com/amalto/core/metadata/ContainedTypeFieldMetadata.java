@@ -36,6 +36,8 @@ public class ContainedTypeFieldMetadata extends AbstractMetadataExtensible imple
 
     private boolean isFrozen;
 
+    private int cachedHashCode;
+
     public ContainedTypeFieldMetadata(ComplexTypeMetadata containingType, boolean isMany, boolean isMandatory, String name, ContainedComplexTypeMetadata fieldType, List<String> allowWriteUsers, List<String> hideUsers) {
         if (fieldType == null) {
             throw new IllegalArgumentException("Contained type cannot be null.");
@@ -161,6 +163,9 @@ public class ContainedTypeFieldMetadata extends AbstractMetadataExtensible imple
 
     @Override
     public int hashCode() {
+        if (isFrozen && cachedHashCode > 0) {
+            return cachedHashCode;
+        }
         int result = (isMany ? 1 : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (allowWriteUsers != null ? allowWriteUsers.hashCode() : 0);
@@ -169,6 +174,7 @@ public class ContainedTypeFieldMetadata extends AbstractMetadataExtensible imple
         result = 31 * result + (containingType != null ? containingType.hashCode() : 0);
         result = 31 * result + (fieldType != null ? fieldType.hashCode() : 0);
         result = 31 * result + (isMandatory ? 1 : 0);
+        cachedHashCode = result;
         return result;
     }
 }

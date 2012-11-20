@@ -43,6 +43,8 @@ public class ReferenceFieldMetadata extends AbstractMetadataExtensible implement
 
     private boolean isFrozen;
 
+    private int cachedHashCode;
+
     public ReferenceFieldMetadata(ComplexTypeMetadata containingType,
                                   boolean isKey,
                                   boolean isMany,
@@ -223,6 +225,9 @@ public class ReferenceFieldMetadata extends AbstractMetadataExtensible implement
 
     @Override
     public int hashCode() {
+        if (isFrozen && cachedHashCode > 0) {
+            return cachedHashCode;
+        }
         int result = (isKey ? 1 : 0);
         result = 31 * result + (isMany ? 1 : 0);
         result = 31 * result + (foreignKeyInfo != null ? foreignKeyInfo.hashCode() : 0);
@@ -232,6 +237,7 @@ public class ReferenceFieldMetadata extends AbstractMetadataExtensible implement
         result = 31 * result + (isFKIntegrity ? 1 : 0);
         result = 31 * result + (isMandatory ? 1 : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
+        cachedHashCode = result;
         return result;
     }
 }

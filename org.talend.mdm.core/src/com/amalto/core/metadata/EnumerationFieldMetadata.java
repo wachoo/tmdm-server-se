@@ -38,6 +38,8 @@ public class EnumerationFieldMetadata extends AbstractMetadataExtensible impleme
 
     private boolean isFrozen;
 
+    private int cachedHashCode;
+
     public EnumerationFieldMetadata(ComplexTypeMetadata containingType,
                                     boolean isKey,
                                     boolean isMany, boolean isMandatory, String name,
@@ -166,6 +168,9 @@ public class EnumerationFieldMetadata extends AbstractMetadataExtensible impleme
 
     @Override
     public int hashCode() {
+        if (isFrozen && cachedHashCode > 0) {
+            return cachedHashCode;
+        }
         int result = (isKey ? 1 : 0);
         result = 31 * result + (fieldType != null ? fieldType.hashCode() : 0);
         result = 31 * result + (allowWriteUsers != null ? allowWriteUsers.hashCode() : 0);
@@ -175,6 +180,7 @@ public class EnumerationFieldMetadata extends AbstractMetadataExtensible impleme
         result = 31 * result + (isMandatory ? 1 : 0);
         result = 31 * result + (containingType != null ? containingType.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
+        cachedHashCode = result;
         return result;
     }
 }

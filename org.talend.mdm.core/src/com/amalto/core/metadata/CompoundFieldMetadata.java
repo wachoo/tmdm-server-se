@@ -21,6 +21,8 @@ public class CompoundFieldMetadata extends AbstractMetadataExtensible implements
 
     private boolean isFrozen;
 
+    private int cachedHashCode;
+
     public CompoundFieldMetadata(FieldMetadata... fields) {
         this.fields = fields;
     }
@@ -135,6 +137,11 @@ public class CompoundFieldMetadata extends AbstractMetadataExtensible implements
 
     @Override
     public int hashCode() {
-        return fields != null ? Arrays.hashCode(fields) : 0;
+        if (isFrozen && cachedHashCode > 0) {
+            return cachedHashCode;
+        }
+        int result = fields != null ? Arrays.hashCode(fields) : 0;
+        cachedHashCode = result;
+        return result;
     }
 }

@@ -38,6 +38,8 @@ public class SimpleTypeFieldMetadata extends AbstractMetadataExtensible implemen
 
     private boolean isFrozen;
 
+    private int cachedHashCode;
+
     public SimpleTypeFieldMetadata(ComplexTypeMetadata containingType, boolean isKey, boolean isMany, boolean isMandatory, String name, TypeMetadata fieldType, List<String> allowWriteUsers, List<String> hideUsers) {
         if (fieldType == null) {
             throw new IllegalArgumentException("Field type cannot be null.");
@@ -171,6 +173,9 @@ public class SimpleTypeFieldMetadata extends AbstractMetadataExtensible implemen
 
     @Override
     public int hashCode() {
+        if (isFrozen && cachedHashCode > 0) {
+            return cachedHashCode;
+        }
         int result = (isMany ? 1 : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (declaringType != null ? declaringType.getName().hashCode() : 0);
@@ -179,6 +184,7 @@ public class SimpleTypeFieldMetadata extends AbstractMetadataExtensible implemen
         result = 31 * result + (hideUsers != null ? hideUsers.hashCode() : 0);
         result = 31 * result + (isKey ? 1 : 0);
         result = 31 * result + (isMandatory ? 1 : 0);
+        cachedHashCode = result;
         return result;
     }
 
