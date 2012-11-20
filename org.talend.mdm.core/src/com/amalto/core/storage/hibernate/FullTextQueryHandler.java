@@ -236,16 +236,20 @@ class FullTextQueryHandler extends AbstractQueryHandler {
 
     private static Object getReferencedId(DataRecord next, ReferenceFieldMetadata field) {
         DataRecord record = (DataRecord) next.get(field);
-        List<FieldMetadata> keyFields = record.getType().getKeyFields();
-        if (keyFields.size() == 1) {
-            return record.get(keyFields.get(0));
-        } else {
-            List<Object> compositeKeyValues = new ArrayList<Object>(keyFields.size());
-            for (FieldMetadata keyField : keyFields) {
-                compositeKeyValues.add(record.get(keyField));
+        if (record != null){
+            List<FieldMetadata> keyFields = record.getType().getKeyFields();
+            if (keyFields.size() == 1) {
+                return record.get(keyFields.get(0));
+            } else {
+                List<Object> compositeKeyValues = new ArrayList<Object>(keyFields.size());
+                for (FieldMetadata keyField : keyFields) {
+                    compositeKeyValues.add(record.get(keyField));
+                }
+                return compositeKeyValues;
             }
-            return compositeKeyValues;
-        }
+        }else{
+            return StringUtils.EMPTY;
+        }        
     }
 
     @Override
