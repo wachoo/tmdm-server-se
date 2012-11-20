@@ -46,6 +46,8 @@ public class JULLog4jHandler extends Handler {
         case org.apache.log4j.Level.ALL_INT:
             return Level.ALL;
         case org.apache.log4j.Level.DEBUG_INT:
+            return Level.FINE;
+        case org.apache.log4j.Level.TRACE_INT:
             return Level.FINEST;
         case org.apache.log4j.Level.ERROR_INT:
         case org.apache.log4j.Level.FATAL_INT:
