@@ -21,6 +21,8 @@ public interface Webapp {
     public int getTaskMsg();
     
     public boolean isExpired() throws Exception;
+
+    public boolean isExpired(String language) throws Exception;
     
     public boolean isShowMsg() throws Exception;
 
