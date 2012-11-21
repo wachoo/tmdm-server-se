@@ -13,15 +13,7 @@
 
 package com.amalto.core.query;
 
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.query.user.OrderBy;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.storage.FullTextResultsWriter;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.hibernate.HibernateStorage;
-import com.amalto.core.storage.record.*;
-import org.apache.log4j.Logger;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
@@ -29,7 +21,20 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import org.apache.log4j.Logger;
+
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.storage.FullTextResultsWriter;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.hibernate.HibernateStorage;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.core.storage.record.ViewSearchResultsWriter;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
 
 @SuppressWarnings("nls")
 public class StorageFullTextTest extends StorageTestCase {
@@ -77,7 +82,14 @@ public class StorageFullTextTest extends StorageTestCase {
                                 repository,
                                 country,
                                 "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
-
+        allRecords.add(factory.read(1, repository, product, "<Product>\n" + "    <Id>1</Id>\n"
+                + "    <Name>talend</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
+                + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
+                + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
+                + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
+                + "    </Features>\n" + "    <Status>Pending</Status>\n"
+                + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
         try {
             storage.begin();
             storage.update(allRecords);
@@ -289,6 +301,19 @@ public class StorageFullTextTest extends StorageTestCase {
             }
         } finally {
             storage.close();
+        }
+    }
+    
+    public void testSimpleWithoutFkValueSearch() throws Exception {        
+        UserQueryBuilder qb = from(product).select(product.getField("Family")).where(fullText("talend")).limit(20);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            for (DataRecord result : results) {
+                LOG.info("result = " + result);
+            }
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
         }
     }
 }
