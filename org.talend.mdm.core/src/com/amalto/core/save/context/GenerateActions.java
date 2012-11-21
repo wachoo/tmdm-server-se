@@ -50,7 +50,7 @@ class GenerateActions implements DocumentSaver {
         } else {
             source = StringUtils.EMPTY;
         }
-        Date date = new Date(System.currentTimeMillis());
+        Date date = new Date(System.nanoTime()); // Use nano time to get better precision in case of stress situations.
         SaverSource saverSource = session.getSaverSource();
         String userName = saverSource.getUserName();
 
@@ -77,14 +77,13 @@ class GenerateActions implements DocumentSaver {
             Map<String,String> idValueMap = createActions.getIdValueMap();
 
             List<FieldMetadata> keys = type.getKeyFields();
-            for (int i=0;i<keys.size();i++){
-                FieldMetadata fieldMetadata = keys.get(i);
-                if (idValueMap.get(fieldMetadata.getName()) != null){
+            // This guarantees key values are in correct order with key fields (for cases where ID is
+            // composed of mixed AUTO_INCREMENT and user fields).
+            for (FieldMetadata fieldMetadata : keys) {
+                if (idValueMap.get(fieldMetadata.getName()) != null) {
                     idValues.add(idValueMap.get(fieldMetadata.getName()));
                 }
             }
-            // TODO This does not guarantee key values are in correct order with key fields (for cases where ID is
-            // composed of mixed AUTO_INCREMENT and user fields).
             // Join ids read from XML document and generated ID values.
             String[] joinIds = new String[context.getId().length + idValues.size()];
             System.arraycopy(context.getId(), 0, joinIds, 0, context.getId().length);
