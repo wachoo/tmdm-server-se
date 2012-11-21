@@ -1114,6 +1114,14 @@ public class ItemDetailToolBar extends ToolBar {
 
     class ToolBarExLayout extends ToolBarLayout {
 
+        protected void onComponentShow(Component component) {
+            if (component.isRendered()) {
+                if (component.el().getParent() != null) {
+                    component.el().getParent().removeStyleName(component.getHideMode().value());
+                }
+            }
+        }
+
         protected void initMore() {
             if (more == null) {
                 moreMenu = new MenuEx();
