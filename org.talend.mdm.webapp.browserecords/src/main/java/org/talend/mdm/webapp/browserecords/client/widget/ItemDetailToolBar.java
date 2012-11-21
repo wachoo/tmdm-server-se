@@ -798,6 +798,7 @@ public class ItemDetailToolBar extends ToolBar {
         addGeneratedViewButton();
         addSeparator();
         addSmartViewCombo();
+        addDeleteMenu();
         addSeparator();
         addPrintButton();
         addSeparator();
