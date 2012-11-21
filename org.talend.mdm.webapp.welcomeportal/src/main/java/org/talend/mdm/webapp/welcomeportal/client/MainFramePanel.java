@@ -68,7 +68,7 @@ public class MainFramePanel extends Portal {
     }
 
     private void itemClick(final String context, final String application) {
-        service.isExpired(new SessionAwareAsyncCallback<Boolean>() {
+        service.isExpired(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
 
             public void onSuccess(Boolean result) {
                 initUI(context, application);
@@ -344,7 +344,7 @@ public class MainFramePanel extends Portal {
                         processHtml.addClickHandler(new ClickHandler() {
 
                             public void onClick(ClickEvent arg0) {
-                                service.isExpired(new SessionAwareAsyncCallback<Boolean>() {
+                                service.isExpired(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
 
                                     public void onSuccess(Boolean result) {
                                         final MessageBox box = MessageBox.wait(null, MessagesFactory.getMessages().waiting_msg(),
@@ -459,12 +459,12 @@ public class MainFramePanel extends Portal {
     }
 
     private native void openWindow(String url)/*-{
-        window.open(url);
+		window.open(url);
     }-*/;
 
     private native void initUI(String context, String application)/*-{
-        $wnd.setTimeout(function(){
-        $wnd.amalto[context][application].init();
-        }, 50);
+		$wnd.setTimeout(function() {
+			$wnd.amalto[context][application].init();
+		}, 50);
     }-*/;
 }

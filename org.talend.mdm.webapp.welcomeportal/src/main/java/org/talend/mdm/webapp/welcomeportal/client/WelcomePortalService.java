@@ -37,7 +37,7 @@ public interface WelcomePortalService extends RemoteService {
 
     public String runProcess(String transformerPK) throws ServiceException;
 
-    public boolean isExpired() throws ServiceException;
+    public boolean isExpired(String language) throws ServiceException;
 
     boolean isEnterpriseVersion() throws ServiceException;
 
