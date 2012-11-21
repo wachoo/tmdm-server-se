@@ -25,6 +25,10 @@ public class WebappImpl implements Webapp {
     }
 
     public boolean isExpired() throws Exception {
+        return isExpired(null);
+    }
+
+    public boolean isExpired(String language) throws Exception {
         return false;
     }
 
