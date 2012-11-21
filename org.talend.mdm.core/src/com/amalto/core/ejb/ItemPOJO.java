@@ -379,11 +379,9 @@ public class ItemPOJO implements Serializable {
         try {
             // retrieve the item
             String urlid = getFilename(itemPOJOPK);
-            String item = null;
             ItemCacheKey key = new ItemCacheKey(revisionID, urlid, itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
 
-            item = cachedPojo.get(key);
-            item = null;
+            String item = cachedPojo.get(key);
             if (item == null) {
                 item = server.getDocumentAsString(revisionID, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), urlid);
                 if (item != null)
