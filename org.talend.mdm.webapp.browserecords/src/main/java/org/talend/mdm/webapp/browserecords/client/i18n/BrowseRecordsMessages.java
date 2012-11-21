@@ -267,6 +267,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String save_close_tip();
 
+    String delete_tip();
+
     String upload_title();
     
     String export_title();

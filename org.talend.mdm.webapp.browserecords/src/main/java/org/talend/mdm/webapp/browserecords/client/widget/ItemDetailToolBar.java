@@ -370,6 +370,7 @@ public class ItemDetailToolBar extends ToolBar {
         if (deleteButton == null) {
             deleteButton = new Button(MessagesFactory.getMessages().delete_btn());
             deleteButton.setId("deleteButton"); //$NON-NLS-1$
+            deleteButton.setToolTip(MessagesFactory.getMessages().delete_tip());
             deleteButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
 
             deleteMenu = new Menu();
@@ -1233,7 +1234,9 @@ public class ItemDetailToolBar extends ToolBar {
                     menuText = b.getToolTip().getToolTipConfig() == null ? "" : b.getToolTip().getToolTipConfig().getText(); //$NON-NLS-1$
                 }
                 MenuItem item = new MenuItem(menuText, b.getIcon());
-                item.setToolTip(b.getToolTip().getToolTipConfig());
+                if (b.getToolTip() != null) {
+                    item.setToolTip(b.getToolTip().getToolTipConfig());
+                }
                 item.setItemId(c.getItemId());
                 if (b.getMenu() != null) {
                     item.setHideOnClick(false);
