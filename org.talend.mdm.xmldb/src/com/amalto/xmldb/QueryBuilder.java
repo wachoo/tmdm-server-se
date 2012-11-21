@@ -14,6 +14,7 @@ package com.amalto.xmldb;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -424,7 +425,8 @@ public abstract class QueryBuilder {
                     double doubleValue = Double.parseDouble(rightValue);
                     // if the value is 123.0, cut the float value to 123
                     if (doubleValue - Math.floor(doubleValue) == 0) {
-                        parsedValue = String.valueOf((int) doubleValue);
+                        DecimalFormat df = new DecimalFormat("#"); //$NON-NLS-1$
+                        parsedValue = df.format(doubleValue);
                     } else {
                         parsedValue = String.valueOf(doubleValue);
                     }

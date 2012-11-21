@@ -371,6 +371,18 @@ public class QueryBuilderTest extends TestCase {
         actual = queryBuilder.buildPKsByCriteriaQuery(criteria);
         assertEquals(expected, actual);
     }
+    
+    public void testQueryBuildWhereCondition() throws Exception {
+        LinkedHashMap<String, String> pivots = new LinkedHashMap<String, String>();
+        pivots.put("$pivot0", "Update");
+        WhereCondition whereCond = new WhereCondition("Update/Key", WhereCondition.CONTAINS, "5000000001", null,
+                false);
+        Map<String, ArrayList<String>> metaDataTypes = null;
+
+        String expected = " matches($pivot0/Key, \"5000000001.*\" ,\"i\") ";
+        String actual = queryBuilder.buildWhereCondition(whereCond, pivots, metaDataTypes);
+        assertEquals(expected, actual);
+    }
 
     private static class TestQueryBuilder extends QueryBuilder {
 
