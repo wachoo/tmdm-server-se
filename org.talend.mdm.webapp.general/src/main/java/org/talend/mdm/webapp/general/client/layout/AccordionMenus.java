@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
@@ -202,7 +203,7 @@ public class AccordionMenus extends ContentPanel {
                 return;
             }
             if (!menuBean.getContext().toLowerCase().equals("licensemanager")) //$NON-NLS-1$
-                service.isExpired(new SessionAwareAsyncCallback<Boolean>() {
+                service.isExpired(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
 
                     public void onSuccess(Boolean result) {
                         if (!result) {

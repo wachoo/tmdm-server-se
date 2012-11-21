@@ -228,9 +228,9 @@ public class GeneralAction implements GeneralService {
         }
     }
 
-    public boolean isExpired() throws ServiceException {
+    public boolean isExpired(String language) throws ServiceException {
         try {
-            return Webapp.INSTANCE.isExpired();
+            return Webapp.INSTANCE.isExpired(language);
         } catch (Exception e) {
             LOG.error(e.getMessage());
             throw new ServiceException(e.getLocalizedMessage());
