@@ -137,25 +137,33 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     @Override
     public AbstractQueryHandler visit(Alias alias) {
-        selectedFields.add(alias);
+        if (isCheckingProjection) {
+            selectedFields.add(alias);
+        }
         return null;
     }
 
     @Override
     public AbstractQueryHandler visit(Timestamp timestamp) {
-        selectedFields.add(timestamp);
+        if (isCheckingProjection) {
+            selectedFields.add(timestamp);
+        }
         return null;
     }
 
     @Override
     public AbstractQueryHandler visit(TaskId taskId) {
-        selectedFields.add(taskId);
+        if (isCheckingProjection) {
+            selectedFields.add(taskId);
+        }
         return null;
     }
 
     @Override
     public AbstractQueryHandler visit(Type type) {
-        selectedFields.add(type);
+        if (isCheckingProjection) {
+            selectedFields.add(type);
+        }
         return null;
     }
 
@@ -197,18 +205,15 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
     }
 
     @Override
-    public AbstractQueryHandler visit(Revision revision) {
-        return null;
-    }
-
-    @Override
     public AbstractQueryHandler visit(Condition condition) {
         return null;
     }
 
     @Override
     public AbstractQueryHandler visit(Count count) {
-        selectedFields.add(count);
+        if (isCheckingProjection) {
+            selectedFields.add(count);
+        }
         return null;
     }
 
@@ -241,8 +246,9 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
                     }
                 }
             } // TODO Support compound key field.
+        } else {
+            selectedFields.add(field);
         }
-        selectedFields.add(field);
         return null;
     }
 }

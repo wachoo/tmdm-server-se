@@ -75,7 +75,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         CloseableIterator<DataRecord> iterator;
         Iterator listIterator = list.iterator();
         if (isProjection) {
-            iterator = new ProjectionIterator(listIterator, selectedFields, callbacks);
+            iterator = new ProjectionIterator(listIterator, selectedFields, callbacks, mappingMetadataRepository);
         } else {
             iterator = new ListIterator(mappingMetadataRepository,
                     storageClassLoader,
@@ -89,7 +89,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
     private StorageResults createResults(ScrollableResults scrollableResults, boolean isProjection) {
         CloseableIterator<DataRecord> iterator;
         if (isProjection) {
-            iterator = new ProjectionIterator(scrollableResults, selectedFields, callbacks);
+            iterator = new ProjectionIterator(scrollableResults, selectedFields, callbacks, mappingMetadataRepository);
         } else {
             iterator = new ScrollableIterator(mappingMetadataRepository,
                     storageClassLoader,
@@ -203,12 +203,6 @@ class StandardQueryHandler extends AbstractQueryHandler {
         } else {
             throw new IllegalStateException("Expected an alias for a constant expression.");
         }
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Revision revision) {
-        projectionList.add(new ConstantStringProjection(currentAliasName, select.getRevisionId()));
         return null;
     }
 
@@ -867,11 +861,6 @@ class StandardQueryHandler extends AbstractQueryHandler {
             condition.isMany = false;
             condition.criterionFieldName = StringUtils.EMPTY;
             return condition;
-        }
-
-        @Override
-        public FieldCondition visit(Revision revision) {
-            return createConstantCondition();
         }
 
         @Override
