@@ -27,6 +27,7 @@ import com.amalto.webapp.util.webservices.WSWhereAnd;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSWhereOperator;
+import com.amalto.webapp.util.webservices.WSWhereOr;
 
 @SuppressWarnings("nls")
 public class CommonUtilTest extends TestCase {
@@ -53,7 +54,7 @@ public class CommonUtilTest extends TestCase {
         String inputString = "Agency/Id EQUALS *";
         WSWhereItem wi = CommonUtil.buildWhereItem(inputString);
         assertNotNull(wi);
-        WSWhereAnd wa = wi.getWhereAnd();
+        WSWhereOr wa = wi.getWhereOr();
         assertNotNull(wa);
         WSWhereItem[] wis = wa.getWhereItems();
         assertNotNull(wis);
@@ -70,7 +71,7 @@ public class CommonUtilTest extends TestCase {
         Criteria input = new SimpleCriterion("Agent/Id", "EQUALS", "*");
         WSWhereItem wi = CommonUtil.buildWhereItemsByCriteria(input);
         assertNotNull(wi);
-        WSWhereAnd wa = wi.getWhereAnd();
+        WSWhereOr wa = wi.getWhereOr();
         assertNotNull(wa);
         WSWhereItem[] wis = wa.getWhereItems();
         assertNotNull(wis);
@@ -85,7 +86,7 @@ public class CommonUtilTest extends TestCase {
         Criteria input2 = new SimpleCriterion("Agentsss../Id", "EQUALS", "*");
         WSWhereItem wi2 = CommonUtil.buildWhereItemsByCriteria(input2);
         assertNotNull(wi2);
-        WSWhereAnd wa2 = wi2.getWhereAnd();
+        WSWhereOr wa2 = wi2.getWhereOr();
         assertNotNull(wa2);
         WSWhereItem[] wis2 = wa2.getWhereItems();
         assertNotNull(wis2);
@@ -103,7 +104,7 @@ public class CommonUtilTest extends TestCase {
             WSWhereItem wsWhereItem = CommonUtil.buildWhereItems(criteria);
 
             assertNotNull(wsWhereItem);
-            WSWhereAnd whereAnd = wsWhereItem.getWhereAnd();
+            WSWhereOr whereAnd = wsWhereItem.getWhereOr();
             assertNotNull(whereAnd);
             assertEquals(1, whereAnd.getWhereItems().length);
             WSWhereItem whereItem = whereAnd.getWhereItems()[0];
@@ -126,7 +127,7 @@ public class CommonUtilTest extends TestCase {
             WSWhereItem wsWhereItem = CommonUtil.buildWhereItems(criteria);
 
             assertNotNull(wsWhereItem);
-            WSWhereAnd whereAnd = wsWhereItem.getWhereAnd();
+            WSWhereOr whereAnd = wsWhereItem.getWhereOr();
             assertNotNull(whereAnd);
             assertEquals(1, whereAnd.getWhereItems().length);
             WSWhereItem whereItem = whereAnd.getWhereItems()[0];
@@ -148,7 +149,7 @@ public class CommonUtilTest extends TestCase {
         WSWhereItem wsWhereItem = CommonUtil.buildWhereItems(criteria);
 
         assertNotNull(wsWhereItem);
-        WSWhereAnd whereAnd = wsWhereItem.getWhereAnd();
+        WSWhereOr whereAnd = wsWhereItem.getWhereOr();
         assertNotNull(whereAnd);
         assertEquals(1, whereAnd.getWhereItems().length);
         WSWhereItem whereItem = whereAnd.getWhereItems()[0];
@@ -173,7 +174,7 @@ public class CommonUtilTest extends TestCase {
         {
             WSWhereItem whereItem = whereAnd.getWhereItems()[0];
             assertNotNull(whereItem);
-            WSWhereAnd nestedAnd = whereItem.getWhereAnd();
+            WSWhereOr nestedAnd = whereItem.getWhereOr();
             assertNotNull(nestedAnd);
             WSWhereCondition condition = nestedAnd.getWhereItems()[0].getWhereCondition();
             assertNotNull(condition);
@@ -186,7 +187,7 @@ public class CommonUtilTest extends TestCase {
         {
             WSWhereItem whereItem = whereAnd.getWhereItems()[1];
             assertNotNull(whereItem);
-            WSWhereAnd nestedAnd = whereItem.getWhereAnd();
+            WSWhereOr nestedAnd = whereItem.getWhereOr();
             assertNotNull(nestedAnd);
             WSWhereCondition condition = nestedAnd.getWhereItems()[0].getWhereCondition();
             assertNotNull(condition);
@@ -209,7 +210,7 @@ public class CommonUtilTest extends TestCase {
         {
             WSWhereItem whereItem = whereAnd.getWhereItems()[0];
             assertNotNull(whereItem);
-            WSWhereAnd nestedAnd = whereItem.getWhereAnd();
+            WSWhereOr nestedAnd = whereItem.getWhereOr();
             assertNotNull(nestedAnd);
             WSWhereCondition condition = nestedAnd.getWhereItems()[0].getWhereCondition();
             assertNotNull(condition);
@@ -222,7 +223,7 @@ public class CommonUtilTest extends TestCase {
         {
             WSWhereItem whereItem = whereAnd.getWhereItems()[1];
             assertNotNull(whereItem);
-            WSWhereAnd nestedAnd = whereItem.getWhereAnd();
+            WSWhereOr nestedAnd = whereItem.getWhereOr();
             assertNotNull(nestedAnd);
             WSWhereCondition condition = nestedAnd.getWhereItems()[0].getWhereCondition();
             assertNotNull(condition);
@@ -239,7 +240,7 @@ public class CommonUtilTest extends TestCase {
         WSWhereItem wsWhereItem = CommonUtil.buildWhereItems(criteria);
 
         assertNotNull(wsWhereItem);
-        WSWhereAnd whereAnd = wsWhereItem.getWhereAnd();
+        WSWhereOr whereAnd = wsWhereItem.getWhereOr();
         assertNotNull(whereAnd);
         assertEquals(1, whereAnd.getWhereItems().length);
         {

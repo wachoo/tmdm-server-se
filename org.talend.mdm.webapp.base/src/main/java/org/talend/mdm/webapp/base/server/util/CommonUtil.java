@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.base.server.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
@@ -22,6 +23,7 @@ import org.talend.mdm.webapp.base.client.util.Parser;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.mockup.FakeData;
 
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
@@ -157,7 +159,7 @@ public class CommonUtil {
             }
         }
 
-        if (filterXpaths == null || filterXpaths.trim().equals("")) {
+        if (filterXpaths == null || filterXpaths.trim().equals("")) { //$NON-NLS-1$
             return null;
         }
 
@@ -167,18 +169,23 @@ public class CommonUtil {
         WSWhereItem item = new WSWhereItem(wc, null, null);
         conditions.add(item);
 
-        // FIXME: This is a workaround for boolean criteria
-        if (filterValues != null && filterValues.equals("false")) {//$NON-NLS-1$ 
-            wc.setStringPredicate(WSStringPredicate.OR);
-            conditions.add(new WSWhereItem(new WSWhereCondition(filterXpaths, Util.getOperator("EMPTY_NULL"),//$NON-NLS-1$ 
-                    filterValues, WSStringPredicate.NONE, false), null, null));
+        if (filterValues != null && filterValues.equals("false")) {//$NON-NLS-1$
+            String concept = filterXpaths.indexOf("/") != -1 ? filterXpaths.substring(0, filterXpaths.indexOf("/")) : filterXpaths; //$NON-NLS-1$ //$NON-NLS-2$
+            BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(concept);
+            businessConcept.load();
+            String type = businessConcept.getXpathTypeMap().get(filterXpaths);
+            if(type != null && type.equals("xsd:boolean")) { //$NON-NLS-1$
+                wc.setStringPredicate(WSStringPredicate.OR);
+                conditions.add(new WSWhereItem(new WSWhereCondition(filterXpaths, Util.getOperator("EMPTY_NULL"),//$NON-NLS-1$ 
+                        filterValues, WSStringPredicate.NONE, false), null, null));
+            }        
         }
 
         if (conditions.size() == 0) {
             wi = null;
         } else {
-            WSWhereAnd and = new WSWhereAnd(conditions.toArray(new WSWhereItem[conditions.size()]));
-            wi = new WSWhereItem(null, and, null);
+            WSWhereOr or = new WSWhereOr(conditions.toArray(new WSWhereItem[conditions.size()]));
+            wi = new WSWhereItem(null, null, or);
         }
 
         return wi;
