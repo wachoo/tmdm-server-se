@@ -32,8 +32,6 @@ public interface Visitor<T> {
 
     T visit(Timestamp timestamp);
 
-    T visit(Revision revision);
-
     T visit(TaskId taskId);
 
     T visit(Type type);

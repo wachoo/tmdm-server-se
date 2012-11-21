@@ -208,11 +208,6 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         return null;
     }
 
-    public Void visit(Revision revision) {
-        print("[Technical field: REVISION]");
-        return null;
-    }
-
     public Void visit(TaskId taskId) {
         print("[Technical field: TASK_ID]");
         return null;

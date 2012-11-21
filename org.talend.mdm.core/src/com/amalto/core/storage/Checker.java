@@ -73,11 +73,6 @@ class Checker extends VisitorAdapter<Boolean> {
     }
 
     @Override
-    public Boolean visit(Revision revision) {
-        return true;
-    }
-
-    @Override
     public Boolean visit(TaskId taskId) {
         return true;
     }

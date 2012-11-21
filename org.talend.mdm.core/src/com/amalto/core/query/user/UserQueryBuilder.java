@@ -301,10 +301,6 @@ public class UserQueryBuilder {
         return Timestamp.INSTANCE;
     }
 
-    public static TypedExpression revision() {
-        return Revision.INSTANCE;
-    }
-
     public static TypedExpression taskId() {
         return TaskId.INSTANCE;
     }

@@ -36,10 +36,6 @@ public class VisitorAdapter<T> implements Visitor<T> {
         throw new NotImplementedException();
     }
 
-    public T visit(Revision revision) {
-        throw new NotImplementedException();
-    }
-
     public T visit(TaskId taskId) {
         throw new NotImplementedException();
     }

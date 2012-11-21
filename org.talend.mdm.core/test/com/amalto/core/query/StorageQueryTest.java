@@ -27,7 +27,6 @@ import static com.amalto.core.query.user.UserQueryBuilder.lte;
 import static com.amalto.core.query.user.UserQueryBuilder.neq;
 import static com.amalto.core.query.user.UserQueryBuilder.not;
 import static com.amalto.core.query.user.UserQueryBuilder.or;
-import static com.amalto.core.query.user.UserQueryBuilder.revision;
 import static com.amalto.core.query.user.UserQueryBuilder.startsWith;
 import static com.amalto.core.query.user.UserQueryBuilder.taskId;
 import static com.amalto.core.query.user.UserQueryBuilder.timestamp;
@@ -1048,21 +1047,6 @@ public class StorageQueryTest extends StorageTestCase {
             for (DataRecord result : results) {
                 assertNotNull(result.get("timestamp"));
                 assertNull(result.get("taskid"));
-            }
-        } finally {
-            results.close();
-        }
-    }
-
-    public void testRevision() throws Exception {
-        UserQueryBuilder qb = from(person).select(alias(revision(), "revision")).selectId(person).where(gte(revision(), "1"))
-                .limit(20).start(0);
-
-        StorageResults results = storage.fetch(qb.getSelect());
-        try {
-            assertEquals(3, results.getCount());
-            for (DataRecord result : results) {
-                assertNotNull(result.get("revision"));
             }
         } finally {
             results.close();

@@ -109,10 +109,6 @@ public class QizxQueryModelConverter implements Visitor<Expression> {
         throw new NotImplementedException();
     }
 
-    public Expression visit(Revision revision) {
-        throw new NotImplementedException();
-    }
-
     public Expression visit(TaskId taskId) {
         throw new NotImplementedException();
     }

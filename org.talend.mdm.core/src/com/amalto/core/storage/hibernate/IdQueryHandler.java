@@ -156,11 +156,6 @@ class IdQueryHandler extends AbstractQueryHandler {
     }
 
     @Override
-    public StorageResults visit(Revision revision) {
-        return null;
-    }
-
-    @Override
     public StorageResults visit(TaskId taskId) {
         return null;
     }
@@ -255,12 +250,6 @@ class IdQueryHandler extends AbstractQueryHandler {
         @Override
         public Void visit(Timestamp timestamp) {
             nextRecord.getRecordMetadata().setLastModificationTime(next.getRecordMetadata().getLastModificationTime());
-            return null;
-        }
-
-        @Override
-        public Void visit(Revision revision) {
-            nextRecord.setRevisionId(next.getRevisionId());
             return null;
         }
 
