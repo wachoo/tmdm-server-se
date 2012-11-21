@@ -81,7 +81,10 @@ public class UserQueryHelper {
             // Field comparisons
             if (!whereCondition.isRightValueXPath()) { // Value based comparison
                 if (isPerformingTypeCheck) {
-                    TypeMetadata typeForCheck = repository.getNonInstantiableType("", value); //$NON-NLS-1$
+                    TypeMetadata typeForCheck = repository.getNonInstantiableType(repository.getUserNamespace(), value);
+                    if (typeForCheck == null) {
+                        throw new IllegalArgumentException("Type '" + value + "' was not found.");
+                    }
                     if (!(typeForCheck instanceof ComplexTypeMetadata)) {
                         throw new IllegalArgumentException("Expected type '" + value + "' to be a complex type.");
                     }
