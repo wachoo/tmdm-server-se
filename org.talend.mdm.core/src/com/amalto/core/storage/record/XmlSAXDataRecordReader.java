@@ -123,7 +123,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
                     ComplexTypeMetadata actualType = ((ContainedTypeFieldMetadata) field).getContainedType();
                     String xsiType = attributes.getValue(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
                     if (xsiType != null) {
-                        actualType = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, xsiType);
+                        actualType = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), xsiType);
                     }
                     DataRecord containedRecord = new DataRecord(actualType, UnsupportedDataRecordMetadata.INSTANCE);
                     dataRecordStack.peek().set(field, containedRecord);

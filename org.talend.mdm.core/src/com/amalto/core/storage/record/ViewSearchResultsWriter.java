@@ -48,13 +48,10 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
     }
 
     private void processValue(Writer out, FieldMetadata fieldMetadata, Object value) throws IOException {
-
         if (value == null) {
             throw new IllegalArgumentException("Not supposed to write null values to XML."); //$NON-NLS-1$
         }
-
         String stringValue;
-
         if ("date".equals(fieldMetadata.getType().getName())) { //$NON-NLS-1$
             synchronized (DateConstant.DATE_FORMAT) {
                 stringValue = (DateConstant.DATE_FORMAT).format(value);
@@ -76,7 +73,6 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
         }else {
             stringValue = String.valueOf(value);
         }
-
         if (fieldMetadata instanceof ReferenceFieldMetadata) {
             if (value instanceof DataRecord) {
                 DataRecord referencedRecord = (DataRecord) value;
@@ -91,7 +87,6 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
                 }
             }
         }
-
         out.append(StringEscapeUtils.escapeXml(stringValue));
     }
 

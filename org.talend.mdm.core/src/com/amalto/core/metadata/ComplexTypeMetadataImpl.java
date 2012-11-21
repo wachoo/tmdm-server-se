@@ -207,7 +207,7 @@ public class ComplexTypeMetadataImpl extends AbstractMetadataExtensible implemen
                 return registeredCopy;
             }
         } else {
-            registeredCopy = (ComplexTypeMetadata) repository.getNonInstantiableType("", getName());
+            registeredCopy = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), getName());
             if (registeredCopy != null) {
                 return registeredCopy;
             }

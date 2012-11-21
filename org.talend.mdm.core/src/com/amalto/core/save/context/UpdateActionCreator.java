@@ -271,8 +271,8 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 }
 
                 if (!newType.isEmpty()) {
-                    ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, newType);
-                    ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, previousType);
+                    ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), newType);
+                    ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), previousType);
                     // Perform some checks about the xsi:type value (valid or not?).
                     if (newTypeMetadata == null) {
                         throw new IllegalArgumentException("Type '" + newType + "' was not found.");
@@ -314,7 +314,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                     }
 
                     if (!newType.isEmpty()) {
-                        ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, newType);
+                        ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), newType);
                         ComplexTypeMetadata previousTypeMetadata = null;
                         if (newTypeMetadata != null && !newTypeMetadata.isInstantiable()) {
                             ComplexTypeMetadata actualNewTypeMetadata = null;
@@ -337,7 +337,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                                 LOGGER.debug("Replacing type '" + newType + "' with '" + actualNewTypeMetadata.getName() + ".");
                             }
                             newTypeMetadata = actualNewTypeMetadata;
-                            previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, previousType);
+                            previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), previousType);
                         } else if (newTypeMetadata == null) {
                             newTypeMetadata = (ComplexTypeMetadata) repository.getType(newType);
                             previousTypeMetadata = (ComplexTypeMetadata) repository.getType(previousType);
