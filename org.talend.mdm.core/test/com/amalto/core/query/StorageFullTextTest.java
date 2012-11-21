@@ -308,10 +308,10 @@ public class StorageFullTextTest extends StorageTestCase {
         UserQueryBuilder qb = from(product).select(product.getField("Family")).where(fullText("talend")).limit(20);
         StorageResults results = storage.fetch(qb.getSelect());
         try {
-            for (DataRecord result : results) {
-                LOG.info("result = " + result);
-            }
             assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertEquals("", result.get("Family"));
+            }
         } finally {
             results.close();
         }
