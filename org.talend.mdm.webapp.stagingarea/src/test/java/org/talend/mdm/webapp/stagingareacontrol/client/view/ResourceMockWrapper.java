@@ -45,7 +45,7 @@ public class ResourceMockWrapper extends ClientResourceWrapper {
         Response response = new Response(null);
         
         if (method.equals(Method.GET)
-                && uri.matches("^.+/datamanager/services/tasks/staging/TestDataContainer/\\?model=TestDataModel$")) {
+                && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/\\?model=TestDataModel$")) {
 
             StringBuilder sb = new StringBuilder();
             sb.append("<staging> ");
@@ -60,7 +60,7 @@ public class ResourceMockWrapper extends ClientResourceWrapper {
             DomRepresentation representation = new DomRepresentation(MediaType.TEXT_XML, XMLParser.parse(messageXml));
             response.setEntity(representation);
         } else if (method.equals(Method.GET)
-                && uri.matches("^.+/datamanager/services/tasks/staging/TestDataContainer/execs/current$")) {
+                && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/current$")) {
 
             if (runValidationTask) {
                 StringBuilder sb = new StringBuilder();
@@ -82,14 +82,14 @@ public class ResourceMockWrapper extends ClientResourceWrapper {
             }
 
         } else if (method.equals(Method.POST)
-                && uri.matches("^.+/datamanager/services/tasks/staging/TestDataContainer/\\?model=TestDataModel$")) {
+                && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/\\?model=TestDataModel$")) {
             String message = "100b8d26-02d5-49ea-adad-bf56a6057be5";
             StringInputStream stringStream = new StringInputStream(message);
             InputRepresentation representation = new InputRepresentation(stringStream);
             response.setEntity(representation);
             runValidationTask = true;
         } else if (method.equals(Method.DELETE)
-                && uri.matches("^.+/datamanager/services/tasks/staging/TestDataContainer/execs/current$")) {
+                && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/current$")) {
             response.setStatus(Status.SUCCESS_OK);
             runValidationTask = false;
         }
