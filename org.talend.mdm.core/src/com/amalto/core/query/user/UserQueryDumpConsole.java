@@ -169,8 +169,8 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         print("[UNARY LOGIC OPERATOR]");
         increaseIndent();
         {
-            condition.getCondition().accept(this);
             condition.getPredicate().accept(this);
+            condition.getCondition().accept(this);
         }
         decreaseIndent();
         return null;  //To change body of implemented methods use File | Settings | File Templates.
