@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
@@ -30,7 +31,11 @@ import com.amalto.core.save.UserAction;
 
 class GenerateActions implements DocumentSaver {
 
+    private static final int PRECISION = 500;
+
     private final DocumentSaver next;
+
+    private final static AtomicInteger counter = new AtomicInteger();
 
     GenerateActions(DocumentSaver next) {
         this.next = next;
@@ -50,7 +55,7 @@ class GenerateActions implements DocumentSaver {
         } else {
             source = StringUtils.EMPTY;
         }
-        Date date = new Date(System.nanoTime()); // Use nano time to get better precision in case of stress situations.
+        Date date = new Date((System.currentTimeMillis() / PRECISION) + (counter.incrementAndGet() % PRECISION));
         SaverSource saverSource = session.getSaverSource();
         String userName = saverSource.getUserName();
 
