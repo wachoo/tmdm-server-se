@@ -31,7 +31,7 @@ import com.amalto.core.save.UserAction;
 
 class GenerateActions implements DocumentSaver {
 
-    private static final int PRECISION = 500;
+    private static final int PRECISION = 1000;
 
     private final DocumentSaver next;
 
