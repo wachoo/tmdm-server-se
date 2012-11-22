@@ -55,7 +55,7 @@ class GenerateActions implements DocumentSaver {
         } else {
             source = StringUtils.EMPTY;
         }
-        Date date = new Date((System.currentTimeMillis() / PRECISION) + (counter.incrementAndGet() % PRECISION));
+        Date date = new Date((System.currentTimeMillis() - PRECISION) + (counter.incrementAndGet() % PRECISION));
         SaverSource saverSource = session.getSaverSource();
         String userName = saverSource.getUserName();
 
