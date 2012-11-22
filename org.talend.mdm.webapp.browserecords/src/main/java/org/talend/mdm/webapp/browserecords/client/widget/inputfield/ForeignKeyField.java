@@ -186,7 +186,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
                     return;
                 Dispatcher dispatch = Dispatcher.get();
                 AppEvent event = new AppEvent(BrowseRecordsEvents.ViewForeignKey);
-                event.setData("ids", ForeignKeyField.this.getValue().getId().replace("[", "").replace("]", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                event.setData("ids", ForeignKeyField.this.getValue().getId().replaceAll("^\\[|\\]$", "").replace("][", ".")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
                 event.setData("concept", ForeignKeyField.this.foreignKeyName); //$NON-NLS-1$
                 event.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
                 dispatch.dispatch(event);
