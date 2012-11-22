@@ -277,6 +277,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
             @Override
             public Void visit(EnumerationFieldMetadata enumField) {
+                projectionList.add(Projections.property(alias + '.' + enumField.getName()));
                 return null;
             }
         });

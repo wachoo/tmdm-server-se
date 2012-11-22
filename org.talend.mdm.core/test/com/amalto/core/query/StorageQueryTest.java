@@ -1948,4 +1948,16 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
     }
+
+    public void testEnumerationSelect() throws Exception {
+        UserQueryBuilder qb = from(product).select(product.getField("Status"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(2, results.getCount());
+        List<String> expectedStatuses = Arrays.asList("Created", "Removed", "Active", "Pending");
+        for (DataRecord result : results) {
+            assertNotNull(result.get("Status"));
+            assertTrue(expectedStatuses.contains(String.valueOf(result.get("Status"))));
+        }
+    }
 }
