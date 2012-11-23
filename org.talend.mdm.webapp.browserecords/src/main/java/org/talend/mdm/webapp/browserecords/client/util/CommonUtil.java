@@ -446,6 +446,10 @@ public class CommonUtil {
         }
     }
     
+    public static String generateIds(String id){
+        return id.replaceAll("^\\[|\\]$", "").replace("][", "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+    }
+    
     public static CriteriaAndC parseSimpleSearchExpression(char[] s, int c) throws Exception {
         int ce = ++c;
         while (s[++ce] != ')');

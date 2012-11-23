@@ -8,6 +8,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKeyFieldList;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
@@ -186,7 +187,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
                     return;
                 Dispatcher dispatch = Dispatcher.get();
                 AppEvent event = new AppEvent(BrowseRecordsEvents.ViewForeignKey);
-                event.setData("ids", ForeignKeyField.this.getValue().getId().replaceAll("^\\[|\\]$", "").replace("][", ".")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                event.setData("ids", CommonUtil.generateIds(ForeignKeyField.this.getValue().getId())); //$NON-NLS-1$
                 event.setData("concept", ForeignKeyField.this.foreignKeyName); //$NON-NLS-1$
                 event.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
                 dispatch.dispatch(event);

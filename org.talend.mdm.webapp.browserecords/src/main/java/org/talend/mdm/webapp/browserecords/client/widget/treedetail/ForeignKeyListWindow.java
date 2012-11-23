@@ -396,7 +396,7 @@ public class ForeignKeyListWindow extends Window {
             }
         }
         if (columns.size() == 0) {
-            columns.add(new ColumnConfig("i", CommonUtil.getElementFromXpath(typeModel.getXpath()), COLUMN_WIDTH)); //$NON-NLS-1$
+            columns.add(new ColumnConfig("id", CommonUtil.getElementFromXpath(typeModel.getXpath()), COLUMN_WIDTH)); //$NON-NLS-1$
             isDisplayKeyInfo = true;
         }
 

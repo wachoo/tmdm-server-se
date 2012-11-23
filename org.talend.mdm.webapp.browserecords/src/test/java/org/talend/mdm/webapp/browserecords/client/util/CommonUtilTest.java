@@ -413,4 +413,9 @@ public class CommonUtilTest extends TestCase {
         assertEquals("downloadFileHeadName", CommonUtil.getDownloadFileHeadName(typeModel));
 
     }
+    
+    public void testGenerateIds(){
+        String id = "[1][2][3]";
+        assertEquals("1.2.3", CommonUtil.generateIds(id));
+    }
 }
