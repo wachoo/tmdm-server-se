@@ -268,7 +268,7 @@
             <fileset dir="${jboss.deploy.dir}" includes="${war}" />
             <fileset dir="${jboss.bin.dir}" includes="${conf}" />
             <fileset dir="${jboss.bin.dir}" includes="${conf.template}" />
-            <fileset dir="${jboss.bin.dir}" includes="datasources.template" />
+            <fileset dir="${jboss.bin.dir}" includes="datasources.xml.template" />
         </delete>
     </target>
 
@@ -281,7 +281,7 @@
         <copy file="${war}" tofile="${jboss.deploy.dir}/${war}" />
         <copy file="${conf}" tofile="${jboss.bin.dir}/${conf}" />
         <copy file="${conf.template}" tofile="${jboss.bin.dir}/${conf.template}" />
-        <copy file="src/default-datasources.xml" tofile="${jboss.bin.dir}/datasources.template" />
+        <copy file="src/default-datasources.xml" tofile="${jboss.bin.dir}/datasources.xml.template" />
     </target>
 
 </project>
