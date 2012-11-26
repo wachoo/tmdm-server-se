@@ -13,18 +13,22 @@
 
 package com.amalto.core.load.context;
 
-import com.amalto.core.load.Constants;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.Map;
-import java.util.Set;
+import com.amalto.core.load.Constants;
 
 /**
  *
@@ -32,7 +36,10 @@ import java.util.Set;
 public class StateContextSAXWriter implements StateContextWriter {
     private final ContentHandler contentHandler;
 
+    private final boolean escapeCharacters;
+
     public StateContextSAXWriter(ContentHandler contentHandler) {
+        this.escapeCharacters = this.escapeCharacters();
         this.contentHandler = contentHandler;
     }
 
@@ -50,14 +57,13 @@ public class StateContextSAXWriter implements StateContextWriter {
         contentHandler.endElement(getURI(reader), reader.getLocalName(), reader.getName().getLocalPart());
     }
 
-    public void writeCharacters(XMLStreamReader reader) throws XMLStreamException, SAXException {
+    public void writeCharacters(XMLStreamReader reader) throws Exception {
         char[] characters = reader.getTextCharacters();
         int textStart = reader.getTextStart();
-        char[] textCharacters = ArrayUtils.subarray(characters, textStart, textStart + reader.getTextLength());
-        /*
-         * See TMDM-3780 implementation note.
-         */
-        char[] chars = StringEscapeUtils.escapeXml(new String(textCharacters)).toCharArray();
+        char[] chars = ArrayUtils.subarray(characters, textStart, textStart + reader.getTextLength());
+        if (escapeCharacters) {
+            chars = StringEscapeUtils.escapeXml(new String(chars)).toCharArray();
+        }
         contentHandler.characters(chars, 0, chars.length);
     }
 
@@ -88,9 +94,26 @@ public class StateContextSAXWriter implements StateContextWriter {
     }
 
     public void writeCharacters(String characters) throws Exception {
-        // TMDM-3780 Ensures characters are correctly escaped.
-        char[] chars = StringEscapeUtils.escapeXml(characters).toCharArray();
+        char[] chars;
+        if (escapeCharacters) {
+            chars = StringEscapeUtils.escapeXml(characters).toCharArray();
+        } else {
+            chars = characters.toCharArray();
+        }
         contentHandler.characters(chars, 0, chars.length);
+    }
+
+    /**
+     * Using Qizx in server mode , characters must be escaped. See TMDM-4977 & TMDM-3780
+     */
+    private boolean escapeCharacters() {
+        Properties props = MDMConfiguration.getConfiguration();
+        String serverClass = props.getProperty("xmlserver.class"); //$NON-NLS-1$
+        if ("org.talend.mdm.qizx.xmldb.QizxWrapper".equals(serverClass)) { //$NON-NLS-1$
+            String qizxdbType = props.getProperty("qizx.db.type"); //$NON-NLS-1$
+            return "server".equals(qizxdbType); //$NON-NLS-1$
+        }
+        return false;
     }
 
     public void writeEndElement(String elementLocalName) throws Exception {
