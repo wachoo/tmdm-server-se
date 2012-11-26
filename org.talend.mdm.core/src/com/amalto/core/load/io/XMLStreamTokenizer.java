@@ -1,40 +1,40 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.load.io;
 
-import org.apache.log4j.Logger;
-
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
+
+import org.apache.log4j.Logger;
 
 /**
  * <p>
- * "Cut" a stream that contains several XML documents into <code>String</code> instances, each
- * of them containing a valid XML fragment.
+ * "Cut" a stream that contains several XML documents into <code>String</code> instances, each of them containing a
+ * valid XML fragment.
  * </p>
  * <p>
- * The stream :
- * <br/>
+ * The stream : <br/>
  * <code>
  * &lt;root&gt;&lt;/root&gt;&lt;root&gt;&lt;/root&gt;
  * </code>
  * </p>
  * <p>
- * Will give the following 2 String instances :
- * <br/>
+ * Will give the following 2 String instances : <br/>
  * <code>
  * &lt;root&gt;&lt;/root&gt;
- * </code>
- * <br/>
+ * </code> <br/>
  * <code>
  * &lt;root&gt;&lt;/root&gt;
  * </code>
@@ -67,13 +67,15 @@ public class XMLStreamTokenizer implements Enumeration<String> {
         this.inputStream = new InputStreamReader(inputStream, encoding);
     }
 
+    @Override
     public boolean hasMoreElements() {
         return moveNext();
     }
 
+    @Override
     public String nextElement() {
         if (currentNextElement == null) {
-            throw new IllegalStateException("Should call hasMoreElements() before nextElement()");
+            throw new IllegalStateException("Should call hasMoreElements() before nextElement()"); //$NON-NLS-1$
         }
 
         String retValue = currentNextElement;
@@ -88,65 +90,65 @@ public class XMLStreamTokenizer implements Enumeration<String> {
             boolean inElement = false;
             boolean isEndElement = false;
             boolean isProcessingInstruction = false;
-            String currentElementName = "";
+            String currentElementName = ""; //$NON-NLS-1$
             boolean lockElementName = false;
             int currentLevel = 0;
 
             while (!isFragmentComplete && (read = inputStream.read()) > 0) {
                 switch (read) {
-                    case ' ':
-                        if (inElement) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Lock element name due to attributes detected in element '" + currentElementName + "'"); //$NON-NLS-1$ //$NON-NLS-2$
-                            }
-                            lockElementName = true;
+                case ' ':
+                    if (inElement) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Lock element name due to attributes detected in element '" + currentElementName + "'"); //$NON-NLS-1$ //$NON-NLS-2$
                         }
-                    case '?':
-                        if (previousCharacter == '<') {
-                            stringWriter.reset();
-                            isProcessingInstruction = true;
+                        lockElementName = true;
+                    }
+                    break;
+                case '?':
+                    if (previousCharacter == '<') {
+                        stringWriter.reset();
+                        isProcessingInstruction = true;
+                    }
+                    break;
+                case '<':
+                    inElement = true;
+                    break;
+                case '/':
+                    if (inElement && !lockElementName) {
+                        isEndElement = true;
+                    }
+                    break;
+                case '>':
+                    if (previousCharacter != '/' && !isProcessingInstruction) {
+                        if (isEndElement) {
+                            logEndElement(currentElementName, currentLevel);
+                            currentLevel--;
+                        } else {
+                            logStartElement(currentElementName, currentLevel);
+                            currentLevel++;
                         }
-                        break;
-                    case '<':
-                        inElement = true;
-                        break;
-                    case '/':
-                        if (inElement && !lockElementName) {
-                            isEndElement = true;
-                        }
-                        break;
-                    case '>':
-                        if (previousCharacter != '/' && !isProcessingInstruction) {
-                            if (isEndElement) {
-                                logEndElement(currentElementName, currentLevel);
-                                currentLevel--;
-                            } else {
-                                logStartElement(currentElementName, currentLevel);
-                                currentLevel++;
-                            }
-                        }
+                    }
 
-                        if (inElement) {
-                            if (isEndElement && rootElementName != null
-                                    && rootElementName.equals(currentElementName)
-                                    && currentLevel == 0) {
-                                isFragmentComplete = true;
-                            } else if (rootElementName == null && !isProcessingInstruction) {
-                                rootElementName = currentElementName;
-                            }
-                            currentElementName = "";
-
-                            isEndElement = false;
-                            inElement = false;
-                            lockElementName = false;
+                    if (inElement) {
+                        if (isEndElement && rootElementName != null && rootElementName.equals(currentElementName)
+                                && currentLevel == 0) {
+                            isFragmentComplete = true;
+                        } else if (rootElementName == null && !isProcessingInstruction) {
+                            rootElementName = currentElementName;
                         }
+                        currentElementName = ""; //$NON-NLS-1$
 
-                        if (isProcessingInstruction && previousCharacter == '?') {
-                            isProcessingInstruction = false;
-                            continue;
-                        }
+                        isEndElement = false;
+                        inElement = false;
+                        lockElementName = false;
+                    }
 
-                        break;
+                    if (isProcessingInstruction && previousCharacter == '?') {
+                        isProcessingInstruction = false;
+                        continue;
+                    }
+
+                    break;
                 }
                 if (inElement && read != '<' && read != '/' && !lockElementName) {
                     currentElementName += (char) read;
