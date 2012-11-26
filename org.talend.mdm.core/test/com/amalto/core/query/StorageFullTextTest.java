@@ -44,11 +44,11 @@ public class StorageFullTextTest extends StorageTestCase {
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords.add(factory.read(1, repository, productFamily, "<ProductFamily>\n" + "    <Id>1</Id>\n"
+        allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>1</Id>\n"
                 + "    <Name>Product family #1</Name>\n" + "</ProductFamily>"));
-        allRecords.add(factory.read(1, repository, productFamily, "<ProductFamily>\n" + "    <Id>2</Id>\n"
+        allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>2</Id>\n"
                 + "    <Name>Product family #2</Name>\n" + "</ProductFamily>"));
-        allRecords.add(factory.read(1, repository, product, "<Product>\n" + "    <Id>1</Id>\n"
+        allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
                 + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
                 + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
                 + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
@@ -56,7 +56,7 @@ public class StorageFullTextTest extends StorageTestCase {
                 + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
                 + "    </Features>\n" + "    <Status>Pending</Status>\n" + "    <Family>[2]</Family>\n"
                 + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
-        allRecords.add(factory.read(1, repository, product, "<Product>\n" + "    <Id>2</Id>\n" + "    <Name>Renault car</Name>\n"
+        allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>2</Id>\n" + "    <Name>Renault car</Name>\n"
                 + "    <ShortDescription>A car</ShortDescription>\n"
                 + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
                 + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
@@ -64,25 +64,25 @@ public class StorageFullTextTest extends StorageTestCase {
                 + "            <Color>Klein blue2</Color>\n" + "        </Colors>\n" + "    </Features>\n"
                 + "    <Family>[1]</Family>\n" + "    <Status>Pending</Status>\n" + "    <Supplier>[2]</Supplier>\n"
                 + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
-        allRecords.add(factory.read(1, repository, supplier, "<Supplier>\n" + "    <Id>1</Id>\n"
+        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>1</Id>\n"
                 + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
                 + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
                 + "</Supplier>"));
-        allRecords.add(factory.read(1, repository, supplier, "<Supplier>\n" + "    <Id>2</Id>\n"
+        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>2</Id>\n"
                 + "    <SupplierName>Starbucks Talend</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Cafe</Name>\n"
                 + "        <Phone>33234567890</Phone>\n" + "        <Email>test@testfactory.org</Email>\n" + "    </Contact>\n"
                 + "</Supplier>"));
-        allRecords.add(factory.read(1, repository, supplier, "<Supplier>\n" + "    <Id>3</Id>\n"
+        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>3</Id>\n"
                 + "    <SupplierName>Talend</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Paul</Name>\n"
                 + "        <Phone>33234567890</Phone>\n" + "        <Email>test@talend.com</Email>\n" + "    </Contact>\n"
                 + "</Supplier>"));
         allRecords
                 .add(factory
-                        .read(1,
+                        .read("1",
                                 repository,
                                 country,
                                 "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
-        allRecords.add(factory.read(1, repository, product, "<Product>\n" + "    <Id>1</Id>\n"
+        allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
                 + "    <Name>talend</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
                 + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
                 + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"

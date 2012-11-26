@@ -232,20 +232,20 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                     fullWhere = wAnd;
                 }
             }
-
+            // Find revision id for type
+            String typeName = ((String) view.getSearchableBusinessElements().getList().get(0)).split("/")[0]; //$NON-NLS-1$
+            String revisionId = universe.getConceptRevisionID(typeName);
+            // Try to get storage for revision
             Server server = ServerContext.INSTANCE.get();
-            Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), universe.getDefaultItemRevisionID());
-
+            Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), revisionId);
             if (storage != null) {
                 MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
-                // Build query (find 'main' type)
-                String typeName = ((String) view.getSearchableBusinessElements().getList().get(0)).split("/")[0]; //$NON-NLS-1$
+                // Build query (from 'main' type)
                 ComplexTypeMetadata type = repository.getComplexType(typeName);
                 if (type == null) {
                     throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data cluster '" + dataClusterPOJOPK.getUniqueId() + "'.");
                 }
                 UserQueryBuilder qb = UserQueryBuilder.from(type);
-
                 // Select fields
                 ArrayListHolder<String> viewableBusinessElements = view.getViewableBusinessElements();
                 for (String viewableBusinessElement : viewableBusinessElements.getList()) {
@@ -253,7 +253,6 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                     String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
                     qb.select(UserQueryHelper.getField(repository, viewableTypeName, viewablePath));
                 }
-
                 // Condition and paging
                 qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
                 qb.start(start < 0 ? 0 : start); // UI can send negative start index
@@ -270,7 +269,6 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                     }
                     qb.orderBy(field, queryDirection);
                 }
-
                 // Get records
                 StorageResults results = storage.fetch(qb.getSelect());
                 ArrayList<String> resultsAsString = new ArrayList<String>();
@@ -290,13 +288,10 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 return resultsAsString;
             } else {
                 // build the patterns to revision ID map
-                LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
-                        universe.getItemsRevisionIDs());
-                if (universe.getDefaultItemRevisionID() != null
-                        && universe.getDefaultItemRevisionID().length() > 0)
-                    conceptPatternsToRevisionID.put(".*", //$NON-NLS-1$
-                            universe.getDefaultItemRevisionID());
-
+                LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(universe.getItemsRevisionIDs());
+                if (revisionId != null && revisionId.length() > 0) {
+                    conceptPatternsToRevisionID.put(".*", revisionId); //$NON-NLS-1$
+                }
                 // build the patterns to cluster map - only one cluster at this stage
                 LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
                 conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId()); //$NON-NLS-1$
@@ -451,8 +446,8 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             throw new XtentisException(err);
         }
         Server server = ServerContext.INSTANCE.get();
-        Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), universe.getDefaultItemRevisionID());
-
+        String revisionId = universe.getConceptRevisionID(conceptName);
+        Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), revisionId);
         if (storage != null) {
             MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
             ComplexTypeMetadata type = repository.getComplexType(conceptName);

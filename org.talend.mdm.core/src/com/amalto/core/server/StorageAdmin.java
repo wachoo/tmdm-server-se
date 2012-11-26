@@ -16,6 +16,8 @@ package com.amalto.core.server;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 
+import java.util.Collection;
+
 /**
  *
  */
@@ -35,12 +37,18 @@ public interface StorageAdmin {
     void close();
 
     /**
-     *
-     *
      * @param storageName A {@link com.amalto.core.storage.Storage} name.
-     * @param revisionId
+     * @param revisionId A revision id.
      * @return A previously created {@link Storage} or <code>null</code> if no storage was previously created.
      * @see #create(String, String, String, String)
      */
     Storage get(String storageName, String revisionId);
+
+    /**
+     * @param storageName A {@link com.amalto.core.storage.Storage} name.
+     * @return A list of previously created {@link Storage} for all revisions or empty list if no storage was previously
+     * created.
+     * @see #create(String, String, String, String)
+     */
+    Collection<Storage> get(String storageName);
 }

@@ -41,7 +41,7 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
         xmlInputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.TRUE);
     }
 
-    public DataRecord read(long revisionId, MetadataRepository repository, ComplexTypeMetadata type, String input) {
+    public DataRecord read(String revisionId, MetadataRepository repository, ComplexTypeMetadata type, String input) {
         if (type == null) {
             throw new IllegalArgumentException("Type can not be null");
         }

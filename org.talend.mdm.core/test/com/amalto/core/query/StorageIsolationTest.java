@@ -112,7 +112,7 @@ public class StorageIsolationTest extends TestCase {
                 DataRecordReader<String> factory = new XmlStringDataRecordReader();
                 storage.begin();
                 for (int i = 0; i < instanceNumber; i++) {
-                    DataRecord record = factory.read(1, repository, type, "<" + typeName + "><Id>" + i + "</Id><field>"
+                    DataRecord record = factory.read("1", repository, type, "<" + typeName + "><Id>" + i + "</Id><field>"
                             + valueText + "</field></" + typeName + ">");
                     storage.update(record);
                 }

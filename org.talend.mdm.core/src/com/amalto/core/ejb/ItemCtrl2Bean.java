@@ -541,7 +541,9 @@ public class ItemCtrl2Bean implements SessionBean {
             }
 
             Server server = ServerContext.INSTANCE.get();
-            Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), universe.getDefaultItemRevisionID());
+            String typeName = StringUtils.substringBefore(viewablePaths.get(0), "/"); //$NON-NLS-1$
+            String revisionId = universe.getConceptRevisionID(typeName);
+            Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), revisionId);
 
             if (storage == null) {
                 // build the patterns to revision ID map
@@ -563,7 +565,6 @@ public class ItemCtrl2Bean implements SessionBean {
                 return xmlServer.runQuery(null, null, query, null);
             } else {
                 MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
-                String typeName = StringUtils.substringBefore(viewablePaths.get(0), "/"); //$NON-NLS-1$
                 ComplexTypeMetadata type = repository.getComplexType(typeName);
                 UserQueryBuilder qb = from(type);
                 qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
@@ -722,8 +723,8 @@ public class ItemCtrl2Bean implements SessionBean {
                 throw new XtentisException(err);
             }
             Server mdmServer = ServerContext.INSTANCE.get();
-            Storage storage = mdmServer.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), universe.getDefaultItemRevisionID());
-
+            String revisionId = universe.getConceptRevisionID(conceptName);
+            Storage storage = mdmServer.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), revisionId);
             if (storage == null) {
                 // build the patterns to revision ID map
                 LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
@@ -1201,7 +1202,7 @@ public class ItemCtrl2Bean implements SessionBean {
                 MetadataRepository repository = mdmServer.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
                 Collection<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
                 for (ComplexTypeMetadata type : types) {
-                    concepts.put(type.getName(), "");
+                    concepts.put(type.getName(), universe.getConceptRevisionID(type.getName()));
                 }
             }
 

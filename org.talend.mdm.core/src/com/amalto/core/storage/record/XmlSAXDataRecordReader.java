@@ -16,7 +16,6 @@ import com.amalto.core.metadata.*;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
-import org.apache.commons.lang.StringUtils;
 import org.xml.sax.*;
 
 import javax.xml.XMLConstants;
@@ -36,7 +35,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
         }
     }
 
-    public DataRecord read(long revisionId, MetadataRepository repository, ComplexTypeMetadata type, Input input) {
+    public DataRecord read(String revisionId, MetadataRepository repository, ComplexTypeMetadata type, Input input) {
         try {
             InputSource inputSource = input.input;
             XMLReader xmlReader = input.reader;

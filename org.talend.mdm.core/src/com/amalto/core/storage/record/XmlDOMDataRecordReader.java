@@ -16,7 +16,6 @@ import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
-import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -29,7 +28,7 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
     public XmlDOMDataRecordReader() {
     }
 
-    public DataRecord read(long revisionId, MetadataRepository repository, ComplexTypeMetadata type, Element element) {
+    public DataRecord read(String revisionId, MetadataRepository repository, ComplexTypeMetadata type, Element element) {
         long lastModificationTime = 0;
         String taskId = null;
 

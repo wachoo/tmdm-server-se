@@ -20,19 +20,17 @@ import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceFactory;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
+import com.amalto.core.storage.hibernate.HibernateStorage;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class StorageAdminImpl implements StorageAdmin {
 
-    private final Map<String, Storage> storages = new HashMap<String, Storage>();
+    private final Map<String, Map<String, Storage>> storages = new StorageMap();
 
     private Logger LOGGER = Logger.getLogger(StorageAdminImpl.class);
 
@@ -40,18 +38,26 @@ public class StorageAdminImpl implements StorageAdmin {
     private static final boolean autoClean = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("db.autoClean", "false"));
 
     public String[] getAll(String revisionID) {
-        Set<String> allStorageNames = storages.keySet();
+        Set<String> allStorageNames = new HashSet<String>();
+        for (Map.Entry<String, Map<String, Storage>> currentStorage : storages.entrySet()) {
+            if (currentStorage.getValue().containsKey(revisionID)) {
+                allStorageNames.add(currentStorage.getKey());
+            }
+        }
         return allStorageNames.toArray(new String[allStorageNames.size()]);
     }
 
     public void delete(String revisionID, String storageName, boolean dropExistingData) {
-        Storage storage = storages.get(storageName);
+        Storage storage = getRegisteredStorage(storageName, revisionID);
         if (storage == null) {
             LOGGER.warn("Storage '" + storageName + "' does not exist.");
             return;
         }
         ServerContext.INSTANCE.getLifecycle().destroyStorage(storage, dropExistingData);
-        storages.remove(storageName);
+        storages.get(storageName).remove(revisionID);
+        if (storages.get(storageName).isEmpty()) {
+            storages.remove(storageName);
+        }
     }
 
     public void deleteAll(String revisionID, boolean dropExistingData) {
@@ -89,7 +95,7 @@ public class StorageAdminImpl implements StorageAdmin {
             // May get request for "StorageName/Concept", but for SQL it does not make any sense.
             // See com.amalto.core.storage.StorageWrapper.createCluster()
             storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
-            if (exist(null, storageName, storageType)) {
+            if (getRegisteredStorage(storageName, revisionId) != null) {
                 LOGGER.warn("Storage for '" + storageName + "' already exists. It needs to be deleted before it can be recreated.");
                 return get(storageName, revisionId);
             }
@@ -118,20 +124,40 @@ public class StorageAdminImpl implements StorageAdmin {
         } catch (Exception e) {
             throw new RuntimeException("Could not create storage for container '" + storageName + "' (" + storageType + ") using data model '" + dataModelName + "'.", e);
         }
-        if (storageType == StorageType.MASTER) {
-            storages.put(storageName, dataModelStorage);
-        } else {
-            storages.put(storageName + STAGING_SUFFIX, dataModelStorage);
+        switch (storageType) {
+            case MASTER:
+                registerStorage(storageName, revisionId, dataModelStorage);
+                break;
+            case STAGING:
+                registerStorage(storageName + STAGING_SUFFIX, revisionId, dataModelStorage);
+                break;
+            default:
+                throw new IllegalArgumentException("No support for storage type '" + storageType + "'.");
         }
         return dataModelStorage;
     }
 
     public boolean exist(String revision, String storageName, StorageType storageType) {
-        Storage storage = storages.get(storageName);
+        if (storageName.contains("/")) { //$NON-NLS-1$
+            // Handle legacy scenarios where callers pass container names such as 'Product/ProductFamily'
+            storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
+        }
+        Storage storage;
         if (storageType == StorageType.STAGING && !storageName.endsWith(STAGING_SUFFIX)) {
-            storage = storages.get(storageName + STAGING_SUFFIX);
+            storage = getRegisteredStorage(storageName + STAGING_SUFFIX, revision);
+        } else {
+            storage = getRegisteredStorage(storageName, revision);
+        }
+        if (storage == null && !isHead(revision)) {
+            LOGGER.info("Container '" + storageName + "' does not exist in revision '" + revision + "', creating it.");
+            String dataSourceName = HibernateStorage.DEFAULT_DATA_SOURCE_NAME;
+            storage = create(storageName, storageName, dataSourceName, revision);
         }
         return storage != null && storage.getType() == storageType;
+    }
+
+    private static boolean isHead(String revision) {
+        return revision == null || "HEAD".equals(revision) || revision.isEmpty();  //$NON-NLS-1$
     }
 
     public void close() {
@@ -140,19 +166,55 @@ public class StorageAdminImpl implements StorageAdmin {
 
     public Storage get(String storageName, String revisionId) {
         Storage storage;
-        if (revisionId == null || "HEAD".equals(revisionId)) {
-            storage = storages.get(storageName);
-        } else {
-            storage = storages.get(storageName + 'R' + revisionId);
-        }
+        storage = getRegisteredStorage(storageName, revisionId);
         if (storage == null) {
             // May get request for "StorageName/Concept", but for SQL it does not make any sense.
             storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
-            storage = storages.get(storageName);
+            storage = getRegisteredStorage(storageName, revisionId);
             if (storage != null && !(storage.getDataSource() instanceof RDBMSDataSource)) {
                 throw new IllegalStateException("Expected a SQL storage for '" + storageName + "' but got a '" + storage.getClass().getName() + "'.");
             }
         }
+        if (storage == null && !isHead(revisionId)) {
+            LOGGER.info("Container '" + storageName + "' does not exist in revision '" + revisionId + "', creating it.");
+            String dataSourceName = HibernateStorage.DEFAULT_DATA_SOURCE_NAME;
+            storage = create(storageName, storageName, dataSourceName, revisionId);
+        }
         return storage;
     }
+
+    @Override
+    public Collection<Storage> get(String storageName) {
+        return storages.get(storageName).values();
+    }
+
+    private void registerStorage(String storageName, String revisionId, Storage storage) {
+        if (isHead(revisionId)) {
+            storages.get(storageName).put(null, storage);
+        } else {
+            storages.get(storageName).put(revisionId, storage);
+        }
+    }
+
+    private Storage getRegisteredStorage(String storageName, String revisionId) {
+        if (isHead(revisionId)) {
+            return storages.get(storageName).get(null);
+        } else {
+            return storages.get(storageName).get(revisionId);
+        }
+    }
+
+    private static class StorageMap extends HashMap<String, Map<String, Storage>> {
+        @Override
+        public Map<String, Storage> get(Object o) {
+            Map<String, Storage> value = super.get(o);
+            if (value == null) {
+                value = new HashMap<String, Storage>();
+                super.put((String) o, value);
+            }
+            return value;
+        }
+    }
+
+
 }

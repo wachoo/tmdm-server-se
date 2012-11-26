@@ -86,11 +86,17 @@ public class DataSourceFactory {
         if (dataSource.hasStaging()) {
             replacePlaceholder(dataSource.getStaging(), CONTAINER_PLACEHOLDER, container);
         }
-        if (revisionId != null && !"HEAD".equals(revisionId)) {
+        if (revisionId != null && !"HEAD".equals(revisionId)) { //$NON-NLS-1$
             // Additional post parsing (replace potential ${revision} with revision id parameter value).
             replacePlaceholder(dataSource.getMaster(), REVISION_PLACEHOLDER, revisionId);
             if (dataSource.hasStaging()) {
                 replacePlaceholder(dataSource.getStaging(), REVISION_PLACEHOLDER, revisionId);
+            }
+        } else {
+            // Additional post parsing (replace potential ${revision} with revision id parameter value).
+            replacePlaceholder(dataSource.getMaster(), REVISION_PLACEHOLDER, StringUtils.EMPTY);
+            if (dataSource.hasStaging()) {
+                replacePlaceholder(dataSource.getStaging(), REVISION_PLACEHOLDER, StringUtils.EMPTY);
             }
         }
         return dataSource;

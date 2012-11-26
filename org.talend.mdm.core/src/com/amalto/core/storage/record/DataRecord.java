@@ -35,7 +35,7 @@ public class DataRecord {
 
     private final DataRecordMetadata recordMetadata;
 
-    private long revisionId;
+    private String revisionId;
 
     /**
      * @param type           Type as {@link ComplexTypeMetadata} of the data record
@@ -46,11 +46,11 @@ public class DataRecord {
         this.recordMetadata = recordMetadata;
     }
 
-    public long getRevisionId() {
+    public String getRevisionId() {
         return revisionId;
     }
 
-    public void setRevisionId(long revisionId) {
+    public void setRevisionId(String revisionId) {
         this.revisionId = revisionId;
     }
 

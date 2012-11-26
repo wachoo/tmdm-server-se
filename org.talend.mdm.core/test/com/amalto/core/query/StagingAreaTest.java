@@ -119,7 +119,7 @@ public class StagingAreaTest extends TestCase {
 
         allRecords.clear();
         for (int i = 0; i < COUNT; i++) {
-            allRecords.add(factory.read(1, repository, country, newCountry(i, validData)));
+            allRecords.add(factory.read("1", repository, country, newCountry(i, validData)));
         }
         try {
             origin.begin();
@@ -131,7 +131,7 @@ public class StagingAreaTest extends TestCase {
 
         allRecords.clear();
         for (int i = 0; i < COUNT; i++) {
-            allRecords.add(factory.read(1, repository, address, newAddress(i, i % 2 != 0, validData)));
+            allRecords.add(factory.read("1", repository, address, newAddress(i, i % 2 != 0, validData)));
         }
         try {
             origin.begin();
@@ -143,7 +143,7 @@ public class StagingAreaTest extends TestCase {
 
         allRecords.clear();
         for (int i = 0; i < COUNT; i++) {
-            allRecords.add(factory.read(1, repository, person, newPerson(i, validData)));
+            allRecords.add(factory.read("1", repository, person, newPerson(i, validData)));
         }
         try {
             origin.begin();
@@ -506,7 +506,7 @@ public class StagingAreaTest extends TestCase {
         public void save(ItemPOJO item, String revisionId) {
             try {
                 ComplexTypeMetadata complexType = repository.getComplexType(item.getProjection().getTagName());
-                DataRecord dataRecord = reader.read(1, repository, complexType, item.getProjection());
+                DataRecord dataRecord = reader.read("1", repository, complexType, item.getProjection());
                 DataRecordMetadata recordMetadata = dataRecord.getRecordMetadata();
                 recordMetadata.setLastModificationTime(item.getInsertionTime());
                 recordMetadata.setTaskId(item.getTaskId());

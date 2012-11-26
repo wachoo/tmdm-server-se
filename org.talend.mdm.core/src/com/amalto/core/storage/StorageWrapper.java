@@ -26,16 +26,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import com.amalto.core.query.user.*;
+import com.amalto.core.storage.datasource.DataSource;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
@@ -48,10 +42,6 @@ import com.amalto.core.metadata.ContainedTypeFieldMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.metadata.MetadataUtils;
-import com.amalto.core.query.user.Condition;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
@@ -179,7 +169,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         {
             Storage storage = getStorage(clusterName, revisionID);
             MetadataRepository repository = storage.getMetadataRepository();
-            DataRecord record = xmlStringReader.read(parseRevisionId(revisionID), repository, repository.getComplexType(typeName), xmlString);
+            DataRecord record = xmlStringReader.read(revisionID, repository, repository.getComplexType(typeName), xmlString);
             try {
                 storage.update(record);
             } catch (Exception e) {
@@ -196,17 +186,10 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             DataRecordReader<Element> reader = new XmlDOMDataRecordReader();
             Storage storage = getStorage(clusterName, revisionID);
             MetadataRepository repository = storage.getMetadataRepository();
-            DataRecord record = reader.read(parseRevisionId(revisionID), repository, repository.getComplexType(typeName), root);
+            DataRecord record = reader.read(revisionID, repository, repository.getComplexType(typeName), root);
             storage.update(record);
         }
         return System.currentTimeMillis() - start;
-    }
-
-    private static long parseRevisionId(String revisionID) {
-        if ("HEAD".equals(revisionID) || revisionID == null || revisionID.isEmpty()) { //$NON-NLS-1$
-            return 1;
-        }
-        return Long.parseLong(revisionID);
     }
 
     public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId) throws XmlServerException {
@@ -220,7 +203,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             DataRecordReader<XmlSAXDataRecordReader.Input> reader = new XmlSAXDataRecordReader();
             XmlSAXDataRecordReader.Input readerInput = new XmlSAXDataRecordReader.Input(docReader, input);
             MetadataRepository repository = storage.getMetadataRepository();
-            DataRecord record = reader.read(parseRevisionId(revisionId), repository, repository.getComplexType(typeName), readerInput);
+            DataRecord record = reader.read(revisionId, repository, repository.getComplexType(typeName), readerInput);
             storage.update(record);
         }
         return System.currentTimeMillis() - start;
@@ -238,19 +221,14 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         if (encoding == null) {
             encoding = "UTF-8"; //$NON-NLS-1$
         }
-
         String[] splitUniqueId = uniqueID.split("\\."); //$NON-NLS-1$
-
         Storage storage = getStorage(clusterName, revisionID);
         MetadataRepository repository = storage.getMetadataRepository();
         String typeName = splitUniqueId[1];
         ComplexTypeMetadata type = repository.getComplexType(typeName);
-
         Select select = getSelectTypeById(type, revisionID, splitUniqueId);
         StorageResults records = storage.fetch(select);
-
         ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
-
         try {
             Iterator<DataRecord> iterator = records.iterator();
             if (iterator.hasNext()) {
@@ -259,16 +237,13 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 String taskId = result.getRecordMetadata().getTaskId();
                 byte[] start = ("<ii><c>" + clusterName + "</c><dmn>" + clusterName + "</dmn><dmr/><sp/><t>" + timestamp + "</t><taskId>" + taskId + "</taskId><i>" + splitUniqueId[2] + "</i><p>").getBytes(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
                 output.write(start);
-
                 WRITER.write(result, output);
                 if (iterator.hasNext()) {
                     throw new IllegalStateException("Expected only 1 result.");
                 }
-
                 byte[] end = ("</p></ii>").getBytes(); //$NON-NLS-1$
                 output.write(end);
                 output.flush();
-
                 return new String(output.toByteArray(), encoding);
             } else {
                 return null;
@@ -578,7 +553,6 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 qb.where(eq(type.getField(uniqueKeyFieldName), keysKeywords));
             }
         }
-
         // Filter by timestamp
         if (criteria.getFromDate() > 0) {
             qb.where(gte(timestamp(), String.valueOf(criteria.getFromDate())));
@@ -586,7 +560,6 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         if (criteria.getToDate() > 0) {
             qb.where(lte(timestamp(), String.valueOf(criteria.getToDate())));
         }
-
         // Content keywords
         String contentKeywords = criteria.getContentKeywords();
         if (contentKeywords != null) {
@@ -608,15 +581,17 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 qb.where(condition);
             }
         }
-
         StorageResults results = storage.fetch(qb.getSelect());
-        DataRecordWriter writer = new ItemPKCriteriaResultsWriter(type.getName(), itemPKResults, type);
+        DataRecordWriter writer = new ItemPKCriteriaResultsWriter(type.getName(), type);
+        ResettableStringWriter stringWriter = new ResettableStringWriter();
         for (DataRecord result : results) {
             try {
-                writer.write(result, (OutputStream) null);
+                writer.write(result, stringWriter);
             } catch (IOException e) {
                 throw new XmlServerException(e);
             }
+            itemPKResults.add(stringWriter.toString());
+            stringWriter.reset();
         }
         return results.getCount();
     }
@@ -628,11 +603,6 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return true;
     }
 
-    public void start(String dataClusterName) throws XmlServerException {
-        Storage storage = getStorage(dataClusterName, null);
-        storage.begin();
-    }
-
     private StorageAdmin getStorageAdmin() {
         if (storageAdmin == null) {
             storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
@@ -640,34 +610,42 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return storageAdmin;
     }
 
-    public void commit(String dataClusterName) throws XmlServerException {
-        Storage storage = getStorage(dataClusterName, null);
-        storage.commit();
+    private Storage getStorage(String dataClusterName) {
+        StorageAdmin admin = getStorageAdmin();
+        Collection<Storage> storages = admin.get(dataClusterName);
+        return new TransactionStorage(storages);
     }
 
     private Storage getStorage(String dataClusterName, String revisionId) {
-        Storage storage = getStorageAdmin().get(dataClusterName, revisionId);
-        if (storage == null) {
-            if (dataClusterName.contains("/")) { //$NON-NLS-1$
-                String dataCluster = StringUtils.substringBefore(dataClusterName, "/"); //$NON-NLS-1$
-                storage = getStorageAdmin().get(dataCluster, revisionId);
-                if (storage != null && storage.getDataSource() instanceof RDBMSDataSource) {
-                    throw new IllegalStateException("'" + dataClusterName + "' did not match any existing storage, but '"
-                            + dataCluster + "' did (and is not a SQL storage).");
-                }
-            }
-            throw new IllegalStateException("Data container '" + dataClusterName + "' does not exist.");
+        StorageType storageType = dataClusterName.endsWith(StorageAdmin.STAGING_SUFFIX) ? StorageType.STAGING : StorageType.MASTER;
+        StorageAdmin admin = getStorageAdmin();
+        if (!admin.exist(revisionId, dataClusterName, storageType)) {
+            throw new IllegalStateException("Data container '" + dataClusterName + "' (revision: '" + revisionId + "') does not exist.");
+        }
+        Storage storage = admin.get(dataClusterName, revisionId);
+        if (!(storage.getDataSource() instanceof RDBMSDataSource)) {
+            throw new IllegalStateException("Storage '" + dataClusterName + "' (revision: '" + revisionId + "') is not a SQL storage.");
         }
         return storage;
     }
 
+    public void start(String dataClusterName) throws XmlServerException {
+        Storage storage = getStorage(dataClusterName);
+        storage.begin();
+    }
+
+    public void commit(String dataClusterName) throws XmlServerException {
+        Storage storage = getStorage(dataClusterName);
+        storage.commit();
+    }
+
     public void rollback(String dataClusterName) throws XmlServerException {
-        Storage storage = getStorage(dataClusterName, null);
+        Storage storage = getStorage(dataClusterName);
         storage.rollback();
     }
 
     public void end(String dataClusterName) throws XmlServerException {
-        Storage storage = getStorage(dataClusterName, null);
+        Storage storage = getStorage(dataClusterName);
         storage.end();
     }
 
@@ -679,7 +657,6 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         Storage storage = getStorage(dataCluster, null);
         MetadataRepository repository = storage.getMetadataRepository();
         Iterator<ComplexTypeMetadata> types = repository.getUserComplexTypes().iterator();
-
         if (types.hasNext()) {
             UserQueryBuilder qb = from(types.next());
             while (types.hasNext()) {
@@ -688,7 +665,6 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             qb.where(fullText(keyword));
             qb.start(start);
             qb.limit(end);
-
             List<String> resultsAsXmlStrings = new LinkedList<String>();
             StorageResults results = storage.fetch(qb.getSelect());
             DataRecordWriter writer = new FullTextResultsWriter(keyword);
@@ -714,4 +690,115 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         throw new NotImplementedException("No support for bulk export.");
     }
 
+    private static class TransactionStorage implements Storage {
+
+        private final Collection<Storage> storages;
+
+        public TransactionStorage(Collection<Storage> storages) {
+            this.storages = storages;
+        }
+
+        @Override
+        public void init(DataSource dataSource) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void prepare(MetadataRepository repository, Set<FieldMetadata> indexedFields, boolean force, boolean dropExistingData) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void prepare(MetadataRepository repository, boolean dropExistingData) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public MetadataRepository getMetadataRepository() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public StorageResults fetch(Expression userQuery) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void update(DataRecord record) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void update(Iterable<DataRecord> records) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void delete(Expression userQuery) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void close() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void close(boolean dropExistingData) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void begin() {
+            for (Storage storage : storages) {
+                storage.begin();
+            }
+        }
+
+        @Override
+        public void commit() {
+            for (Storage storage : storages) {
+                storage.commit();
+            }
+        }
+
+        @Override
+        public void rollback() {
+            for (Storage storage : storages) {
+                storage.rollback();
+            }
+        }
+
+        @Override
+        public void end() {
+            for (Storage storage : storages) {
+                storage.end();
+            }
+        }
+
+        @Override
+        public void reindex() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Set<String> getFullTextSuggestion(String keyword, FullTextSuggestion mode, int suggestionSize) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getName() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public DataSource getDataSource() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public StorageType getType() {
+            throw new UnsupportedOperationException();
+        }
+    }
 }
