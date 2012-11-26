@@ -20,16 +20,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
-import com.amalto.core.load.context.AutoIdGenerator;
-import com.amalto.core.load.context.StateContext;
-import com.amalto.core.load.exception.ParserCallbackException;
-import com.amalto.core.load.io.XMLRootInputStream;
 import junit.framework.Assert;
 import junit.framework.TestCase;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -37,6 +36,11 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
+
+import com.amalto.core.load.context.AutoIdGenerator;
+import com.amalto.core.load.context.StateContext;
+import com.amalto.core.load.exception.ParserCallbackException;
+import com.amalto.core.load.io.XMLRootInputStream;
 
 /**
  *
@@ -569,6 +573,85 @@ public class LoadParserTest extends TestCase {
         assertTrue(hasParsedElement(callback, "element2"));
         assertTrue(hasParsedCharacters(callback, "text"));
         assertEquals("1", callback.getId());
+    }
+
+    public void testEscapeCharacters() throws Exception {
+
+        final String xmlSource = "<Product><Id>123</Id><Name>a&amp;b&lt;c&gt;s</Name></Product>";
+
+        Properties props = MDMConfiguration.getConfiguration();
+        props.setProperty("xmlserver.class", "com.amalto.core.storage.DispatchWrapper");
+        props.setProperty("qizx.db.type", "server");
+
+        InputStream testResource = new ByteArrayInputStream(xmlSource.getBytes());
+        assertNotNull(testResource);
+        ParserTestCallback callback = new ParserTestCallback();
+
+        LoadParser.Configuration config = new LoadParser.Configuration("Product", new String[] { "Id" }, false,
+                "Product", "Product");
+        LoadParser.parse(testResource, config, callback);
+        assertTrue(callback.hasBeenFlushed());
+        assertEquals(1, callback.getFlushCount());
+        assertEquals(13, callback.getStartedElements().size());
+        assertTrue(hasParsedElement(callback, "Product"));
+        assertTrue(hasParsedElement(callback, "Name"));
+        assertTrue(hasParsedCharacters(callback, "a&b<c>s"));
+        assertEquals("123", callback.getId());
+
+        props = MDMConfiguration.getConfiguration();
+        props.setProperty("xmlserver.class", "com.amalto.core.storage.DispatchWrapper");
+        props.setProperty("qizx.db.type", "embedded");
+
+        testResource = new ByteArrayInputStream(xmlSource.getBytes());
+        assertNotNull(testResource);
+        callback = new ParserTestCallback();
+
+        config = new LoadParser.Configuration("Product", new String[] { "Id" }, false, "Product", "Product");
+        LoadParser.parse(testResource, config, callback);
+        assertTrue(callback.hasBeenFlushed());
+        assertEquals(1, callback.getFlushCount());
+        assertEquals(13, callback.getStartedElements().size());
+        assertTrue(hasParsedElement(callback, "Product"));
+        assertTrue(hasParsedElement(callback, "Name"));
+        assertTrue(hasParsedCharacters(callback, "a&b<c>s"));
+        assertEquals("123", callback.getId());
+
+        props = MDMConfiguration.getConfiguration();
+        props.setProperty("xmlserver.class", "org.talend.mdm.qizx.xmldb.QizxWrapper");
+        props.setProperty("qizx.db.type", "server");
+
+        testResource = new ByteArrayInputStream(xmlSource.getBytes());
+        assertNotNull(testResource);
+        callback = new ParserTestCallback();
+
+        config = new LoadParser.Configuration("Product", new String[] { "Id" }, false, "Product", "Product");
+        LoadParser.parse(testResource, config, callback);
+        assertTrue(callback.hasBeenFlushed());
+        assertEquals(1, callback.getFlushCount());
+        assertEquals(13, callback.getStartedElements().size());
+        assertTrue(hasParsedElement(callback, "Product"));
+        assertTrue(hasParsedElement(callback, "Name"));
+        assertTrue(hasParsedCharacters(callback, "a&amp;b&lt;c&gt;s"));
+
+        assertEquals("123", callback.getId());
+
+        props = MDMConfiguration.getConfiguration();
+        props.setProperty("xmlserver.class", "org.talend.mdm.qizx.xmldb.QizxWrapper");
+        props.setProperty("qizx.db.type", "embedded");
+
+        testResource = new ByteArrayInputStream(xmlSource.getBytes());
+        assertNotNull(testResource);
+        callback = new ParserTestCallback();
+
+        config = new LoadParser.Configuration("Product", new String[] { "Id" }, false, "Product", "Product");
+        LoadParser.parse(testResource, config, callback);
+        assertTrue(callback.hasBeenFlushed());
+        assertEquals(1, callback.getFlushCount());
+        assertEquals(13, callback.getStartedElements().size());
+        assertTrue(hasParsedElement(callback, "Product"));
+        assertTrue(hasParsedElement(callback, "Name"));
+        assertTrue(hasParsedCharacters(callback, "a&b<c>s"));
+        assertEquals("123", callback.getId());
     }
 
     private boolean hasParsedCharacters(ParserTestCallback callback, String string) {
