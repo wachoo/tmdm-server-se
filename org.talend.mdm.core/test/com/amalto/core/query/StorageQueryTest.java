@@ -1562,6 +1562,21 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testSelectIdFromXPath() throws Exception {
+        UserQueryBuilder qb = from(person).select(person.getField("firstname"));
+        qb.select(person, "../../i");
+        qb.where(eq(person.getField("id"), "1"));
+        qb.orderBy(person.getField("firstname"), OrderBy.Direction.ASC);
+
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        for (DataRecord result : storageResults) {
+            for (FieldMetadata fieldMetadata : result.getSetFields()) {
+                assertNotNull(result.get(fieldMetadata));
+            }
+        }
+    }
+
+
     public void testCompositeFKCollectionSearch() throws Exception {
         UserQueryBuilder qb = from(person).selectId(person).where(eq(person.getField("addresses/address"), "[3][false]"));
         StorageResults storageResults = storage.fetch(qb.getSelect());

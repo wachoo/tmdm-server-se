@@ -211,7 +211,7 @@ class IdQueryHandler extends AbstractQueryHandler {
                         Collections.<String>emptyList(),
                         Collections.<String>emptyList());
                 explicitProjectionType.addField(fieldType);
-                nextRecord.set(fieldMetadata, o);
+                nextRecord.set(fieldType, o);
             }
             return null;
         }
