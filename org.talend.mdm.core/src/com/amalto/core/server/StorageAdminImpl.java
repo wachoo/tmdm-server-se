@@ -78,7 +78,7 @@ public class StorageAdminImpl implements StorageAdmin {
             if (!XSystemObjects.DC_UPDATE_PREPORT.getName().equalsIgnoreCase(actualStorageName)) { //TODO would be better to decide whether a staging area should be created or not in a method.
                 boolean hasDataSource = ServerContext.INSTANCE.get().hasDataSource(dataSourceName, actualStorageName, StorageType.STAGING);
                 if (hasDataSource) {
-                    internalCreateStorage(actualDataModelName + STAGING_SUFFIX, actualStorageName, dataSourceName, StorageType.STAGING, revisionId);
+                    internalCreateStorage(actualDataModelName, actualStorageName, dataSourceName, StorageType.STAGING, revisionId);
                 }
             }
             return masterDataModelStorage;
@@ -95,13 +95,17 @@ public class StorageAdminImpl implements StorageAdmin {
             // May get request for "StorageName/Concept", but for SQL it does not make any sense.
             // See com.amalto.core.storage.StorageWrapper.createCluster()
             storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
+            if (storageType == StorageType.STAGING) {
+                if (!dataModelName.endsWith(STAGING_SUFFIX)) {
+                    dataModelName += STAGING_SUFFIX;
+                }
+                if (!storageName.endsWith(STAGING_SUFFIX)) {
+                    storageName += STAGING_SUFFIX;
+                }
+            }
             if (getRegisteredStorage(storageName, revisionId) != null) {
                 LOGGER.warn("Storage for '" + storageName + "' already exists. It needs to be deleted before it can be recreated.");
                 return get(storageName, revisionId);
-            }
-            dataModelName = StringUtils.substringBefore(dataModelName, "/"); //$NON-NLS-1$
-            if (storageType == StorageType.STAGING && !dataModelName.endsWith(STAGING_SUFFIX)) {
-                dataModelName += STAGING_SUFFIX;
             }
             // Replace all container name, so re-read the configuration.
             dataSource = instance.get().getDataSource(dataSourceName, storageName, revisionId, storageType);
@@ -126,10 +130,8 @@ public class StorageAdminImpl implements StorageAdmin {
         }
         switch (storageType) {
             case MASTER:
-                registerStorage(storageName, revisionId, dataModelStorage);
-                break;
             case STAGING:
-                registerStorage(storageName + STAGING_SUFFIX, revisionId, dataModelStorage);
+                registerStorage(storageName, revisionId, dataModelStorage);
                 break;
             default:
                 throw new IllegalArgumentException("No support for storage type '" + storageType + "'.");
