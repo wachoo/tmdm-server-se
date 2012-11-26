@@ -12,6 +12,7 @@
 package com.amalto.core.metadata;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -77,6 +78,11 @@ public class ContainedComplexTypeRef extends ContainedComplexTypeMetadata {
 
     @Override
     public Collection<ComplexTypeMetadata> getSubTypes() {
-        return reference.getSubTypes();
+        List<ComplexTypeMetadata> subTypes = new LinkedList<ComplexTypeMetadata>();
+        for (ComplexTypeMetadata subType : reference.getSubTypes()) {
+            subTypes.add(subType);
+            subTypes.addAll(subType.getSubTypes());
+        }
+        return subTypes;
     }
 }

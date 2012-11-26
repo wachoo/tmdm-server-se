@@ -284,6 +284,11 @@ public class ComplexTypeMetadataImpl extends AbstractMetadataExtensible implemen
     }
 
     public Collection<ComplexTypeMetadata> getSubTypes() {
+        List<ComplexTypeMetadata> subTypes = new LinkedList<ComplexTypeMetadata>();
+        for (ComplexTypeMetadata subType : this.subTypes) {
+            subTypes.add(subType);
+            subTypes.addAll(subType.getSubTypes());
+        }
         return subTypes;
     }
 
