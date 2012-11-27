@@ -250,12 +250,25 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                 int length = ((CompoundFieldMetadata) referencedField).getFields().length;
                 Object[] fieldValues = new Object[length];
                 System.arraycopy(values, currentIndex, fieldValues, 0, length);
-                currentElement.value = fieldValues;
+                currentElement.value = isNullValue(fieldValues) ? null : fieldValues;
                 currentIndex += length;
             } else {
                 currentElement.value = values[currentIndex++];
             }
             return currentElement;
+        }
+
+        private boolean isNullValue(Object[] fieldValues) {
+            boolean isnull = true;
+            if (fieldValues == null)
+                return isnull;
+            for (Object o : fieldValues) {
+                if (o != null) {
+                    isnull = false;
+                    break;
+                }
+            }
+            return isnull;
         }
 
         @Override
