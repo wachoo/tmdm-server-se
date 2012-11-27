@@ -3565,7 +3565,7 @@
 			<output message="tns:extractUsingTransformerResponse" />
 		</operation>
 		<operation name="extractUsingTransformerThruView">
-		    <wsdl:documentation>Extract an Item using its key and return the result after having it processed through a Transformer and filtered by a View</wsdl:documentation>
+		    <wsdl:documentation>Extract results through a view and transform them using a transformer</wsdl:documentation>
 			<input message="tns:extractUsingTransformerThruViewRequest" />
 			<output message="tns:extractUsingTransformerThruViewResponse" />
 		</operation>
