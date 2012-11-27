@@ -25,6 +25,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -62,6 +64,7 @@ import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.xmlserver.interfaces.XmlServerException;
 
 @SuppressWarnings("nls")
 public class StorageQueryTest extends StorageTestCase {
@@ -83,6 +86,8 @@ public class StorageQueryTest extends StorageTestCase {
     private final String E2_Record5 = "<E2><subelement>6767</subelement><subelement1>7878</subelement1><name>ioiu</name><fk>[ccc][ddd]</fk></E2>";
 
     private final String E2_Record6 = "<E2><subelement>999</subelement><subelement1>888</subelement1><name>iuiiu</name><fk>[ccc][ddd]</fk></E2>";
+
+    private final String E2_Record7 = "<E2><subelement>119</subelement><subelement1>120</subelement1><name>zhang</name></E2>";
 
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
@@ -205,6 +210,7 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords.add(factory.read("1", repository, e2, E2_Record4));
         allRecords.add(factory.read("1", repository, e2, E2_Record5));
         allRecords.add(factory.read("1", repository, e2, E2_Record6));
+        allRecords.add(factory.read("1", repository, e2, E2_Record7));
 
         try {
             storage.begin();
@@ -1854,7 +1860,7 @@ public class StorageQueryTest extends StorageTestCase {
     public void testFetchAllE2() {
         UserQueryBuilder qb = from(e2);
         StorageResults results = storage.fetch(qb.getSelect());
-        assertEquals(6, results.getCount());
+        assertEquals(7, results.getCount());
 
         DataRecordXmlWriter writer = new DataRecordXmlWriter();
         ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -1866,8 +1872,48 @@ public class StorageQueryTest extends StorageTestCase {
             }
         }
         String actual = new String(output.toByteArray());
-        assertEquals(E2_Record1 + E2_Record2 + E2_Record3 + E2_Record4 + E2_Record5 + E2_Record6, actual);
+        assertEquals(E2_Record1 + E2_Record2 + E2_Record3 + E2_Record4 + E2_Record5 + E2_Record6 + E2_Record7, actual);
     }
+
+    public void testFetchAllE2WithViewSearchResultsWriter() throws Exception {
+        UserQueryBuilder qb = from(e2);
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(7, results.getCount());
+        DataRecordWriter writer = new ViewSearchResultsWriter();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        ArrayList<String> resultsAsString = new ArrayList<String>();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+            } catch (IOException e) {
+                throw new XmlServerException(e);
+            }
+            String document = new String(output.toByteArray(), Charset.forName("UTF-8"));
+            resultsAsString.add(document);
+            output.reset();
+        }
+
+        assertEquals(7, resultsAsString.size());
+
+        final String startRoot = "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">";
+        final String endRoot = "</result>";
+
+        assertEquals(startRoot + "<subelement>111</subelement><subelement1>222</subelement1><name>qwe</name><fk>[ccc][ddd]</fk>"
+                + endRoot, resultsAsString.get(0).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot + "<subelement>344</subelement><subelement1>544</subelement1><name>55</name><fk>[aaa][bbb]</fk>"
+                + endRoot, resultsAsString.get(1).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot + "<subelement>333</subelement><subelement1>444</subelement1><name>tyty</name><fk>[ttt][yyy]</fk>"
+                + endRoot, resultsAsString.get(2).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot + "<subelement>666</subelement><subelement1>777</subelement1><name>iuj</name><fk>[aaa][bbb]</fk>"
+                + endRoot, resultsAsString.get(3).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot+ "<subelement>6767</subelement><subelement1>7878</subelement1><name>ioiu</name><fk>[ccc][ddd]</fk>"
+                + endRoot, resultsAsString.get(4).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot + "<subelement>999</subelement><subelement1>888</subelement1><name>iuiiu</name><fk>[ccc][ddd]</fk>"
+                + endRoot, resultsAsString.get(5).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot + "<subelement>119</subelement><subelement1>120</subelement1><name>zhang</name>"
+                + endRoot,resultsAsString.get(6).replaceAll("\\r|\\n|\\t", ""));
+    }
+
 
     public void testStringFieldConstraint() throws Exception {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
