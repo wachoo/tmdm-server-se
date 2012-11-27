@@ -65,6 +65,14 @@
 		<copy file="${webservice}" tofile="${jboss.deploy.dir}/${webservice}"/>	 
 
     </target>
-
+	
+	<target name="doc">
+		 <delete file="doc/webservice_api_doc.html"/>
+	     <xslt in="doc/webservices-allinone.wsdl" out="doc/webservice_api_doc.html" style="doc/wsdl-viewer.xsl">
+	          <outputproperty name="method" value="html"/>
+	          <outputproperty name="encoding" value="UTF-8"/>
+	          <outputproperty name="indent" value="yes"/>
+	     </xslt>
+	</target>
 
 </project>
