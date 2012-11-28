@@ -1691,6 +1691,38 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testValueSelectInNested() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                person,
+                                "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John" +
+                                        "</middlename><firstname>Juste</firstname><addresses><address>[3][false]" +
+                                        "</address><address>[1][false]</address></addresses><age>30</age>" +
+                                        "<knownAddresses><knownAddress><Street>Street 1</Street><City>City 1</City>" +
+                                        "<Phone>012345</Phone></knownAddress>" +
+                                        "<knownAddress><Street>Street 2</Street><City>City 2</City><Phone>567890" +
+                                        "</Phone></knownAddress></knownAddresses>" +
+                                        "<Status>Friend</Status></Person>"));
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+        UserQueryBuilder qb = from(person)
+                .selectId(person)
+                .select(person.getField("knownAddresses/knownAddress/City"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        List<String> expected = new LinkedList<String>();
+        expected.add("City 1");
+        expected.add("City 2");
+        for (DataRecord result : results) {
+            assertTrue(expected.remove((String) result.get("City")));
+        }
+        assertTrue(expected.isEmpty());
+    }
+
     public void testSelectCompositeFK() throws Exception {
         ComplexTypeMetadata a1 = repository.getComplexType("a1");
         ComplexTypeMetadata a2 = repository.getComplexType("a2");
