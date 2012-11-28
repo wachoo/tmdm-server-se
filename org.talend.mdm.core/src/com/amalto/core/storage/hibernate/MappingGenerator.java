@@ -604,7 +604,10 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         }
         // TMDM-4975: Oracle doesn't like when there's too much text columns.
         if (TEXT_TYPE_NAME.equals(elementTypeName) && dialect == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
-            elementTypeName = "clob"; //$NON-NLS-1$
+            elementTypeName = "string"; //$NON-NLS-1$
+            Attr length = document.createAttribute("length"); //$NON-NLS-1$
+            length.setValue(String.valueOf(4000));
+            propertyElement.getAttributes().setNamedItem(length);
         }
         elementType.setValue(elementTypeName);
         propertyElement.getAttributes().setNamedItem(elementType);
