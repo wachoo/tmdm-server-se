@@ -34,13 +34,22 @@ import com.amalto.core.load.Constants;
  *
  */
 public class StateContextSAXWriter implements StateContextWriter {
+
     private final ContentHandler contentHandler;
 
     private final boolean escapeCharacters;
 
     public StateContextSAXWriter(ContentHandler contentHandler) {
-        this.escapeCharacters = this.escapeCharacters();
         this.contentHandler = contentHandler;
+        // Using Qizx in server mode , characters must be escaped. See TMDM-4977 & TMDM-3780
+        Properties props = MDMConfiguration.getConfiguration();
+        String serverClass = props.getProperty("xmlserver.class"); //$NON-NLS-1$
+        if ("org.talend.mdm.qizx.xmldb.QizxWrapper".equals(serverClass)) { //$NON-NLS-1$
+            String qizxType = props.getProperty("qizx.db.type"); //$NON-NLS-1$
+            escapeCharacters = "server".equals(qizxType); //$NON-NLS-1$
+        } else {
+            escapeCharacters = false;
+        }
     }
 
     public void writeEndDocument() throws XMLStreamException, SAXException {
@@ -101,19 +110,6 @@ public class StateContextSAXWriter implements StateContextWriter {
             chars = characters.toCharArray();
         }
         contentHandler.characters(chars, 0, chars.length);
-    }
-
-    /**
-     * Using Qizx in server mode , characters must be escaped. See TMDM-4977 & TMDM-3780
-     */
-    private boolean escapeCharacters() {
-        Properties props = MDMConfiguration.getConfiguration();
-        String serverClass = props.getProperty("xmlserver.class"); //$NON-NLS-1$
-        if ("org.talend.mdm.qizx.xmldb.QizxWrapper".equals(serverClass)) { //$NON-NLS-1$
-            String qizxdbType = props.getProperty("qizx.db.type"); //$NON-NLS-1$
-            return "server".equals(qizxdbType); //$NON-NLS-1$
-        }
-        return false;
     }
 
     public void writeEndElement(String elementLocalName) throws Exception {
