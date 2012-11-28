@@ -19,7 +19,9 @@ public interface StagingareaMessages extends Messages {
     String stagingarea_title();
 
     String status();
+
     String current_validation();
+
     String previous_validation();
 
     String server_error();
@@ -33,7 +35,9 @@ public interface StagingareaMessages extends Messages {
     String refresh();
 
     String valid();
+
     String invalid();
+
     String waiting();
 
     String nodata();
@@ -49,6 +53,7 @@ public interface StagingareaMessages extends Messages {
     String open_invalid_record();
 
     String valid_desc(String prefix, String valid, String postfix);
+
     String start_validation();
 
     String no_validation();
@@ -56,25 +61,31 @@ public interface StagingareaMessages extends Messages {
     String auto_refresh();
 
     String record_to_process();
+
     String invalid_record();
+
     String eta();
 
     String percentage(int process, int total, double percentage);
 
-    String valid_percentage(int valid, double percentage);
-
     String display_before();
+
     String search();
 
     String start_date();
+
     String end_date();
+
     String process_records();
+
     String invalid_records();
+
     String total_record();
 
     String on();
 
     String off();
+
     String cancel();
 
     String please_confirm();
