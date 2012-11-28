@@ -39,7 +39,7 @@ public class EndPayload implements State {
 
         if (!context.isFlushDone()) {
             if (!context.isMetadataReady()) {
-                throw new IllegalStateException("End of XML payload detected but metadata isn't ready.");
+                throw new IllegalStateException("End of XML payload for type '" + context.getPayLoadElementName() + "' detected but metadata isn't ready.");
             }
             Utils.doParserCallback(context, reader, context.getMetadata());
         }
