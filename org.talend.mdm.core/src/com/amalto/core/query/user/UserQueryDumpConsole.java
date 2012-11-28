@@ -579,6 +579,7 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         increaseIndent();
         {
             orderBy.getField().accept(this);
+            print("Direction: " + orderBy.getDirection());
         }
         decreaseIndent();
         return null;
