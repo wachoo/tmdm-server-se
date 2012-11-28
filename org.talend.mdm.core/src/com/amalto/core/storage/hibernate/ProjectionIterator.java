@@ -250,6 +250,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                 int length = ((CompoundFieldMetadata) referencedField).getFields().length;
                 Object[] fieldValues = new Object[length];
                 System.arraycopy(values, currentIndex, fieldValues, 0, length);
+                // Only include composite FK value if there's an actual key value.
                 currentElement.value = isNullValue(fieldValues) ? null : fieldValues;
                 currentIndex += length;
             } else {
@@ -259,16 +260,15 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
         }
 
         private boolean isNullValue(Object[] fieldValues) {
-            boolean isnull = true;
-            if (fieldValues == null)
-                return isnull;
+            if (fieldValues == null) {
+                return true;
+            }
             for (Object o : fieldValues) {
                 if (o != null) {
-                    isnull = false;
-                    break;
+                    return false;
                 }
             }
-            return isnull;
+            return true;
         }
 
         @Override
