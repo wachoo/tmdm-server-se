@@ -70,6 +70,12 @@ public class StorageTestCase extends TestCase {
 
     protected static final ComplexTypeMetadata updateReport;
 
+    protected static final ComplexTypeMetadata persons;
+
+    protected static final ComplexTypeMetadata employee;
+
+    protected static final ComplexTypeMetadata manager;
+
     protected static TestUserDelegator userSecurity = new TestUserDelegator();
 
     public static final String DATABASE = "H2";
@@ -102,9 +108,12 @@ public class StorageTestCase extends TestCase {
         e2 = repository.getComplexType("E2");
 
         e1 = repository.getComplexType("E1");
-
+        persons = repository.getComplexType("Persons");
+        employee = repository.getComplexType("Employee");
+        manager = repository.getComplexType("Manager");
         storage.init(getDatasource(DATABASE + "-Default"));
-        List<FieldMetadata> indexedFields = Arrays.asList(person.getField("firstname"), person.getField("score"), address.getField("score"));
+        List<FieldMetadata> indexedFields = Arrays.asList(person.getField("firstname"), person.getField("score"),
+                address.getField("score"));
         storage.prepare(repository, new HashSet<FieldMetadata>(indexedFields), true, true);
         LOG.info("Storage prepared.");
     }

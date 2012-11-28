@@ -289,6 +289,16 @@ public class StorageQueryTest extends StorageTestCase {
 
     }
 
+    public void testSelectWithUselessIsa() throws Exception {
+        UserQueryBuilder qb = from(person).isa(person);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
     public void testSelectId() throws Exception {
         List<FieldMetadata> keyFields = person.getKeyFields();
         assertEquals(1, keyFields.size());

@@ -10,6 +10,12 @@
 
 package com.amalto.core.query;
 
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -22,12 +28,6 @@ import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
-
 @SuppressWarnings("nls")
 public class InheritanceTest extends StorageTestCase {
 
@@ -36,6 +36,9 @@ public class InheritanceTest extends StorageTestCase {
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
         allRecords.add(factory.read("1", repository, b, "<B><id>1</id><textB>TextB</textB></B>"));
         allRecords.add(factory.read("1", repository, d, "<D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D>"));
+        allRecords.add(factory.read("1", repository, persons, "<Persons><name>person</name><age>20</age></Persons>"));
+        allRecords.add(factory.read("1", repository, employee, "<Employee><name>employee</name><age>21</age><jobTitle>Test</jobTitle></Employee>"));
+        allRecords.add(factory.read("1", repository, manager, "<Manager><name>manager</name><age>25</age><jobTitle>Test</jobTitle><dept>manager</dept></Manager>"));
         allRecords
                 .add(factory
                         .read("1",
@@ -66,12 +69,53 @@ public class InheritanceTest extends StorageTestCase {
 
     public void testTypeOrdering() throws Exception {
         List<ComplexTypeMetadata> sortedList = MetadataUtils.sortTypes(repository);
-        String[] expectedOrder = { "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "ProductFamily", "TypeA",
-                "Update", "E1", "E2", "ff", "Country", "Address", "Person", "Supplier", "B", "D", "A", "C", "a2", "a1",
-                "Store", "Product" };
+        String[] expectedOrder = { "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "ProductFamily", "Persons", "Employee", "TypeA", "Update",
+                "E1", "E2", "ff", "Country", "Address", "Person", "Supplier", "Manager", "B", "D", "A", "C", "a2", "a1", "Store", "Product" };
         int i = 0;
         for (ComplexTypeMetadata sortedType : sortedList) {
             assertEquals(expectedOrder[i++], sortedType.getName());
+        }
+    }
+
+    public void testInheritanceQuery() throws Exception {
+        // SuperType Query (Persons exist subtype)
+        UserQueryBuilder qb = UserQueryBuilder.from(persons);
+        qb.isa(persons);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        // SubType Query (employee exist super type and subtype)
+        qb = UserQueryBuilder.from(employee);
+        qb.isa(employee);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        // SubType Query (manager exist super type, no subtype)
+        qb = UserQueryBuilder.from(manager);
+        qb.isa(manager);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testNonAssignableIsa() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(a);
+        try {
+            qb.isa(persons);
+            fail("Persons is not assignable from type A. Expected an exception.");
+        } catch (IllegalArgumentException e) {
+            // Expected
         }
     }
 
@@ -225,8 +269,7 @@ public class InheritanceTest extends StorageTestCase {
         ComplexTypeMetadata nested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "Nested");
         assertNotNull(nested);
         // Test 1
-        UserQueryBuilder qb = UserQueryBuilder.from(a)
-                .where(isa(a.getField("nestedB"), subNested));
+        UserQueryBuilder qb = UserQueryBuilder.from(a).where(isa(a.getField("nestedB"), subNested));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
@@ -237,8 +280,7 @@ public class InheritanceTest extends StorageTestCase {
             results.close();
         }
         // Test 2
-        qb = UserQueryBuilder.from(a)
-                .where(or(isa(a.getField("nestedB"), nested), isa(a.getField("nestedB"), subNested)));
+        qb = UserQueryBuilder.from(a).where(or(isa(a.getField("nestedB"), nested), isa(a.getField("nestedB"), subNested)));
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getCount());
@@ -246,8 +288,7 @@ public class InheritanceTest extends StorageTestCase {
             results.close();
         }
         // Test 3
-        qb = UserQueryBuilder.from(a)
-                .where(isa(a.getField("nestedB"), nested));
+        qb = UserQueryBuilder.from(a).where(isa(a.getField("nestedB"), nested));
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getCount());
@@ -262,8 +303,7 @@ public class InheritanceTest extends StorageTestCase {
         ComplexTypeMetadata nested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "Nested");
         assertNotNull(nested);
         // Test 1
-        UserQueryBuilder qb = UserQueryBuilder.from(a)
-                .select(alias(type(a.getField("nestedB")), "type"))
+        UserQueryBuilder qb = UserQueryBuilder.from(a).select(alias(type(a.getField("nestedB")), "type"))
                 .where(isa(a.getField("nestedB"), subNested));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -278,8 +318,8 @@ public class InheritanceTest extends StorageTestCase {
 
     public void testIsaFromWhereItem() throws Exception {
         UserQueryBuilder qb = UserQueryBuilder.from(a);
-        IWhereItem item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition("A/nestedB/xsi:type", WhereCondition.EQUALS, "SubNested",
-                WhereCondition.NO_OPERATOR)));
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition("A/nestedB/xsi:type", WhereCondition.EQUALS,
+                "SubNested", WhereCondition.NO_OPERATOR)));
         qb.getSelect().setCondition(UserQueryHelper.buildCondition(qb, item, repository));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -294,8 +334,7 @@ public class InheritanceTest extends StorageTestCase {
 
     public void testIsaOnFK() throws Exception {
         try {
-            UserQueryBuilder.from(a)
-                    .where(isa(a.getField("refB"), d));
+            UserQueryBuilder.from(a).where(isa(a.getField("refB"), d));
             fail("Expected exception: can perform 'is a' on a FK");
         } catch (Exception e) {
             // Expected.
@@ -304,8 +343,8 @@ public class InheritanceTest extends StorageTestCase {
 
     public void testIsaOnFKFromWhereItem() throws Exception {
         UserQueryBuilder qb = UserQueryBuilder.from(a);
-        IWhereItem item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition("A/refB/tmdm:type", WhereCondition.EQUALS, "D",
-                WhereCondition.NO_OPERATOR)));
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition("A/refB/tmdm:type", WhereCondition.EQUALS,
+                "D", WhereCondition.NO_OPERATOR)));
         try {
             qb.getSelect().setCondition(UserQueryHelper.buildCondition(qb, item, repository));
             fail("Expected exception: can perform 'is a' on a FK");

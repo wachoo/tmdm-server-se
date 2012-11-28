@@ -185,14 +185,22 @@ public class UserQueryBuilder {
             throw new IllegalStateException("No type is currently selected.");
         }
         ComplexTypeMetadata mainType = getSelect().getTypes().get(0);
-        if (mainType.getSubTypes().isEmpty() || type.equals(mainType)) {
+        if (!type.isAssignableFrom(mainType)) {
+            throw new IllegalArgumentException("Type '" + type.getName() + "' is not assignable from '" + mainType.getName() + "'.");
+        } else if (!type.getSubTypes().isEmpty() || !type.getSuperTypes().isEmpty()) {
+            // In case of "is a", rewrite select so it's performed from the top level type of the inheritance tree.
+            while (!mainType.getSuperTypes().isEmpty()) {
+                mainType = (ComplexTypeMetadata) mainType.getSuperTypes().iterator().next();
+            }
+            getSelect().getTypes().remove(0);
+            getSelect().getTypes().add(mainType);
+            where(new Isa(new ComplexTypeExpression(mainType), type));
+            return this;
+        } else {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Ignore 'is a' statement of type '" + type.getName() + "' since it is not part of an " +
                         "inheritance tree OR a expression like 'type1 isa type1' was detected.");
             }
-            return this;
-        } else {
-            where(new Isa(new ComplexTypeExpression(mainType), type));
             return this;
         }
     }

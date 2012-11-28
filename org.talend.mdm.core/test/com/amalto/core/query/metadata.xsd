@@ -813,7 +813,6 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
-
     <xsd:complexType name="Nested">
         <xsd:sequence>
             <xsd:element maxOccurs="1" minOccurs="1" name="text" type="xsd:string"/>
@@ -1032,4 +1031,71 @@
             <xsd:field xpath="subelement1"/>
         </xsd:unique>
     </xsd:element>
+    <xsd:element name="Persons" type="PersonType">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:unique name="Persons">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="name"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="PersonType">
+        <xsd:sequence>
+            <xsd:element maxOccurs="1" minOccurs="1" name="name" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="age" type="xsd:int">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="Employee" type="EmployeeType">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:unique name="Employee">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="name"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="EmployeeType">
+        <xsd:complexContent>
+            <xsd:extension base="PersonType">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="jobTitle" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:element name="Manager" type="ManagerType">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:unique name="Manager">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="name"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="ManagerType">
+        <xsd:complexContent>
+            <xsd:extension base="EmployeeType">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="dept" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
 </xsd:schema>
