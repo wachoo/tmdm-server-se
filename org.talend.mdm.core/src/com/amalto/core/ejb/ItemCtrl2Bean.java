@@ -518,7 +518,6 @@ public class ItemCtrl2Bean implements SessionBean {
                 LOGGER.error(err);
                 throw new XtentisException(err);
             }
-
             // Check if user is allowed to read the cluster
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
@@ -531,7 +530,6 @@ public class ItemCtrl2Bean implements SessionBean {
                 throw new XtentisException("Unauthorized read access on data cluster '" + dataClusterPOJOPK.getUniqueId() + "' by user '"
                         + user.getUsername() + "'");
             }
-
             // get the universe and revision ID
             UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
             if (universe == null) {
@@ -539,12 +537,10 @@ public class ItemCtrl2Bean implements SessionBean {
                 LOGGER.error(err);
                 throw new XtentisException(err);
             }
-
             Server server = ServerContext.INSTANCE.get();
             String typeName = StringUtils.substringBefore(viewablePaths.get(0), "/"); //$NON-NLS-1$
             String revisionId = universe.getConceptRevisionID(typeName);
             Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), revisionId);
-
             if (storage == null) {
                 // build the patterns to revision ID map
                 LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
@@ -552,16 +548,12 @@ public class ItemCtrl2Bean implements SessionBean {
                 if (universe.getDefaultItemRevisionID() != null) {
                     conceptPatternsToRevisionID.put(".*", universe.getDefaultItemRevisionID());
                 }
-
                 // build the patterns to cluster map - only one cluster at this stage
                 LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
                 conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
-
                 XmlServerSLWrapperLocal xmlServer = Util.getXmlServerCtrlLocal();
-
                 String query = xmlServer.getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot,
                         viewablePaths, whereItem, orderBy, direction, start, limit, spellThreshold, returnCount, Collections.emptyMap());
-
                 return xmlServer.runQuery(null, null, query, null);
             } else {
                 MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
@@ -570,7 +562,7 @@ public class ItemCtrl2Bean implements SessionBean {
                 qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
                 qb.start(start);
                 qb.limit(limit);
-                qb.isa(type);
+                qb.isa(type); //TODO Limit results to "type" only (and not sub types) due to Web UI.
                 if (orderBy != null) {
                     TypedExpression field = UserQueryHelper.getField(repository, typeName, StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
                     if (field == null) {
@@ -584,7 +576,6 @@ public class ItemCtrl2Bean implements SessionBean {
                     }
                     qb.orderBy(field, queryDirection);
                 }
-
                 // Select fields
                 for (String viewablePath : viewablePaths) {
                     String viewableTypeName = StringUtils.substringBefore(viewablePath, "/"); //$NON-NLS-1$
@@ -592,10 +583,9 @@ public class ItemCtrl2Bean implements SessionBean {
                     if (!viewableFieldName.isEmpty()) {
                         qb.select(repository.getComplexType(viewableTypeName), viewableFieldName);
                     } else {
-                        qb.selectId(repository.getComplexType(viewableTypeName)); // Select id if xPath is 'typeName' and and 'typeName/field'
+                        qb.selectId(repository.getComplexType(viewableTypeName)); // Select id if xPath is 'typeName' and not 'typeName/field'
                     }
                 }
-
                 StorageResults results;
                 ArrayList<String> resultsAsString = new ArrayList<String>();
                 if (returnCount) {
@@ -623,7 +613,6 @@ public class ItemCtrl2Bean implements SessionBean {
                         writer.flush();
                     }
                 };
-
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 for (DataRecord result : results) {
                     try {
@@ -1117,38 +1106,38 @@ public class ItemCtrl2Bean implements SessionBean {
             Server mdmServer = ServerContext.INSTANCE.get();
             Storage storage = mdmServer.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), null);
 
+            ILocalUser user = LocalUser.getLocalUser();
+            boolean authorized = false;
+            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
+                authorized = true;
+            } else if (user.userCanRead(DataClusterPOJO.class, dataClusterPOJOPK.getUniqueId())) {
+                authorized = true;
+            }
+            if (!authorized) {
+                throw new RemoteException("Unauthorized read access on data cluster " + dataClusterPOJOPK.getUniqueId()
+                        + " by user " + user.getUsername());
+            }
+
+            if (!Util.isSystemDC(dataClusterPOJOPK)) {
+                // Check the threshold number
+                long totalItemsInDataContainer = count(dataClusterPOJOPK, "*", null, -1);
+                int threshold = MDMConfiguration.getAutoEntityFindThreshold();
+                if (totalItemsInDataContainer > threshold) {
+                    if (LOGGER.isDebugEnabled())
+                        LOGGER.debug("Won't calculate concepts in DataCluster \"" + dataClusterPOJOPK.getUniqueId() //$NON-NLS-1$
+                                + "\", because total items in data container " + totalItemsInDataContainer //$NON-NLS-1$
+                                + " is over the limit " + threshold + "! "); //$NON-NLS-1$ //$NON-NLS-2$
+                    return null;
+                }
+            }
+
+            // This should be moved to ItemCtrl
+            // get the universe
+            if (universe == null) {
+                universe = user.getUniverse();
+            }
+
             if (storage == null) {
-                ILocalUser user = LocalUser.getLocalUser();
-                boolean authorized = false;
-                if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
-                    authorized = true;
-                } else if (user.userCanRead(DataClusterPOJO.class, dataClusterPOJOPK.getUniqueId())) {
-                    authorized = true;
-                }
-                if (!authorized) {
-                    throw new RemoteException("Unauthorized read access on data cluster " + dataClusterPOJOPK.getUniqueId()
-                            + " by user " + user.getUsername());
-                }
-
-                if (!Util.isSystemDC(dataClusterPOJOPK)) {
-                    // Check the threshold number
-                    long totalItemsInDataContainer = count(dataClusterPOJOPK, "*", null, -1);
-                    int threshold = MDMConfiguration.getAutoEntityFindThreshold();
-                    if (totalItemsInDataContainer > threshold) {
-                        if (LOGGER.isDebugEnabled())
-                            LOGGER.debug("Won't calculate concepts in DataCluster \"" + dataClusterPOJOPK.getUniqueId() //$NON-NLS-1$
-                                    + "\", because total items in data container " + totalItemsInDataContainer //$NON-NLS-1$
-                                    + " is over the limit " + threshold + "! "); //$NON-NLS-1$ //$NON-NLS-2$
-                        return null;
-                    }
-                }
-
-                // This should be moved to ItemCtrl
-                // get the universe
-                if (universe == null) {
-                    universe = user.getUniverse();
-                }
-
                 // make sure we do not check a revision twice
                 Set<String> revisionsChecked = new HashSet<String>();
 
