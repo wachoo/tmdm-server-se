@@ -111,12 +111,16 @@ public class SkipAttributeDocumentBuilder extends DocumentBuilder {
                 if ("xmlns".equals(prefix)) { //$NON-NLS-1$
                     // Namespace declaration: keeps the prefix associated with the namespace URI.
                     prefixDeclarations.put(name, value);
+                    // Add a xmlns:attribute to variable element
+                    Attr attribute = document.createAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, qualifiedName);
+                    attribute.setValue(value);
+                    element.setAttributeNodeNS(attribute);
                 } else {
                     String namespaceURI = prefixDeclarations.get(prefix);
                     if (namespaceURI == null) {
-                        if ("xsi".equals(prefix)) {  //$NON-NLS-1$
+                        if ("xsi".equals(prefix)) { //$NON-NLS-1$
                             namespaceURI = XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
-                        } else if ("tmdm".equals(prefix)) {  //$NON-NLS-1$
+                        } else if ("tmdm".equals(prefix)) { //$NON-NLS-1$
                             namespaceURI = SkipAttributeDocumentBuilder.TALEND_NAMESPACE;
                         } else {
                             throw new IllegalArgumentException("Prefix '" + prefix + "' isn't declared;");

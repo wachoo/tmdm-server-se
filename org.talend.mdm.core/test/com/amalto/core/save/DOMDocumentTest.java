@@ -10,11 +10,20 @@
 package com.amalto.core.save;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import com.amalto.core.history.MutableDocument;
+import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.util.Util;
 
 import junit.framework.TestCase;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 @SuppressWarnings("nls")
 public class DOMDocumentTest extends TestCase {
@@ -30,4 +39,27 @@ public class DOMDocumentTest extends TestCase {
         assertNotNull(doc.exportToString());
         assertFalse(doc.exportToString().contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
     }
+
+    public void testIncludeXSINamespace() throws Exception {
+        String xml = "<Organisation xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><IdOrganisation>5797</IdOrganisation></Organisation>";
+        InputStream documentStream = new ByteArrayInputStream(xml.getBytes("UTF-8"));
+        // Parsing
+        MutableDocument userDocument;
+        DocumentBuilderFactory DOM_PARSER_FACTORY = DocumentBuilderFactory.newInstance();
+        DOM_PARSER_FACTORY.setNamespaceAware(true);
+        DOM_PARSER_FACTORY.setIgnoringComments(true);
+        DOM_PARSER_FACTORY.setValidating(false);
+        try {
+            // Don't ignore talend internal attributes when parsing this document
+            DocumentBuilder documentBuilder = new SkipAttributeDocumentBuilder(DOM_PARSER_FACTORY.newDocumentBuilder(), false);
+            InputSource source = new InputSource(documentStream);
+            Document userDomDocument = documentBuilder.parse(source);
+            userDocument = new DOMDocument(userDomDocument);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to parse document to save.", e);
+        }
+        assertNotNull(userDocument);
+        assertEquals(xml, userDocument.exportToString());
+    }
+
 }
