@@ -188,7 +188,12 @@ public class UserQueryHelper {
         if (field == null) {
             throw new IllegalArgumentException("Field '" + fieldName + "' does not exist in type '" + typeName + "'.");
         }
-        return new Field(field);
+        if (field instanceof ContainedTypeFieldMetadata) {
+            // Field does not contain a value, expected behavior is to return empty string.
+            return new Alias(new StringConstant(StringUtils.EMPTY), field.getName());
+        } else {
+            return new Field(field);
+        }
     }
 
     private static class NoOpCondition extends Condition {
