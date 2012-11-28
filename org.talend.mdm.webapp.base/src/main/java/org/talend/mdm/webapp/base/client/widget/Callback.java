@@ -13,5 +13,5 @@
 package org.talend.mdm.webapp.base.client.widget;
 
 public interface Callback {
-    void doAction(Object value);
+    void doAction(Object value,Boolean isClose);
 }

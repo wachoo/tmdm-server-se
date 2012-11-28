@@ -30,7 +30,7 @@ public class LogicalDeleteAction implements DeleteAction {
             public void onSuccess(Void arg0) {
                 progressBar.close();
                 postDeleteAction.doAction();
-                CallbackAction.getInstance().doAction(CallbackAction.HIERARCHY_DELETEITEM_CALLBACK,null);
+                CallbackAction.getInstance().doAction(CallbackAction.HIERARCHY_DELETEITEM_CALLBACK,null,false);
             }
 
             @Override
