@@ -59,7 +59,10 @@ public interface StagingareaMessages extends Messages {
     String invalid_record();
     String eta();
 
-    String percentage(int process, int total);
+    String percentage(int process, int total, double percentage);
+
+    String valid_percentage(int valid, double percentage);
+
     String display_before();
     String search();
 

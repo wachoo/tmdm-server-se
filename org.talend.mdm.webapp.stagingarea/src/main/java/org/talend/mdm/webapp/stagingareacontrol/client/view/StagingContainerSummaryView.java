@@ -12,8 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
-import org.talend.mdm.webapp.base.client.model.UserContextModel;
-import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerModel;
 
@@ -21,14 +19,13 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.IconAlign;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.ProgressBar;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
 
 public class StagingContainerSummaryView extends AbstractView {
 
@@ -42,21 +39,9 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private StagingContainerModel stagingContainerModel;
 
+    private ProgressBar gaugesBar;
+
     private Button startValidate;
-
-    private FlexTable titleGrid;
-
-    private Label titleLabel;
-
-    private Label containerLabel;
-
-    private Label containerName;
-
-    private Label modelLabel;
-
-    private Label dataModelName;
-
-    private SimplePanel chartPanel;
 
     private final int CHART_WIDTH = 400;
 
@@ -64,31 +49,8 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private HTMLPanel detailPanel;
 
-    private void initPieChart() {
-        chartPanel = new SimplePanel();
-        chartPanel.setSize(50 + "px", CHART_HEIGHT + "px"); //$NON-NLS-1$//$NON-NLS-2$
-    }
-
     @Override
     protected void initComponents() {
-        UserContextModel ucx = UserContextUtil.getUserContext();
-        initPieChart();
-
-        titleLabel = new Label(messages.staging_area_title());
-        titleLabel.setTagName("div"); //$NON-NLS-1$
-        titleLabel.setStyleAttribute("font-weight", "bold"); //$NON-NLS-1$//$NON-NLS-2$
-        titleLabel.setStyleAttribute("font-size", "14px"); //$NON-NLS-1$//$NON-NLS-2$
-        containerLabel = new Label(messages.data_container());
-        containerName = new Label(ucx.getDataContainer());
-        containerName.setStyleAttribute("font-weight", "bold"); //$NON-NLS-1$//$NON-NLS-2$
-
-        modelLabel = new Label(messages.data_model());
-        dataModelName = new Label(ucx.getDataModel());
-        dataModelName.setStyleAttribute("font-weight", "bold"); //$NON-NLS-1$//$NON-NLS-2$
-
-        titleGrid = new FlexTable();
-
-
         StringBuilder buffer = new StringBuilder();
         buffer.append("<div style='margin-bottom:10px; font-weight: bold;' id='" + STAGING_AREA_TITLE + "'></div>"); //$NON-NLS-1$ //$NON-NLS-2$
         buffer.append("<div style='margin-left:20px; color:#0000ff; margin-bottom:5px;' id='" + STAGING_AREA_WAITING + "'></div>"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -99,6 +61,7 @@ public class StagingContainerSummaryView extends AbstractView {
 
         detailPanel.setSize("400px", "80px"); //$NON-NLS-1$//$NON-NLS-2$
 
+        gaugesBar = new ProgressBar();
         startValidate = new Button(messages.start_validation());
         startValidate.setSize(200, 30);
         startValidate.setEnabled(false);
@@ -120,30 +83,19 @@ public class StagingContainerSummaryView extends AbstractView {
 
     @Override
     protected void initLayout() {
-        mainPanel.setLayout(new TableLayout(2));
-        TableData titleData = new TableData();
-        titleData.setColspan(2);
-        titleData.setRowspan(1);
-
-        titleGrid.setWidget(0, 0, titleLabel);
-        titleGrid.getCellFormatter().getElement(0, 0).setAttribute("colSpan", "6"); //$NON-NLS-1$//$NON-NLS-2$
-        titleGrid.setWidget(1, 0, containerLabel);
-        titleGrid.setWidget(1, 1, containerName);
-        containerName.setStyleAttribute("margin-right", "10px"); //$NON-NLS-1$//$NON-NLS-2$
-        titleGrid.setWidget(1, 2, modelLabel);
-        titleGrid.setWidget(1, 3, dataModelName);
-        dataModelName.setStyleAttribute("margin-right", "5px");//$NON-NLS-1$//$NON-NLS-2$
-
-        mainPanel.add(titleGrid, titleData);
-        TableData chartData = new TableData();
-        chartData.setColspan(1);
-        chartData.setRowspan(2);
-        mainPanel.add(chartPanel, chartData);
+        TableLayout mainLayout = new TableLayout(2);
+        mainLayout.setWidth("100%"); //$NON-NLS-1$
+        mainPanel.setLayout(mainLayout);
         TableData detailData = new TableData();
-        detailData.setColspan(1);
+        detailData.setColspan(2);
         detailData.setRowspan(1);
         mainPanel.add(detailPanel, detailData);
+        TableData gaugesData = new TableData();
+        gaugesData.setColspan(1);
+        gaugesData.setRowspan(1);
+        mainPanel.add(gaugesBar, gaugesData);
         TableData startData = new TableData();
+        startData.setWidth("220px"); //$NON-NLS-1$
         startData.setHorizontalAlign(HorizontalAlignment.CENTER);
         mainPanel.add(startValidate, startData);
     }
@@ -191,7 +143,19 @@ public class StagingContainerSummaryView extends AbstractView {
 
 
     private void updateChartData() {
-        // TODO paint a chartPie
+        int valid = stagingContainerModel.getValidRecords();
+        int waiting = stagingContainerModel.getWaitingValidationRecords();
+        int invalid = stagingContainerModel.getInvalidRecords();
+
+        int total = valid + invalid + waiting;
+        if (total == 0) {
+            gaugesBar.reset();
+            return;
+        }
+        double percentage = valid * 1D / total;
+        NumberFormat format = NumberFormat.getFormat("#0.00"); //$NON-NLS-1$
+        final double validPercentage = format.parse(format.format(valid * 100D / total));
+        gaugesBar.updateProgress(percentage, messages.percentage(valid, total, validPercentage));
     }
 
 

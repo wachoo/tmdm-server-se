@@ -33,6 +33,7 @@ import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.google.gwt.i18n.client.NumberFormat;
 
 
 public class CurrentValidationView extends AbstractView {
@@ -160,8 +161,10 @@ public class CurrentValidationView extends AbstractView {
         invalidField.setValue(stagingAreaValidationModel.getInvalidRecords());
 
         int process = stagingAreaValidationModel.getProcessedRecords();
-        double percentage = process * 100 / total;
-        progressBar.updateProgress(percentage / 100, percentage + " %"); //$NON-NLS-1$
+        double percentage = process * 1D / total;
+        NumberFormat format = NumberFormat.getFormat("#0.00"); //$NON-NLS-1$
+        double validPercentage = format.parse(format.format(percentage * 100));
+        progressBar.updateProgress(percentage, validPercentage + " %"); //$NON-NLS-1$
     }
 
     public void setStatus(Status status) {
