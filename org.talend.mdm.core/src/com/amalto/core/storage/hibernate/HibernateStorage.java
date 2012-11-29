@@ -495,7 +495,7 @@ public class HibernateStorage implements Storage {
         assertPrepared();
         Session session = factory.getCurrentSession();
         session.beginTransaction();
-        session.setFlushMode(FlushMode.MANUAL);
+        session.setFlushMode(FlushMode.AUTO);
     }
 
     @Override
@@ -511,7 +511,6 @@ public class HibernateStorage implements Storage {
             throw new IllegalStateException("Can not commit transaction, no transaction is active.");
         }
         try {
-            session.flush();
             if (!transaction.wasCommitted()) {
                 transaction.commit();
             } else {
@@ -520,7 +519,6 @@ public class HibernateStorage implements Storage {
         } catch (ConstraintViolationException e) {
             throw new com.amalto.core.storage.exception.ConstraintViolationException(e);
         }
-
     }
 
     @Override
@@ -696,11 +694,12 @@ public class HibernateStorage implements Storage {
                 }
                 if (factory != null) {
                     factory.close();
-                    factory = null; // close() documentation advises to remove all references to SessionFactory.
+                    factory = null; // SessionFactory#close() documentation advises to remove all references to SessionFactory.
                 }
             } finally {
                 if (storageClassLoader != null) {
                     storageClassLoader.close();
+                    storageClassLoader = null;
                 }
             }
         } finally {

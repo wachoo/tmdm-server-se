@@ -174,9 +174,7 @@ public class DataSourceFactory {
         if (configurationAsStream == null) {
             throw new IllegalStateException("Could not find datasources configuration file '" + dataSourcesFileName + "'.");
         }
-
         return configurationAsStream;
-
     }
 
     private static Map<String, DataSourceDefinition> readDocument(InputStream configurationAsStream) {
@@ -187,7 +185,6 @@ public class DataSourceFactory {
         } catch (Exception e) {
             throw new RuntimeException("Exception occurred during data sources XML configuration parsing", e);
         }
-
         try {
             NodeList datasources = (NodeList) evaluate(document, "/datasources/datasource", XPathConstants.NODESET);
             Map<String, DataSourceDefinition> nameToDataSources = new HashMap<String, DataSourceDefinition>();

@@ -521,8 +521,6 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             return new WSStringArray((String[]) res.toArray(new String[res.size()]));
         } catch (com.amalto.core.util.XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
-            // } catch (com.amalto.webapp.util.XtentisException e) {
-            // throw(new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -560,8 +558,6 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             return new WSStringArray((String[]) res.toArray(new String[res.size()]));
         } catch (com.amalto.core.util.XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
-            // } catch (com.amalto.webapp.util.XtentisException e) {
-            // throw(new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -579,8 +575,6 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             return new WSStringArray((String[]) res.toArray(new String[res.size()]));
         } catch (com.amalto.core.util.XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
-            // } catch (com.amalto.webapp.util.XtentisException e) {
-            // throw(new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -890,8 +884,6 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     new RoutingRulePOJOPK(wsRoutingRuleGet.getWsRoutingRulePK().getPk())));
         } catch (com.amalto.core.util.XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
-            // } catch (com.amalto.webapp.util.XtentisException e) {
-            // throw(new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -941,8 +933,6 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     .putRoutingRule(XConverter.WS2VO(wsRoutingRule.getWsRoutingRule())).getUniqueId());
         } catch (com.amalto.core.util.XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
-            // } catch (com.amalto.webapp.util.XtentisException e) {
-            // throw(new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -1019,8 +1009,6 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 wsList.add(item);
             }
             return new WSServicesList(wsList.toArray(new WSServicesListItem[wsList.size()]));
-            // } catch (com.amalto.core.util.XtentisException e) {
-            // throw(new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -1578,28 +1566,6 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
-    // private WSPipeline POJO2WS(HashMap<String,TypedContent> pipeline) throws Exception{
-    // if (pipeline == null) return null;
-    //
-    // ArrayList<WSPipelineTypedContentEntry> entries = new ArrayList<WSPipelineTypedContentEntry>();
-    // Set keys = pipeline.keySet();
-    // for (Iterator iter = keys.iterator(); iter.hasNext(); ) {
-    // String output = (String) iter.next();
-    // TypedContent content = pipeline.get(output);
-    // byte[] bytes = content.getContentBytes();
-    // WSExtractedContent wsContent = new WSExtractedContent(
-    // new WSByteArray(bytes),
-    // content.getContentType()
-    // );
-    // WSPipelineTypedContentEntry wsEntry = new WSPipelineTypedContentEntry(
-    // output,
-    // wsContent
-    // );
-    // entries.add(wsEntry);
-    // }
-    // return new WSPipeline(entries.toArray(new WSPipelineTypedContentEntry[entries.size()]));
-    // }
-
     /***************************************************************************
      * TRANSFORMER PLUGINS V2
      * **************************************************************************/
@@ -1734,8 +1700,6 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 wsList.add(item);
             }
             return new WSTransformerPluginV2SList(wsList.toArray(new WSTransformerPluginV2SListItem[wsList.size()]));
-            // } catch (XtentisException e) {
-            // throw(new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -2432,8 +2396,6 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                             wsGetItemPKsByCriteria.getWsDataClusterPK(), result, null), ""); //$NON-NLS-1$
                     continue;
                 }
-                // result = _highlightLeft.matcher(result).replaceAll("");
-                // result = _highlightRight.matcher(result).replaceAll("");
                 Element r = documentBuilder.parse(new InputSource(new StringReader(result))).getDocumentElement();
                 long t = new Long(xpath.evaluate("t", r)).longValue(); //$NON-NLS-1$
                 String cn = xpath.evaluate("n", r); //$NON-NLS-1$

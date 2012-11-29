@@ -18,7 +18,7 @@
         <property name="hibernate.dialect" />
         <property name="hibernate.connection.password" />
 
-        <property name="hibernate.jdbc.batch_size">35</property>
+        <property name="hibernate.jdbc.batch_size">100</property>
 
         <property name="hibernate.current_session_context_class">thread</property>
 
