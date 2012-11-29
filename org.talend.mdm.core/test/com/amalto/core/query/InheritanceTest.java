@@ -90,6 +90,7 @@ public class InheritanceTest extends StorageTestCase {
 
         // SubType Query (employee exist super type and subtype)
         qb = UserQueryBuilder.from(employee);
+        qb.select(employee.getField("name"));
         qb.isa(employee);
         results = storage.fetch(qb.getSelect());
         try {
