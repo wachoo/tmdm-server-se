@@ -138,6 +138,9 @@ public class AdvancedSearchPanel extends FormPanel {
     public static void parseSearchExpression(String s) {
         try {
             if (!s.isEmpty()) {
+                if (!s.startsWith("(") && !s.endsWith(")")) { //$NON-NLS-1$ //$NON-NLS-2$
+                    s = "((" + s + "))"; //$NON-NLS-1$ //$NON-NLS-2$
+                }
                 char[] sa = s.toCharArray();
                 BrowseRecords.getSession().put(
                         UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE,

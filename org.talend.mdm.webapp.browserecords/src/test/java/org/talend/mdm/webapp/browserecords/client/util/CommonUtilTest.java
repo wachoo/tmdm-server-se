@@ -70,7 +70,23 @@ public class CommonUtilTest extends TestCase {
             assertTrue(child.getOperator().equals("OR"));
             children = child.getChildren();
             assertTrue(((SimpleCriterion)children.get(0)).getOperator().equals("MORETHAN"));
-            assertTrue(((SimpleCriterion)children.get(1)).getOperator().equals("LESSTHAN"));            
+            assertTrue(((SimpleCriterion)children.get(1)).getOperator().equals("LESSTHAN"));  
+
+            s = "Product/Id CONTAINS *";
+            if (!s.startsWith("(") && !s.endsWith(")")) {
+                s = "((" + s + "))";
+            }
+            r = CommonUtil.parseMultipleSearchExpression(s.toCharArray(), 0);
+            assertTrue(r.cr instanceof MultipleCriteria);
+            assertTrue(r.c == s.length() - 1);
+            mc = (MultipleCriteria) r.cr;
+            assertTrue(mc.getOperator().equals("AND"));
+            children = mc.getChildren();
+            assertTrue(children.size() == 1);
+            SimpleCriterion simpleCriterion = (SimpleCriterion) children.get(0);
+            assertTrue(simpleCriterion.getKey().equals("Product/Id"));
+            assertTrue(simpleCriterion.getOperator().equals("CONTAINS"));
+            assertTrue(simpleCriterion.getValue().equals("*"));
         }
         catch (Exception e) {
             e.printStackTrace();
