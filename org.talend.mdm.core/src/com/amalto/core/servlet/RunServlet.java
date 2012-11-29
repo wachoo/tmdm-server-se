@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
-import org.directwebremoting.ServerContextFactory;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.core.objects.configurationinfo.assemble.AssembleConcreteBuilder;
