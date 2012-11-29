@@ -134,9 +134,16 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                 stats.reportSuccess();
             } catch (Exception e) {
                 recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.FAIL_VALIDATE_VALIDATION);
-                StringWriter exceptionStackTrace = new StringWriter();
-                e.printStackTrace(new PrintWriter(exceptionStackTrace));
-                recordProperties.put(Storage.METADATA_STAGING_ERROR, exceptionStackTrace.toString());
+                StringWriter exceptionMessages = new StringWriter();
+                Throwable current = e;
+                while (current != null) {
+                    exceptionMessages.append(current.getMessage());
+                    current = current.getCause();
+                    if (current != null) {
+                        exceptionMessages.append('\n');
+                    }
+                }
+                recordProperties.put(Storage.METADATA_STAGING_ERROR, exceptionMessages.toString());
                 storage.update(stagingRecord);
                 stats.reportError();
             }
