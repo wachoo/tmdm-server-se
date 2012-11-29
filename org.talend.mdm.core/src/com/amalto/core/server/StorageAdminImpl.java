@@ -95,15 +95,16 @@ public class StorageAdminImpl implements StorageAdmin {
             // May get request for "StorageName/Concept", but for SQL it does not make any sense.
             // See com.amalto.core.storage.StorageWrapper.createCluster()
             storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
+            String registeredStorageName = storageName;
             if (storageType == StorageType.STAGING) {
                 if (!dataModelName.endsWith(STAGING_SUFFIX)) {
                     dataModelName += STAGING_SUFFIX;
                 }
                 if (!storageName.endsWith(STAGING_SUFFIX)) {
-                    storageName += STAGING_SUFFIX;
+                    registeredStorageName = storageName + STAGING_SUFFIX;
                 }
             }
-            if (getRegisteredStorage(storageName, revisionId) != null) {
+            if (getRegisteredStorage(registeredStorageName, revisionId) != null) {
                 LOGGER.warn("Storage for '" + storageName + "' already exists. It needs to be deleted before it can be recreated.");
                 return get(storageName, revisionId);
             }
