@@ -71,6 +71,21 @@ public class CommonUtilTest extends TestCase {
             children = child.getChildren();
             assertTrue(((SimpleCriterion) children.get(0)).getOperator().equals("MORETHAN"));
             assertTrue(((SimpleCriterion) children.get(1)).getOperator().equals("LESSTHAN"));
+            s = "Product/Id CONTAINS *";
+            if (!s.startsWith("(") && !s.endsWith(")")) {
+                s = "((" + s + "))";
+            }
+            r = CommonUtil.parseMultipleSearchExpression(s.toCharArray(), 0);
+            assertTrue(r.cr instanceof MultipleCriteria);
+            assertTrue(r.c == s.length() - 1);
+            mc = (MultipleCriteria) r.cr;
+            assertTrue(mc.getOperator().equals("AND"));
+            children = mc.getChildren();
+            assertTrue(children.size() == 1);
+            SimpleCriterion simpleCriterion = (SimpleCriterion) children.get(0);
+            assertTrue(simpleCriterion.getKey().equals("Product/Id"));
+            assertTrue(simpleCriterion.getOperator().equals("CONTAINS"));
+            assertTrue(simpleCriterion.getValue().equals("*"));
         } catch (Exception e) {
             e.printStackTrace();
             fail();
@@ -362,20 +377,20 @@ public class CommonUtilTest extends TestCase {
         child.setKey(false);
         child.setObjectValue("4");
         model.add(child);
-        
+
         ViewBean viewBean = new ViewBean();
-        EntityModel bindingEntityModel = new EntityModel();        
-        String[] keyPath = {"Product/Price","Product/Id"};        
+        EntityModel bindingEntityModel = new EntityModel();
+        String[] keyPath = { "Product/Price", "Product/Id" };
         bindingEntityModel.setKeys(keyPath);
         viewBean.setBindingEntityModel(bindingEntityModel);
 
-        String[] keys = CommonUtil.extractIDs(model,viewBean);
+        String[] keys = CommonUtil.extractIDs(model, viewBean);
         assertTrue(keys.length == 2);
         assertTrue(keys[0].equals("3"));
         assertTrue(keys[1].equals("1"));
 
         model = new ItemNodeModel();
-        keys = CommonUtil.extractIDs(model,viewBean);
+        keys = CommonUtil.extractIDs(model, viewBean);
         assertTrue(keys.length == 0);
     }
 
@@ -432,5 +447,5 @@ public class CommonUtilTest extends TestCase {
         assertEquals("Company/Code", fkDrawer.getXpathForeignKey());
         assertEquals("Company/Name", fkDrawer.getXpathInfoForeignKey());
     }
-    
+
 }
