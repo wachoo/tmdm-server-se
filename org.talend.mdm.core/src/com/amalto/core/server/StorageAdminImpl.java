@@ -91,11 +91,11 @@ public class StorageAdminImpl implements StorageAdmin {
     private Storage internalCreateStorage(String dataModelName, String storageName, String dataSourceName, StorageType storageType, String revisionId) {
         ServerContext instance = ServerContext.INSTANCE;
         DataSource dataSource = instance.get().getDataSource(dataSourceName, storageName, revisionId, storageType);
+        String registeredStorageName = storageName;
         if (dataSource instanceof RDBMSDataSource) {
             // May get request for "StorageName/Concept", but for SQL it does not make any sense.
             // See com.amalto.core.storage.StorageWrapper.createCluster()
             storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
-            String registeredStorageName = storageName;
             if (storageType == StorageType.STAGING) {
                 if (!dataModelName.endsWith(STAGING_SUFFIX)) {
                     dataModelName += STAGING_SUFFIX;
@@ -132,7 +132,7 @@ public class StorageAdminImpl implements StorageAdmin {
         switch (storageType) {
             case MASTER:
             case STAGING:
-                registerStorage(storageName, revisionId, dataModelStorage);
+                registerStorage(registeredStorageName, revisionId, dataModelStorage);
                 break;
             default:
                 throw new IllegalArgumentException("No support for storage type '" + storageType + "'.");
