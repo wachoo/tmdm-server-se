@@ -621,6 +621,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             for (Iterator iterator = concepts.keySet().iterator(); iterator.hasNext(); i++) {
                 String concept = (String) iterator.next();
                 String revisionId = (String) concepts.get(concept);
+                if (revisionId == null) {
+                    revisionId = ""; //$NON-NLS-1$
+                }
                 WSConceptRevisionMapMapEntry entry = new WSConceptRevisionMapMapEntry(concept, revisionId);
                 mapEntry[i] = entry;
             }
