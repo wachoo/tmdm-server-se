@@ -187,7 +187,7 @@ public class UserQueryBuilder {
         ComplexTypeMetadata mainType = getSelect().getTypes().get(0);
         if (!type.isAssignableFrom(mainType)) {
             throw new IllegalArgumentException("Type '" + type.getName() + "' is not assignable from '" + mainType.getName() + "'.");
-        } else if (!mainType.equals(type) || mainType.getSuperTypes().isEmpty()) {
+        } else if (!mainType.equals(type) || (mainType.getSuperTypes().isEmpty() && !mainType.getSubTypes().isEmpty())) {
             where(new Isa(new ComplexTypeExpression(mainType), type));
             return this;
         } else {
