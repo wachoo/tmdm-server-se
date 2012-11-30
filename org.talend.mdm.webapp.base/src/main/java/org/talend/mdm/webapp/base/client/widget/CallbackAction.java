@@ -36,9 +36,9 @@ public class CallbackAction {
         actions.put(name, action);
     }
     
-    public void doAction(String name,Object value){
+    public void doAction(String name,Object value,String concept,Boolean isClose){ 
         if (actions.get(name) != null){
-            actions.get(name).doAction(value);
+            actions.get(name).doAction(value,concept,isClose); 
         }
     }
 }

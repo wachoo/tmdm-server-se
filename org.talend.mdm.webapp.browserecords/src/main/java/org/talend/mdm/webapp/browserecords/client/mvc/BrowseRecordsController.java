@@ -201,7 +201,7 @@ public class BrowseRecordsController extends Controller {
                         // TMDM-4112 : JavaScript Error on IE8
                         if (detailToolBar.isHierarchyCall())
                             CallbackAction.getInstance().doAction(CallbackAction.HIERARCHY_SAVEITEM_CALLBACK,
-                                    result.getReturnValue());
+                                    result.getReturnValue(),itemBean.getConcept(),isClose);
                     }
                 });
     }

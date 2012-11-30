@@ -26,12 +26,12 @@ public class CallbackActionTest extends TestCase {
     public void testDoAction(){
         CallbackAction.getInstance().putAction("testAcion", new Callback() { //$NON-NLS-1$
 
-            public void doAction(Object value) {
+            public void doAction(Object value,String concept,Boolean isClose) { 
                 assertEquals(value, result);
                 action();
             }
         });   
-        CallbackAction.getInstance().doAction("testAcion", result); //$NON-NLS-1$
+        CallbackAction.getInstance().doAction("testAcion", result,"Prodcut",false); //$NON-NLS-1$ //$NON-NLS-2$
         assertTrue(status);        
     }
 

@@ -40,7 +40,7 @@ public class PhysicalDeleteAction implements DeleteAction {
                     }
                 }
                 postDeleteAction.doAction();
-                CallbackAction.getInstance().doAction(CallbackAction.HIERARCHY_DELETEITEM_CALLBACK, null);
+                CallbackAction.getInstance().doAction(CallbackAction.HIERARCHY_DELETEITEM_CALLBACK, null,null,false);
             }
 
             @Override
