@@ -53,8 +53,6 @@ import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Tree;
-import com.google.gwt.user.client.ui.TreeItem;
 
 public class ForeignKeyTreeDetail extends ContentPanel {
 
@@ -72,7 +70,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
     private TreeEx tree;
 
-    private TreeItem root;
+    private TreeItemEx root;
 
     private ForeignKeyRender fkRender;
 
@@ -194,7 +192,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                                              // layout template
             HorizontalPanel hp = new HorizontalPanel();
             for (ColumnTreeModel ctm : columnLayoutModel.getColumnTreeModels()) {
-                Tree tree = displayGWTTree(ctm);
+                TreeEx tree = displayGWTTree(ctm);
                 hp.add(tree);
                 addTreeListener(tree);
             }
@@ -215,10 +213,10 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     }
 
     // get selected item in tree
-    private void addTreeListener(Tree tree) {
-        tree.addSelectionHandler(new SelectionHandler<TreeItem>() {
+    private void addTreeListener(TreeEx tree) {
+        tree.addSelectionHandler(new SelectionHandler<TreeItemEx>() {
 
-            public void onSelection(SelectionEvent<TreeItem> event) {
+            public void onSelection(SelectionEvent<TreeItemEx> event) {
                 selectedItem = (DynamicTreeItem) event.getSelectedItem();
             }
         });
@@ -301,7 +299,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     }
                     foreighKeyMap.get(typeModel).add(node);
                 } else {
-                    TreeItem childItem = buildGWTTree(node, withDefaultValue, foreighKeyMap, foreignKeyParentMap);
+                    TreeItemEx childItem = buildGWTTree(node, withDefaultValue, foreighKeyMap, foreignKeyParentMap);
                     if (childItem != null) {
                         item.addItem(childItem);
                         int count = 0;
@@ -322,15 +320,15 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         return item;
     }
 
-    private Tree displayGWTTree(ColumnTreeModel treeModel) {
-        Tree tree = new Tree();
+    private TreeEx displayGWTTree(ColumnTreeModel treeModel) {
+        TreeEx tree = new TreeEx();
         DynamicTreeItem treeRootNode = new DynamicTreeItem();
         tree.addItem(treeRootNode);
 
         if (root != null && root.getChildCount() > 0) {
             for (ColumnElement ce : treeModel.getColumnElements()) {
                 for (int i = 0; i < root.getChildCount(); i++) {
-                    TreeItem child = root.getChild(i);
+                    TreeItemEx child = root.getChild(i);
                     ItemNodeModel node = (ItemNodeModel) child.getUserObject();
                     String xpath = node.getBindingPath();
                     String typePath = node.getTypePath();
@@ -356,7 +354,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         return (ItemNodeModel) root.getUserObject();
     }
 
-    public TreeItem getRoot() {
+    public TreeItemEx getRoot() {
         return root;
     }
 
@@ -372,7 +370,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.fkModel = fkModel;
     }
 
-    public static class DynamicTreeItem extends TreeItem {
+    public static class DynamicTreeItem extends TreeItemEx {
 
         private ItemNodeModel itemNode;
 
@@ -380,7 +378,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
             super();
         }
 
-        private List<TreeItem> items = new ArrayList<TreeItem>();
+        private List<TreeItemEx> items = new ArrayList<TreeItemEx>();
 
         public void insertItem(DynamicTreeItem item, int beforeIndex) {
             int count = this.getChildCount();

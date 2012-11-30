@@ -76,8 +76,6 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Tree;
-import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetail extends ContentPanel {
@@ -90,7 +88,7 @@ public class TreeDetail extends ContentPanel {
 
     private DynamicTreeItem root;
 
-    private List<Tree> columnTrees = new ArrayList<Tree>();
+    private List<TreeEx> columnTrees = new ArrayList<TreeEx>();
 
     private Map<String, Field<?>> fieldMap = new HashMap<String, Field<?>>();
 
@@ -179,7 +177,7 @@ public class TreeDetail extends ContentPanel {
                     td.setFiledWidth(root, width, 400, 0);
                 } else if (td.getWidget(0) instanceof FlexTable && columnTrees.size() > 0) {
                     int columnWidth = width / columnTrees.size();
-                    for (Tree columnTree : columnTrees) {
+                    for (TreeEx columnTree : columnTrees) {
                         td.setFiledWidth(columnTree.getItem(0), columnWidth, 300, 0);
                     }
                		if (td.bwrap != null) {
@@ -419,7 +417,7 @@ public class TreeDetail extends ContentPanel {
     public void onExecuteVisibleRule(List<VisibleRuleResult> visibleResults) {
         for (VisibleRuleResult visibleResult : visibleResults) {
             if (columnTrees.size() > 0) {
-                for (Tree columnTree : columnTrees) {
+                for (TreeEx columnTree : columnTrees) {
                     recrusiveSetItems(visibleResult, (DynamicTreeItem) columnTree.getItem(0));
                 }
             } else {
@@ -459,7 +457,7 @@ public class TreeDetail extends ContentPanel {
             int columnNum = 0;
             for (ColumnTreeModel ctm : columnLayoutModel.getColumnTreeModels()) {
                 // Tree columnTree = displayGWTTree(ctm);
-                Tree columnTree = ViewUtil.transformToCustomLayout(root, ctm, viewBean);
+                TreeEx columnTree = ViewUtil.transformToCustomLayout(root, ctm, viewBean);
                 columnTree.getElement().getStyle().setOverflow(Overflow.HIDDEN);
                 if(columnWidth > 500)
                     this.setFiledWidth(columnTree.getItem(0), columnWidth, 300, 0);
@@ -489,13 +487,13 @@ public class TreeDetail extends ContentPanel {
                     .setWidth(600);
     }
 
-    private int getLevel(TreeItem item) {
+    private int getLevel(TreeItemEx item) {
         int level = -1;
         if (item == null) {
             return level;
         }
 
-        TreeItem current = item;
+        TreeItemEx current = item;
         while (current != null) {
             level++;
             current = current.getParentItem();
@@ -503,7 +501,7 @@ public class TreeDetail extends ContentPanel {
         return level;
     }
 
-    public void adjustFieldWidget(TreeItem item) {
+    public void adjustFieldWidget(TreeItemEx item) {
         int level = getLevel(item);
         ColumnTreeLayoutModel columnLayoutModel = viewBean.getColumnLayoutModel();
         if (columnLayoutModel != null) {
@@ -516,7 +514,7 @@ public class TreeDetail extends ContentPanel {
         }
     }
 
-    private void setFiledWidth(TreeItem item, int width, int offset, int level) {
+    private void setFiledWidth(TreeItemEx item, int width, int offset, int level) {
         if (item.getWidget() instanceof HorizontalPanel) {
             HorizontalPanel hp = (HorizontalPanel) item.getWidget();
             if (hp.getWidgetCount() > 1) {
@@ -536,16 +534,16 @@ public class TreeDetail extends ContentPanel {
         }
         
         for (int i = 0; i < item.getChildCount(); i++) {
-            TreeItem subItem = item.getChild(i);
+            TreeItemEx subItem = item.getChild(i);
             setFiledWidth(subItem, width, offset, level + 1);
         }
     }
     
     // get selected item in tree
-    private void addTreeListener(Tree tree) {
-        tree.addSelectionHandler(new SelectionHandler<TreeItem>() {
+    private void addTreeListener(TreeEx tree) {
+        tree.addSelectionHandler(new SelectionHandler<TreeItemEx>() {
 
-            public void onSelection(SelectionEvent<TreeItem> event) {
+            public void onSelection(SelectionEvent<TreeItemEx> event) {
                 if (event.getSelectedItem() instanceof DynamicTreeItem) {
                     selectedItem = (DynamicTreeItem) event.getSelectedItem();
                 }
@@ -619,7 +617,7 @@ public class TreeDetail extends ContentPanel {
     public class GhostTreeItem extends DynamicTreeItem {
     }
 
-    public static class DynamicTreeItem extends TreeItem {
+    public static class DynamicTreeItem extends TreeItemEx {
 
         private ItemNodeModel itemNode;
 
@@ -639,7 +637,7 @@ public class TreeDetail extends ContentPanel {
         }
 
         private native Element getContentElement()/*-{
-            return this.@com.google.gwt.user.client.ui.TreeItem::contentElem;
+			return this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::contentElem;
         }-*/;
         public void insertItem(DynamicTreeItem item, int beforeIndex) {
             // Detach item from existing parent.
@@ -668,28 +666,29 @@ public class TreeDetail extends ContentPanel {
             }
         }
 
-        private native ArrayList<TreeItem> _getChildren()/*-{
-            return this.@com.google.gwt.user.client.ui.TreeItem::children;
+        private native ArrayList<TreeItemEx> _getChildren()/*-{
+			return this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::children;
         }-*/;
 
         private native void _initChildren() /*-{
-            this.@com.google.gwt.user.client.ui.TreeItem::initChildren()
+			this
+					.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::initChildren()
         }-*/;
 
-        private native void _setParentItem(TreeItem parent)/*-{
-            this.@com.google.gwt.user.client.ui.TreeItem::setParentItem(Lcom/google/gwt/user/client/ui/TreeItem;)(parent);
+        private native void _setParentItem(TreeItemEx parent)/*-{
+			this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::setParentItem(Lorg/talend/mdm/webapp/browserecords/client/widget/treedetail/TreeItemEx;)(parent);
         }-*/;
 
         private native void _updateState(boolean animate, boolean updateTreeSelection)/*-{
-            this.@com.google.gwt.user.client.ui.TreeItem::updateState(ZZ)(animate, updateTreeSelection);
+			this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::updateState(ZZ)(animate, updateTreeSelection);
         }-*/;
 
-        private native void _setTree(Tree tree)/*-{
-            this.@com.google.gwt.user.client.ui.TreeItem::setTree(Lcom/google/gwt/user/client/ui/Tree;)(tree);
+        private native void _setTree(TreeEx tree)/*-{
+			this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::setTree(Lorg/talend/mdm/webapp/browserecords/client/widget/treedetail/TreeEx;)(tree);
         }-*/;
 
         private native Element _getChildSpanElem()/*-{
-            return this.@com.google.gwt.user.client.ui.TreeItem::childSpanElem;
+			return this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::childSpanElem;
         }-*/;
 
         public void removeItem(DynamicTreeItem item) {
@@ -714,19 +713,19 @@ public class TreeDetail extends ContentPanel {
         }
 
         private native boolean getOpen()/*-{
-            return this.@com.google.gwt.user.client.ui.TreeItem::open;
+			return this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::open;
         }-*/;
 
         private native void setOpen(boolean open)/*-{
-            this.@com.google.gwt.user.client.ui.TreeItem::open = open;
+			this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::open = open;
         }-*/;
 
         private native void __updateState(boolean animate, boolean updateTreeSelection)/*-{
-            this.@com.google.gwt.user.client.ui.TreeItem::updateState(ZZ)(animate, updateTreeSelection);
+			this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::updateState(ZZ)(animate, updateTreeSelection);
         }-*/;
 
-        private native void fireTreeStateChanged(Tree tree, TreeItem item, boolean open)/*-{
-            tree.@com.google.gwt.user.client.ui.Tree::fireStateChanged(Lcom/google/gwt/user/client/ui/TreeItem;Z)(item, open);
+        private native void fireTreeStateChanged(TreeEx tree, TreeItemEx item, boolean open)/*-{
+			tree.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeEx::fireStateChanged(Lorg/talend/mdm/webapp/browserecords/client/widget/treedetail/TreeItemEx;Z)(item,open);
         }-*/;
 
         public void setItemNodeModel(ItemNodeModel treeNode) {
@@ -749,7 +748,7 @@ public class TreeDetail extends ContentPanel {
 
     }
 
-    public Tree getTree() {
+    public TreeEx getTree() {
         return tree;
     }
 
@@ -865,7 +864,7 @@ public class TreeDetail extends ContentPanel {
         return (ItemNodeModel) root.getUserObject();
     }
 
-    public TreeItem getRoot(){
+    public TreeItemEx getRoot() {
     	return root;
     }
     
@@ -881,7 +880,7 @@ public class TreeDetail extends ContentPanel {
         return itemsDetailPanel;
     }
 
-    public void makeWarning(TreeItem item) {
+    public void makeWarning(TreeItemEx item) {
         ItemNodeModel itemNodeModel = ((DynamicTreeItem) item).getItemNodeModel();
         if(itemNodeModel != null) {
             if(!isRoot(itemNodeModel)) {
@@ -944,7 +943,7 @@ public class TreeDetail extends ContentPanel {
         }
 
         for (int i = 0; i < item.getChildCount(); i++) {
-            TreeItem subItem = item.getChild(i);
+            TreeItemEx subItem = item.getChild(i);
             makeWarning(subItem);
         }
     }

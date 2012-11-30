@@ -23,8 +23,9 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
-import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeEx;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeEx;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.GXT;
@@ -36,8 +37,6 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Tree;
-import com.google.gwt.user.client.ui.TreeItem;
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -63,24 +62,24 @@ public class ViewUtil {
 
     }
 
-    public static Tree transformToCustomLayout(TreeItem originalRoot, ColumnTreeModel columnLayoutModel, ViewBean viewBean) {
+    public static TreeEx transformToCustomLayout(TreeItemEx originalRoot, ColumnTreeModel columnLayoutModel, ViewBean viewBean) {
 
         // In case of custom layout, which displays some elements and not others,
         // we store the DynamicTreeItem corresponding to the displayed elements in
         // this set.
-        Set<TreeItem> customLayoutDisplayedElements = new HashSet<TreeItem>();
+        Set<TreeItemEx> customLayoutDisplayedElements = new HashSet<TreeItemEx>();
 
-        Tree tree = new TreeEx();
+        TreeEx tree = new TreeEx();
         DynamicTreeItem treeRootNode = new DynamicTreeItem();
         tree.addItem(treeRootNode);
 
-        List<TreeItem> children = getChildren(originalRoot);
+        List<TreeItemEx> children = getChildren(originalRoot);
         List<ColumnElement> columnLayoutModels = columnLayoutModel.getColumnElements();
         if (columnLayoutModels != null) {
             for (ColumnElement ce : columnLayoutModels) {
-                ListIterator<TreeItem> iter = children.listIterator();
+                ListIterator<TreeItemEx> iter = children.listIterator();
                 while (iter.hasNext()) {
-                    TreeItem child = iter.next();
+                    TreeItemEx child = iter.next();
                     ItemNodeModel node = (ItemNodeModel) child.getUserObject();
                     String xpath = node.getBindingPath();
 
@@ -107,7 +106,8 @@ public class ViewUtil {
         return tree;
     }
 
-    private static void __transformToCustomLayout(TreeItem item, ColumnElement columnEl, Set<TreeItem> customLayoutDisplayedElements, ViewBean viewBean) {
+    private static void __transformToCustomLayout(TreeItemEx item, ColumnElement columnEl,
+            Set<TreeItemEx> customLayoutDisplayedElements, ViewBean viewBean) {
         customLayoutDisplayedElements.add(item);
         applyStyleTreeItem(item, columnEl.getLabelStyle(), convertCSS4ValueStyle(columnEl.getValueStyle()), columnEl.getStyle());
         if (columnEl.getChildren() == null)
@@ -115,7 +115,7 @@ public class ViewUtil {
         for (ColumnElement ce : columnEl.getChildren()) {
 
             for (int i = 0; i < item.getChildCount(); i++) {
-                TreeItem child = item.getChild(i);
+                TreeItemEx child = item.getChild(i);
                 ItemNodeModel node = (ItemNodeModel) child.getUserObject();
                 if (node != null) {
                     TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getTypePath());
@@ -134,7 +134,7 @@ public class ViewUtil {
         }
     }
 
-    public static void applyStyleTreeItem(final TreeItem item, final String labelStyle, final String valueStyle, String style) {
+    public static void applyStyleTreeItem(final TreeItemEx item, final String labelStyle, final String valueStyle, String style) {
         String marginLeft = item.getElement().getStyle().getMarginLeft();
         String padding = item.getElement().getStyle().getPadding();
         setStyleAttribute(item.getElement(), style);
@@ -159,7 +159,7 @@ public class ViewUtil {
         });
     }
 
-    public static void copyStyleToTreeItem(TreeItem source, TreeItem target) {
+    public static void copyStyleToTreeItem(TreeItemEx source, TreeItemEx target) {
         setStyleAttribute(target.getElement(), getStyleAttribute(source.getElement()));
         if (source.getWidget() instanceof HorizontalPanel) {
             final HorizontalPanel sourceHp = (HorizontalPanel) source.getWidget();
@@ -201,14 +201,14 @@ public class ViewUtil {
      * custom layout. Because they are not displayed, their valid flags are not set by their attach handlers, which is
      * where the valid flag is normally set for fields that are displayed.
      */
-    private static void setValidFlags(DynamicTreeItem dynamicTreeItem, Set<TreeItem> customLayoutDisplayedElements) {
+    private static void setValidFlags(DynamicTreeItem dynamicTreeItem, Set<TreeItemEx> customLayoutDisplayedElements) {
         ItemNodeModel nodeModel = dynamicTreeItem.getItemNodeModel();        
         if (nodeModel != null) {
             nodeModel.setValid(true);
         }
         int childCount = dynamicTreeItem.getChildCount();
         for (int i = 0; i < childCount; ++i) {
-            TreeItem child = dynamicTreeItem.getChild(i);
+            TreeItemEx child = dynamicTreeItem.getChild(i);
             if (!customLayoutDisplayedElements.contains(child)) {
                 if (child instanceof DynamicTreeItem) {
                     setValidFlags((DynamicTreeItem) child, customLayoutDisplayedElements);
@@ -217,12 +217,12 @@ public class ViewUtil {
         }
     }
 
-    private static native ArrayList<TreeItem> getChildren(TreeItem item)/*-{
-        return item.@com.google.gwt.user.client.ui.TreeItem::children;
+    private static native ArrayList<TreeItemEx> getChildren(TreeItemEx item)/*-{
+		return item.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::children;
     }-*/;
 
     private static native El getInputEl(Field<?> field)/*-{
-        return field.@com.extjs.gxt.ui.client.widget.form.Field::getInputEl()();
+		return field.@com.extjs.gxt.ui.client.widget.form.Field::getInputEl()();
     }-*/;
     
     public static String convertCSS4ValueStyle(String css) {

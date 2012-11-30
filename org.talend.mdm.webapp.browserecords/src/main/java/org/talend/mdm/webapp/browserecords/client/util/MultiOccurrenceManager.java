@@ -17,13 +17,13 @@ import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.GhostTreeItem;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailGridFieldCreator;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx;
 
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.Widget;
 
 public class MultiOccurrenceManager {
@@ -70,7 +70,7 @@ public class MultiOccurrenceManager {
     private int getIndexOfMultiItem(DynamicTreeItem item) {
         int index = -1;
         ItemNodeModel itemModel = item.getItemNodeModel();
-        TreeItem parent = item.getParentItem();
+        TreeItemEx parent = item.getParentItem();
         int count = parent.getChildCount();
         for (int i = 0; i < count; i++) {
             DynamicTreeItem childItem = (DynamicTreeItem) parent.getChild(i);

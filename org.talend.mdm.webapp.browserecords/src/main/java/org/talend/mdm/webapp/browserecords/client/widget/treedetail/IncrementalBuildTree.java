@@ -34,7 +34,6 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.IncrementalCommand;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.Widget;
 
 public class IncrementalBuildTree implements IncrementalCommand {
@@ -95,7 +94,7 @@ public class IncrementalBuildTree implements IncrementalCommand {
 	}
 	
 	private int getLevel(){
-		TreeItem current = item;
+        TreeItemEx current = item;
 		int leval = 0;
 		while (current != null){
 			leval++;
@@ -104,7 +103,7 @@ public class IncrementalBuildTree implements IncrementalCommand {
 		return leval;
 	}
 	
-	private void initItemWidth(TreeItem childItem, int leval){
+    private void initItemWidth(TreeItemEx childItem, int leval) {
 		if (childItem.getWidget() instanceof HorizontalPanel) {
 			HorizontalPanel hp = (HorizontalPanel) childItem.getWidget();
 			if(hp.getWidgetCount() > 1) {
@@ -160,7 +159,7 @@ public class IncrementalBuildTree implements IncrementalCommand {
 	            foreighKeyMap.get(typeModel).add(node);
 	            
 	        } else {
-	            TreeItem childItem = treeDetail.buildGWTTree(node, null, withDefaultValue, operation);
+                TreeItemEx childItem = treeDetail.buildGWTTree(node, null, withDefaultValue, operation);
 	            if (childItem != null && !childItem.getElement().getPropertyBoolean("EmptyFkContainer")) { //$NON-NLS-1$
 	        		initItemWidth(childItem, level);
 	                item.addItem(childItem);
