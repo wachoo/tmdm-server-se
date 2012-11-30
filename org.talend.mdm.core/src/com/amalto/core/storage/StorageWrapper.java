@@ -59,8 +59,6 @@ import com.amalto.xmlserver.interfaces.XmlServerException;
 
 public class StorageWrapper implements IXmlServerSLWrapper {
 
-    private static final DataRecordWriter WRITER = new DataRecordXmlWriter();
-
     private final DataRecordReader<String> xmlStringReader = new XmlStringDataRecordReader();
 
     private StorageAdmin storageAdmin;
@@ -231,13 +229,15 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
         try {
             Iterator<DataRecord> iterator = records.iterator();
+            // Enforce root element name in case query returned instance of a subtype.
+            DataRecordXmlWriter dataRecordXmlWriter = new DataRecordXmlWriter(typeName);
             if (iterator.hasNext()) {
                 DataRecord result = iterator.next();
                 long timestamp = result.getRecordMetadata().getLastModificationTime();
                 String taskId = result.getRecordMetadata().getTaskId();
                 byte[] start = ("<ii><c>" + clusterName + "</c><dmn>" + clusterName + "</dmn><dmr/><sp/><t>" + timestamp + "</t><taskId>" + taskId + "</taskId><i>" + splitUniqueId[2] + "</i><p>").getBytes(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
                 output.write(start);
-                WRITER.write(result, output);
+                dataRecordXmlWriter.write(result, output);
                 if (iterator.hasNext()) {
                     throw new IllegalStateException("Expected only 1 result.");
                 }

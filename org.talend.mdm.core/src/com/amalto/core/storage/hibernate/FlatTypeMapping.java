@@ -25,25 +25,28 @@ import java.util.*;
 
 class FlatTypeMapping extends TypeMapping {
 
-    private Map<FieldMetadata, FieldMetadata> userToDatabase = new HashMap<FieldMetadata, FieldMetadata>();
+    private Map<String, FieldMetadata> userToDatabase = new HashMap<String, FieldMetadata>();
 
-    private Map<FieldMetadata, FieldMetadata> databaseToUser = new HashMap<FieldMetadata, FieldMetadata>();
+    private Map<String, FieldMetadata> databaseToUser = new HashMap<String, FieldMetadata>();
 
     public FlatTypeMapping(ComplexTypeMetadata complexType, MappingRepository mappings) {
         super(complexType, mappings);
     }
 
-    public void map(FieldMetadata user, FieldMetadata database) {
-        userToDatabase.put(user, database);
-        databaseToUser.put(database, user);
+    protected void map(FieldMetadata user, FieldMetadata database) {
+        if (isFrozen) {
+            throw new IllegalStateException("Mapping is frozen.");
+        }
+        userToDatabase.put(user.getContainingType().getName() + '_' + user.getName(), database);
+        databaseToUser.put(database.getContainingType().getName() + '_' + database.getName(), user);
     }
 
     public FieldMetadata getDatabase(FieldMetadata from) {
-        return userToDatabase.get(from);
+        return userToDatabase.get(from.getContainingType().getName() + '_' + from.getName());
     }
 
     public FieldMetadata getUser(FieldMetadata to) {
-        return databaseToUser.get(to);
+        return databaseToUser.get(to.getContainingType().getName() + '_' + to.getName());
     }
 
     public void freeze() {
@@ -59,19 +62,17 @@ class FlatTypeMapping extends TypeMapping {
             } catch (Exception e) {
                 throw new RuntimeException("Could not process user type '" + user.getName() + "'.", e);
             }
-
             // Freeze field mappings.
-            Map<FieldMetadata, FieldMetadata> frozen = new HashMap<FieldMetadata, FieldMetadata>();
-            for (Map.Entry<FieldMetadata, FieldMetadata> entry : userToDatabase.entrySet()) {
-                frozen.put(entry.getKey().freeze(), entry.getValue().freeze());
+            Map<String, FieldMetadata> frozen = new HashMap<String, FieldMetadata>();
+            for (Map.Entry<String, FieldMetadata> entry : userToDatabase.entrySet()) {
+                frozen.put(entry.getKey(), entry.getValue().freeze());
             }
             userToDatabase = frozen;
-            frozen = new HashMap<FieldMetadata, FieldMetadata>();
-            for (Map.Entry<FieldMetadata, FieldMetadata> entry : databaseToUser.entrySet()) {
-                frozen.put(entry.getKey().freeze(), entry.getValue().freeze());
+            frozen = new HashMap<String, FieldMetadata>();
+            for (Map.Entry<String, FieldMetadata> entry : databaseToUser.entrySet()) {
+                frozen.put(entry.getKey(), entry.getValue().freeze());
             }
             databaseToUser = frozen;
-
             isFrozen = true;
         }
     }

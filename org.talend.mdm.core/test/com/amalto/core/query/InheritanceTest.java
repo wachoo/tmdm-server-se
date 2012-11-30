@@ -84,6 +84,11 @@ public class InheritanceTest extends StorageTestCase {
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
+            int actualCount = 0;
+            for (DataRecord result : results) {
+                actualCount++;
+            }
+            assertEquals(1, actualCount);
         } finally {
             results.close();
         }
@@ -95,6 +100,11 @@ public class InheritanceTest extends StorageTestCase {
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
+            int actualCount = 0;
+            for (DataRecord result : results) {
+                actualCount++;
+            }
+            assertEquals(1, actualCount);
         } finally {
             results.close();
         }

@@ -37,7 +37,6 @@ public class UserQueryHelper {
         if (whereItem == null) {
             return NO_OP_CONDITION;
         }
-
         if (whereItem instanceof WhereAnd || whereItem instanceof WhereOr) {
             List<IWhereItem> whereItems = ((WhereLogicOperator) whereItem).getItems();
             Condition current = NO_OP_CONDITION;
@@ -163,7 +162,11 @@ public class UserQueryHelper {
         }
         if (fieldName.endsWith("xsi:type") || fieldName.endsWith("tmdm:type")) { //$NON-NLS-1$ //$NON-NLS-2$
             FieldMetadata field = repository.getComplexType(typeName).getField(StringUtils.substringBeforeLast(fieldName, "/")); //$NON-NLS-1$
-            return alias(type(field), "xsi:type");
+            if (fieldName.endsWith("xsi:type")) { //$NON-NLS-1$
+                return alias(type(field), "xsi:type"); //$NON-NLS-1$
+            } else {
+                return alias(type(field), "tmdm:type"); //$NON-NLS-1$
+            }
         } else if (UserQueryBuilder.TIMESTAMP_FIELD.equals(fieldName)) {
             return timestamp();
         } else if (UserQueryBuilder.TASK_ID_FIELD.equals(fieldName)) {
