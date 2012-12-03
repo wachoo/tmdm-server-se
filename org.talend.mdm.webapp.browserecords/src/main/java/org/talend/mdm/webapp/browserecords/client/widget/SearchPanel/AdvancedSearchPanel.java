@@ -282,9 +282,9 @@ public class AdvancedSearchPanel extends FormPanel {
                 String curField = expressionTextField.getValue();
                 if (curField != null && !curField.equals("")) { //$NON-NLS-1$
                     try {
-                        // Criteria criteria = Parser.parse(curField);
+                        parseSearchExpression(curField);
                         MultipleCriteria criteriaStore = (MultipleCriteria) BrowseRecords.getSession().get(
-                                UserSession.CUSTOMIZE_CRITERION_STORE);
+                                UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE);
                         multiCriteria.setCriteria(criteriaStore);
                     } catch (Exception e) {
                         Log.error(e.getMessage(), e);
