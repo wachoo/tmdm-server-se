@@ -12,6 +12,8 @@
 package com.amalto.core.save;
 
 import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
@@ -128,16 +130,27 @@ public class SaverSession {
             SaverSource saverSource = getSaverSource();
             boolean needResetAutoIncrement = false;
 
+            MetadataRepository repository = null;
+            ComplexTypeMetadata type = null;
             for (Map.Entry<String, Set<ItemPOJO>> currentTransaction : itemsPerDataCluster.entrySet()) {
                 String dataCluster = currentTransaction.getKey();
                 begin(dataCluster, committer);
                 for (ItemPOJO currentItemToCommit : currentTransaction.getValue()) {
+                    if (repository == null || type == null) {
+                        String dataModelName = currentItemToCommit.getDataModelName();
+                        if (dataModelName != null) { // TODO Every item should have a data mode name (but UpdateReport doesn't)
+                            repository = saverSource.getMetadataRepository(dataModelName);
+                            type = repository.getComplexType(currentItemToCommit.getConceptName());
+                        }
+                    }
                     if (!needResetAutoIncrement) {
                         needResetAutoIncrement = isAutoIncrementItem(currentItemToCommit);
                     }
-                    committer.save(currentItemToCommit, currentItemToCommit.getDataModelRevision()); // TODO Use data model revision for revision id?
+                    committer.save(currentItemToCommit, type, currentItemToCommit.getDataModelRevision()); // TODO Use data model revision for revision id?
                 }
                 committer.commit(dataCluster);
+                repository = null;
+                type = null;
             }
 
             // If any change was made to data cluster "UpdateReport", route committed update reports.
@@ -264,9 +277,10 @@ public class SaverSession {
          * Saves a MDM record for a given revision.
          *
          * @param item       The item to save.
+         * @param type       Type of the record to save. Parameter may be null if type is unknown (system type).
          * @param revisionId A revision id.
          */
-        void save(ItemPOJO item, String revisionId);
+        void save(ItemPOJO item, ComplexTypeMetadata type, String revisionId);
 
         /**
          * Rollbacks changes done on a data cluster.

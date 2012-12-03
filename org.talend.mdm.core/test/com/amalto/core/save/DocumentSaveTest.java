@@ -27,9 +27,11 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import com.amalto.core.metadata.ComplexTypeMetadata;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -1796,6 +1798,27 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("Company", evaluate(committedElement, "/Product/supplier/@tmdm:type"));
         assertEquals("[companyEntity]", evaluate(committedElement, "/Product/supplier"));
     }
+
+    public void testPolymorphismCache() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata10.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, false, "", "metadata10.xsd");
+        source.setUserName("Demo_User");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test51.xml");
+        DocumentSaverContext context = session.getContextFactory().create("TestFK", "Individual", "Source", recordXml, true, true,
+                true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        assertTrue(ItemPOJO.getCache().get(new ItemCacheKey("HEAD", "12", "TestFK")) == null);
+    }
+
     
     public void testPartialUpdateWithEmptyString() throws Exception {
         MetadataRepository repository = new MetadataRepository();
@@ -1837,12 +1860,23 @@ public class DocumentSaveTest extends TestCase {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Commit on '" + dataCluster + "'");
             }
+            ItemPOJO.getCache().clear();
         }
 
         @Override
-        public void save(ItemPOJO item, String revisionId) {
+        public void save(ItemPOJO item, ComplexTypeMetadata type, String revisionId) {
             hasSaved = true;
             try {
+                if (type != null && type.getSuperTypes().isEmpty() && type.getSubTypes().isEmpty()) {
+                    String idAsString = "";
+                    for (String idValue : item.getItemIds()) {
+                        idAsString += idValue;
+                    }
+                    ItemCacheKey itemCacheKey = new ItemCacheKey(revisionId,
+                            idAsString,
+                            item.getDataClusterPOJOPK().getUniqueId());
+                    ItemPOJO.getCache().put(itemCacheKey, "Cached");
+                }
                 committedElement = item.getProjection();
             } catch (XtentisException e) {
                 throw new RuntimeException(e);

@@ -481,7 +481,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             }
 
             results = storage.fetch(qb.getSelect());
-            DataRecordWriter writer = new DataRecordXmlWriter(conceptName);
+            DataRecordWriter writer = new DataRecordXmlWriter(type);
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             for (DataRecord result : results) {
                 try {

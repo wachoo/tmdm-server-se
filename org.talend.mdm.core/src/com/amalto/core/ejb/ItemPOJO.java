@@ -384,8 +384,7 @@ public class ItemPOJO implements Serializable {
             String item = cachedPojo.get(key);
             if (item == null) {
                 item = server.getDocumentAsString(revisionID, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), urlid);
-                if (item != null)
-                    cachedPojo.put(key, item);
+                // TODO Store in cache in case when there's no inheritance.
             }
 
             if (item == null) {
@@ -399,8 +398,7 @@ public class ItemPOJO implements Serializable {
             newItem.setConceptName(itemPOJOPK.getConceptName());
             newItem.setItemIds(itemPOJOPK.getIds());
 
-            Matcher m = null;
-            m = pLoad.matcher(item);
+            Matcher m = pLoad.matcher(item);
             if (m.matches()) {
                 String h = "<header>" + m.group(1) + "</header>"; //$NON-NLS-1$ //$NON-NLS-2$
                 Element header = Util.parse(h).getDocumentElement();
