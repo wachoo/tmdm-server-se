@@ -37,16 +37,16 @@ class FlatTypeMapping extends TypeMapping {
         if (isFrozen) {
             throw new IllegalStateException("Mapping is frozen.");
         }
-        userToDatabase.put(user.getContainingType().getName() + '_' + user.getName(), database);
-        databaseToUser.put(database.getContainingType().getName() + '_' + database.getName(), user);
+        userToDatabase.put(user.getDeclaringType().getName() + '_' + user.getName(), database);
+        databaseToUser.put(database.getDeclaringType().getName() + '_' + database.getName(), user);
     }
 
     public FieldMetadata getDatabase(FieldMetadata from) {
-        return userToDatabase.get(from.getContainingType().getName() + '_' + from.getName());
+        return userToDatabase.get(from.getDeclaringType().getName() + '_' + from.getName());
     }
 
     public FieldMetadata getUser(FieldMetadata to) {
-        return databaseToUser.get(to.getContainingType().getName() + '_' + to.getName());
+        return databaseToUser.get(to.getDeclaringType().getName() + '_' + to.getName());
     }
 
     public void freeze() {
