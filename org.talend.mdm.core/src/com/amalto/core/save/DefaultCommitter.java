@@ -13,6 +13,7 @@ package com.amalto.core.save;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
@@ -48,9 +49,10 @@ public class DefaultCommitter implements SaverSession.Committer {
         }
     }
 
-    public void save(ItemPOJO item, String revisionId) {
+    public void save(ItemPOJO item, ComplexTypeMetadata type, String revisionId) {
         try {
-            item.store(revisionId, true);
+            boolean putInCache = type != null && type.getSuperTypes().isEmpty() && type.getSubTypes().isEmpty();
+            item.store(revisionId, putInCache);
         } catch (XtentisException e) {
             throw new RuntimeException(e);
         }

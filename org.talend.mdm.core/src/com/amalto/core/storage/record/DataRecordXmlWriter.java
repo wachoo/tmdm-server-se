@@ -26,12 +26,19 @@ public class DataRecordXmlWriter implements DataRecordWriter {
 
     private final String rootElementName;
 
+    private ComplexTypeMetadata type;
+
     public DataRecordXmlWriter() {
         rootElementName = null;
     }
 
     public DataRecordXmlWriter(String rootElementName) {
         this.rootElementName = rootElementName;
+    }
+
+    public DataRecordXmlWriter(ComplexTypeMetadata type) {
+        this.type = type;
+        this.rootElementName = type.getName();
     }
 
     public void write(DataRecord record, OutputStream output) throws IOException {
@@ -41,7 +48,7 @@ public class DataRecordXmlWriter implements DataRecordWriter {
 
     public void write(DataRecord record, Writer writer) throws IOException {
         DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(record, writer);
-        List<FieldMetadata> fields = record.getType().getFields();
+        List<FieldMetadata> fields = type == null ? record.getType().getFields() : type.getFields();
         writer.write("<" + getRootElementName(record) + ">"); //$NON-NLS-1$ //$NON-NLS-2$
         for (FieldMetadata field : fields) {
             field.accept(fieldPrinter);

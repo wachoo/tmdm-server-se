@@ -230,7 +230,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         try {
             Iterator<DataRecord> iterator = records.iterator();
             // Enforce root element name in case query returned instance of a subtype.
-            DataRecordXmlWriter dataRecordXmlWriter = new DataRecordXmlWriter(typeName);
+            DataRecordXmlWriter dataRecordXmlWriter = new DataRecordXmlWriter(type);
             if (iterator.hasNext()) {
                 DataRecord result = iterator.next();
                 long timestamp = result.getRecordMetadata().getLastModificationTime();
