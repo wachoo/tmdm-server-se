@@ -45,7 +45,7 @@ public class ItemCreator {
         for (String path : xpaths) {
             TypeModel typeModel = types.get(path);
 
-            if (path.endsWith(itemBean.getConcept())) {
+            if (path.equals(itemBean.getConcept()) || path.equals("/" + itemBean.getConcept())) { //$NON-NLS-1$
                 itemBean.setLabel(typeModel.getLabel(UrlUtil.getLanguage()));
                 itemBean.setDescription(typeModel.getDescriptionMap().get(UrlUtil.getLanguage()));
             }
