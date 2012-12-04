@@ -13,7 +13,23 @@
 
 package com.amalto.core.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.alias;
+import static com.amalto.core.query.user.UserQueryBuilder.and;
+import static com.amalto.core.query.user.UserQueryBuilder.contains;
+import static com.amalto.core.query.user.UserQueryBuilder.emptyOrNull;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
+import static com.amalto.core.query.user.UserQueryBuilder.gt;
+import static com.amalto.core.query.user.UserQueryBuilder.gte;
+import static com.amalto.core.query.user.UserQueryBuilder.isNull;
+import static com.amalto.core.query.user.UserQueryBuilder.lt;
+import static com.amalto.core.query.user.UserQueryBuilder.lte;
+import static com.amalto.core.query.user.UserQueryBuilder.neq;
+import static com.amalto.core.query.user.UserQueryBuilder.not;
+import static com.amalto.core.query.user.UserQueryBuilder.or;
+import static com.amalto.core.query.user.UserQueryBuilder.startsWith;
+import static com.amalto.core.query.user.UserQueryBuilder.taskId;
+import static com.amalto.core.query.user.UserQueryBuilder.timestamp;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -39,6 +55,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.query.user.Alias;
 import com.amalto.core.query.user.BinaryLogicOperator;
 import com.amalto.core.query.user.Compare;
 import com.amalto.core.query.user.Condition;
@@ -1917,6 +1934,59 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(E2_Record1 + E2_Record2 + E2_Record3 + E2_Record4 + E2_Record5 + E2_Record6 + E2_Record7, actual);
     }
 
+    public void testFetchAllE2WithJoniE1() {
+
+        ComplexTypeMetadata type = repository.getComplexType("Product");
+        UserQueryBuilder qb = UserQueryBuilder.from(type);
+
+        qb.select(UserQueryHelper.getField(repository, "Product", "Id"));
+        qb.select(UserQueryHelper.getField(repository, "Product", "Name"));
+        TypedExpression typeExpression = UserQueryHelper.getField(repository, "ProductFamily", "Name");
+        typeExpression = new Alias(typeExpression, "ProductFamily_Name");
+        qb.select(typeExpression);
+
+        ArrayList conditions = new ArrayList();
+        WhereCondition cond = new WhereCondition("Product/Family", "JOINS", "ProductFamily/Id", "&", false);
+        conditions.add(cond);
+        WhereAnd fullWhere = new WhereAnd(conditions);
+        qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
+        
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(2, results.getCount());
+
+        DataRecordWriter writer = new ViewSearchResultsWriter();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        List<String> resultsAsString = new ArrayList<String>();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            String document = new String(output.toByteArray(), Charset.forName("UTF-8"));
+            resultsAsString.add(document);
+            output.reset();
+        }
+        assertEquals(2, resultsAsString.size());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">\n");
+        sb.append("\t<Id>1</Id>\n");
+        sb.append("\t<Name>Product name</Name>\n");
+        sb.append("\t<ProductFamily_Name>Product family #2</ProductFamily_Name>\n");
+        sb.append("</result>");
+        assertEquals(sb.toString(), resultsAsString.get(0));
+
+        sb = new StringBuilder();
+        sb.append("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">\n");
+        sb.append("\t<Id>2</Id>\n");
+        sb.append("\t<Name>Renault car</Name>\n");
+        sb.append("\t<ProductFamily_Name/>\n");
+        sb.append("</result>");
+        assertEquals(sb.toString(), resultsAsString.get(1));
+
+    }
+
     public void testFetchAllE2WithViewSearchResultsWriter() throws Exception {
         UserQueryBuilder qb = from(e2);
         StorageResults results = storage.fetch(qb.getSelect());
@@ -1955,7 +2025,6 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(startRoot + "<subelement>119</subelement><subelement1>120</subelement1><name>zhang</name>"
                 + endRoot,resultsAsString.get(6).replaceAll("\\r|\\n|\\t", ""));
     }
-
 
     public void testStringFieldConstraint() throws Exception {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();

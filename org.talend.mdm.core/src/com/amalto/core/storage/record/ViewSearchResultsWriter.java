@@ -17,6 +17,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
+import javax.xml.XMLConstants;
+
 import org.apache.commons.lang.StringEscapeUtils;
 
 import com.amalto.core.metadata.FieldMetadata;
@@ -24,8 +26,6 @@ import com.amalto.core.metadata.ReferenceFieldMetadata;
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
-
-import javax.xml.XMLConstants;
 
 public class ViewSearchResultsWriter implements DataRecordWriter {
     public void write(DataRecord record, OutputStream output) throws IOException {
@@ -41,6 +41,8 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
                 writer.append("\t<").append(fieldMetadata.getName()).append(">"); //$NON-NLS-1$ //$NON-NLS-2$
                 processValue(writer, fieldMetadata, value);
                 writer.append("</").append(fieldMetadata.getName()).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$
+            } else {
+                writer.append("\t<").append(fieldMetadata.getName()).append("/>\n"); //$NON-NLS-1$//$NON-NLS-2$
             }
         }
         writer.append("</result>"); //$NON-NLS-1$

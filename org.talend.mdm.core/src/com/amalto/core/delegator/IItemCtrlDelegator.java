@@ -1,5 +1,19 @@
 package com.amalto.core.delegator;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
@@ -14,7 +28,9 @@ import com.amalto.core.objects.role.ejb.RolePOJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
+import com.amalto.core.query.user.Alias;
 import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.server.Server;
@@ -25,17 +41,15 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.ViewSearchResultsWriter;
-import com.amalto.core.util.*;
+import com.amalto.core.util.ArrayListHolder;
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.RoleSpecification;
+import com.amalto.core.util.RoleWhereCondition;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.XmlServerException;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.*;
 
 public abstract class IItemCtrlDelegator implements IBeanDelegator,
         IItemCtrlDelegatorService {
@@ -246,12 +260,18 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                     throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data cluster '" + dataClusterPOJOPK.getUniqueId() + "'.");
                 }
                 UserQueryBuilder qb = UserQueryBuilder.from(type);
+                Set<String> fieldNames = new HashSet<String>();
                 // Select fields
                 ArrayListHolder<String> viewableBusinessElements = view.getViewableBusinessElements();
                 for (String viewableBusinessElement : viewableBusinessElements.getList()) {
                     String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
                     String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
-                    qb.select(UserQueryHelper.getField(repository, viewableTypeName, viewablePath));
+                    TypedExpression typeExpression = UserQueryHelper.getField(repository, viewableTypeName, viewablePath);
+                    if (fieldNames.contains(viewablePath)) {
+                        typeExpression = new Alias(typeExpression, viewableTypeName + "_" + viewablePath); //$NON-NLS-1$
+                    }
+                    fieldNames.add(viewablePath);
+                    qb.select(typeExpression);
                 }
                 // Condition and paging
                 qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
