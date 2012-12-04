@@ -634,45 +634,28 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel) throws Exception {
         if (itemBean.getItemXml() != null) {
-            Document docXml = Util.parse(itemBean.getItemXml());
-            HashMap<String, Integer> countMap = new HashMap<String, Integer>();
+            org.dom4j.Document docXml = DocumentHelper.parseText(itemBean.getItemXml());
+            int i = 0;
+            List els = docXml.getRootElement().elements();
             for (String path : viewBean.getViewableXpaths()) {
                 String leafPath = path.substring(path.lastIndexOf('/') + 1);
                 if (leafPath.startsWith("@")) { //$NON-NLS-1$
-                    itemBean.set(path, docXml
-                            .getElementsByTagName(leafPath.substring(leafPath.indexOf("@") + 1)).item(0).getTextContent()); //$NON-NLS-1$
+                    String[] xsiType = leafPath.substring(leafPath.indexOf("@") + 1).split(":"); //$NON-NLS-1$//$NON-NLS-2$
+                    itemBean.set(path, docXml.getRootElement().element(new QName(xsiType[1], new Namespace(xsiType[0], "http://www.w3.org/2001/XMLSchema-instance"))).getText()); //$NON-NLS-1$
                     continue;
                 }
 
-                NodeList nodes = Util.getNodeList(docXml, leafPath);
                 TypeModel typeModel = entityModel.getMetaDataTypes().get(path);
-                if (nodes.getLength() > 1) {
-                    // result has same name nodes
-                    if (countMap.containsKey(leafPath)) {
-                        int count = Integer.valueOf(countMap.get(leafPath).toString());
-                        Node node = nodes.item(count);
-                        migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
-                        itemBean.set(path, node.getTextContent());
-                        countMap.put(leafPath, count + 1);
-                    } else {
-                        Node node = nodes.item(0);
-                        migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
-                        itemBean.set(path, node.getTextContent());
-                        countMap.put(leafPath, 1);
-                    }
-                } else if (nodes.getLength() == 1) {
-                    Node value = nodes.item(0);
-
-                    if (typeModel != null && typeModel.getForeignkey() != null) {
-                        String modelType = ((Element) value).getAttribute("tmdm:type"); //$NON-NLS-1$
-                        itemBean.set(path, path + "-" + value.getTextContent()); //$NON-NLS-1$
-                        itemBean.setForeignkeyDesc(
-                                path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent(), false, modelType)); //$NON-NLS-1$
-                    } else {
-                        itemBean.set(path, value.getTextContent());
-                        migrationMultiLingualFieldValue(itemBean, typeModel, value, path, false, null);
-                    }
+                org.dom4j.Element el = (org.dom4j.Element) els.get(i);
+                if (typeModel != null && typeModel.getForeignkey() != null) {
+                    String modelType = el.attributeValue(new QName("type", new Namespace("tmdm", "http://www.talend.com/mdm"))); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+                    itemBean.set(path, path + "-" + el.getText()); //$NON-NLS-1$
+                    itemBean.setForeignkeyDesc(
+                            path + "-" + el.getText(), getForeignKeyDesc(typeModel, el.getText(), false, modelType)); //$NON-NLS-1$
+                } else {
+                    itemBean.set(path, el.getText());
                 }
+                i++;
             }
         }
     }
