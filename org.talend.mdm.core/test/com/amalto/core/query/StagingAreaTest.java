@@ -505,7 +505,8 @@ public class StagingAreaTest extends TestCase {
         @Override
         public void save(ItemPOJO item, ComplexTypeMetadata type, String revisionId) {
             try {
-                DataRecord dataRecord = reader.read("1", repository, type, item.getProjection());
+                ComplexTypeMetadata complexType = repository.getComplexType(item.getProjection().getTagName());
+                DataRecord dataRecord = reader.read("1", repository, complexType, item.getProjection());
                 DataRecordMetadata recordMetadata = dataRecord.getRecordMetadata();
                 recordMetadata.setLastModificationTime(item.getInsertionTime());
                 recordMetadata.setTaskId(item.getTaskId());
