@@ -23,9 +23,6 @@ import java.util.Stack;
  */
 public class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFieldMetadata>> {
 
-    /**
-     * 
-     */
     public static final String ATTRIBUTE_ROOTTYPE = "RootType"; //$NON-NLS-1$
 
     public static final String ATTRIBUTE_XPATH = "XPath"; //$NON-NLS-1$
@@ -43,7 +40,6 @@ public class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFie
     private String rootTypeName;
 
     private String getCurrentPath() {
-
         StringBuilder path = new StringBuilder();
         for (String pathElement : currentPosition) {
             if (path.length() == 0)
@@ -72,7 +68,7 @@ public class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFie
 
     @Override
     public Set<ReferenceFieldMetadata> visit(ComplexTypeMetadata metadata) {
-        if (!checkedTypes.contains(metadata) && metadata.isInstantiable()) {
+        if (!checkedTypes.contains(metadata)) {
             checkedTypes.add(metadata);
             currentPosition.push(metadata.getName());
             Set<ReferenceFieldMetadata> result = super.visit(metadata);
@@ -85,7 +81,6 @@ public class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFie
 
     @Override
     public Set<ReferenceFieldMetadata> visit(ReferenceFieldMetadata metadata) {
-
         currentPosition.push(metadata.getName());
         {
             if (type.isAssignableFrom(metadata.getReferencedType())) {
@@ -93,10 +88,12 @@ public class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFie
                 metadata.setData(ATTRIBUTE_ROOTTYPE, rootTypeName);
                 fieldToCheck.add(metadata);
             }
+            for (ComplexTypeMetadata subType : metadata.getReferencedType().getSubTypes()) {
+                subType.accept(this);
+            }
             super.visit(metadata);
         }
         currentPosition.pop();
-
         return fieldToCheck;
     }
 
@@ -138,6 +135,9 @@ public class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFie
         currentPosition.push(metadata.getName());
         {
             super.visit(metadata);
+            for (ComplexTypeMetadata subType : metadata.getContainedType().getSubTypes()) {
+                subType.accept(this);
+            }
         }
         currentPosition.pop();
         return fieldToCheck;

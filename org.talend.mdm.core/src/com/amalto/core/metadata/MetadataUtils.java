@@ -434,12 +434,11 @@ public class MetadataUtils {
      *                                  information on where the cycle is.
      */
     public static List<ComplexTypeMetadata> sortTypes(MetadataRepository repository) {
-        Collection<ComplexTypeMetadata> userDefinedTypes = repository.getUserComplexTypes();
-        return _sortTypes(userDefinedTypes, true);
+        return _sortTypes(repository, true);
     }
 
-    private static List<ComplexTypeMetadata> _sortTypes(Collection<ComplexTypeMetadata> typesToSort, final boolean isInstantiable) {
-        final List<ComplexTypeMetadata> types = new ArrayList<ComplexTypeMetadata>(typesToSort);
+    private static List<ComplexTypeMetadata> _sortTypes(MetadataRepository repository, final boolean isInstantiable) {
+        final List<ComplexTypeMetadata> types = new ArrayList<ComplexTypeMetadata>(repository.getUserComplexTypes());
         /*
         * Compute additional data for topological sorting
         */
@@ -450,13 +449,25 @@ public class MetadataUtils {
             type.accept(new DefaultMetadataVisitor<Void>() {
                 @Override
                 public Void visit(ComplexTypeMetadata complexType) {
-                    Collection<TypeMetadata> superTypes = complexType.getSuperTypes();
-                    for (TypeMetadata superType : superTypes) {
-                        if (superType instanceof ComplexTypeMetadata) {
-                            dependencyGraph[getId(type, types)][getId(((ComplexTypeMetadata) superType), types)]++;
+                    if (isInstantiable == complexType.isInstantiable()) {
+                        Collection<TypeMetadata> superTypes = complexType.getSuperTypes();
+                        for (TypeMetadata superType : superTypes) {
+                            if (superType instanceof ComplexTypeMetadata) {
+                                dependencyGraph[getId(type, types)][getId(((ComplexTypeMetadata) superType), types)]++;
+                            }
                         }
                     }
                     super.visit(complexType);
+                    return null;
+                }
+
+                @Override
+                public Void visit(ContainedTypeFieldMetadata containedField) {
+                    ContainedComplexTypeMetadata containedType = containedField.getContainedType();
+                    containedType.accept(this);
+                    for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
+                        subType.accept(this);
+                    }
                     return null;
                 }
 
@@ -536,13 +547,26 @@ public class MetadataUtils {
 
                     StringBuilder pathAsString = new StringBuilder();
                     Iterator<ComplexTypeMetadata> dependencyPathIterator = dependencyPath.iterator();
+                    ComplexTypeMetadata previous = null;
                     while (dependencyPathIterator.hasNext()) {
-                        pathAsString.append(dependencyPathIterator.next().getName());
+                        ComplexTypeMetadata currentType = dependencyPathIterator.next();
+                        pathAsString.append(currentType.getName());
                         if (dependencyPathIterator.hasNext()) {
                             pathAsString.append(" -> ");
+                        } else if (previous != null) {
+                            pathAsString.append(')');
+                            pathAsString.append('\n');
+                            Set<ReferenceFieldMetadata> inboundReferences = repository.accept(new ForeignKeyIntegrity(currentType));
+                            pathAsString.append("(Possible fields: ");
+                            for (ReferenceFieldMetadata inboundReference : inboundReferences) {
+                                String xPath = inboundReference.getData(ForeignKeyIntegrity.ATTRIBUTE_XPATH);
+                                pathAsString.append(xPath).append(' ');
+                            }
+                            pathAsString.append(')');
                         }
+                        previous = currentType;
                     }
-                    throw new IllegalArgumentException("Data model has at least one circular dependency (Hint: " + pathAsString + ")");
+                    throw new IllegalArgumentException("Data model has at least one circular dependency.\n(Hint: " + pathAsString);
                 }
             }
             lineNumber++;
