@@ -478,6 +478,7 @@ public class ItemPOJO implements Serializable {
                     String err = "Unable to check user rights of the item " + itemPOJOPK.getUniqueID() + ": "
                             + e.getClass().getName() + ": " + e.getLocalizedMessage();
                     LOG.error(err, e);
+                    throw e;
                 }
             }
 

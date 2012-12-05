@@ -30,6 +30,7 @@ import org.w3c.dom.NodeList;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 
@@ -113,11 +114,15 @@ public class SchemaCoreAgent extends SchemaManager {
             try {
                 DataModelPOJO dataModelPOJO = ObjectPOJO.load(dataModelID.getRevisionID(), DataModelPOJO.class, new ObjectPOJOPK(
                         dataModelID.getUniqueID()));
+                if (dataModelPOJO == null) {
+                    throw new EntityNotFoundException(
+                            "Unable to get the DataModel '" + dataModelID.getUniqueID() + "' in revision '" + dataModelID.getRevisionID() + "'."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                }
                 String dataModelSchema = dataModelPOJO.getSchema();
 
                 dataModelBean = updateToDatamodelPool(dataModelID.getRevisionID(), dataModelID.getUniqueID(), dataModelSchema);
             } catch (Exception e) {
-                e.printStackTrace();
+                throw e;
             }
 
         }
