@@ -247,6 +247,18 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
     private static void setPropertyValue(Document document, String propertyName, String value) throws XPathExpressionException {
         XPathExpression compile = pathFactory.compile("hibernate-configuration/session-factory/property[@name='" + propertyName + "']"); //$NON-NLS-1$ //$NON-NLS-2$
         Node node = (Node) compile.evaluate(document, XPathConstants.NODE);
-        node.setTextContent(value);
+        if (node != null) {
+            node.setTextContent(value);
+        } else {
+            XPathExpression parentNodeExpression = pathFactory.compile("hibernate-configuration/session-factory"); //$NON-NLS-1$
+            Node parentNode = (Node) parentNodeExpression.evaluate(document, XPathConstants.NODE);
+            // Create a new property element for this datasource-specified property (TMDM-4927).
+            Element property = document.createElement("property"); //$NON-NLS-1$
+            Attr propertyNameAttribute = document.createAttribute("name"); //$NON-NLS-1$
+            property.setAttributeNode(propertyNameAttribute);
+            propertyNameAttribute.setValue(propertyName);
+            property.setTextContent(value);
+            parentNode.appendChild(property);
+        }
     }
 }
