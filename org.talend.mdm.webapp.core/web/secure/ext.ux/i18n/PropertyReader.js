@@ -57,7 +57,7 @@ Ext.extend(Ext.i18n.PropertyReader, Ext.data.DataReader,{
 			kLim = f[i].indexOf(this.propertySeparator);
 			key = String(f[i].substring(0, kLim));
 			value = f[i].substring(kLim+1).trim().replace(/\"/g, '');
-			
+			value = eval("(\"" + value + "\")");
 			var record = new Record(value, key);
 			records[i] = record;
 		}
