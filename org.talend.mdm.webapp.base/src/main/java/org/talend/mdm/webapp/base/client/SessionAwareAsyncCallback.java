@@ -80,7 +80,7 @@ public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
             // loginAgent.html for the browser to redirect to the login page. However, since GWT RPC response cannot be
             // HTML, the InvocationException is thrown with the HTML content as the message.
             return msg == null ? false : msg.contains("<meta http-equiv=\"refresh\" content=\"0; url=/talendmdm/secure\""); //$NON-NLS-1$
-        } else if (caught instanceof SessionTimeoutException)
+        } else if (caught instanceof SessionTimeoutException || (caught.getMessage() != null && caught.getMessage().contains("<meta http-equiv=\"refresh\" content=\"0; url=/talendmdm/secure\"")))
             return true;
         else
             return false;
