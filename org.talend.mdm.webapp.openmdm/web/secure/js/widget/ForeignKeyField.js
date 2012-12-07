@@ -178,10 +178,10 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 				foreignKeyCombo.reset();
 				foreignKeyCombo.getEl().dom.style.top = 0;
 				if(count < 500) {
-					window.setTimeout(function(){
-						foreignKeyCombo.setRawValue("");
-						foreignKeyCombo.doQuery(".*", true);
-					}, 1);
+					foreignKeyCombo.setRawValue("");
+					foreignKeyCombo.doQuery(".*", true);
+					foreignKeyCombo.focus();
+					foreignKeyCombo.expand();
 				}
 			});
 			
