@@ -45,7 +45,7 @@ public class MultiOccurrenceManager {
         TypeModel typeModel = metaDataTypes.get(nodeModel.getTypePath());
         boolean isLazyLoading = !typeModel.isAutoExpand() && nodeModel.getParent() != null && nodeModel.getChildCount() > 0
                 && item.getChild(0) instanceof GhostTreeItem;
-        if (typeModel.isAutoExpand() || isLazyLoading || nodeModel.getChildCount() == 0) {
+        if (typeModel.isAutoExpand() || isLazyLoading || nodeModel.getChildCount() == 0 || item.getChildCount() == 0) {
             if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
                 String xpath = CommonUtil.getRealXpathWithoutLastIndex(nodeModel);
                 List<DynamicTreeItem> multiNodes = multiOccurrence.get(xpath);

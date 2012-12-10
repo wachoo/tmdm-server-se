@@ -478,7 +478,7 @@ public class DataModelHelperTest extends TestCase {
         assertEquals("AUTO_INCREMENT", metaDataTypes.get("ProductFamily/Id").getType().getTypeName());
     }
 
-    public void testParseLabels() throws Exception {
+    public void testParsePolymorphismLabels() throws Exception {
         String datamodelName = "Employee";
         String concept = "Employee";
         String[] ids = { "" };
@@ -503,16 +503,20 @@ public class DataModelHelperTest extends TestCase {
         List<ComplexTypeModel> reusableTypes = ((ComplexTypeModel) addressType).getReusableComplexTypes();
         for (ComplexTypeModel complexTypeModel : reusableTypes) {
             String typeName = complexTypeModel.getName();
-            if(typeName.equals("AddressType")){
+            if (typeName.equals("AddressType")) {
+                assertEquals(true, complexTypeModel.isAbstract());
                 assertEquals(2, complexTypeModel.getLabelMap().size());
                 assertEquals("adresseType", complexTypeModel.getLabel(language));
-            }else if(typeName.equals("CNAddressType")){
+            } else if (typeName.equals("CNAddressType")) {
+                assertEquals(false, complexTypeModel.isAbstract());
                 assertEquals(0, complexTypeModel.getLabelMap().size());
                 assertEquals(typeName, complexTypeModel.getLabel(language));
-            }else if(typeName.equals("EUAddressType")){
+            } else if (typeName.equals("EUAddressType")) {
+                assertEquals(false, complexTypeModel.isAbstract());
                 assertEquals(0, complexTypeModel.getLabelMap().size());
                 assertEquals(typeName, complexTypeModel.getLabel(language));
-            }else if(typeName.equals("USAddressType")){
+            } else if (typeName.equals("USAddressType")) {
+                assertEquals(false, complexTypeModel.isAbstract());
                 assertEquals(2, complexTypeModel.getLabelMap().size());
                 assertEquals("USAdresseType", complexTypeModel.getLabel(language));
             }

@@ -32,6 +32,7 @@ import org.talend.mdm.webapp.base.server.util.XmlUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.browserecords.shared.ReusableType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -72,6 +73,9 @@ public class CommonUtil {
                 ComplexTypeModel complexModel = (ComplexTypeModel) model;
                 List<TypeModel> children = complexModel.getSubTypes();
                 List<ItemNodeModel> list = new ArrayList<ItemNodeModel>();
+                if (model.isAbstract()) {
+                    children = ReusableType.getDefaultReusableTypeChildren(complexModel, node);
+                }
                 for (TypeModel typeModel : children) {
                     list.addAll(getDefaultTreeModel(typeModel, isCreate, language));
                 }
