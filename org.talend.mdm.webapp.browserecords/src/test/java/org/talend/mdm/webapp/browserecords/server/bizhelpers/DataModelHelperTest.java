@@ -55,35 +55,34 @@ public class DataModelHelperTest extends TestCase {
         return new PowerMockSuite("Unit tests for " + DataModelHelperTest.class.getSimpleName(), DataModelHelperTest.class);
     }
 
-    
     public void testParsingPermissionsMetadata() throws Exception {
         EntityModel entityModel = new EntityModel();
         String datamodelName = "M01";
         String concept = "M01_E01";
-        String[] ids = {"M01_E01/subelement"};
-        String[] roles = {"System_Admin", "authenticated", "administration"};
+        String[] ids = { "M01_E01/subelement" };
+        String[] roles = { "System_Admin", "authenticated", "administration" };
         InputStream stream = getClass().getResourceAsStream("M01.xsd");
         String xsd = inputStream2String(stream);
-        
+
         PowerMockito.mockStatic(Util.class);
         Mockito.when(Util.isEnterprise()).thenReturn(true);
-        
+
         DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
         DataModelHelper.parseSchema("Contract", "Contract", DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
                 Arrays.asList(roles));
-        
+
         Map<String, TypeModel> metaDataTypes = entityModel.getMetaDataTypes();
-        
+
         // Check that if a field is No Access, then parsed to be not visible in WebUI
         TypeModel tm = metaDataTypes.get("M01_E01/f2");
         assertNotNull(tm);
         assertTrue(!tm.isVisible());
-        
+
         // Check that if a field has no explicit permissions, then parsed to be visible in WebUI
         tm = metaDataTypes.get("M01_E01/f1");
         assertNotNull(tm);
         assertTrue(tm.isVisible());
-        
+
         // Check that if a field has explicit No Access and Write Access, then parsed to be not visible in WebUI
         tm = metaDataTypes.get("M01_E01/f3");
         assertNotNull(tm);
@@ -93,7 +92,7 @@ public class DataModelHelperTest extends TestCase {
         tm = metaDataTypes.get("M01_E01/f4/sf1");
         assertNotNull(tm);
         assertTrue(!tm.isVisible());
-        
+
         // Check that if a subfield has explicit No Access, then parsed to be not visible in WebUI
         tm = metaDataTypes.get("M01_E01/f4/sf2");
         assertNotNull(tm);
@@ -103,12 +102,12 @@ public class DataModelHelperTest extends TestCase {
         tm = metaDataTypes.get("M01_E01/f5/sf1");
         assertNotNull(tm);
         assertTrue(!tm.isVisible());
-        
+
         // Check that if a custom subfield has explicit No Access, then parsed to be not visible in WebUI
         tm = metaDataTypes.get("M01_E01/f5/sf2");
         assertNotNull(tm);
         assertTrue(!tm.isVisible());
-        
+
         // What happens is parent node should be invisible but child node is set to visible?
         tm = metaDataTypes.get("M01_E01/f6");
         assertNotNull(tm);
@@ -118,10 +117,9 @@ public class DataModelHelperTest extends TestCase {
         tm = metaDataTypes.get("M01_E01/f6/sf1");
         assertNotNull(tm);
         assertTrue(tm.isVisible());
-        
-        
+
     }
-    
+
     public void testTypePath() throws Exception {
 
         EntityModel entityModel = new EntityModel();
@@ -141,26 +139,26 @@ public class DataModelHelperTest extends TestCase {
         assertEquals("Contrat/detailContrat/Perimetre/entitesPresentes/EDPs/EDP/dateDebutApplication", testModel.getXpath());
 
     }
-    
+
     public void testParsingDeleteCreatePermissionsMetadata() throws Exception {
-        
+
         EntityModel entityModel = new EntityModel();
         String datamodelName = "M01";
         String concept = "M01_E02";
-        String[] ids = {"M01_E02/subelement"};
-        String[] roles = {"System_Admin", "authenticated", "administration"};
+        String[] ids = { "M01_E02/subelement" };
+        String[] roles = { "System_Admin", "authenticated", "administration" };
         InputStream stream = getClass().getResourceAsStream("M01.xsd");
         String xsd = inputStream2String(stream);
-        
+
         PowerMockito.mockStatic(Util.class);
         Mockito.when(Util.isEnterprise()).thenReturn(true);
-        
+
         DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
         DataModelHelper.parseSchema("Contract", "Contract", DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
                 Arrays.asList(roles));
-        
+
         Map<String, TypeModel> metaDataTypes = entityModel.getMetaDataTypes();
-        
+
         // Check that if a field is No Access, then parsed to be not visible in WebUI
         TypeModel tm = metaDataTypes.get("M01_E02");
         assertNotNull(tm);
@@ -168,17 +166,17 @@ public class DataModelHelperTest extends TestCase {
         assertTrue(tm.isDenyPhysicalDeleteable());
         assertTrue(tm.isDenyCreatable());
     }
-    
+
     public void testParsingMetadata() throws Exception {
 
-        EntityModel entityModel=new EntityModel();
-        String datamodelName="Contract";
-        String concept="Contract";
-        String[] ids={""};
-        String[] roles={"Demo_Manager", "System_Admin", "authenticated", "administration"};
+        EntityModel entityModel = new EntityModel();
+        String datamodelName = "Contract";
+        String concept = "Contract";
+        String[] ids = { "" };
+        String[] roles = { "Demo_Manager", "System_Admin", "authenticated", "administration" };
         InputStream stream = getClass().getResourceAsStream("Contract.xsd");
         String xsd = inputStream2String(stream);
-        
+
         PowerMockito.mockStatic(Util.class);
         Mockito.when(Util.isEnterprise()).thenReturn(false);
 
@@ -207,7 +205,7 @@ public class DataModelHelperTest extends TestCase {
         assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubType/subType").isSimpleType());
         assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/code").isSimpleType());
         assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/subType").isSimpleType());
-        assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/subTypeOne").isSimpleType());        
+        assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/subTypeOne").isSimpleType());
     }
 
     public void testParseTypeOrder() throws Exception {
@@ -230,15 +228,16 @@ public class DataModelHelperTest extends TestCase {
         for (String typePath : metaDataTypes.keySet()) {
             if (typePath.equals("Eda/typesEda/typeEDA")) {
                 TypeModel typeModel = metaDataTypes.get(typePath);
-                List<ComplexTypeModel> reusableTypes=((ComplexTypeModel) typeModel).getReusableComplexTypes();
+                List<ComplexTypeModel> reusableTypes = ((ComplexTypeModel) typeModel).getReusableComplexTypes();
                 assertTrue(reusableTypes.size() > 0);
                 for (ComplexTypeModel myTypeModel : reusableTypes) {
-                    if (myTypeModel.getName().equals("typeEDA"))
+                    if (myTypeModel.getName().equals("typeEDA")) {
                         assertEquals(0, myTypeModel.getOrderValue());
-                    else if (myTypeModel.getName().equals("PointEchange"))
+                    } else if (myTypeModel.getName().equals("PointEchange")) {
                         assertEquals(3, myTypeModel.getOrderValue());
-                    else if (myTypeModel.getName().equals("PointInjectionRptRpd"))
+                    } else if (myTypeModel.getName().equals("PointInjectionRptRpd")) {
                         assertEquals(13, myTypeModel.getOrderValue());
+                    }
                 }
             }
         }
@@ -260,19 +259,19 @@ public class DataModelHelperTest extends TestCase {
         return buffer.toString();
 
     }
-    
+
     public void testConvertXsd2ElDecl() throws Exception {
         String concept = "Product";
         String xsd = inputStream2String(this.getClass().getResourceAsStream("Product.xsd"));
         XSElementDecl decl = DataModelHelper.convertXsd2ElDecl(concept, xsd);
         assertNotNull(decl);
         assertEquals(concept, decl.getName());
-        
+
         concept = "ABC";
         decl = DataModelHelper.convertXsd2ElDecl(concept, xsd);
         assertNull(decl);
     }
-    
+
     public void testFindTypeModelByTypePath() {
         try {
             DataModelHelper.findTypeModelByTypePath(null, null);
@@ -281,7 +280,7 @@ public class DataModelHelperTest extends TestCase {
             assertNotNull(e);
             assertEquals(IllegalArgumentException.class, e.getClass());
         }
-        
+
         try {
             DataModelHelper.findTypeModelByTypePath(new HashMap<String, TypeModel>(), null);
             fail();
@@ -289,7 +288,7 @@ public class DataModelHelperTest extends TestCase {
             assertNotNull(e);
             assertEquals(IllegalArgumentException.class, e.getClass());
         }
-        
+
         try {
             DataModelHelper.findTypeModelByTypePath(null, "Product/Name");
             fail();
@@ -297,32 +296,32 @@ public class DataModelHelperTest extends TestCase {
             assertNotNull(e);
             assertEquals(IllegalArgumentException.class, e.getClass());
         }
-        
+
         try {
             DataModelHelper.findTypeModelByTypePath(new HashMap<String, TypeModel>(), "Product/Name");
             fail();
         } catch (Exception e) {
             assertNotNull(e);
             assertEquals(TypeModelNotFoundException.class, e.getClass());
-            assertEquals(((TypeModelNotFoundException)e).getXpathNotFound(), "Product/Name");
+            assertEquals(((TypeModelNotFoundException) e).getXpathNotFound(), "Product/Name");
         }
-          
+
     }
-    
+
     public void testGetBusinessConcept() {
-        String datamodelName="Product";
-        String concept="Product";
+        String datamodelName = "Product";
+        String concept = "Product";
         String xsd = inputStream2String(this.getClass().getResourceAsStream("Product.xsd"));
-        
+
         DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
         XSElementDecl decl = DataModelHelper.getBusinessConcept(datamodelName, concept);
         assertNotNull(decl);
         assertEquals(concept, decl.getName());
         assertEquals(ComplexTypeImpl.class, decl.getType().getClass());
     }
-    
+
     public void testGetElementDeclByName() throws Exception {
-        String concept="Product";
+        String concept = "Product";
         String xsd = inputStream2String(this.getClass().getResourceAsStream("Product.xsd"));
         XSOMParser reader = new XSOMParser();
         reader.setAnnotationParser(new DomAnnotationParserFactory());
@@ -333,41 +332,42 @@ public class DataModelHelperTest extends TestCase {
         assertEquals(concept, decl.getName());
         assertEquals(ComplexTypeImpl.class, decl.getType().getClass());
     }
-    
+
     public void testProductDemo() throws Exception {
-        EntityModel entityModel=new EntityModel();
-        String datamodelName="Product";
-        String concept="Product";
-        String[] ids={""};
-        String[] roles={"Demo_User", "Demo_Manager", "System_Admin", "authenticated", "administration"};
+        EntityModel entityModel = new EntityModel();
+        String datamodelName = "Product";
+        String concept = "Product";
+        String[] ids = { "" };
+        String[] roles = { "Demo_User", "Demo_Manager", "System_Admin", "authenticated", "administration" };
         String xsd = inputStream2String(this.getClass().getResourceAsStream("Product.xsd"));
         DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
-        DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel, Arrays.asList(roles));
+        DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
+                Arrays.asList(roles));
         Map<String, TypeModel> metaDataTypes = entityModel.getMetaDataTypes();
         assertNotSame(0, metaDataTypes.size());
         assertEquals(concept, entityModel.getConceptName());
         assertEquals("Product", entityModel.getConceptLabel("en"));
         assertEquals("Produit", entityModel.getConceptLabel("fr"));
         assertEquals(16, metaDataTypes.size());
-        
+
         Set<String> keySet = metaDataTypes.keySet();
         assertTrue(keySet.contains("Product"));
         assertFalse(keySet.contains("ProductFamily"));
-        
+
         assertTrue(keySet.contains("Product/Id"));
         assertEquals(1, metaDataTypes.get("Product/Id").getMinOccurs());
         assertEquals(1, metaDataTypes.get("Product/Id").getMaxOccurs());
         assertEquals("string", metaDataTypes.get("Product/Id").getType().getTypeName());
         assertEquals("Unique Id", metaDataTypes.get("Product/Id").getLabelMap().get("en"));
         assertEquals("Id unique", metaDataTypes.get("Product/Id").getLabelMap().get("fr"));
-        
+
         assertTrue(keySet.contains("Product/Picture"));
         assertEquals(0, metaDataTypes.get("Product/Picture").getMinOccurs());
         assertEquals(1, metaDataTypes.get("Product/Picture").getMaxOccurs());
         assertEquals("PICTURE", metaDataTypes.get("Product/Picture").getType().getTypeName());
         assertEquals("Picture", metaDataTypes.get("Product/Picture").getLabelMap().get("en"));
         assertEquals("Image", metaDataTypes.get("Product/Picture").getLabelMap().get("fr"));
- 
+
         assertTrue(keySet.contains("Product/Name"));
         assertEquals(SimpleTypeModel.class, metaDataTypes.get("Product/Name").getClass());
         assertEquals(1, metaDataTypes.get("Product/Name").getMinOccurs());
@@ -375,13 +375,13 @@ public class DataModelHelperTest extends TestCase {
         assertEquals("string", metaDataTypes.get("Product/Name").getType().getTypeName());
         assertEquals("Name", metaDataTypes.get("Product/Name").getLabelMap().get("en"));
         assertEquals("Nom", metaDataTypes.get("Product/Name").getLabelMap().get("fr"));
-        
+
         assertTrue(keySet.contains("Product/Description"));
         assertFalse(metaDataTypes.get("Product/Description").isDenyCreatable());
         assertFalse(metaDataTypes.get("Product/Description").isDenyLogicalDeletable());
         assertFalse(metaDataTypes.get("Product/Description").isDenyPhysicalDeleteable());
         assertNull(metaDataTypes.get("Product/Description").getReusableTypes());
-        
+
         assertTrue(keySet.contains("Product/Features"));
         assertEquals(ComplexTypeModel.class, metaDataTypes.get("Product/Features").getClass());
         assertEquals(0, metaDataTypes.get("Product/Features").getMinOccurs());
@@ -389,49 +389,49 @@ public class DataModelHelperTest extends TestCase {
         assertEquals("unknow", metaDataTypes.get("Product/Features").getType().getTypeName());
         assertFalse(metaDataTypes.get("Product/Features").isAutoExpand());
         assertNull(metaDataTypes.get("Product/Features").getReusableTypes());
-        assertNotNull(((ComplexTypeModel)metaDataTypes.get("Product/Features")).getSubTypes());
-        assertEquals(2, ((ComplexTypeModel)metaDataTypes.get("Product/Features")).getSubTypes().size());
-        
+        assertNotNull(((ComplexTypeModel) metaDataTypes.get("Product/Features")).getSubTypes());
+        assertEquals(2, ((ComplexTypeModel) metaDataTypes.get("Product/Features")).getSubTypes().size());
+
         assertTrue(keySet.contains("Product/Features/Sizes"));
         assertEquals(0, metaDataTypes.get("Product/Features/Sizes").getMinOccurs());
         assertEquals(1, metaDataTypes.get("Product/Features/Sizes").getMaxOccurs());
-        assertEquals(((ComplexTypeModel)metaDataTypes.get("Product/Features")).getSubTypes().get(0), metaDataTypes.get("Product/Features/Sizes"));
-        
+        assertEquals(((ComplexTypeModel) metaDataTypes.get("Product/Features")).getSubTypes().get(0),
+                metaDataTypes.get("Product/Features/Sizes"));
+
         assertTrue(keySet.contains("Product/Features/Sizes/Size"));
         assertEquals(SimpleTypeModel.class, metaDataTypes.get("Product/Features/Sizes/Size").getClass());
         assertEquals(1, metaDataTypes.get("Product/Features/Sizes/Size").getMinOccurs());
         assertEquals(-1, metaDataTypes.get("Product/Features/Sizes/Size").getMaxOccurs());
         assertEquals(DataTypeCustomized.class, metaDataTypes.get("Product/Features/Sizes/Size").getType().getClass());
         assertEquals("Size", metaDataTypes.get("Product/Features/Sizes/Size").getType().getTypeName());
-        assertNotNull(((SimpleTypeModel)metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration());
-        assertEquals(4, ((SimpleTypeModel)metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration().size());
-        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration().contains("Small"));
-        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration().contains("Medium"));
-        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration().contains("Large"));
-        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration().contains("X-Large"));
-        
+        assertNotNull(((SimpleTypeModel) metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration());
+        assertEquals(4, ((SimpleTypeModel) metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration().size());
+        assertTrue(((SimpleTypeModel) metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration().contains("Small"));
+        assertTrue(((SimpleTypeModel) metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration().contains("Medium"));
+        assertTrue(((SimpleTypeModel) metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration().contains("Large"));
+        assertTrue(((SimpleTypeModel) metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration().contains("X-Large"));
+
         assertEquals(true, keySet.contains("Product/Features/Colors"));
-        assertEquals(((ComplexTypeModel)metaDataTypes.get("Product/Features")).getSubTypes().get(1), metaDataTypes.get("Product/Features/Colors"));
-        
-        
+        assertEquals(((ComplexTypeModel) metaDataTypes.get("Product/Features")).getSubTypes().get(1),
+                metaDataTypes.get("Product/Features/Colors"));
+
         assertEquals(true, keySet.contains("Product/Features/Colors/Color"));
         assertEquals(SimpleTypeModel.class, metaDataTypes.get("Product/Features/Colors/Color").getClass());
         assertEquals(1, metaDataTypes.get("Product/Features/Colors/Color").getMinOccurs());
         assertEquals(-1, metaDataTypes.get("Product/Features/Colors/Color").getMaxOccurs());
         assertEquals(DataTypeCustomized.class, metaDataTypes.get("Product/Features/Colors/Color").getType().getClass());
         assertEquals("Color", metaDataTypes.get("Product/Features/Colors/Color").getType().getTypeName());
-        assertEquals(5, ((SimpleTypeModel)metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().size());
-        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().contains("White"));
-        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().contains("Light Blue"));
-        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().contains("Light Pink"));
-        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().contains("Lemon"));
-        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().contains("Khaki"));
+        assertEquals(5, ((SimpleTypeModel) metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().size());
+        assertTrue(((SimpleTypeModel) metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().contains("White"));
+        assertTrue(((SimpleTypeModel) metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().contains("Light Blue"));
+        assertTrue(((SimpleTypeModel) metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().contains("Light Pink"));
+        assertTrue(((SimpleTypeModel) metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().contains("Lemon"));
+        assertTrue(((SimpleTypeModel) metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().contains("Khaki"));
 
-        
         assertEquals(true, keySet.contains("Product/Availability"));
         assertEquals("boolean", metaDataTypes.get("Product/Availability").getType().getTypeName());
         assertNull(metaDataTypes.get("Product/Availability").getForeignkey());
-                
+
         assertEquals(true, keySet.contains("Product/Price"));
         assertEquals(1, metaDataTypes.get("Product/Price").getMinOccurs());
         assertEquals(1, metaDataTypes.get("Product/Price").getMaxOccurs());
@@ -439,8 +439,9 @@ public class DataModelHelperTest extends TestCase {
         assertNotNull(metaDataTypes.get("Product/Price").getDescriptionMap());
         assertEquals(2, metaDataTypes.get("Product/Price").getDescriptionMap().size());
         assertEquals("Run a price request to change this price", metaDataTypes.get("Product/Price").getDescriptionMap().get("en"));
-        assertEquals("Faites une demande de changement de prix pour modifier", metaDataTypes.get("Product/Price").getDescriptionMap().get("fr"));
-        
+        assertEquals("Faites une demande de changement de prix pour modifier", metaDataTypes.get("Product/Price")
+                .getDescriptionMap().get("fr"));
+
         assertEquals(true, keySet.contains("Product/Family"));
         assertNotNull(metaDataTypes.get("Product/Family").getForeignkey());
         assertEquals("ProductFamily/Id", metaDataTypes.get("Product/Family").getForeignkey());
@@ -448,41 +449,43 @@ public class DataModelHelperTest extends TestCase {
         assertEquals(1, metaDataTypes.get("Product/Family").getForeignKeyInfo().size());
         assertEquals("ProductFamily/Name", metaDataTypes.get("Product/Family").getForeignKeyInfo().get(0));
         assertNull(metaDataTypes.get("Product/Family").getFkFilter());
-                
+
         assertEquals(true, keySet.contains("Product/OnlineStore"));
-        assertEquals("URL", metaDataTypes.get("Product/OnlineStore").getType().getTypeName());       
-        
+        assertEquals("URL", metaDataTypes.get("Product/OnlineStore").getType().getTypeName());
+
         assertEquals(true, keySet.contains("Product/Stores"));
         assertEquals(0, metaDataTypes.get("Product/Stores").getMinOccurs());
         assertEquals(1, metaDataTypes.get("Product/Stores").getMaxOccurs());
         assertEquals(ComplexTypeModel.class, metaDataTypes.get("Product/Stores").getClass());
-        assertNotNull(((ComplexTypeModel)metaDataTypes.get("Product/Stores")).getSubTypes());
-        assertEquals(1, ((ComplexTypeModel)metaDataTypes.get("Product/Stores")).getSubTypes().size());
-        
+        assertNotNull(((ComplexTypeModel) metaDataTypes.get("Product/Stores")).getSubTypes());
+        assertEquals(1, ((ComplexTypeModel) metaDataTypes.get("Product/Stores")).getSubTypes().size());
+
         assertEquals(true, keySet.contains("Product/Stores/Store"));
-        assertEquals(((ComplexTypeModel)metaDataTypes.get("Product/Stores")).getSubTypes().get(0), metaDataTypes.get("Product/Stores/Store"));
+        assertEquals(((ComplexTypeModel) metaDataTypes.get("Product/Stores")).getSubTypes().get(0),
+                metaDataTypes.get("Product/Stores/Store"));
         assertNotNull(metaDataTypes.get("Product/Stores/Store").getForeignkey());
         assertEquals("Store/Id", metaDataTypes.get("Product/Stores/Store").getForeignkey());
         assertNotNull(metaDataTypes.get("Product/Stores/Store").getForeignKeyInfo());
         assertEquals(1, metaDataTypes.get("Product/Stores/Store").getForeignKeyInfo().size());
         assertEquals("Store/Address", metaDataTypes.get("Product/Stores/Store").getForeignKeyInfo().get(0));
         assertNull(metaDataTypes.get("Product/Stores/Store").getFkFilter());
-    
+
         concept = "ProductFamily";
         entityModel = new EntityModel();
-        DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel, Arrays.asList(roles));
+        DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
+                Arrays.asList(roles));
         metaDataTypes = entityModel.getMetaDataTypes();
-        
+
         assertNotNull(metaDataTypes.get("ProductFamily"));
         assertNotNull(metaDataTypes.get("ProductFamily").getPrimaryKeyInfo());
         assertEquals(1, metaDataTypes.get("ProductFamily").getPrimaryKeyInfo().size());
         assertEquals("ProductFamily/Name", metaDataTypes.get("ProductFamily").getPrimaryKeyInfo().get(0));
-        
+
         assertNotNull(metaDataTypes.get("ProductFamily/Id"));
         assertEquals("AUTO_INCREMENT", metaDataTypes.get("ProductFamily/Id").getType().getTypeName());
     }
 
-    public void testParseLabels() throws Exception {
+    public void testParsePolymorphismLabels() throws Exception {
         String datamodelName = "Employee";
         String concept = "Employee";
         String[] ids = { "" };
@@ -507,16 +510,20 @@ public class DataModelHelperTest extends TestCase {
         List<ComplexTypeModel> reusableTypes = ((ComplexTypeModel) addressType).getReusableComplexTypes();
         for (ComplexTypeModel complexTypeModel : reusableTypes) {
             String typeName = complexTypeModel.getName();
-            if(typeName.equals("AddressType")){
+            if (typeName.equals("AddressType")) {
+                assertEquals(true, complexTypeModel.isAbstract());
                 assertEquals(2, complexTypeModel.getLabelMap().size());
                 assertEquals("adresseType", complexTypeModel.getLabel(language));
-            }else if(typeName.equals("CNAddressType")){
+            } else if (typeName.equals("CNAddressType")) {
+                assertEquals(false, complexTypeModel.isAbstract());
                 assertEquals(0, complexTypeModel.getLabelMap().size());
                 assertEquals(typeName, complexTypeModel.getLabel(language));
-            }else if(typeName.equals("EUAddressType")){
+            } else if (typeName.equals("EUAddressType")) {
+                assertEquals(false, complexTypeModel.isAbstract());
                 assertEquals(0, complexTypeModel.getLabelMap().size());
                 assertEquals(typeName, complexTypeModel.getLabel(language));
-            }else if(typeName.equals("USAddressType")){
+            } else if (typeName.equals("USAddressType")) {
+                assertEquals(false, complexTypeModel.isAbstract());
                 assertEquals(2, complexTypeModel.getLabelMap().size());
                 assertEquals("USAdresseType", complexTypeModel.getLabel(language));
             }
@@ -524,7 +531,7 @@ public class DataModelHelperTest extends TestCase {
         }
 
     }
-    
+
     public void testGetAllBusinessConcept() throws Exception {
         String datamodelName = "Product";
         List<String> entityList = new ArrayList<String>();

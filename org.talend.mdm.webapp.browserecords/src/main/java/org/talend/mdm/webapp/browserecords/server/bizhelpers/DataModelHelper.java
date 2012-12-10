@@ -254,6 +254,7 @@ public class DataModelHelper {
                 ComplexTypeModel parentType = (ComplexTypeModel) typeModel;
                 ComplexTypeModel abstractReusableComplexType = new ComplexTypeModel(typeName, DataTypeCreator.getDataType(
                         typeName, baseTypeName));
+                abstractReusableComplexType.setAbstract(parentReusableType.isAbstract());
                 abstractReusableComplexType.setLabelMap(parentReusableType.getLabelMap());
                 parentType.addComplexReusableTypes(abstractReusableComplexType);
                 ReusableType abstractReusable = null;

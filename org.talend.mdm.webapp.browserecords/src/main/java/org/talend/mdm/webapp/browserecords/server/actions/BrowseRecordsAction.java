@@ -1702,7 +1702,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (nodeModel.getRealType() != null && nodeModel.getRealType().trim().length() > 0) {
                 childModels = ((ComplexTypeModel) model).getRealType(nodeModel.getRealType()).getSubTypes();
             } else {
-                childModels = ((ComplexTypeModel) model).getSubTypes();
+                if (!model.isAbstract()) {
+                    childModels = ((ComplexTypeModel) model).getSubTypes();
+                } else {
+                    childModels = org.talend.mdm.webapp.browserecords.shared.ReusableType.getDefaultReusableTypeChildren((ComplexTypeModel) model, nodeModel);
+                }
             }
             for (TypeModel typeModel : childModels) { // display tree node according to the studio default configuration
                 boolean existNodeFlag = false;
