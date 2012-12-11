@@ -29,6 +29,7 @@ public class DataTypeCreator {
         DataTypeConstants[] values = DataTypeConstants.values();
         for (DataTypeConstants value : values) {
             if (value.getTypeName().equals(typeName)) {
+                value.setBaseTypeName(baseTypeName);
                 return value;
             }
         }
