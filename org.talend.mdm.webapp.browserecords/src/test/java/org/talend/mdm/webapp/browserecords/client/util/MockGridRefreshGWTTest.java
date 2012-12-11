@@ -415,7 +415,7 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
                 String fkFilter, AsyncCallback<ForeignKeyDrawer> callback) {
         }
 
-        public void queryItemBeans(QueryModel config, AsyncCallback<ItemBasePageLoadResult<ItemBean>> callback) {
+        public void queryItemBeans(QueryModel config, String language,AsyncCallback<ItemBasePageLoadResult<ItemBean>> callback) {
         }
 
         public void saveItemBean(ItemBean item, String language, AsyncCallback<String> callback) {

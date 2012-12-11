@@ -805,7 +805,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config) throws ServiceException {
+    public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config,String language) throws ServiceException {
         try {
             RecordsPagingConfig pagingLoad = config.getPagingLoadConfig();
             String sortDir = null;
@@ -835,9 +835,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             int totalSize = (Integer) result[1];
             boolean isPagingAccurate = CommonUtil.getPort().isPagingAccurate(new WSInt(totalSize)).is_true();
             return new ItemBasePageLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize, isPagingAccurate);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
+        } catch (Exception exception) {
+            String errorMessage;
+            if (WebCoreException.class.isInstance(exception.getCause())){
+                WebCoreException webCoreException = (WebCoreException) exception.getCause();
+                errorMessage = getErrorMessageFromWebCoreException(webCoreException,"",null,new Locale(language)); //$NON-NLS-1$
+            }else{     
+                errorMessage = exception.getLocalizedMessage();
+            }         
+            LOG.error(exception.getMessage(), exception);
+            throw new ServiceException(errorMessage);
         }
     }
 

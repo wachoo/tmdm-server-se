@@ -169,7 +169,7 @@ public class ItemsListPanel extends ContentPanel {
                 return;
             }
 
-            service.queryItemBeans(qm, new SessionAwareAsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
+            service.queryItemBeans(qm,Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
 
                 public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
                     isPagingAccurate = result.isPagingAccurate();

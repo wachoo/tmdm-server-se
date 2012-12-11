@@ -99,6 +99,7 @@ import com.amalto.core.save.SaveException;
 import com.amalto.core.save.SaverHelper;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.DocumentSaver;
+import com.amalto.core.storage.exception.FullTextQueryCompositeKeyException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.Version;
@@ -116,6 +117,12 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     private String INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE = "delete_failure_constraint_violation"; //$NON-NLS-1$
     
     private String ENTITY_NOT_FOUND_ERROR_MESSAGE = "entity_not_found"; //$NON-NLS-1$
+    
+    // full text query entity include composite key
+    public static final String FULLTEXT_QUERY_COMPOSITEKEY_EXCEPTION_MESSAGE = "fulltext_query_compositekey_fail"; //$NON-NLS-1$
+    
+    //default remote error
+    public static final String DEFAULT_REMOTE_ERROR_MESSAGE = "default_remote_error_message"; //$NON-NLS-1$
 
     /***************************************************************************
      * 
@@ -501,7 +508,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             return new WSStringArray((String[]) res.toArray(new String[res.size()]));
 
         } catch (com.amalto.core.util.XtentisException e) {
-            throw (new RemoteException(e.getLocalizedMessage(), e));
+            throw handleException(e);
         } catch (RemoteException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
@@ -2450,5 +2457,21 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
         return result;
+    }
+    
+    private RemoteException handleException(Throwable throwable) {
+        WebCoreException webCoreException;
+        if (WebCoreException.class.isInstance(throwable)) { 
+            webCoreException = (WebCoreException) throwable;
+        } else if (FullTextQueryCompositeKeyException.class.isInstance(throwable)) {
+            webCoreException = new WebCoreException(FULLTEXT_QUERY_COMPOSITEKEY_EXCEPTION_MESSAGE, throwable);
+        } else {
+            if (throwable.getCause() != null) {
+                return handleException(throwable.getCause());
+            } else {
+                webCoreException = new WebCoreException(DEFAULT_REMOTE_ERROR_MESSAGE, throwable);
+            }
+        }
+        return new RemoteException("", webCoreException); //$NON-NLS-1$       
     }
 }
