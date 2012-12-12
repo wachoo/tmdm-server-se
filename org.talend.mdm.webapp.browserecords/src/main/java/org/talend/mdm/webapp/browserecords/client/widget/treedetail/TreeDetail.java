@@ -558,7 +558,7 @@ public class TreeDetail extends ContentPanel {
         });
     }
 
-    private void recrusiveSetItems(List<VisibleRuleResult> visibleResults, ItemNodeModel itemNode) {
+    public void recrusiveSetItems(List<VisibleRuleResult> visibleResults, ItemNodeModel itemNode) {
         if (itemNode != null) {
             String realPath = CommonUtil.getRealXPath(itemNode);
 
@@ -570,7 +570,6 @@ public class TreeDetail extends ContentPanel {
                 if (vr.getXpath().equals(realPath)) {
                     itemNode.setVisible(vr.isVisible());
                     iter.remove();
-                    return;
                 }
                 if (vr.getXpath().startsWith(realPath)) {
                     maybeUse = true;
@@ -589,6 +588,9 @@ public class TreeDetail extends ContentPanel {
         for (int i = 0; i < itemNode.getChildCount(); i++) {
             ItemNodeModel childNode = (ItemNodeModel) itemNode.getChild(i);
             recrusiveSetItems(visibleResults, childNode);
+            if (visibleResults.size() == 0) {
+                break;
+            }
         }
     }
 

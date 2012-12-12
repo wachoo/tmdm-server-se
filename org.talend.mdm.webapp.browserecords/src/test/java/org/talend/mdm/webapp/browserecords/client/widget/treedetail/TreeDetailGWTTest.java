@@ -28,6 +28,7 @@ import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -372,6 +373,70 @@ public class TreeDetailGWTTest extends GWTTestCase {
         assertEquals(2, cpItem.getChildCount());
         assertTrue(((ItemNodeModel) cpItem.getChild(0).getUserObject()).getName().equals("title"));
         assertTrue(((ItemNodeModel) cpItem.getChild(1).getUserObject()).getName().equals("content"));
+    }
+    
+    /**
+     * Model Structure: <br>
+     * Test<br>
+     *    |_id<br>
+     *    |_name<br>
+     *    |_oem(visible rule: fn:matches(../name ,"test"))<br>
+     *       |_oem_type(enumeration:a,b,c)<br>
+     *       |_a(visible rule: fn:starts-with(../oem_type,"a"))<br>
+     *       |_b(visible rule: fn:starts-with(../oem_type,"b"))<br>
+     *       |_c(visible rule: fn:starts-with(../oem_type,"c"))<br>
+     */
+    public void testRecrusiveSetItems() {
+        // 1. Build Parameter(ItemNodeModel testNode)
+        ItemNodeModel testNode = new ItemNodeModel("Test");
+        testNode.setTypePath("Test");
+        ItemNodeModel idNode = new ItemNodeModel("id");
+        idNode.setTypePath("Test/id");
+        idNode.setKey(true);
+        testNode.add(idNode);
+        ItemNodeModel nameNode = new ItemNodeModel("name");
+        nameNode.setObjectValue("test");
+        nameNode.setTypePath("Test/name");
+        testNode.add(nameNode);
+        ItemNodeModel oemNode = new ItemNodeModel("oem");
+        oemNode.setHasVisiblueRule(true);
+        oemNode.setTypePath("Test/oem");
+        testNode.add(oemNode);
+        ItemNodeModel oem_typeNode = new ItemNodeModel("oem_type");
+        oem_typeNode.setTypePath("Test/oem/oem_type");
+        oem_typeNode.setObjectValue("a");
+        oemNode.add(oem_typeNode);
+        ItemNodeModel oem_aNode = new ItemNodeModel("a");
+        oem_aNode.setHasVisiblueRule(true);
+        oem_aNode.setObjectValue("VisibleRule_TestSuccessfully");
+        oem_aNode.setTypePath("Test/oem/a");
+        oemNode.add(oem_aNode);
+        ItemNodeModel oem_bNode = new ItemNodeModel("b");
+        oem_bNode.setHasVisiblueRule(true);
+        oem_bNode.setTypePath("Test/oem/b");
+        oemNode.add(oem_bNode);
+        ItemNodeModel oem_cNode = new ItemNodeModel("c");
+        oem_cNode.setHasVisiblueRule(true);
+        oem_cNode.setTypePath("Test/oem/c");
+        oemNode.add(oem_cNode);
+        // 2. Build Parameter(List<VisibleRuleResult> visibleResults)
+        List<VisibleRuleResult> visibleResults = new ArrayList<VisibleRuleResult>();
+        VisibleRuleResult oem_VisibleRule = new VisibleRuleResult("Test/oem[1]", true);
+        VisibleRuleResult a_VisibleRule = new VisibleRuleResult("Test/oem[1]/a[1]", true);
+        VisibleRuleResult b_VisibleRule = new VisibleRuleResult("Test/oem[1]/b[1]", false);
+        VisibleRuleResult c_VisibleRule = new VisibleRuleResult("Test/oem[1]/c[1]", false);
+        visibleResults.add(oem_VisibleRule);
+        visibleResults.add(a_VisibleRule);
+        visibleResults.add(b_VisibleRule);
+        visibleResults.add(c_VisibleRule);
+        // 3. Call TreeDetail.recrusiveSetItems(List<VisibleRuleResult>, ItemNodeModel)
+        TreeDetail treeDetail = new TreeDetail(new ItemsDetailPanel());
+        treeDetail.recrusiveSetItems(visibleResults, testNode);
+        // 4. Validate result
+        assertEquals(true, oemNode.isVisible());
+        assertEquals(true, oem_aNode.isVisible());
+        assertEquals(false, oem_bNode.isVisible());
+        assertEquals(false, oem_cNode.isVisible());
     }
 
     private ViewBean getViewBean() {
