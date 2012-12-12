@@ -532,6 +532,7 @@ public class DisplayRuleTest extends TestCase {
      *       |_c(visible rule: fn:starts-with(../oem_type,"c"))<br>
      */
     public void test_VisibleRuleForComplexTypeNode() {
+        // 1. Test/name = "test", Test/oem_type="a"
         Map<String, TypeModel> metaDatas = DisplayRuleTestData.get_VisibleRuleForComplexTypeNode();
 
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "Test"); //$NON-NLS-1$
@@ -551,7 +552,58 @@ public class DisplayRuleTest extends TestCase {
         
         assertEquals("Test/oem[1]/c[1]", ruleValueItems.get(3).getXpath()); //$NON-NLS-1$
         assertEquals(false, ruleValueItems.get(3).isVisible());
+        // 2. Test/name = "test", Test/oem_type="b"
+        dom4jDoc = DisplayRuleTestData.getDocument("VisibleRuleForComplexTypeNodeRecordOne.xml"); //$NON-NLS-1$
+        ruleValueItems = engine.execVisibleRule(dom4jDoc);
+
+        assertEquals(ruleValueItems.size(), 4);
         
+        assertEquals("Test/oem[1]", ruleValueItems.get(0).getXpath()); //$NON-NLS-1$
+        assertEquals(true, ruleValueItems.get(0).isVisible());
+
+        assertEquals("Test/oem[1]/a[1]", ruleValueItems.get(1).getXpath()); //$NON-NLS-1$
+        assertEquals(false, ruleValueItems.get(1).isVisible());
+
+        assertEquals("Test/oem[1]/b[1]", ruleValueItems.get(2).getXpath()); //$NON-NLS-1$
+        assertEquals(true, ruleValueItems.get(2).isVisible());
+        
+        assertEquals("Test/oem[1]/c[1]", ruleValueItems.get(3).getXpath()); //$NON-NLS-1$
+        assertEquals(false, ruleValueItems.get(3).isVisible());
+        // 3. Test/name = "test", Test/oem_type="c"
+        dom4jDoc = DisplayRuleTestData.getDocument("VisibleRuleForComplexTypeNodeRecordTwo.xml"); //$NON-NLS-1$
+        ruleValueItems = engine.execVisibleRule(dom4jDoc);
+
+        assertEquals(ruleValueItems.size(), 4);
+        
+        assertEquals("Test/oem[1]", ruleValueItems.get(0).getXpath()); //$NON-NLS-1$
+        assertEquals(true, ruleValueItems.get(0).isVisible());
+
+        assertEquals("Test/oem[1]/a[1]", ruleValueItems.get(1).getXpath()); //$NON-NLS-1$
+        assertEquals(false, ruleValueItems.get(1).isVisible());
+
+        assertEquals("Test/oem[1]/b[1]", ruleValueItems.get(2).getXpath()); //$NON-NLS-1$
+        assertEquals(false, ruleValueItems.get(2).isVisible());
+        
+        assertEquals("Test/oem[1]/c[1]", ruleValueItems.get(3).getXpath()); //$NON-NLS-1$
+        assertEquals(true, ruleValueItems.get(3).isVisible());
+        // 4. Test/name = "abc"
+        dom4jDoc = DisplayRuleTestData.getDocument("VisibleRuleForComplexTypeNodeRecordThree.xml"); //$NON-NLS-1$
+        ruleValueItems = engine.execVisibleRule(dom4jDoc);
+
+        assertEquals(ruleValueItems.size(), 4);
+        
+        assertEquals("Test/oem[1]", ruleValueItems.get(0).getXpath()); //$NON-NLS-1$
+        assertEquals(false, ruleValueItems.get(0).isVisible());
+
+        assertEquals("Test/oem[1]/a[1]", ruleValueItems.get(1).getXpath()); //$NON-NLS-1$
+        assertEquals(false, ruleValueItems.get(1).isVisible());
+
+        assertEquals("Test/oem[1]/b[1]", ruleValueItems.get(2).getXpath()); //$NON-NLS-1$
+        assertEquals(false, ruleValueItems.get(2).isVisible());
+        
+        assertEquals("Test/oem[1]/c[1]", ruleValueItems.get(3).getXpath()); //$NON-NLS-1$
+        assertEquals(false, ruleValueItems.get(3).isVisible());
+
     }
 
     private void changeDocForVisibleRuleForInheritance_Student(Document doc) {
