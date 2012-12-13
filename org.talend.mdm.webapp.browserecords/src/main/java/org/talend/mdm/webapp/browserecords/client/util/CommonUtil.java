@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
@@ -24,7 +23,6 @@ import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ReusableType;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
-import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 public class CommonUtil {
@@ -161,7 +159,16 @@ public class CommonUtil {
         return realPath.replaceAll("\\[\\d+\\]$", ""); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
-    public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, String language, boolean defaultValue) {
+    /**
+     * getDefaultTreeModel
+     * @param model
+     * @param language
+     * @param defaultValue it is used when client side call the method
+     * @param isCreate it is used when server side call the method
+     * @param isCallByServerSide it is true when server side call the method, otherwise it is false
+     * @return
+     */
+    public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, String language, boolean defaultValue, boolean isCreate, boolean isCallByServerSide) {
         List<ItemNodeModel> itemNodes = new ArrayList<ItemNodeModel>();
 
         if (model.getMinOccurs() > 1) {
@@ -183,23 +190,30 @@ public class CommonUtil {
                 node.setMandatory(true);
             }
             if (model.isSimpleType()) {
-                if (defaultValue) {
+                if (defaultValue && !isCallByServerSide) {
                     setDefaultValue(model, node);
+                } else if (isCreate && isCallByServerSide) {
+                    node.setChangeValue(true);
                 }
             } else {
                 ComplexTypeModel complexModel = (ComplexTypeModel) model;
-                List<TypeModel> children = complexModel.getSubTypes();
-                List<ItemNodeModel> list = new ArrayList<ItemNodeModel>();
+                List<TypeModel> children;
                 if (model.isAbstract()) {
                     children = ReusableType.getDefaultReusableTypeChildren(complexModel, node);
+                } else {
+                    children = complexModel.getSubTypes();
                 }
+                List<ItemNodeModel> list = new ArrayList<ItemNodeModel>();
                 for (TypeModel typeModel : children) {
-                    list.addAll(getDefaultTreeModel(typeModel, language, defaultValue));
+                    list.addAll(getDefaultTreeModel(typeModel, language, defaultValue, isCreate, isCallByServerSide));
                 }
                 node.setChildNodes(list);
             }
             node.setName(model.getName());
             node.setTypePath(model.getTypePath());
+            if (isCallByServerSide) {
+                node.setHasVisiblueRule(model.isHasVisibleRule());    
+            }
             node.setDescription(model.getDescriptionMap().get(language));
             node.setLabel(model.getLabel(language));
         }

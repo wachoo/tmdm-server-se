@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.util;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -147,15 +148,6 @@ public class CommonUtilTest extends TestCase {
         result = CommonUtil.typePathToXpath("Eda/typeEda/typeEDA:PointSoutirageRpt/crmaEda/qqq:www"); //$NON-NLS-1$
         assertEquals("Eda/typeEda/typeEDA[@xsi:type='PointSoutirageRpt']/crmaEda/qqq[@xsi:type='www']", result); //$NON-NLS-1$
 
-    }
-
-    public void testGetDefaultTreeModel() {
-        try {
-            CommonUtil.getDefaultTreeModel(new SimpleTypeModel(), "en", true);
-            fail();
-        } catch (NullPointerException e) {
-
-        }
     }
 
     public void transferXpath() {

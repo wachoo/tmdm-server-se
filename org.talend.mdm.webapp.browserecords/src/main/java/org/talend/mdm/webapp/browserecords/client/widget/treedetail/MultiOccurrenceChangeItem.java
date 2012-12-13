@@ -218,7 +218,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         this.treeDetail = treeDetail;
     }
     
-    public boolean NoExistAddRemoveHandler(){
+    public boolean isAddRemoveHandlerNull(){
         return addRemoveHandler == null;
     }
 
