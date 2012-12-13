@@ -28,7 +28,6 @@ import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
-import org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.AdvancedSearchPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
 import org.talend.mdm.webapp.browserecords.server.util.TestData;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
@@ -149,15 +148,6 @@ public class CommonUtilTest extends TestCase {
         result = CommonUtil.typePathToXpath("Eda/typeEda/typeEDA:PointSoutirageRpt/crmaEda/qqq:www"); //$NON-NLS-1$
         assertEquals("Eda/typeEda/typeEDA[@xsi:type='PointSoutirageRpt']/crmaEda/qqq[@xsi:type='www']", result); //$NON-NLS-1$
 
-    }
-
-    public void testGetDefaultTreeModel() {
-        try {
-            CommonUtil.getDefaultTreeModel(new SimpleTypeModel(), "en", true);
-            fail();
-        } catch (NullPointerException e) {
-
-        }
     }
 
     public void transferXpath() {

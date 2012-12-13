@@ -285,7 +285,7 @@ public class MultiOccurrenceManager {
             if ("Clone".equals(optId)) { //$NON-NLS-1$
                 model = selectedModel.clone(true);
             } else {
-                List<ItemNodeModel> modelList = CommonUtil.getDefaultTreeModel(typeModel, Locale.getLanguage(), false);
+                List<ItemNodeModel> modelList = CommonUtil.getDefaultTreeModel(typeModel, Locale.getLanguage(), false, false, false);
                 if (modelList.size() > 0)
                     model = modelList.get(0);
             }

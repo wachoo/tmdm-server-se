@@ -1,9 +1,16 @@
 package org.talend.mdm.webapp.browserecords.client.util;
 
+import java.util.HashMap;
+import java.util.List;
+
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.google.gwt.junit.client.GWTTestCase;
 
 
@@ -159,5 +166,61 @@ public class CommonUtilGWTTest extends GWTTestCase {
         ItemNodeModel address3 = (ItemNodeModel) cp.getChild(3);
         assertEquals(CommonUtil.getRealXPath(address3), "Test/cp[1]/address[3]"); //$NON-NLS-1$
         assertEquals(CommonUtil.getRealXpathWithoutLastIndex(address3), "Test/cp[1]/address"); //$NON-NLS-1$
+    }
+    
+    @SuppressWarnings("nls")
+    public void testGetDefaultTreeModel() {
+        // 1. build TypeModel
+        ComplexTypeModel oem = new ComplexTypeModel("oem", DataTypeConstants.STRING);
+        oem.setTypePath("oem");
+        oem.setLabelMap(new HashMap<String, String>());
+        SimpleTypeModel oem_a = new SimpleTypeModel("oem_a", DataTypeConstants.STRING);
+        oem_a.setTypePath("oem/oem_a");
+        oem_a.setLabelMap(new HashMap<String, String>());
+        oem.addSubType(oem_a);
+        SimpleTypeModel oem_b = new SimpleTypeModel("oem_b", DataTypeConstants.INTEGER);
+        oem_b.setTypePath("oem/oem_b");
+        oem_b.setLabelMap(new HashMap<String, String>());
+        oem.addSubType(oem_b);
+        SimpleTypeModel oem_c = new SimpleTypeModel("oem_c", DataTypeConstants.BOOLEAN);
+        oem_c.setTypePath("oem/oem_c");
+        oem_c.setLabelMap(new HashMap<String, String>());
+        oem.addSubType(oem_c);
+        SimpleTypeModel oem_d = new SimpleTypeModel("oem_d", DataTypeConstants.DATE);
+        oem_d.setTypePath("oem/oem_d");
+        oem_d.setLabelMap(new HashMap<String, String>());
+        oem.addSubType(oem_d);
+        SimpleTypeModel oem_e = new SimpleTypeModel("oem_e", DataTypeConstants.DOUBLE);
+        oem_e.setTypePath("oem/oem_e");
+        oem_e.setLabelMap(new HashMap<String, String>());
+        oem.addSubType(oem_e);
+        // 2. Test defaultValue = true
+        List<ItemNodeModel> list = CommonUtil.getDefaultTreeModel(oem, "en", true, false, false);
+        assertNotNull(list);
+        ItemNodeModel oemNodeModel = list.get(0);
+        assertNotNull(oemNodeModel);
+        assertEquals(5, oemNodeModel.getChildCount());
+        ItemNodeModel oem_a_node = (ItemNodeModel) oemNodeModel.getChild(0);
+        assertEquals(DataTypeConstants.STRING.getDefaultValue(), oem_a_node.getObjectValue());
+        ItemNodeModel oem_b_node = (ItemNodeModel) oemNodeModel.getChild(1);
+        assertEquals(DataTypeConstants.INTEGER.getDefaultValue(), oem_b_node.getObjectValue());
+        ItemNodeModel oem_c_node = (ItemNodeModel) oemNodeModel.getChild(2);
+        assertEquals(DataTypeConstants.BOOLEAN.getDefaultValue(), oem_c_node.getObjectValue());
+        ItemNodeModel oem_d_node = (ItemNodeModel) oemNodeModel.getChild(3);
+        assertTrue(oem_d_node.getObjectValue() != null);
+        assertTrue(oem_d_node.getObjectValue() instanceof String);
+        ItemNodeModel oem_e_node = (ItemNodeModel) oemNodeModel.getChild(4);
+        assertEquals(DataTypeConstants.DOUBLE.getDefaultValue(), oem_e_node.getObjectValue());
+        // 3. Test defaultValue = false
+        list = CommonUtil.getDefaultTreeModel(oem, "en", false, false, false);
+        assertNotNull(list);
+        oemNodeModel = list.get(0);
+        assertNotNull(oemNodeModel);
+        assertEquals(5, oemNodeModel.getChildCount());
+        for (ModelData modelData : oemNodeModel.getChildren()) {
+            ItemNodeModel itemNodeModel = (ItemNodeModel) modelData;
+            assertTrue(itemNodeModel.getObjectValue() == null);
+        }
+        
     }
 }

@@ -410,7 +410,7 @@ public class TreeDetail extends ContentPanel {
                             });
                         }
                         if (selectedItem.getWidget() instanceof MultiOccurrenceChangeItem
-                                && ((MultiOccurrenceChangeItem) selectedItem.getWidget()).NoExistAddRemoveHandler()) {
+                                && ((MultiOccurrenceChangeItem) selectedItem.getWidget()).isAddRemoveHandlerNull()) {
                             multiManager.addMultiOccurrenceNode(selectedItem);
                             multiManager.warningAllItems();
                             multiManager.handleOptIcons();
