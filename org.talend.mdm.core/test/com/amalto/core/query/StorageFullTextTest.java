@@ -23,12 +23,14 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.FullTextResultsWriter;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.exception.FullTextQueryCompositeKeyException;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
@@ -315,5 +317,41 @@ public class StorageFullTextTest extends StorageTestCase {
         } finally {
             results.close();
         }
+    }
+    
+    public void testFullTestWithCompositeKeySearch() throws Exception { 
+        ComplexTypeMetadata a1 = repository.getComplexType("a1");
+        ComplexTypeMetadata a2 = repository.getComplexType("a2");
+
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                a2,
+                                "<a2><subelement>1</subelement><subelement1>10</subelement1><b3>String b3</b3><b4>String b4</b4></a2>"));
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                a1,
+                                "<a1><subelement>1</subelement><subelement1>11</subelement1><b1>String b1</b1><b2>[1][10]</b2></a1>"));
+        
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+        
+        try{
+            UserQueryBuilder qb = from(a1).selectId(a1).select(a1.getField("b1")).select(a1.getField("b2")).where(fullText("String")).limit(20);
+            storage.fetch(qb.getSelect());
+            
+        }catch (RuntimeException runtimeException){
+            if (FullTextQueryCompositeKeyException.class.isInstance(runtimeException.getCause())){
+                assertEquals("a1", runtimeException.getCause().getMessage());
+            }else{
+                throw runtimeException;
+            }
+        }             
     }
 }
