@@ -23,17 +23,20 @@ public class DataTypeCreator {
 
     public static DataType getDataType(String typeName, String baseTypeName) {
 
-        if ((typeName == null || typeName.trim().length() == 0) && "anyType".equals(baseTypeName)) //$NON-NLS-1$
+        if ((typeName == null || typeName.trim().length() == 0) && "anyType".equals(baseTypeName)) { //$NON-NLS-1$
             return DataTypeConstants.UNKNOW;
+        }
 
         DataTypeConstants[] values = DataTypeConstants.values();
         for (DataTypeConstants value : values) {
             if (value.getTypeName().equals(typeName)) {
+                value.setBaseTypeName(baseTypeName);
                 return value;
             }
         }
-        if (typeName == null)
+        if (typeName == null) {
             typeName = "unknow"; //$NON-NLS-1$
+        }
         return new DataTypeCustomized(typeName, baseTypeName);
     }
 
