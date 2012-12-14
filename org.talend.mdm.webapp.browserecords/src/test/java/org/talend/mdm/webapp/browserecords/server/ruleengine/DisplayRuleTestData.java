@@ -381,4 +381,42 @@ public class DisplayRuleTestData {
 
         return metaDatas;
     }
+    
+    public static Map<String, TypeModel> get_VisibleRuleForComplexTypeNode() {
+        Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
+
+        SimpleTypeModel idType = new SimpleTypeModel();
+        idType.setTypePath("Test/id"); //$NON-NLS-1$
+        metaDatas.put(idType.getTypePath(), idType);
+
+        SimpleTypeModel nameType = new SimpleTypeModel();
+        nameType.setTypePath("Test/name"); //$NON-NLS-1$
+        metaDatas.put(nameType.getTypePath(), nameType);
+
+        ComplexTypeModel oemModel = new ComplexTypeModel();
+        oemModel.setTypePath("Test/oem"); //$NON-NLS-1$
+        oemModel.setVisibleExpression("fn:matches(../name ,\"test\")"); //$NON-NLS-1$
+        metaDatas.put(oemModel.getTypePath(), oemModel);
+
+        SimpleTypeModel oem_type = new SimpleTypeModel();
+        oem_type.setTypePath("Test/oem/oem_type"); //$NON-NLS-1$
+        metaDatas.put(oem_type.getTypePath(), oem_type);
+        
+        SimpleTypeModel oem_a = new SimpleTypeModel();
+        oem_a.setTypePath("Test/oem/a"); //$NON-NLS-1$
+        oem_a.setVisibleExpression("fn:starts-with(../oem_type,\"a\")"); //$NON-NLS-1$
+        metaDatas.put(oem_a.getTypePath(), oem_a);
+        
+        SimpleTypeModel oem_b = new SimpleTypeModel();
+        oem_b.setTypePath("Test/oem/b"); //$NON-NLS-1$
+        oem_b.setVisibleExpression("fn:starts-with(../oem_type,\"b\")"); //$NON-NLS-1$
+        metaDatas.put(oem_b.getTypePath(), oem_b);
+        
+        SimpleTypeModel oem_c = new SimpleTypeModel();
+        oem_c.setTypePath("Test/oem/c"); //$NON-NLS-1$
+        oem_c.setVisibleExpression("fn:starts-with(../oem_type,\"c\")"); //$NON-NLS-1$
+        metaDatas.put(oem_c.getTypePath(), oem_c);
+
+        return metaDatas;
+    }
 }
