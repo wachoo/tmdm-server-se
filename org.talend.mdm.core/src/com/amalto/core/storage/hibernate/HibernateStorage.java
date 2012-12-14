@@ -14,6 +14,7 @@ import com.amalto.core.metadata.*;
 import com.amalto.core.query.optimization.ContainsOptimizer;
 import com.amalto.core.query.optimization.Optimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
+import com.amalto.core.query.optimization.UpdateReportOptimizer;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryDumpConsole;
@@ -62,7 +63,11 @@ public class HibernateStorage implements Storage {
 
     private static final Logger LOGGER = Logger.getLogger(HibernateStorage.class);
 
-    private static final Optimizer[] OPTIMIZERS = new Optimizer[]{new RangeOptimizer(), new ContainsOptimizer()};
+    private static final Optimizer[] OPTIMIZERS = new Optimizer[]{
+            new RangeOptimizer(), // Transforms (value > n AND value < p) into (RANGE(n,p)).
+            new ContainsOptimizer(), // Transforms all '*' in CONTAINS into '%'.
+            new UpdateReportOptimizer() // Adds queries on super types if update report query a concept name with super types.
+    };
 
     private static final String FORBIDDEN_PREFIX = "x_talend_"; //$NON-NLS-1$
 
@@ -135,8 +140,7 @@ public class HibernateStorage implements Storage {
         }
         configuration = new Configuration();
         // Setting our own entity resolver allows to ensure the DTD found/used are what we expect (and not potentially
-        // ones
-        // provided by the application server).
+        // one provided by the application server).
         configuration.setEntityResolver(ENTITY_RESOLVER);
     }
 
@@ -728,8 +732,9 @@ public class HibernateStorage implements Storage {
         // Always normalize the query to ensure query has expected format.
         Expression expression = userQuery.normalize();
         if (expression instanceof Select) {
+            Select select = (Select) expression;
             for (Optimizer optimizer : OPTIMIZERS) {
-                optimizer.optimize((Select) expression);
+                optimizer.optimize(select);
             }
         }
         if (LOGGER.isDebugEnabled()) {
@@ -743,7 +748,7 @@ public class HibernateStorage implements Storage {
         if (!isPrepared) {
             throw new IllegalStateException("Storage has not been prepared.");
         }
-        if (storageClassLoader.isClosed()) {
+        if (storageClassLoader == null || storageClassLoader.isClosed()) {
             throw new IllegalStateException("Storage has been closed.");
         }
     }

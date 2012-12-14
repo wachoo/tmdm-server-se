@@ -50,25 +50,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.amalto.core.query.optimization.UpdateReportOptimizer;
+import com.amalto.core.query.user.*;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.query.user.BinaryLogicOperator;
-import com.amalto.core.query.user.Compare;
-import com.amalto.core.query.user.Condition;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.Field;
-import com.amalto.core.query.user.IntegerConstant;
-import com.amalto.core.query.user.OrderBy;
-import com.amalto.core.query.user.Predicate;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.query.user.StringConstant;
-import com.amalto.core.query.user.Timestamp;
-import com.amalto.core.query.user.TypedExpression;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
@@ -1391,6 +1379,41 @@ public class StorageQueryTest extends StorageTestCase {
         storage.begin();
         storage.delete(qb.getSelect());
         storage.commit();
+    }
+
+    public void testUpdateReportQueryOptimization() throws Exception {
+        UpdateReportOptimizer optimizer = new UpdateReportOptimizer();
+
+        Condition condition = and(eq(updateReport.getField("Concept"), "Product"), eq(updateReport.getField("DataModel"), "metadata.xsd"));
+        UserQueryBuilder qb = from(updateReport).where(condition);
+        assertEquals(condition, qb.getSelect().getCondition());
+        optimizer.optimize(qb.getSelect());
+        assertEquals(condition, qb.getSelect().getCondition());
+
+        condition = eq(updateReport.getField("Concept"), "C");
+        qb = from(updateReport).where(condition);
+        assertEquals(condition, qb.getSelect().getCondition());
+        optimizer.optimize(qb.getSelect());
+        qb.getSelect().accept(new UserQueryDumpConsole());
+        assertEquals(condition, qb.getSelect().getCondition()); // No data model: no optimization can be done.
+
+        condition = and(eq(updateReport.getField("Concept"), "C"), eq(updateReport.getField("DataModel"), "metadata.xsd"));
+        qb = from(updateReport).where(condition);
+        assertEquals(condition, qb.getSelect().getCondition());
+        optimizer.optimize(qb.getSelect());
+        assertNotSame(condition, qb.getSelect().getCondition()); // C has super type, so condition changed.
+
+        condition = and(
+                eq(updateReport.getField("Concept"), "C"),
+                and(
+                    eq(updateReport.getField("DataModel"), "metadata.xsd"),
+                    eq(updateReport.getField("TimeInMillis"), "0")
+                )
+        );
+        qb = from(updateReport).where(condition);
+        assertEquals(condition, qb.getSelect().getCondition());
+        optimizer.optimize(qb.getSelect());
+        assertNotSame(condition, qb.getSelect().getCondition()); // C has super type, so condition changed.
     }
 
     public void testUpdateReportCreationWithoutSource() throws Exception {
