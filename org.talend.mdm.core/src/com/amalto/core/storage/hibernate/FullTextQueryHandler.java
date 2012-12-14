@@ -11,12 +11,17 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.*;
-import com.amalto.core.query.user.*;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import javax.xml.XMLConstants;
+
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.KeywordAnalyzer;
@@ -31,9 +36,35 @@ import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 
-import javax.xml.XMLConstants;
-import java.io.IOException;
-import java.util.*;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ComplexTypeMetadataImpl;
+import com.amalto.core.metadata.DefaultMetadataVisitor;
+import com.amalto.core.metadata.EnumerationFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.SimpleTypeFieldMetadata;
+import com.amalto.core.metadata.SimpleTypeMetadata;
+import com.amalto.core.query.user.Alias;
+import com.amalto.core.query.user.BinaryLogicOperator;
+import com.amalto.core.query.user.Compare;
+import com.amalto.core.query.user.Condition;
+import com.amalto.core.query.user.Field;
+import com.amalto.core.query.user.FullText;
+import com.amalto.core.query.user.Join;
+import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.Paging;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.StringConstant;
+import com.amalto.core.query.user.TaskId;
+import com.amalto.core.query.user.Timestamp;
+import com.amalto.core.query.user.TypedExpression;
+import com.amalto.core.query.user.UnaryLogicOperator;
+import com.amalto.core.query.user.VisitorAdapter;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.exception.FullTextQueryCompositeKeyException;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 
 
 class FullTextQueryHandler extends AbstractQueryHandler {
@@ -55,7 +86,28 @@ class FullTextQueryHandler extends AbstractQueryHandler {
     }
 
     @Override
-    public StorageResults visit(Select select) {
+    public StorageResults visit(Select select) {        
+    
+        Set<ComplexTypeMetadata> compositeKeyTypes = new HashSet<ComplexTypeMetadata>();
+        for (ComplexTypeMetadata type : select.getTypes()) {
+            if (type.getKeyFields().size() > 1) {
+                compositeKeyTypes.add(type);
+            }
+        }        
+        
+        if (!compositeKeyTypes.isEmpty()) {        
+            StringBuilder message = new StringBuilder();
+            Iterator it = compositeKeyTypes.iterator();
+            while (it.hasNext()) {
+                ComplexTypeMetadata compositeKeyType = (ComplexTypeMetadata)it.next();
+                message.append(compositeKeyType.getName());
+                if (it.hasNext()) {
+                    message.append(","); //$NON-NLS-1$
+                }
+            }          
+            throw new FullTextQueryCompositeKeyException(message.toString());
+        } 
+      
         List<Join> joins = select.getJoins();
         if (!joins.isEmpty()) {
             throw new IllegalArgumentException("Cannot perform join clause(s) when doing full text search.");
