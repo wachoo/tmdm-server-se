@@ -12,14 +12,10 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.SearchPanel;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.talend.mdm.webapp.base.client.exception.ParserException;
-import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
-import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.client.util.Parser;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
@@ -50,11 +46,11 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.ColumnData;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
@@ -110,19 +106,21 @@ public class AdvancedSearchPanel extends FormPanel {
             if (condition.indexOf(ge) > -1) {
                 Date d = new Date();
                 int index = condition.indexOf(ge) + ge.length() + 1;
-                if (condition.indexOf(blank, index) == -1)
+                if (condition.indexOf(blank, index) == -1) {
                     d.setTime(Long.valueOf(condition.substring(index)));
-                else
+                } else {
                     d.setTime(Long.valueOf(condition.substring(index, condition.indexOf(blank, index))));
+                }
                 fromfield.setValue(d);
             }
             if (condition.indexOf(le) > -1) {
                 Date d = new Date();
                 int index = condition.indexOf(le) + le.length() + 1;
-                if (condition.indexOf(blank, index) == -1)
+                if (condition.indexOf(blank, index) == -1) {
                     d.setTime(Long.valueOf(condition.substring(index)));
-                else
+                } else {
                     d.setTime(Long.valueOf(condition.substring(index, condition.indexOf(blank, index))));
+                }
                 tofield.setValue(d);
             }
         } else {
@@ -139,7 +137,7 @@ public class AdvancedSearchPanel extends FormPanel {
         try {
             if (!s.isEmpty()) {
                 if (!s.startsWith("(") && !s.endsWith(")")) { //$NON-NLS-1$ //$NON-NLS-2$
-                    s = "((" +s + "))"; //$NON-NLS-1$ //$NON-NLS-2$
+                    s = "((" + s + "))"; //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 char[] sa = s.toCharArray();
                 BrowseRecords.getSession().put(
@@ -157,7 +155,10 @@ public class AdvancedSearchPanel extends FormPanel {
     }
 
     public String getCriteria() {
-        MultipleCriteria criteriaStore = (MultipleCriteria) (BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE) == null ? BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE) : BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE));
+        MultipleCriteria criteriaStore = (MultipleCriteria) (BrowseRecords.getSession().get(
+                UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE) == null ? BrowseRecords.getSession().get(
+                UserSession.CUSTOMIZE_CRITERION_STORE) : BrowseRecords.getSession().get(
+                UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE));
         String express = criteriaStore != null ? criteriaStore.toString() : null;// expressionTextField.getValue();
         String curCriteria = null, curDate = null;
         if (instance.getItemByItemId("modifiedon") != null) { //$NON-NLS-1$ 
@@ -165,21 +166,26 @@ public class AdvancedSearchPanel extends FormPanel {
                     .getItem(0)).getItemByItemId("modifiedonField1"); //$NON-NLS-1$
             DateField tofield = (DateField) ((LayoutContainer) ((LayoutContainer) this.getItemByItemId("modifiedon")).getItem(1)) //$NON-NLS-1$
                     .getItemByItemId("modifiedonField2"); //$NON-NLS-1$
-            if (fromfield.getValue() != null)
+            if (fromfield.getValue() != null) {
                 curDate = modifiedON + blank + ge + blank + fromfield.getValue().getTime();
-            if (tofield.getValue() != null)
-                if (curDate != null)
+            }
+            if (tofield.getValue() != null) {
+                if (curDate != null) {
                     curDate += " AND " + modifiedON + blank + le + blank + tofield.getValue().getTime(); //$NON-NLS-1$
-                else
+                } else {
                     curDate = modifiedON + blank + le + blank + tofield.getValue().getTime();
+                }
+            }
 
-            if (curDate != null)
+            if (curDate != null) {
                 curCriteria = (express == null) ? curDate : express.substring(0, express.lastIndexOf(")")) + " AND " + curDate //$NON-NLS-1$  //$NON-NLS-2$
                         + ")"; //$NON-NLS-1$
-            else
+            } else {
                 curCriteria = (express == null) ? curDate : express;
-        } else
+            }
+        } else {
             curCriteria = express;
+        }
 
         return curCriteria;
     }
@@ -269,7 +275,7 @@ public class AdvancedSearchPanel extends FormPanel {
 
                     @Override
                     public void componentSelected(ButtonEvent ce) {
-                        MultipleCriteria mutilCriteria = multiCriteria.getCriteria();                        
+                        MultipleCriteria mutilCriteria = multiCriteria.getCriteria();
                         BrowseRecords.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE, mutilCriteria);
                         setCriteria(mutilCriteria.toString());
                         winFilter.close();
@@ -281,9 +287,9 @@ public class AdvancedSearchPanel extends FormPanel {
                 String curField = expressionTextField.getValue();
                 if (curField != null && !curField.equals("")) { //$NON-NLS-1$
                     try {
-                        // Criteria criteria = Parser.parse(curField);
+                        parseSearchExpression(curField);
                         MultipleCriteria criteriaStore = (MultipleCriteria) BrowseRecords.getSession().get(
-                                UserSession.CUSTOMIZE_CRITERION_STORE);
+                                UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE);
                         multiCriteria.setCriteria(criteriaStore);
                     } catch (Exception e) {
                         Log.error(e.getMessage(), e);
