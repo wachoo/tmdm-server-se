@@ -32,7 +32,6 @@ import org.talend.mdm.webapp.base.server.util.XmlUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
-import org.talend.mdm.webapp.browserecords.shared.ReusableType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -48,46 +47,7 @@ public class CommonUtil {
     private static final Logger LOG = Logger.getLogger(CommonUtil.class);
 
     public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, boolean isCreate, String language) {
-        List<ItemNodeModel> itemNodes = new ArrayList<ItemNodeModel>();
-
-        if (model.getMinOccurs() > 1) {
-            for (int i = 0; i < model.getMinOccurs(); i++) {
-                ItemNodeModel itemNode = new ItemNodeModel();
-                itemNodes.add(itemNode);
-                if (model.getForeignkey() != null)
-                    break;
-            }
-        } else {
-            ItemNodeModel itemNode = new ItemNodeModel();
-            itemNodes.add(itemNode);
-        }
-
-        for (ItemNodeModel node : itemNodes) {
-            if (model.getMinOccurs() > 0) {
-                node.setMandatory(true);
-            }
-            if (model.isSimpleType()) {
-                if (isCreate)
-                    node.setChangeValue(true);
-            } else {
-                ComplexTypeModel complexModel = (ComplexTypeModel) model;
-                List<TypeModel> children = complexModel.getSubTypes();
-                List<ItemNodeModel> list = new ArrayList<ItemNodeModel>();
-                if (model.isAbstract()) {
-                	children = ReusableType.getDefaultReusableTypeChildren(complexModel, node);
- 				}
-                for (TypeModel typeModel : children) {
-                    list.addAll(getDefaultTreeModel(typeModel, isCreate, language));
-                }
-                node.setChildNodes(list);
-            }
-            node.setName(model.getName());
-            node.setTypePath(model.getTypePath());
-            node.setHasVisiblueRule(model.isHasVisibleRule());
-            node.setDescription(model.getDescriptionMap().get(language));
-            node.setLabel(model.getLabel(language));
-        }
-        return itemNodes;
+        return org.talend.mdm.webapp.browserecords.client.util.CommonUtil.getDefaultTreeModel(model, language, false, isCreate, true);
     }
 
     public static int getFKFormatType(String str){

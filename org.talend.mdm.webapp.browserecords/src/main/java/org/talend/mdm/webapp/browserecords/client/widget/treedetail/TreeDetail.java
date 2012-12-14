@@ -410,10 +410,10 @@ public class TreeDetail extends ContentPanel {
                             });
                         }
                         if (selectedItem.getWidget() instanceof MultiOccurrenceChangeItem
-								&& ((MultiOccurrenceChangeItem) selectedItem.getWidget()).NoExistAddRemoveHandler()) {
- 	                         multiManager.addMultiOccurrenceNode(selectedItem);
- 		                     multiManager.warningAllItems();
- 	                         multiManager.handleOptIcons();
+                                && ((MultiOccurrenceChangeItem) selectedItem.getWidget()).isAddRemoveHandlerNull()) {
+                            multiManager.addMultiOccurrenceNode(selectedItem);
+                            multiManager.warningAllItems();
+                            multiManager.handleOptIcons();
                         }
                         buildGWTTree(treeNode, selectedItem, false, null);
                     }
@@ -557,7 +557,7 @@ public class TreeDetail extends ContentPanel {
         });
     }
 
-    public void recrusiveSetItems(List<VisibleRuleResult> visibleResults, ItemNodeModel itemNode) {
+	public void recrusiveSetItems(List<VisibleRuleResult> visibleResults, ItemNodeModel itemNode) {
         if (itemNode != null) {
             String realPath = CommonUtil.getRealXPath(itemNode);
 

@@ -218,8 +218,8 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         this.treeDetail = treeDetail;
     }
     
-    public boolean NoExistAddRemoveHandler(){
- 		 return addRemoveHandler == null;
+    public boolean isAddRemoveHandlerNull(){
+        return addRemoveHandler == null;
     }
 
     private ClickHandler handler = new ClickHandler() {

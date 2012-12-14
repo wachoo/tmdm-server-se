@@ -216,7 +216,7 @@ public class ItemNodeModelGWTTest extends BrowseRecordsGWTTest {
         nameModel.setDefaultValueExpression("test");
         nameModel.setDefaultValue("Hello");
         root.addSubType(nameModel);
-        List<ItemNodeModel> list = CommonUtil.getDefaultTreeModel(root, "en", true);
+        List<ItemNodeModel> list = CommonUtil.getDefaultTreeModel(root, "en", true, false, false);
         ItemNodeModel rootNode = list.get(0);
         assertTrue(TreeDetailUtil.isChangeValue(rootNode));
     }
