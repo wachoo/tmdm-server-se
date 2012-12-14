@@ -260,7 +260,7 @@
 			<xsd:field xpath="Id" />
 		</xsd:unique>
 	</xsd:element>
-	<xsd:complexType name="AddressType">
+	<xsd:complexType abstract="true" name="AddressType">
 		<xsd:annotation>
 			<xsd:appinfo source="X_Label_EN">addressType</xsd:appinfo>
 			<xsd:appinfo source="X_Label_FR">adresseType</xsd:appinfo>

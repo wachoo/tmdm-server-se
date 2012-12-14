@@ -409,6 +409,12 @@ public class TreeDetail extends ContentPanel {
                                 }
                             });
                         }
+                        if (selectedItem.getWidget() instanceof MultiOccurrenceChangeItem
+								&& ((MultiOccurrenceChangeItem) selectedItem.getWidget()).NoExistAddRemoveHandler()) {
+ 	                         multiManager.addMultiOccurrenceNode(selectedItem);
+ 		                     multiManager.warningAllItems();
+ 	                         multiManager.handleOptIcons();
+                        }
                         buildGWTTree(treeNode, selectedItem, false, null);
                     }
         });

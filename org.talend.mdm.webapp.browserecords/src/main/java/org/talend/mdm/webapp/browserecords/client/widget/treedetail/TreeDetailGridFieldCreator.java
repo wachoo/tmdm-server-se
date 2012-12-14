@@ -127,13 +127,10 @@ public class TreeDetailGridFieldCreator {
             ListStore<ComboBoxModel> comboxStore = new ListStore<ComboBoxModel>();
             comboxField.setStore(comboxStore);
             for (int i = 0; i < reusableTypes.size(); i++) {
-                ComboBoxModel cbm;
-                if (dataType.isAbstract() && i == 0) {
-                    cbm = new ComboBoxModel(reusableTypes.get(i).getLabel(language),
-                            "[" + MessagesFactory.getMessages().abstract_type() + "]"); //$NON-NLS-1$ //$NON-NLS-2$
-                } else {
-                    cbm = new ComboBoxModel(reusableTypes.get(i).getLabel(language), reusableTypes.get(i).getName());
-                }
+                if (reusableTypes.get(i).isAbstract()) {
+                	continue;
+ 	        	}
+ 			    ComboBoxModel cbm = new ComboBoxModel(reusableTypes.get(i).getLabel(language), reusableTypes.get(i).getName()); 
                 cbm.set("reusableType", reusableTypes.get(i)); //$NON-NLS-1$
                 comboxStore.add(cbm);
             }

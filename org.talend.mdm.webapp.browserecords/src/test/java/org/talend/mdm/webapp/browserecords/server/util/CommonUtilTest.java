@@ -12,30 +12,53 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.util;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 import org.apache.log4j.Logger;
 import org.dom4j.Node;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit3.PowerMockSuite;
+import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
+import org.talend.mdm.webapp.browserecords.server.bizhelpers.SchemaMockAgent;
 import org.talend.mdm.webapp.browserecords.server.ruleengine.DisplayRuleEngine;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
+import com.amalto.core.util.Util;
 import com.amalto.webapp.core.util.XmlUtil;
 
+@PrepareForTest({ Util.class })
 @SuppressWarnings("nls")
 public class CommonUtilTest extends TestCase {
 
     private static final Logger LOG = Logger.getLogger(CommonUtilTest.class);
+    
+    @SuppressWarnings("unchecked")
+    public static TestSuite suite() throws Exception {
+        return new PowerMockSuite("Unit tests for " + CommonUtilTest.class.getSimpleName(), CommonUtilTest.class);
+    }
 
     public void testGetSubXML() {
 
@@ -225,5 +248,51 @@ public class CommonUtilTest extends TestCase {
         assertNotNull(map.get("typeCode"));
         assertEquals("info", map.get("typeCode"));
         assertNull(map.get("message"));
+    }
+    
+    public void testGetDefaultTreeModel() throws SAXException {
+        String datamodelName = "Polymorphism";
+        String concept = "Assignment";
+        String[] ids = { "" };
+        String[] roles = { "System_Admin" };
+        InputStream stream = getClass().getResourceAsStream("Polymorphism.xsd");
+        String language = "en";
+        String xsd = inputStream2String(stream);
+
+        EntityModel employeeModel = new EntityModel();
+
+        PowerMockito.mockStatic(Util.class);
+        Mockito.when(Util.isEnterprise()).thenReturn(false);
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, employeeModel,
+                Arrays.asList(roles));
+
+        Map<String, TypeModel> types = employeeModel.getMetaDataTypes();
+        TypeModel addressType = types.get("Assignment/AddressType");
+        assertNotNull(addressType);
+        List<ItemNodeModel> list = CommonUtil.getDefaultTreeModel(addressType, true, language);
+        ItemNodeModel addressNodeModel = list.get(0);
+        assertEquals("CHNAddressType", addressNodeModel.getRealType());
+        assertEquals(3, addressNodeModel.getChildCount());
+        assertEquals("address", ((ItemNodeModel) addressNodeModel.getChild(0)).getName());
+        assertEquals("tel", ((ItemNodeModel) addressNodeModel.getChild(1)).getName());
+        assertEquals("postcode", ((ItemNodeModel) addressNodeModel.getChild(2)).getName());
+
+    }
+
+    private String inputStream2String(InputStream is) {
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(is));
+        StringBuffer buffer = new StringBuffer();
+        String line = "";
+        try {
+            while ((line = in.readLine()) != null) {
+                buffer.append(line);
+            }
+        } catch (IOException e) {
+            fail();
+        }
+        return buffer.toString();
+
     }
 }

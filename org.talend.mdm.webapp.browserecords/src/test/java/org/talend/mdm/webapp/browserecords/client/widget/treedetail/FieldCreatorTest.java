@@ -20,9 +20,11 @@ import org.talend.mdm.webapp.base.client.widget.MultiLanguageField;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
+import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 
@@ -163,6 +165,31 @@ public class FieldCreatorTest extends GWTTestCase {
         assertNotNull(priceField);
         assertEquals(false, priceField.isReadOnly());
 
+    }
+    
+    @SuppressWarnings("nls")
+    public void testPolymorphismTypeFieldCreate() {
+        ComplexTypeModel addressType = new ComplexTypeModel("AddressType", DataTypeCreator.getDataType("AddressType", "string"));
+        addressType.setTypePath("AddressType");
+        addressType.setLabelMap(new HashMap<String, String>());
+        ComplexTypeModel abstractAddressType = new ComplexTypeModel("AddressType", null);
+        abstractAddressType.setAbstract(true);
+        addressType.addComplexReusableTypes(abstractAddressType);
+        ComplexTypeModel cnAddressType = new ComplexTypeModel("CNAddressType", null);
+        addressType.addComplexReusableTypes(cnAddressType);
+        ComplexTypeModel usAddressType = new ComplexTypeModel("USAddressType", null);
+        addressType.addComplexReusableTypes(usAddressType);
+        Map<String, Field<?>> fieldMap = new HashMap<String, Field<?>>();
+        ItemNodeModel addressTypeNodeModel = new ItemNodeModel("AddressType");
+        Field<?> addressTypeField = TreeDetailGridFieldCreator.createField(addressTypeNodeModel, addressType, "en", fieldMap,
+                ItemDetailToolBar.CREATE_OPERATION, null);
+        assertTrue(addressType.getReusableComplexTypes().size() == 3);
+        assertTrue(addressTypeField instanceof ComboBoxField);
+        assertTrue(((ComboBoxField<?>) addressTypeField).getStore().getCount() == 2);
+        ComboBoxModel cnModel = ((ComboBoxField<ComboBoxModel>) addressTypeField).getStore().getAt(0);
+        assertEquals(cnAddressType.getName(), cnModel.getValue());
+        ComboBoxModel usModel = ((ComboBoxField<ComboBoxModel>) addressTypeField).getStore().getAt(1);
+        assertEquals(usAddressType.getName(), usModel.getValue());
     }
 
     public String getModuleName() {
