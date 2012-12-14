@@ -73,6 +73,8 @@ public enum DataTypeConstants implements DataType {
 
     String typeName;
 
+    String baseTypeName;
+
     Object defaultValue;
 
     DataTypeConstants(String typeName) {
@@ -84,10 +86,12 @@ public enum DataTypeConstants implements DataType {
         this.defaultValue = defaultValue;
     }
 
+    @Override
     public String getTypeName() {
         return typeName;
     }
 
+    @Override
     public Object getDefaultValue() {
         return defaultValue;
     }
@@ -97,8 +101,15 @@ public enum DataTypeConstants implements DataType {
      * 
      * @see org.talend.mdm.webapp.itemsbrowser2.client.model.DataType#getBaseTypeName()
      */
+    @Override
     public String getBaseTypeName() {
-        return getTypeName();
+        if (baseTypeName == null) {
+            return getTypeName();
+        }
+        return baseTypeName;
     }
 
+    public void setBaseTypeName(String baseTypeName) {
+        this.baseTypeName = baseTypeName;
+    }
 }
