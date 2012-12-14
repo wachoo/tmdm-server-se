@@ -258,7 +258,7 @@ public class BrowseRecordsActionTest extends TestCase {
         Whitebox.<Boolean> invokeMethod(newAction, "checkSmartViewExists", Mockito.anyString(), Mockito.anyString());
         Whitebox.<Boolean> invokeMethod(newAction, "checkSmartViewExistsByOpt", Mockito.anyString(), Mockito.anyString());
         // Call queryItemBeans
-        ItemBasePageLoadResult<ItemBean> itemBeans = action.queryItemBeans(config);
+        ItemBasePageLoadResult<ItemBean> itemBeans = action.queryItemBeans(config,"en");
         // Total record size
         assertEquals(results[0], "<totalCount>" + itemBeans.getTotalLength() + "</totalCount>");
         // Query record size
@@ -377,7 +377,7 @@ public class BrowseRecordsActionTest extends TestCase {
         Whitebox.<Boolean> invokeMethod(newAction, "checkSmartViewExists", Mockito.anyString(), Mockito.anyString());
         Whitebox.<Boolean> invokeMethod(newAction, "checkSmartViewExistsByOpt", Mockito.anyString(), Mockito.anyString());
         // Call queryItemBeans
-        ItemBasePageLoadResult<ItemBean> itemBeans = action.queryItemBeans(config);
+        ItemBasePageLoadResult<ItemBean> itemBeans = action.queryItemBeans(config,"en");
         // Total record size
         assertEquals(results[0], "<totalCount>" + itemBeans.getTotalLength() + "</totalCount>");
         // Query record size

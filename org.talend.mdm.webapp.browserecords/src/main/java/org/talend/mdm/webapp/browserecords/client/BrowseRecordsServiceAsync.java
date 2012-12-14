@@ -51,7 +51,7 @@ public interface BrowseRecordsServiceAsync {
     void switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter,
             AsyncCallback<ForeignKeyDrawer> callback);
 
-    void queryItemBeans(QueryModel config, AsyncCallback<ItemBasePageLoadResult<ItemBean>> callback);
+    void queryItemBeans(QueryModel config,String language, AsyncCallback<ItemBasePageLoadResult<ItemBean>> callback);
 
     void saveItemBean(ItemBean item, String language, AsyncCallback<String> callback);
 
