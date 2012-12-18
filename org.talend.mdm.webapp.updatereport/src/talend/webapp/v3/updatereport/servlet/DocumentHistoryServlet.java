@@ -12,13 +12,14 @@
 package talend.webapp.v3.updatereport.servlet;
 
 import com.amalto.core.history.*;
+import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.metadata.TypeMetadata;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.ServerContext;
 import com.amalto.core.util.Util;
-import com.amalto.webapp.core.dwr.CommonDWR;
-import com.sun.xml.xsom.XSElementDecl;
 
 import org.apache.log4j.Logger;
 
@@ -31,8 +32,6 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  *
@@ -64,17 +63,28 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
                 parameters.getId(),
                 parameters.getRevisionId());
 
-        // TODO Refactor to use TypeMetadata stuff
-        boolean isAuth = true;
+        boolean isAuthorized;
         try {
-            Map<String, XSElementDecl> map = CommonDWR.getConceptMap(dataModelName);
-            XSElementDecl decl = map.get(typeName);
-            Set<String> roleSet = com.amalto.webapp.core.util.Util.getNoAccessRoleSet(decl);
-            isAuth = com.amalto.webapp.core.util.Util.isAuth(roleSet);
-        } catch (Exception e1) {
-            logger.error(e1.getMessage());
+            isAuthorized = true;
+            MetadataRepositoryAdmin metadataRepositoryAdmin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
+            MetadataRepository repository = metadataRepositoryAdmin.get(dataModelName);
+            ComplexTypeMetadata complexType = repository.getComplexType(typeName);
+            String[] roles = com.amalto.webapp.core.util.Util.getPrincipalMember("Roles").split(","); //$NON-NLS-1$ //$NON-NLS-2$
+            for (String currentHideUserRole : complexType.getHideUsers()) {
+                for (String role : roles) {
+                    if (currentHideUserRole.equals(role)) {
+                        isAuthorized = false;
+                        break;
+                    }
+                }
+                if (!isAuthorized) {
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            throw new ServletException("Error occurred during authorization checks.", e);
         }
-        
+
         TypeMetadata documentTypeMetadata;
         synchronized (metadataRepository) {
             documentTypeMetadata = metadataRepository.getType(typeName);
@@ -104,12 +114,12 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
         // Now does the actual writing to client
         resp.setContentType("text/xml;charset=UTF-8"); //$NON-NLS-1$
         outputStream.println("<history>"); //$NON-NLS-1$
-        if(isAuth){
+        if (isAuthorized) {
             // Go to date history
             navigator.goTo(historyDate);
             // keep this action to mark fields that has been modified.
             Action modificationMarkersAction = navigator.currentAction();
-            
+
             // Get the one before the action and the one right after
             Document document = EmptyDocument.INSTANCE;
             if (CURRENT_ACTION.equalsIgnoreCase(parameters.getAction())) {

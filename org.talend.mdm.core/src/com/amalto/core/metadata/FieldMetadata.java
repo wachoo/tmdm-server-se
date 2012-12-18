@@ -70,8 +70,8 @@ public interface FieldMetadata extends MetadataVisitable, MetadataExtensible {
     boolean isMandatory();
 
     /**
-     * "Adopt" the field in <code>metadata</code> type. This method performs all necessary operations so this field behaves
-     * as is
+     * "Adopt" this field in <code>metadata</code> type. This method performs all necessary operations so this field behaves
+     * as is field was declared in <code>metadata</code>.
      * @param metadata The new type.
      * @param repository The {@link MetadataRepository} of the type to adopt.
      */

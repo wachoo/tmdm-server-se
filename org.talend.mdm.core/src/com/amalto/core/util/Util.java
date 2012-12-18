@@ -47,6 +47,8 @@ import javax.resource.cci.Connection;
 import javax.resource.cci.ConnectionFactory;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -55,6 +57,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
@@ -1053,13 +1056,41 @@ public class Util {
      *
      * @throws XtentisException
      */
-    public static NodeList getNodeList(Node contextNode, String xPath, String namespace, String prefix) throws XtentisException {
+    public static NodeList getNodeList(Node contextNode, String xPath, final String namespace, final String prefix) throws XtentisException {
         try {
-            return (NodeList) XPathFactory.newInstance().newXPath().evaluate(xPath, contextNode, XPathConstants.NODESET);
+            XPathFactory xPathFactory = XPathFactory.newInstance();
+            XPath xPathParser = xPathFactory.newXPath();
+            xPathParser.setNamespaceContext(new NamespaceContext() {
+                @Override
+                public String getNamespaceURI(String s) {
+                    if (prefix != null && prefix.equals(s)) {
+                        return namespace;
+                    } else if ("xsd".equals(s)) { //$NON-NLS-1$
+                        return XMLConstants.W3C_XML_SCHEMA_NS_URI;
+                    }
+                    return null;
+                }
+
+                @Override
+                public String getPrefix(String s) {
+                    if (namespace != null && namespace.equals(s)) {
+                        return prefix;
+                    } else if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(s)) {
+                        return "xsd"; //$NON-NLS-1$
+                    }
+                    return null;
+                }
+
+                @Override
+                public Iterator getPrefixes(String s) {
+                    return Collections.singletonList(s).iterator();
+                }
+            });
+            return (NodeList) xPathParser.evaluate(xPath, contextNode, XPathConstants.NODESET);
         } catch (Exception e) {
             String err = "Unable to get the Nodes List for xpath '" + xPath + "'"
                     + ((contextNode == null) ? "" : " for Node " + contextNode.getLocalName()) + ": " + e.getLocalizedMessage();
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
     }
 

@@ -12,7 +12,7 @@
 // ============================================================================
 package com.amalto.commons.core.datamodel.synchronization;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.jms.JMSException;
@@ -23,97 +23,70 @@ import javax.jms.TopicConnection;
 import javax.jms.TopicConnectionFactory;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
-import javax.naming.Context;
 
 import org.apache.log4j.Logger;
 
-/**
- * DOC HSHU class global comment. Detailled comment
- */
-public class DatamodelChangeNotifier {
+public class DataModelChangeNotifier {
 
-    private static final String topicName = "topic/testTopic";// FIXME: do not use the test topic
+    private static final String topicName = "topic/testTopic"; // FIXME: do not use the test topic
 
     private static final String topicConnectionName = "java:/JmsXA";
 
-    Context jndiContext = null;
+    private static final Logger LOGGER = Logger.getLogger(DataModelChangeNotifier.class);
 
-    TopicConnectionFactory topicConnectionFactory = null;
+    private static final ServiceLocator locator = new ServiceLocator();
+
+    private final TopicConnectionFactory topicConnectionFactory;
+
+    private final Topic topic;
 
     TopicConnection topicConnection = null;
 
     TopicSession topicSession = null;
 
-    Topic topic = null;
-
     TopicPublisher topicPublisher = null;
 
-    private ServiceLocator locacor = new ServiceLocator();
+    private final List<DMUpdateEvent> messageList = new LinkedList<DMUpdateEvent>();
 
-    private List<DMUpdateEvent> messageList = null;
-
-    /**
-     * DOC HSHU DatamodelChangeNotifier constructor comment.
-     */
-    public DatamodelChangeNotifier() {
-        locacor = new ServiceLocator();
-        messageList = new ArrayList<DMUpdateEvent>();
-        init();
-    }
-
-    public static void main(String[] args) {
-        DatamodelChangeNotifier dmUpdateEventNotifer = new DatamodelChangeNotifier();
-        dmUpdateEventNotifer.addUpdateMessage(new DMUpdateEvent("DStar"));
-        dmUpdateEventNotifer.addUpdateMessage(new DMUpdateEvent("Test"));
-        dmUpdateEventNotifer.sendMessages();
-    }
-
-    private boolean init() {
-
+    public DataModelChangeNotifier() {
         try {
-            topicConnectionFactory = locacor.getTopicConnectionFactory(topicConnectionName);
-            topic = (Topic) locacor.getTopic(topicName);
+            topicConnectionFactory = locator.getTopicConnectionFactory(topicConnectionName);
+            topic = locator.getTopic(topicName);
         } catch (ServiceLocatorException e) {
-            Logger.getLogger(this.getClass()).info(
-                    "Can not find the target objects, please make sure they already bounded! " + e.toString());
-            e.printStackTrace();
-            return false;
+            throw new IllegalStateException("Can not find the target objects, please make sure they already bounded!", e);
         }
-
-        return true;
     }
 
     public void addUpdateMessage(DMUpdateEvent dmUpdateEvent) {
-        this.messageList.add(dmUpdateEvent);
+        synchronized (messageList) {
+            messageList.add(dmUpdateEvent);
+        }
     }
 
     public void sendMessages() {
-
         try {
             topicConnection = topicConnectionFactory.createTopicConnection();
             topicSession = topicConnection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+            if (topicSession == null) {
+                LOGGER.error("Can't create JMS session. Event notifications disabled.");
+                return;
+            }
             topicPublisher = topicSession.createPublisher(topic);
-
             // send messages
             for (DMUpdateEvent dmUpdateEvent : messageList) {
-
                 ObjectMessage message = topicSession.createObjectMessage(dmUpdateEvent);
                 topicPublisher.publish(message);
-
             }
-
-            /*
-             * send an empty message to stop
-             */
-            // topicPublisher.publish(topicSession.createMessage());
-
         } catch (JMSException e) {
-            Logger.getLogger(this.getClass()).error("Caught: " + e.toString());
+            LOGGER.error("Unexpected JMS exception.", e);
         } finally {
             if (topicConnection != null) {
                 try {
                     topicConnection.close();
                 } catch (JMSException e) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("JMS close issue.", e);
+                    }
                 }
             }
         }

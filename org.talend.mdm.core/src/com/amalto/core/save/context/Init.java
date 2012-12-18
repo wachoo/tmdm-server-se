@@ -22,8 +22,6 @@ import com.amalto.core.util.ValidateException;
 
 class Init implements DocumentSaver {
 
-    private static final String AUTO_INCREMENT_TYPE_NAME = "AutoIncrement";  //$NON-NLS-1$
-
     private static final Logger LOGGER = Logger.getLogger(Init.class);
 
     private final DocumentSaver next;

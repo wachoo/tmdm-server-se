@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import javax.ejb.EJBException;
 import javax.ejb.MessageDrivenBean;
 import javax.ejb.MessageDrivenContext;
 import javax.ejb.NoSuchObjectLocalException;
@@ -40,7 +39,6 @@ import com.amalto.core.ejb.local.ItemCtrl2Local;
 import com.amalto.core.ejb.local.ItemCtrl2LocalHome;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocal;
 import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocalHome;

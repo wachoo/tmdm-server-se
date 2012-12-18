@@ -37,6 +37,11 @@ public class ContainedComplexTypeRef extends ContainedComplexTypeMetadata {
     }
 
     @Override
+    public boolean hasField(String fieldName) {
+        return reference.hasField(fieldName);
+    }
+
+    @Override
     public void addField(FieldMetadata fieldMetadata) {
     }
 

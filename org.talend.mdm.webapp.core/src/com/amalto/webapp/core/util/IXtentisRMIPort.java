@@ -46,6 +46,11 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.ServerContext;
 import org.apache.log4j.Logger;
 import org.jboss.security.Base64Encoder;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -62,7 +67,6 @@ import com.amalto.core.ejb.DroppedItemPOJO;
 import com.amalto.core.ejb.DroppedItemPOJOPK;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.ejb.TransformerCtrlBean;
 import com.amalto.core.ejb.TransformerPOJO;
 import com.amalto.core.ejb.TransformerPOJOPK;
@@ -104,7 +108,6 @@ import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.Version;
 import com.amalto.core.util.WhereConditionForcePivotFilter;
-import com.amalto.core.util.XSDKey;
 import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.util.webservices.*;
@@ -115,8 +118,6 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     private static Logger LOG = Logger.getLogger(IXtentisRMIPort.class);
     
     private String INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE = "delete_failure_constraint_violation"; //$NON-NLS-1$
-    
-    private String ENTITY_NOT_FOUND_ERROR_MESSAGE = "entity_not_found"; //$NON-NLS-1$
     
     // full text query entity include composite key
     public static final String FULLTEXT_QUERY_COMPOSITEKEY_EXCEPTION_MESSAGE = "fulltext_query_compositekey_fail"; //$NON-NLS-1$
@@ -196,8 +197,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             Collection<DataModelPOJOPK> pks = com.amalto.core.util.Util.getDataModelCtrlLocal()
                     .getDataModelPKs(regexp.getRegex());
             ArrayList<WSDataModelPK> list = new ArrayList<WSDataModelPK>();
-            for (Iterator iter = pks.iterator(); iter.hasNext();) {
-                DataModelPOJOPK pk = (DataModelPOJOPK) iter.next();
+            for (DataModelPOJOPK pk : pks) {
                 WSDataModelPK dmpk = new WSDataModelPK(pk.getUniqueId());
                 list.add(dmpk);
             }
@@ -257,7 +257,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         WSCheckServiceConfigResponse serviceConfigResponse = new WSCheckServiceConfigResponse();
         try {
             Object service = Util.retrieveComponent(null, request.getJndiName());
-            Boolean checkResult = (Boolean) Util.getMethod(service, "checkConfigure").invoke(service, new Object[] {});
+            Boolean checkResult = (Boolean) Util.getMethod(service, "checkConfigure").invoke(service);
             serviceConfigResponse.setCheckResult(checkResult);
 
         } catch (Exception e) {
@@ -272,13 +272,13 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         try {
             String s = "<xsd:element name=" + bc.getName() + " type=" + bc.getBusinessTemplate() + ">" + "	<xsd:annotation>";
             WSI18NString[] labels = bc.getWsLabel();
-            for (int i = 0; i < labels.length; i++) {
-                s += "<xsd:appinfo source=\"" + labels[i].getLanguage().getValue() + "\">" + labels[i].getLabel()
+            for (WSI18NString label : labels) {
+                s += "<xsd:appinfo source=\"" + label.getLanguage().getValue() + "\">" + label.getLabel()
                         + "</xsd:appinfo>";
             }
             WSI18NString[] docs = bc.getWsDescription();
-            for (int i = 0; i < docs.length; i++) {
-                s += "<xsd:documentation xml:lang=\"" + docs[i].getLanguage().getValue() + "\">" + docs[i].getLabel()
+            for (WSI18NString doc : docs) {
+                s += "<xsd:documentation xml:lang=\"" + doc.getLanguage().getValue() + "\">" + doc.getLabel()
                         + "</xsd:documentation>";
             }
             s += "	</xsd:annotation>" + "	<xsd:unique name=\"" + bc.getName() + "\">" + "		<xsd:selector xpath=\""
@@ -325,11 +325,16 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
     public WSConceptKey getBusinessConceptKey(WSGetBusinessConceptKey wsGetBusinessConceptKey) throws RemoteException {
         try {
-            String schema = Util.getDataModelCtrlLocal()
-                    .getDataModel(new DataModelPOJOPK(wsGetBusinessConceptKey.getWsDataModelPK().getPk())).getSchema();
-
-            XSDKey xsdKey = Util.getBusinessConceptKey(Util.parse(schema), wsGetBusinessConceptKey.getConcept());
-            return new WSConceptKey(xsdKey.getSelector(), xsdKey.getFields());
+            MetadataRepositoryAdmin metadataRepositoryAdmin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
+            MetadataRepository repository = metadataRepositoryAdmin.get(wsGetBusinessConceptKey.getWsDataModelPK().getPk());
+            ComplexTypeMetadata type = repository.getComplexType(wsGetBusinessConceptKey.getConcept());
+            List<FieldMetadata> keyFields = type.getKeyFields();
+            String[] fields = new String[keyFields.size()];
+            int i = 0;
+            for (FieldMetadata keyField : keyFields) {
+                fields[i++] = keyField.getName();
+            }
+            return new WSConceptKey(".", fields);
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -374,8 +379,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             Collection<DataClusterPOJOPK> pks = com.amalto.core.util.Util.getDataClusterCtrlLocal().getDataClusterPKs(
                     regexp.getRegex());
             ArrayList<WSDataClusterPK> list = new ArrayList<WSDataClusterPK>();
-            for (Iterator iter = pks.iterator(); iter.hasNext();) {
-                DataClusterPOJOPK pk = (DataClusterPOJOPK) iter.next();
+            for (DataClusterPOJOPK pk : pks) {
                 list.add(new WSDataClusterPK(pk.getUniqueId()));
             }
             array.setWsDataClusterPKs(list.toArray(new WSDataClusterPK[list.size()]));
@@ -406,8 +410,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     public WSBoolean putDBDataCluster(WSPutDBDataCluster wsDataCluster) throws RemoteException {
         try {
             Util.getXmlServerCtrlLocal().createCluster(wsDataCluster.getRevisionID(), wsDataCluster.getName());
-            DataClusterPOJO pojo = new DataClusterPOJO(wsDataCluster.getName(), "", "");
-            ObjectPOJOPK pk = pojo.store(wsDataCluster.getRevisionID());
+            DataClusterPOJO pojo = new DataClusterPOJO(wsDataCluster.getName(), "", ""); //$NON-NLS-1$ //$NON-NLS-2$
+            pojo.store(wsDataCluster.getRevisionID());
             return new WSBoolean(true);
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
@@ -419,9 +423,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             Collection<String> results = com.amalto.core.util.Util.getItemCtrl2Local()
                     .getConceptsInDataCluster(new DataClusterPOJOPK(wsGetConceptsInDataCluster.getWsDataClusterPK().getPk()))
                     .keySet();
-
             return new WSStringArray(results.toArray(new String[results.size()]));
-
         } catch (com.amalto.core.util.XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
@@ -456,15 +458,15 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     public WSViewPKArray getViewPKs(WSGetViewPKs regexp) throws RemoteException {
         try {
             ArrayList l;
-            String regex = regexp.getRegex() != null && !"".equals(regexp.getRegex()) && !"*".equals(regexp.getRegex()) ? regexp
-                    .getRegex() : ".*";
+            String regex = regexp.getRegex() != null && !"".equals(regexp.getRegex()) && !"*".equals(regexp.getRegex()) ? regexp //$NON-NLS-1$
+                    .getRegex() : ".*"; //$NON-NLS-1$
             Collection list = com.amalto.core.util.Util.getViewCtrlLocalHome().create().getViewPKs(regex);
             l = new ArrayList();
             ViewPOJOPK pk;
-            for (Iterator iter = list.iterator(); iter.hasNext(); l.add(new WSViewPK(pk.getIds()[0])))
+            for (Iterator iter = list.iterator(); iter.hasNext(); l.add(new WSViewPK(pk.getIds()[0]))) {
                 pk = (ViewPOJOPK) iter.next();
+            }
             return new WSViewPKArray((WSViewPK[]) l.toArray(new WSViewPK[l.size()]));
-
         } catch (com.amalto.core.util.XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
@@ -671,10 +673,11 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     wsGetItem.getWsItemPK().getConceptName(), wsGetItem.getWsItemPK().getIds(), vo.getInsertionTime(),
                     vo.getTaskId(), vo.getProjectionAsString());
         } catch (com.amalto.core.util.XtentisException e) {
+            String entityNotFoundErrorMessage = "entity_not_found";
             if (com.amalto.webapp.core.util.Util.causeIs(e, com.amalto.core.util.EntityNotFoundException.class)) {
-                throw new RemoteException("", new WebCoreException(ENTITY_NOT_FOUND_ERROR_MESSAGE, com.amalto.webapp.core.util.Util.cause(e, com.amalto.core.util.EntityNotFoundException.class))); //$NON-NLS-1$                     
+                throw new RemoteException("", new WebCoreException(entityNotFoundErrorMessage, com.amalto.webapp.core.util.Util.cause(e, com.amalto.core.util.EntityNotFoundException.class))); //$NON-NLS-1$
             } else if (com.amalto.webapp.core.util.Util.causeIs(e, org.hibernate.ObjectNotFoundException.class)) {
-                throw new RemoteException("", new WebCoreException(ENTITY_NOT_FOUND_ERROR_MESSAGE, com.amalto.webapp.core.util.Util.cause(e, org.hibernate.ObjectNotFoundException.class))); //$NON-NLS-1$
+                throw new RemoteException("", new WebCoreException(entityNotFoundErrorMessage, com.amalto.webapp.core.util.Util.cause(e, org.hibernate.ObjectNotFoundException.class))); //$NON-NLS-1$
             }
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
