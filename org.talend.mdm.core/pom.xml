@@ -81,7 +81,7 @@
                                 <configuration>
                                     <outputDirectory>${project.build.directory}/lib</outputDirectory>
                                     <!-- icu4j is compiled in a non-1.6 compatible version -->
-                                    <excludeArtifactIds>icu4j</excludeArtifactIds>
+                                    <excludeArtifactIds>icu4j,cxf-bundle</excludeArtifactIds>
                                     <excludeScope>provided</excludeScope>
                                 </configuration>
                             </execution>
@@ -136,17 +136,19 @@
                                                         prefix="WEB-INF/classes"/>
                                         </jar>
 
-                                        <copy file="${project.build.directory}/${project.build.finalName}.war"
-                                              tofile="${build.directory}/${war}"/>
-                                        <jar destfile="${build.directory}/${war}" manifest="war/META-INF/MANIFEST.MF"
-                                             update="true">
+                                        <jar destfile="${build.directory}/${war}" manifest="war/META-INF/MANIFEST.MF">
+                                            <zipfileset dir="war/WEB-INF" prefix="WEB-INF">
+                                                <include name="web.xml"/>
+                                            </zipfileset>
                                             <zipfileset dir="war/WEB-INF" prefix="WEB-INF">
                                                 <include name="jboss-web.xml"/>
                                             </zipfileset>
                                             <zipfileset dir=".">
-                                                <include name="${project.version}"/>
                                                 <include name="RELEASE.NOTES"/>
                                             </zipfileset>
+                                            <zipfileset dir="${project.build.directory}" prefix="classes" includes="**/servlet/*.class"/>
+                                            <zipfileset dir="war" includes="WEB-INF/lib/*.*"/>
+                                            <zipfileset dir="${project.build.directory}/lib" includes="*.jar" prefix="WEB-INF/lib"/>
                                         </jar>
                                     </tasks>
                                 </configuration>
@@ -188,6 +190,20 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-bundle</artifactId>
+            <version>2.2.5</version>
+            <exclusions>
+                <!-- There's a conflict with parent POM -->
+                <exclusion>
+                    <groupId>com.sun.xml.messaging.saaj</groupId>
+                    <artifactId>saaj-impl</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- TEST DEPENDENCIES -->
         <dependency>
             <groupId>com.h2database</groupId>
@@ -203,6 +219,12 @@
         </dependency>
 
         <!-- DEPENDENCIES -->
+        <dependency>
+            <groupId>org.codehaus.woodstox</groupId>
+            <artifactId>woodstox-core-asl</artifactId>
+            <version>4.1.1</version>
+        </dependency>
+
         <dependency>
         	<groupId>org.slf4j</groupId>
         	<artifactId>slf4j-log4j12</artifactId>
@@ -246,19 +268,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-bundle</artifactId>
-            <version>2.2.5</version>
-            <exclusions>
-                <!-- There's a conflict with parent POM -->
-                <exclusion>
-                    <groupId>com.sun.xml.messaging.saaj</groupId>
-                    <artifactId>saaj-impl</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>jsr311-api</artifactId>
             <version>1.1</version>
@@ -296,19 +305,16 @@
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.commons.core</artifactId>
-            <version>${mdm.build.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.xmlserver.interfaces</artifactId>
-            <version>${mdm.build.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.commmon</artifactId>
-            <version>${mdm.build.version}</version>
         </dependency>
 
         <!--
