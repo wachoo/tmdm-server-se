@@ -25,12 +25,16 @@ import com.amalto.core.save.UserAction;
 import com.amalto.core.util.BeforeSavingErrorException;
 import com.amalto.core.util.BeforeSavingFormatException;
 import com.amalto.core.util.OutputReport;
-import com.amalto.core.util.OutputReportMissingException;
 import com.amalto.core.util.Util;
-import com.sun.org.apache.xpath.internal.XPathAPI;
+
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 
 public class BeforeSaving implements DocumentSaver {
-        
+
+    private static final XPath XPATH = XPathFactory.newInstance().newXPath();
+
     private DocumentSaver next;
 
     private String message = StringUtils.EMPTY;
@@ -39,7 +43,6 @@ public class BeforeSaving implements DocumentSaver {
         this.next = next;
     }
 
-    @Override
     public void save(SaverSession session, DocumentSaverContext context) {
         // Invoke the beforeSaving
         MutableDocument updateReportDocument = context.getUpdateReportDocument();
@@ -57,7 +60,10 @@ public class BeforeSaving implements DocumentSaver {
                 Document doc = Util.parse(message);
                 // handle output_report
                 String xpath = "//report/message"; //$NON-NLS-1$
-                Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
+                Node errorNode;
+                synchronized (XPATH) {
+                    errorNode = (Node) XPATH.evaluate(xpath, doc, XPathConstants.NODE);
+                }
                 errorCode = null;
                 if (errorNode instanceof Element) {
                     Element errorElement = (Element) errorNode;
@@ -79,7 +85,10 @@ public class BeforeSaving implements DocumentSaver {
                 if (outputreport.getItem() != null) {
                     xpath = "//exchange/item"; //$NON-NLS-1$
                     doc = Util.parse(outputreport.getItem());
-                    Node item = XPathAPI.selectSingleNode(doc, xpath);
+                    Node item;
+                    synchronized (XPATH) {
+                        item = (Node) XPATH.evaluate(xpath, doc, XPathConstants.NODE);
+                    }
                     if (item != null && item instanceof Element) {
                         NodeList list = item.getChildNodes();
                         Node node = null;
@@ -109,23 +118,20 @@ public class BeforeSaving implements DocumentSaver {
         next.save(session, context);
     }
 
-    @Override
     public String[] getSavedId() {
         return next.getSavedId();
     }
 
-    @Override
     public String getSavedConceptName() {
         return next.getSavedConceptName();
     }
 
-    @Override
     public String getBeforeSavingMessage() {
         return message;
     }
     
     public boolean validateFormat(String msg) {
-        NodeList nodeList = null;
+        NodeList nodeList;
         try {
             Document document = Util.parse(msg.toLowerCase());
             nodeList = Util.getNodeList(document, "//report/message"); //$NON-NLS-1$
@@ -156,9 +162,6 @@ public class BeforeSaving implements DocumentSaver {
             return true;
 
         Node messageNode = messageNodeList.item(0);
-        if (messageNode.getNodeType() != Node.TEXT_NODE)
-            return false;
-
-        return true;
+        return messageNode.getNodeType() == Node.TEXT_NODE;
     }
 }

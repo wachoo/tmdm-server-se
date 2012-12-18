@@ -3,26 +3,24 @@ package com.amalto.core.objects.datacluster.ejb;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Collections;
 
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
-import javax.naming.InitialContext;
 
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.task.StagingConstants;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 
 /**
@@ -49,9 +47,9 @@ import org.apache.commons.lang.StringUtils;
 public class DataClusterCtrlBean implements SessionBean, TimedObject {
   
 	private static final long serialVersionUID = 4567895200L;
-    
-	private SessionContext context = null;
-	
+
+    private static final Logger LOGGER = Logger.getLogger(DataClusterCtrlBean.class);
+
     /**
      * DataClusterCtrlBean.java
      * Constructor
@@ -67,7 +65,6 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
     public void setSessionContext(SessionContext ctx)
         throws EJBException,
         RemoteException {
-    	context = ctx;
     }
 
     /* (non-Javadoc)
@@ -102,8 +99,8 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
     
     
     /**
-     * Creates or updates a datacluster
-     * @throwsXtentisxception
+     * Creates or updates a data cluster
+     * @throws XtentisException
      * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
@@ -120,18 +117,18 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
     	    	UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
     	    	if (universe == null) {
     	    		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
-    	    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+    	    		LOGGER.error(err);
     	    		throw new XtentisException(err);
     	    	}
     	    	String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(DataClusterPOJO.class));
     	    	
     			//get the xml server wrapper
-                XmlServerSLWrapperLocal server = null;
+                XmlServerSLWrapperLocal server;
       			try {
-      				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
+      				server = Util.getXmlServerCtrlLocal();
       			} catch (Exception e) {
       				String err = "Error creating cluster '"+dataCluster.getName()+"' : unable to access the XML Server wrapper";
-      				org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
+      				LOGGER.error(err,e);
       				throw new XtentisException(err, e);
       			}
     			boolean exist = server.existCluster(revisionID, pk.getUniqueId());
@@ -143,7 +140,7 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
                 try {
                     ObjectPOJO.remove(DataClusterPOJO.class, new ObjectPOJOPK(pk.getUniqueId()));
                 } catch (Exception x) {
-                    org.apache.log4j.Logger.getLogger(this.getClass()).error(x.getMessage(), x);  
+                    LOGGER.error(x.getMessage(), x);  
                 }
                 throw new XtentisException(err, e);
     		}
@@ -155,7 +152,7 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
 	    } catch (Exception e) {
     	    String err = "Unable to create/update the datacluster "+dataCluster.getName()
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
+    	    LOGGER.error(err,e);
     	    throw new XtentisException(err, e);
 	    }
 
@@ -183,7 +180,7 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
         	DataClusterPOJO dataCluster =  ObjectPOJO.load(DataClusterPOJO.class,pk);
         	if (dataCluster == null) {
         		String err= "The Data Cluster "+pk.getUniqueId()+" does not exist.";
-        		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+        		LOGGER.error(err);
         		throw new XtentisException(err);
         	}
         	return dataCluster;
@@ -192,7 +189,7 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
 	    } catch (Exception e) {
     	    String err = "Unable to get the Data Cluster "+pk.toString()
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
+    	    LOGGER.error(err,e);
     	    throw new XtentisException(err);
 	    }
     }
@@ -214,7 +211,7 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
 	    } catch (Exception e) {
     	    String info = "Could not check whether this Data Cluster \""+pk.getUniqueId()+"\" exists:  "
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).debug("existsDataCluster() "+info, e);
+    	    LOGGER.debug("existsDataCluster() "+info, e);
     	   return null;
 	    }
     }
@@ -238,7 +235,7 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
 		    	UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
 		    	if (universe == null) {
 		    		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
-		    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+		    		LOGGER.error(err);
 		    		throw new XtentisException(err);
 		    	}
 		    	String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(DataClusterPOJO.class));
@@ -251,9 +248,13 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
 		} catch (Exception e) {
 			String err = "Unable to physically delete the data cluster "+pk.getUniqueId()+
 			": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-			try {ObjectPOJO.remove(DataClusterPOJO.class, new ObjectPOJOPK(pk.getUniqueId()));} catch(Exception x) {}
-			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-			throw new XtentisException(err);
+            try {
+                ObjectPOJO.remove(DataClusterPOJO.class, new ObjectPOJOPK(pk.getUniqueId()));
+            } catch (Exception x) {
+                LOGGER.error("Could not remove data cluster object.", x);
+            }
+            LOGGER.error(err);
+			throw new XtentisException(err, e);
 		}
     	return new DataClusterPOJOPK(ObjectPOJO.remove(DataClusterPOJO.class,pk));
 	  
@@ -271,9 +272,9 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
     public Collection<DataClusterPOJOPK> getDataClusterPKs(String regex) throws XtentisException {
     	Collection<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(DataClusterPOJO.class,regex);
     	ArrayList<DataClusterPOJOPK> l = new ArrayList<DataClusterPOJOPK>();
-    	for (Iterator<ObjectPOJOPK> iter = c.iterator(); iter.hasNext(); ) {
-			l.add(new DataClusterPOJOPK(iter.next()));
-		}
+        for (ObjectPOJOPK currentDataCluster : c) {
+            l.add(new DataClusterPOJOPK(currentDataCluster));
+        }
     	return l;
     }
    
@@ -287,16 +288,7 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
      * @ejb.facade-method 
      */
     public int addToVocabulary(DataClusterPOJOPK pk, String string) throws XtentisException{
-        try {
-            return getDataCluster(pk).addToVocabulary(string);
-        } catch (XtentisException e) {
-        	throw(e);
-	    } catch (Exception e) {
-		    String err = "Unable to add to the vocabulary for cluster "+pk.getUniqueId()
-		    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-		    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-		    throw new XtentisException(err);
-	    }    	
+        return 0;
     }    
     
     
@@ -309,16 +301,7 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
      */
     public Collection<String> spellCheck(DataClusterPOJOPK dcpk, String sentence, int treshold, boolean ignoreNonExistantWords) 
     throws XtentisException{
-        try {
-            return getDataCluster(dcpk).spellCheck(sentence, treshold, ignoreNonExistantWords);         
-        } catch (XtentisException e) {
-        	throw(e);            
-	    } catch (Exception e) {
-    	    String err = "Unable to spell check on cluster "+dcpk.toString()
-    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-    	    throw new XtentisException(err);
-	    }
+        return Collections.emptyList();
     }
     
     

@@ -3,7 +3,6 @@ package com.amalto.core.objects.configurationinfo.ejb;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
@@ -23,8 +22,9 @@ import com.amalto.core.objects.configurationinfo.assemble.AssembleProc;
 import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocal;
 import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocalHome;
 import com.amalto.core.objects.configurationinfo.localutil.CoreUpgrades;
+import com.amalto.core.server.ConfigurationInfo;
 import com.amalto.core.util.XtentisException;
-
+import org.apache.log4j.Logger;
 
 
 /**
@@ -48,67 +48,46 @@ import com.amalto.core.util.XtentisException;
  * 	unchecked = "true"
  * 
  */
-public class ConfigurationInfoCtrlBean implements SessionBean, TimedObject {
+public class ConfigurationInfoCtrlBean implements SessionBean, TimedObject, ConfigurationInfo {
   
 	private static final long serialVersionUID = 45678952987540320L;
-    
+
+    private static final Logger LOGGER = Logger.getLogger(ConfigurationInfoCtrlBean.class);
+
 	private SessionContext context = null;
 
-	
-    /**
-     * ConfigurationInfoCtrlBean.java
-     * Constructor
-     * 
-     */
     public ConfigurationInfoCtrlBean() {
         super();
-    	org.apache.log4j.Logger.getLogger(this.getClass()).debug("ConfigurationInfoCtrlBean() ");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("ConfigurationInfoCtrlBean() ");
+        }
     }
 
-    /* (non-Javadoc)
-     * @see javax.ejb.SessionBean#setSessionContext(javax.ejb.SessionContext)
-     */
     public void setSessionContext(SessionContext ctx) throws EJBException, RemoteException {
-    	org.apache.log4j.Logger.getLogger(this.getClass()).debug("setSessionContext() ");
-    	context = ctx;
-
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("setSessionContext() ");
+        }
+        context = ctx;
     }
 
-    /* (non-Javadoc)
-     * @see javax.ejb.SessionBean#ejbRemove()
-     */
     public void ejbRemove() throws EJBException, RemoteException {
     }
 
-    /* (non-Javadoc)
-     * @see javax.ejb.SessionBean#ejbActivate()
-     */
     public void ejbActivate() throws EJBException, RemoteException {
     }
 
-    /* (non-Javadoc)
-     * @see javax.ejb.SessionBean#ejbPassivate()
-     */
     public void ejbPassivate() throws EJBException, RemoteException {
     }
     
-    /**
-     * Create method
-     * @ejb.create-method  view-type = "local"
-     */
     public void ejbCreate() throws javax.ejb.CreateException {
     }
     
-    /* (non-Javadoc)
-     * @see javax.ejb.SessionBean#ejbPostCreate()
-     */
-    public void ejbPostCreate() throws javax.ejb.CreateException {}
+    public void ejbPostCreate() throws javax.ejb.CreateException {
+    }
     
     /*****************************************************************************************************
      * Methods
      *****************************************************************************************************/
-    
-    
     /**
      * Creates or updates a configurationinfo
      * @throws XtentisException
@@ -116,56 +95,54 @@ public class ConfigurationInfoCtrlBean implements SessionBean, TimedObject {
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
      */
-    public ConfigurationInfoPOJOPK putConfigurationInfo(ConfigurationInfoPOJO configurationInfo) throws XtentisException{       
-        org.apache.log4j.Logger.getLogger(this.getClass()).debug("putConfigurationInfo() ");
-        
+    public ConfigurationInfoPOJOPK putConfigurationInfo(ConfigurationInfoPOJO configurationInfo) throws XtentisException{
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("putConfigurationInfo() ");
+        }
         try {
             ObjectPOJOPK pk = configurationInfo.store();
-            if (pk == null) throw new XtentisException("Unable to create the Configuration Info. Please check the XML Server logs");
-            
+            if (pk == null) {
+                throw new XtentisException("Unable to create the Configuration Info. Please check the XML Server logs");
+            }
             return new ConfigurationInfoPOJOPK(pk);
-        
         } catch (XtentisException e) {
         	throw(e);
 	    } catch (Exception e) {
     	    String err = "Unable to create/update the configurationinfo "+configurationInfo.getName()
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-    	    throw new XtentisException(err);
+    	    LOGGER.error(err,e);
+    	    throw new XtentisException(err, e);
 	    }
-
     }
-    
- 
-     
+
     /**
      * Get configurationinfo
+     *
      * @throws XtentisException
-     * 
      * @ejb.interface-method view-type = "both"
-     * @ejb.facade-method 
+     * @ejb.facade-method
      */
-    public ConfigurationInfoPOJO getConfigurationInfo(ConfigurationInfoPOJOPK pk)     throws XtentisException{
-        org.apache.log4j.Logger.getLogger(this.getClass()).debug("getConfigurationInfo() ");
-        
+    public ConfigurationInfoPOJO getConfigurationInfo(ConfigurationInfoPOJOPK pk) throws XtentisException {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("getConfigurationInfo() ");
+        }
         try {
-        	ConfigurationInfoPOJO configurationInfo =  ObjectPOJO.load(ConfigurationInfoPOJO.class,pk);
-        	if (configurationInfo == null) {
-        		String err= "The Configuration Info "+pk.getUniqueId()+" does not exist.";
-        		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);;
-        		throw new XtentisException(err);
-        	}
-        	return configurationInfo;
+            ConfigurationInfoPOJO configurationInfo = ObjectPOJO.load(ConfigurationInfoPOJO.class, pk);
+            if (configurationInfo == null) {
+                String err = "The Configuration Info " + pk.getUniqueId() + " does not exist.";
+                LOGGER.error(err);
+                throw new XtentisException(err);
+            }
+            return configurationInfo;
         } catch (XtentisException e) {
-        	throw(e);
-	    } catch (Exception e) {
-    	    String err = "Unable to get the Configuration Info "+pk.toString()
-    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-    	    throw new XtentisException(err);
-	    }
+            throw (e);
+        } catch (Exception e) {
+            String err = "Unable to get the Configuration Info " + pk.toString()
+                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            LOGGER.error(err, e);
+            throw new XtentisException(err, e);
+        }
     }
-    
     
     /**
      * Get a ConfigurationInfo - no exception is thrown: returns null if not found 
@@ -174,18 +151,22 @@ public class ConfigurationInfoCtrlBean implements SessionBean, TimedObject {
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
      */
-    public ConfigurationInfoPOJO existsConfigurationInfo(ConfigurationInfoPOJOPK pk) throws XtentisException{
-    	
+    public ConfigurationInfoPOJO existsConfigurationInfo(ConfigurationInfoPOJOPK pk) throws XtentisException {
         try {
-        	return ObjectPOJO.load(ConfigurationInfoPOJO.class,pk);        	
-	    } catch (XtentisException e) {
-	    	return null;
-	    } catch (Exception e) {
-    	    String info = "Could not check whether this Configuration Info \""+pk.getUniqueId()+"\" exists:  "
-    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).debug(info, e);
-    	   return null;
-	    }
+            return ObjectPOJO.load(ConfigurationInfoPOJO.class, pk);
+        } catch (XtentisException e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("existsConfigurationInfo error.", e);
+            }
+            return null;
+        } catch (Exception e) {
+            String info = "Could not check whether this Configuration Info \"" + pk.getUniqueId() + "\" exists:  "
+                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(info, e);
+            }
+            return null;
+        }
     }
     
     /**
@@ -195,21 +176,21 @@ public class ConfigurationInfoCtrlBean implements SessionBean, TimedObject {
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
      */
-    public ConfigurationInfoPOJOPK removeConfigurationInfo(ConfigurationInfoPOJOPK pk) 
-    throws XtentisException{
-    	org.apache.log4j.Logger.getLogger(this.getClass()).debug("Removing "+pk.getUniqueId());
+    public ConfigurationInfoPOJOPK removeConfigurationInfo(ConfigurationInfoPOJOPK pk) throws XtentisException{
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Removing " + pk.getUniqueId());
+        }
         try {
-        	return new ConfigurationInfoPOJOPK(ObjectPOJO.remove(ConfigurationInfoPOJO.class,pk));
-	    } catch (XtentisException e) {
-	    	throw(e);
-	    } catch (Exception e) {
-    	    String err = "Unable to remove the ConfigurationInfo "+pk.toString()
-    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-    	    throw new XtentisException(err);
-	    }
+            return new ConfigurationInfoPOJOPK(ObjectPOJO.remove(ConfigurationInfoPOJO.class, pk));
+        } catch (XtentisException e) {
+            throw (e);
+        } catch (Exception e) {
+            String err = "Unable to remove the ConfigurationInfo " + pk.toString()
+                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            LOGGER.error(err, e);
+            throw new XtentisException(err, e);
+        }
     }    
-    
     
     /**
 	 * Retrieve all ConfigurationInfo PKs 
@@ -220,17 +201,13 @@ public class ConfigurationInfoCtrlBean implements SessionBean, TimedObject {
      * @ejb.facade-method 
      */       
     public Collection<ConfigurationInfoPOJOPK> getConfigurationInfoPKs(String regex) throws XtentisException {
-    	Collection<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(ConfigurationInfoPOJO.class,regex);
+    	Collection<ObjectPOJOPK> configurations = ObjectPOJO.findAllPKs(ConfigurationInfoPOJO.class,regex);
     	ArrayList<ConfigurationInfoPOJOPK> l = new ArrayList<ConfigurationInfoPOJOPK>();
-    	for (Iterator<ObjectPOJOPK> iter = c.iterator(); iter.hasNext(); ) {
-			l.add(new ConfigurationInfoPOJOPK(iter.next()));
-		}
+        for (ObjectPOJOPK configuration : configurations) {
+            l.add(new ConfigurationInfoPOJOPK(configuration));
+        }
     	return l;
     }
-   
-    
-    
-  
 
 	/**
      * Auto Upgrades the core 
@@ -240,17 +217,16 @@ public class ConfigurationInfoCtrlBean implements SessionBean, TimedObject {
      * @ejb.facade-method 
      */
     public void autoUpgrade() throws XtentisException{
-        org.apache.log4j.Logger.getLogger(this.getClass()).trace("autoUpgrade ");
-        
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("autoUpgrade ");
+        }
         try {
         	ConfigurationInfoCtrlLocal ctrl =  ((ConfigurationInfoCtrlLocalHome)new InitialContext().lookup(ConfigurationInfoCtrlLocalHome.JNDI_NAME)).create();
         	CoreUpgrades.autoUpgrade(ctrl);
         } catch (Exception e) {
-        	e.printStackTrace();
-		    String err = "Unable to upgrade in the background"
-		    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-		    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-		    throw new XtentisException(err);
+		    String err = "Unable to upgrade in the background" +": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+		    LOGGER.error(err,e);
+		    throw new XtentisException(err, e);
 	    }    	
     }    
     
@@ -273,68 +249,57 @@ public class ConfigurationInfoCtrlBean implements SessionBean, TimedObject {
      * @ejb.facade-method 
      */
     public void autoUpgradeInBackground(AssembleProc assembleProc) throws XtentisException{
-        org.apache.log4j.Logger.getLogger(this.getClass()).info("Scheduling upgrade check in 5 seconds ");
-        
+        LOGGER.info("Scheduling upgrade check in 5 seconds ");
         try {
-	        TimerService timerService =  context.getTimerService();
-	        
-	        if(assembleProc==null){
-	        	final AssembleConcreteBuilder concreteBuilder = new AssembleConcreteBuilder();
-				final AssembleDirector director = new AssembleDirector(concreteBuilder);
-				director.constructAll();
-				assembleProc = concreteBuilder.getAssembleProc();
-	        }
-			
-	        timerService.createTimer(5234,assembleProc);  
-	    } catch (Exception e) {
-		    String err = "Unable to upgrade in the background"
-		    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-		    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-		    throw new XtentisException(err);
-	    }    	
-    } 
-    
+            TimerService timerService = context.getTimerService();
+            if (assembleProc == null) {
+                AssembleConcreteBuilder concreteBuilder = new AssembleConcreteBuilder();
+                AssembleDirector director = new AssembleDirector(concreteBuilder);
+                director.constructAll();
+                assembleProc = concreteBuilder.getAssembleProc();
+            }
+            timerService.createTimer(5234, assembleProc);
+        } catch (Exception e) {
+            String err = "Unable to upgrade in the background: " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            LOGGER.error(err, e);
+            throw new XtentisException(err, e);
+        }
+    }
+
 
     /**
      * @see #autoUpgradeInBackground()
      */
-	public void ejbTimeout(Timer timer) {
-		org.apache.log4j.Logger.getLogger(this.getClass()).debug("ejbTimeout() AutoUpgrade autoUpgradeInBackground ");
-		
-		//recover assemble Proc
-		AssembleProc assembleProc = (AssembleProc) timer.getInfo();
+    public void ejbTimeout(Timer timer) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("ejbTimeout() AutoUpgrade autoUpgradeInBackground ");
+        }
+        //recover assemble Proc
+        AssembleProc assembleProc = (AssembleProc) timer.getInfo();
+        XmlServerSLWrapperLocal server;
+        try {
+            server = ((XmlServerSLWrapperLocalHome) new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
+        } catch (Exception e) {
+            String err = "Auto Configuration in the background: unable to access the XML Server wrapper";
+            LOGGER.error(err, e);
+            throw new RuntimeException(err, e);
+        }
+        //cancel all existing timers
+        TimerService timerService = context.getTimerService();
+        Collection<Timer> timers = timerService.getTimers();
+        for (Timer currentTimer : timers) {
+            Logger.getLogger(this.getClass()).debug("ejbTimeout() Cancelling Timer " + currentTimer.getHandle());
+            currentTimer.cancel();
+        }
+        if (server.isUpAndRunning()) {
+            LOGGER.info("--Starting configuration...");
+            assembleProc.run();
+            LOGGER.info("--Done configuration.");
+        } else {
+            LOGGER.info("Auto Upgrade. XML Server not ready. Retrying in 5 seconds ");
+            timerService.createTimer(5000, assembleProc);
+        }
 
-		
-			XmlServerSLWrapperLocal server = null;
-			try {
-				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-			} catch (Exception e) {
-				String err = "Auto Configuration in the background: unable to access the XML Server wrapper";
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-				throw new RuntimeException(err);
-			}
-			
-			//cancel all existing timers
-			TimerService timerService =  context.getTimerService();
-			Collection<Timer> timers = timerService.getTimers();
-			for (Iterator<Timer> iterator = timers.iterator(); iterator.hasNext(); ) {
-				Timer timer2 = iterator.next();
-				org.apache.log4j.Logger.getLogger(this.getClass()).debug("ejbTimeout() Cancelling Timer "+timer2.getHandle());
-				timer2.cancel();
-			}
-			
-			if (server.isUpAndRunning()) {
-				org.apache.log4j.Logger.getLogger(this.getClass()).info("--Starting configuration...");
-				
-				assembleProc.run();
-				
-				org.apache.log4j.Logger.getLogger(this.getClass()).info("--Done configuration.");
-			} else {
-				org.apache.log4j.Logger.getLogger(this.getClass()).info("Auto Upgrade. XML Server not ready. Retrying in 5 seconds ");
-				//TimerService timerService =  context.getTimerService();
-	        	timerService.createTimer(5000,assembleProc);
-			}
-        
-	}
+    }
     
 }

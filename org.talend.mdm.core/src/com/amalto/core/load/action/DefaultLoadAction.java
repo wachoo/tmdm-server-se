@@ -11,11 +11,11 @@
 
 package com.amalto.core.load.action;
 
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.load.io.XMLStreamTokenizer;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.SaverContextFactory;
+import com.amalto.core.server.XmlServer;
 import com.amalto.core.util.XSDKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -50,7 +50,7 @@ public class DefaultLoadAction implements LoadAction {
         return true;
     }
 
-    public void load(InputStream stream, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception {
+    public void load(InputStream stream, XSDKey keyMetadata, XmlServer server) throws Exception {
         SaverSession session = SaverSession.newSession();
         try {
             SaverContextFactory contextFactory = session.getContextFactory();
@@ -84,7 +84,7 @@ public class DefaultLoadAction implements LoadAction {
         }
     }
 
-    public void endLoad(XmlServerSLWrapperLocal server) {
+    public void endLoad(XmlServer server) {
         // Nothing to do
     }
 }

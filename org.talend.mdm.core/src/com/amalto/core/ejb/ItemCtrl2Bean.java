@@ -65,7 +65,6 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.util.EntityNotFoundException;
-import com.amalto.core.util.JazzyConfiguration;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -101,7 +100,6 @@ public class ItemCtrl2Bean implements SessionBean {
 
     private static final Logger LOGGER = Logger.getLogger(ItemCtrl2Bean.class);
 
-    private static final JazzyConfiguration DEFAULT_JAZZY_CONFIGURATION = new JazzyConfiguration();
 
     /**
      * ItemCtrlBean.java Constructor
@@ -553,7 +551,7 @@ public class ItemCtrl2Bean implements SessionBean {
                 conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
                 XmlServerSLWrapperLocal xmlServer = Util.getXmlServerCtrlLocal();
                 String query = xmlServer.getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot,
-                        viewablePaths, whereItem, orderBy, direction, start, limit, spellThreshold, returnCount, Collections.emptyMap());
+                        viewablePaths, whereItem, orderBy, direction, start, limit, spellThreshold, returnCount, Collections.<String, ArrayList<String>>emptyMap());
                 return xmlServer.runQuery(null, null, query, null);
             } else {
                 MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
@@ -793,7 +791,6 @@ public class ItemCtrl2Bean implements SessionBean {
             if ((searchValue == null) || "".equals(searchValue) || "*".equals(searchValue)) { // $NON-NLS-1$ // $NON-NLS-2$
                 return viewSearch(dataClusterPOJOPK, viewPOJOPK, null, spellThreshold, orderBy, direction, start, limit);
             } else {
-                boolean isSpellCheck = (spellThreshold >= DEFAULT_JAZZY_CONFIGURATION.getMinTreshold());
                 ViewPOJO view = Util.getViewCtrlLocal().getView(viewPOJOPK);
                 ArrayList<String> searchableFields = view.getSearchableBusinessElements().getList();
                 Iterator<String> iterator = searchableFields.iterator();
@@ -822,7 +819,7 @@ public class ItemCtrl2Bean implements SessionBean {
                     for (String fieldName : searchableFields) {
                         WhereOr nestedOr = new WhereOr();
                         for (String keyword : keywords) {
-                            WhereCondition nestedCondition = new WhereCondition(fieldName, WhereCondition.CONTAINS, keyword.trim(), WhereCondition.PRE_OR, isSpellCheck);
+                            WhereCondition nestedCondition = new WhereCondition(fieldName, WhereCondition.CONTAINS, keyword.trim(), WhereCondition.PRE_OR, false);
                             nestedOr.add(nestedCondition);
                         }
                         whereOr.add(nestedOr);

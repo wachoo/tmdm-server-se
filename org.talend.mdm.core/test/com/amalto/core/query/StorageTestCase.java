@@ -134,12 +134,10 @@ public class StorageTestCase extends TestCase {
             isActive = active;
         }
 
-        @Override
         public boolean hide(FieldMetadata field) {
             return isActive && field.getHideUsers().contains("System_Users");
         }
 
-        @Override
         public boolean hide(ComplexTypeMetadata type) {
             return isActive && type.getHideUsers().contains("System_Users");
         }

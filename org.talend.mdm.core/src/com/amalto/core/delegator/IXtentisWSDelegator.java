@@ -48,6 +48,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -58,8 +59,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
-
-import sun.misc.BASE64Decoder;
 
 import com.amalto.core.ejb.DroppedItemPOJO;
 import com.amalto.core.ejb.DroppedItemPOJOPK;
@@ -136,8 +135,6 @@ import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereOr;
-import com.sun.org.apache.xpath.internal.XPathAPI;
-import sun.misc.BASE64Encoder;
 
 public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
@@ -1767,7 +1764,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     pushToUpdateReport(resultUpdateReport, wsDeleteItem, dataClusterPK, concept, ids,
                             wsDeleteItem.getInvokeBeforeSaving());
         	}
-        	return new WSString("logical delete item sucessfully!");
+        	return new WSString("logical delete item successful!");
         }
         String outputErrorMessage=null;
         String errorCode = null;
@@ -1778,8 +1775,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 	        if (outputErrorMessage != null) {
 	            Document doc = Util.parse(outputErrorMessage);
 	            // TODO what if multiple error nodes ?
-                    String xpath = "/report/message"; //$NON-NLS-1$
-	            Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
+                String xpath = "/report/message"; //$NON-NLS-1$
+	            Node errorNode = (Node) XPathFactory.newInstance().newXPath().evaluate(xpath, doc, XPathConstants.NODE);
 	            if (errorNode instanceof Element) {
 	                Element errorElement = (Element) errorNode;
                         errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
@@ -2092,7 +2089,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 for (int i = 0; i < params.length; i++) {
                     if (params[i] != null) {
                         String key = params[i].getKey();
-                        byte[] bytes = (new BASE64Decoder()).decodeBuffer(params[i].getBase64StringValue());
+                        byte[] bytes = Base64.decodeBase64(params[i].getBase64StringValue().getBytes());
                         if (bytes != null) {
                             ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
                             ObjectInputStream ois = new ObjectInputStream(bais);
@@ -2123,7 +2120,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     ObjectOutputStream oos = new ObjectOutputStream(baos);
                     oos.writeObject(value);
-                    String base64Value = new BASE64Encoder().encode(baos.toByteArray());
+                    String base64Value = new String(Base64.encodeBase64(baos.toByteArray()), "UTF-8"); //$NON-NLS-1$
                     keyValues[i] = new WSBase64KeyValue();
                     keyValues[i].setKey(key);
                     keyValues[i].setBase64StringValue(base64Value);

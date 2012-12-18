@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import com.amalto.core.server.XmlServer;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.commons.lang.StringUtils;
@@ -53,7 +53,7 @@ public class ExportServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse resp) throws ServletException {
-        XmlServerSLWrapperLocal server;
+        XmlServer server;
         try {
             server = Util.getXmlServerCtrlLocal();
         } catch (XtentisException e) {

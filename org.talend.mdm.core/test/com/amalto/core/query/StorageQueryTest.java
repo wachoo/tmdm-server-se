@@ -1850,13 +1850,11 @@ public class StorageQueryTest extends StorageTestCase {
 
         DataRecordWriter writer = new DataRecordWriter() {
 
-            @Override
             public void write(DataRecord record, OutputStream output) throws IOException {
                 Writer out = new BufferedWriter(new OutputStreamWriter(output, "UTF-8")); //$NON-NLS-1$
                 write(record, out);
             }
 
-            @Override
             public void write(DataRecord record, Writer writer) throws IOException {
                 writer.write("<result>"); //$NON-NLS-1$
                 for (FieldMetadata fieldMetadata : record.getSetFields()) {

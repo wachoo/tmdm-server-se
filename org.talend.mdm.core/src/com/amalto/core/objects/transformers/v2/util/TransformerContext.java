@@ -1,34 +1,37 @@
 package com.amalto.core.objects.transformers.v2.util;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import sun.misc.BASE64Decoder;
-
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
-import com.sun.org.apache.xerces.internal.impl.dv.xs.Base64BinaryDV;
+import org.apache.log4j.Logger;
 
 public class TransformerContext implements Serializable {
 
 	private LinkedHashMap<String, Object> contextMap = null;
-	private LinkedHashMap<String, TypedContent> pipeline = null;
-	private SortedSet<ItemPOJOPK>projectedPKs = null;
-	private TransformerV2POJOPK transformerPOJOPK = null;
 	
+    private LinkedHashMap<String, TypedContent> pipeline = null;
 	
+    private SortedSet<ItemPOJOPK>projectedPKs = null;
+	
+    private TransformerV2POJOPK transformerPOJOPK = null;
+	
+    private final Object contextLock = new Object();
+    
+    private final Object pipelineLock = new Object();
+
+    private final Logger LOGGER = Logger.getLogger(TransformerContext.class);
+
 	/**
 	 * For serialization only
 	 */
@@ -60,43 +63,42 @@ public class TransformerContext implements Serializable {
 	
 	
 	public void put(String key, Object value) {
-		synchronized (contextMap) {
+		synchronized (contextLock) {
 			contextMap.put(key, value);
 		}
 	}
 
 	public Object get(String key) {
-		synchronized (contextMap) {
+		synchronized (contextLock) {
 			return contextMap.get(key);
 		}
 	}
 	
 	public Set<String> keySet() {
-		synchronized (contextMap) {
+		synchronized (contextLock) {
 			return contextMap.keySet();
 		}
 	}
 	
 	public Object remove(String key) {
-		synchronized (contextMap) {
+		synchronized (contextLock) {
 			return contextMap.remove(key);
 		}
 	}
 
 	public TransformerContext removeAll() {
-		synchronized(contextMap) {
+		synchronized(contextLock) {
 			contextMap = new LinkedHashMap<String, Object>();
 		}
 		return this;
 	}
 	
 	public void dumpLocalVariables() {
-		synchronized(contextMap) {
+		synchronized(contextLock) {
 			Set<String> keys = new TreeSet<String>(contextMap.keySet());
-			for (Iterator<String> iter = keys.iterator(); iter.hasNext(); ) {
-				String key = iter.next();
-				org.apache.log4j.Logger.getLogger(this.getClass()).info("Dump Local Vars.: "+key+" -"+this.get(key));
-			}
+            for (String key : keys) {
+                LOGGER.info("Dump Local Vars.: " + key + " -" + this.get(key));
+            }
 		}
 	}
 	
@@ -117,59 +119,62 @@ public class TransformerContext implements Serializable {
 	
 	
 	public void putInPipeline(String key, TypedContent content) {
-		synchronized (pipeline) {
+		synchronized (pipelineLock) {
 			pipeline.put(key, content);
 		}
 	}
 
 	public TypedContent getFromPipeline(String variableName) {
-		synchronized (pipeline) {
+		synchronized (pipelineLock) {
 			return pipeline.get(variableName);
 		}
 	}
 	
 	public Set<String> getPipelineVariableNames() {
-		synchronized (pipeline) {
+		synchronized (pipelineLock) {
 			return new LinkedHashSet<String>(pipeline.keySet());
 		}
 	}
 	
 	public Object removeFrompipeline(String variableName) {
-		synchronized (pipeline) {
+		synchronized (pipelineLock) {
 			return pipeline.remove(variableName);
 		}
 	}
 
 	public TransformerContext removeAllFromPipeline() {
-		synchronized(pipeline) {
+		synchronized(pipelineLock) {
 			pipeline = new LinkedHashMap<String, TypedContent>();
 		}
 		return this;
 	}
 	
 	public void dumpPipeline() {
-		synchronized(pipeline) {
+		synchronized(pipelineLock) {
 			Set<String> keys = new TreeSet<String>(pipeline.keySet());
-			for (Iterator<String> iter = keys.iterator(); iter.hasNext(); ) {
-				String key = iter.next();
-				org.apache.log4j.Logger.getLogger(this.getClass()).info("Pipeline Dump: "+key+" -"+pipeline.get(key));
-			}
+            for (String key : keys) {
+                LOGGER.info("Pipeline Dump: " + key + " -" + pipeline.get(key));
+            }
 		}
 	}
 	
 	public LinkedHashMap<String, TypedContent> getPipelineClone() {
-		synchronized (pipeline) {
+		synchronized (pipelineLock) {
 			return new LinkedHashMap<String, TypedContent>(pipeline);
 		}
 	}
 	
 	protected LinkedHashMap<String, TypedContent> getPipeline() {
-		return pipeline;
-	}
+        synchronized (pipelineLock) {
+            return pipeline;
+        }
+    }
 
 	protected void setPipeline(LinkedHashMap<String, TypedContent> pipeline) {
-		this.pipeline = pipeline;
-	}
+        synchronized (pipelineLock) {
+            this.pipeline = pipeline;
+        }
+    }
 
 
 	
@@ -221,24 +226,14 @@ public class TransformerContext implements Serializable {
 	}
 	
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-    	
-    	HashMap<String, Serializable> serializable = (HashMap<String, Serializable>) in.readObject();
-    	this.transformerPOJOPK = (TransformerV2POJOPK)serializable.get("transformerPK");
-    	this.contextMap = new LinkedHashMap<String, Object>((LinkedHashMap<String, Serializable>)serializable.get("ctxMap"));
-    	this.pipeline = (LinkedHashMap<String, TypedContent>)serializable.get("pipeline");
-    	this.projectedPKs = (SortedSet<ItemPOJOPK>) serializable.get("projectedPKs");
+        HashMap<String, Serializable> serializable = (HashMap<String, Serializable>) in.readObject();
+        this.transformerPOJOPK = (TransformerV2POJOPK) serializable.get("transformerPK");
+        this.contextMap = new LinkedHashMap<String, Object>((LinkedHashMap<String, Serializable>) serializable.get("ctxMap"));
+        this.pipeline = (LinkedHashMap<String, TypedContent>) serializable.get("pipeline");
+        this.projectedPKs = (SortedSet<ItemPOJOPK>) serializable.get("projectedPKs");
     }
-	
-//	public byte[] toBytes() throws IOException{
-//		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//		ObjectOutputStream oos = new ObjectOutputStream(baos);
-//		writeObject(oos);
-//		return baos.toByteArray();
-//	}
-//	
-	
-	public static TransformerContext parseFromBytes(byte[] bytes) throws IOException, ClassNotFoundException{
-			
+
+    public static TransformerContext parseFromBytes(byte[] bytes) throws IOException, ClassNotFoundException{
 		TransformerContext ctx = new TransformerContext();
 		ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
 		ObjectInputStream ois = new ObjectInputStream(bais);

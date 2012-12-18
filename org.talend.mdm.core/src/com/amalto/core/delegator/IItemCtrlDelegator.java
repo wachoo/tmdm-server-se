@@ -94,7 +94,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             // Create an ItemWhere which combines the search and and view wheres
             IWhereItem fullWhere;
             ArrayList conditions = view.getWhereConditions().getList();
-            Util.fixCondtions(conditions);
+            Util.fixConditions(conditions);
             fullWhere = getFullWhereCondition(whereItem, conditions);
 
             // Add View Filters from the Roles
@@ -138,7 +138,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             // Create an ItemWhere which combines the search and and view wheres
             IWhereItem fullWhere;
             ArrayList conditions = view.getWhereConditions().getList();
-            Util.fixCondtions(conditions);
+            Util.fixConditions(conditions);
             fullWhere = getFullWhereCondition(whereItem, conditions);
 
             return runChildrenItemsQuery(clusterName, conceptName, PKXpaths,
@@ -176,12 +176,12 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 
         try {
             ViewPOJO view = getViewPOJO(viewPOJOPK);
-            whereItem = Util.fixWebCondtions(whereItem);
+            whereItem = Util.fixWebConditions(whereItem);
             // Create an ItemWhere which combines the search and and view wheres
             IWhereItem fullWhere;
             ArrayList conditions = view.getWhereConditions().getList();
             // fix conditions:value of condition do not generate xquery.
-            Util.fixCondtions(conditions);
+            Util.fixConditions(conditions);
 
             if (conditions == null || conditions.size() == 0) {
                 if (whereItem == null)

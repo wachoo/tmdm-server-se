@@ -16,8 +16,8 @@ import javax.ejb.TimedObject;
 import javax.ejb.Timer;
 import javax.ejb.TimerHandle;
 import javax.ejb.TimerService;
-import javax.naming.InitialContext;
 
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -25,7 +25,6 @@ import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJOPK;
@@ -63,7 +62,8 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 	private final static String LOGGING_EVENT = "logging_event";
 	
 	private final static long DELAY = 5;  //time after which the send is accomplished asynchronously TODO: move to conf file
-	
+
+    private final static Logger LOGGER = Logger.getLogger(RoutingOrderV2CtrlBean.class);
 	
 	private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HH:mm:ss,SSS");
 	
@@ -139,7 +139,7 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
      * @ejb.facade-method 
      */
     public String executeSynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO, boolean cleanUpRoutingOrder) throws XtentisException {    	
-    	org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+    	LOGGER.debug(
     		"executeSynchronously()   "+routingOrderPOJO.getName()+" : "+routingOrderPOJO.getItemPOJOPK().getUniqueID()
     	);    	
 		
@@ -193,12 +193,9 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
                 Util.getMethod(service, "setRoutingOrderPOJO").invoke(service, routingOrderPOJO);
 			result = (String)Util.getMethod(service, "receiveFromInbound").invoke(
 					service,
-					new Object[] {
-							routingOrderPOJO.getItemPOJOPK(),
-							routingOrderPOJO.getName(),
-							routingOrderPOJO.getServiceParameters()
-					}
-			);
+                    routingOrderPOJO.getItemPOJOPK(),
+                    routingOrderPOJO.getName(),
+                    routingOrderPOJO.getServiceParameters());
 		} catch (IllegalArgumentException e) {
 			String err = "Unable to execute the Routing Order '"+routingOrderPOJO.getName()+"'." +
 			" The service: '"+routingOrderPOJO.getServiceJNDI()+"' cannot be executed due to wrong parameters. "+e.getMessage();
@@ -244,78 +241,66 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 			AbstractRoutingOrderV2POJO routingOrderPOJO,
 			boolean cleanUpRoutingOrder, UniversePOJO universePOJO)
 			throws XtentisException {
-
-		org.apache.log4j.Logger.getLogger(this.getClass()).trace(
-
-				"executeSynchronously()   " + routingOrderPOJO.getName()
-						+ " : "
-						+ routingOrderPOJO.getItemPOJOPK().getUniqueID()
-						+ " in Universe " + universePOJO.getPK().getUniqueId()
-
-		);
-
-		// set the universe for the anonymous user
-
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace(
+                    "executeSynchronously()   " + routingOrderPOJO.getName()
+                            + " : "
+                            + routingOrderPOJO.getItemPOJOPK().getUniqueID()
+                            + " in Universe " + universePOJO.getPK().getUniqueId()
+            );
+        }
+        // set the universe for the anonymous user
 		if (universePOJO != null) {
-
 			try {
-
 				LocalUser.getLocalUser().setUniverse(universePOJO);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
+                            "executeSynchronously: Routing Order '"
+                                    + routingOrderPOJO.getItemPOJOPK()
+                                    .getUniqueID()
+                                    + "' in Universe '"
+                                    + universePOJO.getPK().getUniqueId()
+                                    + "'"
+    
+                    );
+                }
+            } catch (XtentisException e) {
+                String err = "Unable to set Universe "
+                        + universePOJO.getPK().getUniqueId() +
 
-				org.apache.log4j.Logger.getLogger(this.getClass().getName())
-						.debug(
+                        " for Routing Order "
+                        + routingOrderPOJO.getPK().getUniqueId()
+                        + ". Staying with HEAD." +
 
-								"executeSynchronously: Routing Order '"
-										+ routingOrderPOJO.getItemPOJOPK()
-												.getUniqueID()
-										+ "' in Universe '"
-										+ universePOJO.getPK().getUniqueId()
-										+ "'"
-
-						);
-
-			} catch (XtentisException e) {
-
-				String err = "Unable to set Universe "
-						+ universePOJO.getPK().getUniqueId() +
-
-						" for Routing Order "
-						+ routingOrderPOJO.getPK().getUniqueId()
-						+ ". Staying with HEAD." +
-
-						" The service: '" + routingOrderPOJO.getServiceJNDI()
-						+ "' failed. ";
-
-				if (e.getCause() != null)
-					err +=
-
-					(e.getCause() instanceof XtentisException ? "" : e
-							.getCause().getClass().getName()
-							+ ": ")
-							+ e.getCause().getMessage();
-
-				moveToFailedQueue(routingOrderPOJO, err, e, cleanUpRoutingOrder);
-
-			}
-
+                        " The service: '" + routingOrderPOJO.getServiceJNDI()
+                        + "' failed. ";
+                if (e.getCause() != null) {
+                    err += (e.getCause() instanceof XtentisException ? "" : e
+                            .getCause().getClass().getName()
+                            + ": ")
+                            + e.getCause().getMessage();
+                }
+                moveToFailedQueue(routingOrderPOJO, err, e, cleanUpRoutingOrder);
+            }
 		}
-
 		return executeSynchronously(routingOrderPOJO, cleanUpRoutingOrder);
-
 	}
     
     
-    private void moveToFailedQueue(AbstractRoutingOrderV2POJO routingOrderPOJO, String message, Exception e, boolean cleanUpRoutingOrder)  throws XtentisException{   	
-    	org.apache.log4j.Logger.getLogger(this.getClass()).trace("addToErrorQueue() "+routingOrderPOJO.getName()+": "+message);
-    	
-    	//Log
-		if (LOGGING_EVENT.equals(routingOrderPOJO.getItemPOJOPK().getConceptName()))
-			org.apache.log4j.Logger.getLogger(this.getClass()).info("ERROR SYSTRACE: "+message,e);
-		else
-			org.apache.log4j.Logger.getLogger(this.getClass()).error(message,e);
-    			
-		//Create Failed Routing Order
-		FailedRoutingOrderV2POJO failedRO = null;
+    private void moveToFailedQueue(AbstractRoutingOrderV2POJO routingOrderPOJO, String message, Exception e, boolean cleanUpRoutingOrder)  throws XtentisException{
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("addToErrorQueue() "+routingOrderPOJO.getName()+": "+message);
+        }
+
+        //Log
+		if (LOGGING_EVENT.equals(routingOrderPOJO.getItemPOJOPK().getConceptName())) {
+            LOGGER.info("ERROR SYSTRACE: "+message,e);
+        } else {
+            LOGGER.error(message,e);
+        }
+
+        //Create Failed Routing Order
+		FailedRoutingOrderV2POJO failedRO;
 		if (routingOrderPOJO instanceof FailedRoutingOrderV2POJO) {
 			failedRO = (FailedRoutingOrderV2POJO)routingOrderPOJO;
 		} else {
@@ -327,20 +312,18 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
     		failedRO.getMessage()+
     		"\n---> FAILED "+sdf.format(new Date())+": "+message
     	);
-
 		putRoutingOrder(failedRO);
-		
 		throw new RoutingException(message);
     }
+    
+    private void moveToCompletedQueue(AbstractRoutingOrderV2POJO routingOrderPOJO, String message, boolean cleanUpRoutingOrder)  throws XtentisException{
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("moveToCompletedQueue() "+routingOrderPOJO.getName()+": "+message);
+        }
 
-    
-    
-    private void moveToCompletedQueue(AbstractRoutingOrderV2POJO routingOrderPOJO, String message, boolean cleanUpRoutingOrder)  throws XtentisException{   	
-    	org.apache.log4j.Logger.getLogger(this.getClass()).trace("moveToCompletedQueue() "+routingOrderPOJO.getName()+": "+message);
-    	    	
-		try {
+        try {
 			//Create the Completed Routing Order
-			CompletedRoutingOrderV2POJO completedRO = null;
+			CompletedRoutingOrderV2POJO completedRO;
 			if (routingOrderPOJO instanceof CompletedRoutingOrderV2POJO) {
 				completedRO = (CompletedRoutingOrderV2POJO)routingOrderPOJO;
 			} else {
@@ -356,8 +339,8 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 		} catch (XtentisException e) {
 			//try to move to the error queue
 			String err = "ERROR SYSTRACE: Moving of routing order '"+routingOrderPOJO.getName()+"' to COMPLETED queue with message  '"+message+"' failed. Moving to FAILED queue.";
-			org.apache.log4j.Logger.getLogger(this.getClass()).info(err,e);
-		}
+            LOGGER.info(err, e);
+        }
 		
     }
 
@@ -393,7 +376,9 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
      */
     public AbstractRoutingOrderV2POJOPK removeRoutingOrder(AbstractRoutingOrderV2POJOPK pk) 
     throws XtentisException{
-    	org.apache.log4j.Logger.getLogger(this.getClass()).trace("removeRoutingOrder() "+pk.getUniqueId());
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("removeRoutingOrder() "+pk.getUniqueId());
+        }
 
         try {
         	ObjectPOJO.remove(pk.getRoutingOrderClass(), pk);
@@ -403,9 +388,9 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 	    } catch (Exception e) {
     	    String err = "Unable to remove the Routing Order of class "+pk.getRoutingOrderClass()+" and id "+pk.getName()
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-    	    throw new XtentisException(err,e);
-	    }
+    	    LOGGER.error(err);
+            throw new XtentisException(err, e);
+        }
     }    
     
     
@@ -416,33 +401,26 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
      */
-    public AbstractRoutingOrderV2POJOPK putRoutingOrder(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException{  
-    	
-    	org.apache.log4j.Logger.getLogger(this.getClass()).trace("putRouting Order() "+routingOrderPOJO.getName());
-    	
+    public AbstractRoutingOrderV2POJOPK putRoutingOrder(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException{
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("putRouting Order() "+routingOrderPOJO.getName());
+        }
         try {
-        	
         	ObjectPOJOPK pk = routingOrderPOJO.store();
             if (pk == null) {
-//        	    String err = "XML server failure. Unable to create/update the Routing Order. "+routingOrderPOJO.getPK().getUniqueId()+" with message\n"+routingOrderPOJO.getMessage();
-//        	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-//            	throw new XtentisException(err);
             	return null;
             }
-            
             return routingOrderPOJO.getAbstractRoutingOrderPOJOPK();
 	    } catch (XtentisException e) {
 	    	throw(e);
 	    } catch (Exception e) {
     	    String err = "Unable to create/update the Routing Order. "+routingOrderPOJO.getPK().getUniqueId()+" with message\n"+routingOrderPOJO.getMessage()
     	    		+"\n Exception: "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-    	    throw new XtentisException(err);
+    	    LOGGER.error(err,e);
+    	    throw new XtentisException(err, e);
 	    }
 
     }
-
-    
     
     /**
      * Get Routing Order
@@ -457,7 +435,7 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
         	AbstractRoutingOrderV2POJO routingOrder =  ObjectPOJO.load(pk.getRoutingOrderClass(),pk);
         	if (routingOrder == null) {
         		String err= "The Routing Order "+pk.getUniqueId()+" does not exist.";
-        		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+        		LOGGER.error(err);
         		throw new XtentisException(err);
         	}
         	return routingOrder;
@@ -466,12 +444,10 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 	    } catch (Exception e) {
     	    String err = "Unable to get the Routing Order of class "+pk.getRoutingOrderClass()+" and id "+pk.getName()
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-    	    throw new XtentisException(err);
+    	    LOGGER.error(err);
+    	    throw new XtentisException(err, e);
 	    }
     }
-    
-    
     
     /**
      * Get a RoutingOrder knowing its class - no exception is thrown: returns null if not found 
@@ -481,7 +457,6 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
      * @ejb.facade-method 
      */
     public AbstractRoutingOrderV2POJO existsRoutingOrder(AbstractRoutingOrderV2POJOPK pk) throws XtentisException{
-    	
         try {
         	return ObjectPOJO.load(pk.getRoutingOrderClass(),pk);
 	    } catch (XtentisException e) {
@@ -489,8 +464,10 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 	    } catch (Exception e) {
     	    String info = "Unable to check the existence of the Routing Order of class "+pk.getRoutingOrderClass()+" and id "+pk.getName()
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).debug("existsRoutingOrder() "+info, e);
-    	   return null;
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("existsRoutingOrder() "+info, e);
+            }
+            return null;
 	    }
     }
     
@@ -507,7 +484,7 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
     	UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
     	if (universe == null) {
     		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
-    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+    		LOGGER.error(err);
     		throw new XtentisException(err);
     	}
     	String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(
@@ -528,10 +505,10 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 			query,   
 			null
 		);
-		
-		if ((names==null) || (names.size()==0)) return new ActiveRoutingOrderV2POJO[0];
-		
-		ArrayList<ActiveRoutingOrderV2POJO> routingOrdersList = new ArrayList<ActiveRoutingOrderV2POJO>();
+		if ((names==null) || (names.size()==0)) {
+            return new ActiveRoutingOrderV2POJO[0];
+        }
+        ArrayList<ActiveRoutingOrderV2POJO> routingOrdersList = new ArrayList<ActiveRoutingOrderV2POJO>();
 		int i=0;
 		for (Iterator<String> iterator = names.iterator(); iterator.hasNext() && i++ <maxRoutingOrders; ) {
 			String name = iterator.next();
@@ -549,7 +526,6 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 		Arrays.sort(routingOrders);
 		return routingOrders;
     }
-    	
     
     /**
      * Find Dead Routing Orders
@@ -559,12 +535,11 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
      * @ejb.facade-method 
      */
     public ActiveRoutingOrderV2POJO[] findDeadRoutingOrders(long maxLastRunStartedTime, int maxRoutingOrders) throws XtentisException{
-    	
     	//get the universe and revision ID
     	UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
     	if (universe == null) {
     		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
-    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+    		LOGGER.error(err);
     		throw new XtentisException(err);
     	}
     	String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(
@@ -572,19 +547,19 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
     	);
     	
     	//Get the DB
-    	XmlServerSLWrapperLocal server = null;
+    	XmlServerSLWrapperLocal server;
 		try {
-			server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-		} catch (Exception e) {
+            server = Util.getXmlServerCtrlLocal();
+        } catch (Exception e) {
 			String err = "Unable to access the XML Server wrapper";
-			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+			LOGGER.error(err);
 			throw new RuntimeException(err);
 		}
 		String clusterName=ObjectPOJO.getCluster(ActiveRoutingOrderV2POJO.class.getName());
-		String collectionpath= CommonUtil.getPath(revisionID, clusterName);
-		String query="collection(\""+collectionpath+ "\")/*[number(@time-last-run-started) lt "+maxLastRunStartedTime+"][number(@time-last-run-started) gt 0]/name/text()";
+		String collectionPath= CommonUtil.getPath(revisionID, clusterName);
+		String query="collection(\""+collectionPath+ "\")/*[number(@time-last-run-started) lt "+maxLastRunStartedTime+"][number(@time-last-run-started) gt 0]/name/text()";
 		if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {				
-			query=" for $pivot0 in collection(\""+collectionpath+ "\")/*[number(@time-last-run-started) lt "+maxLastRunStartedTime+"][number(@time-last-run-started) gt 0]/name/text() return <result>{$pivot0}</result> ";								
+			query=" for $pivot0 in collection(\""+collectionPath+ "\")/*[number(@time-last-run-started) lt "+maxLastRunStartedTime+"][number(@time-last-run-started) gt 0]/name/text() return <result>{$pivot0}</result> ";								
 		}		
 		Collection<String> names = server.runQuery(
 			revisionID,
@@ -625,9 +600,9 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
     public Collection<ActiveRoutingOrderV2POJOPK> getActiveRoutingOrderPKs(String regex) throws XtentisException {
     	Collection<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(ActiveRoutingOrderV2POJO.class, regex);
     	ArrayList<ActiveRoutingOrderV2POJOPK> l = new ArrayList<ActiveRoutingOrderV2POJOPK>();
-    	for (Iterator<ObjectPOJOPK> iter = c.iterator(); iter.hasNext(); ) {
-			l.add(new ActiveRoutingOrderV2POJOPK(iter.next()));
-		}
+        for (ObjectPOJOPK activeRoutingOrder : c) {
+            l.add(new ActiveRoutingOrderV2POJOPK(activeRoutingOrder));
+        }
     	return l;
     }
 
@@ -642,9 +617,9 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
     public Collection<CompletedRoutingOrderV2POJOPK> getCompletedRoutingOrderPKs(String regex) throws XtentisException {
     	Collection<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(CompletedRoutingOrderV2POJO.class, regex);
     	ArrayList<CompletedRoutingOrderV2POJOPK> l = new ArrayList<CompletedRoutingOrderV2POJOPK>();
-    	for (Iterator<ObjectPOJOPK> iter = c.iterator(); iter.hasNext(); ) {
-			l.add(new CompletedRoutingOrderV2POJOPK(iter.next()));
-		}
+        for (ObjectPOJOPK completedRoutingOrder : c) {
+            l.add(new CompletedRoutingOrderV2POJOPK(completedRoutingOrder));
+        }
     	return l;
     }
 
@@ -659,9 +634,9 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
     public Collection<FailedRoutingOrderV2POJOPK> getFailedRoutingOrderPKs(String regex) throws XtentisException {
     	Collection<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(FailedRoutingOrderV2POJO.class, regex);
     	ArrayList<FailedRoutingOrderV2POJOPK> l = new ArrayList<FailedRoutingOrderV2POJOPK>();
-    	for (Iterator<ObjectPOJOPK> iter = c.iterator(); iter.hasNext(); ) {
-			l.add(new FailedRoutingOrderV2POJOPK(iter.next()));
-		}
+        for (ObjectPOJOPK failedRoutingOrder : c) {
+            l.add(new FailedRoutingOrderV2POJOPK(failedRoutingOrder));
+        }
     	return l;
     }
 
@@ -700,9 +675,11 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 
         String pojoName = ObjectPOJO.getObjectRootElementName(ObjectPOJO.getObjectName(routingOrderV2POJOClass));
 
-        org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-                "getRoutingOrderPKsByCriteriaWithPaging() " + routingOrderV2POJOClass + "  " //$NON-NLS-1$ //$NON-NLS-2$
-                        + ObjectPOJO.getObjectName(routingOrderV2POJOClass) + "  " + pojoName); //$NON-NLS-1$
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(
+                    "getRoutingOrderPKsByCriteriaWithPaging() " + routingOrderV2POJOClass + "  " //$NON-NLS-1$ //$NON-NLS-2$
+                            + ObjectPOJO.getObjectName(routingOrderV2POJOClass) + "  " + pojoName); //$NON-NLS-1$
+        }
 
         WhereAnd wAnd = new WhereAnd();
 
@@ -782,8 +759,7 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
         Collection<ObjectPOJOPK> col = ObjectPOJO.findPKsByCriteriaWithPaging(routingOrderV2POJOClass, new String[] {
                 pojoName + "/name", pojoName + "/@status" }, wAnd.getSize() == 0 ? null : wAnd, null, null, start, limit, withTotalCount);//$NON-NLS-1$ //$NON-NLS-2$
 
-        for (Iterator<ObjectPOJOPK> iterator = col.iterator(); iterator.hasNext();) {
-            ObjectPOJOPK objectPOJOPK = iterator.next();
+        for (ObjectPOJOPK objectPOJOPK : col) {
             if (routingOrderV2POJOClass.equals(ActiveRoutingOrderV2POJO.class))
                 list.add(new ActiveRoutingOrderV2POJOPK(objectPOJOPK.getIds()[0]));
             else if (routingOrderV2POJOClass.equals(CompletedRoutingOrderV2POJO.class))
@@ -830,36 +806,30 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
     
     /**
      * 
-     * @param intervalDuration
+     * @param ms
      * @return a TimerHandle
      */
     private TimerHandle createTimer(AbstractRoutingOrderV2POJO routingOrderPOJO, long ms) {
-    	
     	UniversePOJO universePOJO = null;
-    	
     	try {
-    		
 	    	if(routingOrderPOJO.getBindingUniverseName()!=null&&!routingOrderPOJO.getBindingUniverseName().equals("[HEAD]")){
 	    		universePOJO = ObjectPOJO.load(null, UniversePOJO.class, new UniversePOJOPK(routingOrderPOJO.getBindingUniverseName()));
 	    	}else{
 	    		universePOJO = LocalUser.getLocalUser().getUniverse();
 	    	}
-	    	
         } catch (XtentisException e) {
                 String err = "Unable to get the Universe for the local user: using head. "+e.getMessage();
-                org.apache.log4j.Logger.getLogger(this.getClass().getName()).warn("createTimer "+err);
+                LOGGER.warn("createTimer "+err);
                 e.printStackTrace();
         }
-        
         //Create routing order data
         AsynchronousOrderData routingOrderData = new AsynchronousOrderData(universePOJO, routingOrderPOJO);
-
-  
-    	if (ms < DELAY) ms = DELAY;
+    	if (ms < DELAY) {
+            ms = DELAY;
+        }
         TimerService timerService =  context.getTimerService();
-        Timer timer = timerService.createTimer(ms,routingOrderData);  
-        TimerHandle th = timer.getHandle();
-        return th;
+        Timer timer = timerService.createTimer(ms,routingOrderData);
+        return timer.getHandle();
     }
     
         
@@ -867,45 +837,36 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 	 * @see javax.ejb.TimedObject#ejbTimeout(javax.ejb.Timer)
 	 */
 	public void ejbTimeout(Timer timer) {
-		
         RoutingEngineV2POJO routingEngine = RoutingEngineV2POJO.getInstance();
 		//if routing engine is not running stop here
-		if (routingEngine.getStatus() != RoutingEngineV2POJO.RUNNING) return;
-		
-		//recover routing order data
+		if (routingEngine.getStatus() != RoutingEngineV2POJO.RUNNING) {
+            return;
+        }
+        //recover routing order data
         AsynchronousOrderData routingOrderData = (AsynchronousOrderData) timer.getInfo();
-        org.apache.log4j.Logger.getLogger(this.getClass()).trace(
-               "ejbTimeout() retrieving routing order "+routingOrderData.routingOrderV2POJO.getPK().getUniqueId()+
-               "in universe "+routingOrderData.currentUniversePOJO.getPK().getUniqueId()
-        );
-
-        
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace(
+                   "ejbTimeout() retrieving routing order "+routingOrderData.routingOrderV2POJO.getPK().getUniqueId()+
+                   "in universe "+routingOrderData.currentUniversePOJO.getPK().getUniqueId()
+            );
+        }
         //retrieve the Routing Order Ctrl. This should re-initialize the JACC Context
-        RoutingOrderV2CtrlLocal routingOrderCtrl = null;
+        RoutingOrderV2CtrlLocal routingOrderCtrl;
         try {
              routingOrderCtrl = Util.getRoutingOrderV2CtrlLocal();
         } catch (Exception e) {
-               //an error occurred  - free the executor
-               org.apache.log4j.Logger.getLogger(this.getClass()).info(
-                      "ejbTimeout() ERROR SYSTRACE:Unable to retirve the Routing Order Ctrl for "+routingOrderData.routingOrderV2POJO.getPK().getUniqueId()+". "
-                      +e.getMessage()
-               );
+            //an error occurred  - free the executor
+            LOGGER.info(
+                    "ejbTimeout() ERROR SYSTRACE:Unable to retirve the Routing Order Ctrl for " + routingOrderData.routingOrderV2POJO.getPK().getUniqueId() + ". "
+                            + e.getMessage()
+            );
+            return;
         }
-
-
-
         try {
              routingOrderCtrl.executeSynchronously(routingOrderData.routingOrderV2POJO, true, routingOrderData.currentUniversePOJO);
         } catch (Exception e) {
              //an error occurred  - free the executor
-             org.apache.log4j.Logger.getLogger(this.getClass()).info("ejbTimeout() ERROR SYSTRACE: Asynchronous execution failed. "+e.getMessage());
+             LOGGER.info("ejbTimeout() ERROR SYSTRACE: Asynchronous execution failed. "+e.getMessage());
         }
-
-
 	}
-    
-
-    
-
-      
 }

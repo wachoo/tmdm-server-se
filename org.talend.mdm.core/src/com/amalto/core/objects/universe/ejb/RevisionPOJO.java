@@ -11,8 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.InitialContext;
-
+import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 import org.talend.mdm.commmon.util.core.EDBType;
@@ -23,16 +22,14 @@ import org.w3c.dom.NodeList;
 
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
 public class RevisionPOJO implements Serializable{
-    private String REVISION_ENTRY = "UNIVERSE-REVISION";
-	private List<RevisionItem> revisionItems = new ArrayList<RevisionItem>();
+    public static final Logger LOGGER = Logger.getLogger(ItemPOJO.class);
+    private List<RevisionItem> revisionItems = new ArrayList<RevisionItem>();
 	private Map<String, UniversePOJO> universeXMLMap = new HashMap<String, UniversePOJO>();
 	
 	public RevisionPOJO() {
@@ -51,8 +48,6 @@ public class RevisionPOJO implements Serializable{
 	/**
 	 * add meta data into pojo, the meta data is stored into the universeXMLMap
 	 *  every adding action must follow up the corresponding info in the map
-	 * @param pojo
-	 * @return
 	 * @throws XtentisException
 	 */
 	public UniversePOJO addMetaDataIntoUniverse(UniversePOJO pojo) throws XtentisException
@@ -99,19 +94,19 @@ public class RevisionPOJO implements Serializable{
     /**
      * Loads all the revisions from Universe entry
      * 
-     * @param itemPOJOPK
-     * @return
      * 	the {@link RevisionPOJO}
      * @throws XtentisException
      */
     public void load(String universePk, UniversePOJO pojo, boolean del) throws XtentisException {
-    	    	
-    	if (universePk != null && universePk.equals(REVISION_ENTRY))return;
-    	//get the universe and revision ID
+        String revisionEntry = "UNIVERSE-REVISION";
+        if (universePk != null && universePk.equals(revisionEntry)) {
+            return;
+        }
+        //get the universe and revision ID
     	UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
     	if (universe == null) {
     		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
-    		org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err);
+    		LOGGER.error(err);
     		throw new XtentisException(err);
     	}
     	
@@ -134,7 +129,7 @@ public class RevisionPOJO implements Serializable{
             for (String uniqueID: contents)
             {
                 String xmlData = server.getDocumentAsString(revisionID, clusterName, uniqueID, null);
-            	if (!uniqueID.equals(REVISION_ENTRY))
+            	if (!uniqueID.equals(revisionEntry))
             	{
             		String[] pathSlices = new String[]{"items-revision-iDs", "xtentis-objects-revision-iDs"};
                     for (String pathSlice : pathSlices)
@@ -185,7 +180,7 @@ public class RevisionPOJO implements Serializable{
 					}
             		else if (!revisionsForCurrent.contains(revisionAvail) && quoters.contains(universePk))
             		{
-            			// delete the revision from the quters
+            			// delete the revision from the quoters
             			quoters.remove(universePk);
             		}
             	}
@@ -200,11 +195,11 @@ public class RevisionPOJO implements Serializable{
             	}
             }
             server.start("Revision"); //$NON-NLS-1$
-            server.putDocumentFromString(this.toString(), REVISION_ENTRY, "Revision", revisionID); //$NON-NLS-1$
+            server.putDocumentFromString(this.toString(), revisionEntry, "Revision", revisionID); //$NON-NLS-1$
             server.commit("Revision"); //$NON-NLS-1$
             if (server.getDocumentAsString(revisionID, clusterName,
-					REVISION_ENTRY) != null) {
-				server.deleteDocument(revisionID, clusterName, REVISION_ENTRY);
+                    revisionEntry) != null) {
+				server.deleteDocument(revisionID, clusterName, revisionEntry);
 			}
            
             
@@ -256,9 +251,11 @@ public class RevisionPOJO implements Serializable{
 		for (RevisionItem item : revisionItems) {
 			if (item.getName().equals(pk.getUniqueId())) {
 				for (String universe : item.getQuoterList()) {
-					if (!result.contains(universe))
-						result.add(new UniversePOJOPK(universe));
-				}
+                    UniversePOJOPK universePOJOPK = new UniversePOJOPK(universe);
+                    if (!result.contains(universePOJOPK)) {
+                        result.add(universePOJOPK);
+                    }
+                }
 			}
 
 		}

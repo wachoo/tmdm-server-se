@@ -11,11 +11,11 @@
 
 package com.amalto.core.save.context;
 
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.load.action.LoadAction;
 import com.amalto.core.save.*;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
+import com.amalto.core.server.XmlServer;
 import com.amalto.core.util.XSDKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -76,11 +76,12 @@ public class SaverContextFactory {
     /**
      * Creates a {@link DocumentSaverContext} for bulk load operations.
      *
+     *
      * @param dataCluster    Data container name (must exist).
      * @param dataModelName  Data model name (must exist).
      * @param keyMetadata    Key for all records contained in <code>documentStream</code>
      * @param documentStream AData model name (must exist).
-     * @param loadAction     {@link LoadAction} to be used to bulk load records.
+     * @param loadAction     {@link com.amalto.core.load.action.LoadAction} to be used to bulk load records.
      * @param server         Abstraction of the underlying MDM database.
      * @return A context configured for bulk load.
      */
@@ -89,7 +90,7 @@ public class SaverContextFactory {
                                                XSDKey keyMetadata,
                                                InputStream documentStream,
                                                LoadAction loadAction,
-                                               XmlServerSLWrapperLocal server) {
+                                               XmlServer server) {
         return new BulkLoadContext(dataCluster, dataModelName, keyMetadata, documentStream, loadAction, server);
     }
 

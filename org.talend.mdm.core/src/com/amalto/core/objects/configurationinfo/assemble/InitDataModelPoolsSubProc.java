@@ -14,42 +14,31 @@ package com.amalto.core.objects.configurationinfo.assemble;
 
 import java.util.Collection;
 
-import javax.naming.InitialContext;
-
-import org.apache.log4j.Logger;
+import com.amalto.commons.core.datamodel.synchronization.DataModelChangeNotifier;
+import com.amalto.core.server.DataModel;
+import com.amalto.core.util.Util;
 
 import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;
-import com.amalto.commons.core.datamodel.synchronization.DatamodelChangeNotifier;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
-import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocalHome;
 
-/**
- * DOC HSHU class global comment. Detailled comment
- */
 public class InitDataModelPoolsSubProc extends AssembleSubProc {
-
-    private static final Logger logger = Logger.getLogger(InitDataModelPoolsSubProc.class);
 
     @Override
     public void run() throws Exception {
-
-        DataModelCtrlLocal dataModelCtrl = null;
+        DataModel dataModelCtrl;
         try {
-            dataModelCtrl = ((DataModelCtrlLocalHome) new InitialContext().lookup(DataModelCtrlLocalHome.JNDI_NAME)).create();
+            dataModelCtrl = Util.getDataModelCtrlLocal();
         } catch (Exception e) {
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(e);
+            throw new RuntimeException(e);
         }
-
         Collection<DataModelPOJOPK> dmpks = dataModelCtrl.getDataModelPKs(".*");
         for (DataModelPOJOPK dataModelPOJOPK : dmpks) {
             // FIXME get data models from HEAD only
             // synchronize with outer agents
-            DatamodelChangeNotifier dmUpdateEventNotifer = new DatamodelChangeNotifier();
-            dmUpdateEventNotifer.addUpdateMessage(new DMUpdateEvent(dataModelPOJOPK.getUniqueId(), null,
-                    DMUpdateEvent.EVENT_TYPE_INIT));
+            DataModelChangeNotifier dmUpdateEventNotifer = new DataModelChangeNotifier();
+            DMUpdateEvent event = new DMUpdateEvent(dataModelPOJOPK.getUniqueId(), null, DMUpdateEvent.EVENT_TYPE_INIT);
+            dmUpdateEventNotifer.addUpdateMessage(event);
             dmUpdateEventNotifer.sendMessages();
-            // logger.info("Initialized datamodel " + dataModelPOJOPK.getUniqueId() + " to DM-Pool ");
         }
 
     }

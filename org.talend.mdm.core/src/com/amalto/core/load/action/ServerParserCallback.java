@@ -11,8 +11,8 @@
 
 package com.amalto.core.load.action;
 
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.load.LoadParserCallback;
+import com.amalto.core.server.XmlServer;
 import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -24,13 +24,13 @@ class ServerParserCallback implements LoadParserCallback {
 
     private static final Logger log = Logger.getLogger(ServerParserCallback.class);
 
-    private final XmlServerSLWrapperLocal server;
+    private final XmlServer server;
 
     private final String dataClusterName;
 
     private int currentCount;
 
-    public ServerParserCallback(XmlServerSLWrapperLocal server, String dataClusterName) {
+    public ServerParserCallback(XmlServer server, String dataClusterName) {
         this.server = server;
         this.dataClusterName = dataClusterName;
         currentCount = 0;

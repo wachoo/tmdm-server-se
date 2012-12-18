@@ -11,10 +11,10 @@
 
 package com.amalto.core.save.context;
 
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.load.action.LoadAction;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
+import com.amalto.core.server.XmlServer;
 import com.amalto.core.util.XSDKey;
 
 import java.io.InputStream;
@@ -27,9 +27,9 @@ class BulkLoadSaver implements DocumentSaver {
 
     private final XSDKey keyMetadata;
 
-    private final XmlServerSLWrapperLocal server;
+    private final XmlServer server;
 
-    BulkLoadSaver(LoadAction loadAction, InputStream documentStream, XSDKey keyMetadata, XmlServerSLWrapperLocal server) {
+    BulkLoadSaver(LoadAction loadAction, InputStream documentStream, XSDKey keyMetadata, XmlServer server) {
         this.loadAction = loadAction;
         this.documentStream = documentStream;
         this.keyMetadata = keyMetadata;

@@ -11,12 +11,11 @@
 
 package com.amalto.core.load.action;
 
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.load.LoadParser;
 import com.amalto.core.load.context.StateContext;
 import com.amalto.core.load.io.XMLRootInputStream;
+import com.amalto.core.server.XmlServer;
 import com.amalto.core.util.XSDKey;
-import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 
@@ -48,7 +47,7 @@ public class OptimizedLoadAction implements LoadAction {
         return true;
     }
 
-    public void load(InputStream stream, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception {
+    public void load(InputStream stream, XSDKey keyMetadata, XmlServer server) throws Exception {
         if (!".".equals(keyMetadata.getSelector())) { //$NON-NLS-1$
             throw new UnsupportedOperationException("Selector '" + keyMetadata.getSelector() + "' isn't supported.");
         }
@@ -74,7 +73,7 @@ public class OptimizedLoadAction implements LoadAction {
         }
     }
 
-    public void endLoad(XmlServerSLWrapperLocal server) {
+    public void endLoad(XmlServer server) {
         if (context != null) {
             // This call should clean up everything (incl. save counter state in case of autogen pk).
             context.close();

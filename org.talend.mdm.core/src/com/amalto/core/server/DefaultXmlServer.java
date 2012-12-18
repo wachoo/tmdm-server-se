@@ -1,31 +1,22 @@
-// ============================================================================
-//
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
-//
-// This source code is available under agreement available at
-// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
-//
-// You should have received a copy of the agreement
-// along with this program; if not, write to Talend SA
-// 9 rue Pages 92150 Suresnes, France
-//
-// ============================================================================
-package com.amalto.core.ejb;
+/*
+ * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+ *
+ * This source code is available under agreement available at
+ * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+ *
+ * You should have received a copy of the agreement
+ * along with this program; if not, write to Talend SA
+ * 9 rue Pages 92150 Suresnes, France
+ */
 
-import java.io.OutputStream;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+package com.amalto.core.server;
 
-import javax.ejb.CreateException;
-import javax.ejb.EJBException;
-import javax.ejb.SessionBean;
-import javax.ejb.SessionContext;
-
-import com.amalto.core.server.XmlServer;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.util.XtentisException;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
+import com.amalto.xmlserver.interfaces.XmlServerException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -33,47 +24,12 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import com.amalto.core.server.Server;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.util.XtentisException;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.IXmlServerEBJLifeCycle;
-import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
-import com.amalto.xmlserver.interfaces.ItemPKCriteria;
-import com.amalto.xmlserver.interfaces.XmlServerException;
+import java.io.OutputStream;
+import java.util.*;
 
-/**
- * All applications must call the methods of this wrapper only They never
- * directly call the underlying API
- * 
- * @author bgrieder
- * 
- * @ejb.bean 
- *          name="XmlServerSLWrapper" 
- *          display-name="XML:DB Stateless Wrapper"
- *          description="Description for XML:DB Stateless Wrapper"
- *          jndi-name="amalto/remote/xmldb/xmlserverslwrapper" 
- *          local-jndi-name = "amalto/local/xmldb/xmlserverslwrapper" 
- *          type="Stateless"
- *          view-type="both"
- * 
- * @ejb.permission
- *  view-type = "remote"
- *  role-name = "administration"
- * @ejb.permission
- *  view-type = "local"
- *  unchecked = "true"
- * 
- *
- *  
- * 
- * @ejb.remote-facade
- */
-public class XmlServerSLWrapperBean implements SessionBean, XmlServer {
+public class DefaultXmlServer implements XmlServer {
 
-    private static final Logger LOG = Logger.getLogger(XmlServerSLWrapperBean.class);
+    private static final Logger LOG = Logger.getLogger(DefaultXmlServer.class);
 
     private static String SERVER_CLASS;
 
@@ -84,77 +40,20 @@ public class XmlServerSLWrapperBean implements SessionBean, XmlServer {
         }
     }
 
+    private final IXmlServerSLWrapper server;
 
-    //The underlying server
-    //TODO: the underlying server is not serializable.....
-    IXmlServerSLWrapper server = null;
-
-    /**
-     * XmlServerSLWrapperBean.java Constructor
-     */
-    public XmlServerSLWrapperBean() {
-        super();
-    }
-
-    public void setSessionContext(SessionContext ctx)
-            throws EJBException,
-            RemoteException {
-    }
-
-    public void ejbRemove() throws EJBException, RemoteException {
-        try {
-            if (server instanceof IXmlServerEBJLifeCycle) {
-                ((IXmlServerEBJLifeCycle) server).doRemove();
-            }
-        } catch (Exception e) {
-            throw new EJBException(e.getLocalizedMessage());
-        }
-    }
-
-    public void ejbActivate() throws EJBException, RemoteException {
-        try {
-            if (server instanceof IXmlServerEBJLifeCycle) {
-                ((IXmlServerEBJLifeCycle) server).doActivate();
-            }
-        } catch (Exception e) {
-            throw new EJBException(e.getLocalizedMessage());
-        }
-    }
-
-    public void ejbPassivate() throws EJBException, RemoteException {
-        try {
-            if (server instanceof IXmlServerEBJLifeCycle) {
-                ((IXmlServerEBJLifeCycle) server).doPassivate();
-            }
-        } catch (Exception e) {
-            throw new EJBException(e.getLocalizedMessage());
-        }
-    }
-
-    public void ejbCreate() throws javax.ejb.CreateException {
+    public DefaultXmlServer() {
         try {
             server = (IXmlServerSLWrapper) Class.forName(SERVER_CLASS).newInstance();
-            if (server instanceof IXmlServerEBJLifeCycle) {
-                ((IXmlServerEBJLifeCycle) server).doCreate();
-            }
         } catch (Exception e) {
-            throw new CreateException(e.getLocalizedMessage());
-        }
-    }
-
-    public void ejbPostCreate() throws javax.ejb.CreateException {
-        try {
-            if (server instanceof IXmlServerEBJLifeCycle) {
-                ((IXmlServerEBJLifeCycle) server).doPostCreate();
-            }
-        } catch (Exception e) {
-            throw new CreateException(e.getLocalizedMessage());
+            throw new IllegalArgumentException("Cannot find server class '" + SERVER_CLASS + "'.", e);
         }
     }
 
     public boolean isUpAndRunning() {
-        if (LOG.isTraceEnabled())
+        if (LOG.isTraceEnabled()) {
             LOG.trace("isUpAndRunning() "); //$NON-NLS-1$
+        }
         return server.isUpAndRunning();
     }
 
@@ -630,11 +529,6 @@ public class XmlServerSLWrapperBean implements SessionBean, XmlServer {
         }
     }
 
-    /**
-     * @return boolean
-     * @ejb.interface-method view-type = "both"
-     * @ejb.facade-method
-     */
     public boolean supportStaging(String dataCluster) {
         if (dataCluster == null || dataCluster.trim().length() == 0) {
             return false;

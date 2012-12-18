@@ -37,13 +37,13 @@ public class DataSourceFactory {
 
     private static final Logger LOGGER = Logger.getLogger(DataSourceFactory.class);
 
-    private static DocumentBuilderFactory factory;
-
-    private static final XPath xPath = XPathFactory.newInstance().newXPath();
+    private static final String REVISION_PLACEHOLDER = "${revision}"; //$NON-NLS-1$
 
     private static final String CONTAINER_PLACEHOLDER = "${container}"; //$NON-NLS-1$
 
-    private static final String REVISION_PLACEHOLDER = "${revision}"; //$NON-NLS-1$
+    private static final XPath xPath = XPathFactory.newInstance().newXPath();
+
+    private static DocumentBuilderFactory factory;
 
     private DataSourceFactory() {
         factory = DocumentBuilderFactory.newInstance();
@@ -260,7 +260,10 @@ public class DataSourceFactory {
     }
 
     private static Object evaluate(Node node, String expression, QName returnType) throws XPathExpressionException {
-        XPathExpression result = xPath.compile(expression);
+        XPathExpression result;
+        synchronized (xPath) {
+            result = xPath.compile(expression);
+        }
         return result.evaluate(node, returnType);
     }
 

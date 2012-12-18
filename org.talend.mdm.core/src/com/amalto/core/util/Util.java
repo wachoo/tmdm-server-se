@@ -21,44 +21,23 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.Principal;
 import java.security.acl.Group;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.MissingResourceException;
-import java.util.Properties;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.ejb.CreateException;
-import javax.ejb.EJBException;
-import javax.ejb.EJBLocalHome;
+import javax.ejb.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
@@ -76,7 +55,19 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 
+import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocal;
+import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
+import com.amalto.core.objects.routing.v2.ejb.local.*;
+import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.XSSchema;
+import com.sun.xml.xsom.XSSchemaSet;
+import com.sun.xml.xsom.XSType;
+import com.sun.xml.xsom.parser.XSOMParser;
+import com.sun.xml.xsom.util.DomAnnotationParserFactory;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.jxpath.AbstractFactory;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.Pointer;
@@ -84,7 +75,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xerces.jaxp.DocumentBuilderFactoryImpl;
-import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.talend.mdm.commmon.util.core.ITransformerConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
@@ -100,15 +90,12 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import sun.misc.BASE64Encoder;
-
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.IXtentisWSDelegator;
 import com.amalto.core.ejb.DroppedItemPOJO;
 import com.amalto.core.ejb.DroppedItemPOJOPK;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.ejb.local.DroppedItemCtrlLocal;
 import com.amalto.core.ejb.local.DroppedItemCtrlLocalHome;
@@ -122,7 +109,6 @@ import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.jobox.JobContainer;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocal;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocalHome;
-import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocal;
 import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocalHome;
 import com.amalto.core.objects.customform.ejb.local.CustomFormCtrlLocal;
 import com.amalto.core.objects.customform.ejb.local.CustomFormCtrlLocalHome;
@@ -131,18 +117,11 @@ import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocal;
 import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocalHome;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
 import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocalHome;
 import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocal;
 import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocalHome;
 import com.amalto.core.objects.role.ejb.local.RoleCtrlLocal;
 import com.amalto.core.objects.role.ejb.local.RoleCtrlLocalHome;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocalHome;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocalHome;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocal;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocalHome;
 import com.amalto.core.objects.storedprocedure.ejb.local.StoredProcedureCtrlLocal;
 import com.amalto.core.objects.storedprocedure.ejb.local.StoredProcedureCtrlLocalHome;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
@@ -161,25 +140,7 @@ import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereLogicOperator;
 import com.amalto.xmlserver.interfaces.XmlServerException;
-import com.sun.org.apache.xpath.internal.XPathAPI;
-import com.sun.org.apache.xpath.internal.objects.XObject;
-import com.sun.xml.xsom.XSComplexType;
-import com.sun.xml.xsom.XSContentType;
-import com.sun.xml.xsom.XSElementDecl;
-import com.sun.xml.xsom.XSFacet;
-import com.sun.xml.xsom.XSParticle;
-import com.sun.xml.xsom.XSSchema;
-import com.sun.xml.xsom.XSSchemaSet;
-import com.sun.xml.xsom.XSSimpleType;
-import com.sun.xml.xsom.XSType;
-import com.sun.xml.xsom.impl.FacetImpl;
-import com.sun.xml.xsom.parser.XSOMParser;
-import com.sun.xml.xsom.util.DomAnnotationParserFactory;
 
-/**
- * @author Bruno GRieder
- *
- */
 @SuppressWarnings("deprecation")
 public class Util {
 
@@ -187,11 +148,11 @@ public class Util {
      * System wide properties
      *********************************************************************/
     /**
-     * Home Caches spped up execution but make deployment debugging
+     * Home Cache speeds up execution but make deployment debugging
      */
     public final static boolean USE_HOME_CACHES = Boolean.getBoolean("com.amalto.use.home.caches"); //$NON-NLS-1$
 
-    private static final Logger LOG = Logger.getLogger(Util.class);
+    private static final Logger LOGGER = Logger.getLogger(Util.class);
 
     private static final TransformerFactory transformerFactory = TransformerFactory.newInstance();
 
@@ -244,8 +205,7 @@ public class Util {
      *********************************************************************/
 
     public static Document parse(String xmlString) throws ParserConfigurationException, IOException, SAXException {
-        Document doc = parse(xmlString, null);
-        return doc;
+        return parse(xmlString, null);
     }
 
     public static Document parseXSD(String xsd) throws ParserConfigurationException, IOException, SAXException {
@@ -273,7 +233,7 @@ public class Util {
             factory = DocumentBuilderFactory.newInstance();
             // Schema validation based on schemaURL
             factory.setNamespaceAware(true);
-            factory.setValidating((schema != null));
+            factory.setValidating(true);
             factory.setAttribute(JAXP_SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
             factory.setAttribute(JAXP_SCHEMA_SOURCE, new InputSource(new StringReader(schema)));
         } else {
@@ -297,10 +257,7 @@ public class Util {
         return d;
     }
 
-    /**
-     * @author ymli fix the bug:0009642: remove the null element to match the shema
-     * @param element
-     */
+    // bug:0009642: remove the null element to match the schema
     public static boolean setNullNode(Node element) {
         // String xml = Util.nodeToString(element);
         boolean removed = false;
@@ -313,20 +270,26 @@ public class Util {
                 // xml = Util.nodeToString(element);
                 setNullNode(element);
                 removed = true;
-            } else if (length > 1 && node != null) {
-                if (setNullNode(node))
+            } else if (length > 1) {
+                if (setNullNode(node)) {
                     setNullNode(node.getParentNode());
+                }
             }
         }
         return removed;
     }
 
     public static Document defaultValidate(Element element, String schema) throws Exception {
-        org.apache.log4j.Logger.getLogger(Util.class).trace("validate() " + element.getLocalName());
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("validate() " + element.getLocalName());
+        }
+        if (schema == null) {
+            throw new IllegalArgumentException("Schema cannot be null.");
+        }
         Node cloneNode = element.cloneNode(true);
 
         // parse
-        Document d = null;
+        Document d;
         SAXErrorHandler seh = new SAXErrorHandler();
 
         // initialize the sax parser which uses Xerces
@@ -334,7 +297,7 @@ public class Util {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         // Schema validation based on schemaURL
         factory.setNamespaceAware(true);
-        factory.setValidating((schema != null));
+        factory.setValidating(true);
 
         schema = schema.replaceFirst("<\\?xml.*\\?>", ""); //$NON-NLS-1$//$NON-NLS-2$
         schema = schema.replace("\r\n", "\n"); //$NON-NLS-1$//$NON-NLS-2$
@@ -349,32 +312,29 @@ public class Util {
         builder.setErrorHandler(seh);
         builder.setEntityResolver(new SecurityEntityResolver());
 
-        // add by ymli; fix the bug:0009642:remove the null element to match the shema
+        // bug:0009642:remove the null element to match the schema
         setNullNode(cloneNode);
 
         // strip of attributes
         removeAllAttribute(cloneNode, "tmdm:type"); //$NON-NLS-1$
 
-        String xmlstr = Util.nodeToString(cloneNode);
-        // if element is null, remove it aiming added
-        // see 7828
+        String xmlAsString = Util.nodeToString(cloneNode);
+        // if element is null, remove it see 7828
+        xmlAsString = xmlAsString.replaceAll("<\\w+?/>", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
-        xmlstr = xmlstr.replaceAll("<\\w+?/>", ""); //$NON-NLS-1$//$NON-NLS-2$
-        // xmlstr=xmlstr.replaceAll("<\\w+?>\\s+?</\\w+?>", "");
+        d = builder.parse(new InputSource(new StringReader(xmlAsString)));
 
-        d = builder.parse(new InputSource(new StringReader(xmlstr)));
-
-        // check if dcument parsed correctly against the schema
+        // check if document parsed correctly against the schema
         if (schema != null) {
             // ignore cvc-complex-type.2.3 error
             String errors = seh.getErrors();
 
-            boolean isComplex23 = errors.indexOf("cvc-complex-type.2.3") != -1 && errors.endsWith("is element-only."); //$NON-NLS-1$ //$NON-NLS-2$
+            boolean isComplex23 = errors.contains("cvc-complex-type.2.3") && errors.endsWith("is element-only."); //$NON-NLS-1$ //$NON-NLS-2$
             if (!errors.equals("") && !isComplex23) { //$NON-NLS-1$  
                 String xmlString = Util.nodeToString(element);
                 String err = "The item " + element.getLocalName() + " did not validate against the model: \n" + errors + "\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         + xmlString; // .substring(0, Math.min(100, xmlString.length()));
-                LOG.debug(err);
+                LOGGER.debug(err);
                 throw new CVCException(err);
             }
         }
@@ -386,153 +346,12 @@ public class Util {
         return BeanDelegatorContainer.getUniqueInstance().getValidationDelegator().validation(element, schema);
     }
 
-    public static Map<String, String> getNamespaceFromImportXSD(Element element, boolean type) {
-        HashMap<String, String> nsMap = new HashMap<String, String>();
-        NodeList list = null;
-        // for Import
-        try {
-            list = Util.getNodeList(element, "//xsd:import");
-            for (int i = 0; i < list.getLength(); i++) {
-                Node node = list.item(i);
-                String ns = node.getAttributes().getNamedItem("namespace").getNodeValue();
-                if (node.getAttributes().getNamedItem("schemaLocation") == null) {
-                    continue;
-                }
-                String location = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
-                if (location == null || location.equals("")) {
-                    continue;
-                }
-                Document subDoc = parseImportedFile(location);
-                if (type)
-                    parseTypeFromImport(subDoc.getDocumentElement(), nsMap, ns);
-                else
-                    parseElementFromImport(subDoc.getDocumentElement(), nsMap, ns);
-                nsMap.putAll(getNamespaceFromImportXSD(subDoc.getDocumentElement(), type));
-            }
-        } catch (Exception e) {
-            Logger.getLogger(Util.class).error(e);
-            return nsMap;
-        }
-
-        // for Include
-        try {
-            list = Util.getNodeList(element, "//xsd:include");
-            for (int i = 0; i < list.getLength(); i++) {
-                Node node = list.item(i);
-                String ns = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
-                if (ns == null) {
-                    continue;
-                }
-                Document subDoc = parseImportedFile(ns);
-                if (type)
-                    parseTypeFromImport(subDoc.getDocumentElement(), nsMap, ns);
-                else
-                    parseElementFromImport(subDoc.getDocumentElement(), nsMap, ns);
-                nsMap.putAll(getNamespaceFromImportXSD(subDoc.getDocumentElement(), type));
-            }
-        } catch (XtentisException e) {
-            Logger.getLogger(Util.class).error(e);
-            return nsMap;
-        }
-
-        return nsMap;
-    }
-
-    private static void parseTypeFromImport(Element elem, HashMap<String, String> map, String location) {
-        NodeList list;
-        try {
-            for (int i = 0; i < 2; i++) {
-                if (i == 0) {
-                    list = Util.getNodeList(elem, "//xsd:complexType");
-                } else {
-                    list = Util.getNodeList(elem, "//xsd:simpleType");
-                }
-
-                for (int idx = 0; idx < list.getLength(); idx++) {
-                    Node node = list.item(idx);
-                    if (node.getAttributes().getNamedItem("name") == null)
-                        continue;
-                    String typeName = node.getAttributes().getNamedItem("name").getNodeValue();
-                    map.put(typeName + " : " + location, location);
-                }
-            }
-        } catch (XtentisException e) {
-            Logger.getLogger(Util.class).error(e);
-        }
-
-    }
-
-    private static void parseElementFromImport(Element elem, HashMap<String, String> map, String location) {
-        NodeList list;
-        try {
-            list = Util.getNodeList(elem, "/xsd:schema/xsd:element");
-            for (int idx = 0; idx < list.getLength(); idx++) {
-                Node node = list.item(idx);
-                if (node.getAttributes().getNamedItem("name") == null)
-                    continue;
-                String typeName = node.getAttributes().getNamedItem("name").getNodeValue();
-                String typeCatg = null;
-                if (node.getAttributes().getNamedItem("type") != null) {
-                    typeCatg = node.getAttributes().getNamedItem("type").getNodeValue();
-                }
-                NodeList subList = null;
-                if (typeCatg == null) {
-                    subList = Util.getNodeList(node, "//xsd:complexType//xsd:element");
-                } else {
-                    subList = Util.getNodeList(node, "//xsd:complexType[@name='" + typeCatg + "']" + "//xsd:element");
-                }
-                String subNames = "";
-                for (int i = 0; i < subList.getLength(); i++) {
-                    subNames += subList.item(i).getAttributes().getNamedItem("name").getNodeValue() + " ";
-                }
-                if (!subNames.equals("")) {
-                    map.put(typeName + " : " + location, subNames.trim());
-                }
-            }
-
-        } catch (XtentisException e) {
-            Logger.getLogger(Util.class).error(e);
-        }
-
-    }
-
-    static LRUCache<String, Document> xsdCache = new LRUCache<String, Document>(30);
-
-    private static Document parseImportedFile(String xsdLocation) {
-        Document doc = xsdCache.get(xsdLocation);
-        if (doc != null)
-            return doc;
-
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        documentBuilderFactory.setNamespaceAware(true);
-        documentBuilderFactory.setValidating(false);
-
-        Pattern httpUrl = Pattern.compile("(http|https|ftp):(\\//|\\\\)(.*):(.*)");
-        Matcher match = httpUrl.matcher(xsdLocation);
-        Document d = null;
-        try {
-            if (match.matches()) {
-                List<String> authorizations = Util.getAuthorizationInfo();
-                String xsd = Util.getResponseFromURL(xsdLocation, authorizations.get(0), authorizations.get(1));
-                d = Util.parse(xsd);
-            } else {
-                DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-                d = documentBuilder.parse(new FileInputStream(xsdLocation));
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(Util.class).error(ex);
-            return null;
-        }
-        xsdCache.put(xsdLocation, d);
-        return d;
-    }
-
     public static void removeXpathFromDocument(Document document, String xpath, boolean reservedRoot) throws Exception {
         Element root = document.getDocumentElement();
         NodeList toDeleteNodeList = Util.getNodeList(document, xpath);
         if (toDeleteNodeList != null) {
-            Node lastParentNode = null;
-            Node formatSiblingNode = null;
+            Node lastParentNode;
+            Node formatSiblingNode;
             for (int i = 0; i < toDeleteNodeList.getLength(); i++) {
                 Node node = toDeleteNodeList.item(i);
                 if (root.isSameNode(node) && reservedRoot) {
@@ -547,7 +366,9 @@ public class Util {
                     }
                     if (formatSiblingNode != null && formatSiblingNode.getNodeValue() != null
                             && formatSiblingNode.getNodeValue().matches("\\s+")) {
-                        lastParentNode.removeChild(formatSiblingNode);
+                        if (lastParentNode != null) {
+                            lastParentNode.removeChild(formatSiblingNode);
+                        }
                     }
                 }
 
@@ -560,43 +381,31 @@ public class Util {
     }
 
     public static String[] getTextNodes(Node contextNode, String xPath, Node namespaceNode) throws TransformerException {
-        String[] results = null;
-        ;
-
+        String[] results;
         // test for hard-coded values
-        if (xPath.startsWith("\"") && xPath.endsWith("\""))
+        if (xPath.startsWith("\"") && xPath.endsWith("\"")) {
             return new String[] { xPath.substring(1, xPath.length() - 1) };
-
+        }
         // test for incomplete path (elements missing /text())
-        if (!xPath.matches(".*@[^/\\]]+")) // attribute
-            if (!xPath.endsWith(")")) // function
+        if (!xPath.matches(".*@[^/\\]]+")) { // attribute
+            if (!xPath.endsWith(")")) { // function
                 xPath += "/text()";
+            }
+        }
 
         try {
-            XObject xo = XPathAPI.eval(contextNode, xPath, namespaceNode);
-            if (xo.getType() == XObject.CLASS_NODESET) {
-                NodeList l = xo.nodelist();
-                int len = l.getLength();
-                results = new String[len];
-                for (int i = 0; i < len; i++) {
-                    Node n = l.item(i);
-                    results[i] = n.getNodeValue();
-                }
-            } else {
-                results = new String[] { xo.toString() };
+            NodeList xo = (NodeList) XPathFactory.newInstance().newXPath().evaluate(xPath, contextNode, XPathConstants.NODESET);
+            results = new String[xo.getLength()];
+            for (int i = 0; i < xo.getLength(); i++) {
+                results[i] = xo.item(i).getTextContent();
             }
-        } catch (TransformerException e) {
+        } catch (Exception e) {
             String err = "Unable to get the text node(s) of " + xPath + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
             throw new TransformerException(err);
         }
         return results;
 
-    }
-
-    public static String getFirstTextNodeNotNull(Node contextNode, String xPath) throws TransformerException {
-        String val = getFirstTextNode(contextNode, xPath, contextNode);
-        return val == null ? "" : val;
     }
 
     public static String getFirstTextNode(Node contextNode, String xPath, Node namespaceNode) throws TransformerException {
@@ -610,49 +419,7 @@ public class Util {
         return getFirstTextNode(contextNode, xPath, contextNode);
     }
 
-    public static String[] getAttributeNodeValue(Node contextNode, String xPath, Node namespaceNode) throws TransformerException {
-        String[] results;
-
-        // test for hard-coded values
-        if (xPath.startsWith("\"") && xPath.endsWith("\""))
-            return new String[] { xPath.substring(1, xPath.length() - 1) };
-
-        // test for incomplete path
-        // if (! xPath.endsWith(")")) xPath+="/text()";
-
-        try {
-            XObject xo = XPathAPI.eval(contextNode, xPath, namespaceNode);
-            if (xo.getType() == XObject.CLASS_NODESET) {
-                NodeList l = xo.nodelist();
-                int len = l.getLength();
-                results = new String[len];
-                for (int i = 0; i < len; i++) {
-                    Node n = l.item(i);
-                    results[i] = n.getNodeValue();
-                }
-            } else {
-                results = new String[] { xo.toString() };
-            }
-        } catch (TransformerException e) {
-            String err = "Unable to get the text node(s) of " + xPath + ": " + e.getClass().getName() + ": "
-                    + e.getLocalizedMessage();
-            throw new TransformerException(err);
-        }
-        return results;
-
-    }
-
     static LRUCache<String, List<String>> xsdNodesCache = new LRUCache<String, List<String>>(20);
-
-    public static List<String> getALLNodesFromSchema(String xsd) throws Exception {
-        List<String> list = xsdNodesCache.get(xsd);
-        if (list != null)
-            return list;
-        Node node = Util.parseXSD(xsd).getDocumentElement();
-        list = getALLNodesFromSchema(node);
-        xsdNodesCache.put(xsd, list);
-        return list;
-    }
 
     public static List<String> getALLNodesFromSchema(Node doc) throws XtentisException {
         List<String> list = new ArrayList<String>();
@@ -681,12 +448,12 @@ public class Util {
                 }
                 for (int elemNum = 0; elemNum < l.getLength(); elemNum++) {
                     Node importNode = l.item(elemNum);
-                    Node schemaLocaton = importNode.getAttributes().getNamedItem("schemaLocation");
-                    if (schemaLocaton == null) {
+                    Node schemaLocation = importNode.getAttributes().getNamedItem("schemaLocation");
+                    if (schemaLocation == null) {
                         continue;
                     }
-                    String xsdLocation = schemaLocaton.getNodeValue();
-                    Pattern httpUrl = Pattern.compile("(http|https|ftp):(\\//|\\\\)(.*):(.*)");
+                    String xsdLocation = schemaLocation.getNodeValue();
+                    Pattern httpUrl = Pattern.compile("(http|https|ftp):(//|\\\\)(.*):(.*)");
                     Matcher match = httpUrl.matcher(xsdLocation);
                     Document d = null;
                     if (match.matches()) {
@@ -713,25 +480,15 @@ public class Util {
         return list;
     }
 
-    /**
-     *
-     * @param doc
-     * @param type
-     * @return
-     * @throws XtentisException
-     * @throws ParserConfigurationException
-     * @throws IOException
-     * @throws SAXException
-     * @throws
-     */
     public static Element getNameSpaceFromSchema(Node doc, String typeName) throws XtentisException {
         Pattern mask = Pattern.compile("(.*?):(.*?)");
         Matcher matcher = mask.matcher(typeName);
-        String prefix = "";
+        String prefix;
         if (matcher.matches()) {
             prefix = matcher.group(1);
-        } else
+        } else {
             prefix = null;
+        }
 
         Element ns = null;
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -747,12 +504,12 @@ public class Util {
                 if (node.getAttributes().getNamedItem("schemaLocation") == null) {
                     continue;
                 }
-                String schemalocation = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
+                String schemaLocation = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
                 String namespace = node.getAttributes().getNamedItem("namespace").getNodeValue();
                 NodeList l = Util.getNodeList(doc, "//*[@type='" + typeName + "']", namespace, prefix);
                 if (l.getLength() > 0)
                     return (Element) l.item(0);
-                Document d = builder.parse(new FileInputStream(schemalocation));
+                Document d = builder.parse(new FileInputStream(schemaLocation));
                 ns = getNameSpaceFromSchema(d, typeName);
                 if (ns != null)
                     return ns;
@@ -762,17 +519,17 @@ public class Util {
                 for (int id = 0; id < list.getLength(); id++) {
                     Node node = list.item(id);
                     Document d;
-                    String schemalocation = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
-                    Pattern httpUrl = Pattern.compile("(http|https|ftp):(\\//|\\\\)(.*):(.*)");
-                    Matcher match = httpUrl.matcher(schemalocation);
+                    String schemaLocation = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
+                    Pattern httpUrl = Pattern.compile("(http|https|ftp):(//|\\\\)(.*):(.*)");
+                    Matcher match = httpUrl.matcher(schemaLocation);
                     if (match.matches()) {
                         // to-fix : we need to provide a flexible way to find the user/pwd, rather than the hard code
                         // out here.
                         List<String> authorizations = Util.getAuthorizationInfo();
-                        String xsd = Util.getResponseFromURL(schemalocation, authorizations.get(0), authorizations.get(1));
+                        String xsd = Util.getResponseFromURL(schemaLocation, authorizations.get(0), authorizations.get(1));
                         d = Util.parse(xsd);
                     } else {
-                        d = builder.parse(new FileInputStream(schemalocation));
+                        d = builder.parse(new FileInputStream(schemaLocation));
                     }
 
                     ns = getNameSpaceFromSchema(d, typeName);
@@ -792,9 +549,8 @@ public class Util {
     }
 
     public static String getResponseFromURL(String url, String user, String pwd) {
-        BASE64Encoder encoder = new BASE64Encoder();
-        StringBuffer buffer = new StringBuffer();
-        String credentials = encoder.encode(new String(user + ":" + pwd).getBytes());
+        StringBuilder buffer = new StringBuilder();
+        String credentials = new String(Base64.encodeBase64((user + ":" + pwd).getBytes()));
 
         try {
             URL urlCn = new URL(url);
@@ -821,9 +577,6 @@ public class Util {
 
     /**
      * Check if a local or remote component for the JNDI Name exists
-     *
-     * @param RMIProviderURL
-     * @param jndiName
      */
     public static boolean existsComponent(String RMIProviderURL, String jndiName) throws XtentisException {
 
@@ -845,23 +598,26 @@ public class Util {
             initialContext = new InitialContext(env);
             home = initialContext.lookup(jndiName);
         } catch (NamingException e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("existsComponent error.", e);
+            }
         } finally {
             try {
-                initialContext.close();
+                if (initialContext != null) {
+                    initialContext.close();
+                }
             } catch (Exception e) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("existsComponent error.", e);
+                }
             }
-            ;
         }
 
         return (home != null);
     }
 
     /**
-     * Retrieve the local (if RMIProvideURL is null) or remote component for the particular local JNDI Name (c) bgrieder
-     * - lend to Amalto
-     *
-     * @param RMIProviderURL
-     * @param jndiName
+     * Retrieve the local (if RMIProvideURL is null) or remote component for the particular local JNDI Name
      */
     public static Object retrieveComponent(String RMIProviderURL, String jndiName) throws XtentisException {
 
@@ -888,18 +644,22 @@ public class Util {
             throw new XtentisException(err);
         } finally {
             try {
-                initialContext.close();
+                if (initialContext != null) {
+                    initialContext.close();
+                }
             } catch (Exception e) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("retrieveComponent error.", e);
+                }
             }
-            ;
         }
 
         // find create and call it
         Method[] m = home.getClass().getMethods();
         Method create = null;
-        for (int i = 0; i < m.length; i++) {
-            if ("create".equals(m[i].getName())) {
-                create = m[i];
+        for (Method currentMethod : m) {
+            if ("create".equals(currentMethod.getName())) {
+                create = currentMethod;
                 break;
             }
         }
@@ -907,7 +667,7 @@ public class Util {
             String err = "Unable to find create method on home of component \"" + jndiName + "\"";
             throw new XtentisException(err);
         }
-        Object component = null;
+        Object component;
         try {
             component = create.invoke(home, (Object[]) null);
         } catch (Exception e) {
@@ -921,123 +681,31 @@ public class Util {
     }
 
     /**
-     * Get the method of a component by its name (c) bgrieder - lend to Amalto
-     *
-     * @param component
-     * @param methodName
-     * @return the Method - niull if not found
-     * @throws EJBException
+     * Get the method of a component by its name
      */
     public static Method getMethod(Object component, String methodName) throws EJBException {
         Method[] methods = component.getClass().getMethods();
-        for (int i = 0; i < methods.length; i++) {
-            if (methodName.equals(methods[i].getName())) {
-                return methods[i];
+        for (Method method : methods) {
+            if (methodName.equals(method.getName())) {
+                return method;
             }
         }
         return null;
     }
 
-    /**
-     * Dumps info on a class
-     *
-     * @param clazz
-     */
-    public static void dumpClass(Class<?> clazz) {
-        org.apache.log4j.Logger.getLogger(Util.class).debug("dumpClass() CLASS " + clazz.getName());
-        Class<?>[] interfaces = clazz.getInterfaces();
-        if (interfaces != null) {
-            for (int i = 0; i < interfaces.length; i++) {
-                org.apache.log4j.Logger.getLogger(Util.class).debug("()  Class Interface " + i + ": " + interfaces[i].getName());
-            }
-        }
-        Class<?>[] classes = clazz.getClasses();
-        if (classes != null) {
-            for (int i = 0; i < classes.length; i++) {
-                org.apache.log4j.Logger.getLogger(Util.class).debug("()  Classes " + i + ": " + classes[i].getName());
-            }
-        }
-        org.apache.log4j.Logger.getLogger(Util.class).debug("()  Super Class " + clazz.getSuperclass().getName());
-        org.apache.log4j.Logger.getLogger(Util.class).debug("()  Generic Super Class " + clazz.getGenericSuperclass());
-        Type[] types = clazz.getGenericInterfaces();
-        if (types != null) {
-            for (int i = 0; i < types.length; i++) {
-                org.apache.log4j.Logger.getLogger(Util.class).debug("()  Generic Interface" + i + ": " + types[i]);
-            }
-        }
-        Method[] methods = clazz.getMethods();
-        for (int i = 0; i < types.length; i++) {
-            Logger.getLogger(Util.class).debug("Types " + types[i]);
-        }
-        for (int i = 0; i < methods.length; i++) {
-            org.apache.log4j.Logger.getLogger(Util.class).debug("Method " + methods[i].getName());
-        }
-    }
-
-    /**
-     * XSLT Utils
-     *
-     * @param xslt
-     * @return teh Top Business Concept
-     */
-    public static String getTopBusinessConceptName(Document xslt) throws TransformerException {
-        String prefix = xslt.getDocumentElement().getPrefix();
-        // String uri = xslt.getDocumentElement().getNamespaceURI();
-        String xpath = prefix + ":template[@match='/']/" + prefix + ":apply-templates/@mode";
-        return Util.getFirstTextNode(xslt.getDocumentElement(), xpath);
-        /*
-         * String s = getAttributeNodeValue( xslt.getDocumentElement(),
-         * "xs:template[@match='/']/xs:apply-templates/@mode",
-         * getRootElement("nsholder","http://www.w3.org/1999/XSL/Transform","xs") )[0]; return s;
-         */
-    }
-
-    public static String getTopBusinessConceptPath(Document xslt) throws TransformerException {
-        String prefix = xslt.getDocumentElement().getPrefix();
-        // String uri = xslt.getDocumentElement().getNamespaceURI();
-        String xpath = prefix + ":template[@match='/']/" + prefix + ":apply-templates/@select";
-        return Util.getFirstTextNode(xslt.getDocumentElement(), xpath);
-        /*
-         * String s = getAttributeNodeValue( xslt.getDocumentElement(),
-         * "xs:template[@match='/']/xs:apply-templates/@select",
-         * getRootElement("nsholder","http://www.w3.org/1999/XSL/Transform","xs") )[0]; return s;
-         */
-    }
-
-    public static Document setTopBusinessConceptPath(Document xslt) throws XtentisException {
-        try {
-            String prefix = xslt.getDocumentElement().getPrefix();
-            // String uri = xslt.getDocumentElement().getNamespaceURI();
-            String xpath = prefix + ":template[@match='/']/" + prefix + ":apply-templates";
-            NodeList l = Util.getNodeList(xslt.getDocumentElement(), xpath);
-            if (l == null)
-                throw new XtentisException("The root template match (match='/') of the transform cannot be found");
-            int len = l.getLength();
-            if (len != 1)
-                throw new XtentisException("The root template match (match='/') of the transform is not univoque");
-            ((Element) l.item(0)).setAttribute("select", ".");
-            return xslt;
-        } catch (Exception e) {
-            String err = "Unable to process the transform" + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(Util.class).error(err, e);
-            throw new XtentisException(err);
-        }
-
-    }
-
-    private static final LRUCache<String, XSDKey> xsdkeyCache = new LRUCache<String, XSDKey>(40);
+    private static final LRUCache<String, XSDKey> xsdKeyCache = new LRUCache<String, XSDKey>(40);
     
     public static XSDKey getBusinessConceptKey(Document xsd, String businessConceptName) throws TransformerException {
         try {
             String schema = nodeToString(xsd);
             // FIXME: sometimes this bug 'Concept/.../Conpcet/Id' happens in the cache, so I have to remove getFromCache
             // first!
-            XSDKey key = xsdkeyCache.get(schema + "#" + businessConceptName);
+            XSDKey key = xsdKeyCache.get(schema + "#" + businessConceptName);
             // XSDKey key = null;
             if (key != null)
                 return key;
-            String[] selectors = new String[0];
-            String[] fields = new String[0];
+            String[] selectors;
+            String[] fields;
             selectors = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element/xsd:unique[@name='" + businessConceptName
                     + "']/xsd:selector/@xpath", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
 
@@ -1058,8 +726,7 @@ public class Util {
                 factory.setNamespaceAware(true);
                 factory.setValidating(false);
                 DocumentBuilder builder;
-                builder = factory.newDocumentBuilder();
-                NodeList list = null;
+                NodeList list;
 
                 for (int xsdType = 0; xsdType < 2; xsdType++) {
                     if (xsdType == 0)
@@ -1072,9 +739,9 @@ public class Util {
                             continue;
                         }
                         String xsdLocation = importNode.getAttributes().getNamedItem("schemaLocation").getNodeValue();
-                        Pattern httpUrl = Pattern.compile("(http|https|ftp):(\\//|\\\\)(.*):(.*)");
+                        Pattern httpUrl = Pattern.compile("(http|https|ftp):(//|\\\\)(.*):(.*)");
                         Matcher match = httpUrl.matcher(xsdLocation);
-                        Document d = null;
+                        Document d;
                         if (match.matches()) {
                             List<String> authorizations = Util.getAuthorizationInfo();
                             String data = Util.getResponseFromURL(xsdLocation, authorizations.get(0), authorizations.get(1));
@@ -1086,7 +753,7 @@ public class Util {
 
                         key = getBusinessConceptKey(d, businessConceptName);
                         if (key != null) {
-                            xsdkeyCache.put(nodeToString(d) + "#" + businessConceptName, key);
+                            xsdKeyCache.put(nodeToString(d) + "#" + businessConceptName, key);
                             break;
                         }
 
@@ -1121,7 +788,7 @@ public class Util {
                 }
 
                 key = new XSDKey(selectors[0], fields, fieldTypes);
-                xsdkeyCache.put(schema + "#" + businessConceptName, key);
+                xsdKeyCache.put(schema + "#" + businessConceptName, key);
                 return key;
             }
 
@@ -1139,8 +806,7 @@ public class Util {
         try {
             Subject subject = LocalUser.getCurrentSubject();
             Set<Principal> set = subject.getPrincipals();
-            for (Iterator<Principal> iter = set.iterator(); iter.hasNext();) {
-                Principal principal = iter.next();
+            for (Principal principal : set) {
                 if (principal instanceof Group) {
                     Group group = (Group) principal;
                     if ("Username".equals(group.getName())) {
@@ -1153,105 +819,22 @@ public class Util {
                         }
                     }
                 }
-            }// for
+            }
             authorizations.add(user);
             authorizations.add(pwd);
         } catch (XtentisException e) {
             Logger.getLogger(Util.class).error(e);
             return null;
         }
-
         return authorizations;
     }
 
-    public static boolean isUUIDType(String type) {
-        return EUUIDCustomType.allTypes().contains(type);
-
-    }
-
-    public static Node processUUID(Element root, String schema, String dataCluster, String concept) throws Exception {
-        return Util.generateUUIDForElement(schema, dataCluster, concept, root, false, false);
-    }
-
-    public static Node processUUID(boolean saveUnUsedAutoIncrement, Element root, String schema, String dataCluster,
-            String concept) throws Exception {
-        return Util.generateUUIDForElement(schema, dataCluster, concept, root, false, saveUnUsedAutoIncrement);
-    }
-
-    public static Node processUUID(Element root, String schema, String dataCluster, String concept, boolean pseudoAutoIncrement)
-            throws Exception {
-
-        return Util.generateUUIDForElement(schema, dataCluster, concept, root, pseudoAutoIncrement, false);
-
-    }
-
-    public static List<UUIDPath> getUUIDNodes(String schema, String concept) throws Exception {
-
-        HashSet<String> set = new HashSet<String>();
-        _multipleOccuranceNodeSetThreadLocal.set(set);
-
-        List<UUIDPath> list = new ArrayList<UUIDPath>();
-        Map<String, XSElementDecl> map = getConceptMap(schema);
-        if (map.get(concept) != null) {
-            XSComplexType xsct = (XSComplexType) (map.get(concept).getType());
-            XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
-            for (int i = 0; i < xsp.length; i++) {
-                getChildren("/" + concept, xsp[i], list);
-            }
-        }
-        return list;
-    }
-
-    private static ThreadLocal<HashSet<String>> _multipleOccuranceNodeSetThreadLocal = new ThreadLocal<HashSet<String>>();
-
-    private static void getChildren(String parentPath, XSParticle xsp, List<UUIDPath> list) {
-
-        if (xsp.getTerm().asModelGroup() != null) { // is complex type
-            XSParticle[] xsps = xsp.getTerm().asModelGroup().getChildren();
-            // String path = parentPath + "/" + xsp.getTerm().asElementDecl().getName();
-            for (int i = 0; i < xsps.length; i++) {
-                getChildren(parentPath, xsps[i], list);
-            }
-        }
-
-        if (xsp.getTerm().asElementDecl() == null)
-            return;
-
-        if (xsp.getMaxOccurs() == -1) {
-            String particleName = xsp.getTerm().asElementDecl().getName();
-            if (!_multipleOccuranceNodeSetThreadLocal.get().contains(particleName))
-                _multipleOccuranceNodeSetThreadLocal.get().add(parentPath + "/" + particleName);
-        }
-
-        if (xsp.getTerm().asElementDecl().getType().isComplexType() == false) {
-            String type = xsp.getTerm().asElementDecl().getType().getName();
-            if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(type)
-                    || EUUIDCustomType.UUID.getName().equalsIgnoreCase(type)) {
-                String path = parentPath + "/" + xsp.getTerm().asElementDecl().getName();
-                UUIDPath uuid = new UUIDPath();
-                uuid.setXpath(path);
-                uuid.setType(type);
-                list.add(uuid);
-            }
-        }
-        if (xsp.getTerm().asElementDecl().getType().isComplexType() == true) {
-            XSParticle particle = xsp.getTerm().asElementDecl().getType().asComplexType().getContentType().asParticle();
-            if (particle != null) {
-                XSParticle[] xsps = particle.getTerm().asModelGroup().getChildren();
-                String path = parentPath + "/" + xsp.getTerm().asElementDecl().getName();
-                for (int i = 0; i < xsps.length; i++) {
-                    getChildren(path, xsps[i], list);
-                }
-            }
-        }
-    }
-
-    // conceptmap Cache
-    static LRUCache<String, Map<String, XSElementDecl>> conceptMapCache = new LRUCache<String, Map<String, XSElementDecl>>(10);
+    private static final LRUCache<String, Map<String, XSElementDecl>> conceptMapCache = new LRUCache<String, Map<String, XSElementDecl>>(10);
 
     public static Map<String, XSElementDecl> getConceptMap(String xsd) throws Exception {
-        if (conceptMapCache.get(xsd) != null)
+        if (conceptMapCache.get(xsd) != null) {
             return conceptMapCache.get(xsd);
+        }
         XSOMParser reader = new XSOMParser();
         reader.setAnnotationParser(new DomAnnotationParserFactory());
         reader.setEntityResolver(new SecurityEntityResolver());
@@ -1265,9 +848,9 @@ public class Util {
         }
         Collection xssList = xss.getSchemas();
         Map<String, XSElementDecl> mapForAll = new HashMap<String, XSElementDecl>();
-        Map<String, XSElementDecl> map = null;
-        for (Iterator iter = xssList.iterator(); iter.hasNext();) {
-            XSSchema schema = (XSSchema) iter.next();
+        Map<String, XSElementDecl> map;
+        for (Object xmlSchema : xssList) {
+            XSSchema schema = (XSSchema) xmlSchema;
             map = schema.getElementDecls();
             mapForAll.putAll(map);
         }
@@ -1275,11 +858,12 @@ public class Util {
         return mapForAll;
     }
 
-    static LRUCache<String, Map<String, XSType>> cTypeMapCache = new LRUCache<String, Map<String, XSType>>(10);
+    private static final LRUCache<String, Map<String, XSType>> cTypeMapCache = new LRUCache<String, Map<String, XSType>>(10);
 
     public static Map<String, XSType> getConceptTypeMap(String xsd) throws Exception {
-        if (cTypeMapCache.get(xsd) != null)
+        if (cTypeMapCache.get(xsd) != null) {
             return cTypeMapCache.get(xsd);
+        }
         XSOMParser reader = new XSOMParser();
         reader.setAnnotationParser(new DomAnnotationParserFactory());
         reader.setEntityResolver(new SecurityEntityResolver());
@@ -1293,214 +877,14 @@ public class Util {
         }
         Collection xssList = xss.getSchemas();
         Map<String, XSType> mapForAll = new HashMap<String, XSType>();
-        Map<String, XSType> map = null;
-        for (Iterator iter = xssList.iterator(); iter.hasNext();) {
-            XSSchema schema = (XSSchema) iter.next();
+        Map<String, XSType> map;
+        for (Object aXssList : xssList) {
+            XSSchema schema = (XSSchema) aXssList;
             map = schema.getTypes();
-
             mapForAll.putAll(map);
         }
         cTypeMapCache.put(xsd, mapForAll);
         return mapForAll;
-    }
-
-    /**
-     * update the node according to the schema
-     *
-     * @param concept
-     * @param xsd
-     * @param updateNode
-     * @return
-     * @throws Exception
-     */
-    public static Node updateNodeBySchema(String concept, String xsd, Node updateNode) {
-        try {
-            Element oldNode = createItem(concept, xsd);
-
-            // see 0011615: Complex type sequences are truncated when saving a record in both web app & studio
-            Map<String, UpdateReportItem> updatedPath = compareElement("/" + concept, updateNode, oldNode);
-            return updateElement(oldNode, updatedPath);
-        } catch (Exception e) {
-            return updateNode;
-        }
-    }
-
-    /**
-     * check concept's datamodel contains UUID or Auto_increment type fields and it's empty
-     *
-     * @param concept
-     * @param xsd
-     * @return
-     * @throws Exception
-     */
-    public static boolean containsUUIDType(String concept, String xsd, Element root) {
-        try {
-            Map<String, XSElementDecl> map = getConceptMap(xsd);
-            XSComplexType xsct = (XSComplexType) (map.get(concept).getType());
-            XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
-            for (int j = 0; j < xsp.length; j++) {
-                if (containsUUIDType(xsp[j], "/" + concept, root.getOwnerDocument())) {
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-            return false;
-        }
-        return false;
-    }
-
-    private static boolean containsUUIDType(XSParticle xsp, String xpathParent, Document d) {
-        try {
-            if (xsp.getTerm().asModelGroup() != null) { // is complex type
-                XSParticle[] xsps = xsp.getTerm().asModelGroup().getChildren();
-                for (int i = 0; i < xsps.length; i++) {
-                    containsUUIDType(xsps[i], xpathParent, d);
-                }
-            }
-            if (xsp.getTerm().asElementDecl() == null)
-                return false;
-            String type = xsp.getTerm().asElementDecl().getType().getName();
-            String xpath = xpathParent + "/" + xsp.getTerm().asElementDecl().getName();
-            if ((EUUIDCustomType.UUID.getName().equals(type) || EUUIDCustomType.AUTO_INCREMENT.getName().equals(type))
-                    && getNodeList(d, xpath).getLength() == 0)
-                return true;
-            if (xsp.getTerm().asElementDecl().getType().isComplexType() == true) {
-                XSParticle particle = xsp.getTerm().asElementDecl().getType().asComplexType().getContentType().asParticle();
-                if (particle != null) {
-                    XSParticle[] xsps = particle.getTerm().asModelGroup().getChildren();
-                    String xpathParent1 = xpathParent + "/" + xsp.getTerm().asElementDecl().getName();
-                    for (int i = 0; i < xsps.length; i++) {
-                        containsUUIDType(xsps[i], xpathParent1, d);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            return false;
-        }
-        return false;
-    }
-
-    public static boolean isOnlyUpdateKey(Node oldNode, String concept, XSDKey xsdKey, String[] keyvalues) {
-        try {
-            String xml1 = "<" + concept + "></" + concept + ">";
-            Node node = Util.parse(xml1).getDocumentElement();
-            JXPathContext jxpContext = JXPathContext.newContext(node);
-            jxpContext.setLenient(true);
-            jxpContext.setFactory(factory);
-            for (int i = 0; i < xsdKey.getFields().length && i < keyvalues.length; i++) {
-                String xpath = xsdKey.getFields()[i];
-                jxpContext.createPathAndSetValue(xpath, keyvalues[i]);
-            }
-            node = (Node) jxpContext.getContextBean();
-            String xmlstring = getXMLStringFromNode(oldNode);
-            xmlstring = xmlstring.replaceAll(">\\s+<", "><");
-            String keystring = getXMLStringFromNode(node);
-            keystring = keystring.replaceAll(">\\s+<", "><");
-            return xmlstring.equals(keystring);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    /**
-     * create an "empty" item from scratch, set every text node to empty
-     *
-     * @param concept
-     * @param xsd
-     * @return
-     * @throws Exception
-     */
-    public static Element createItem(String concept, String xsd) throws Exception {
-
-        String xml1 = "<" + concept + "></" + concept + ">";
-        Document d = parse(xml1, null);
-        Map<String, XSElementDecl> map = getConceptMap(xsd);
-        XSComplexType xsct = (XSComplexType) (map.get(concept).getType());
-        XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
-        for (int j = 0; j < xsp.length; j++) {
-            // why don't set up children element? FIXME
-            if (!checkHidden(xsp[j])) {
-                setChilden(xsp[j], "/" + concept, d);
-            }
-        }
-
-        return d.getDocumentElement();
-    }
-
-    /**
-     * check is hidden for specify element.
-     *
-     * @param xsp
-     * @return
-     */
-    public static boolean checkHidden(XSParticle xsp) {
-        boolean hidden = false;
-        if (xsp.getTerm().getAnnotation() == null)
-            return hidden;
-        Element annotations = (Element) xsp.getTerm().getAnnotation().getAnnotation();
-        NodeList annotList = annotations.getChildNodes();
-
-        for (int k = 0; k < annotList.getLength(); k++) {
-            if ("appinfo".equals(annotList.item(k).getLocalName())) {
-                Node source = annotList.item(k).getAttributes().getNamedItem("source");
-                if (source == null)
-                    continue;
-                String appinfoSource = source.getNodeValue();
-
-                if (annotList.item(k) != null && annotList.item(k).getFirstChild() != null) {
-                    if (appinfoSource.equals(BusinessConcept.APPINFO_X_HIDE)) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return hidden;
-    }
-
-    /**
-     * the return type maybe all/sequence/choice
-     *
-     * @param concept
-     * @param xsd
-     * @return
-     * @throws Exception
-     */
-    public static String getConceptModelType(String concept, String xsd) {
-        try {
-            Map<String, XSElementDecl> map = getConceptMap(xsd);
-            XSComplexType xsct = (XSComplexType) (map.get(concept).getType());
-            return xsct.getContentType().asParticle().getTerm().asModelGroup().getCompositor().toString();
-        } catch (Exception e) {
-            return "all";
-        }
-    }
-
-    private static void setChilden(XSParticle xsp, String xpathParent, Document d) throws Exception {
-        // aiming added see 0009563
-        if (xsp.getTerm().asModelGroup() != null) { // is complex type
-            XSParticle[] xsps = xsp.getTerm().asModelGroup().getChildren();
-            for (int i = 0; i < xsps.length; i++) {
-                setChilden(xsps[i], xpathParent, d);
-            }
-        }
-        if (xsp.getTerm().asElementDecl() == null)
-            return;
-        // end
-
-        Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
-        Node node = Util.getNodeList(d, xpathParent).item(0);
-        node.appendChild(el);
-        if (xsp.getTerm().asElementDecl().getType().isComplexType() == true) {
-            XSParticle particle = xsp.getTerm().asElementDecl().getType().asComplexType().getContentType().asParticle();
-            if (particle != null) {
-                XSParticle[] xsps = particle.getTerm().asModelGroup().getChildren();
-                xpathParent = xpathParent + "/" + xsp.getTerm().asElementDecl().getName();
-                for (int i = 0; i < xsps.length; i++) {
-                    setChilden(xsps[i], xpathParent, d);
-                }
-            }
-        }
     }
 
     public static String[] getTargetSystemsFromSchema(Document schema, String concept) throws Exception {
@@ -1521,210 +905,24 @@ public class Util {
         return targetSystems;
     }
 
-    /**
-     *
-     * @param schema
-     * @param dataCluster
-     * @param concept
-     * @param elementname null:
-     * @param conceptRoot
-     * @throws Exception
-     */
-    private static Node generateUUIDForElement(String schema, String dataCluster, String concept, Element conceptRoot,
-            boolean pseudoAutoIncrement, boolean saveUnUsedAutoIncrement) throws Exception {
-        List<UUIDPath> uuidLists = getUUIDNodes(schema, concept);
-        JXPathContext jxpContext = JXPathContext.newContext(conceptRoot);
-        jxpContext.setLenient(true);
-
-        jxpContext.setFactory(factory);
-        for (int i = 0; i < uuidLists.size(); i++) {
-            UUIDPath uuid = uuidLists.get(i);
-            String xpath = uuid.getXpath();
-            String xpathCpy = xpath;
-            String type = uuid.getType();
-            xpath = xpath.replaceFirst("/" + concept + "/", "");
-            String value = "";
-            if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(type)) {
-                if (pseudoAutoIncrement) {
-                    Random rand = new Random();
-                    value = rand.nextInt(10000) + "";
-                } else {
-                    String universe = LocalUser.getLocalUser().getUniverse().getName();
-                    Object o = jxpContext.getValue(xpath);
-                    if (o == null || o.toString().trim().length() == 0) {
-                        long id;
-                        if (saveUnUsedAutoIncrement)
-                            id = AutoIncrementGenerator.generateNum(conceptRoot.hashCode(), universe, dataCluster,
-                                concept + "." + xpath.replaceAll("/", "."));
-                        else {
-                            id = AutoIncrementGenerator.generateNum(universe, dataCluster,
-                                    concept + "." + xpath.replaceAll("/", "."));
-                            AutoIncrementGenerator.saveToDB();
-                        }
-                        value = String.valueOf(id);
-                    } else
-                        value = o.toString();
-                }
-                jxpContext.createPathAndSetValue(xpath, value);
-            }
-            if (EUUIDCustomType.UUID.getName().equalsIgnoreCase(type)) {
-                ArrayList<String> xpathes = new ArrayList<String>();
-                for (String path : _multipleOccuranceNodeSetThreadLocal.get()) {
-                    if (xpathCpy.indexOf(path) >= 0) {
-                        String pathPrefix = path.replaceFirst("/" + concept, "");
-                        String pathTail = xpathCpy.substring(path.length());
-                        Double cnt = (Double) jxpContext.getValue("count(" + pathPrefix + ")");
-                        for (double db = 1; db <= cnt; db++) {
-                            String valueToMerge = pathPrefix + "[" + (int) db + "]" + pathTail;
-                            mergeValueIntoArrayList(xpathes, valueToMerge);
-                        }
-                    }
-                }
-                if (xpathes.isEmpty()) {
-                    xpathes.add(xpath);
-                }
-                for (String newPath : xpathes) {
-                    Object o = jxpContext.getValue(newPath);
-                    if (o == null || o.toString().trim().length() == 0)
-                        value = UUID.randomUUID().toString();
-                    else
-                        value = o.toString();
-                    if (o != null)
-                        jxpContext.createPathAndSetValue(newPath, value);
-                }
-            }
-
-        }
-        return (Node) jxpContext.getContextBean();
-    }
-
-    private static void mergeValueIntoArrayList(ArrayList<String> list, String value) {
-        if (list.isEmpty()) {
-            list.add(value);
-            return;
-        }
-        if (list.contains(value))
-            return;
-
-        String mergeValue = "";
-
-        for (int i = 0; i < list.size(); i++) {
-            int merge = -1;
-            int del = -1;
-            String[] existItems = list.get(i).split("/");
-            String[] newItems = value.split("/");
-            if (existItems.length != newItems.length) {
-                continue;
-            }
-            if (list.get(i).equals(value))
-                continue;
-            Pattern cdatabracket = Pattern.compile("([^\\[]*)(\\[.*\\])");
-            merge = i;
-            for (int item = 0; item < existItems.length; item++) {
-                Matcher matchNewItem = cdatabracket.matcher(newItems[item]);
-                Matcher matchExistItem = cdatabracket.matcher(existItems[item]);
-                if (matchNewItem.matches() && !matchExistItem.matches() && matchNewItem.group(1).equals(existItems[item])) {
-                    if (newItems[item].length() > 0) {
-                        mergeValue += "/";
-                    }
-                    mergeValue += newItems[item];
-                    del = i;
-                    merge = -1;
-                } else if (!matchNewItem.matches() && matchExistItem.matches() && matchExistItem.group(1).equals(newItems[item])) {
-                    if (existItems[item].length() > 0) {
-                        mergeValue += "/";
-                    }
-                    mergeValue += existItems[item];
-                } else if (matchNewItem.matches() && matchExistItem.matches()) {
-                    mergeValue += "/";
-                    mergeValue += newItems[item];
-                    if (!existItems[item].equals(newItems[item]))
-                        merge = -1;
-                } else {
-                    if (existItems[item].length() > 0) {
-                        mergeValue += "/";
-                    }
-                    mergeValue += existItems[item];
-                }
-            }
-
-            if (merge == -1) {
-                if (del != -1) {
-                    list.add(del, mergeValue);
-                    list.remove(del + 1);
-                } else if (!list.contains(mergeValue)) {
-                    list.add(mergeValue);
-                }
-
-            } else {
-                list.add(merge, mergeValue);
-                list.remove(merge + 1);
-            }
-            mergeValue = "";
-        }
-    }
-
-    public static String getXMLStringFromNode(Node d) throws TransformerException {
-        return nodeToString(d);
-    }
-
-    /**
-     * @author achen
-     * @param xsd
-     * @param businessConceptName
-     * @param keyName
-     * @return
-     * @throws TransformerException
-     */
-    public static String getBusinessConceptKeyType(Document xsd, String businessConceptName, String keyName)
-            throws TransformerException {
-        try {
-            String type;
-            type = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element[@name='" + businessConceptName
-                    + "']/xsd:complexType//xsd:element[@name='" + keyName + "']/@type",
-                    getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"))[0];
-
-            return type;
-        } catch (TransformerException e) {
-            String err = "Unable to get the keys for the Business Concept " + businessConceptName + ": "
-                    + e.getLocalizedMessage();
-            throw new TransformerException(err, e);
-        }
-    }
-
-    /**
-     *
-     * @param item
-     * @param key
-     * @return the key ids
-     * @throws XtentisException
-     */
     public static String[] getKeyValuesFromItem(Element item, XSDKey key) throws TransformerException {
         return getItemKeyValues(item, key);
     }
 
-    /**
-     * Return the Item Primary key values
-     *
-     * @param item
-     * @param xsdKey
-     * @return the Item Primary Key values
-     * @throws TransformerException
-     * @see #getBusinessConceptKey(Document, String)
-     */
     public static String[] getItemKeyValues(Element item, XSDKey xsdKey) throws TransformerException {
         try {
             if (xsdKey != null) {
-                String[] vals = new String[xsdKey.getFields().length];
+                String[] values = new String[xsdKey.getFields().length];
                 for (int i = 0; i < xsdKey.getFields().length; i++) {
                     String xpath = xsdKey.getFields()[i];
                     // Fix for TMDM-2449 Fails to extract id if xpath does not start with '/'
                     xpath = xpath.replaceFirst("/*" + item.getLocalName() + "/", "");
-                    vals[i] = Util.getFirstTextNode(item, xsdKey.getSelector() + "/" + xpath);
-                    if (vals[i] != null)
-                        vals[i] = vals[i].trim(); // FIXME: Due to eXist trimming values @see ItemPOJO
+                    values[i] = Util.getFirstTextNode(item, xsdKey.getSelector() + "/" + xpath);
+                    if (values[i] != null) {
+                        values[i] = values[i].trim(); // FIXME: Due to eXist trimming values @see ItemPOJO
+                    }
                 }
-                return vals;
+                return values;
             }
         } catch (TransformerException e) {
             String err = "Unable to get the key value for the item " + item.getLocalName() + ": " + e.getClass().getName() + ": "
@@ -1738,14 +936,12 @@ public class Util {
      * Extracts the item PK by reading it and its model<br>
      * The less costly of all methods since all parsing is already done
      *
-     * @param item
-     * @param dataModel
      * @return the Item PK
      */
     public static ItemPOJOPK getItemPOJOPK(DataClusterPOJOPK dataClusterPOJOPK, Element item, Document dataModel)
             throws TransformerException {
         String conceptName = item.getLocalName();
-        String[] itemKeyValues = null;
+        String[] itemKeyValues;
         try {
             XSDKey conceptKey = Util.getBusinessConceptKey(dataModel, conceptName);
             // get key values
@@ -1758,42 +954,13 @@ public class Util {
         return new ItemPOJOPK(dataClusterPOJOPK, conceptName, itemKeyValues);
     }
 
-    /*
-     * public static Document getExtractorXSLT(Document original) throws XtentisException{
-     * 
-     * String prefix = original.getDocumentElement().getPrefix(); String topXpath =
-     * Util.getTopBusinessConceptPath(original);
-     * 
-     * if (topXpath == null) { throw new
-     * XtentisException("Unable to build Extractor XSLT: the Concept cannot be found"); }
-     * 
-     * String rootAttrs = ""; NamedNodeMap attsMap = original.getDocumentElement().getAttributes(); int len =
-     * attsMap.getLength(); for (int i =0; i<len; i++) { Attr att = (Attr)attsMap.item(i); rootAttrs
-     * +=" "+att.getName()+"='"+att.getValue()+"'"; }
-     * 
-     * 
-     * topXpath = topXpath.replace('"','\''); String xsl = "<?xml version='1.0' encoding='UTF-8'?>"+
-     * "<xs:stylesheet "+rootAttrs+">"+
-     * "    <xs:output method='xml' indent='yes' omit-xml-declaration='yes' standalone='yes'/>"+
-     * "    <xs:template mode='extract' match='*'><xs:copy-of select='.'/></xs:template>"+
-     * "   <xs:template match='/'><xs:apply-templates mode='extract' select=\""+topXpath+"\"/></xs:template>"+
-     * "</xs:stylesheet>";
-     * 
-     * xsl = xsl.replaceAll("xs:",prefix+":");
-     * 
-     * return Util.parse(xsl);
-     * 
-     * }
-     */
-
     /**
      * Returns a namespaced root element of a document Useful to create a namespace holder element
      *
-     * @param namespace
      * @return the root Element
      */
     public static Element getRootElement(String elementName, String namespace, String prefix) throws TransformerException {
-        Element rootNS = null;
+        Element rootNS;
         try {
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -1837,27 +1004,18 @@ public class Util {
             transformer.setOutputProperty("omit-xml-declaration", "yes");
         else
             transformer.setOutputProperty("omit-xml-declaration", "no");
-        if (LOG.isDebugEnabled())
+        if (LOGGER.isDebugEnabled())
             transformer.setOutputProperty("indent", "yes");
         transformer.transform(new DOMSource(n), new StreamResult(sw));
-        if (sw == null)
-            return null;
-        String s = sw.toString().replaceAll("\r\n", "\n");
-        return s;
+        return sw.toString().replaceAll("\r\n", "\n");
     }
 
-    /**
-     * DOC HSHU Comment method "removeAllAttributes".
-     *
-     * @param node
-     */
     public static void removeAllAttribute(Node node, String attrName) {
-
         if (node.getNodeType() == Node.ELEMENT_NODE) {
-            NamedNodeMap attrs = node.getAttributes();
-            for (int i = 0; i < attrs.getLength(); i++) {
-                if (attrs.item(i).getNodeName().equals(attrName)) {
-                    attrs.removeNamedItem(attrName);
+            NamedNodeMap attributes = node.getAttributes();
+            for (int i = 0; i < attributes.getLength(); i++) {
+                if (attributes.item(i).getNodeName().equals(attrName)) {
+                    attributes.removeNamedItem(attrName);
                     break;
                 }
             }
@@ -1873,7 +1031,7 @@ public class Util {
     }
 
     /**
-     * Get a nodelist from an xPath
+     * Get a node list from an xPath
      *
      * @throws XtentisException
      */
@@ -1882,7 +1040,7 @@ public class Util {
     }
 
     /**
-     * Get a nodelist from an xPath
+     * Get a node list from an xPath
      *
      * @throws XtentisException
      */
@@ -1891,18 +1049,14 @@ public class Util {
     }
 
     /**
-     * Get a nodelist from an xPath
+     * Get a node list from an xPath
      *
      * @throws XtentisException
      */
     public static NodeList getNodeList(Node contextNode, String xPath, String namespace, String prefix) throws XtentisException {
         try {
-            XObject xo = XPathAPI.eval(contextNode, xPath,
-                    (namespace == null) ? contextNode : Util.getRootElement("nsholder", namespace, prefix));
-            if (xo.getType() != XObject.CLASS_NODESET)
-                return null;
-            return xo.nodelist();
-        } catch (TransformerException e) {
+            return (NodeList) XPathFactory.newInstance().newXPath().evaluate(xPath, contextNode, XPathConstants.NODESET);
+        } catch (Exception e) {
             String err = "Unable to get the Nodes List for xpath '" + xPath + "'"
                     + ((contextNode == null) ? "" : " for Node " + contextNode.getLocalName()) + ": " + e.getLocalizedMessage();
             throw new XtentisException(err);
@@ -1912,19 +1066,18 @@ public class Util {
     /**
      * Join an array of strings into a single string using a separator
      *
-     * @param strings
-     * @param separator
      * @return a single string or null
      */
     public static String joinStrings(String[] strings, String separator) {
-        if (strings == null)
+        if (strings == null) {
             return null;
-        String res = "";
-        for (int i = 0; i < strings.length; i++) {
-            res += (i > 0) ? separator : "";
-            res += (strings[i] == null ? "" : strings[i]);
         }
-        return res;
+        StringBuilder res = new StringBuilder();
+        for (int i = 0; i < strings.length; i++) {
+            res.append(i > 0 ? separator : StringUtils.EMPTY);
+            res.append(strings[i] == null ? StringUtils.EMPTY : strings[i]);
+        }
+        return res.toString();
     }
 
     private static Pattern conceptFromPathPattern = Pattern.compile("^/*(.*?)[\\[|/].*");
@@ -1932,7 +1085,6 @@ public class Util {
     /**
      * Returns the first part - eg. the concept - from the path
      *
-     * @param path
      * @return The concept extracted from the path
      */
     public static String getConceptFromPath(String path) {
@@ -1964,72 +1116,11 @@ public class Util {
                 l.add(s.trim().replaceAll(" ", ""));
             }
         } catch (Exception e) {
-        }
-        return l;
-    }
-
-    /*********************************************************************
-     * PROFILING
-     *********************************************************************/
-
-    private static ArrayList<long[]> timeMarkers = new ArrayList<long[]>(); // [totalTops,lastTime,totalPeriod]
-
-    /**
-     * Mark and record the time
-     *
-     * @param marker
-     * @return the period of time
-     * @throws Exception
-     */
-    public static long topTime(int marker) throws Exception {
-        long time = System.currentTimeMillis();
-        if (timeMarkers.size() <= marker) {
-            for (int i = timeMarkers.size(); i <= marker; i++) {
-                if (i == 0)
-                    timeMarkers.add(new long[] { 0L, System.currentTimeMillis(), 0L });
-                else
-                    timeMarkers.add(new long[] { 0L, 0L, 0L });
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("getAllPartNumbers error.", e);
             }
         }
-        long period = 0;
-        if (marker == 0)
-            period = time - (timeMarkers.get(marker))[1];
-        else
-            period = time - (timeMarkers.get(marker - 1))[1];
-        long totalPeriod = (timeMarkers.get(marker))[2] + period;
-        long totalTops = (timeMarkers.get(marker))[0] + 1;
-        timeMarkers.set(marker, new long[] { totalTops, time, totalPeriod });
-        return period;
-    }
-
-    public static void resetTimeMarkers() {
-        timeMarkers = new ArrayList<long[]>();
-    }
-
-    public static ArrayList<long[]> getTimeMarkers() {
-        return timeMarkers;
-    }
-
-    /**
-     * Dumps the time markers to the console
-     *
-     * @param msg
-     */
-    public static void dumpTimeMarkers(String msg) {
-        Logger.getLogger(Util.class).debug("TIME MARKERS: " + msg);
-        int i = 0;
-        long totalProcessing = 0;
-        for (Iterator<long[]> iter = timeMarkers.iterator(); iter.hasNext();) {
-            long[] values = iter.next();
-            if (i > 0)
-                totalProcessing += values[2];
-            Logger.getLogger(Util.class).debug(
-                    "Marker " + (i++) + ":" + "tops: " + values[0] + " -- " + "totalPeriods: " + values[2] + " -- " + "average: "
-                            + (values[2] / values[0]));
-        }
-        if (i > 0)
-            Logger.getLogger(Util.class).debug(
-                    "Total Processing: " + totalProcessing + " -- average: " + totalProcessing / (timeMarkers.get(0))[0]);
+        return l;
     }
 
     /*********************************************************************
@@ -2042,26 +1133,19 @@ public class Util {
             String SUBJECT_CONTEXT_KEY = "javax.security.auth.Subject.container";
             return (Subject) PolicyContext.getContext(SUBJECT_CONTEXT_KEY);
         } catch (Exception e) {
-            throw new XtentisException(e.getMessage());
+            throw new XtentisException(e.getMessage(), e);
         }
-
-        /*
-         * InitialContext ictx = new InitialContext(); JaasSecurityManager jsm = (JaasSecurityManager)
-         * ictx.lookup("java:jaas/xtentisSecurity"); return jsm.getActiveSubject();
-         */
     }
 
     /**
      * Extracts the username of the logged user from the {@link Subject}
      *
-     * @param subject
      * @return The username
      * @throws XtentisException
      */
     public static String getUsernameFromSubject(Subject subject) throws XtentisException {
         Set<Principal> set = subject.getPrincipals();
-        for (Iterator<Principal> iter = set.iterator(); iter.hasNext();) {
-            Principal principal = iter.next();
+        for (Principal principal : set) {
             if (!(principal instanceof Group)) {
                 return principal.getName();
             }
@@ -2080,9 +1164,8 @@ public class Util {
             Subject subject = LocalUser.getCurrentSubject();
             if (subject != null) {
                 Set<Principal> set = subject.getPrincipals();
-                if (set != null)
-                    for (Iterator<Principal> iter = set.iterator(); iter.hasNext();) {
-                        Principal principal = iter.next();
+                if (set != null) {
+                    for (Principal principal : set) {
                         if (principal instanceof Group) {
                             Group group = (Group) principal;
                             if ("Username".equals(group.getName())) {
@@ -2095,7 +1178,8 @@ public class Util {
                                 }
                             }
                         }
-                    }// for
+                    }
+                }
             }
             if (userName == null)
                 userName = "";
@@ -2106,32 +1190,6 @@ public class Util {
             Logger.getLogger(Util.class).error(e);
         }
         return token;
-    }
-
-    /**
-     * Extract the role names of the logged user from the Subject
-     *
-     * @param subject
-     * @return The collection of roles
-     * @throws XtentisException
-     */
-    public static Collection<String> getRoleNamesFromSubject(Subject subject) throws XtentisException {
-        ArrayList<String> roleNames = new ArrayList<String>();
-        Set<Principal> set = subject.getPrincipals();
-        for (Iterator<Principal> iter = set.iterator(); iter.hasNext();) {
-            Principal principal = iter.next();
-            if (principal instanceof Group) {
-                Group group = (Group) principal;
-                // @see XtentisMDMLoginModule
-                if ("Roles".equals(group.getName())) {
-                    Enumeration<? extends Principal> principals = group.members();
-                    while (principals.hasMoreElements()) {
-                        roleNames.add(((Principal) principals.nextElement()).getName());
-                    }
-                }
-            }
-        }
-        return roleNames;
     }
 
     /*********************************************************************
@@ -2165,18 +1223,6 @@ public class Util {
         return string;
     }
 
-    private static Pattern regexSup = Pattern.compile(">");
-
-    private static Pattern regexInf = Pattern.compile("<");
-
-    private static Pattern regexEt = Pattern.compile("&");
-
-    public static String xmlEncode(String string) {
-        string = regexSup.matcher(string).replaceAll("&gt;");
-        string = regexInf.matcher(string).replaceAll("&lt;");
-        string = regexEt.matcher(string).replaceAll("&amp;");
-        return string;
-    }
 
     /*********************************************************************
      *
@@ -2192,17 +1238,12 @@ public class Util {
     }
 
     public static EJBLocalHome getLocalHome(String jndi) throws NamingException {
-        EJBLocalHome localHome = null;
-        if (true) {
-            localHome = localHomes.get(jndi);
-            if (localHome == null) {
-                localHome = (EJBLocalHome) new InitialContext().lookup(jndi);
-                localHomes.put(jndi, localHome);
-            }
-        } else {
+        EJBLocalHome localHome;
+        localHome = localHomes.get(jndi);
+        if (localHome == null) {
             localHome = (EJBLocalHome) new InitialContext().lookup(jndi);
+            localHomes.put(jndi, localHome);
         }
-        // dumpClass(localHome.getClass());
         return localHome;
     }
 
@@ -2274,15 +1315,12 @@ public class Util {
     }
 
     public static XmlServerSLWrapperLocal getXmlServerCtrlLocal() throws XtentisException {
-        XmlServerSLWrapperLocal server = null;
         try {
-            server = ((XmlServerSLWrapperLocalHome) getLocalHome(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
+            return ((XmlServerSLWrapperLocalHome) getLocalHome(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
         } catch (Exception e) {
             String err = "Error : unable to access the XML Server wrapper";
-            org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err, e);
             throw new XtentisException(err, e);
         }
-        return server;
     }
 
     public static DataClusterCtrlLocalHome getDataClusterCtrlLocalHome() throws NamingException {
@@ -2351,12 +1389,8 @@ public class Util {
         return getRoutingEngineV2CtrlLocalHome().create();
     }
 
-    // private static ConnectionFactory cachedConnectionFactory = null;
     public static Connection getConnection(String JNDIName) throws XtentisException {
         try {
-            // if (cachedConnectionFactory == null) - Removed - no more caching of connections
-            // cachedConnectionFactory = (ConnectionFactory)(new InitialContext()).lookup(JNDIName);
-            // return cachedConnectionFactory.getConnection();
             return ((ConnectionFactory) (new InitialContext()).lookup(JNDIName)).getConnection();
         } catch (Exception e) {
             String err = "JNDI lookup error: " + e.getClass().getName() + ": " + e.getLocalizedMessage();
@@ -2364,15 +1398,6 @@ public class Util {
             throw new XtentisException(err);
         }
     }
-
-    // @Deprecated
-    // public static TransformerCtrlLocalHome getTransformerCtrlLocalHome() throws NamingException {
-    // return (TransformerCtrlLocalHome) getLocalHome(TransformerCtrlLocalHome.JNDI_NAME);
-    // }
-    // @Deprecated
-    // public static TransformerCtrlLocal getTransformerCtrlLocal() throws NamingException,CreateException {
-    // return getTransformerCtrlLocalHome().create();
-    // }
 
     /***********************************************************************************************************
      * Typed Content Manipulation
@@ -2384,7 +1409,6 @@ public class Util {
      * Extract the charset of a content type<br>
      * e.g 'utf-8' in 'text/xml; charset="utf-8"'
      *
-     * @param contentType
      * @return the charset
      */
     public static String extractCharset(String contentType) {
@@ -2393,7 +1417,6 @@ public class Util {
         if (m.matches()) {
             charset = m.group(1).trim().toUpperCase();
         }
-        // if ("UTF-8".equals(charset)) charset = "UTF8";
         return charset;
     }
 
@@ -2401,7 +1424,6 @@ public class Util {
      * Extract the MIME type and sub type of a content type<br>
      * e.g 'text/xml' in 'text/xml; charset="utf-8"'
      *
-     * @param contentType
      * @return the MIME Type and SubType
      */
     public static String extractTypeAndSubType(String contentType) {
@@ -2413,7 +1435,6 @@ public class Util {
     /**
      * Extracts a byte array from an InputStream
      *
-     * @param is
      * @return the byte array
      * @throws IOException
      */
@@ -2447,13 +1468,12 @@ public class Util {
      * Usage: Add an id field (type java.lang.String) to your EJB, and add setId(XXXUtil.generateGUID(this)); to the
      * ejbCreate method.
      */
-    public static final String generateGUID(Object o) {
-        StringBuffer tmpBuffer = new StringBuffer(16);
+    public static String generateGUID(Object o) {
+        StringBuilder tmpBuffer = new StringBuilder(16);
         if (hexServerIP == null) {
-            java.net.InetAddress localInetAddress = null;
+            java.net.InetAddress localInetAddress;
             try {
                 // get the inet address
-
                 localInetAddress = java.net.InetAddress.getLocalHost();
             } catch (java.net.UnknownHostException uhe) {
                 Logger.getLogger(Util.class).error(
@@ -2465,15 +1485,15 @@ public class Util {
             hexServerIP = hexFormat(getInt(serverIP), 8);
         }
 
-        String hashcode = hexFormat(System.identityHashCode(o), 8);
+        String hashCode = hexFormat(System.identityHashCode(o), 8);
         tmpBuffer.append(hexServerIP);
-        tmpBuffer.append(hashcode);
+        tmpBuffer.append(hashCode);
 
         long timeNow = System.currentTimeMillis();
-        int timeLow = (int) timeNow & 0xFFFFFFFF;
+        int timeLow = (int) timeNow;
         int node = seeder.nextInt();
 
-        StringBuffer guid = new StringBuffer(32);
+        StringBuilder guid = new StringBuilder(32);
         guid.append(hexFormat(timeLow, 8));
         guid.append(tmpBuffer.toString());
         guid.append(hexFormat(node, 8));
@@ -2497,7 +1517,7 @@ public class Util {
     }
 
     private static String padHex(String s, int i) {
-        StringBuffer tmpBuffer = new StringBuffer();
+        StringBuilder tmpBuffer = new StringBuilder();
         if (s.length() < i) {
             for (int j = 0; j < i - s.length(); j++) {
                 tmpBuffer.append('0');
@@ -2506,20 +1526,19 @@ public class Util {
         return tmpBuffer.toString();
     }
 
-    public static ItemPOJO getItem(String datacluster, String xml) throws Exception {
-        String projection = xml;
-        Element root = Util.parse(projection).getDocumentElement();
+    public static ItemPOJO getItem(String dataCluster, String xml) throws Exception {
+        Element root = Util.parse(xml).getDocumentElement();
 
         String concept = root.getLocalName();
 
-        DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(datacluster));
+        DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(dataCluster));
         Document schema = Util.parse(dataModel.getSchema());
         XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema, concept);
 
         // get key values
         String[] ids = com.amalto.core.util.Util.getKeyValuesFromItem(root, conceptKey);
-        DataClusterPOJOPK dcpk = new DataClusterPOJOPK(datacluster);
-        ItemPOJOPK itemPOJOPK = new ItemPOJOPK(dcpk, concept, ids);
+        DataClusterPOJOPK dataClusterPOJOPK = new DataClusterPOJOPK(dataCluster);
+        ItemPOJOPK itemPOJOPK = new ItemPOJOPK(dataClusterPOJOPK, concept, ids);
         return ItemPOJO.load(itemPOJOPK);
     }
 
@@ -2572,7 +1591,7 @@ public class Util {
                 // TODO process no plug-in issue
                 String message = "<report><message type=\"error\"/></report> "; //$NON-NLS-1$;
                 String item = null;
-                // Scan the entries - in priority, taka the content of the 'output_error_message' entry,
+                // Scan the entries - in priority, aka the content of the 'output_error_message' entry,
                 boolean hasOutputReport = false;
                 for (Entry<String, TypedContent> entry : context.getPipelineClone().entrySet()) {
                     if (ITransformerConstants.VARIABLE_OUTPUT_OF_BEFORESAVINGTRANFORMER.equals(entry.getKey())) {
@@ -2623,16 +1642,16 @@ public class Util {
             try {
                 // call before deleting transformer
                 // load the item
-                ItemPOJOPK itempk = new ItemPOJOPK(new DataClusterPOJOPK(clusterName), concept, ids);
-                ItemPOJO pojo= ItemPOJO.load(itempk);
+                ItemPOJOPK itemPk = new ItemPOJOPK(new DataClusterPOJOPK(clusterName), concept, ids);
+                ItemPOJO pojo= ItemPOJO.load(itemPk);
                 String xml=null;
                 if(pojo==null){//load from recyclebin
-                	DroppedItemPOJOPK dpitempk=new DroppedItemPOJOPK(null,itempk,"/");//$NON-NLS-1$ 
-                	DroppedItemPOJO dpPojo=Util.getDroppedItemCtrlLocal().loadDroppedItem(dpitempk);
+                	DroppedItemPOJOPK droppedItemPk=new DroppedItemPOJOPK(null,itemPk,"/");//$NON-NLS-1$
+                	DroppedItemPOJO dpPojo=Util.getDroppedItemCtrlLocal().loadDroppedItem(droppedItemPk);
                 	if(dpPojo!=null){
                 		xml=dpPojo.getProjection();             		
                 		Document doc = Util.parse(xml);
-    	                Node item = XPathAPI.selectSingleNode(doc, "//ii/p"); //$NON-NLS-1$ 
+    	                Node item = (Node) XPathFactory.newInstance().newXPath().evaluate("//ii/p", doc, XPathConstants.NODE); //$NON-NLS-1$
     	                if (item != null && item instanceof Element) {
     	                    NodeList list = item.getChildNodes();
     	                    Node node = null;
@@ -2674,12 +1693,12 @@ public class Util {
                     }
                 });
 
-                while (((Boolean) context.get(RUNNING)).booleanValue()) {
+                while ((Boolean) context.get(RUNNING)) {
                     Thread.sleep(100);
                 }
                 // TODO process no plug-in issue
                 String outputErrorMessage = null;
-                // Scan the entries - in priority, taka the content of the
+                // Scan the entries - in priority, aka the content of the
                 // 'output_error_message' entry,
                 for (Entry<String, TypedContent> entry : context.getPipelineClone().entrySet()) {
 
@@ -2699,201 +1718,9 @@ public class Util {
                 throw e;
             }
         }
-        // TODO Scan the entries - in priority, taka the content of the specific
+        // TODO Scan the entries - in priority, aka the content of the specific
         // entry
         return null;
-    }
-
-    public static String buildItemPKString(String clusterName, String conceptName, String[] ids) {
-
-        StringBuffer itemPKXmlString = new StringBuffer();
-
-        if (clusterName == null || clusterName.length() == 0)
-            return itemPKXmlString.toString();
-        if (conceptName == null || conceptName.length() == 0)
-            return itemPKXmlString.toString();
-        if (ids == null)
-            return itemPKXmlString.toString();
-
-        itemPKXmlString.append("<item-pOJOPK><concept-name>").append(conceptName).append("</concept-name><ids>")
-                .append(joinStrings(ids, ".")).append("</ids><data-cluster-pOJOPK><ids>").append(clusterName)
-                .append("</ids></data-cluster-pOJOPK></item-pOJOPK>");
-
-        return itemPKXmlString.toString();
-    }
-
-    public static Map<String, UpdateReportItem> compareElement(String parentPath, Node newElement, Node oldElement) throws Exception {
-        HashMap<String, UpdateReportItem> map = new LinkedHashMap<String, UpdateReportItem>();
-        Set<String> complexNodes = new LinkedHashSet<String>();
-        Set<String> xpaths = getXpaths(parentPath, newElement, complexNodes);
-        JXPathContext jxpContextOld = JXPathContext.newContext(oldElement);
-        jxpContextOld.setLenient(true);
-        JXPathContext jxpContextNew = JXPathContext.newContext(newElement);
-        jxpContextNew.setLenient(true);
-        String concept = newElement.getLocalName();
-
-        for (String cnodePath : complexNodes) {
-            if (cnodePath.startsWith("/" + concept + "/")) {
-                cnodePath = cnodePath.replaceFirst("/" + concept + "/", "");
-                checkDiffsWhenComparingElement(map, jxpContextOld, jxpContextNew, cnodePath, true);
-            }
-        }
-
-        for (String xpath : xpaths) {
-            NodeList listnew = getNodeList(newElement, xpath);
-            NodeList listold = getNodeList(oldElement, xpath);
-            int num = Math.max(listnew.getLength(), listold.getLength());
-            if (xpath.startsWith("/" + concept + "/")) {
-                xpath = xpath.replaceFirst("/" + concept + "/", "");
-            }
-            if (num > 1) {// list
-                for (int i = 1; i <= num; i++) {
-                    String xpath1 = xpath + "[" + i + "]";
-                    if (i > 1) {
-                        String fixPath = getFixedListXpath(xpath, newElement, oldElement, i);
-                        if (fixPath != null)
-                            xpath1 = fixPath;
-                    }
-                    checkDiffsWhenComparingElement(map, jxpContextOld, jxpContextNew, xpath1, false);
-                }
-            } else {
-                checkDiffsWhenComparingElement(map, jxpContextOld, jxpContextNew, xpath, false);
-            }
-        }
-
-        return map;
-    }
-
-    /**
-     * DOC HSHU Comment method "checkDiffsWhenComparingElement".
-     *
-     * @param map
-     * @param jxpContextOld
-     * @param jxpContextNew
-     * @param xpath
-     */
-    private static void checkDiffsWhenComparingElement(HashMap<String, UpdateReportItem> map, JXPathContext jxpContextOld,
-            JXPathContext jxpContextNew, String xpath, boolean attributeOnly) {
-
-        String oldvalue = null;
-        String newvalue = null;
-
-        // content text
-        if (!attributeOnly) {
-            oldvalue = (String) jxpContextOld.getValue(xpath, String.class);
-            newvalue = (String) jxpContextNew.getValue(xpath, String.class);
-            if (newvalue != null && newvalue.length() > 0 && !newvalue.equals(oldvalue) || oldvalue != null
-                    && oldvalue.length() > 0 && !oldvalue.equals(newvalue)) {
-                UpdateReportItem item = new UpdateReportItem(xpath, oldvalue, newvalue);
-                map.put(xpath, item);
-            }
-        }
-
-        // attributes
-        String attrXpath1 = xpath + "/@xsi:type";
-        oldvalue = (String) jxpContextOld.getValue(attrXpath1, String.class);
-        newvalue = (String) jxpContextNew.getValue(attrXpath1, String.class);
-        if (newvalue != null && newvalue.length() > 0 && !newvalue.equals(oldvalue) || oldvalue != null && oldvalue.length() > 0
-                && !oldvalue.equals(newvalue)) {
-            UpdateReportItem item = new UpdateReportItem(attrXpath1, oldvalue, newvalue);
-            map.put(attrXpath1, item);
-        }
-
-        String attrXpath2 = xpath + "/@tmdm:type";
-        oldvalue = (String) jxpContextOld.getValue(attrXpath2, String.class);
-        newvalue = (String) jxpContextNew.getValue(attrXpath2, String.class);
-        if (newvalue != null && newvalue.length() > 0 && !newvalue.equals(oldvalue) || oldvalue != null && oldvalue.length() > 0
-                && !oldvalue.equals(newvalue)) {
-            UpdateReportItem item = new UpdateReportItem(attrXpath2, oldvalue, newvalue);
-            map.put(attrXpath2, item);
-        }
-
-    }
-
-    /**
-     * this method only used in a list like a/b/c/d/e, e.g index=2, the right xpath maybe one of
-     * a/b/c/d[2]/e,a/b/c[2]/d/e,a/b/c[2]/d/e,a/b[2]/c/e,a[2]/b/c/d/e that is null in oldElement
-     *
-     * @param xpath
-     * @param jxpContextOld
-     * @param jxpContextNew
-     * @param index
-     * @return
-     */
-    private static String getFixedListXpath(String xpath, Node newElement, Node oldElement, int index) throws Exception {
-        if (xpath.endsWith("/"))
-            xpath = xpath.substring(0, xpath.length() - 1);
-        int pos = xpath.lastIndexOf('/');
-        if (pos > 0) {
-            String parentPath = xpath.substring(0, pos);
-            String lastPath = xpath.substring(pos + 1);
-            NodeList listnew = getNodeList(newElement, parentPath);
-            NodeList listold = getNodeList(oldElement, parentPath);
-            int num = Math.max(listnew.getLength(), listold.getLength());
-            if (num > 1) {// list
-                String[] paths = parentPath.split("/");
-                for (int i = 0; i < paths.length; i++) {
-                    String str = paths[i];
-                    if (str.matches("\\w+\\[\\d\\]")) {
-                        continue;
-                    }
-                    StringBuffer sb = new StringBuffer();
-                    for (int j = 0; j < paths.length; j++) {
-                        if (i == j) {
-                            sb.append(paths[j] + "[" + index + "]/");
-                        } else {
-                            sb.append(paths[j] + "/");
-                        }
-                    }
-                    sb.append(lastPath);
-                    JXPathContext jxpContextOld = JXPathContext.newContext(oldElement);
-                    jxpContextOld.setLenient(true);
-                    if (jxpContextOld.getValue(sb.toString()) != null) {
-                        return sb.toString();
-                    }
-                }
-
-            }
-        }
-        return null;
-    }
-
-    private static Set<String> getXpaths(String parentPath, Node node, Set<String> complexNodes) throws Exception {
-        Set<String> set = new LinkedHashSet<String>();
-        NodeList list = node.getChildNodes();
-        for (int i = 0; i < list.getLength(); i++) {
-            Node n = list.item(i);
-
-            if (n.getNodeType() == Node.ELEMENT_NODE) {
-                String nName = n.getNodeName();
-                String xPath = parentPath + "/" + nName;
-                NodeList list1 = getNodeList(node, xPath);
-                int j = 1;
-                for (int ii = 0; ii < list1.getLength(); ii++) {
-                    Node node1 = list1.item(ii);
-                    if (node1.getNodeType() == Node.ELEMENT_NODE) {
-                        if (getElementNum(list1) > 1) {
-                            j++;
-                        }
-                    }
-                }
-                if (!hasChildren(n)) {
-                    set.add(xPath);
-                } else {
-                    // if list
-                    if (j > 1) {
-                        for (int ii = 1; ii <= j; ii++) {
-                            complexNodes.add(xPath + "[" + ii + "]");
-                            set.addAll(getXpaths(xPath + "[" + ii + "]", n, complexNodes));
-                        }
-                    } else {
-                        complexNodes.add(xPath);
-                        set.addAll(getXpaths(xPath, n, complexNodes));
-                    }
-                }
-            }
-        }
-        return set;
     }
 
     static AbstractFactory factory = new AbstractFactory() {
@@ -2933,15 +1760,11 @@ public class Util {
     };
 
     /**
-     * update the element according to updatedpath
-     *
-     * @param old
-     * @param updatedpath
-     * @return
+     * update the element according to updated path
      * @throws Exception
      */
-    public static Node updateElement(Node old, Map<String, UpdateReportItem> updatedpath) throws Exception {
-        if (updatedpath.size() == 0)
+    public static Node updateElement(Node old, Map<String, UpdateReportItem> updatedPath) throws Exception {
+        if (updatedPath.size() == 0)
             return old;
         // use JXPathContext to update the old element
         JXPathContext jxpContext = JXPathContext.newContext(old);
@@ -2951,7 +1774,7 @@ public class Util {
 
         jxpContext.setFactory(factory);
         String concept = old.getLocalName();
-        for (Map.Entry<String, UpdateReportItem> entry : updatedpath.entrySet()) {
+        for (Map.Entry<String, UpdateReportItem> entry : updatedPath.entrySet()) {
             String xpath = entry.getValue().getPath();
             if (xpath.startsWith("/" + concept + "/")) {
                 xpath = xpath.replaceFirst("/" + concept + "/", "");
@@ -2959,48 +1782,6 @@ public class Util {
             jxpContext.createPathAndSetValue(xpath, entry.getValue().newValue);
         }
         return (Node) jxpContext.getContextBean();
-    }
-
-    private static UpdateReportItem getUpdatedItem(HashMap<String, UpdateReportItem> updatedpath, String xpath) {
-        for (Map.Entry<String, UpdateReportItem> entry : updatedpath.entrySet()) {
-            if (entry.getKey().startsWith(xpath)) {
-                return entry.getValue();
-            }
-        }
-        return null;
-    }
-
-    private static boolean hasChildren(Node node) {
-        NodeList list = node.getChildNodes();
-        for (int i = 0; i < list.getLength(); i++) {
-            if (list.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static Node getElementChild(Node parent, int index) {
-        NodeList list = parent.getChildNodes();
-        int j = 0;
-        for (int i = 0; i < list.getLength(); i++) {
-            if (list.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                if (j == index)
-                    return list.item(i);
-                j++;
-            }
-        }
-        return null;
-    }
-
-    private static int getElementNum(NodeList list) {
-        int j = 0;
-        for (int i = 0; i < list.getLength(); i++) {
-            if (list.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                j++;
-            }
-        }
-        return j;
     }
 
     public static String mergeExchangeData(String xml, String resultUpdateReport) {
@@ -3014,16 +1795,14 @@ public class Util {
 
     public static String createUpdateReport(String[] ids, String concept, String operationType,
             Map<String, UpdateReportItem> updatedPath, String dataModelPK, String dataClusterPK) throws Exception {
-        String username = "";
+        String username;
         String revisionId = "";
-
         try {
-
             username = LocalUser.getLocalUser().getUsername();
             UniversePOJO pojo = LocalUser.getLocalUser().getUniverse();
-            if (pojo != null)
+            if (pojo != null) {
                 revisionId = pojo.getConceptRevisionID(concept);
-
+            }
         } catch (Exception e1) {
             Logger.getLogger(Util.class).error(e1);
             throw e1;
@@ -3033,8 +1812,9 @@ public class Util {
         if (ids != null) {
             for (int i = 0; i < ids.length; i++) {
                 key += ids[i];
-                if (i != ids.length - 1)
+                if (i != ids.length - 1) {
                     key += ".";
+                }
             }
         }
         String xml2 = "" + "<Update>" + "<UserName>" + username + "</UserName>" + "<Source>genericUI</Source>" + "<TimeInMillis>"
@@ -3045,8 +1825,7 @@ public class Util {
         if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)) {
             Collection<UpdateReportItem> list = updatedPath.values();
             boolean isUpdate = false;
-            for (Iterator<UpdateReportItem> iter = list.iterator(); iter.hasNext();) {
-                UpdateReportItem item = iter.next();
+            for (UpdateReportItem item : list) {
                 String oldValue = item.getOldValue() == null ? "" : item.getOldValue();
                 String newValue = item.getNewValue() == null ? "" : item.getNewValue();
                 if (newValue.equals(oldValue))
@@ -3056,160 +1835,24 @@ public class Util {
                         + StringEscapeUtils.escapeXml(newValue) + "</newValue>" + "</Item>";
                 isUpdate = true;
             }
-            if (!isUpdate)
+            if (!isUpdate) {
                 return null;
+            }
         }
         xml2 += "</Update>";
         return xml2;
     }
 
-    public static boolean isItemCanVisible(ItemPOJOPK itempk) throws XtentisException {
-        return LocalUser.getLocalUser().userItemCanRead(itempk)
-                || LocalUser.getLocalUser().userItemCanWrite(itempk, itempk.getDataClusterPOJOPK().getUniqueId(),
-                        itempk.getConceptName());
-    }
-
     public static String checkOnVersionCompatibility(WSVersion old) {
         Version version = Version.getVersion(IXtentisWSDelegator.class);
-        String oldv = old.getMajor() + "." + old.getMinor() + "." + old.getRevision();
-        String newv = version.getMajor() + "." + version.getMinor() + "." + version.getRevision();
-        String str = "The two MDM Servers is not compatible, one is " + oldv + ", another is " + newv;
+        String oldVersion = old.getMajor() + "." + old.getMinor() + "." + old.getRevision();
+        String newVersion = version.getMajor() + "." + version.getMinor() + "." + version.getRevision();
+        String str = "The two MDM Servers is not compatible, one is " + oldVersion + ", another is " + newVersion;
         if (version.getMajor() != old.getMajor() || version.getMinor() != old.getMinor()) {
             return str;
         }
         return null;
     }
-
-    /*********************************************************************
-     * TESTS
-     *********************************************************************/
-
-    public static void testSpellCheck() throws Exception {
-        // String xml =
-        // getXML("/home/bgrieder/workspace/com.amalto.total.poc/src/com/amalto/total/poc/data/Amalto2.xml");
-        // DataClusterBMP dcb = new DataClusterBMP();
-        // dcb.addToVocabulary(xml);
-        // System.out.println("VOCABULARY:\n"+dcb.getVocabulary());
-        //
-        // System.setProperty("jazzy.config", "com.amalto.core.util.JazzyConfiguration");
-        //
-        // SpellDictionary dictionary = new SpellDictionaryHashMap(
-        // new StringReader(dcb.getVocabulary()),
-        // SpellCheckHandler.getPhonetsReader("fr")
-        // );
-        //
-        // SpellChecker spellCheck = new SpellChecker(dictionary);
-        // SpellCheckHandler handler = new SpellCheckHandler();
-        // spellCheck.addSpellCheckListener(handler);
-        //
-        // String toCheck = "Aalto dNs boneur boner bonh pascl pcheri 123-456 stars crstal";
-        // int errors = spellCheck.checkSpelling(new StringWordTokenizer(toCheck.toLowerCase()));
-        // if (errors ==0) {
-        // System.out.println("Nothing I can do");
-        // return;
-        // }
-        //
-        // boolean IGNORE_NON_EXISTENT_WORDS = false;
-        // //int depth = 4;
-        //
-        // ArrayList suggestions = new ArrayList();
-        // Pattern p = Pattern.compile("\\p{Space}*([^\\p{Space}]{3,}?)\\p{Space}+");
-        // Matcher m = p.matcher(" "+toCheck+" ");
-        // int pos = 0;
-        // while (m.find(pos)) {
-        // pos = m.end()-1;
-        // String word = m.group(1).trim().toLowerCase();
-        // if (IGNORE_NON_EXISTENT_WORDS) {
-        // if (handler.getSuggestions().containsKey(word)) {
-        // //the spell hcecker di not ignore the word
-        // Collection results = (Collection)handler.getSuggestions().get(word);
-        // if (results.size()>0) {
-        // suggestions.add(new ArrayList(results));
-        // } // else we ignore the word because no suggestion
-        // } else {
-        // //the word exists (or has been ignored on purpose by the spell checker)
-        // //we suggest the original word
-        // ArrayList results = new ArrayList();
-        // results.add(new Word(word,0));
-        // suggestions.add(new ArrayList(results));
-        // }
-        // } else {
-        // Collection results = (Collection)handler.getSuggestions().get(word);
-        // if ((results==null) || (results.size()==0)) {
-        // results = new ArrayList();
-        // results.add(new Word(word,0));
-        // }
-        // suggestions.add(new ArrayList(results));
-        // }
-        // }
-        //
-        // System.out.println("TO CHECK: "+toCheck);
-        //
-        // ArrayList proposals = new ArrayList();
-        // for (Iterator iter = suggestions.iterator(); iter.hasNext();) {
-        // ArrayList sug = (ArrayList) iter.next();
-        // ArrayList newProposals = new ArrayList();
-        // for (Iterator iterator = sug.iterator(); iterator.hasNext(); ) {
-        // Word suggestion = (Word) iterator.next();
-        // if (proposals.size()==0) { // first run
-        // newProposals.add(suggestion.getWord());
-        // } else {
-        // for (Iterator iterator2 = proposals.iterator(); iterator2.hasNext(); ) {
-        // String proposal = (String) iterator2.next();
-        // newProposals.add(proposal+" "+suggestion.getWord());
-        // }
-        // }
-        // } //for suggestions
-        // proposals = newProposals;
-        // }//for words
-        //
-        // int i=0;
-        // for (Iterator iter = proposals.iterator(); iter.hasNext(); ) {
-        // String proposal = (String) iter.next();
-        // System.out.println("P"+(++i)+": "+proposal);
-        // }
-
-        /*
-         * //iterate to build possibilities int proposalNum = 0; int firstWord = 0; int endWord = 0; while (true) {
-         * 
-         * //build a proposal String proposal = ""; for (int i = 0; i < words.size(); i++) {
-         * proposal+="".equals(proposal) ? "" : " "; int currentSugg =((Integer)currentSuggestion.get(i)).intValue();
-         * proposal+=((ArrayList)suggestions.get(i)).get(currentSugg); } System.out.println("PROPOSAL: "+proposal);
-         * proposalNum++;
-         * 
-         * if (proposalNum == depth) break;
-         * 
-         * boolean noPossibility = true; boolean goOn = true; while(goOn) { //try incrementing the first word int
-         * currSugg = ((Integer)currentSuggestion.get(firstWord)).intValue(); int currMax =
-         * ((Integer)maxSuggestion.get(firstWord)).intValue(); if (currSugg<currMax) { currentSuggestion.set(firstWord,
-         * new Integer(currSugg+1)); noPossibility = false; goOn=false; break; }
-         * 
-         * //reset the words for (int i = 0; i < endWord; i++) { currentSuggestion.set(i, new Integer(0)); } firstWord =
-         * 0; //try incrementing second word while (goOn) { currSugg =
-         * ((Integer)currentSuggestion.get(endWord)).intValue(); currMax =
-         * ((Integer)maxSuggestion.get(endWord)).intValue(); if (currSugg<currMax) { currentSuggestion.set(endWord, new
-         * Integer(currSugg+1)); noPossibility = false; goOn=false; break; } if(++endWord==words.size()) { noPossibility
-         * = true; //no more possibility goOn=false; break; } }//incrementing the second word }//while find next
-         * 
-         * if (noPossibility) break;
-         * 
-         * }//while next proposal
-         */
-    }
-
-    // private static String getXML(String filename) throws Exception{
-    // BufferedReader in = null;
-    // in = new BufferedReader(
-    // new InputStreamReader(
-    // new FileInputStream(filename),
-    // "utf-8"
-    // )
-    // );
-    // String xsl="";
-    // String line;
-    // while ((line=in.readLine())!=null) xsl+=line+"\n";
-    // return xsl;
-    // }
 
     /**
      * check current server is Enterprise or Open
@@ -3228,10 +1871,14 @@ public class Util {
                 throw new XtentisException(err);
             } finally {
                 try {
-                    initialContext.close();
+                    if (initialContext != null) {
+                        initialContext.close();
+                    }
                 } catch (Exception e) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("isEnterprise error.", e);
+                    }
                 }
-                ;
             }
             return home != null;
         } catch (Exception e) {
@@ -3242,10 +1889,10 @@ public class Util {
     public static boolean isDefaultSVNUP() throws Exception {
         if (isEnterprise()) {
             Object service = Util.retrieveComponent(null, "amalto/local/service/svn");
-            if (service == null)
+            if (service == null) {
                 return false;
-            Boolean result = (Boolean) Util.getMethod(service, "isUp").invoke(service, new Object[] {});
-            return result.booleanValue();
+            }
+            return (Boolean) Util.getMethod(service, "isUp").invoke(service);
         } else {
             return false;
         }
@@ -3254,28 +1901,29 @@ public class Util {
     public static boolean isSVNAutocommit() throws Exception {
         if (isDefaultSVNUP()) {
             Object service = Util.retrieveComponent(null, "amalto/local/service/svn");
-
-            Boolean isauto = (Boolean) Util.getMethod(service, "isAutocommittosvn").invoke(service, new Object[] {});
-            return isauto;
+            return (Boolean) Util.getMethod(service, "isAutocommittosvn").invoke(service, new Object[] {});
         }
         return false;
     }
 
     public static String getAppServerDeployDir() {
-        String jbossHomePath = System.getenv("JBOSS_HOME");
-        if (jbossHomePath == null)
-            jbossHomePath = System.getProperty("jboss.home.dir");
-        return jbossHomePath;
+        String appServerDeployDir = System.getenv("JBOSS_HOME");
+        if (appServerDeployDir == null) {
+            appServerDeployDir = System.getProperty("jboss.home.dir");
+        }
+        if (appServerDeployDir == null) {
+            appServerDeployDir = System.getProperty("user.dir");
+        }
+        return appServerDeployDir;
     }
 
     public static String getJbossHomeDir() {
         String jbossHomePath = com.amalto.core.util.Util.getAppServerDeployDir();
-        String jbossHome = new File(jbossHomePath).getAbsolutePath();
-        return jbossHome;
+        return new File(jbossHomePath).getAbsolutePath();
     }
 
     public static String getBarHomeDir() {
-        return Util.getJbossHomeDir() + File.separator + "barfiles";
+        return Util.getJbossHomeDir() + File.separator + "barfiles"; //$NON-NLS-1$
     }
 
     /*********************************************************************
@@ -3283,8 +1931,8 @@ public class Util {
      *********************************************************************/
     public static List<File> listFiles(FileFilter filter, File folder) {
         List<File> ret = new ArrayList<File>();
-        File[] childs = folder.listFiles(filter);
-        for (File f : childs) {
+        File[] children = folder.listFiles(filter);
+        for (File f : children) {
             if (f.isFile()) {
                 ret.add(f);
             } else {
@@ -3300,9 +1948,7 @@ public class Util {
             if (subItems.size() == 1) {
                 getView(views, subItems.iterator().next());
             }
-            int i = 0;
-            for (Iterator<IWhereItem> iter = subItems.iterator(); iter.hasNext();) {
-                IWhereItem item = iter.next();
+            for (IWhereItem item : subItems) {
                 getView(views, item);
             }
         } else if (whereItem instanceof WhereCondition) {
@@ -3312,82 +1958,14 @@ public class Util {
         // FIXME do we to consider CustomWhereCondition
     }
 
-    public static Map<String, XSElementDecl> getConceptMap(DataModelPOJO dataModelPOJO) throws Exception {
-
-        String xsd = dataModelPOJO.getSchema();
-        return getConceptMap(xsd);
-    }
-
-    private static XSElementDecl parseMetaDataTypes(XSElementDecl elem, String pathSlice, ArrayList<String> valuesHolder,
-            boolean forFkValue) {
-        valuesHolder.clear();
-        XSContentType conType;
-        if (elem == null)
-            return null;
-        XSType type = elem.getType();
-        if (elem.getName().equals(pathSlice)) {
-            if (elem.getType() instanceof XSComplexType) {
-                valuesHolder.add("complex type");
-            } else {
-                XSSimpleType simpType = (XSSimpleType) elem.getType();
-                valuesHolder.add(simpType.getName());
-            }
-            return elem;
-        }
-        if (type instanceof XSComplexType) {
-            XSComplexType cmpxType = (XSComplexType) type;
-            conType = cmpxType.getContentType();
-            XSParticle[] children = conType.asParticle().getTerm().asModelGroup().getChildren();
-            for (XSParticle child : children) {
-                if (child.getTerm() instanceof XSElementDecl) {
-                    XSElementDecl childElem = (XSElementDecl) child.getTerm();
-                    if (childElem.getName().equals(pathSlice)) {
-
-                        if (childElem.getType() instanceof XSSimpleType) {
-                            XSSimpleType simpType = (XSSimpleType) childElem.getType();
-                            Collection<FacetImpl> facets = (Collection<FacetImpl>) simpType.asRestriction().getDeclaredFacets();
-                            for (XSFacet facet : facets) {
-                                if (facet.getName().equals("enumeration")) {
-                                    valuesHolder.add("enumeration");
-                                    break;
-                                }
-                            }
-                            if (!valuesHolder.contains("enumeration")) {
-                                String basicName = simpType.getBaseType().getName();
-                                String simpTypeName = simpType.getName();
-                                if (simpType.getTargetNamespace().equals(W3C_XML_SCHEMA)) {
-                                    simpTypeName = "xsd:" + simpTypeName;
-                                } else
-                                    simpTypeName = "xsd:" + basicName;
-                                valuesHolder.add(simpTypeName);
-                            } else if (simpType.asRestriction() != null && valuesHolder.contains("enumeration")) {
-                                XSType xsType = simpType.asRestriction().getBaseType();
-                                String simpTypeName = "xsd:" + xsType.getName();
-                                valuesHolder.set(valuesHolder.indexOf("enumeration"), simpTypeName);
-                            }
-                        } else {
-                            XSComplexType cmpType = (XSComplexType) childElem.getType();
-                            valuesHolder.add("complex type");
-                        }
-                        return childElem;
-                    }
-                }
-            }
-        }
-
-        return null;
-
-    }
-
     public static Element getLoginProvisioningFromDB() throws Exception {
 
-        ItemPOJOPK itempk = new ItemPOJOPK(new DataClusterPOJOPK("PROVISIONING"), "User", new String[] { LocalUser.getLocalUser()
+        ItemPOJOPK itemPk = new ItemPOJOPK(new DataClusterPOJOPK("PROVISIONING"), "User", new String[] { LocalUser.getLocalUser()
                 .getUsername() });
-        ItemPOJO item = ItemPOJO.load(itempk);
+        ItemPOJO item = ItemPOJO.load(itemPk);
         if (item == null)
             return null;
-        Element user = (Element) Util.getNodeList(item.getProjection(), "//User").item(0);
-        return user;
+        return (Element) Util.getNodeList(item.getProjection(), "//User").item(0);
     }
 
     public static String getUserDataModel() throws Exception {
@@ -3400,9 +1978,8 @@ public class Util {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node node = nodeList.item(i);
                 if ("model".equals(Util.getFirstTextNode(node, "name"))) {
-                    // configuration.setCluster(Util.getNodeList(node, "value").item(0).getTextContent());
-                    Node fchild = Util.getNodeList(node, "value").item(0).getFirstChild();
-                    return fchild.getNodeValue();
+                    Node firstChild = Util.getNodeList(node, "value").item(0).getFirstChild();
+                    return firstChild.getNodeValue();
                 }
             }
         }
@@ -3420,8 +1997,8 @@ public class Util {
                 Node node = nodeList.item(i);
                 if ("cluster".equals(Util.getFirstTextNode(node, "name"))) {
                     // configuration.setCluster(Util.getNodeList(node, "value").item(0).getTextContent());
-                    Node fchild = Util.getNodeList(node, "value").item(0).getFirstChild();
-                    return fchild.getNodeValue();
+                    Node firstChild = Util.getNodeList(node, "value").item(0).getFirstChild();
+                    return firstChild.getNodeValue();
                 }
             }
         }
@@ -3474,9 +2051,8 @@ public class Util {
     /**
      * fix the web conditions.
      *
-     * @param conditions in web ui.
      */
-    public static IWhereItem fixWebCondtions(IWhereItem whereItem) throws XmlServerException {
+    public static IWhereItem fixWebConditions(IWhereItem whereItem) throws XmlServerException {
         if (whereItem == null)
             return null;
         if (whereItem instanceof WhereLogicOperator) {
@@ -3484,7 +2060,7 @@ public class Util {
 
             for (int i = subItems.size() - 1; i >= 0; i--) {
                 IWhereItem item = subItems.get(i);
-                item = fixWebCondtions(item);
+                item = fixWebConditions(item);
 
                 if (item instanceof WhereLogicOperator) {
                     if (((WhereLogicOperator) item).getItems().size() == 0) {
@@ -3515,7 +2091,7 @@ public class Util {
      * @param conditions in workbench.
      */
 
-    public static void fixCondtions(ArrayList conditions) {
+    public static void fixConditions(ArrayList conditions) {
         for (int i = conditions.size() - 1; i >= 0; i--) {
             if (conditions.get(i) instanceof WhereCondition) {
                 WhereCondition condition = (WhereCondition) conditions.get(i);
@@ -3533,50 +2109,42 @@ public class Util {
         List<WSMDMJob> jobs = new ArrayList<WSMDMJob>();
         try {
             String jbossHomePath = Util.getAppServerDeployDir();
-
-            String deploydir = "";
+            String deployDir = "";
             try {
-                deploydir = new File(jbossHomePath).getAbsolutePath();
+                deployDir = new File(jbossHomePath).getAbsolutePath();
             } catch (Exception e1) {
                 Logger.getLogger(Util.class).error(e1);
             }
-            deploydir = deploydir + File.separator + "server" + File.separator + "default" + File.separator + "deploy";
-            Logger.getLogger(Util.class).info("deploy url:" + deploydir);
-            if (!new File(deploydir).exists())
+            deployDir = deployDir + File.separator + "server" + File.separator + "default" + File.separator + "deploy";
+            Logger.getLogger(Util.class).info("deploy url:" + deployDir);
+            if (!new File(deployDir).exists())
                 throw new FileNotFoundException();
             // TODO is it recursive
             FileFilter filter = new FileFilter() {
-
-                public boolean accept(File pathname) {
-                    if (pathname.isDirectory() || (pathname.isFile() && pathname.getName().toLowerCase().endsWith(".war"))) {
-                        return true;
-                    }
-                    return false;
+                public boolean accept(File pathName) {
+                    return pathName.isDirectory() || (pathName.isFile() && pathName.getName().toLowerCase().endsWith(".war"));
                 }
             };
-            List<File> warFiles = listFiles(filter, new File(deploydir));
+            List<File> warFiles = listFiles(filter, new File(deployDir));
             // zip
             filter = new FileFilter() {
 
-                public boolean accept(File pathname) {
-                    if (pathname.isDirectory() || (pathname.isFile() && pathname.getName().toLowerCase().endsWith(".zip"))) {
-                        return true;
-                    }
-                    return false;
+                public boolean accept(File pathName) {
+                    return pathName.isDirectory() || (pathName.isFile() && pathName.getName().toLowerCase().endsWith(".zip"));
                 }
             };
             List<File> zipFiles = listFiles(filter, new File(JobContainer.getUniqueInstance().getDeployDir()));
             for (File war : warFiles) {
-                String jobpath = war.getAbsolutePath().replace(new File(deploydir).getAbsolutePath(), "");
                 WSMDMJob job = getJobInfo(war.getAbsolutePath());
-                if (job != null)
+                if (job != null) {
                     jobs.add(job);
+                }
             }
             for (File zip : zipFiles) {
-                String jobpath = zip.getAbsolutePath().replace(new File(deploydir).getAbsolutePath(), "");
                 WSMDMJob job = getJobInfo(zip.getAbsolutePath());
-                if (job != null)
+                if (job != null) {
                     jobs.add(job);
+                }
             }
         } catch (Exception e) {
             Logger.getLogger(Util.class).error(e);
@@ -3586,15 +2154,12 @@ public class Util {
 
     /**
      * get the JobInfo:jobName and version & suffix
-     *
-     * @param fileName
-     * @return
      */
     public static WSMDMJob getJobInfo(String fileName) {
         WSMDMJob jobInfo = null;
         try {
             ZipInputStream in = new ZipInputStream(new FileInputStream(fileName));
-            ZipEntry z = null;
+            ZipEntry z;
             try {
                 String jobName = "";
                 String jobVersion = "";
@@ -3640,7 +2205,6 @@ public class Util {
                         jobName = dir.substring(0, pos);
                         jobVersion = dir.substring(pos + 1);
                         break;
-
                     }
                     if (jobName.length() > 0) {
                         jobInfo = new WSMDMJob(null, null, null);
@@ -3653,29 +2217,32 @@ public class Util {
                     }
                 }
             } catch (FileNotFoundException e) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("getJobInfo error.", e);
+                }
             } finally {
                 in.close();
             }
         } catch (Exception e) {
-
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("getJobInfo error.", e);
+            }
         }
-
         return jobInfo;
     }
 
     public static String convertAutoIncrement(Properties p) {
-        StringBuffer sb = new StringBuffer();
-        sb.append("<AutoIncrement>");
-        sb.append("<id>AutoIncrement</id>");
+        StringBuilder buffer = new StringBuilder();
+        buffer.append("<AutoIncrement>");
+        buffer.append("<id>AutoIncrement</id>");
         for (Entry entry : p.entrySet()) {
-            sb.append("<entry>");
-            sb.append("<key>").append(entry.getKey()).append("</key>");
-            sb.append("<value>").append(entry.getValue()).append("</value>");
-            sb.append("</entry>");
+            buffer.append("<entry>");
+            buffer.append("<key>").append(entry.getKey()).append("</key>");
+            buffer.append("<value>").append(entry.getValue()).append("</value>");
+            buffer.append("</entry>");
         }
-        sb.append("</AutoIncrement>");
-        String xmlString = sb.toString();
-        return xmlString;
+        buffer.append("</AutoIncrement>");
+        return buffer.toString();
     }
 
     public static Properties convertAutoIncrement(String xml) throws Exception {
@@ -3722,26 +2289,20 @@ public class Util {
      * @param string The string to be escaped
      */
     protected static String escape(String string) {
-
         if ((string == null) || (string.indexOf('\'') < 0)) {
             return string;
         }
-
         int n = string.length();
-        StringBuffer sb = new StringBuffer(n);
-
+        StringBuilder builder = new StringBuilder(n);
         for (int i = 0; i < n; i++) {
             char ch = string.charAt(i);
-
             if (ch == '\'') {
-                sb.append('\'');
+                builder.append('\'');
             }
 
-            sb.append(ch);
+            builder.append(ch);
         }
-
-        return sb.toString();
-
+        return builder.toString();
     }
 
     public static String getMessage(String value, Object... args) {
@@ -3755,74 +2316,13 @@ public class Util {
         }
     }
 
-    public static String printWithFormat(Locale locale, String format, Object value) {
-
-        String formattedContent = "";
-
-        try {
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(baos);
-
-            ps.format(locale, format, value);
-            formattedContent = baos.toString();
-
-            baos.close();
-
-        } catch (IOException ioe) {
-            Logger.getLogger(Util.class).error(ioe);
-        }
-
-        return formattedContent;
-
-    }
-
-    public static String getExistHome() {
-        String home = getJbossHomeDir() + "/eXist";
-        home = new File(home).getAbsolutePath();
-        System.setProperty("exist.home", home);
-        Logger.getLogger(Util.class).info("exist.home===" + home);
-        return home;
-    }
-
-    public static String replaceXpathPivot(String concept, String xpath, String replacement) {
-        String[] xpathParts = xpath.split("/");
-        if (xpathParts[0].equals(concept))
-            xpathParts[0] = replacement;
-        xpath = joinStrings(xpathParts, "/");
-        return xpath;
-    }
-
-    public static String[] getParentAndLeafPath(String pivot) throws XtentisException {
-        if (pivot.endsWith(")")) {
-            String err = "Invalid pivot '" + pivot + "': pivots must be 'pure' path, with no functions";
-
-            throw new XtentisException(err);
-        }
-        // Normalize path
-        pivot = pivot.startsWith("/") ? pivot.substring(1) : pivot; // remove leading slash
-        pivot = pivot.endsWith("/") ? pivot.substring(0, pivot.length() - 1) : pivot; // remove trailing slash
-        String[] pivotPaths = pivot.split("\\/");
-        if (pivotPaths.length < 2) {
-            String err = "Invalid pivot '" + pivot + "': partial updates cannot be applied to the root element";
-            throw new XtentisException(err);
-        }
-        // build parent pivot
-        String parentPivot = "";
-        for (int i = 0; i < pivotPaths.length - 1; i++) {
-            parentPivot += "/" + pivotPaths[i];
-        }
-        // assign pivotElement
-        String pivotLeaf = pivotPaths[pivotPaths.length - 1];
-        return new String[] { parentPivot, pivotLeaf };
-    }
-    
     public static <T> T getException(Throwable throwable, Class<T> cls){
-        if(cls.isInstance(throwable))
+        if(cls.isInstance(throwable)) {
             return (T) throwable;
-        
-        if(throwable.getCause() != null)
+        }
+        if(throwable.getCause() != null) {
             return getException(throwable.getCause(), cls);
+        }
         return null;
     }
 
@@ -3844,4 +2344,5 @@ public class Util {
         }
         return false;
     }
+
 }

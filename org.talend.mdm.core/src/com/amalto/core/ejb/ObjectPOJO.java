@@ -324,7 +324,7 @@ public abstract class ObjectPOJO implements Serializable{
             String item=cachedPojo.get(key);       
             if (item == null) {
                 //get the xml server wrapper
-                XmlServerSLWrapperLocal server =Util.getXmlServerCtrlLocal();
+                XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
                 
             	item = server.getDocumentAsString(revisionID, getCluster(objectClass), urlid, null);
             	//aiming add see 9603 if System Object load faild try to load it from HEAD universe

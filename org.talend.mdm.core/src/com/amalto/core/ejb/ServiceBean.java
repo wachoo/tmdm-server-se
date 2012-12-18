@@ -11,13 +11,11 @@ import javax.ejb.EntityContext;
 import javax.ejb.FinderException;
 import javax.ejb.ObjectNotFoundException;
 import javax.ejb.RemoveException;
-import javax.naming.InitialContext;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.ejb.remote.ServicePK;
 import com.amalto.core.ejb.remote.ServiceValue;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;

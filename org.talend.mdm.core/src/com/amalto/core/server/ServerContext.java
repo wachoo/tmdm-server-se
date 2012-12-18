@@ -33,7 +33,7 @@ public class ServerContext {
     }
 
     public synchronized void close() {
-        server.close();
+        serverLifecycle.destroyServer(server);
         server = null;
     }
 

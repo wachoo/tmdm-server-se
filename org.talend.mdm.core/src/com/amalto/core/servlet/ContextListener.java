@@ -13,14 +13,14 @@ package com.amalto.core.servlet;
 
 import java.util.Properties;
 
-import javax.naming.InitialContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.jobox.properties.ThreadIsolatedSystemProperties;
-import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocal;
-import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocalHome;
+import com.amalto.core.objects.routing.v2.ejb.RoutingEngineV2POJO;
+import com.amalto.core.server.ConfigurationInfo;
+import com.amalto.core.server.XmlServer;
 import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;
 
@@ -37,18 +37,16 @@ public class ContextListener implements ServletContextListener {
         if (log.isDebugEnabled()) {
             log.debug("contextInitialized()"); //$NON-NLS-1$
         }
-
         // TMDM-2933: ThreadIsolatedSystemProperties allows threads to get different system properties when needed.
         previousSystemProperties = System.getProperties();
         System.setProperties(ThreadIsolatedSystemProperties.getInstance());
         if (log.isDebugEnabled()) {
             log.debug("Enabled system properties isolation for threads."); //$NON-NLS-1$
         }
-
+        // AutoUpgrade
         try {
-            // AutoUpgrade
-            ConfigurationInfoCtrlLocal ctrl = ((ConfigurationInfoCtrlLocalHome) new InitialContext().lookup(ConfigurationInfoCtrlLocalHome.JNDI_NAME)).create();
-            ctrl.autoUpgradeInBackground();
+            ConfigurationInfo configurationInfo = Util.getConfigurationInfoCtrlLocal();
+            configurationInfo.autoUpgradeInBackground();
         } catch (Throwable e) {
             log.error("Unable to perform Auto Upgrade", e);  //$NON-NLS-1$
         }
@@ -71,6 +69,14 @@ public class ContextListener implements ServletContextListener {
         } catch (Throwable e) {
             // Don't re-throw exception in case this breaks normal J2EE container operation.
             log.error("Error during database shutdown", e);   //$NON-NLS-1$
+        }
+
+        log.info("Shutdown detected. Stopping the Routing Engine");
+        try {
+            RoutingEngineV2POJO.getInstance().setStatus(RoutingEngineV2POJO.STOPPED);
+        } catch (Throwable e) {
+            // Don't re-throw exception in case this breaks normal J2EE container operation.
+            log.error("Error during routing engine shutdown", e); //$NON-NLS-1$
         }
 
         // Server is shutting down, replace the system properties with the ones backed up at start up.

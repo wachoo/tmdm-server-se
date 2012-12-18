@@ -3,7 +3,6 @@ package com.amalto.core.objects.universe.ejb;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.TreeSet;
@@ -11,7 +10,6 @@ import java.util.TreeSet;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
-import com.sun.org.apache.xalan.internal.xsltc.compiler.Pattern;
 
 /**
  * @author Bruno Grieder
@@ -180,7 +178,7 @@ public class UniversePOJO extends ObjectPOJO{
 
 	/**
 	 * Gets the revision IDs for the items<br/>
-	 * The key is a {@link Pattern} that is matching the {@link ItemPOJOPK#getConceptName()}<br/>
+	 * The key is a pattern that is matching the {@link ItemPOJOPK#getConceptName()}<br/>
 	 * The first pattern that matches is selected and the revision ID is selected
 	 * @return
 	 * 		A {@link LinkedHashMap} of revision IDs for the items 
@@ -191,7 +189,7 @@ public class UniversePOJO extends ObjectPOJO{
 
 	/**
 	 * Sets the revision IDs for the items<br/>
-	 * The key is a {@link Pattern} that is matching the {@link ItemPOJOPK#getConceptName()}<br/>
+	 * The key is a pattern that is matching the {@link ItemPOJOPK#getConceptName()}<br/>
 	 * The first pattern that matches is selected and the revision ID is selected
 	 * @param itemsRevisionIDs
 	 * 		A {@link LinkedHashMap} of revision IDs for the items 
@@ -254,16 +252,14 @@ public class UniversePOJO extends ObjectPOJO{
 	 * Determines the proper revision ID for a concept
 	 * by scanning in order the patterns in {@link #getItemsRevisionIDs()}.<br/>
 	 * If no pattern matches the value in {@link #getDefaultItemRevisionID()} is returned
-	 * @param conceptName
 	 * @return the revision ID to use for the concept
 	 */
 	public String getConceptRevisionID(String conceptName) {
 		org.apache.log4j.Logger.getLogger(this.getClass()).trace("getConceptRevisionID() Universe '"+getName()+"' - concept '"+conceptName+"'");
 		ArrayList<String> patterns = new ArrayList<String>(itemsRevisionIDs.keySet());
-		for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext(); ) {
-			String pattern = iterator.next();
-			if (conceptName.matches(pattern)) return itemsRevisionIDs.get(pattern);
-		}
+        for (String pattern : patterns) {
+            if (conceptName.matches(pattern)) return itemsRevisionIDs.get(pattern);
+        }
 		return getDefaultItemRevisionID();
 	}
 }

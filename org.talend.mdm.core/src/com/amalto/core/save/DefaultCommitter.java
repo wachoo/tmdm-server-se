@@ -12,14 +12,14 @@
 package com.amalto.core.save;
 
 import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.server.XmlServer;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
 public class DefaultCommitter implements SaverSession.Committer {
 
-    private final XmlServerSLWrapperLocal xmlServerCtrlLocal;
+    private final XmlServer xmlServerCtrlLocal;
 
     public DefaultCommitter() {
         try {

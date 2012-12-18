@@ -46,7 +46,6 @@ import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
-import com.sun.org.apache.xpath.internal.XPathAPI;
 
 @SuppressWarnings("nls")
 public class DocumentSaveTest extends TestCase {
@@ -986,8 +985,8 @@ public class DocumentSaveTest extends TestCase {
         MutableDocument updateReportDocument = context.getUpdateReportDocument();
         assertNotNull(updateReportDocument);
         Document doc = updateReportDocument.asDOM();
-        String oldValue = XPathAPI.selectSingleNode(doc.getDocumentElement(), "Item/oldValue").getTextContent();
-        String newValue = XPathAPI.selectSingleNode(doc.getDocumentElement(), "Item/newValue").getTextContent();
+        String oldValue = (String) evaluate(doc.getDocumentElement(), "Item/oldValue");
+        String newValue = (String) evaluate(doc.getDocumentElement(), "Item/newValue");
         assertEquals("Portland", oldValue);
         assertEquals("beforeSaving_Agency", newValue);
 
@@ -1848,14 +1847,12 @@ public class DocumentSaveTest extends TestCase {
 
         private boolean hasSaved = false;
 
-        @Override
         public void begin(String dataCluster) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Start on '" + dataCluster + "'");
             }
         }
 
-        @Override
         public void commit(String dataCluster) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Commit on '" + dataCluster + "'");
@@ -1863,7 +1860,6 @@ public class DocumentSaveTest extends TestCase {
             ItemPOJO.getCache().clear();
         }
 
-        @Override
         public void save(ItemPOJO item, ComplexTypeMetadata type, String revisionId) {
             hasSaved = true;
             try {
@@ -1890,7 +1886,6 @@ public class DocumentSaveTest extends TestCase {
             }
         }
 
-        @Override
         public void rollback(String dataCluster) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Rollback on '" + dataCluster + "'");
@@ -1936,17 +1931,14 @@ public class DocumentSaveTest extends TestCase {
             this.schemaFileName = schemaFileName;
         }
 
-        @Override
         public InputStream get(String dataClusterName, String typeName, String revisionId, String[] key) {
             return DocumentSaveTest.class.getResourceAsStream(originalDocumentFileName);
         }
 
-        @Override
         public boolean exist(String dataCluster, String typeName, String revisionId, String[] key) {
             return exist;
         }
 
-        @Override
         public synchronized MetadataRepository getMetadataRepository(String dataModelName) {
             if ("UpdateReport".equals(dataModelName)) {
                 if (updateReportRepository == null) {
@@ -1958,23 +1950,19 @@ public class DocumentSaveTest extends TestCase {
             return repository;
         }
 
-        @Override
         public InputStream getSchema(String dataModelName) {
             return DocumentSaveTest.class.getResourceAsStream(schemaFileName);
         }
 
-        @Override
         public String getUniverse() {
             return "Universe";
         }
 
-        @Override
         public OutputReport invokeBeforeSaving(DocumentSaverContext context, MutableDocument updateReportDocument) {
             String message = "<report><message type=\"info\">change the value successfully!</message></report>";
             return new OutputReport(message, null);
         }
 
-        @Override
         public Set<String> getCurrentUserRoles() {
             if ("User".equals(userName)) {
                 return Collections.singleton("User");
@@ -1983,45 +1971,36 @@ public class DocumentSaveTest extends TestCase {
             }
         }
 
-        @Override
         public String getUserName() {
             return userName;
         }
 
-        @Override
         public boolean existCluster(String revisionID, String dataClusterName) {
             return true;
         }
 
-        @Override
         public String getConceptRevisionID(String typeName) {
             return "HEAD";
         }
 
-        @Override
         public void resetLocalUsers() {
         }
 
-        @Override
         public void initAutoIncrement() {
             hasCalledInitAutoIncrement = true;
         }
 
-        @Override
         public void routeItem(String dataCluster, String typeName, String[] id) {
         }
 
-        @Override
         public void invalidateTypeCache(String dataModelName) {
             lastInvalidatedTypeCache = dataModelName;
         }
 
-        @Override
         public void saveAutoIncrement() {
             hasSavedAutoIncrement = true;
         }
 
-        @Override
         public String nextAutoIncrementId(String universe, String dataCluster, String conceptName) {
             return String.valueOf(currentId++);
         }
@@ -2109,7 +2088,6 @@ public class DocumentSaveTest extends TestCase {
             this.source = source;
         }
 
-        @Override
         public void run() {
             SaverSession session = SaverSession.newSession(source);
             {
@@ -2139,12 +2117,10 @@ public class DocumentSaveTest extends TestCase {
             declaredPrefix.put("tmdm", SkipAttributeDocumentBuilder.TALEND_NAMESPACE);
         }
 
-        @Override
         public String getNamespaceURI(String prefix) {
             return declaredPrefix.get(prefix);
         }
 
-        @Override
         public String getPrefix(String namespaceURI) {
             Set<Map.Entry<String, String>> entries = declaredPrefix.entrySet();
             for (Map.Entry<String, String> entry : entries) {
@@ -2155,7 +2131,6 @@ public class DocumentSaveTest extends TestCase {
             return null;
         }
 
-        @Override
         public Iterator getPrefixes(String namespaceURI) {
             return declaredPrefix.keySet().iterator();
         }

@@ -35,7 +35,7 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
 
     private final Map<String, MetadataRepository> metadataRepository = new HashMap<String, MetadataRepository>();
 
-    private final DataModelCtrlLocal dataModelControl;
+    private final DataModel dataModelControl;
 
     MetadataRepositoryAdminImpl() {
         try {

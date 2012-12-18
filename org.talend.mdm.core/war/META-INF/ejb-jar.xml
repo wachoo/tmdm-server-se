@@ -19,7 +19,7 @@
          <remote>com.amalto.core.ejb.remote.XmlServerSLWrapper</remote>
          <local-home>com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome</local-home>
          <local>com.amalto.core.ejb.local.XmlServerSLWrapperLocal</local>
-         <ejb-class>com.amalto.core.ejb.local.XmlServerSLWrapperSession</ejb-class>
+         <ejb-class>com.amalto.core.ejb.local.XmlServerSLWrapperBean</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>
 

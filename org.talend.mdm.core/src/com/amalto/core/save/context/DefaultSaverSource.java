@@ -12,15 +12,15 @@
 package com.amalto.core.save.context;
 
 import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.schema.validation.XmlSchemaValidator;
+import com.amalto.core.server.DataModel;
+import com.amalto.core.server.XmlServer;
 import com.amalto.core.servlet.LoadServlet;
 import com.amalto.core.util.*;
 
@@ -32,9 +32,9 @@ import java.util.Set;
 
 public class DefaultSaverSource implements SaverSource {
 
-    private final XmlServerSLWrapperLocal database;
+    private final XmlServer database;
 
-    private final DataModelCtrlLocal dataModel;
+    private final DataModel dataModel;
 
     private final Map<String, MetadataRepository> repositories = new HashMap<String, MetadataRepository>();
 

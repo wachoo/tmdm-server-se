@@ -1,12 +1,8 @@
 package com.amalto.core.objects.routing.v2.ejb;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
@@ -21,12 +17,6 @@ import com.amalto.core.ejb.ObjectPOJOPK;
 public abstract class AbstractRoutingOrderV2POJO extends ObjectPOJO{
    
 
-	//check if cluster exists - if not create	
-//	{
-//		ObjectPOJO.createCluster(AbstractRoutingOrderPOJO.class);
-//	}
-//	
-		
 	public final static int FAILED = 0;
 	public final static int ACTIVE = 1;
 	public final static int COMPLETED = 2;

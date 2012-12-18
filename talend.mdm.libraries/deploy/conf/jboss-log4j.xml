@@ -192,9 +192,6 @@
     </category>
 
     <!-- Change this to debug if you want to see what is loaded on the XML server -->
-    <category name="com.amalto.core.ejb.local.XmlServerSLWrapperSession">
-        <priority value="INFO"/>
-    </category>
     <category name="com.amalto.core.ejb.XmlServerSLWrapper">
         <priority value="INFO"/>
     </category>

@@ -3,12 +3,12 @@ package com.amalto.core.objects.datamodel.ejb;
 import java.util.Map;
 import java.util.Set;
 
+import com.amalto.commons.core.datamodel.synchronization.DataModelChangeNotifier;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;
-import com.amalto.commons.core.datamodel.synchronization.DatamodelChangeNotifier;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.metadata.FieldMetadata;
@@ -101,13 +101,9 @@ public class DataModelPOJO extends ObjectPOJO{
 
 	@Override
 	public ObjectPOJOPK store() throws XtentisException {
-		ObjectPOJOPK pk=super.store();
-		return pk;
+        return super.store();
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.amalto.core.ejb.ObjectPOJO#store(java.lang.String)
-	 */
 	@Override
 	public ObjectPOJOPK store(String revisionID) throws XtentisException {
 	    
@@ -144,7 +140,7 @@ public class DataModelPOJO extends ObjectPOJO{
         }
 
         //synchronize with outer agents
-        DatamodelChangeNotifier dmUpdateEventNotifer = new DatamodelChangeNotifier();
+        DataModelChangeNotifier dmUpdateEventNotifer = new DataModelChangeNotifier();
         dmUpdateEventNotifer.addUpdateMessage(new DMUpdateEvent(getPK().getUniqueId(), revisionID));
         dmUpdateEventNotifer.sendMessages();
         

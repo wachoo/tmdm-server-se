@@ -414,7 +414,7 @@ public class ItemPOJO implements Serializable {
                 
                 //if <t> after <taskId> then see 0021697
                 String time=null;
-                if(m.group(1).indexOf("<t>")==-1){ //$NON-NLS-1$
+                if(!m.group(1).contains("<t>")){ //$NON-NLS-1$
                 	Pattern tp=Pattern.compile("<t>(.*?)</t>"); //$NON-NLS-1$
                 	Matcher tm=tp.matcher(item);
                 	if(tm.find()){
@@ -451,13 +451,11 @@ public class ItemPOJO implements Serializable {
 
             } else {
                 newItem.setProjectionAsString(item);
-                // throw new XtentisException("Cannot parse item read from XML Server");
             }
 
             // check user rights
             if (checkRights && newItem.getDataModelName() != null) {
                 try {
-
                     AppinfoSourceHolder appinfoSourceHolder = new AppinfoSourceHolder(new AppinfoSourceHolderPK(
                             newItem.getDataModelName(), newItem.getConceptName()));
 
@@ -587,9 +585,7 @@ public class ItemPOJO implements Serializable {
                 xmlDocument.append(xml);
 
             } else {
-
                 String xPath = "/ii/p" + partPath;
-
                 sourceDoc = Util.parse(xml);
                 toDeleteNodeList = Util.getNodeList(sourceDoc, xPath);
                 if (toDeleteNodeList.getLength() == 0)
@@ -598,19 +594,10 @@ public class ItemPOJO implements Serializable {
                     Node node = toDeleteNodeList.item(i);
                     xmlDocument.append(Util.nodeToString(node));
                 }
-
-                /*
-                 * another way: String query ="document('"+uniqueID+"')/ii/p"+partPath; ArrayList<String>
-                 * results=server.runQuery(revisionID, dataClusterName, query,null); if
-                 * (results==null||results.size()==0) return null; for (int i = 0; i < results.size(); i++) {
-                 * xmlDocument.append(results.get(i)); }
-                 */
             }
 
             // make source left doc && validate
-            if (partPath.equals("/")) {
-
-            } else {
+            if (!partPath.equals("/")) {
                 if (toDeleteNodeList != null) {
                     Node lastParentNode = null;
                     Node formatSiblingNode = null;
@@ -645,13 +632,18 @@ public class ItemPOJO implements Serializable {
                             Util.validate(itemPOJO.getProjection(), dataModelPOJO.getSchema());
                     }
                 }
-
             }
 
             // str 2 pojo
-            DroppedItemPOJO droppedItemPOJO = new DroppedItemPOJO(revisionID, itemPOJOPK.getDataClusterPOJOPK(), uniqueID,
-                    itemPOJOPK.getConceptName(), itemPOJOPK.getIds(), partPath, xmlDocument.toString(), user.getUsername(), new Long(
-                            System.currentTimeMillis()));
+            DroppedItemPOJO droppedItemPOJO = new DroppedItemPOJO(revisionID,
+                    itemPOJOPK.getDataClusterPOJOPK(),
+                    uniqueID,
+                    itemPOJOPK.getConceptName(),
+                    itemPOJOPK.getIds(),
+                    partPath,
+                    xmlDocument.toString(),
+                    user.getUsername(),
+                    System.currentTimeMillis());
 
             // Marshal
             StringWriter sw = new StringWriter();
