@@ -44,13 +44,6 @@
         <key xsi:type="java:java.lang.String">Menu</key>
         <value admin="false" xsi:type="java:com.amalto.core.util.RoleSpecification">
             <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
-                <key xsi:type="java:java.lang.String">Browse items2</key>
-                <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance">
-                    <parameters xsi:type="java:java.lang.String">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;role-menu-parameters position="1"&gt;&lt;parent-iD&gt;&lt;/parent-iD&gt;&lt;/role-menu-parameters&gt;</parameters>
-                </value>
-            </instances>
-            <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
                 <key xsi:type="java:java.lang.String">BrowseRecords</key>
                 <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance">
                     <parameters xsi:type="java:java.lang.String">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
@@ -93,26 +86,12 @@
                 </value>
             </instances>
             <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
-                <key xsi:type="java:java.lang.String">ItemsTrash</key>
-                <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance">
-                    <parameters xsi:type="java:java.lang.String">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;role-menu-parameters position="5"&gt;&lt;parent-iD&gt;&lt;/parent-iD&gt;&lt;/role-menu-parameters&gt;</parameters>
-                </value>
-            </instances>
-            <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
                 <key xsi:type="java:java.lang.String">RecycleBin</key>
                 <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance">
                     <parameters xsi:type="java:java.lang.String">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;role-menu-parameters position="5"&gt;&lt;parent-iD&gt;&lt;/parent-iD&gt;&lt;/role-menu-parameters&gt;</parameters>
                 </value>
             </instances>            
-            <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
-                <key xsi:type="java:java.lang.String">Cross Referencing</key>
-                <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance">
-                    <parameters xsi:type="java:java.lang.String">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;role-menu-parameters position="1"&gt;&lt;parent-iD&gt;&lt;/parent-iD&gt;&lt;/role-menu-parameters&gt;</parameters>
-                </value>
-            </instances>
             <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
                 <key xsi:type="java:java.lang.String">CrossReference</key>
                 <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance">
@@ -125,13 +104,6 @@
                 <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance">
                     <parameters xsi:type="java:java.lang.String">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;role-menu-parameters position="4"&gt;&lt;parent-iD&gt;&lt;/parent-iD&gt;&lt;/role-menu-parameters&gt;</parameters>
-                </value>
-            </instances>
-            <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
-                <key xsi:type="java:java.lang.String">Welcome</key>
-                <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance">
-                    <parameters xsi:type="java:java.lang.String">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;role-menu-parameters position="0"&gt;&lt;parent-iD&gt;&lt;/parent-iD&gt;&lt;/role-menu-parameters&gt;</parameters>
                 </value>
             </instances>
             <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
