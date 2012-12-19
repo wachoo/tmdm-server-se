@@ -30,7 +30,7 @@
 	<classpathentry kind="lib" path="lib/sqljdbc4.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis-1.0.b2.jar"/>
 	<classpathentry kind="lib" path="lib/z.commons-logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="src/WEB-INF/lib/z.XmlSchema-1.4.5.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/z.XmlSchema-1.4.5.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.xmlserver.interfaces"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.commmon"/>
