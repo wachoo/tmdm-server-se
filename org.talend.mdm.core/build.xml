@@ -48,6 +48,12 @@
         </antcall>
     </target>
 
+    <target name="compile">
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="compile"/>
+        </antcall>
+    </target>
+
     <target name="package">
         <antcall target="mvn.invoke">
             <param name="mvn.goal" value="package"/>
