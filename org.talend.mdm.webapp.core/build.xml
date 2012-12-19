@@ -40,7 +40,7 @@
 				<include name="web.xml" />
 			</zipfileset>
 		    <zipfileset dir="${tom.location}/org.talend.mdm.core/src" includes="WEB-INF/lib/*.*" />
-		    <zipfileset dir="${tom.location}/org.talend.mdm.core/lib" includes="*.jar" prefix="WEB-INF/lib" />
+		    <zipfileset dir="${tom.location}/org.talend.mdm.core/target/lib" includes="*.jar" prefix="WEB-INF/lib" />
 			<zipfileset dir="${jboss.instance.lib}" prefix="WEB-INF/lib" includes="z.standard.jar" />
 			<zipfileset dir="src/WEB-INF" prefix="WEB-INF">
 				<include name="jboss-web.xml" />
@@ -81,7 +81,7 @@
 		<path id="base.classpath">
 			<pathelement path="bin" />
 			<pathelement path="${tom.location}/org.talend.mdm.xmlserver.interfaces/bin" />
-			<pathelement path="${tom.location}/org.talend.mdm.core/bin" />
+			<pathelement path="${tom.location}/org.talend.mdm.core/target/classes" />
 			<pathelement path="${tom.location}/talend.mdm.libraries/lib/log4j.jar" />
 			<pathelement path="${tom.location}/talend.mdm.libraries/lib/z.xsom.jar" />
 			<pathelement path="${tom.location}/talend.mdm.libraries/lib/commons-io.jar"/>
