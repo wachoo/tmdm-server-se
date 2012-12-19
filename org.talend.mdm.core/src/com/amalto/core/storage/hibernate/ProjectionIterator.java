@@ -11,43 +11,18 @@
 
 package com.amalto.core.storage.hibernate;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import javax.xml.XMLConstants;
-
+import com.amalto.core.metadata.*;
+import com.amalto.core.query.user.*;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.ScrollableResults;
 
-import com.amalto.core.metadata.AliasedFieldMetadata;
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.ComplexTypeMetadataImpl;
-import com.amalto.core.metadata.CompoundFieldMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
-import com.amalto.core.metadata.SimpleTypeFieldMetadata;
-import com.amalto.core.metadata.SimpleTypeMetadata;
-import com.amalto.core.query.user.Alias;
-import com.amalto.core.query.user.Count;
-import com.amalto.core.query.user.Field;
-import com.amalto.core.query.user.StagingError;
-import com.amalto.core.query.user.StagingSource;
-import com.amalto.core.query.user.StagingStatus;
-import com.amalto.core.query.user.StringConstant;
-import com.amalto.core.query.user.TaskId;
-import com.amalto.core.query.user.Timestamp;
-import com.amalto.core.query.user.Type;
-import com.amalto.core.query.user.TypedExpression;
-import com.amalto.core.query.user.VisitorAdapter;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import javax.xml.XMLConstants;
+import java.io.IOException;
+import java.util.*;
 
 class ProjectionIterator extends CloseableIterator<DataRecord> {
 
@@ -121,19 +96,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             }
             ProjectionElementCreator projectionElementCreator = new ProjectionElementCreator(explicitProjectionType, values);
             List<ProjectionElement> elements = new LinkedList<ProjectionElement>();
-            Set<String> names = new HashSet<String>();
             for (TypedExpression selectedField : selectedFields) {
-                if (selectedField instanceof Field){
-                    FieldMetadata  fieldMetadata = ((Field) selectedField).getFieldMetadata();
-                    if (names.contains(fieldMetadata.getName())){
-                        selectedField = new Alias(selectedField, fieldMetadata.getDeclaringType().getName()
-                                + "/" + fieldMetadata.getName()); //$NON-NLS-1$
-                        names.add(((Alias) selectedField).getAliasName());
-                    } else {
-                        names.add(((Field) selectedField).getFieldMetadata().getName());
-                    }
-                }
-                
                 elements.add(selectedField.accept(projectionElementCreator));
             }
             for (ProjectionElement element : elements) {
@@ -208,14 +171,29 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             currentElement.field = field;
         }
 
-        @Override
+        private void createReferenceElement(ReferenceFieldMetadata fieldMetadata) {
+            FieldMetadata field = new ReferenceFieldMetadata(explicitProjectionType,
+                    false,
+                    false,
+                    false,
+                    fieldMetadata.getName(),
+                    fieldMetadata.getReferencedType(),
+                    fieldMetadata.getReferencedField(),
+                    fieldMetadata.getForeignKeyInfoField(),
+                    false,
+                    false,
+                    Collections.<String>emptyList(),
+                    Collections.<String>emptyList());
+            currentElement = new ProjectionElement();
+            currentElement.field = field;
+        }
+
         public ProjectionElement visit(Count count) {
             // Do nothing on field creation, count is expected to be nested in a com.amalto.core.query.user.Alias.
             currentElement.value = values[currentIndex++];
             return null;
         }
 
-        @Override
         public ProjectionElement visit(Alias alias) {
             isAlias = true;
             if (alias.getTypedExpression() instanceof Field) {
@@ -230,7 +208,6 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             return currentElement;
         }
 
-        @Override
         public ProjectionElement visit(Type type) {
             Object value = values[currentIndex++];
             if (value != null) {
@@ -251,13 +228,11 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             return currentElement;
         }
 
-        @Override
         public ProjectionElement visit(StringConstant constant) {
             currentElement.value = values[currentIndex++];
             return currentElement;
         }
 
-        @Override
         public ProjectionElement visit(Timestamp timestamp) {
             if (!isAlias) {
                 createElement(Timestamp.TIMESTAMP_TYPE_NAME, Storage.METADATA_TIMESTAMP);
@@ -266,7 +241,6 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             return currentElement;
         }
 
-        @Override
         public ProjectionElement visit(TaskId taskId) {
             if (!isAlias) {
                 createElement(TaskId.TASK_ID_TYPE_NAME, Storage.METADATA_TASK_ID);
@@ -275,12 +249,14 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             return currentElement;
         }
 
-        @Override
         public ProjectionElement visit(Field field) {
             FieldMetadata fieldMetadata = field.getFieldMetadata();
             if (!isAlias) {
-                currentElement = new ProjectionElement();
-                currentElement.field = fieldMetadata;
+                if (fieldMetadata instanceof ReferenceFieldMetadata) {
+                    createReferenceElement(((ReferenceFieldMetadata) fieldMetadata));
+                } else {
+                    createElement(fieldMetadata.getType().getName(), fieldMetadata.getName());
+                }
             }
             if (fieldMetadata instanceof ReferenceFieldMetadata && ((ReferenceFieldMetadata) fieldMetadata).getReferencedField() instanceof CompoundFieldMetadata) {
                 FieldMetadata referencedField = ((ReferenceFieldMetadata) fieldMetadata).getReferencedField();
@@ -308,7 +284,6 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             return true;
         }
 
-        @Override
         public ProjectionElement visit(StagingStatus stagingStatus) {
             if (!isAlias) {
                 createElement(StagingStatus.STATING_STATUS_TYPE_NAME, Storage.METADATA_STAGING_STATUS);
@@ -317,7 +292,6 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             return currentElement;
         }
 
-        @Override
         public ProjectionElement visit(StagingError stagingError) {
             if (!isAlias) {
                 createElement(StagingError.STATING_ERROR_TYPE_NAME, Storage.METADATA_STAGING_ERROR);
@@ -326,7 +300,6 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             return currentElement;
         }
 
-        @Override
         public ProjectionElement visit(StagingSource stagingSource) {
             if (!isAlias) {
                 createElement(StagingSource.STATING_SOURCE_TYPE_NAME, Storage.METADATA_STAGING_SOURCE);

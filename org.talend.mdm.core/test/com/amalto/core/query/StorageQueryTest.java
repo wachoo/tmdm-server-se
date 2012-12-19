@@ -1968,7 +1968,7 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(E2_Record1 + E2_Record2 + E2_Record3 + E2_Record4 + E2_Record5 + E2_Record6 + E2_Record7, actual);
     }
 
-    public void testViewSearchResultsWriter() {
+    public void testDuplicateFieldNames() {
         UserQueryBuilder qb = from(product);
 
         List<String> viewables = new ArrayList<String>();

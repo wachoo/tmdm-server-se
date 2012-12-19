@@ -20,9 +20,7 @@ import java.io.Writer;
 import javax.xml.XMLConstants;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 
-import com.amalto.core.metadata.AliasedFieldMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.ReferenceFieldMetadata;
 import com.amalto.core.query.user.DateConstant;
@@ -39,26 +37,17 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
         writer.write("<result xmlns:xsi=\"" + XMLConstants.W3C_XML_SCHEMA_NS_URI + "\">\n"); //$NON-NLS-1$ //$NON-NLS-2$
         for (FieldMetadata fieldMetadata : record.getSetFields()) {
             Object value = record.get(fieldMetadata);
+            String name = fieldMetadata.getName();
             if (value != null) {
-                writer.append("\t<" + buildXmlTag(fieldMetadata) + ">"); //$NON-NLS-1$ //$NON-NLS-2$
+                writer.append("\t<").append(name).append(">"); //$NON-NLS-1$ //$NON-NLS-2$
                 processValue(writer, fieldMetadata, value);
-                writer.append("</" + buildXmlTag(fieldMetadata) + ">\n"); //$NON-NLS-1$ //$NON-NLS-2$
+                writer.append("</").append(name).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$
             } else {
-                writer.append("\t<" + buildXmlTag(fieldMetadata) + "/>\n"); //$NON-NLS-1$ //$NON-NLS-2$
+                writer.append("\t<").append(name).append("/>\n"); //$NON-NLS-1$//$NON-NLS-2$
             }
         }
         writer.append("</result>"); //$NON-NLS-1$
         writer.flush();
-    }
-
-    private String buildXmlTag(FieldMetadata fieldmetadata) {
-        String xpath;
-        if (fieldmetadata instanceof AliasedFieldMetadata) {
-            xpath = fieldmetadata.getName();
-        } else {
-            xpath = fieldmetadata.getDeclaringType().getName() + "/" + fieldmetadata.getName(); //$NON-NLS-1$
-        }
-        return xpath.contains("/") ? StringUtils.substringAfterLast(xpath, "/") : xpath; //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     private void processValue(Writer out, FieldMetadata fieldMetadata, Object value) throws IOException {
