@@ -11,18 +11,43 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.*;
-import com.amalto.core.query.user.*;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import javax.xml.XMLConstants;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.ScrollableResults;
 
-import javax.xml.XMLConstants;
-import java.io.IOException;
-import java.util.*;
+import com.amalto.core.metadata.AliasedFieldMetadata;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ComplexTypeMetadataImpl;
+import com.amalto.core.metadata.CompoundFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.SimpleTypeFieldMetadata;
+import com.amalto.core.metadata.SimpleTypeMetadata;
+import com.amalto.core.query.user.Alias;
+import com.amalto.core.query.user.Count;
+import com.amalto.core.query.user.Field;
+import com.amalto.core.query.user.StagingError;
+import com.amalto.core.query.user.StagingSource;
+import com.amalto.core.query.user.StagingStatus;
+import com.amalto.core.query.user.StringConstant;
+import com.amalto.core.query.user.TaskId;
+import com.amalto.core.query.user.Timestamp;
+import com.amalto.core.query.user.Type;
+import com.amalto.core.query.user.TypedExpression;
+import com.amalto.core.query.user.VisitorAdapter;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 
 class ProjectionIterator extends CloseableIterator<DataRecord> {
 
@@ -96,7 +121,19 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             }
             ProjectionElementCreator projectionElementCreator = new ProjectionElementCreator(explicitProjectionType, values);
             List<ProjectionElement> elements = new LinkedList<ProjectionElement>();
+            Set<String> names = new HashSet<String>();
             for (TypedExpression selectedField : selectedFields) {
+                if (selectedField instanceof Field){
+                    FieldMetadata  fieldMetadata = ((Field) selectedField).getFieldMetadata();
+                    if (names.contains(fieldMetadata.getName())){
+                        selectedField = new Alias(selectedField, fieldMetadata.getDeclaringType().getName()
+                                + "/" + fieldMetadata.getName()); //$NON-NLS-1$
+                        names.add(((Alias) selectedField).getAliasName());
+                    } else {
+                        names.add(((Field) selectedField).getFieldMetadata().getName());
+                    }
+                }
+                
                 elements.add(selectedField.accept(projectionElementCreator));
             }
             for (ProjectionElement element : elements) {

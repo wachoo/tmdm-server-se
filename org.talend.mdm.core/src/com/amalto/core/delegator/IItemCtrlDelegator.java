@@ -28,9 +28,7 @@ import com.amalto.core.objects.role.ejb.RolePOJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
-import com.amalto.core.query.user.Alias;
 import com.amalto.core.query.user.OrderBy;
-import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.server.Server;
@@ -260,18 +258,12 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                     throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data cluster '" + dataClusterPOJOPK.getUniqueId() + "'.");
                 }
                 UserQueryBuilder qb = UserQueryBuilder.from(type);
-                Set<String> fieldNames = new HashSet<String>();
                 // Select fields
                 ArrayListHolder<String> viewableBusinessElements = view.getViewableBusinessElements();
                 for (String viewableBusinessElement : viewableBusinessElements.getList()) {
                     String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
                     String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
-                    TypedExpression typeExpression = UserQueryHelper.getField(repository, viewableTypeName, viewablePath);
-                    if (fieldNames.contains(viewablePath)) {
-                        typeExpression = new Alias(typeExpression, viewableTypeName + "_" + viewablePath); //$NON-NLS-1$
-                    }
-                    fieldNames.add(viewablePath);
-                    qb.select(typeExpression);
+                    qb.select(UserQueryHelper.getField(repository, viewableTypeName, viewablePath));
                 }
                 // Condition and paging
                 qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));

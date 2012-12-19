@@ -50,13 +50,28 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import com.amalto.core.query.optimization.UpdateReportOptimizer;
-import com.amalto.core.query.user.*;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.query.optimization.UpdateReportOptimizer;
+import com.amalto.core.query.user.Alias;
+import com.amalto.core.query.user.BinaryLogicOperator;
+import com.amalto.core.query.user.Compare;
+import com.amalto.core.query.user.Condition;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.Field;
+import com.amalto.core.query.user.IntegerConstant;
+import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.Predicate;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.StringConstant;
+import com.amalto.core.query.user.Timestamp;
+import com.amalto.core.query.user.TypedExpression;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
@@ -1951,6 +1966,53 @@ public class StorageQueryTest extends StorageTestCase {
         }
         String actual = new String(output.toByteArray());
         assertEquals(E2_Record1 + E2_Record2 + E2_Record3 + E2_Record4 + E2_Record5 + E2_Record6 + E2_Record7, actual);
+    }
+
+    public void testViewSearchResultsWriter() {
+        UserQueryBuilder qb = from(product);
+
+        List<String> viewables = new ArrayList<String>();
+        viewables.add("Product/Id");
+        viewables.add("Product/Name");
+        viewables.add("Product/Family");
+        viewables.add("ProductFamily/Id");
+        viewables.add("ProductFamily/Name");
+
+        List<IWhereItem> conditions = new ArrayList<IWhereItem>();
+        conditions.add(new WhereCondition("Product/Family", "JOINS", "ProductFamily/Id", "&"));
+
+        IWhereItem fullWhere = new WhereAnd(conditions);
+        qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
+
+        for (String viewableBusinessElement : viewables) {
+            String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
+            String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
+            qb.select(UserQueryHelper.getField(repository, viewableTypeName, viewablePath));
+        }
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(2, results.getCount());
+
+        DataRecordWriter writer = new ViewSearchResultsWriter();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        List<String> strings = new ArrayList<String>();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+                String document = new String(output.toByteArray(), Charset.forName("UTF-8"));
+                strings.add(document);
+                output.reset();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        assertEquals(2, strings.size());
+        assertEquals(
+                "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">\n\t<Id>1</Id>\n\t<Name>Product name</Name>\n\t<Family>[2]</Family>\n\t<Id>2</Id>\n\t<Name>Product family #2</Name>\n</result>",
+                strings.get(0));
+        assertEquals(
+                "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">\n\t<Id>2</Id>\n\t<Name>Renault car</Name>\n\t<Family/>\n\t<Id/>\n\t<Name/>\n</result>",
+                strings.get(1));
     }
 
     public void testFetchAllE2WithJoniE1() {
