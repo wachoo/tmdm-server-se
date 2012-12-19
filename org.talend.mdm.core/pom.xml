@@ -20,10 +20,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.talend.mdm</groupId>
     <artifactId>org.talend.mdm.core</artifactId>
-    <version>${mdm.build.version}</version>
     <packaging>war</packaging>
     <name>Talend MDM Core</name>
     <description>Talend MDM Core features.</description>
@@ -100,7 +97,7 @@
                                 </goals>
                                 <configuration>
                                     <tasks>
-                                        <jar destfile="${build.directory}/${ejbs}" manifest="war/META-INF/MANIFEST.MF">
+                                        <jar destfile="${project.build.directory}/${ejbs}" manifest="war/META-INF/MANIFEST.MF">
                                             <zipfileset dir="${project.basedir}">
                                                 <include name="RELEASE.NOTES"/>
                                                 <include name="${project.version}"/>
@@ -112,7 +109,7 @@
                                         </jar>
 
                                         <!-- used by transformer plugins -->
-                                        <jar destfile="${build.directory}/${lib}"
+                                        <jar destfile="${project.build.directory}/${lib}"
                                              manifest="war/META-INF/MANIFEST.MF">
                                             <zipfileset dir="${project.basedir}">
                                                 <include name="${project.version}"/>
@@ -125,7 +122,7 @@
                                         </jar>
 
                                         <!-- JUL to log4j service MBean -->
-                                        <jar destfile="${build.directory}/${service}"
+                                        <jar destfile="${project.build.directory}/${service}"
                                              manifest="war/META-INF/MANIFEST.MF">
                                             <zipfileset dir="${project.basedir}">
                                                 <include name="${project.version}"/>
@@ -136,7 +133,7 @@
                                                         prefix="WEB-INF/classes"/>
                                         </jar>
 
-                                        <jar destfile="${build.directory}/${war}" manifest="war/META-INF/MANIFEST.MF">
+                                        <jar destfile="${project.build.directory}/${war}" manifest="war/META-INF/MANIFEST.MF">
                                             <zipfileset dir="war/WEB-INF" prefix="WEB-INF">
                                                 <include name="web.xml"/>
                                             </zipfileset>
@@ -391,7 +388,6 @@
         <plugins>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.3</version>
                 <configuration>
                     <excludes>**/ejb/*.class</excludes>
                     <webXml>war/WEB-INF/web.xml</webXml>
