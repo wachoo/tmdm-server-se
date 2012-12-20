@@ -110,7 +110,7 @@ public class ControllerServlet extends HttpServlet {
         }
         html.append("</head>");
 
-        html.append("<body>");
+        html.append("<body style=\"-moz-user-select: -moz-none\" onselectstart=\"return false\">");
         html.append("<iframe src=\"javascript:''\" id='__gwt_historyFrame' tabIndex='-1' style='position:absolute;width:0;height:0;border:0'></iframe>");
         html.append("</body>");
         return html.toString();
