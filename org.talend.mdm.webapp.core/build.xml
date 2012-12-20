@@ -6,7 +6,7 @@
 	<property name="war" value="zz.20.webapp.core.war"/>	
 	<property name="jar" value="z.mdm.webapp.core.jar"/>	
 	
-	<property name="jboss.dir" value="/home/pascal/dev/jboss/jboss-4.2.2.GA-mdm"/>
+	<property name="jboss.dir" value="/opt/jboss/jboss-4.2.2.GA"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
 	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
@@ -81,7 +81,7 @@
 		<path id="base.classpath">
 			<pathelement path="bin" />
 			<pathelement path="${tom.location}/org.talend.mdm.xmlserver.interfaces/bin" />
-			<pathelement path="${tom.location}/org.talend.mdm.core/target/classes" />
+			<pathelement path="${tom.location}/org.talend.mdm.core/bin" />
 			<pathelement path="${tom.location}/talend.mdm.libraries/lib/log4j.jar" />
 			<pathelement path="${tom.location}/talend.mdm.libraries/lib/z.xsom.jar" />
 			<pathelement path="${tom.location}/talend.mdm.libraries/lib/commons-io.jar"/>
