@@ -272,11 +272,8 @@ public class CommonUtilTest extends TestCase {
         assertNotNull(addressType);
         List<ItemNodeModel> list = CommonUtil.getDefaultTreeModel(addressType, true, language);
         ItemNodeModel addressNodeModel = list.get(0);
-        assertEquals("CHNAddressType", addressNodeModel.getRealType());
-        assertEquals(3, addressNodeModel.getChildCount());
-        assertEquals("address", ((ItemNodeModel) addressNodeModel.getChild(0)).getName());
-        assertEquals("tel", ((ItemNodeModel) addressNodeModel.getChild(1)).getName());
-        assertEquals("postcode", ((ItemNodeModel) addressNodeModel.getChild(2)).getName());
+        assertEquals("", addressNodeModel.getRealType());
+        assertEquals(0, addressNodeModel.getChildCount());
 
     }
 

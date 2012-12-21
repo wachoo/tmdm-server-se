@@ -27,6 +27,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.apache.commons.lang.StringUtils;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -504,10 +505,12 @@ public class DataModelHelperTest extends TestCase {
 
         Map<String, TypeModel> types = employeeModel.getMetaDataTypes();
         TypeModel addressType = types.get("Employee/Address");
+        assertEquals(true, addressType.isAbstract());
         assertEquals(2, addressType.getLabelMap().size());
         assertEquals("adresse", addressType.getLabel(language));
 
         List<ComplexTypeModel> reusableTypes = ((ComplexTypeModel) addressType).getReusableComplexTypes();
+        assertEquals(5, reusableTypes.size());
         for (ComplexTypeModel complexTypeModel : reusableTypes) {
             String typeName = complexTypeModel.getName();
             if (typeName.equals("AddressType")) {
@@ -526,6 +529,11 @@ public class DataModelHelperTest extends TestCase {
                 assertEquals(false, complexTypeModel.isAbstract());
                 assertEquals(2, complexTypeModel.getLabelMap().size());
                 assertEquals("USAdresseType", complexTypeModel.getLabel(language));
+            } else if (typeName.equals(StringUtils.EMPTY)) {
+                assertEquals(false, complexTypeModel.isAbstract());
+                assertEquals(0, complexTypeModel.getLabelMap().size());
+                assertEquals(typeName, complexTypeModel.getLabel(language));
+                assertEquals(0, complexTypeModel.getSubTypes().size());
             }
 
         }
