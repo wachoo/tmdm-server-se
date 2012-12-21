@@ -11,16 +11,23 @@
 
 package com.amalto.core.storage;
 
-import static com.amalto.core.query.user.UserQueryBuilder.alias;
-import static com.amalto.core.query.user.UserQueryBuilder.contains;
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
-import static com.amalto.core.query.user.UserQueryBuilder.fullText;
-import static com.amalto.core.query.user.UserQueryBuilder.gte;
-import static com.amalto.core.query.user.UserQueryBuilder.lte;
-import static com.amalto.core.query.user.UserQueryBuilder.or;
-import static com.amalto.core.query.user.UserQueryBuilder.taskId;
-import static com.amalto.core.query.user.UserQueryBuilder.timestamp;
+import com.amalto.core.load.io.ResettableStringWriter;
+import com.amalto.core.metadata.*;
+import com.amalto.core.query.user.*;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
+import com.amalto.core.storage.record.*;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
+import com.amalto.xmlserver.interfaces.XmlServerException;
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,34 +35,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
-import com.amalto.core.query.user.*;
-import com.amalto.core.storage.datasource.DataSource;
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringUtils;
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-
-import com.amalto.core.load.io.ResettableStringWriter;
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.ContainedTypeFieldMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.metadata.MetadataUtils;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordReader;
-import com.amalto.core.storage.record.DataRecordWriter;
-import com.amalto.core.storage.record.DataRecordXmlWriter;
-import com.amalto.core.storage.record.XmlDOMDataRecordReader;
-import com.amalto.core.storage.record.XmlSAXDataRecordReader;
-import com.amalto.core.storage.record.XmlStringDataRecordReader;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
-import com.amalto.xmlserver.interfaces.ItemPKCriteria;
-import com.amalto.xmlserver.interfaces.XmlServerException;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 public class StorageWrapper implements IXmlServerSLWrapper {
 
@@ -490,22 +470,24 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             // TMDM-4651: Returns type in correct dependency order.
             Collection<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
             int maxCount = criteria.getMaxItems();
-            if(criteria.getSkip() < 0)
+            if(criteria.getSkip() < 0) { // MDM Studio may send negative values
                 criteria.setSkip(0);
-            List <String> tmpList = null;
-            int count = 0;
+            }
+            List<String> currentInstanceResults;
             for (ComplexTypeMetadata type : types) {
-                count = getTypeItemCount(criteria, type, storage);
+                int count = getTypeItemCount(criteria, type, storage);
                 totalCount += count;
-                if(itemPKResults.size() < maxCount) {
+                if(itemPKResults.size() <= maxCount) {
                     if(count > criteria.getSkip()) {
-                        tmpList = getTypeItems(criteria, type, storage);
-                        itemPKResults.addAll(tmpList);
-                        criteria.setMaxItems(criteria.getMaxItems() - tmpList.size());
+                        currentInstanceResults = getTypeItems(criteria, type, storage);
+                        itemPKResults.addAll(currentInstanceResults);
+                        criteria.setMaxItems(criteria.getMaxItems() - currentInstanceResults.size());
                         criteria.setSkip(0);
                     } else {
                         criteria.setSkip(criteria.getSkip() - count);
                     }
+                } else {
+                    break;
                 }
             }
         }
@@ -515,7 +497,11 @@ public class StorageWrapper implements IXmlServerSLWrapper {
 
     private int getTypeItemCount(ItemPKCriteria criteria, ComplexTypeMetadata type, Storage storage) {        
         StorageResults results = storage.fetch(buildQueryBuilder(from(type), criteria, type).getSelect());
-        return results.getCount();
+        try {
+            return results.getCount();
+        } finally {
+            results.close();
+        }
     }
     
     private List<String> getTypeItems(ItemPKCriteria criteria, ComplexTypeMetadata type, Storage storage) throws XmlServerException {
