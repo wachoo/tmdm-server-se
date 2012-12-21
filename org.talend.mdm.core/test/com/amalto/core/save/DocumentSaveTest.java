@@ -43,6 +43,7 @@ import com.amalto.core.schema.validation.Validator;
 import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.Util;
+import com.amalto.core.util.ValidateException;
 import com.amalto.core.util.XtentisException;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 
@@ -1763,6 +1764,66 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
         assertEquals("", evaluate(committer.getCommittedElement(), "/Personne/Contextes/Contexte[2]/DateFinContexte"));
         assertEquals("[1]", evaluate(committer.getCommittedElement(), "/Personne/Contextes/Contexte[2]/OrganisationFk"));
+    }
+    
+    public void testSaveWithPolymorphismNode() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("Personne.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, false, "", "Personne.xsd");
+        source.setUserName("System_Admin");
+
+        // 1. /Personne/Contextes/Contexte all of nodes are empty(including Polymorphism node: SpecialisationContactType)
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("Personne.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "Vinci", "Source", recordXml, true, true, true,
+                true);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertNull(Util.getFirstTextNode(committedElement, "/Personne/Contextes/Contexte/Contacts/Contact/SpecialisationContactType"));
+        assertNotNull(evaluate(committedElement, "/Personne/IdMDM"));
+        assertEquals("[2]", evaluate(committedElement, "/Personne/TypePersonneFk"));
+        assertEquals("3", evaluate(committedElement, "/Personne/NomUsuel"));
+        assertEquals("3", evaluate(committedElement, "/Personne/PrenomUsuel"));
+        
+        // 2. /Personne/Contextes/Contexte all of nodes are empty(excluding Polymorphism node: SpecialisationContactType=SpecialisationContactEmail)
+        session = SaverSession.newSession(source);
+        recordXml = DocumentSaveTest.class.getResourceAsStream("Personne3.xml");
+        context = session.getContextFactory().create("MDM", "Vinci", "Source", recordXml, true, true, true, true);
+        saver = context.createSaver();
+        try {
+            saver.save(session, context);
+            fail("mandatory nodes must be filled");
+        } catch (Exception e) {
+            assertNotNull(e.getCause());
+            assertTrue(e.getCause() instanceof ValidateException);
+        }
+        
+        // 3. /Personne/Contextes/Contexte all of mandatory nodes are filled(including Polymorphism node: SpecialisationContactType=SpecialisationContactEmail)
+        session = SaverSession.newSession(source);
+        recordXml = DocumentSaveTest.class.getResourceAsStream("Personne4.xml");
+        context = session.getContextFactory().create("MDM", "Vinci", "Source", recordXml, true, true, true, true);
+        saver = context.createSaver();
+        saver.save(session, context);
+        committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        committedElement = committer.getCommittedElement();
+        assertEquals("SpecialisationContactEmail", Util.getFirstTextNode(committedElement, "/Personne/Contextes/Contexte/Contacts/Contact/SpecialisationContactType/@xsi:type"));
+        assertEquals("[1]", Util.getFirstTextNode(committedElement, "/Personne/Contextes/Contexte/Contacts/Contact/SpecialisationContactType/NatureEmailFk"));
+        assertEquals("[1]", Util.getFirstTextNode(committedElement, "/Personne/Contextes/Contexte/Contacts/Contact/StatutContactFk"));
+        assertEquals("[1]", Util.getFirstTextNode(committedElement, "/Personne/Contextes/Contexte/StatutContexteFk"));
+        assertNotNull(evaluate(committedElement, "/Personne/Contextes/Contexte/IdContexte"));
+        assertNotNull(evaluate(committedElement, "/Personne/IdMDM"));
+        assertEquals("[2]", evaluate(committedElement, "/Personne/TypePersonneFk"));
+        assertEquals("3", evaluate(committedElement, "/Personne/NomUsuel"));
+        assertEquals("3", evaluate(committedElement, "/Personne/PrenomUsuel"));
     }
     
     private static class MockCommitter implements SaverSession.Committer {

@@ -171,6 +171,8 @@ public class FieldCreatorTest extends GWTTestCase {
         addressType.setLabelMap(new HashMap<String, String>());
         ComplexTypeModel abstractAddressType = new ComplexTypeModel("AddressType", null);
         abstractAddressType.setAbstract(true);
+        ComplexTypeModel defaultBlankValue = new ComplexTypeModel("", null);
+        addressType.addComplexReusableTypes(defaultBlankValue);
         addressType.addComplexReusableTypes(abstractAddressType);
         ComplexTypeModel cnAddressType = new ComplexTypeModel("CNAddressType", null);
         addressType.addComplexReusableTypes(cnAddressType);
@@ -180,12 +182,14 @@ public class FieldCreatorTest extends GWTTestCase {
         ItemNodeModel addressTypeNodeModel = new ItemNodeModel("AddressType");
         Field<?> addressTypeField = TreeDetailGridFieldCreator.createField(addressTypeNodeModel, addressType, "en", fieldMap,
                 ItemDetailToolBar.CREATE_OPERATION, null);
-        assertTrue(addressType.getReusableComplexTypes().size() == 3);
+        assertTrue(addressType.getReusableComplexTypes().size() == 4);
         assertTrue(addressTypeField instanceof ComboBoxField);
-        assertTrue(((ComboBoxField<?>) addressTypeField).getStore().getCount() == 2);
-        ComboBoxModel cnModel = ((ComboBoxField<ComboBoxModel>) addressTypeField).getStore().getAt(0);
+        assertTrue(((ComboBoxField<?>) addressTypeField).getStore().getCount() == 3);
+        ComboBoxModel defaultModel = ((ComboBoxField<ComboBoxModel>) addressTypeField).getStore().getAt(0);
+        assertEquals(defaultBlankValue.getName(), defaultModel.getValue());
+        ComboBoxModel cnModel = ((ComboBoxField<ComboBoxModel>) addressTypeField).getStore().getAt(1);
         assertEquals(cnAddressType.getName(), cnModel.getValue());
-        ComboBoxModel usModel = ((ComboBoxField<ComboBoxModel>) addressTypeField).getStore().getAt(1);
+        ComboBoxModel usModel = ((ComboBoxField<ComboBoxModel>) addressTypeField).getStore().getAt(2);
         assertEquals(usAddressType.getName(), usModel.getValue());
     }
 

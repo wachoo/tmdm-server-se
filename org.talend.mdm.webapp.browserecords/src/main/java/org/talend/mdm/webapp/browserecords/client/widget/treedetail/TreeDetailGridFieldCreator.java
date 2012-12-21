@@ -26,7 +26,6 @@ import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
-import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
@@ -113,6 +112,7 @@ public class TreeDetailGridFieldCreator {
             comboxField.setValueField("value"); //$NON-NLS-1$
             comboxField.setTypeAhead(true);
             comboxField.setTriggerAction(TriggerAction.ALL);
+            comboxField.setTemplate(getTemplate());
 
             // final ComplexTypeModel complexTypeModel = (ComplexTypeModel) dataType;
             List<ComplexTypeModel> reusableTypes = ((ComplexTypeModel) dataType).getReusableComplexTypes();
@@ -146,7 +146,12 @@ public class TreeDetailGridFieldCreator {
 
                 @Override
                 public void selectionChanged(SelectionChangedEvent<ComboBoxModel> se) {
-                    ComplexTypeModel reusableType = se.getSelectedItem().get("reusableType"); //$NON-NLS-1$
+                    ComplexTypeModel reusableType;
+                    if (se.getSelectedItem() == null) {
+                        reusableType = comboxField.getStore().getAt(0).get("reusableType");
+                    } else {
+                        reusableType = se.getSelectedItem().get("reusableType"); //$NON-NLS-1$    
+                    }
                     AppEvent app = new AppEvent(BrowseRecordsEvents.UpdatePolymorphism);
                     app.setData(reusableType);
                     app.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
@@ -331,6 +336,17 @@ public class TreeDetailGridFieldCreator {
     
     private static native WidgetComponent _getErrorIcon(Field<?> field)/*-{
         return field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon;
+    }-*/;
+    
+    private static native String getTemplate() /*-{
+        return [
+            '<tpl for=".">',
+            '<tpl if="text == \'\'">',
+            '<div role=\"listitem\" class="x-combo-list-item" title=""></br></div>',
+            '</tpl>',
+            '<tpl if="text != \'\'">',
+            '<div role=\"listitem\" class="x-combo-list-item" title="{text}">{text}</div>',
+            '</tpl>', '</tpl>' ].join("");
     }-*/;
 
     private static void buildFacets(TypeModel typeModel, Widget w) {
