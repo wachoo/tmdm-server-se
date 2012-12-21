@@ -38,6 +38,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxFiel
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseListLoadResult;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.BaseModel;
@@ -189,6 +190,7 @@ public class ForeignKeyListWindow extends Window {
     @Override
     protected void onRender(Element parent, int pos) {
         super.onRender(parent, pos);
+        final PagingLoadConfig config = new BasePagingLoadConfig();
         final TypeModel typeModel = buildTypeModel();
 
         final boolean hasForeignKeyFilter = this.foreignKeyFilter != null && this.foreignKeyFilter.trim().length() > 0 ? true
@@ -394,6 +396,10 @@ public class ForeignKeyListWindow extends Window {
                 columns.add(new ColumnConfig(CommonUtil.getElementFromXpath(info), CommonUtil.getElementFromXpath(info),
                         COLUMN_WIDTH));
             }
+            if (columns.size() > 0) {
+                config.setSortField(columns.get(0).getHeader());
+                config.setSortDir(SortDir.ASC);
+            }
         }
         if (columns.size() == 0) {
             columns.add(new ColumnConfig("id", CommonUtil.getElementFromXpath(typeModel.getXpath()), COLUMN_WIDTH)); //$NON-NLS-1$
@@ -429,7 +435,6 @@ public class ForeignKeyListWindow extends Window {
         relatedRecordGrid.addListener(Events.Attach, new Listener<GridEvent<ForeignKeyBean>>() {
 
             public void handleEvent(GridEvent<ForeignKeyBean> be) {
-                PagingLoadConfig config = new BasePagingLoadConfig();
                 config.setOffset(0);
                 config.setLimit(pageSize);
                 loader.load(config);
