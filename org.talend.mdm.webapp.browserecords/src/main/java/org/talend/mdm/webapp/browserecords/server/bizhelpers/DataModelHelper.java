@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
@@ -257,6 +258,10 @@ public class DataModelHelper {
                 abstractReusableComplexType.setAbstract(parentReusableType.isAbstract());
                 abstractReusableComplexType.setLabelMap(parentReusableType.getLabelMap());
                 parentType.addComplexReusableTypes(abstractReusableComplexType);
+                if (typeModel.isAbstract()) {
+                    parentType.addComplexReusableTypes(new ComplexTypeModel(StringUtils.EMPTY, DataTypeCreator.getDataType(
+                        typeName, baseTypeName)));
+                }
                 ReusableType abstractReusable = null;
                 try {
                     abstractReusable = schemaManager.getReusableType(typeName);
