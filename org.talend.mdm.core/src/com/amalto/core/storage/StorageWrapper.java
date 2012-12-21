@@ -484,15 +484,28 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         List<String> itemPKResults = new LinkedList<String>();
         String typeName = criteria.getConceptName();
         if (typeName != null) {
-            // TODO: This is bad implementation (using parameter itemPKResults to get results).
-            totalCount += getTypeItems(criteria, itemPKResults, repository.getComplexType(typeName), storage);
+            totalCount += getTypeItemCount(criteria, repository.getComplexType(typeName), storage);
+            itemPKResults.addAll(getTypeItems(criteria, repository.getComplexType(typeName), storage));
         } else {
             // TMDM-4651: Returns type in correct dependency order.
             Collection<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
+            int maxCount = criteria.getMaxItems();
+            if(criteria.getSkip() < 0)
+                criteria.setSkip(0);
+            List <String> tmpList = null;
+            int count = 0;
             for (ComplexTypeMetadata type : types) {
-                if (itemPKResults.size() < criteria.getMaxItems()) {
-                    // TODO Lower skip as you iterate over types.
-                    totalCount += getTypeItems(criteria, itemPKResults, type, storage);
+                count = getTypeItemCount(criteria, type, storage);
+                totalCount += count;
+                if(itemPKResults.size() < maxCount) {
+                    if(count > criteria.getSkip()) {
+                        tmpList = getTypeItems(criteria, type, storage);
+                        itemPKResults.addAll(tmpList);
+                        criteria.setMaxItems(criteria.getMaxItems() - tmpList.size());
+                        criteria.setSkip(0);
+                    } else {
+                        criteria.setSkip(criteria.getSkip() - count);
+                    }
                 }
             }
         }
@@ -500,7 +513,12 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return itemPKResults;
     }
 
-    private static int getTypeItems(ItemPKCriteria criteria, List<String> itemPKResults, ComplexTypeMetadata type, Storage storage) throws XmlServerException {
+    private int getTypeItemCount(ItemPKCriteria criteria, ComplexTypeMetadata type, Storage storage) {        
+        StorageResults results = storage.fetch(buildQueryBuilder(from(type), criteria, type).getSelect());
+        return results.getCount();
+    }
+    
+    private List<String> getTypeItems(ItemPKCriteria criteria, ComplexTypeMetadata type, Storage storage) throws XmlServerException {
         // Build base query
         UserQueryBuilder qb = from(type)
                 .select(alias(timestamp(), "timestamp")) //$NON-NLS-1$
@@ -509,6 +527,23 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 .limit(criteria.getMaxItems())
                 .start(criteria.getSkip());
 
+        List<String> list = new LinkedList<String>();
+        StorageResults results = storage.fetch(buildQueryBuilder(qb, criteria, type).getSelect());
+        DataRecordWriter writer = new ItemPKCriteriaResultsWriter(type.getName(), type);
+        ResettableStringWriter stringWriter = new ResettableStringWriter();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, stringWriter);
+            } catch (IOException e) {
+                throw new XmlServerException(e);
+            }
+            list.add(stringWriter.toString());
+            stringWriter.reset();
+        }
+        return list;
+    }
+
+    private UserQueryBuilder buildQueryBuilder(UserQueryBuilder qb, ItemPKCriteria criteria, ComplexTypeMetadata type) {
         // Filter by keys: expected format here: $EntityTypeName/Path/To/Field$[id_for_lookup]
         String keysKeywords = criteria.getKeysKeywords();
         if (keysKeywords != null && !keysKeywords.isEmpty()) {
@@ -581,21 +616,10 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 qb.where(condition);
             }
         }
-        StorageResults results = storage.fetch(qb.getSelect());
-        DataRecordWriter writer = new ItemPKCriteriaResultsWriter(type.getName(), type);
-        ResettableStringWriter stringWriter = new ResettableStringWriter();
-        for (DataRecord result : results) {
-            try {
-                writer.write(result, stringWriter);
-            } catch (IOException e) {
-                throw new XmlServerException(e);
-            }
-            itemPKResults.add(stringWriter.toString());
-            stringWriter.reset();
-        }
-        return results.getCount();
+        
+        return qb;
     }
-
+    
     public void clearCache() {
     }
 
