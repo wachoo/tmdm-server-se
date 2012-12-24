@@ -213,6 +213,7 @@
             </zipfileset>
             <zipfileset dir="bin" includes="**/*.class" />
             <zipfileset dir="src" excludes="**/*.java" />
+            <zipfileset dir="war" includes="META-INF/*.*" />
             <zipfileset dir="lib" includes="*.jar" prefix="WEB-INF/lib" />
         </jar>
 
