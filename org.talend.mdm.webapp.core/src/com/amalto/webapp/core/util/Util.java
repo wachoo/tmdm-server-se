@@ -467,6 +467,7 @@ public class Util {
         String concept = fkPath.split("/")[0]; //$NON-NLS-1$
         try {
             BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(concept);
+            businessConcept.load();
             Map<String, String> fkMap = businessConcept.getForeignKeyMap();
             if (fkMap != null && fkMap.containsKey("/" + fkPath)) { //$NON-NLS-1$
                 return true;
