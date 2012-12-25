@@ -31,6 +31,7 @@ import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
@@ -69,7 +70,7 @@ public class DynamicLabelUtil {
             String label = typeModel.getLabel(language);
             if (org.talend.mdm.webapp.base.server.util.DynamicLabelUtil.isDynamicLabel(label)) {
                 label = replaceForeignPath(fullxpath, label, parsedDocument);
-                String stylesheet = org.talend.mdm.webapp.base.server.util.DynamicLabelUtil.genStyle(fullxpath, label);
+                String stylesheet = org.talend.mdm.webapp.base.server.util.DynamicLabelUtil.genStyle(fullxpath, XmlUtil.escapeXml(label));
                 String dynamicLB = org.talend.mdm.webapp.base.server.util.DynamicLabelUtil
                         .getParsedLabel(org.talend.mdm.webapp.base.server.util.XmlUtil.styleDocument(parsedDocument, stylesheet));
                 // @temp yguo, set the properties to itemmodel
