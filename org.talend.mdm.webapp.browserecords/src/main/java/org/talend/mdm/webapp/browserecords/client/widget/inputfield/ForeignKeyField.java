@@ -92,6 +92,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         fktr.appendChild(tdIcon);
         
         wrap.appendChild(tbody);
+        wrap.setElementAttribute("cellSpacing", "0"); //$NON-NLS-1$ //$NON-NLS-2$
         wrap.addStyleName("x-form-field-wrap"); //$NON-NLS-1$
         wrap.addStyleName("x-form-file-wrap"); //$NON-NLS-1$
 
