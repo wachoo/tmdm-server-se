@@ -68,9 +68,6 @@ import com.amalto.core.ejb.TransformerPOJO;
 import com.amalto.core.ejb.TransformerPOJOPK;
 import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlUtil;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
@@ -107,6 +104,7 @@ import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.Version;
 import com.amalto.core.util.WhereConditionForcePivotFilter;
+import com.amalto.core.util.XSDKey;
 import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.util.webservices.*;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
@@ -318,16 +316,9 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         try {
             String schema = Util.getDataModelCtrlLocal()
                     .getDataModel(new DataModelPOJOPK(wsGetBusinessConceptKey.getWsDataModelPK().getPk())).getSchema();
-            MetadataRepository repository = new MetadataRepository();
-            repository.load(new ByteArrayInputStream(schema.getBytes("UTF-8"))); //$NON-NLS-1$
-            ComplexTypeMetadata type = repository.getComplexType(wsGetBusinessConceptKey.getConcept());
-            List<FieldMetadata> keyFields = type.getKeyFields();
-            String[] fields = new String[keyFields.size()]; 
-            int i = 0;
-            for (FieldMetadata keyField : keyFields) {
-                fields[i++] = keyField.getName();
-            }
-            return new WSConceptKey(".", fields); //$NON-NLS-1$
+
+            XSDKey xsdKey = Util.getBusinessConceptKey(Util.parse(schema), wsGetBusinessConceptKey.getConcept());
+            return new WSConceptKey(xsdKey.getSelector(), xsdKey.getFields());
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
