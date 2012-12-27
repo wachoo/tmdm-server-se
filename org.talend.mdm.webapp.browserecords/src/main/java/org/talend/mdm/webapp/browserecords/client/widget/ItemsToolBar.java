@@ -526,7 +526,6 @@ public class ItemsToolBar extends ToolBar {
                 if (isSimple) {
                     MultipleCriteria criteriaStore = (MultipleCriteria) BrowseRecords.getSession().get(
                             UserSession.CUSTOMIZE_CRITERION_STORE);
-                    criteriaStore.requestShowAppearance();
                     advancedPanel.setCriteria(criteriaStore.toString());
                     //  advancedPanel.setCriteria("((" + simplePanel.getCriteria().toString() + "))"); //$NON-NLS-1$ //$NON-NLS-2$
                     //                    advancedPanel.setCriteriaAppearance("((" + simplePanel.getCriteria().toString() + "))", "((" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
