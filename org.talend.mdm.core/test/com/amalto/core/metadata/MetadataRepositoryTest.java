@@ -14,6 +14,7 @@ package com.amalto.core.metadata;
 import junit.framework.TestCase;
 
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * Schema parsing <br>
@@ -174,5 +175,17 @@ public class MetadataRepositoryTest extends TestCase {
         TypeMetadata simpleType = repository.getNonInstantiableType("", "A");
         assertNotNull(simpleType);
         assertNotSame(entityType, simpleType);
+    }
+    
+    public void test18() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema18.xsd");
+        repository.load(stream);
+        
+        ComplexTypeMetadata type = repository.getComplexType("T18");
+        List<FieldMetadata> keyFields = type.getKeyFields();
+        assertEquals(1, keyFields.size());
+        assertEquals("subelement", keyFields.get(0).getName());
+
     }
 }
