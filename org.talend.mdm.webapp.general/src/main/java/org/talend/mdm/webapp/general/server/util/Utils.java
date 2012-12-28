@@ -187,6 +187,11 @@ public class Utils {
                 } else {
                     String tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/" + gxtEntryModule + "/" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                             + gxtEntryModule + ".nocache.js\"></script>\n"; //$NON-NLS-1$
+                    if ("browserecords".equals(subMenu.getContext()) && "browserecords".equals(gxtEntryModule)) { //$NON-NLS-1$ //$NON-NLS-2$
+                        imports.add("<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/dwr/interface/ItemsBrowserInterface.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
+                        imports.add("<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/js/ImprovedDWRProxy.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
+                        imports.add("<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/js/SearchEntityPanel.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
+                    }
                     if (!imports.contains(tmp))
                         imports.add(tmp);
                 }
@@ -202,11 +207,7 @@ public class Utils {
         return i;
     }
 
-        
     private static void completeThirdPartJS(ArrayList<String> imports) {
-        imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n");//$NON-NLS-1$
-        imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/ImprovedDWRProxy.js\"></script>\n");//$NON-NLS-1$
-        imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/SearchEntityPanel.js\"></script>\n");//$NON-NLS-1$ 
         imports.add("<script type=\"text/javascript\" src=\"/talendmdm/secure/dwr/interface/WidgetInterface.js\"></script>\n");//$NON-NLS-1$
         imports.add("<script language=\"javascript\" src=\"/core/secure/gxt/resources/flash/swfobject.js\"></script>"); //$NON-NLS-1$
     }
