@@ -99,6 +99,36 @@ public class UtilTestCase extends TestCase {
         }
 
     }
+    
+    public void testGetBusinessConceptKey() throws Exception {
+        String xsd = "<xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n" + 
+        		"    <xsd:import namespace=\"http://www.w3.org/2001/XMLSchema\" />\n" + 
+        		"    <xsd:element name=\"DuplicateElement\">\n" + 
+        		"        <xsd:complexType>\n" + 
+        		"            <xsd:all>\n" + 
+        		"                <xsd:element name=\"subelement\" type=\"xsd:string\" />\n" + 
+        		"                <xsd:element maxOccurs=\"1\" minOccurs=\"0\" name=\"DE\">\n" + 
+        		"                    <xsd:complexType>\n" + 
+        		"                        <xsd:all>\n" + 
+        		"                            <xsd:element name=\"subelement\" type=\"xsd:string\" />\n" + 
+        		"                        </xsd:all>\n" + 
+        		"                    </xsd:complexType>\n" + 
+        		"                </xsd:element>\n" + 
+        		"            </xsd:all>\n" + 
+        		"        </xsd:complexType>\n" + 
+        		"        <xsd:unique name=\"DuplicateElement\">\n" + 
+        		"            <xsd:selector xpath=\".\" />\n" + 
+        		"            <xsd:field xpath=\"subelement\" />\n" + 
+        		"        </xsd:unique>\n" + 
+        		"    </xsd:element>\n" + 
+        		"</xsd:schema>";
+        String concept = "DuplicateElement";
+        XSDKey key = Util.getBusinessConceptKey(Util.parse(xsd), concept);
+        assertEquals(1, key.getFields().length);
+        assertEquals("subelement", key.getFields()[0]);
+        assertEquals(1, key.getFieldTypes().length);
+        assertEquals("string", key.getFieldTypes()[0]);
+    }
 
     private static String getStringFromInputStream(InputStream in) throws IOException {
         int total = in.available();

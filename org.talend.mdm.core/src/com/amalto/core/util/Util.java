@@ -13,6 +13,7 @@
 package com.amalto.core.util;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -120,6 +121,9 @@ import com.amalto.core.ejb.local.TransformerCtrlLocalHome;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.jobox.JobContainer;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocal;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocalHome;
 import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocal;
@@ -1030,109 +1034,32 @@ public class Util {
     public static XSDKey getBusinessConceptKey(Document xsd, String businessConceptName) throws TransformerException {
         try {
             String schema = nodeToString(xsd);
-            // FIXME: sometimes this bug 'Concept/.../Conpcet/Id' happens in the cache, so I have to remove getFromCache
-            // first!
-            XSDKey key = xsdkeyCache.get(schema + "#" + businessConceptName);
-            // XSDKey key = null;
-            if (key != null)
-                return key;
-            String[] selectors = new String[0];
-            String[] fields = new String[0];
-            selectors = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element/xsd:unique[@name='" + businessConceptName
-                    + "']/xsd:selector/@xpath", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
-
-            // Fix for TMDM-2351
-            String[] businessConceptXSDTypeNameLookup = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element[@name='" + businessConceptName
-                    + "']/@type", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
-            String businessConceptXSDTypeName;
-            if (businessConceptXSDTypeNameLookup.length > 0) {
-                businessConceptXSDTypeName = businessConceptXSDTypeNameLookup[0];
-            } else {
-                businessConceptXSDTypeName = businessConceptName;
+            MetadataRepository repository = new MetadataRepository();
+            repository.load(new ByteArrayInputStream(schema.getBytes("UTF-8"))); //$NON-NLS-1$
+            ComplexTypeMetadata type = repository.getComplexType(businessConceptName);
+            List<FieldMetadata> keyFields = type.getKeyFields();
+            String[] fields = new String[keyFields.size()];
+            String[] fieldTypes = new String[keyFields.size()];
+            int i = 0;
+            for (FieldMetadata keyField : keyFields) {
+                fields[i] = keyField.getName();
+                fieldTypes[i] = keyField.getType().getName();
+                i++;
             }
-
-            fields = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element/xsd:unique[@name='" + businessConceptName + "']/xsd:field/@xpath", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
-                       
-            if (selectors.length == 0) {
-                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                factory.setNamespaceAware(true);
-                factory.setValidating(false);
-                DocumentBuilder builder;
-                builder = factory.newDocumentBuilder();
-                NodeList list = null;
-
-                for (int xsdType = 0; xsdType < 2; xsdType++) {
-                    if (xsdType == 0)
-                        list = Util.getNodeList(xsd, "./xsd:import");
-                    else
-                        list = Util.getNodeList(xsd, "./xsd:include");
-                    for (int elemNum = 0; elemNum < list.getLength(); elemNum++) {
-                        Node importNode = list.item(elemNum);
-                        if (importNode.getAttributes().getNamedItem("schemaLocation") == null) {
-                            continue;
-                        }
-                        String xsdLocation = importNode.getAttributes().getNamedItem("schemaLocation").getNodeValue();
-                        Pattern httpUrl = Pattern.compile("(http|https|ftp):(\\//|\\\\)(.*):(.*)");
-                        Matcher match = httpUrl.matcher(xsdLocation);
-                        Document d = null;
-                        if (match.matches()) {
-                            List<String> authorizations = Util.getAuthorizationInfo();
-                            String data = Util.getResponseFromURL(xsdLocation, authorizations.get(0), authorizations.get(1));
-                            d = Util.parse(data);
-                        } else {
-                            builder = factory.newDocumentBuilder();
-                            d = builder.parse(new FileInputStream(xsdLocation));
-                        }
-
-                        key = getBusinessConceptKey(d, businessConceptName);
-                        if (key != null) {
-                            xsdkeyCache.put(nodeToString(d) + "#" + businessConceptName, key);
-                            break;
-                        }
-
-                    }
-                }
-                return key;
-            } else {
-                String[] fieldTypes = new String[fields.length];
-                int fieldIndex = 0;
-                for (String field : fields) {
-                    String[] xpathExpressions = new String[] {
-                            "xsd:element[@name='" + businessConceptXSDTypeName + "']//xsd:element[@name='" + field + "']/@type",
-                            "xsd:complexType[@name='" + businessConceptXSDTypeName + "']//xsd:element[@name='" + field + "']/@type"
-                    };
-
-                    for (String xpathExpression : xpathExpressions) {
-                        String[] textNodes = Util.getTextNodes(xsd.getDocumentElement(), xpathExpression, getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
-                        if (textNodes.length == 1) {
-                           fieldTypes[fieldIndex] = textNodes[0];
-                        } else if (textNodes.length > 1) {
-                            throw new IllegalStateException("Field '" + field + "' is not unique within type '" + businessConceptName + "' (XSD type: "+businessConceptXSDTypeName+".");
-                        }
-                    }
-
-                    if (fieldTypes[fieldIndex] == null) {
-                        // Fix for TMDM-2378: in case of inheritance, field might not be in this type. Actual and fix requires
-                        // huge refactoring of this method (possible use of com.amalto.core.metadata.TypeMetadata for instance).
-                        fieldTypes[fieldIndex] = "xsd:string";
-                    } else {
-                        fieldIndex++;
-                    }
-                }
-
-                key = new XSDKey(selectors[0], fields, fieldTypes);
-                xsdkeyCache.put(schema + "#" + businessConceptName, key);
+            XSDKey key = xsdkeyCache.get(schema + "#" + businessConceptName); //$NON-NLS-1$
+            if (key != null) {
                 return key;
             }
-
+            key = new XSDKey(".", fields, fieldTypes); //$NON-NLS-1$
+            xsdkeyCache.put(schema + "#" + businessConceptName, key); //$NON-NLS-1$
+            return key;
         } catch (Exception e) {
             String err = "Unable to get the keys for the Business Concept " + businessConceptName + ": "
                     + e.getLocalizedMessage();
             throw new TransformerException(err, e);
         }
-
     }
-
+    
     public static List<String> getAuthorizationInfo() {
         ArrayList<String> authorizations = new ArrayList<String>();
         String user = "", pwd = "";
