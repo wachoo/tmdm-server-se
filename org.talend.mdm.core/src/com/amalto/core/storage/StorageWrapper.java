@@ -535,7 +535,8 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         if (keysKeywords != null && !keysKeywords.isEmpty()) {
             if (keysKeywords.charAt(0) == '$') {
                 char[] chars = keysKeywords.toCharArray();
-                StringBuilder path = new StringBuilder();
+                List<String> paths = new LinkedList<String>();
+                StringBuilder currentPath = new StringBuilder();
                 StringBuilder id = new StringBuilder();
                 StringBuilder idForLookup = new StringBuilder();
                 int dollarCount = 0;
@@ -544,6 +545,11 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                     switch (current) {
                         case '$':
                             dollarCount++;
+                            break;
+                        case ',':
+                            paths.add(currentPath.toString());
+                            currentPath = new StringBuilder();
+                            slashCount = 0;
                             break;
                         case '/':
                             slashCount++;
@@ -554,16 +560,26 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                                 idForLookup.append(current);
                             } else if (slashCount > 0) {
                                 if (slashCount != 1 || '/' != current) {
-                                    path.append(current);
+                                    currentPath.append(current);
                                 }
                             }
                     }
                 }
-                if (path.toString().isEmpty()) {
+                paths.add(currentPath.toString());
+                if (currentPath.toString().isEmpty()) {
                     // TODO Implement compound key support
                     qb.where(eq(type.getKeyFields().get(0), id.toString()));
                 } else {
-                    qb.where(eq(type.getField(path.toString()), idForLookup.toString()));
+                    Condition globalCondition = UserQueryHelper.NO_OP_CONDITION;
+                    for (String path : paths) {
+                        Condition pathCondition = UserQueryHelper.NO_OP_CONDITION;
+                        Set<FieldMetadata> candidateFields = MetadataUtils.resolvePath(type, path);
+                        for (FieldMetadata candidateField : candidateFields) {
+                            pathCondition = or(eq(candidateField, idForLookup.toString()), pathCondition);
+                        }
+                        globalCondition = or(globalCondition, pathCondition);
+                    }
+                    qb.where(globalCondition);
                 }
             } else {
                 List<FieldMetadata> keyFields = type.getKeyFields();
@@ -708,105 +724,86 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             this.storages = storages;
         }
 
-        @Override
         public void init(DataSource dataSource) {
             throw new UnsupportedOperationException();
         }
 
-        @Override
         public void prepare(MetadataRepository repository, Set<FieldMetadata> indexedFields, boolean force, boolean dropExistingData) {
             throw new UnsupportedOperationException();
         }
 
-        @Override
         public void prepare(MetadataRepository repository, boolean dropExistingData) {
             throw new UnsupportedOperationException();
         }
 
-        @Override
         public MetadataRepository getMetadataRepository() {
             throw new UnsupportedOperationException();
         }
 
-        @Override
         public StorageResults fetch(Expression userQuery) {
             throw new UnsupportedOperationException();
         }
 
-        @Override
         public void update(DataRecord record) {
             throw new UnsupportedOperationException();
         }
 
-        @Override
         public void update(Iterable<DataRecord> records) {
             throw new UnsupportedOperationException();
         }
 
-        @Override
         public void delete(Expression userQuery) {
             throw new UnsupportedOperationException();
         }
 
-        @Override
         public void close() {
             throw new UnsupportedOperationException();
         }
 
-        @Override
         public void close(boolean dropExistingData) {
             throw new UnsupportedOperationException();
         }
 
-        @Override
         public void begin() {
             for (Storage storage : storages) {
                 storage.begin();
             }
         }
 
-        @Override
         public void commit() {
             for (Storage storage : storages) {
                 storage.commit();
             }
         }
 
-        @Override
         public void rollback() {
             for (Storage storage : storages) {
                 storage.rollback();
             }
         }
 
-        @Override
         public void end() {
             for (Storage storage : storages) {
                 storage.end();
             }
         }
 
-        @Override
         public void reindex() {
             throw new UnsupportedOperationException();
         }
 
-        @Override
         public Set<String> getFullTextSuggestion(String keyword, FullTextSuggestion mode, int suggestionSize) {
             throw new UnsupportedOperationException();
         }
 
-        @Override
         public String getName() {
             throw new UnsupportedOperationException();
         }
 
-        @Override
         public DataSource getDataSource() {
             throw new UnsupportedOperationException();
         }
 
-        @Override
         public StorageType getType() {
             throw new UnsupportedOperationException();
         }
