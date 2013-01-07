@@ -503,7 +503,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         ForeignKeyBean fkBean = (ForeignKeyBean) model.getObjectValue();
         if (fkBean == null || fkBean.getId() == null || "".equals(fkBean.getId())) //$NON-NLS-1$
             return;
-        String ids = fkBean.getId().replace("[", "").replace("]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+        String ids = CommonUtil.generateIds(fkBean.getId());
         ForeignKeyUtil.checkChange(false, fkBean.getConceptName() != null ? fkBean.getConceptName() : fkTypeModel.getForeignkey()
                 .split("/")[0], ids, itemsDetailPanel); //$NON-NLS-1$
     }
