@@ -75,6 +75,7 @@ class Save implements DocumentSaver {
         String[] idAsArray = ids.toArray(new String[ids.size()]);
         ItemPOJO updateReport = new ItemPOJO(new DataClusterPOJOPK(UpdateReport.UPDATE_REPORT_DATA_MODEL), UpdateReport.UPDATE_REPORT_TYPE, idAsArray,
                 System.currentTimeMillis(), updateReportDocument.asDOM().getDocumentElement());
+        updateReport.setDataModelName(UpdateReport.UPDATE_REPORT_DATA_MODEL);
         updateReport.setDataModelRevision(saverSource.getConceptRevisionID(updateReport.getConceptName()));
         // Call session's save to save all items in correct order (one transaction per data cluster for the XML db).
         session.save(UpdateReport.UPDATE_REPORT_DATA_MODEL, updateReport, false);
