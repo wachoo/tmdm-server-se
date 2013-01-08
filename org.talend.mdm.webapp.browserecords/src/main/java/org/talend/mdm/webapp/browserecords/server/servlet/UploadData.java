@@ -61,10 +61,6 @@ public class UploadData extends HttpServlet {
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages", UploadData.class.getClassLoader()); //$NON-NLS-1$
 
-    private String language = "en"; // default//$NON-NLS-1$
-
-    private Locale locale = new Locale(language);
-
     private boolean cusExceptionFlag = false;
 
     public UploadData() {
@@ -91,12 +87,14 @@ public class UploadData extends HttpServlet {
         String header = ""; //$NON-NLS-1$
         String mandatoryField = ""; //$NON-NLS-1$
         String viewableXpath = ""; //$NON-NLS-1$
+        String language = "en"; //$NON-NLS-1$
 
         boolean headersOnFirstLine = false;
         int rowNumber = 0;
 
+        request.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
+        response.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
         PrintWriter writer = response.getWriter();
-        request.setCharacterEncoding("UTF-8");//$NON-NLS-1$
 
         try {
             if (!FileUploadBase.isMultipartContent(request)) {
@@ -162,6 +160,7 @@ public class UploadData extends HttpServlet {
 
             concept = ViewHelper.getConceptFromDefaultViewName(viewPK);
 
+            Locale locale = new Locale(language);
             if (!UploadUtil.isViewableXpathValid(viewableXpath, concept)) {
                 throw new ServletException(MESSAGES.getMessage(locale, "error_invaild_field", concept)); //$NON-NLS-1$
             }
@@ -196,7 +195,7 @@ public class UploadData extends HttpServlet {
                     rowNumber++;
                     Row row = it.next();
                     if (rowNumber == 1 && headersOnFirstLine) {
-                        importHeader = getHeader(row, header, concept);
+                        importHeader = getHeader(row, header, concept, locale);
                         continue;
                     }
                     StringBuffer xml = new StringBuffer();
@@ -275,7 +274,7 @@ public class UploadData extends HttpServlet {
                     rowNumber++;
                     String[] record = records.get(i);
                     if (rowNumber == 1 && headersOnFirstLine) {
-                        importHeader = getHeader(record, separator, header, concept);
+                        importHeader = getHeader(record, separator, header, concept, locale);
                         continue;
                     }
 
@@ -390,7 +389,7 @@ public class UploadData extends HttpServlet {
         return result;
     }
 
-    private String[] getHeader(Row headerRow, String headerString, String concept) throws ServletException {
+    private String[] getHeader(Row headerRow, String headerString, String concept, Locale locale) throws ServletException {
         List<String> headers = new LinkedList<String>();
         Iterator<Cell> iter = headerRow.cellIterator();
         while (iter.hasNext()) {
@@ -408,7 +407,7 @@ public class UploadData extends HttpServlet {
         return headers.toArray(new String[headers.size()]);
     }
 
-    private String[] getHeader(String[] headerRecord, char separator, String headerString, String concept)
+    private String[] getHeader(String[] headerRecord, char separator, String headerString, String concept, Locale locale)
             throws ServletException {
         for (String element : headerRecord) {
             String fieldName = element;
