@@ -96,6 +96,7 @@ public class StorageAdminImpl implements StorageAdmin {
             // May get request for "StorageName/Concept", but for SQL it does not make any sense.
             // See com.amalto.core.storage.StorageWrapper.createCluster()
             storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
+            dataModelName = StringUtils.substringBefore(dataModelName, "/"); //$NON-NLS-1$
             if (storageType == StorageType.STAGING) {
                 if (!dataModelName.endsWith(STAGING_SUFFIX)) {
                     dataModelName += STAGING_SUFFIX;
