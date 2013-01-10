@@ -899,7 +899,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         } else if (ws.getWhereCondition() != null) {
             return WS2VO(ws.getWhereCondition(), wcf);
         } else {
-            throw new IllegalArgumentException("The WSWhereItem mus have at least one child");
+            throw new IllegalArgumentException("The WSWhereItem must have at least one child");
         }
     }
 
@@ -976,10 +976,15 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
     public WSStringArray viewSearch(WSViewSearch wsViewSearch) throws RemoteException {
+        WSWhereItem whereItem = wsViewSearch.getWhereItem();
+        if (whereItem != null && whereItem.getWhereAnd() == null && whereItem.getWhereOr() == null
+                && whereItem.getWhereCondition() == null) {
+            whereItem = null;
+        }
         try {
             Collection res = Util.getItemCtrl2Local().viewSearch(
                     new DataClusterPOJOPK(wsViewSearch.getWsDataClusterPK().getPk()),
-                    new ViewPOJOPK(wsViewSearch.getWsViewPK().getPk()), WS2VO(wsViewSearch.getWhereItem()),
+                    new ViewPOJOPK(wsViewSearch.getWsViewPK().getPk()), WS2VO(whereItem),
                     wsViewSearch.getSpellTreshold(), wsViewSearch.getOrderBy(), wsViewSearch.getDirection(),
                     wsViewSearch.getSkip(), wsViewSearch.getMaxItems());
             return new WSStringArray((String[]) res.toArray(new String[res.size()]));
