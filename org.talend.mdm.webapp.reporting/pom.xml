@@ -3,9 +3,9 @@
 
     <parent>
         <groupId>org.talend.mdm</groupId>
-        <artifactId>mdm-base-enterprise</artifactId>
+        <artifactId>mdm-base</artifactId>
         <version>${mdm.build.version}</version>
-        <relativePath>../org.talend.mdm.base.enterprise/pom.xml</relativePath>
+        <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
