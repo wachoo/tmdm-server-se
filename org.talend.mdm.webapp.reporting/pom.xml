@@ -1,0 +1,87 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.talend.mdm</groupId>
+        <artifactId>mdm-base-enterprise</artifactId>
+        <version>${mdm.build.version}</version>
+        <relativePath>../org.talend.mdm.base.enterprise/pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.talend.mdm.webapp.reporting</artifactId>
+    <name>org.talend.mdm.webapp.reporting</name>
+
+    <build>
+        <directory>${mdm.build.dir}</directory>
+        <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <includes>
+                    <include>**/**.conf</include>
+                    <include>**/**.xsd</include>
+                    <include>**/**.xml</include>
+                    <include>**/**.dtd</include>
+                    <include>**/**.properties</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dwr</groupId>
+            <artifactId>dwr</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xsom</groupId>
+            <artifactId>xsom</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jbossall-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>servlet-api</artifactId>
+            <scope>system</scope>
+            <version>4.2.2.GA</version>
+            <systemPath>${tom.location}/talend.mdm.libraries/lib/servlet-api.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>poi</groupId>
+            <artifactId>poi</artifactId>
+            <scope>system</scope>
+            <version>3.0.1</version>
+            <systemPath>${tom.location}/talend.mdm.libraries/lib/z.poi-3.0.1-FINAL-20070705.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.commmon</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.core</artifactId>
+        </dependency>
+        
+        
+    </dependencies>
+
+</project>
