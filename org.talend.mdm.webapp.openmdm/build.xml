@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="B2BOX" default="all">
-	
+<project name="B2BOX" xmlns:artifact="antlib:org.apache.maven.artifact.ant" default="all">
+
+    <property file="build.properties" />
+
+    <target name="prepare-maven" if="local.developer.build">
+        <path id="maven-ant-tasks.classpath" path="${maven.ant.tasks.file}" />
+        <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
+    </target>
 	<property name="version.props" value="version.properties"/>
 		
-	<property name="jboss.dir" value="e:/opt/jboss"/>
-	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
-	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
-	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
+    <property name="build.dir" value="${basedir}/target" />
+    <property name="jboss.dir" value="${jboss.dir}" />
+    <property name="jboss.instance.dir" value="${jboss.dir}/server/default" />
+    <property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
+    <property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
 
 	<property name="webapp.core.lib" value="../org.talend.mdm.webapp.core/z.mdm.webapp.core.jar"/>
 	<property name="war" value="zz.20.openmdm.webapp.war"/>
@@ -14,18 +21,34 @@
     <!-- ================================= 
           target: all              
          ================================= -->
-	<target name="all" depends="version,package,undeploy,deploy" description="--> B2BOX WebApp">
+	<target name="all" depends="clean,version,package,undeploy,deploy" description="--> B2BOX WebApp">
 		<!--eclipse.refreshLocal resource="../"/-->
 	</target>
+	
+    <target name="clean">
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="clean" />
+        </antcall>
+    </target>
+    
+    <target name="compile">
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="compile" />
+        </antcall>
+
+        <copy todir="bin">
+           <fileset dir="target/classes" includes="**" />
+        </copy>
+    </target>
 	
    	<target name="version"  description="Maintain build.date property">
    		<buildnumber file="${version.props}" />
        	<propertyfile file="${version.props}">
        		<entry key="build.date" type="date" value="now" />
        	</propertyfile>   	
-     </target>
+   	</target>
 
-   	<target name="package">
+   	<target name="package" depends="compile">
 		<property file="${version.props}" />
 		<copy file="RELEASE.NOTES" tofile="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES"/>
 		<jar destfile="${war}">
@@ -69,6 +92,17 @@
      	<copy file="${war}" tofile="${jboss.deploy.dir}/${war}"/>        
     </target>
 
+    <target name="mvn.invoke" description="invokes maven" depends="prepare-maven">
+        <property environment="env" />
 
+        <artifact:mvn pom="pom.xml" mavenHome="${env.M2_HOME}" fork="true" failonerror="true">
+            <arg value="-V" />
+            <arg value="-Dmdm.build.dir=${build.dir}" />
+            <arg value="-Dmdm.build.version=${mdm.build.version}" />
+            <arg value="-Ddev.mode.excluded.start=${dev.mode.excluded.start}" />
+            <arg value="-Ddev.mode.excluded.end=${dev.mode.excluded.end}" />
+            <arg value="${mvn.goal}" />
+        </artifact:mvn>
+    </target>
 </project>
 
