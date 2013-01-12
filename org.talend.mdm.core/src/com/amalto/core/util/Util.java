@@ -383,7 +383,7 @@ public class Util {
         return getTextNodes(contextNode, xPath, contextNode);
     }
 
-    public static String[] getTextNodes(Node contextNode, String xPath, Node namespaceNode) throws TransformerException {
+    public static String[] getTextNodes(Node contextNode, String xPath, final Node namespaceNode) throws TransformerException {
         String[] results;
         // test for hard-coded values
         if (xPath.startsWith("\"") && xPath.endsWith("\"")) {
@@ -397,7 +397,24 @@ public class Util {
         }
 
         try {
-            NodeList xo = (NodeList) XPathFactory.newInstance().newXPath().evaluate(xPath, contextNode, XPathConstants.NODESET);
+            XPath path = XPathFactory.newInstance().newXPath();
+            path.setNamespaceContext(new NamespaceContext() {
+                @Override
+                public String getNamespaceURI(String s) {
+                    return namespaceNode.getNamespaceURI();
+                }
+
+                @Override
+                public String getPrefix(String s) {
+                    return namespaceNode.getPrefix();
+                }
+
+                @Override
+                public Iterator getPrefixes(String s) {
+                    return Arrays.asList(namespaceNode.getPrefix()).iterator();
+                }
+            });
+            NodeList xo = (NodeList) path.evaluate(xPath, contextNode, XPathConstants.NODESET);
             results = new String[xo.getLength()];
             for (int i = 0; i < xo.getLength(); i++) {
                 results[i] = xo.item(i).getTextContent();
