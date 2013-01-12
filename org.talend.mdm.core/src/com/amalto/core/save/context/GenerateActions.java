@@ -80,7 +80,7 @@ class GenerateActions implements DocumentSaver {
             context.setHasMetAutoIncrement(createActions.hasMetAutoIncrement());
             List<String> idValues = new LinkedList<String>();
             Map<String,String> idValueMap = createActions.getIdValueMap();
-
+            // TODO This piece of code may have serious issues if key follows: (AUTO_INC, document value, UUID)
             List<FieldMetadata> keys = type.getKeyFields();
             // This guarantees key values are in correct order with key fields (for cases where ID is
             // composed of mixed AUTO_INCREMENT and user fields).

@@ -146,7 +146,7 @@ public class JobContainer {
      * @return Returns default JVM properties
      */
     public Properties getStandardProperties() {
-        return StandardPropertiesStrategyFactory.create().getStandardProperties();
+        return standardProperties;
     }
 
     public void updateJobLoadersPool(JobInfo jobInfo) {
@@ -156,8 +156,7 @@ public class JobContainer {
 
         if (jobLoadersPool.containsKey(jobInfo)) {
             JobClassLoader jobClassLoader = jobLoadersPool.get(jobInfo);
-            log("Removing " + jobClassLoader);//$NON-NLS-1$
-            jobClassLoader = null;
+            log("Removing " + jobClassLoader); //$NON-NLS-1$
             jobLoadersPool.remove(jobInfo);
         } else {
             log("No previous class loader for " + jobInfo.getName());//$NON-NLS-1$
@@ -184,7 +183,6 @@ public class JobContainer {
         if (this.jobLoadersPool.containsKey(jobInfo)) {
             JobClassLoader jobClassLoader = jobLoadersPool.get(jobInfo);
             LOGGER.info("Removing class loader " + jobClassLoader); //$NON-NLS-1$
-            jobClassLoader = null;
             jobLoadersPool.remove(jobInfo);
         }
     }
