@@ -293,7 +293,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 name.setValue(fieldName);
                 propertyElement.getAttributes().setNamedItem(name);
                 Attr lazy = document.createAttribute("lazy"); //$NON-NLS-1$
-                lazy.setValue("false"); //$NON-NLS-1$
+                lazy.setValue("true"); //$NON-NLS-1$
                 propertyElement.getAttributes().setNamedItem(lazy);
                 Attr joinAttribute = document.createAttribute("fetch"); //$NON-NLS-1$
                 joinAttribute.setValue("select"); // Keep it "select" (Hibernate tends to duplicate results when using "fetch")
@@ -341,7 +341,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         className.setValue(ClassCreator.PACKAGE_PREFIX + referencedField.getReferencedType().getName());
         // fetch="join" lazy="false"
         Attr lazy = document.createAttribute("lazy"); //$NON-NLS-1$
-        lazy.setValue("false"); //$NON-NLS-1$
+        lazy.setValue("proxy"); //$NON-NLS-1$
         propertyElement.getAttributes().setNamedItem(lazy);
         Attr joinAttribute = document.createAttribute("fetch"); //$NON-NLS-1$
         joinAttribute.setValue("join"); //$NON-NLS-1$
@@ -526,7 +526,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 listElement.getAttributes().setNamedItem(tableName);
                 // lazy="false"
                 Attr lazyAttribute = document.createAttribute("lazy"); //$NON-NLS-1$
-                lazyAttribute.setValue("false"); //$NON-NLS-1$
+                lazyAttribute.setValue("true"); //$NON-NLS-1$
                 listElement.getAttributes().setNamedItem(lazyAttribute);
                 // fetch="join"
                 Attr fetchAttribute = document.createAttribute("fetch"); //$NON-NLS-1$
