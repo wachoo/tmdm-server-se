@@ -411,33 +411,31 @@ public class HibernateStorage implements Storage {
     @Override
     public StorageResults fetch(Expression userQuery) {
         assertPrepared();
-
         final ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(storageClassLoader);
-
-        final Session session = factory.getCurrentSession();
-        Transaction transaction = session.getTransaction();
-        if (!transaction.isActive()) {
-            // Implicitly start a transaction
-            transaction.begin();
-        }
-        // Call back closes session once calling code has consumed all results.
-        Set<EndOfResultsCallback> callbacks = Collections.<EndOfResultsCallback>singleton(new EndOfResultsCallback() {
-
-            @Override
-            public void onEndOfResults() {
-                if (session.isOpen()) { // Prevent any problem if anyone (Hibernate...) already closed session.
-                    session.getTransaction().commit();
-                } else {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Attempted to close session on end of query result, but it has already been done.");
-                    }
-                }
-                Thread.currentThread().setContextClassLoader(previousClassLoader);
-            }
-        });
-
         try {
+            Thread.currentThread().setContextClassLoader(storageClassLoader);
+
+            final Session session = factory.getCurrentSession();
+            Transaction transaction = session.getTransaction();
+            if (!transaction.isActive()) {
+                // Implicitly start a transaction
+                transaction.begin();
+            }
+            // Call back closes session once calling code has consumed all results.
+            Set<EndOfResultsCallback> callbacks = Collections.<EndOfResultsCallback>singleton(new EndOfResultsCallback() {
+
+                @Override
+                public void onEndOfResults() {
+                    if (session.isOpen()) { // Prevent any problem if anyone (Hibernate...) already closed session.
+                        session.getTransaction().commit();
+                    } else {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Attempted to close session on end of query result, but it has already been done.");
+                        }
+                    }
+                    Thread.currentThread().setContextClassLoader(previousClassLoader);
+                }
+            });
             return internalFetch(session, userQuery, callbacks);
         } catch (Exception e) {
             Thread.currentThread().setContextClassLoader(previousClassLoader);

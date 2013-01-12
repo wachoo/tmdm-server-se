@@ -93,7 +93,7 @@ class FlatTypeMapping extends TypeMapping {
                     if (!field.isMany()) {
                         to.set(databaseField.getName(), value);
                     } else {
-                        List list = (List) to.get(field.getName());
+                        List list = (List) to.get(databaseField.getName());
                         if (list == null) {
                             to.set(databaseField.getName(), value);
                         } else {
