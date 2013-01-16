@@ -73,12 +73,12 @@ public class ContainedTypeFieldMetadata extends AbstractMetadataExtensible imple
         this.containingType = typeMetadata;
     }
 
-    public FieldMetadata freeze() {
+    public FieldMetadata freeze(ValidationHandler handler) {
         if (isFrozen) {
             return this;
         }
         isFrozen = true;
-        fieldType = (ContainedComplexTypeMetadata) fieldType.freeze();
+        fieldType = (ContainedComplexTypeMetadata) fieldType.freeze(handler);
         return this;
     }
 

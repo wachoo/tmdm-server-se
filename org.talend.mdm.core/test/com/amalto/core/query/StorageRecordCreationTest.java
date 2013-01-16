@@ -346,7 +346,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
             assertTrue(optionalCity instanceof List);
             List optionalCities = (List) optionalCity;
             assertEquals("City1", optionalCities.get(0));
-            // assertEquals("City2", optionalCities.get(1));
+            assertEquals("City2", optionalCities.get(1));
         }
     }
 

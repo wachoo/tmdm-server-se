@@ -81,12 +81,12 @@ public class EnumerationFieldMetadata extends AbstractMetadataExtensible impleme
         this.containingType = typeMetadata;
     }
 
-    public FieldMetadata freeze() {
+    public FieldMetadata freeze(ValidationHandler handler) {
         if (isFrozen) {
             return this;
         }
         isFrozen = true;
-        fieldType = fieldType.freeze();
+        fieldType = fieldType.freeze(handler);
         return this;
     }
 

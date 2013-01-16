@@ -103,7 +103,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                 explicitProjectionType.addField(element.field);
                 record.set(element.field, element.value);
             }
-            explicitProjectionType.freeze();
+            explicitProjectionType.freeze(DefaultValidationHandler.INSTANCE);
         } catch (Exception e) {
             notifyCallbacks();
             throw new RuntimeException(e);
@@ -182,6 +182,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                     fieldMetadata.getForeignKeyInfoField(),
                     false,
                     false,
+                    new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"),
                     Collections.<String>emptyList(),
                     Collections.<String>emptyList());
             currentElement = new ProjectionElement();

@@ -84,16 +84,16 @@ public class SimpleTypeMetadata extends AbstractMetadataExtensible implements Ty
         return new SimpleTypeMetadata(nameSpace, name);
     }
 
-    public TypeMetadata freeze() {
+    public TypeMetadata freeze(ValidationHandler handler) {
         if (!superTypes.isEmpty()) {
             List<TypeMetadata> thisSuperTypes = new LinkedList<TypeMetadata>(superTypes);
             superTypes.clear();
             for (TypeMetadata superType : thisSuperTypes) {
                 if (isInstantiable() == superType.isInstantiable()) {
-                    superType = superType.freeze();
+                    superType = superType.freeze(handler);
                     superTypes.add(superType);
                 } else {
-                    throw new IllegalStateException("Non instantiable type cannot inherits from entity type.");
+                    handler.error("Non instantiable type cannot inherits from entity type.");
                 }
             }
         }

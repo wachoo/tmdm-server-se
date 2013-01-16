@@ -1,8 +1,6 @@
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.*;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
@@ -154,18 +152,19 @@ class UpdateReportTypeMapping extends TypeMapping {
 
     /**
      * "Freeze" both database and internal types.
-     * @see com.amalto.core.metadata.TypeMetadata#freeze()
+     * @see com.amalto.core.metadata.TypeMetadata#freeze(com.amalto.core.metadata.ValidationHandler)
      */
     public void freeze() {
         if (!isFrozen) {
+            ValidationHandler handler = DefaultValidationHandler.INSTANCE;
             // Ensure mapped type are frozen.
             try {
-                database.freeze();
+                database.freeze(handler);
             } catch (Exception e) {
                 throw new RuntimeException("Could not process internal type '" + database.getName() + "'.", e);
             }
             try {
-                user.freeze();
+                user.freeze(handler);
             } catch (Exception e) {
                 throw new RuntimeException("Could not process user type '" + user.getName() + "'.", e);
             }
@@ -173,12 +172,12 @@ class UpdateReportTypeMapping extends TypeMapping {
             // Freeze field mappings.
             Map<String, FieldMetadata> frozen = new HashMap<String, FieldMetadata>();
             for (Map.Entry<String, FieldMetadata> entry : userToDatabase.entrySet()) {
-                frozen.put(entry.getKey(), entry.getValue().freeze());
+                frozen.put(entry.getKey(), entry.getValue().freeze(handler));
             }
             userToDatabase = frozen;
             frozen = new HashMap<String, FieldMetadata>();
             for (Map.Entry<String, FieldMetadata> entry : databaseToUser.entrySet()) {
-                frozen.put(entry.getKey(), entry.getValue().freeze());
+                frozen.put(entry.getKey(), entry.getValue().freeze(handler));
             }
             databaseToUser = frozen;
 

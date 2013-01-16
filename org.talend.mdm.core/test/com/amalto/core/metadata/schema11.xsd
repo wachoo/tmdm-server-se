@@ -835,7 +835,7 @@
         <xsd:complexContent>
             <xsd:extension base="ElementOrganisationTypePj">
                 <xsd:all>
-                    <xsd:element maxOccurs="1" minOccurs="1" name="Organisations" type="OrganisationListe">
+                    <xsd:element maxOccurs="1" minOccurs="1" name="Organisations" type="xsd:string">
                         <xsd:annotation>
                             <xsd:appinfo source="X_ForeignKey">Organisation/IdOrganisation</xsd:appinfo>
                             <xsd:appinfo source="X_ForeignKeyInfo">Organisation/IdOrganisation</xsd:appinfo>

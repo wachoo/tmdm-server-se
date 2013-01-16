@@ -146,7 +146,7 @@ public class ComplexTypeMetadataImpl extends AbstractMetadataExtensible implemen
 
     public List<FieldMetadata> getFields() {
         if (!isFrozen) {
-            freeze();
+            throw new IllegalStateException("Type should be frozen before calling this method.");
         }
         return Collections.unmodifiableList(new LinkedList<FieldMetadata>(fieldMetadata.values()));
     }
@@ -296,7 +296,7 @@ public class ComplexTypeMetadataImpl extends AbstractMetadataExtensible implemen
         subTypes.add(type);
     }
 
-    public TypeMetadata freeze() {
+    public TypeMetadata freeze(ValidationHandler handler) {
         if (isFrozen) {
             return this;
         }
@@ -309,12 +309,12 @@ public class ComplexTypeMetadataImpl extends AbstractMetadataExtensible implemen
             superTypes.clear();
             for (TypeMetadata superType : thisSuperTypes) {
                 if (isInstantiable() == superType.isInstantiable()) {
-                    superType = superType.freeze();
+                    superType = superType.freeze(handler);
                     if (superType instanceof ComplexTypeMetadata) {
                         List<FieldMetadata> thisTypeKeyFields = getKeyFields();
                         for (FieldMetadata thisTypeKeyField : thisTypeKeyFields) {
                             if (!((ComplexTypeMetadata) superType).hasField(thisTypeKeyField.getName())) {
-                                throw new IllegalArgumentException("Type '" + name + "' cannot add field(s) to its key because " +
+                                handler.error("Type '" + name + "' cannot add field(s) to its key because " +
                                         "super type '" + superType.getName() + "' already defines key.");
                             }
                         }
@@ -322,7 +322,7 @@ public class ComplexTypeMetadataImpl extends AbstractMetadataExtensible implemen
                     }
                     superTypes.add(superType);
                 } else {
-                    superType = superType.freeze();
+                    superType = superType.freeze(handler);
                 }
                 if (superType instanceof ComplexTypeMetadata) {
                     ((ComplexTypeMetadata) superType).registerSubType(this);
@@ -341,7 +341,7 @@ public class ComplexTypeMetadataImpl extends AbstractMetadataExtensible implemen
         Collection<FieldMetadata> values = new LinkedList<FieldMetadata>(fieldMetadata.values());
         for (FieldMetadata value : values) {
             try {
-                FieldMetadata frozenFieldDeclaration = value.freeze();
+                FieldMetadata frozenFieldDeclaration = value.freeze(handler);
                 fieldMetadata.put(value.getName(), frozenFieldDeclaration);
                 if (keyFields.containsKey(value.getName()) && !frozenFieldDeclaration.isKey()) {
                     frozenFieldDeclaration.promoteToKey();
@@ -351,7 +351,7 @@ public class ComplexTypeMetadataImpl extends AbstractMetadataExtensible implemen
             }
         }
         for (Map.Entry<String, FieldMetadata> keyField : keyFields.entrySet()) {
-            keyField.setValue(keyField.getValue().freeze());
+            keyField.setValue(keyField.getValue().freeze(handler));
         }
         isFrozen = true;
         return this;

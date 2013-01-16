@@ -25,6 +25,7 @@ public class ReferenceFieldMetadata extends AbstractMetadataExtensible implement
 
     private final List<String> hideUsers;
 
+    private TypeMetadata fieldType;
     private final List<String> writeUsers;
 
     private final boolean isMandatory;
@@ -54,7 +55,10 @@ public class ReferenceFieldMetadata extends AbstractMetadataExtensible implement
                                   FieldMetadata referencedField,
                                   FieldMetadata foreignKeyInfo,
                                   boolean fkIntegrity,
-                                  boolean allowFKIntegrityOverride, List<String> allowWriteUsers, List<String> hideUsers) {
+                                  boolean allowFKIntegrityOverride,
+                                  TypeMetadata fieldType,
+                                  List<String> allowWriteUsers,
+                                  List<String> hideUsers) {
         this.isMandatory = isMandatory;
         this.name = name;
         this.referencedField = referencedField;
@@ -67,6 +71,7 @@ public class ReferenceFieldMetadata extends AbstractMetadataExtensible implement
         this.isKey = isKey;
         this.isMany = isMany;
         this.referencedType = referencedType;
+        this.fieldType = fieldType;
         this.writeUsers = allowWriteUsers;
         this.hideUsers = hideUsers;
     }
@@ -99,28 +104,25 @@ public class ReferenceFieldMetadata extends AbstractMetadataExtensible implement
         this.containingType = typeMetadata;
     }
 
-    public FieldMetadata freeze() {
+    public FieldMetadata freeze(ValidationHandler handler) {
         if (isFrozen) {
             return this;
         }
         isFrozen = true;
+        fieldType = fieldType.freeze(handler);
+        TypeMetadata currentType = fieldType;
+        while (!currentType.getSuperTypes().isEmpty()) {
+            currentType = currentType.getSuperTypes().iterator().next();
+        }
+        if (!"string".equals(currentType.getName())) { //$NON-NLS-1$
+            handler.error("FK field '" + getName() + "' is invalid because it isn't typed as string (nor a string restriction).");
+            return this;
+        }
         if (foreignKeyInfo != null) {
-            try {
-                foreignKeyInfo = foreignKeyInfo.freeze();
-            } catch (Exception e) {
-                throw new RuntimeException("Field '" + name + "' in type '" + containingType.getName() + "': foreign key info is invalid.", e);
-            }
+            foreignKeyInfo = foreignKeyInfo.freeze(handler);
         }
-        try {
-            referencedField = referencedField.freeze();
-        } catch (Exception e) {
-            throw new RuntimeException("Field '" + name + "' in type '" + containingType.getName() + "': referenced field is invalid.", e);
-        }
-        try {
-            referencedType = (ComplexTypeMetadata) referencedType.freeze();
-        } catch (Exception e) {
-            throw new RuntimeException("Referenced type '" + referencedType.getName() + "' is invalid", e);
-        }
+        referencedField = referencedField.freeze(handler);
+        referencedType = (ComplexTypeMetadata) referencedType.freeze(handler);
         return this;
     }
 
@@ -163,7 +165,19 @@ public class ReferenceFieldMetadata extends AbstractMetadataExtensible implement
         FieldMetadata referencedFieldCopy = referencedField.copy(repository);
         FieldMetadata foreignKeyInfoCopy = hasForeignKeyInfo() ? foreignKeyInfo.copy(repository) : null;
         ComplexTypeMetadata containingTypeCopy = (ComplexTypeMetadata) containingType.copy(repository);
-        return new ReferenceFieldMetadata(containingTypeCopy, isKey, isMany, isMandatory, name, referencedTypeCopy, referencedFieldCopy, foreignKeyInfoCopy, isFKIntegrity, allowFKIntegrityOverride, writeUsers, hideUsers);
+        return new ReferenceFieldMetadata(containingTypeCopy,
+                isKey,
+                isMany,
+                isMandatory,
+                name,
+                referencedTypeCopy,
+                referencedFieldCopy,
+                foreignKeyInfoCopy,
+                isFKIntegrity,
+                allowFKIntegrityOverride,
+                fieldType,
+                writeUsers,
+                hideUsers);
     }
 
     @Override

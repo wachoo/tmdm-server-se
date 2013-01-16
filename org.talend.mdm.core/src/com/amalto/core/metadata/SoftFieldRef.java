@@ -25,6 +25,8 @@ public class SoftFieldRef implements FieldMetadata {
 
     private final String fieldName;
 
+    private FieldMetadata frozenField;
+
     public SoftFieldRef(MetadataRepository metadataRepository, String fieldName, TypeMetadata containingType) {
         this.repository = metadataRepository;
         this.containingType = containingType;
@@ -40,19 +42,10 @@ public class SoftFieldRef implements FieldMetadata {
     }
 
     private FieldMetadata getField() {
-        if (containingType != null) {
-            ComplexTypeMetadata type = repository.getComplexType(containingType.getName());
-            if (type == null) {
-                throw new IllegalArgumentException("Type '" + containingType + "' does not exist.");
-            }
-            FieldMetadata field = type.getField(fieldName);
-            if (field == null) {
-                throw new IllegalArgumentException("Type '" + containingType + "' does not own field '" + fieldName + "'.");
-            }
-            return field;
-        } else {
-            return containingField;
+        if (frozenField == null) {
+            throw new IllegalStateException("Field reference should be frozen before used.");
         }
+        return frozenField;
     }
 
     @Override
@@ -62,7 +55,7 @@ public class SoftFieldRef implements FieldMetadata {
 
     @Override
     public <X> X getData(String key) {
-        return getField().<X> getData(key);
+        return getField().getData(key);
     }
 
     @Override
@@ -91,8 +84,26 @@ public class SoftFieldRef implements FieldMetadata {
     }
 
     @Override
-    public FieldMetadata freeze() {
-        return getField().freeze();
+    public FieldMetadata freeze(ValidationHandler handler) {
+        if (frozenField != null) {
+            return frozenField;
+        }
+        if (containingType != null) {
+            ComplexTypeMetadata type = repository.getComplexType(containingType.getName());
+            if (type == null) {
+                handler.error("Type '" + containingType + "' does not exist.");
+                return this;
+            }
+            FieldMetadata field = type.getField(fieldName);
+            if (field == null) {
+                handler.error("Type '" + containingType + "' does not own field '" + fieldName + "'.");
+                return this;
+            }
+            frozenField = field;
+        } else {
+            frozenField = containingField;
+        }
+        return frozenField;
     }
 
     @Override

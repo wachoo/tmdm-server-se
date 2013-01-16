@@ -40,14 +40,20 @@ public class SimpleTypeFieldMetadata extends AbstractMetadataExtensible implemen
 
     private int cachedHashCode;
 
-    public SimpleTypeFieldMetadata(ComplexTypeMetadata containingType, boolean isKey, boolean isMany, boolean isMandatory, String name, TypeMetadata fieldType, List<String> allowWriteUsers, List<String> hideUsers) {
+    public SimpleTypeFieldMetadata(ComplexTypeMetadata containingType,
+                                   boolean isKey,
+                                   boolean isMany,
+                                   boolean isMandatory,
+                                   String name,
+                                   TypeMetadata fieldType,
+                                   List<String> allowWriteUsers,
+                                   List<String> hideUsers) {
         if (fieldType == null) {
             throw new IllegalArgumentException("Field type cannot be null.");
         }
         if (isKey && !isMandatory) {
             throw new IllegalArgumentException("Key field must be mandatory (field '" + name + "' in type '" + containingType.getName() + "' is optional)");
         }
-
         this.isMandatory = isMandatory;
         this.containingType = containingType;
         this.declaringType = containingType;
@@ -85,12 +91,12 @@ public class SimpleTypeFieldMetadata extends AbstractMetadataExtensible implemen
         this.declaringType = declaringType;
     }
 
-    public FieldMetadata freeze() {
+    public FieldMetadata freeze(ValidationHandler handler) {
         if (isFrozen) {
             return this;
         }
         isFrozen = true;
-        fieldType = fieldType.freeze();
+        fieldType = fieldType.freeze(handler);
         return this;
     }
 
