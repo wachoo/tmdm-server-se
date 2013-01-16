@@ -1,0 +1,93 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.talend.mdm</groupId>
+        <artifactId>mdm-base</artifactId>
+        <version>${mdm.build.version}</version>
+        <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.talend.mdm.service.logging</artifactId>
+    <name>org.talend.mdm.service.logging</name>
+
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <includes>
+                    <include>**/**.xml</include>
+                    <include>**/**.MF</include>
+                </includes>
+                <excludes>
+                    <exclude>com/amalto/core/test/ZZCoreV2EJBTest.java</exclude>
+                    <exclude>com/amalto/core/ejb/OutboundPluginBeanOLD.java</exclude>
+                    <exclude>com/amalto/core/ejb/OutboundPluginCtrlBeanOLD.java</exclude>
+                    <exclude>com/amalto/core/ejb/OutboundAdaptorBeanOLD.java</exclude>
+                    <exclude>com/amalto/core/ejb/OutboundAdaptorCtrlBeanOLD.java</exclude>
+                    <exclude>com/amalto/core/ejb/DocumentCtrlBean.java</exclude>
+                    <exclude>com/amalto/core/ejb/XmlServerSFWrapperBean.java</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>2.5.1</version>
+                    <configuration>
+                        <source>1.6</source>
+                        <target>1.6</target>
+                        <encoding>UTF-8</encoding>
+                        
+                        <excludes>
+                            <exclude>com/amalto/core/test/ZZCoreV2EJBTest.java</exclude>
+		                    <exclude>com/amalto/core/ejb/OutboundPluginBeanOLD.java</exclude>
+		                    <exclude>com/amalto/core/ejb/OutboundPluginCtrlBeanOLD.java</exclude>
+		                    <exclude>com/amalto/core/ejb/OutboundAdaptorBeanOLD.java</exclude>
+		                    <exclude>com/amalto/core/ejb/OutboundAdaptorCtrlBeanOLD.java</exclude>
+		                    <exclude>com/amalto/core/ejb/DocumentCtrlBean.java</exclude>
+		                    <exclude>com/amalto/core/ejb/XmlServerSFWrapperBean.java</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <dependencies>
+        <!-- MDM project dependencies -->
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.connector.core</artifactId>
+            <version>${project.version}</version>
+            <scope>system</scope>
+            <systemPath>${tom.location}/org.talend.mdm.connector.core/z.mdm.connector.library.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.core</artifactId>
+        </dependency>
+        <!-- MDM 3rd dependencies -->
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jbossall-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <scope>system</scope>
+            <systemPath>${tom.location}/talend.mdm.libraries/lib/log4j.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <scope>system</scope>
+            <systemPath>${tom.location}/talend.mdm.libraries/lib/z.commons-lang-2.1.jar</systemPath>
+        </dependency>
+    </dependencies>
+
+</project>
