@@ -15,6 +15,7 @@ import com.amalto.core.metadata.*;
 import com.amalto.core.storage.hibernate.TypeMapping;
 import org.apache.commons.lang.NotImplementedException;
 
+import javax.xml.XMLConstants;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -147,7 +148,19 @@ public class StringDataRecordWriter implements DataRecordWriter {
 
                 @Override
                 public Void visit(ReferenceFieldMetadata referenceField) {
-                    transformedType.addField(new ReferenceFieldMetadata(transformedType, false, false, referenceField.isMandatory(), referenceField.getName(), (ComplexTypeMetadata) referenceField.getType(), referenceField.getReferencedField(), referenceField.getForeignKeyInfoField(), referenceField.isFKIntegrity(), referenceField.allowFKIntegrityOverride(), referenceField.getWriteUsers(), referenceField.getHideUsers()));
+                    transformedType.addField(new ReferenceFieldMetadata(transformedType,
+                            false,
+                            false,
+                            referenceField.isMandatory(),
+                            referenceField.getName(),
+                            (ComplexTypeMetadata) referenceField.getType(),
+                            referenceField.getReferencedField(),
+                            referenceField.getForeignKeyInfoField(),
+                            referenceField.isFKIntegrity(),
+                            referenceField.allowFKIntegrityOverride(),
+                            new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"),
+                            referenceField.getWriteUsers(),
+                            referenceField.getHideUsers()));
                     return null;
                 }
 
