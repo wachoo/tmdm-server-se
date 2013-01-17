@@ -1,0 +1,150 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.talend.mdm</groupId>
+        <artifactId>mdm-base</artifactId>
+        <version>${mdm.build.version}</version>
+        <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.talend.mdm.webapp.core</artifactId>
+    <name>org.talend.mdm.webapp.core</name>
+
+    <build>
+        <directory>${mdm.build.dir}</directory>
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>test</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <includes>
+                    <include>**/**.conf</include>
+                    <include>**/**.xsd</include>
+                    <include>**/**.xml</include>
+                    <include>**/**.dtd</include>
+                    <include>**/**.properties</include>
+                </includes>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>test</directory>
+                <includes>
+                    <include>**/**.zip</include>
+                    <include>**/**.xsd</include>
+                    <include>**/**.xml</include>
+                    <include>**/**.dtd</include>
+                    <include>**/**.properties</include>
+                </includes>
+            </testResource>
+        </testResources>
+    </build>
+
+    <dependencies>
+    
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dwr</groupId>
+            <artifactId>dwr</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xsom</groupId>
+            <artifactId>xsom</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jbossall-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jboss.jbossws</groupId>
+            <artifactId>jboss-jaxrpc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-jxpath</groupId>
+            <artifactId>commons-jxpath</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.xml.rpc</groupId>
+            <artifactId>jaxrpc-impl</artifactId>
+        </dependency>
+    
+        <dependency>
+            <groupId>com.sun.xml.rpc</groupId>
+            <artifactId>jaxrpc-spi</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <scope>system</scope>
+            <version>3.1</version>
+            <systemPath>${tom.location}/talend.mdm.libraries/lib/commons-collections.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>xercesImpl</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <scope>system</scope>
+            <version>2.9.1</version>
+            <systemPath>${tom.location}/talend.mdm.libraries/lib/xercesImpl-2.9.1.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>castor</groupId>
+            <artifactId>castor</artifactId>
+            <version>1.0.5</version>
+            <scope>system</scope>
+            <systemPath>${tom.location}/talend.mdm.libraries/lib/z.castor-1.0.5-xml.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>servlet-api</artifactId>
+            <scope>system</scope>
+            <version>4.2.2.GA</version>
+            <systemPath>${tom.location}/talend.mdm.libraries/lib/servlet-api.jar</systemPath>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.xmlserver.interfaces</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.commmon</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.commons.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.connector.core</artifactId>
+            <version>${project.version}</version>
+            <scope>system</scope>
+            <systemPath>${tom.location}/org.talend.mdm.connector.core/z.mdm.connector.library.jar</systemPath>
+        </dependency>
+    </dependencies>
+
+</project>
