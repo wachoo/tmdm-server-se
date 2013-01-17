@@ -2,8 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
+	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER"/>
 	<classpathentry kind="lib" path="libs/ssim-0.6.0.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.core"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
