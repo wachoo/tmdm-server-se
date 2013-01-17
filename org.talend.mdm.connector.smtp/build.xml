@@ -6,11 +6,23 @@
                    
      bgrieder                                                                
      ====================================================================== -->
-<project name="Smtp Connector" default="all">
+<project name="Smtp Connector" xmlns:artifact="antlib:org.apache.maven.artifact.ant" default="all">
 
+	   <!-- add ant-contrib.jar, if you run it by eclipse, please setup the taskdef.
+	    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+	      <classpath>
+	        <pathelement location="${basedir}/../org.talend.mdm.nsis/svnkit/ant-contrib-1.0b3.jar"/>
+	      </classpath>
+	    </taskdef>-->
+	
+    <property file="build.properties" />
+
+    <target name="prepare-maven" if="local.developer.build">
+        <path id="maven-ant-tasks.classpath" path="${maven.ant.tasks.file}" />
+        <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
+    </target>
+        	
 	<property name="version.props" value="version.properties" />
-
-	<property name="jboss.dir" value="c:/opt/jboss" />
 
 	<property name="jar" value="smtp.jar" />
 	<property name="rar" value="zz.20.mdm.connector.smtp.rar" />
@@ -23,14 +35,35 @@
 	 
          ================================= -->
 	
-	<property name="jboss.instance.dir" value="${jboss.dir}/server/default" />
-	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
-	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib" />
+    <property name="build.dir" value="${basedir}/target" />
+    <property name="jboss.dir" value="${jboss.dir}" />
+    <property name="jboss.instance.dir" value="${jboss.dir}/server/default" />
+    <property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
+    <property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
 	
-	<target name="all" depends="version,package,undeploy,deploy">
+	<target name="all" depends="clean,version,package,undeploy,deploy">
 		<!--eclipse.refreshLocal resource="${basedir}" /-->
 	</target>
 
+    <target name="clean" description="Clean old release">
+        <delete dir="zz.20.ext.imageserver.war"/>
+                <delete dir="${jboss.deploy.dir}/zz.20.ext.imageserver.war"/>
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="clean" />
+        </antcall>
+        
+    </target>
+    
+    <target name="compile">
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="compile" />
+        </antcall>
+
+        <copy todir="bin">
+           <fileset dir="target/classes" includes="**" />
+        </copy>
+    </target>
+	
 	<target name="version" description="Maintain build.date property">
 		<buildnumber file="${version.props}" />
 		<propertyfile file="${version.props}">
@@ -38,7 +71,7 @@
 		</propertyfile>
 	</target>
 
-	<target name="package">
+	<target name="package" depends="compile">
 		<property file="${version.props}" />
 		<copy file="RELEASE.NOTES" tofile="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES">
 		</copy>
@@ -174,4 +207,16 @@
        </if> 
 	</target>
 
+    <target name="mvn.invoke" description="invokes maven" depends="prepare-maven">
+        <property environment="env" />
+
+        <artifact:mvn pom="pom.xml" mavenHome="${env.M2_HOME}" fork="true" failonerror="true">
+            <arg value="-V" />
+            <arg value="-Dmdm.build.dir=${build.dir}" />
+            <arg value="-Dmdm.build.version=${mdm.build.version}" />
+            <arg value="-Ddev.mode.excluded.start=${dev.mode.excluded.start}" />
+            <arg value="-Ddev.mode.excluded.end=${dev.mode.excluded.end}" />
+            <arg value="${mvn.goal}" />
+        </artifact:mvn>
+    </target>
 </project>
