@@ -43,18 +43,16 @@ public class MultiOccurrenceManager {
         ItemNodeModel nodeModel = item.getItemNodeModel();
         TypeModel typeModel = metaDataTypes.get(nodeModel.getTypePath());
 
-        if (typeModel.isAutoExpand() || nodeModel.getChildCount() == 0) {
-            if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
-                String xpath = CommonUtil.getRealXpathWithoutLastIndex(nodeModel);
-                List<DynamicTreeItem> multiNodes = multiOccurrence.get(xpath);
-                if (multiNodes == null) {
-                    multiNodes = new ArrayList<DynamicTreeItem>();
-                    multiOccurrence.put(xpath, multiNodes);
-                }
-                setAddRemoveEvent(item);
-                int index = getIndexOfMultiItem(item);
-                multiNodes.add(index, item);
+        if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
+            String xpath = CommonUtil.getRealXpathWithoutLastIndex(nodeModel);
+            List<DynamicTreeItem> multiNodes = multiOccurrence.get(xpath);
+            if (multiNodes == null) {
+                multiNodes = new ArrayList<DynamicTreeItem>();
+                multiOccurrence.put(xpath, multiNodes);
             }
+            setAddRemoveEvent(item);
+            int index = getIndexOfMultiItem(item);
+            multiNodes.add(index, item);
         }
 
         for (int i = 0; i < item.getChildCount(); i++) {
@@ -339,8 +337,8 @@ public class MultiOccurrenceManager {
                                 parentModel.remove(selectedModel);
                                 parentModel.setChangeValue(true);
 
-                                Set<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(treeDetail
-                                        .getViewBean(), selectedModel);
+                                Set<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(
+                                        treeDetail.getViewBean(), selectedModel);
                                 for (ItemNodeModel fkContainer : fkContainers) {
                                     treeDetail.getFkRender().removeRelationFkPanel(fkContainer);
                                 }
