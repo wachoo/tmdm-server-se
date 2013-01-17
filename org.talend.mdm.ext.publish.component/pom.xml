@@ -1,0 +1,104 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.talend.mdm</groupId>
+        <artifactId>mdm-base</artifactId>
+        <version>${mdm.build.version}</version>
+        <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.talend.mdm.ext.publish.component</artifactId>
+    <name>org.talend.mdm.ext.publish.component</name>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/**.xml</include>
+                    <include>**/**.properties</include>
+                </includes>
+            </resource>
+        </resources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.5</version>
+                    <configuration>
+                        <additionalClasspathElements>
+                            <additionalClasspathElement>${project.build.sourceDirectory}</additionalClasspathElement>
+                            <additionalClasspathElement>${project.build.testSourceDirectory}</additionalClasspathElement>
+                        </additionalClasspathElements>
+                        <forkMode>always</forkMode>
+                        <useManifestOnlyJar>false</useManifestOnlyJar>
+                        <excludes>
+                            <exclude>ResourceClientMain.class</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <dependencies>
+        <!-- MDM project dependencies -->
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.commmon</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.core</artifactId>
+        </dependency>
+        <!-- MDM 3rd dependencies -->
+        <dependency>
+            <groupId>com.noelios.restlet.ext.servlet</groupId>
+            <artifactId>com.noelios.restlet.ext.servlet</artifactId>
+            <version>2.5</version>
+            <scope>system</scope>
+            <systemPath>${tom.location}/org.talend.mdm.ext.publish.component/libs/com.noelios.restlet.ext.servlet_2.5.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.noelios.restlet</groupId>
+            <artifactId>com.noelios.restlet</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${tom.location}/org.talend.mdm.ext.publish.component/libs/com.noelios.restlet.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <scope>system</scope>
+            <systemPath>${tom.location}/org.talend.mdm.ext.publish.component/libs/dom4j-1.6.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.restlet</groupId>
+            <artifactId>org.restlet</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${tom.location}/org.talend.mdm.ext.publish.component/libs/org.restlet.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>servlet-api</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${tom.location}/talend.mdm.libraries/lib/servlet-api.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <scope>system</scope>
+            <systemPath>${tom.location}/talend.mdm.libraries/lib/log4j.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jbossall-client</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
