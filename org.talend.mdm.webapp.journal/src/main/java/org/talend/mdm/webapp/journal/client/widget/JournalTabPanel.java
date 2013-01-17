@@ -23,32 +23,36 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.SimplePanel;
 
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public class JournalTabPanel extends TabPanel {
 
     private static JournalTabPanel tabPanel;
-    
+
     private TabItem resultTabItem;
-    
+
     private TabItem timeLineTabItem;
-    
+
     private JournalGridPanel journalGridPanel;
 
+    private JournalTimelinePanel journalTimelinePanel;
+
     public static JournalTabPanel getInstance() {
-        if (tabPanel == null)
+        if (tabPanel == null) {
             tabPanel = new JournalTabPanel();
+        }
         return tabPanel;
     }
 
     private JournalTabPanel() {
         this.setResizeTabs(true);
         this.setAnimScroll(true);
-        
+
         resultTabItem = new TabItem(MessagesFactory.getMessages().results_tab());
         resultTabItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.table()));
         resultTabItem.setId("resultTabItem"); //$NON-NLS-1$
@@ -63,25 +67,27 @@ public class JournalTabPanel extends TabPanel {
             }
         });
         this.add(resultTabItem);
-                
+
         timeLineTabItem = new TabItem(MessagesFactory.getMessages().timeline_tab());
         timeLineTabItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.time()));
         timeLineTabItem.setId("timeLineTabItem"); //$NON-NLS-1$
         timeLineTabItem.setClosable(false);
         timeLineTabItem.setScrollMode(Scroll.AUTO);
+
         SimplePanel cp = new SimplePanel();
-        cp.getElement().setInnerHTML("<div id='tl' class='timeline-default' style='height:464px;'></div>"); //$NON-NLS-1$
-        timeLineTabItem.add(cp);
+        cp.getElement().setId("journalTimeLine"); //$NON-NLS-1$
+        cp.setStyleName("timeline-default"); //$NON-NLS-1$
+        cp.getElement().getStyle().setProperty("height", 464D, Unit.PX); //$NON-NLS-1$
+
+        journalTimelinePanel = new JournalTimelinePanel();
+        journalTimelinePanel.add(cp);
+
+        timeLineTabItem.add(journalTimelinePanel);
         timeLineTabItem.addListener(Events.Select, new Listener<ComponentEvent>() {
 
             public void handleEvent(ComponentEvent be) {
-                TimelineUtil.setTimeLinePanelHeight(timeLineTabItem.getHeight());
-                TimelineUtil.setSearchStart(journalGridPanel.getOffset());
-                TimelineUtil.setPageSize(journalGridPanel.getLimit());
-                TimelineUtil.setTimelinePanelActive(true);
-                TimelineUtil.setStartIndex(journalGridPanel.getOffset());
-                TimelineUtil.setConfigStr(journalGridPanel.getLoaderConfigStr());
-                TimelineUtil.loadTimeline(TimelineUtil.TIMELIME_INIT);
+                journalTimelinePanel.setTimeLinePanelHeight(timeLineTabItem.getHeight());
+                journalTimelinePanel.initTimeline(journalGridPanel.getOffset(), journalGridPanel.getLoaderConfigStr());
             }
         });
         this.add(timeLineTabItem);
@@ -100,8 +106,8 @@ public class JournalTabPanel extends TabPanel {
     public JournalGridPanel getJournalGridPanel() {
         return journalGridPanel;
     }
-    
-    public void setSelectionItem(){
+
+    public void setSelectionItem() {
         this.setSelection(resultTabItem);
     }
 }

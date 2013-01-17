@@ -29,15 +29,22 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("JournalService")
 public interface JournalService extends RemoteService {
 
-    PagingLoadResult<JournalGridModel> getJournalList(JournalSearchCriteria criteria, PagingLoadConfig load) throws ServiceException;
-    
+    PagingLoadResult<JournalGridModel> getJournalList(JournalSearchCriteria criteria, PagingLoadConfig load)
+            throws ServiceException;
+
     JournalTreeModel getDetailTreeModel(String ids) throws ServiceException;
-    
+
     JournalTreeModel getComparisionTree(JournalParameters parameter) throws ServiceException;
-    
+
     boolean isEnterpriseVersion();
-    
+
     boolean restoreRecord(JournalParameters parameter) throws ServiceException;
-    
+
     boolean checkDCAndDM(String dataContainer, String dataModel);
+
+    String getReportString(String config, String entity, String key, String source, String operationType, String startDate,
+            String endDate, boolean isBrowseRecord);
+
+    String getReportString(int start, int limit, String sort, String field, String language, String entity, String key,
+            String source, String operationType, String startDate, String endDate, boolean isBrowseRecord);
 }
