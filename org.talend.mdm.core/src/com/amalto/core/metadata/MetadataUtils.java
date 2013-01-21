@@ -19,6 +19,7 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -54,6 +55,7 @@ public class MetadataUtils {
      * Code is expected to run in linear time (O(n+p) where n is the number of entities and p the number of references).
      * Used memory is O(n^2) (due to a dependency ordering).
      * </p>
+     *
      * @param repository A {@link MetadataRepository} instance that contains entity types.
      * @return A {@link Map} that maps a entity to its entity rank value.
      */
@@ -140,15 +142,31 @@ public class MetadataUtils {
                     path.remove(0);
                 }
                 return path;
-            } else if(!(current instanceof SimpleTypeFieldMetadata || current instanceof EnumerationFieldMetadata)){
+            } else if (!(current instanceof SimpleTypeFieldMetadata || current instanceof EnumerationFieldMetadata)) {
                 path.add(current);
             }
             if (!processedFields.contains(current)) {
                 processedFields.add(current);
                 if (current instanceof ContainedTypeFieldMetadata) {
-                    processStack.addAll(((ContainedTypeFieldMetadata) current).getContainedType().getFields());
+                    ContainedComplexTypeMetadata containedType = ((ContainedTypeFieldMetadata) current).getContainedType();
+                    processStack.addAll(containedType.getFields());
+                    for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
+                        for (FieldMetadata field : subType.getFields()) {
+                            if (field.getDeclaringType() == subType) {
+                                processStack.add(field);
+                            }
+                        }
+                    }
                 } else if (current instanceof ReferenceFieldMetadata) {
-                    processStack.addAll(((ReferenceFieldMetadata) current).getReferencedType().getFields());
+                    ComplexTypeMetadata referencedType = ((ReferenceFieldMetadata) current).getReferencedType();
+                    processStack.addAll(referencedType.getFields());
+                    for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
+                        for (FieldMetadata field : subType.getFields()) {
+                            if (field.getDeclaringType() == subType) {
+                                processStack.add(field);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -386,27 +404,27 @@ public class MetadataUtils {
      * @throws UnsupportedOperationException If there's no known mapping from this java class to a XSD primitive type.
      */
     public static String getType(String javaClassName) {
-        if ("java.lang.String".equals(javaClassName)) {
-            return "string";
-        } else if ("java.lang.Integer".equals(javaClassName)
-                || "java.math.BigInteger".equals(javaClassName)) {
-            return "int";
-        } else if ("java.lang.Boolean".equals(javaClassName)) {
-            return "boolean";
-        } else if ("java.math.BigDecimal".equals(javaClassName)) {
-            return "decimal";
-        } else if ("java.sql.Timestamp".equals(javaClassName)) {
-            return "dateTime";
-        } else if ("java.lang.Short".equals(javaClassName)) {
-            return "short";
-        } else if ("java.lang.Long".equals(javaClassName)) {
-            return "long";
-        } else if ("java.lang.Float".equals(javaClassName)) {
-            return "float";
-        } else if ("java.lang.Byte".equals(javaClassName)) {
-            return "byte";
-        } else if ("java.lang.Double".equals(javaClassName)) {
-            return "double";
+        if ("java.lang.String".equals(javaClassName)) { //$NON-NLS-1$
+            return "string"; //$NON-NLS-1$
+        } else if ("java.lang.Integer".equals(javaClassName) //$NON-NLS-1$
+                || "java.math.BigInteger".equals(javaClassName)) { //$NON-NLS-1$
+            return "int"; //$NON-NLS-1$
+        } else if ("java.lang.Boolean".equals(javaClassName)) { //$NON-NLS-1$
+            return "boolean"; //$NON-NLS-1$
+        } else if ("java.math.BigDecimal".equals(javaClassName)) { //$NON-NLS-1$
+            return "decimal"; //$NON-NLS-1$
+        } else if ("java.sql.Timestamp".equals(javaClassName)) { //$NON-NLS-1$
+            return "dateTime"; //$NON-NLS-1$
+        } else if ("java.lang.Short".equals(javaClassName)) { //$NON-NLS-1$
+            return "short"; //$NON-NLS-1$
+        } else if ("java.lang.Long".equals(javaClassName)) { //$NON-NLS-1$
+            return "long"; //$NON-NLS-1$
+        } else if ("java.lang.Float".equals(javaClassName)) { //$NON-NLS-1$
+            return "float"; //$NON-NLS-1$
+        } else if ("java.lang.Byte".equals(javaClassName)) { //$NON-NLS-1$
+            return "byte"; //$NON-NLS-1$
+        } else if ("java.lang.Double".equals(javaClassName)) { //$NON-NLS-1$
+            return "double"; //$NON-NLS-1$
         } else {
             throw new UnsupportedOperationException("No support for java class '" + javaClassName + "'");
         }
@@ -442,52 +460,52 @@ public class MetadataUtils {
         /*
         * Compute additional data for topological sorting
         */
-        final byte[][] dependencyGraph = new byte[types.size()][types.size()];
+        final int typeNumber = types.size();
+        byte[][] dependencyGraph = new byte[typeNumber][typeNumber];
         for (final ComplexTypeMetadata type : types) {
-            byte[] lineValue = new byte[types.size()];
-            dependencyGraph[getId(type, types)] = lineValue;
-            type.accept(new DefaultMetadataVisitor<Void>() {
+            dependencyGraph[getId(type, types)] = type.accept(new DefaultMetadataVisitor<byte[]>() {
+                byte[] lineContent = new byte[typeNumber]; // Stores dependencies of current type
+
                 @Override
-                public Void visit(ComplexTypeMetadata complexType) {
+                public byte[] visit(ComplexTypeMetadata complexType) {
                     if (isInstantiable == complexType.isInstantiable()) {
                         Collection<TypeMetadata> superTypes = complexType.getSuperTypes();
                         for (TypeMetadata superType : superTypes) {
                             if (superType instanceof ComplexTypeMetadata) {
-                                dependencyGraph[getId(type, types)][getId(((ComplexTypeMetadata) superType), types)]++;
+                                lineContent[getId(((ComplexTypeMetadata) superType), types)]++;
                             }
                         }
+                        super.visit(complexType);
                     }
-                    super.visit(complexType);
-                    return null;
+                    return lineContent;
                 }
 
                 @Override
-                public Void visit(ContainedTypeFieldMetadata containedField) {
-                    ContainedComplexTypeMetadata containedType = containedField.getContainedType();
+                public byte[] visit(ContainedTypeFieldMetadata containedField) {
+                    ComplexTypeMetadata containedType = containedField.getContainedType();
                     containedType.accept(this);
                     for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
                         subType.accept(this);
                     }
-                    return null;
+                    return lineContent;
                 }
 
                 @Override
-                public Void visit(ReferenceFieldMetadata referenceField) {
+                public byte[] visit(ReferenceFieldMetadata referenceField) {
                     ComplexTypeMetadata referencedType = referenceField.getReferencedType();
                     if (!type.equals(referencedType) && referenceField.isFKIntegrity()) { // Don't count a dependency to itself as a dependency.
                         if (isInstantiable == referencedType.isInstantiable()) {
-                            dependencyGraph[getId(type, types)][getId(referencedType, types)]++;
+                            lineContent[getId(referencedType, types)]++;
                             // Implicitly include reference to sub types of referenced type.
                             for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
-                                dependencyGraph[getId(type, types)][getId(subType, types)]++;
+                                lineContent[getId(subType, types)]++;
                             }
                         }
                     }
-                    return null;
+                    return lineContent;
                 }
             });
         }
-
         /*
         * TOPOLOGICAL SORTING
         * See "Kahn, A. B. (1962), "Topological sorting of large networks", Communications of the ACM"
@@ -501,77 +519,79 @@ public class MetadataUtils {
             }
             lineNumber++;
         }
-
         while (!noIncomingEdges.isEmpty()) {
             Iterator<ComplexTypeMetadata> iterator = noIncomingEdges.iterator();
             ComplexTypeMetadata type = iterator.next();
             iterator.remove();
-
             sortedTypes.add(type);
             int columnNumber = getId(type, types);
-            for (int i = 0; i < types.size(); i++) {
+            for (int i = 0; i < typeNumber; i++) {
                 int edge = dependencyGraph[i][columnNumber];
                 if (edge > 0) {
                     dependencyGraph[i][columnNumber] -= edge;
-
                     if (!hasIncomingEdges(dependencyGraph[i])) {
                         noIncomingEdges.add(getType(types, i));
                     }
                 }
             }
         }
-
+        // Check for cycles
         lineNumber = 0;
+        List<List<ComplexTypeMetadata>> cycles = new LinkedList<List<ComplexTypeMetadata>>();
+        // use dependency graph matrix to get cyclic dependencies (if any).
         for (byte[] line : dependencyGraph) {
             for (int column : line) {
-                if (column != 0) { // unresolved dependency (means there is a cycle somewhere).
-                    int currentLineNumber = lineNumber;
+                if (column != 0) { // unresolved dependency (means this is a cycle start).
                     List<ComplexTypeMetadata> dependencyPath = new LinkedList<ComplexTypeMetadata>();
-                    // use dependency graph matrix to get cyclic dependency.
+                    int currentLineNumber = lineNumber;
                     do {
                         ComplexTypeMetadata type = getType(types, currentLineNumber);
-                        if (!dependencyPath.contains(type)) {
-                            dependencyPath.add(type);
-                        } else {
-                            dependencyPath.add(type); // Include cycle start to get a better exception message.
-                            break;
-                        }
-                        byte[] bytes = dependencyGraph[getId(type, types)];
-                        for (int currentByte = 0; currentByte < bytes.length; currentByte++) {
-                            if (bytes[currentByte] > 0) { // This gets the first unresolved dependency (but there might be more of them).
-                                currentLineNumber = currentByte;
+                        dependencyPath.add(type);
+                        byte[] typeDependencies = dependencyGraph[getId(type, types)];
+                        for (int currentDependency = 0; currentDependency < typeDependencies.length; currentDependency++) {
+                            if (typeDependencies[currentDependency] > 0) { // This gets the first unresolved dependency (but there might be more of them).
+                                dependencyGraph[currentLineNumber][currentDependency]--;
+                                currentLineNumber = currentDependency;
                                 break;
                             }
                         }
-                    } while (currentLineNumber != column);
-
-                    StringBuilder pathAsString = new StringBuilder();
-                    Iterator<ComplexTypeMetadata> dependencyPathIterator = dependencyPath.iterator();
-                    ComplexTypeMetadata previous = null;
-                    while (dependencyPathIterator.hasNext()) {
-                        ComplexTypeMetadata currentType = dependencyPathIterator.next();
-                        pathAsString.append(currentType.getName());
-                        if (dependencyPathIterator.hasNext()) {
-                            pathAsString.append(" -> ");
-                        } else if (previous != null) {
-                            pathAsString.append(')');
-                            pathAsString.append('\n');
-                            Set<ReferenceFieldMetadata> inboundReferences = repository.accept(new ForeignKeyIntegrity(currentType));
-                            pathAsString.append("(Possible fields: ");
-                            for (ReferenceFieldMetadata inboundReference : inboundReferences) {
-                                String xPath = inboundReference.getData(ForeignKeyIntegrity.ATTRIBUTE_XPATH);
-                                pathAsString.append(xPath).append(' ');
-                            }
-                            pathAsString.append(')');
-                        }
-                        previous = currentType;
-                    }
-                    throw new IllegalArgumentException("Data model has at least one circular dependency.\n(Hint: " + pathAsString);
+                    } while (currentLineNumber != lineNumber);
+                    dependencyPath.add(getType(types, lineNumber)); // Include cycle start to get a better exception message.
+                    cycles.add(dependencyPath);
                 }
             }
             lineNumber++;
         }
-
+        if (!cycles.isEmpty()) { // Found cycle(s): report it/them as exception
+            StringBuilder cyclesAsString = new StringBuilder();
+            int i = 1;
+            Iterator<List<ComplexTypeMetadata>> cyclesIterator = cycles.iterator();
+            while (cyclesIterator.hasNext()) {
+                cyclesAsString.append(i++).append(") ");
+                Iterator<ComplexTypeMetadata> dependencyPathIterator = cyclesIterator.next().iterator();
+                ComplexTypeMetadata previous = null;
+                while (dependencyPathIterator.hasNext()) {
+                    ComplexTypeMetadata currentType = dependencyPathIterator.next();
+                    cyclesAsString.append(currentType.getName());
+                    if (dependencyPathIterator.hasNext()) {
+                        cyclesAsString.append(" -> ");
+                    } else if (previous != null) {
+                        Set<ReferenceFieldMetadata> inboundReferences = repository.accept(new ForeignKeyIntegrity(currentType));
+                        cyclesAsString.append(" ( possible fields: ");
+                        for (ReferenceFieldMetadata inboundReference : inboundReferences) {
+                            String xPath = inboundReference.getData(ForeignKeyIntegrity.ATTRIBUTE_XPATH);
+                            cyclesAsString.append(xPath).append(' ');
+                        }
+                        cyclesAsString.append(')');
+                    }
+                    previous = currentType;
+                }
+                if (cyclesIterator.hasNext()) {
+                    cyclesAsString.append('\n');
+                }
+            }
+            throw new IllegalArgumentException("Data model has circular dependencies:\n" + cyclesAsString);
+        }
         return sortedTypes;
     }
 
