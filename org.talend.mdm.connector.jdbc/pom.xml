@@ -1,0 +1,79 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.talend.mdm</groupId>
+        <artifactId>mdm-base</artifactId>
+        <version>${mdm.build.version}</version>
+        <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.talend.mdm.connector.jdbc</artifactId>
+    <name>org.talend.mdm.connector.jdbc</name>
+
+    <build>
+        <directory>${mdm.build.dir}</directory>
+        <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <includes>
+                    <include>**/**.conf</include>
+                    <include>**/**.xsd</include>
+                    <include>**/**.xml</include>
+                    <include>**/**.dtd</include>
+                    <include>**/**.properties</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jbossall-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.6.1</version>
+            <scope>system</scope>
+            <systemPath>${tom.location}/talend.mdm.libraries/lib/commons-beanutils-1.6.1.jar</systemPath>
+        </dependency>
+        
+        <dependency>
+            <groupId>jtds</groupId>
+            <artifactId>jtds</artifactId>
+            <version>1.2.2</version>
+            <scope>system</scope>
+            <systemPath>${tom.location}/org.talend.mdm.connector.jdbc/lib-drivers/z.jtds-1.2.2.jar</systemPath>
+        </dependency>
+        
+        <dependency>
+            <groupId>mysql-connector-java</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.5</version>
+            <scope>system</scope>
+            <systemPath>${tom.location}/org.talend.mdm.connector.jdbc/lib-drivers/z.mysql-connector-java-5.1.5-bin.jar</systemPath>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.connector.core</artifactId>
+            <version>${project.version}</version>
+            <scope>system</scope>
+            <systemPath>${tom.location}/org.talend.mdm.connector.core/z.mdm.connector.library.jar</systemPath>
+        </dependency>
+    </dependencies>
+
+</project>
