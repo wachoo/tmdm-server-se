@@ -1645,7 +1645,6 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
-
     public void testCompositeFKCollectionSearch() throws Exception {
         UserQueryBuilder qb = from(person).selectId(person).where(eq(person.getField("addresses/address"), "[3][false]"));
         StorageResults storageResults = storage.fetch(qb.getSelect());
@@ -1950,22 +1949,19 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(E2_Record3, actual);
     }
 
-    public void testFetchAllE2() {
+    public void testFetchAllE2() throws Exception {
         UserQueryBuilder qb = from(e2);
         StorageResults results = storage.fetch(qb.getSelect());
         assertEquals(7, results.getCount());
-
         DataRecordXmlWriter writer = new DataRecordXmlWriter();
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        StringWriter output = new StringWriter();
+        List<String> expectedResults = new LinkedList<String>(Arrays.asList(E2_Record1, E2_Record2, E2_Record3, E2_Record4, E2_Record5, E2_Record6, E2_Record7));
         for (DataRecord result : results) {
-            try {
-                writer.write(result, output);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            writer.write(result, output);
+            expectedResults.remove(output.toString());
+            output = new StringWriter();
         }
-        String actual = new String(output.toByteArray());
-        assertEquals(E2_Record1 + E2_Record2 + E2_Record3 + E2_Record4 + E2_Record5 + E2_Record6 + E2_Record7, actual);
+        assertTrue(expectedResults.isEmpty());
     }
 
     public void testDuplicateFieldNames() {
@@ -2015,7 +2011,7 @@ public class StorageQueryTest extends StorageTestCase {
                 strings.get(1));
     }
 
-    public void testFetchAllE2WithJoniE1() {
+    public void testFetchAllE2WithJoinE1() {
 
         ComplexTypeMetadata type = repository.getComplexType("Product");
         UserQueryBuilder qb = UserQueryBuilder.from(type);
@@ -2158,5 +2154,19 @@ public class StorageQueryTest extends StorageTestCase {
             assertNotNull(result.get("Status"));
             assertTrue(expectedStatuses.contains(String.valueOf(result.get("Status"))));
         }
+    }
+
+    public void testManyFieldSelect() throws Exception {
+        UserQueryBuilder qb = from(product).select(product.getField("Features/Sizes/Size"));
+        // UserQueryBuilder qb = from(product);
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertTrue("There should be at least 2 records", results.getCount() >= 2);
+        Set<String> expectedResults = new HashSet<String>();
+        expectedResults.add("Small,Medium,Large");
+        expectedResults.add("Large");
+        for (DataRecord result : results) {
+            expectedResults.remove(result.get("Size"));
+        }
+        assertTrue(expectedResults.isEmpty());
     }
 }
