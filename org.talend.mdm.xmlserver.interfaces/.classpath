@@ -2,6 +2,6 @@
 <classpath>
 	<classpathentry excluding="com/amalto/xyleme/ejb/OLDXylemeWrapper.java|com/amalto/xyleme/test/ZZXylemeTest.java|com/amalto/xmlserver/interfaces/IXmlServerSFWrapper.java" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
+	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
