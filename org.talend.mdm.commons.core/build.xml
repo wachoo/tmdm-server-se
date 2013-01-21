@@ -1,26 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Webapp core" default="all">
+<project name="Webapp core" xmlns:artifact="antlib:org.apache.maven.artifact.ant" default="all">
+
+    <property file="build.properties" />
+
+    <target name="prepare-maven" if="local.developer.build">
+        <path id="maven-ant-tasks.classpath" path="${maven.ant.tasks.file}" />
+        <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
+    </target>
 
     <property name="version.props" value="version.properties" />
 
     <property name="jar" value="z.mdm.common.commons.core" />
     <!--<property name="war" value="zz.20.commons.core"/>-->
 
-    <property name="jboss.dir" value="c:/opt/jboss" />
+    <property name="build.dir" value="${basedir}/target" />
+    <property name="jboss.dir" value="${jboss.dir}" />
     <property name="jboss.instance.dir" value="${jboss.dir}/server/default" />
+    <property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
     <property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
-    <property name="jboss.instance.lib" value="${jboss.instance.dir}/lib" />
-    
+	
     <property name="tom.location" value="${basedir}/.." />
 
     <!-- =================================
           target: all
          ================================= -->
-    <target name="all" depends="junit,package,undeploy,deploy" description="-->webapp core">
+    <target name="all" depends="clean,package,undeploy,deploy" description="-->webapp core">
         <!--eclipse.refreshLocal resource="${basedir}"/-->
     </target>
 
-    <target name="package">
+    <target name="clean">
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="clean" />
+        </antcall>
+    </target>
+    
+    <target name="compile" depends="test">
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="compile" />
+        </antcall>
+        
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="test-compile" />
+        </antcall>
+
+        <copy todir="bin">
+           <fileset dir="target/classes" includes="**" />
+           <fileset dir="target/test-classes" includes="**" />
+        </copy>
+    </target>
+    
+    <target name="test">
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="test" />
+        </antcall>
+    </target>
+	
+    <target name="package" depends="compile">
 
         <delete>
             <fileset dir="." includes="${jar}*.jar" />
@@ -93,72 +128,17 @@
 			-->
     </target>
 
-    <target name="junit">
-        <echo message="${tom.location}/org.talend.mdm.commons.core/bin" />
+    <target name="mvn.invoke" description="invokes maven" depends="prepare-maven">
+        <property environment="env" />
 
-        <delete dir="${basedir}/target/test-classes" />
-        <mkdir dir="${basedir}/target/test-classes" />
-
-        <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
-            <fileset dir="${basedir}/src" includes="**/**.xml" />
-        </copy>
-        <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
-            <fileset dir="${basedir}/src" includes="**/**.dtd" />
-        </copy>
-
-        <delete dir="${basedir}/target/test-reports" />
-        <mkdir dir="${basedir}/target/test-reports" />
-
-        <path id="base.classpath">
-            <pathelement path="bin" />
-            <pathelement path="${tom.location}/talend.mdm.libraries/deploy/lib/z.relaxngDatatype.jar" />
-            <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.xsom.jar" />
-            <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-lang-2.1.jar" />
-            <pathelement path="${tom.location}/talend.mdm.libraries/lib/log4j.jar" />
-            <pathelement path="${tom.location}/talend.mdm.libraries/lib/servlet-api.jar" />
-            <pathelement path="${tom.location}/talend.mdm.libraries/lib/commons-io.jar" />
-            <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-jxpath-1.3.jar" />
-            <pathelement path="${tom.location}/talend.mdm.libraries/lib/xercesImpl-2.9.1.jar" />
-        </path>
-
-        <path id="compile.classpath">
-            <pathelement path="${tom.location}/talend.mdm.libraries/lib/junit-3.8.1.jar" />
-            <path refid="base.classpath" />
-        </path>
-
-        <path id="test.classpath">
-            <pathelement path="target/test-classes" />
-            <path refid="compile.classpath" />
-        </path>
-
-        <copy todir="${basedir}/target/test-classes" verbose="true">
-            <fileset dir="${basedir}/tests" excludes="**/*.java" />
-        </copy>
-
-        <javac srcdir="${basedir}/tests" destdir="${basedir}/target/test-classes" debug="true">
-            <classpath>
-                <path refid="compile.classpath" />
-            </classpath>
-        </javac>
-
-        <junit printsummary="yes" haltonfailure="yes" showoutput="yes">
-            <classpath>
-                <path refid="test.classpath" />
-            </classpath>
-
-            <batchtest fork="yes" todir="target/test-reports">
-                <fileset dir="target/test-classes">
-                    <exclude name="**/*AbstractTest.class"/>
-                    <include name="**/*Test.class" />
-                    <include name="**/*TestCase.class" />
-                </fileset>
-            </batchtest>
-
-            <formatter type="plain" />
-            <formatter type="xml" />
-        </junit>
+        <artifact:mvn pom="pom.xml" mavenHome="${env.M2_HOME}" fork="true" failonerror="true">
+            <arg value="-V" />
+            <arg value="-Dmdm.build.dir=${build.dir}" />
+            <arg value="-Dmdm.build.version=${mdm.build.version}" />
+            <arg value="-Ddev.mode.excluded.start=${dev.mode.excluded.start}" />
+            <arg value="-Ddev.mode.excluded.end=${dev.mode.excluded.end}" />
+            <arg value="${mvn.goal}" />
+        </artifact:mvn>
     </target>
-
-
 </project>
 
