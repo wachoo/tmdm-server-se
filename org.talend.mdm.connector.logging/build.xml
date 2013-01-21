@@ -3,10 +3,21 @@
 <!-- mdm Connector : logging -->
 
 
-<project name="logging" default="all">
+<project name="logging" xmlns:artifact="antlib:org.apache.maven.artifact.ant" default="all">
+	<property file="build.properties" />
+    <!-- if you run it by eclipse, please setup the taskdef.
+    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${basedir}/../org.talend.mdm.nsis/svnkit/ant-contrib-1.0b3.jar" onerror="ignore"/>
+    -->
+    <target name="prepare-maven" if="local.developer.build">
+        <path id="maven-ant-tasks.classpath" path="${maven.ant.tasks.file}" />
+        <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
+    </target>
 	
 	<property name="version.props" value="version.properties"/>
-	
+	<property name="build.dir" value="${basedir}/target" />
+    <property name="mdm.build.version" value="${major}.${minor}.${rev}-r${svn.revision}" />
+    <property name="dev.mode.excluded.start" value="" />
+    <property name="dev.mode.excluded.end" value="" />
 	<property name="jboss.dir" value="c:/opt/jboss"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
@@ -17,8 +28,28 @@
     <property name="rar" value="zz.20.mdm.connector.logging.rar" />
     <property name="mdb" value="zz.20.mdm.connector.logging-mdb.ejb.jar" />
     <property name="buildtype" value="" />	
-	<target name="all" depends="version,package,undeploy,deploy" />
+	<target name="all" depends="clean,version,package,undeploy,deploy" />
 	
+    <target name="clean">
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="clean" />
+        </antcall>
+    </target>
+
+    <target name="install">
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="install" />
+        </antcall>
+    </target>
+    
+    <target name="compile">
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="compile" />
+        </antcall>
+        <copy todir="bin">
+            <fileset dir="target/classes" includes="**" />
+        </copy>
+    </target>
 	
 	<target name="version">
 		<propertyfile file="${version.props}">
@@ -27,7 +58,7 @@
 	</target>
 	
 	
-	<target name="package">
+	<target name="package" depends="compile">
 		<delete file="logging.jar"/>
 		<buildnumber file="${version.props}"/>
 		<property file="${version.props}" />
@@ -160,5 +191,18 @@
            </else>
        </if> 		
 	</target>
+	
+    <target name="mvn.invoke" description="invokes maven" depends="prepare-maven">
+        <property environment="env" />
+
+        <artifact:mvn pom="pom.xml" mavenHome="${env.M2_HOME}" fork="true" failonerror="true">
+            <arg value="-V" />
+            <arg value="-Dmdm.build.dir=${build.dir}" />
+            <arg value="-Dmdm.build.version=${mdm.build.version}" />
+            <arg value="-Ddev.mode.excluded.start=${dev.mode.excluded.start}" />
+            <arg value="-Ddev.mode.excluded.end=${dev.mode.excluded.end}" />
+            <arg value="${mvn.goal}" />
+        </artifact:mvn>
+    </target>
 	
 </project>
