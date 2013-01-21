@@ -50,8 +50,14 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private String lastMatchPath;
 
-    public UpdateActionCreator(MutableDocument originalDocument, MutableDocument newDocument,
-                               boolean preserveCollectionOldValues, String source, String userName, MetadataRepository repository) {
+    private boolean isDeletingContainedElement = false;
+
+    public UpdateActionCreator(MutableDocument originalDocument,
+                               MutableDocument newDocument,
+                               boolean preserveCollectionOldValues,
+                               String source,
+                               String userName,
+                               MetadataRepository repository) {
         this.preserveCollectionOldValues = preserveCollectionOldValues;
         this.originalDocument = originalDocument;
         this.newDocument = newDocument;
@@ -101,7 +107,6 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
      * Interface to encapsulate action to execute on fields
      */
     interface Closure {
-
         void execute(FieldMetadata field);
     }
 
@@ -137,7 +142,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             Accessor rightAccessor;
             try {
                 rightAccessor = newDocument.createAccessor(currentPath);
-                if (!rightAccessor.exist()) {
+                if (!rightAccessor.exist() && !isDeletingContainedElement) {
                     // If new list does not exist, it means element was omitted in new version (legacy behavior).
                     return;
                 }
@@ -145,7 +150,6 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             } finally {
                 path.pop();
             }
-
             // Proceed in "reverse" order (highest index to lowest) so there won't be issues when deleting elements in
             // a sequence (if element #2 is deleted before element #3, element #3 becomes #2...).
             int max = Math.max(leftAccessor.size(), rightAccessor.size());
@@ -176,7 +180,6 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         String path = getLeftPath();
         Accessor originalAccessor = originalDocument.createAccessor(path);
         Accessor newAccessor = newDocument.createAccessor(path);
-
         if (!originalAccessor.exist()) {
             if (!newAccessor.exist()) {
                 // No op
@@ -194,6 +197,14 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             lastMatchPath = path;
             if (!newAccessor.exist()) {
                 if (comparedField.isMany() && !preserveCollectionOldValues) {
+                    // TMDM-5216: Visit sub fields include old/new values for sub elements.
+                    if (comparedField instanceof ContainedTypeFieldMetadata) {
+                        isDeletingContainedElement = true;
+                        ((ContainedTypeFieldMetadata) comparedField).getContainedType().accept(this);
+                        isDeletingContainedElement = false;
+                    }
+                }
+                if (isDeletingContainedElement) {
                     // Null values may happen if accessor is targeting an element that contains other elements
                     actions.add(new FieldUpdateAction(date, source, userName, path, oldValue == null ? StringUtils.EMPTY
                             : oldValue, null, comparedField));
