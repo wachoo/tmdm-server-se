@@ -259,7 +259,26 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                 CtMethod setTaskId = CtNewMethod.make(setTaskIdMethodBody.toString(), newClass);
                 newClass.addMethod(setTaskId);
             }
-
+            // Equals
+            StringBuilder equalsMethodBody = new StringBuilder();
+            equalsMethodBody.append("public boolean equals(Object o) {"); //$NON-NLS-1$
+            equalsMethodBody.append("if(o == null) return false;");
+            equalsMethodBody.append("if(!o.getClass().equals(this.getClass())) return false;");
+            equalsMethodBody.append(Wrapper.class.getName()).append(" wrapper = (").append(Wrapper.class.getName()).append(") o;");
+            equalsMethodBody.append("Object value;");
+            for (FieldMetadata keyField : keyFields) {
+                equalsMethodBody.append("value = wrapper.get(\"").append(keyField.getName()).append("\");");
+                equalsMethodBody.append("if(value != null) {");
+                equalsMethodBody.append("if(!value.equals(get(\"").append(keyField.getName()).append("\"))) return false;");
+                equalsMethodBody.append("} else {");
+                equalsMethodBody.append("if(value != get(\"").append(keyField.getName()).append("\")) return false;");
+                equalsMethodBody.append("}");
+            }
+            equalsMethodBody.append("return true;");
+            equalsMethodBody.append("}"); //$NON-NLS-1$
+            CtMethod equalsMethod = CtNewMethod.make(equalsMethodBody.toString(), newClass);
+            newClass.addMethod(equalsMethod);
+            // Compile class
             Class<? extends Wrapper> compiledNewClass = classCreationStack.pop().toClass();
             storageClassLoader.register(complexType, compiledNewClass);
         } catch (Exception e) {

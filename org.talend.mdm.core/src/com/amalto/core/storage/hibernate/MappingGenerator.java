@@ -293,8 +293,9 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 name.setValue(fieldName);
                 propertyElement.getAttributes().setNamedItem(name);
                 Attr lazy = document.createAttribute("lazy"); //$NON-NLS-1$
-                lazy.setValue("true"); //$NON-NLS-1$
+                lazy.setValue("extra"); //$NON-NLS-1$
                 propertyElement.getAttributes().setNamedItem(lazy);
+                // fetch="select"
                 Attr joinAttribute = document.createAttribute("fetch"); //$NON-NLS-1$
                 joinAttribute.setValue("select"); // Keep it "select" (Hibernate tends to duplicate results when using "fetch")
                 propertyElement.getAttributes().setNamedItem(joinAttribute);
@@ -512,7 +513,6 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     notNull.setValue("false"); //$NON-NLS-1$
                     propertyElement.getAttributes().setNamedItem(notNull);
                 }
-
                 addFieldTypeAttribute(field, propertyElement, dialect);
                 propertyElement.getAttributes().setNamedItem(propertyName);
                 propertyElement.getAttributes().setNamedItem(columnName);
@@ -524,17 +524,40 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
                 tableName.setValue(formatSQLName((field.getContainingType().getName() + '_' + fieldName).toUpperCase(), resolver.getNameMaxLength()));
                 listElement.getAttributes().setNamedItem(tableName);
-                // lazy="false"
-                Attr lazyAttribute = document.createAttribute("lazy"); //$NON-NLS-1$
-                lazyAttribute.setValue("false"); //$NON-NLS-1$
-                listElement.getAttributes().setNamedItem(lazyAttribute);
-                // fetch="select"
-                Attr fetchAttribute = document.createAttribute("fetch"); //$NON-NLS-1$
-                fetchAttribute.setValue("select"); //$NON-NLS-1$
-                listElement.getAttributes().setNamedItem(fetchAttribute);
+                if (field.getContainingType().getKeyFields().size() == 1) {
+                    // lazy="extra"
+                    Attr lazyAttribute = document.createAttribute("lazy"); //$NON-NLS-1$
+                    lazyAttribute.setValue("extra"); //$NON-NLS-1$
+                    listElement.getAttributes().setNamedItem(lazyAttribute);
+                    // fetch="join"
+                    Attr fetchAttribute = document.createAttribute("fetch"); //$NON-NLS-1$
+                    fetchAttribute.setValue("join"); //$NON-NLS-1$
+                    listElement.getAttributes().setNamedItem(fetchAttribute);
+                    // inverse="true"
+                    Attr inverse = document.createAttribute("inverse"); //$NON-NLS-1$
+                    inverse.setValue("false"); //$NON-NLS-1$
+                    listElement.getAttributes().setNamedItem(inverse);
+                } else {
+                    /*
+                     * Hibernate does not handle correctly reverse collection when main entity owns multiple keys.
+                     */
+                    // lazy="false"
+                    Attr lazyAttribute = document.createAttribute("lazy"); //$NON-NLS-1$
+                    lazyAttribute.setValue("false"); //$NON-NLS-1$
+                    listElement.getAttributes().setNamedItem(lazyAttribute);
+                    // In case containing type has > 1 key, switch to fetch="select" since Hibernate returns incorrect
+                    // results in case of fetch="join".
+                    Attr fetchAttribute = document.createAttribute("fetch"); //$NON-NLS-1$
+                    fetchAttribute.setValue("select"); //$NON-NLS-1$
+                    listElement.getAttributes().setNamedItem(fetchAttribute);
+                    // batch-size="20"
+                    Attr batchSize = document.createAttribute("batch-size"); //$NON-NLS-1$
+                    batchSize.setValue("20");
+                    listElement.getAttributes().setNamedItem(batchSize);
+                }
                 // cascade="delete"
                 Attr cascade = document.createAttribute("cascade"); //$NON-NLS-1$
-                cascade.setValue("delete"); //$NON-NLS-1$
+                cascade.setValue("all-delete-orphan"); //$NON-NLS-1$
                 listElement.getAttributes().setNamedItem(cascade);
                 // Keys
                 Element key = document.createElement("key"); //$NON-NLS-1$
@@ -557,7 +580,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     LOGGER.warn("Field '" + field.getName() + "' is mandatory and a collection. Constraint can not be expressed in database schema.");
                 }
                 // <index column="pos" />
-                Element index = document.createElement("index"); //$NON-NLS-1$
+                Element index = document.createElement("list-index"); //$NON-NLS-1$
                 Attr indexColumn = document.createAttribute("column"); //$NON-NLS-1$
                 indexColumn.setValue("pos"); //$NON-NLS-1$
                 index.getAttributes().setNamedItem(indexColumn);

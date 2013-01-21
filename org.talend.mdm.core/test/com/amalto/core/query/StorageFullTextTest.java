@@ -51,13 +51,13 @@ public class StorageFullTextTest extends StorageTestCase {
         allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>2</Id>\n"
                 + "    <Name>Product family #2</Name>\n" + "</ProductFamily>"));
         allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
-                + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
-                + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
-                + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
-                + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
-                + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
-                + "    </Features>\n" + "    <Status>Pending</Status>\n" + "    <Family>[2]</Family>\n"
-                + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
+                        + "    <Name>talend</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
+                        + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                        + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
+                        + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
+                        + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
+                        + "    </Features>\n" + "    <Status>Pending</Status>\n"
+                        + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
         allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>2</Id>\n" + "    <Name>Renault car</Name>\n"
                 + "    <ShortDescription>A car</ShortDescription>\n"
                 + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
@@ -84,14 +84,6 @@ public class StorageFullTextTest extends StorageTestCase {
                                 repository,
                                 country,
                                 "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
-        allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
-                + "    <Name>talend</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
-                + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
-                + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
-                + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
-                + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
-                + "    </Features>\n" + "    <Status>Pending</Status>\n"
-                + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
         try {
             storage.begin();
             storage.update(allRecords);
