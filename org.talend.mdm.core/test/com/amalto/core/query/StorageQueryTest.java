@@ -2052,7 +2052,6 @@ public class StorageQueryTest extends StorageTestCase {
 
     }
 
->>>>>>> .fusion-droit.r97039
     public void testFetchAllE2WithViewSearchResultsWriter() throws Exception {
         UserQueryBuilder qb = from(e2);
         StorageResults results = storage.fetch(qb.getSelect());
