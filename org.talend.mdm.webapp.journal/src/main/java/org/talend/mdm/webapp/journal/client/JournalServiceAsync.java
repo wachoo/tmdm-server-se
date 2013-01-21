@@ -39,9 +39,6 @@ public interface JournalServiceAsync {
 
     void checkDCAndDM(String dataContainer, String dataModel, AsyncCallback<Boolean> callback);
 
-    void getReportString(String config, String entity, String key, String source, String operationType, String startDate,
-            String endDate, boolean isBrowseRecord, AsyncCallback<String> callback);
-
     void getReportString(int start, int limit, String sort, String field, String language, String entity, String key,
             String source, String operationType, String startDate, String endDate, boolean isBrowseRecord,
             AsyncCallback<String> callback);

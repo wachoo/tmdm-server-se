@@ -68,5 +68,13 @@ public class JournalView extends View {
     
     private void onDoSearch(AppEvent event) {
         JournalTabPanel.getInstance().getJournalGridPanel().refreshGrid();
+        if (JournalTabPanel.getInstance().getJournalTimelinePanel().isActive()) {
+            JournalTabPanel
+                    .getInstance()
+                    .getJournalTimelinePanel()
+                    .initTimeline(JournalTabPanel.getInstance().getJournalGridPanel().getOffset(),
+                            JournalTabPanel.getInstance().getJournalGridPanel().getLoaderConfigStr());
+        }
+
     }
 }

@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.journal.client.widget;
 
 import org.talend.mdm.webapp.journal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.journal.client.resources.icon.Icons;
-import org.talend.mdm.webapp.journal.client.util.TimelineUtil;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -63,7 +62,7 @@ public class JournalTabPanel extends TabPanel {
         resultTabItem.addListener(Events.Select, new Listener<ComponentEvent>() {
 
             public void handleEvent(ComponentEvent be) {
-                TimelineUtil.setTimelinePanelActive(false);
+                journalTimelinePanel.setActive(false);
             }
         });
         this.add(resultTabItem);
@@ -77,16 +76,19 @@ public class JournalTabPanel extends TabPanel {
         SimplePanel cp = new SimplePanel();
         cp.getElement().setId("journalTimeLine"); //$NON-NLS-1$
         cp.setStyleName("timeline-default"); //$NON-NLS-1$
-        cp.getElement().getStyle().setProperty("height", 464D, Unit.PX); //$NON-NLS-1$
+        cp.getElement().getStyle().setProperty("height", 398D, Unit.PX); //$NON-NLS-1$
 
         journalTimelinePanel = new JournalTimelinePanel();
-        journalTimelinePanel.add(cp);
+        journalTimelinePanel.setId("journalTimeLine"); //$NON-NLS-1$
+        journalTimelinePanel.setStyleName("timeline-default"); //$NON-NLS-1$
 
         timeLineTabItem.add(journalTimelinePanel);
         timeLineTabItem.addListener(Events.Select, new Listener<ComponentEvent>() {
 
             public void handleEvent(ComponentEvent be) {
+                journalTimelinePanel.setActive(true);
                 journalTimelinePanel.setTimeLinePanelHeight(timeLineTabItem.getHeight());
+                journalTimelinePanel.getElement().getStyle().setPropertyPx("height", timeLineTabItem.getHeight()); //$NON-NLS-1$
                 journalTimelinePanel.initTimeline(journalGridPanel.getOffset(), journalGridPanel.getLoaderConfigStr());
             }
         });
@@ -105,6 +107,10 @@ public class JournalTabPanel extends TabPanel {
 
     public JournalGridPanel getJournalGridPanel() {
         return journalGridPanel;
+    }
+
+    public JournalTimelinePanel getJournalTimelinePanel() {
+        return this.journalTimelinePanel;
     }
 
     public void setSelectionItem() {

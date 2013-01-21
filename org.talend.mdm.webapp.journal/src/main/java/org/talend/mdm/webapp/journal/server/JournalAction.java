@@ -117,29 +117,6 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         return result;
     }
 
-    public String getReportString(String config, String entity, String key, String source, String operationType,
-            String startDate, String endDate, boolean isBrowseRecord) {
-        String[] cfgArr = config.split(","); //$NON-NLS-1$
-        int start = Integer.parseInt(cfgArr[0]);
-        int limit = Integer.parseInt(cfgArr[1]);
-        String sort = cfgArr[2];
-        String field = cfgArr[3].equalsIgnoreCase("null") ? "" : cfgArr[3]; //$NON-NLS-1$ //$NON-NLS-2$
-        String language = cfgArr[4];
-
-        JournalSearchCriteria criteria = this.buildCriteria(entity, key, source, operationType, startDate, endDate);
-        String reportString = null;
-        try {
-            Object[] result = service.getResultListByCriteria(criteria, start, limit, sort, field, isBrowseRecord);
-            List<JournalGridModel> resultList = (List<JournalGridModel>) result[1];
-            reportString = this.generateEventString(resultList, language);
-
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-        }
-
-        return reportString;
-    }
-
     public String getReportString(int start, int limit, String sort, String field, String language, String entity, String key,
             String source, String operationType, String startDate, String endDate, boolean isBrowseRecord) {
 
@@ -148,7 +125,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         try {
             Object[] result = service.getResultListByCriteria(criteria, start, limit, sort, field, isBrowseRecord);
             List<JournalGridModel> resultList = (List<JournalGridModel>) result[1];
-            reportString = this.generateEventString(resultList, language);
+            reportString = this.generateEventString(resultList, language, criteria.getStartDate());
 
         } catch (Exception e) {
             LOG.error(e.getMessage());
@@ -181,7 +158,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         return criteria;
     }
 
-    private String generateEventString(List<JournalGridModel> resultList, String language) throws ParseException {
+    private String generateEventString(List<JournalGridModel> resultList, String language, Date startDate) throws ParseException {
         StringBuilder sb = new StringBuilder("{'dateTimeFormat': 'iso8601',"); //$NON-NLS-1$
         sb.append("'events' : ["); //$NON-NLS-1$
         int i = 0;
@@ -213,7 +190,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
             JournalGridModel obj = resultList.get(0);
             sb.append(this.changeDataFormat(obj.getOperationDate()));
         } else {
-            sb.append(this.getDateStringPlusGMT(new Date()));
+            sb.append(this.getDateStringPlusGMT(startDate));
         }
 
         sb.append("@||@"); //$NON-NLS-1$
