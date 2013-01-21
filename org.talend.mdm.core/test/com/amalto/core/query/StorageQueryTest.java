@@ -1631,7 +1631,6 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
-
     public void testCompositeFKCollectionSearch() throws Exception {
         UserQueryBuilder qb = from(person).selectId(person).where(eq(person.getField("addresses/address"), "[3][false]"));
         StorageResults storageResults = storage.fetch(qb.getSelect());
@@ -1938,24 +1937,122 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(E2_Record3, actual);
     }
 
-    public void testFetchAllE2() {
+    public void testFetchAllE2() throws Exception {
         UserQueryBuilder qb = from(e2);
         StorageResults results = storage.fetch(qb.getSelect());
         assertEquals(7, results.getCount());
-
         DataRecordXmlWriter writer = new DataRecordXmlWriter();
+        StringWriter output = new StringWriter();
+        List<String> expectedResults = new LinkedList<String>(Arrays.asList(E2_Record1, E2_Record2, E2_Record3, E2_Record4, E2_Record5, E2_Record6, E2_Record7));
+        for (DataRecord result : results) {
+            writer.write(result, output);
+            expectedResults.remove(output.toString());
+            output = new StringWriter();
+        }
+        assertTrue(expectedResults.isEmpty());
+    }
+
+    public void testDuplicateFieldNames() {
+        UserQueryBuilder qb = from(product);
+
+        List<String> viewables = new ArrayList<String>();
+        viewables.add("Product/Id");
+        viewables.add("Product/Name");
+        viewables.add("Product/Family");
+        viewables.add("ProductFamily/Id");
+        viewables.add("ProductFamily/Name");
+
+        List<IWhereItem> conditions = new ArrayList<IWhereItem>();
+        conditions.add(new WhereCondition("Product/Family", "JOINS", "ProductFamily/Id", "&"));
+
+        IWhereItem fullWhere = new WhereAnd(conditions);
+        qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
+
+        for (String viewableBusinessElement : viewables) {
+            String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
+            String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
+            qb.select(UserQueryHelper.getField(repository, viewableTypeName, viewablePath));
+        }
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(2, results.getCount());
+
+        DataRecordWriter writer = new ViewSearchResultsWriter();
         ByteArrayOutputStream output = new ByteArrayOutputStream();
+        List<String> strings = new ArrayList<String>();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+                String document = new String(output.toByteArray(), Charset.forName("UTF-8"));
+                strings.add(document);
+                output.reset();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        assertEquals(2, strings.size());
+        assertEquals(
+                "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">\n\t<Id>1</Id>\n\t<Name>Product name</Name>\n\t<Family>[2]</Family>\n\t<Id>2</Id>\n\t<Name>Product family #2</Name>\n</result>",
+                strings.get(0));
+        assertEquals(
+                "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">\n\t<Id>2</Id>\n\t<Name>Renault car</Name>\n\t<Family/>\n\t<Id/>\n\t<Name/>\n</result>",
+                strings.get(1));
+    }
+
+    public void testFetchAllE2WithJoinE1() {
+
+        ComplexTypeMetadata type = repository.getComplexType("Product");
+        UserQueryBuilder qb = UserQueryBuilder.from(type);
+
+        qb.select(UserQueryHelper.getField(repository, "Product", "Id"));
+        qb.select(UserQueryHelper.getField(repository, "Product", "Name"));
+        TypedExpression typeExpression = UserQueryHelper.getField(repository, "ProductFamily", "Name");
+        typeExpression = new Alias(typeExpression, "ProductFamily_Name");
+        qb.select(typeExpression);
+
+        ArrayList conditions = new ArrayList();
+        WhereCondition cond = new WhereCondition("Product/Family", "JOINS", "ProductFamily/Id", "&", false);
+        conditions.add(cond);
+        WhereAnd fullWhere = new WhereAnd(conditions);
+        qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
+        
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(2, results.getCount());
+
+        DataRecordWriter writer = new ViewSearchResultsWriter();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        List<String> resultsAsString = new ArrayList<String>();
         for (DataRecord result : results) {
             try {
                 writer.write(result, output);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+            String document = new String(output.toByteArray(), Charset.forName("UTF-8"));
+            resultsAsString.add(document);
+            output.reset();
         }
-        String actual = new String(output.toByteArray());
-        assertEquals(E2_Record1 + E2_Record2 + E2_Record3 + E2_Record4 + E2_Record5 + E2_Record6 + E2_Record7, actual);
+        assertEquals(2, resultsAsString.size());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">\n");
+        sb.append("\t<Id>1</Id>\n");
+        sb.append("\t<Name>Product name</Name>\n");
+        sb.append("\t<ProductFamily_Name>Product family #2</ProductFamily_Name>\n");
+        sb.append("</result>");
+        assertEquals(sb.toString(), resultsAsString.get(0));
+
+        sb = new StringBuilder();
+        sb.append("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">\n");
+        sb.append("\t<Id>2</Id>\n");
+        sb.append("\t<Name>Renault car</Name>\n");
+        sb.append("\t<ProductFamily_Name/>\n");
+        sb.append("</result>");
+        assertEquals(sb.toString(), resultsAsString.get(1));
+
     }
 
+>>>>>>> .fusion-droit.r97039
     public void testFetchAllE2WithViewSearchResultsWriter() throws Exception {
         UserQueryBuilder qb = from(e2);
         StorageResults results = storage.fetch(qb.getSelect());
@@ -2046,5 +2143,19 @@ public class StorageQueryTest extends StorageTestCase {
             assertNotNull(result.get("Status"));
             assertTrue(expectedStatuses.contains(String.valueOf(result.get("Status"))));
         }
+    }
+
+    public void testManyFieldSelect() throws Exception {
+        UserQueryBuilder qb = from(product).select(product.getField("Features/Sizes/Size"));
+        // UserQueryBuilder qb = from(product);
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertTrue("There should be at least 2 records", results.getCount() >= 2);
+        Set<String> expectedResults = new HashSet<String>();
+        expectedResults.add("Small,Medium,Large");
+        expectedResults.add("Large");
+        for (DataRecord result : results) {
+            expectedResults.remove(result.get("Size"));
+        }
+        assertTrue(expectedResults.isEmpty());
     }
 }

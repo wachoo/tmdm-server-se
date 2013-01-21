@@ -58,6 +58,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private String currentAliasName;
 
+    private String mainClassName;
+
     public StandardQueryHandler(Storage storage,
                                 MappingRepository mappingMetadataRepository,
                                 TableResolver resolver,
@@ -249,9 +251,6 @@ class StandardQueryHandler extends AbstractQueryHandler {
     @Override
     public StorageResults visit(final Field field) {
         final FieldMetadata userFieldMetadata = field.getFieldMetadata();
-        if (userFieldMetadata.isMany() && !(projectionList instanceof ReadOnlyProjectionList)) {
-            throw new UnsupportedOperationException("Support for collections in projections is not supported.");
-        }
         ComplexTypeMetadata containingType = field.getFieldMetadata().getContainingType();
         if (!containingType.isInstantiable()) {
             containingType = mainType;
@@ -271,13 +270,21 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
             @Override
             public Void visit(SimpleTypeFieldMetadata simpleField) {
-                projectionList.add(Projections.property(alias + '.' + simpleField.getName()));
+                if (!simpleField.isMany()) {
+                    projectionList.add(Projections.property(alias + '.' + simpleField.getName()));
+                } else {
+                    projectionList.add(new ManyFieldProjection(simpleField, resolver));
+                }
                 return null;
             }
 
             @Override
             public Void visit(EnumerationFieldMetadata enumField) {
-                projectionList.add(Projections.property(alias + '.' + enumField.getName()));
+                if (!enumField.isMany()) {
+                    projectionList.add(Projections.property(alias + '.' + enumField.getName()));
+                } else {
+                    projectionList.add(new ManyFieldProjection(enumField, resolver));
+                }
                 return null;
             }
         });
@@ -328,8 +335,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
         }
         mainType = selectedTypes.get(0);
         String mainTypeName = mainType.getName();
-        String className = ClassCreator.PACKAGE_PREFIX + mappingMetadataRepository.getMappingFromUser(mainType).getDatabase().getName();
-        criteria = session.createCriteria(className, mainTypeName);
+        mainClassName = ClassCreator.PACKAGE_PREFIX + mappingMetadataRepository.getMappingFromUser(mainType).getDatabase().getName();
+        criteria = session.createCriteria(mainClassName, mainTypeName);
         criteria.setReadOnly(true); // We are reading data, turns on ready only mode.
         // Handle JOIN (if any)
         List<Join> joins = select.getJoins();
