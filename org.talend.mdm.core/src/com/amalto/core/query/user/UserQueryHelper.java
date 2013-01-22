@@ -130,6 +130,10 @@ public class UserQueryHelper {
                 String rightFieldName = StringUtils.substringAfter(whereCondition.getRightValueOrPath(), "/"); //$NON-NLS-1$
                 FieldMetadata leftField = leftType.getField(leftFieldName);
                 ComplexTypeMetadata rightType = repository.getComplexType(rightTypeName);
+                if (rightType == null) {
+                    throw new IllegalArgumentException("Path '" + whereCondition.getRightValueOrPath()
+                            + "' seems invalid (entity '" + rightTypeName + "' does not exist).");
+                }
                 FieldMetadata rightField = rightType.getField(rightFieldName);
                 if (WhereCondition.EQUALS.equals(operator)) {
                     return eq(leftField, rightField);
