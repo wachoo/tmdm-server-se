@@ -255,7 +255,7 @@ public class BrowseRecordsActionTest extends TestCase {
                 .thenReturn(svd);
         // Mock private method
         BrowseRecordsAction newAction = PowerMockito.spy(action);
-        Whitebox.<Boolean> invokeMethod(newAction, "checkSmartViewExists", Mockito.anyString(), Mockito.anyString());
+        Whitebox.<Boolean> invokeMethod(newAction, "checkSmartViewExistsByLang", Mockito.anyString(), Mockito.anyString());
         Whitebox.<Boolean> invokeMethod(newAction, "checkSmartViewExistsByOpt", Mockito.anyString(), Mockito.anyString());
         // Call queryItemBeans
         ItemBasePageLoadResult<ItemBean> itemBeans = action.queryItemBeans(config,"en");
@@ -374,7 +374,7 @@ public class BrowseRecordsActionTest extends TestCase {
                 .thenReturn(svd);
         // Mock private method
         BrowseRecordsAction newAction = PowerMockito.spy(action);
-        Whitebox.<Boolean> invokeMethod(newAction, "checkSmartViewExists", Mockito.anyString(), Mockito.anyString());
+        Whitebox.<Boolean> invokeMethod(newAction, "checkSmartViewExistsByLang", Mockito.anyString(), Mockito.anyString());
         Whitebox.<Boolean> invokeMethod(newAction, "checkSmartViewExistsByOpt", Mockito.anyString(), Mockito.anyString());
         // Call queryItemBeans
         ItemBasePageLoadResult<ItemBean> itemBeans = action.queryItemBeans(config,"en");

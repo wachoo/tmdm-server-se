@@ -13,10 +13,12 @@
 package org.talend.mdm.webapp.browserecords.server.util;
 
 import java.rmi.RemoteException;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.talend.mdm.webapp.browserecords.server.actions.BrowseRecordsAction;
+import org.talend.mdm.webapp.browserecords.server.provider.DefaultSmartViewProvider;
 import org.talend.mdm.webapp.browserecords.server.provider.SmartViewProvider;
 import org.talend.mdm.webapp.browserecords.shared.SmartViewDescriptions;
 import org.talend.mdm.webapp.browserecords.shared.SmartViewDescriptions.SmartViewDescription;
@@ -73,4 +75,27 @@ public class SmartViewUtil {
         return smDescs;
     }
 
+    
+    public static boolean checkSmartViewExistsByLangAndOptName(String concept, String language, String optname, boolean useNoLang) throws RemoteException, XtentisWebappException {
+        SmartViewProvider provider = new DefaultSmartViewProvider();
+        SmartViewDescriptions smDescs = build(provider, concept, language);
+
+        Set<SmartViewDescriptions.SmartViewDescription> smDescSet = smDescs.get(language);
+        if (useNoLang) {
+            // Add the no language Smart Views too
+            smDescSet.addAll(smDescs.get(null));
+        }
+        for (SmartViewDescriptions.SmartViewDescription smDesc : smDescSet) {
+            if (optname != null) {
+                if (optname.equals(smDesc.getOptName())) {
+                    return true;
+                }
+            } else {
+                if (smDesc.getOptName() == null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

@@ -963,7 +963,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     CommonUtil.joinStrings(idsArray, "."), Util.nodeToString(doc.getDocumentElement()));//$NON-NLS-1$
             itemBean.setOriginalMap(originalMap);
             itemBean.setFormateMap(formateValueMap);
-            if (checkSmartViewExists(concept, language)) {
+            if (checkSmartViewExistsByLang(concept, language)) {
                 itemBean.setSmartViewMode(ItemBean.SMARTMODE);
             } else if (checkSmartViewExistsByOpt(concept, language)) {
                 itemBean.setSmartViewMode(ItemBean.PERSOMODE);
@@ -1938,7 +1938,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             ItemBean itemBean = new ItemBean(concept, ids, null);
             itemBean = getItem(itemBean, viewPk, viewBean.getBindingEntityModel(), language);
-            if (checkSmartViewExists(concept, language)) {
+            if (checkSmartViewExistsByLang(concept, language)) {
                 itemBean.setSmartViewMode(ItemBean.SMARTMODE);
             } else if (checkSmartViewExistsByOpt(concept, language)) {
                 itemBean.setSmartViewMode(ItemBean.PERSOMODE);
@@ -2109,37 +2109,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     /**
      ********** Smart View**********
      **/
-    private boolean checkSmartViewExistsByLang(String concept, String language, boolean useNoLang) throws Exception {
-        return checkSmartViewExistsByLangAndOptName(concept, language, null, useNoLang);
-    }
-
-    private boolean checkSmartViewExistsByLangAndOptName(String concept, String language, String optname, boolean useNoLang)
-            throws Exception {
-        SmartViewProvider provider = new DefaultSmartViewProvider();
-        SmartViewDescriptions smDescs = SmartViewUtil.build(provider, concept, language);
-
-        Set<SmartViewDescriptions.SmartViewDescription> smDescSet = smDescs.get(language);
-        if (useNoLang) {
-            // Add the no language Smart Views too
-            smDescSet.addAll(smDescs.get(null));
-        }
-        for (SmartViewDescriptions.SmartViewDescription smDesc : smDescSet) {
-            if (optname != null) {
-                if (optname.equals(smDesc.getOptName())) {
-                    return true;
-                }
-            } else {
-                if (smDesc.getOptName() == null) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean checkSmartViewExists(String concept, String language) throws Exception {
-        boolean ret = checkSmartViewExistsByLang(concept, language, true);
-        return ret;
+    private boolean checkSmartViewExistsByLang(String concept, String language) throws Exception {
+        return SmartViewUtil.checkSmartViewExistsByLangAndOptName(concept, language, null, true);
     }
 
     private boolean checkSmartViewExistsByOpt(String concept, String language) throws Exception {

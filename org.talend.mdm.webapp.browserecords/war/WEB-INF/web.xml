@@ -45,6 +45,11 @@
         <servlet-class>org.talend.mdm.webapp.browserecords.server.servlet.UploadData</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>SmartViewServlet</servlet-name>
+        <servlet-class>org.talend.mdm.webapp.browserecords.server.servlet.SmartViewServlet</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>dwr-invoker</servlet-name>
         <url-pattern>/secure/dwr/*</url-pattern>
@@ -75,6 +80,10 @@
         <url-pattern>/download</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>SmartViewServlet</servlet-name>
+        <url-pattern>/secure/SmartViewServlet</url-pattern>
+    </servlet-mapping>
     <!-- Default page to serve -->
     <welcome-file-list>
         <welcome-file>BrowseRecords.html</welcome-file>
