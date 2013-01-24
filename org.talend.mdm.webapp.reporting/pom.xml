@@ -11,22 +11,33 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.talend.mdm.webapp.reporting</artifactId>
     <name>org.talend.mdm.webapp.reporting</name>
+    <packaging>war</packaging>
 
     <build>
         <directory>${mdm.build.dir}</directory>
         <sourceDirectory>src</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>src</directory>
-                <includes>
-                    <include>**/**.conf</include>
-                    <include>**/**.xsd</include>
-                    <include>**/**.xml</include>
-                    <include>**/**.dtd</include>
-                    <include>**/**.properties</include>
-                </includes>
-            </resource>
-        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <warName>zz.20.webapp.reporting</warName>
+                    <warSourceDirectory>${basedir}/web</warSourceDirectory>
+                    <webXml>${basedir}/web/WEB-INF/web.xml</webXml>
+                   
+                    <webResources>
+			            <resource>
+			                <directory>${basedir}</directory>
+			                <includes>
+			                    <include>version.properties</include>
+			                    <include>RELEASE-*.NOTES</include>
+			                </includes>
+			            </resource>
+                    </webResources>
+
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>
@@ -37,18 +48,23 @@
         <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>dwr</groupId>
             <artifactId>dwr</artifactId>
         </dependency>
         <dependency>
-            <groupId>xsom</groupId>
+            <groupId>com.sun.xsom</groupId>
             <artifactId>xsom</artifactId>
+            <version>20060306</version>
+            <scope>system</scope>
+            <systemPath>${tom.location}/talend.mdm.libraries/lib/z.xsom.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jboss</groupId>
@@ -62,11 +78,10 @@
             <systemPath>${tom.location}/talend.mdm.libraries/lib/servlet-api.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>poi</groupId>
+            <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <scope>system</scope>
-            <version>3.0.1</version>
-            <systemPath>${tom.location}/talend.mdm.libraries/lib/z.poi-3.0.1-FINAL-20070705.jar</systemPath>
+            <scope>provided</scope>
+            <version>3.0.1-FINAL</version>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -84,4 +99,5 @@
         
     </dependencies>
 
+    
 </project>
