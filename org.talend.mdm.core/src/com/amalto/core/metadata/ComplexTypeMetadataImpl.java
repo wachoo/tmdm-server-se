@@ -99,7 +99,6 @@ public class ComplexTypeMetadataImpl extends AbstractMetadataExtensible implemen
         if (fieldName == null || fieldName.isEmpty()) {
             throw new IllegalArgumentException("Field name can not be null nor empty.");
         }
-
         StringTokenizer tokenizer = new StringTokenizer(fieldName, "/"); //$NON-NLS-1$
         String firstFieldName = tokenizer.nextToken();
         FieldMetadata currentField = fieldMetadata.get(firstFieldName);
@@ -280,7 +279,28 @@ public class ComplexTypeMetadataImpl extends AbstractMetadataExtensible implemen
     }
 
     public boolean hasField(String fieldName) {
-        return fieldMetadata.containsKey(fieldName);
+        if (fieldName == null || fieldName.isEmpty()) {
+            return false;
+        }
+        if (fieldName.indexOf('/') < 0) {
+            return fieldMetadata.containsKey(fieldName);
+        }
+        StringTokenizer tokenizer = new StringTokenizer(fieldName, "/"); //$NON-NLS-1$
+        ComplexTypeMetadata currentType = this;
+        while (tokenizer.hasMoreTokens()) {
+            String current = tokenizer.nextToken();
+            if (!currentType.hasField(current)) {
+                return false;
+            }
+            if (tokenizer.hasMoreTokens()) {
+                TypeMetadata type = currentType.getField(current).getType();
+                if (!(type instanceof ComplexTypeMetadata)) {
+                    return false;
+                }
+                currentType = (ComplexTypeMetadata) type;
+            }
+        }
+        return true;
     }
 
     public Collection<ComplexTypeMetadata> getSubTypes() {

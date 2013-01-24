@@ -13,13 +13,17 @@ package com.amalto.core.metadata;
 
 import org.apache.log4j.Logger;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
  */
 @SuppressWarnings({"HardCodedStringLiteral", "nls"})
 public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
+
+    private final Set<TypeMetadata> processedTypes = new HashSet<TypeMetadata>();
 
     private int indent = 0;
 
@@ -49,6 +53,11 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
     }
 
     public Void visit(ComplexTypeMetadata complexType) {
+        if (processedTypes.contains(complexType)) {
+            return null;
+        } else {
+            processedTypes.add(complexType);
+        }
         log("[Type] " + complexType.getName()); //$NON-NLS-1$
         String keyFields = "";
         for (FieldMetadata keyFieldMetadata : complexType.getKeyFields()) {
@@ -72,6 +81,9 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
         }
         indent--;
 
+        if (complexType.isInstantiable()) {
+            processedTypes.clear();
+        }
         return null;
     }
 
@@ -102,8 +114,7 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
             log("\t[FKInfo=" + referenceField.getForeignKeyInfoField().getName() + " (" + referenceField.getForeignKeyInfoField() + ")]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         }
         logUsers(referenceField);
-
-        return super.visit(referenceField);
+        return null;
     }
 
     public Void visit(SimpleTypeFieldMetadata simpleField) {
@@ -112,20 +123,23 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
         } else {
             log("[Field (Simple)] " + simpleField.getName() + (simpleField.isMany() ? "*" : "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         }
-
         logUsers(simpleField);
-        return super.visit(simpleField);
+        return null;
     }
 
     public Void visit(EnumerationFieldMetadata enumField) {
         log("[Field (Enumeration)] " + enumField.getName()); //$NON-NLS-1$
         logUsers(enumField);
-
-        return super.visit(enumField);
+        return null;
     }
 
     @Override
     public Void visit(ContainedComplexTypeMetadata containedType) {
+        if (processedTypes.contains(containedType)) {
+            return null;
+        } else {
+            processedTypes.add(containedType);
+        }
         List<FieldMetadata> fields = containedType.getFields();
         indent++;
         {
@@ -134,7 +148,7 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
             }
         }
         indent--;
-        return super.visit(containedType);
+        return null;
     }
 
     @Override
@@ -148,7 +162,7 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
         }
         indent--;
 
-        return super.visit(containedField);
+        return null;
     }
 
     private void logUsers(FieldMetadata metadata) {

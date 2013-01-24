@@ -464,10 +464,17 @@ public class MetadataUtils {
         byte[][] dependencyGraph = new byte[typeNumber][typeNumber];
         for (final ComplexTypeMetadata type : types) {
             dependencyGraph[getId(type, types)] = type.accept(new DefaultMetadataVisitor<byte[]>() {
+                Set<TypeMetadata> processedTypes = new HashSet<TypeMetadata>();
+
                 byte[] lineContent = new byte[typeNumber]; // Stores dependencies of current type
 
                 @Override
                 public byte[] visit(ComplexTypeMetadata complexType) {
+                    if (processedTypes.contains(complexType)) {
+                        return lineContent;
+                    } else {
+                        processedTypes.add(complexType);
+                    }
                     if (isInstantiable == complexType.isInstantiable()) {
                         Collection<TypeMetadata> superTypes = complexType.getSuperTypes();
                         for (TypeMetadata superType : superTypes) {
@@ -477,12 +484,20 @@ public class MetadataUtils {
                         }
                         super.visit(complexType);
                     }
+                    if (complexType.isInstantiable()) {
+                        processedTypes.clear();
+                    }
                     return lineContent;
                 }
 
                 @Override
                 public byte[] visit(ContainedTypeFieldMetadata containedField) {
                     ComplexTypeMetadata containedType = containedField.getContainedType();
+                    if (processedTypes.contains(containedType)) {
+                        return lineContent;
+                    } else {
+                        processedTypes.add(containedType);
+                    }
                     containedType.accept(this);
                     for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
                         subType.accept(this);

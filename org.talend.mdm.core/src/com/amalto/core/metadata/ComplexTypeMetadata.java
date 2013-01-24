@@ -33,7 +33,9 @@ public interface ComplexTypeMetadata extends TypeMetadata {
     void registerKey(FieldMetadata keyField);
 
     /**
-     * @param fieldName A field name. Field name is case sensitive.
+     * Retrieves a {@link FieldMetadata} based on name. Name might either be a field name or a '/'-separated path (like
+     * 'Family/FamilyId'.
+     * @param fieldName A field name. Field name is case sensitive and implementations supports path syntax.
      * @return The {@link FieldMetadata} for the given <code>fieldName</code>.
      * @throws IllegalArgumentException If:<ul>
      *                                  <li>field is not declared in type nor inherited types</li>
@@ -89,9 +91,12 @@ public interface ComplexTypeMetadata extends TypeMetadata {
     String getSchematron();
 
     /**
-     * @param fieldName A field name.
+     * Tests if a {@link FieldMetadata} exists for given name. Name might either be a field name or a '/'-separated path
+     * (like 'Family/FamilyId').
+     * @param fieldName A field name. Field name is case sensitive and implementations supports path syntax.
      * @return <code>true</code> if type (or inherited types) has a field named <code>fieldName</code>,
      *         <code>false</code> otherwise.
+     * @see #getField(String)
      */
     boolean hasField(String fieldName);
 
