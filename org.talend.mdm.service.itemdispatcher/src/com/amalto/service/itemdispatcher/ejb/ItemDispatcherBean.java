@@ -13,6 +13,8 @@ import javax.resource.cci.MappedRecord;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.IServiceConstants;
 import org.talend.mdm.commmon.util.core.ITransformerConstants;
@@ -238,7 +240,20 @@ public class ItemDispatcherBean extends ServiceCtrlBean  implements SessionBean{
 		Logger.getLogger(ItemDispatcherBean.class).info("[Begin dispatch item]");
 		ItemPOJOPK itemPOJOPK=itemPOJO.getItemPOJOPK();
 		String itemProjectAsString=itemPOJO.getProjectionAsString();
-		String schema=ItemPOJO.getBindingSchema(itemPOJO);
+        String schema1 = null;
+        try {
+            String dataModelName = itemPOJO.getDataModelName();
+            String dataModelRevision = itemPOJO.getDataModelRevision();
+            if (dataModelName != null && dataModelName.length() > 0) {
+                DataModelPOJO sp = ObjectPOJO.load(dataModelRevision, DataModelPOJO.class, new DataModelPOJOPK(dataModelName));
+                if (sp != null) {
+                    schema1 = sp.getSchema();
+                }
+            }
+        } catch (XtentisException e1) {
+            ItemPOJO.LOG.error(e1.getMessage(), e1);
+        }
+        String schema= schema1;
 		String[] targetSystems=null;
 		
 		targetSystems=Util.getTargetSystemsFromSchema(Util.parse(schema), itemPOJO.getConceptName());
