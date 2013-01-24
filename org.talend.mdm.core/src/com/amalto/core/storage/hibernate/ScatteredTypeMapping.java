@@ -42,13 +42,23 @@ class ScatteredTypeMapping extends TypeMapping {
 
     Object _setValues(Session session, DataRecord from, Wrapper to) {
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        List<FieldMetadata> fields = from.getType().getFields();
+        TypeMapping mapping = mappings.getMappingFromUser(from.getType());
+        List<FieldMetadata> fields;
+        if (mapping != null) {
+            fields = mapping.getUser().getFields();
+        } else {
+            fields = from.getType().getFields();
+        }
         for (FieldMetadata field : fields) {
-            FieldMetadata mappedDatabaseField = getDatabase(field);
+            FieldMetadata mappedDatabaseField;
+            if (mapping != null) {
+                mappedDatabaseField = mapping.getDatabase(field);
+            } else {
+                mappedDatabaseField = getDatabase(field);
+            }
             if (mappedDatabaseField == null) {
                 throw new IllegalStateException("Field '" + field.getName() + "' was expected to have a database mapping");
             }
-
             if (field instanceof ContainedTypeFieldMetadata) {
                 if (!(mappedDatabaseField instanceof ReferenceFieldMetadata)) {
                     throw new IllegalStateException("Contained elements are expected to be mapped to reference.");
@@ -74,7 +84,12 @@ class ScatteredTypeMapping extends TypeMapping {
                     }
                 } else {
                     List<DataRecord> dataRecords = (List<DataRecord>) from.get(field);
-                    Object value = to.get(getDatabase(field).getName());
+                    Object value;
+                    if (mapping != null) {
+                        value = to.get(mapping.getDatabase(field).getName());
+                    } else {
+                        value = to.get(getDatabase(field).getName());
+                    }
                     if (dataRecords != null) {
                         List<Wrapper> existingValue = (List<Wrapper>) value;
                         List<Wrapper> objects = existingValue == null ? new ArrayList<Wrapper>(dataRecords.size()) : existingValue;

@@ -51,7 +51,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         // upper case character. To prevent any error due to missing field, lower case the field name.
         // Note #2: Prefix everything with "x_" so there won't be any conflict with database internal type names.
         // Note #3: Having '-' character is bad for Java code generation, so replace it with '_'.
-        return "x_" + (buffer.toString().replace('-', '_') + name).toLowerCase(); //$NON-NLS-1$
+        return "x_" + (buffer.toString().replace('-', '_') + name.replace('-', '_')).toLowerCase(); //$NON-NLS-1$
     }
 
     private static boolean isDatabaseMandatory(FieldMetadata field, TypeMetadata declaringType) {
@@ -65,8 +65,9 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     @Override
     public TypeMapping visit(ReferenceFieldMetadata referenceField) {
         String name = getColumnName(referenceField, true);
-        ComplexTypeMetadata referencedType = new SoftTypeRef(internalRepository, referenceField.getReferencedType().getNamespace(), referenceField.getReferencedType().getName(), true);
-        FieldMetadata referencedField = new SoftIdFieldRef(internalRepository, referenceField.getReferencedType().getName());
+        String typeName = referenceField.getReferencedType().getName().replace('-', '_');
+        ComplexTypeMetadata referencedType = new SoftTypeRef(internalRepository, referenceField.getReferencedType().getNamespace(), typeName, true);
+        FieldMetadata referencedField = new SoftIdFieldRef(internalRepository, typeName);
 
         FieldMetadata newFlattenField;
         if (referenceField.getContainingType() == referenceField.getDeclaringType()) {
@@ -192,7 +193,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         }
         forceKey = true;
         for (FieldMetadata keyField : keyFields) {
-            database.registerKey(new SoftFieldRef(internalRepository, "x_" + keyField.getName().toLowerCase(), database));
+            database.registerKey(typeMapping.getDatabase(keyField));
         }
         forceKey = false;
         if (typeMapping.getUser().getKeyFields().isEmpty() && typeMapping.getUser().getSuperTypes().isEmpty()) { // Assumes super type defines key field.

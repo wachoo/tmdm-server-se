@@ -318,12 +318,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Count count) {
-        // Do a count on key field (first key field in case of composite key but this should not matter).
-        if (mainType.getKeyFields().isEmpty()) {
-            throw new IllegalArgumentException("Type '" + mainType.getName() + "' does not own a key (count is based on key).");
-        }
-        Field keyField = new Field(mainType.getKeyFields().get(0));
-        projectionList.add(Projections.count(getFieldName(keyField, mappingMetadataRepository)));
+        projectionList.add(Projections.rowCount());
         return null;
     }
 
@@ -334,9 +329,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
             throw new IllegalArgumentException("Select clause is expected to select at least one entity type.");
         }
         mainType = selectedTypes.get(0);
-        String mainTypeName = mainType.getName();
-        mainClassName = ClassCreator.PACKAGE_PREFIX + mappingMetadataRepository.getMappingFromUser(mainType).getDatabase().getName();
-        criteria = session.createCriteria(mainClassName, mainTypeName);
+        ComplexTypeMetadata database = mappingMetadataRepository.getMappingFromUser(mainType).getDatabase();
+        mainClassName = ClassCreator.PACKAGE_PREFIX + database.getName();
+        criteria = session.createCriteria(mainClassName, database.getName());
         criteria.setReadOnly(true); // We are reading data, turns on ready only mode.
         // Handle JOIN (if any)
         List<Join> joins = select.getJoins();
