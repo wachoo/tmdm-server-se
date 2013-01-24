@@ -39,6 +39,15 @@ public class Journal implements EntryPoint {
     public static final String SEARCH_CRITERIA = "SearchCriteria"; //$NON-NLS-1$
 
     private native void registerJournalService()/*-{
+        
+        $wnd.amalto.updatereport = $wnd.amalto.updatereport ||　{};
+        
+        $wnd.amalto.updatereport.UpdateReport = $wnd.amalto.updatereport.UpdateReport　|| {};
+
+        $wnd.amalto.updatereport.UpdateReport.browseUpdateReportWithSearchCriteria = function(concept, ids, isItemsBroswer){
+            $wnd.amalto.journal.Journal.browseJournalWithCriteria(ids, concept, isItemsBroswer);
+        }
+        
         $wnd.amalto.journal.Journal.browseJournalWithCriteria = function(ids, concept, isItemsBroswer){
             @org.talend.mdm.webapp.journal.client.Journal::initJournalfromBrowseRecord(Ljava/lang/String;Ljava/lang/String;)(ids, concept);
             var tabPanel = $wnd.amalto.core.getTabPanel();

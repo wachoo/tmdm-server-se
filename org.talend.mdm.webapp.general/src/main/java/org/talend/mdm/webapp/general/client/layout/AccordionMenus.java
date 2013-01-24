@@ -143,7 +143,7 @@ public class AccordionMenus extends ContentPanel {
             icon = "/talendmdm/secure/img/menu/synchronize.png"; //$NON-NLS-1$
         } else if ("ItemsTrash.ItemsTrash".equals(toCheckMenuID) || "recyclebin.RecycleBin".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$
             icon = "/talendmdm/secure/img/menu/trash.png"; //$NON-NLS-1$
-        } else if ("updatereport.UpdateReport".equals(toCheckMenuID)) { //$NON-NLS-1$
+        } else if ("journal.Journal".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/updatereport.png"; //$NON-NLS-1$
         } else if ("workflowtasks.WorkflowTasks".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/workflowtasks.png"; //$NON-NLS-1$

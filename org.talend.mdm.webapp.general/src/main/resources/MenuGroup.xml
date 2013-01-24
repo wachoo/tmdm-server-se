@@ -8,7 +8,7 @@
  <groupitem en="Browse" fr="Consultation">
   <item>browserecords.BrowseRecords</item>
   <item>hierarchy.Hierarchy</item>
-  <item>updatereport.UpdateReport</item>
+  <item>journal.Journal</item>
   <item>search.Search</item>
   <item>recyclebin.RecycleBin</item>
  </groupitem>
