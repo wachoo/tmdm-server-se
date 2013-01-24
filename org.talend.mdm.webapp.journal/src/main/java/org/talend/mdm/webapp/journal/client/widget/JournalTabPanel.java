@@ -82,9 +82,14 @@ public class JournalTabPanel extends TabPanel {
         journalTimelinePanel.setId("journalTimeLine"); //$NON-NLS-1$
         journalTimelinePanel.setStyleName("timeline-default"); //$NON-NLS-1$
 
+        timeLineTabItem.addListener(Events.Resize, new Listener<ComponentEvent>(){
+            public void handleEvent(ComponentEvent be) {
+                timeLineTabItem.fireEvent(Events.Select);
+            }            
+        });
+
         timeLineTabItem.add(journalTimelinePanel);
         timeLineTabItem.addListener(Events.Select, new Listener<ComponentEvent>() {
-
             public void handleEvent(ComponentEvent be) {
                 journalTimelinePanel.setActive(true);
                 journalTimelinePanel.setTimeLinePanelHeight(timeLineTabItem.getHeight());
@@ -93,7 +98,6 @@ public class JournalTabPanel extends TabPanel {
             }
         });
         this.add(timeLineTabItem);
-
         this.setSelection(resultTabItem);
     }
 

@@ -80,7 +80,7 @@ public class JournalSearchPanel extends FormPanel {
     }
     
     private JournalSearchPanel() {
-        FormData formData = new FormData("50%"); //$NON-NLS-1$
+        FormData formData = new FormData();
         this.setFrame(true);
         this.setHeading(MessagesFactory.getMessages().search_panel_title());
         this.setButtonAlign(HorizontalAlignment.RIGHT);
@@ -92,6 +92,7 @@ public class JournalSearchPanel extends FormPanel {
         left.setStyleAttribute("paddingRight", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
         FormLayout layout = new FormLayout();
         layout.setLabelAlign(LabelAlign.LEFT);
+        left.setWidth(350);
         left.setLayout(layout);
 
         entityField = new TextField<String>();
@@ -150,6 +151,7 @@ public class JournalSearchPanel extends FormPanel {
 
         LayoutContainer right = new LayoutContainer();
         right.setStyleAttribute("paddingLeft", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
+        right.setWidth(350);
         layout = new FormLayout();
         layout.setLabelAlign(LabelAlign.LEFT);
         right.setLayout(layout);
