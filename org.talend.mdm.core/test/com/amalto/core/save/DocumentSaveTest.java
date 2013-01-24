@@ -240,16 +240,10 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
-        assertEquals("100", evaluate(committedElement, "/Agency/Id")); // Id is expected to be overwritten in case of
-        // creation
-        assertEquals("http://www.newSite2.org", evaluate(committedElement, "/Agency/Information/MoreInfo[2]")); // Id is
-        // expected
-        // to be
-        // overwritten
-        // in
-        // case
-        // of
-        // creation
+        // Id is expected to be overwritten in case of creation
+        assertEquals("100", evaluate(committedElement, "/Agency/Id"));
+        // Id is expected to be overwritten in case of creation
+        assertEquals("http://www.newSite2.org", evaluate(committedElement, "/Agency/Information/MoreInfo[2]"));
         assertEquals(1, saver.getSavedId().length);
         assertEquals("100", saver.getSavedId()[0]);
     }
@@ -273,8 +267,8 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(source.hasSavedAutoIncrement());
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
-        assertNotSame("100", evaluate(committedElement, "/ProductFamily/Id")); // Id is expected to be overwritten in
-        // case of creation
+        // Id is expected to be overwritten in case of creation
+        assertNotSame("100", evaluate(committedElement, "/ProductFamily/Id"));
     }
 
     public void testCreateFailure() throws Exception {

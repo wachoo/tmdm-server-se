@@ -40,7 +40,6 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
         if (mapping == null) {
             throw new IllegalArgumentException("Mapping cannot be null");
         }
-
         try {
             Class<?> mainInstanceClass = storageClassLoader.findClass(mapping.getDatabase().getName());
             // Try to load existing instance (if any).
@@ -50,11 +49,19 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
                     // Hibernate needs a active session to read instances.
                     session.getTransaction().begin();
                 }
-                if (dataRecord.getType().getKeyFields().size() == 1) {
-                    mainInstance = (Wrapper) session.get(mainInstanceClass, (Serializable) dataRecord.get(dataRecord.getType().getKeyFields().get(0).getName()));
+                List<FieldMetadata> keyFields = dataRecord.getType().getKeyFields();
+                if (keyFields.size() == 0) {
+                    throw new IllegalArgumentException("Type '" + dataRecord.getType().getName() + "' does not define any key field.");
+                } else if (keyFields.size() == 1) {
+                    String keyFieldName = keyFields.get(0).getName();
+                    Serializable id = (Serializable) dataRecord.get(keyFieldName);
+                    if (id == null) {
+                        throw new IllegalArgumentException("Instance of type '" + dataRecord.getType().getName() + "' does not have value for '" + keyFieldName + "'.");
+                    }
+                    mainInstance = (Wrapper) session.get(mainInstanceClass, id);
                 } else {
-                    List<Object> compositeIdValues = new ArrayList<Object>(dataRecord.getType().getKeyFields().size());
-                    for (FieldMetadata keyField : dataRecord.getType().getKeyFields()) {
+                    List<Object> compositeIdValues = new ArrayList<Object>(keyFields.size());
+                    for (FieldMetadata keyField : keyFields) {
                         compositeIdValues.add(MetadataUtils.convert(String.valueOf(dataRecord.get(keyField)), mapping.getDatabase(keyField)));
                     }
                     mainInstance = (Wrapper) session.get(mainInstanceClass, createCompositeId(storageClassLoader, mainInstanceClass, compositeIdValues));
