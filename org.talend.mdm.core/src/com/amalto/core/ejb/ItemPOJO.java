@@ -14,9 +14,7 @@ package com.amalto.core.ejb;
 
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,11 +23,13 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import com.amalto.core.ejb.local.ItemCtrl2Local;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
 import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Marshaller;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
-import org.talend.mdm.commmon.util.core.CommonUtil;
-import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
@@ -67,9 +67,17 @@ public class ItemPOJO implements Serializable {
     /**
      * FIXME The newInstance() is deprecated and the newFactory() method should be used instead. However since no
      * changes in behavior are defined by this replacement method, keep deprecated method to ensure there's no
-     * classloading issues for now (see TMDM-3604).
+     * class loading issues for now (see TMDM-3604).
      **/
     private static final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
+
+    private static LRUCache<ItemCacheKey, String> cachedPojo;
+
+    public static Logger LOG = Logger.getLogger(ItemPOJO.class);
+
+    private static int MAX_CACHE_SIZE = 5000;
+
+    public static Pattern pathWithoutConditions = Pattern.compile("(.*?)[\\[|/].*");
 
     private String dataModelName;// used for binding data model
 
@@ -89,43 +97,17 @@ public class ItemPOJO implements Serializable {
 
     private String taskId;
 
-    public String getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
-    }
-
-    /* cached the Object pojos to improve performance */
-    private static LRUCache<ItemCacheKey, String> cachedPojo;
-    
-    private static Logger LOG = Logger.getLogger(ItemPOJO.class);
-
-    private static int MAX_CACHE_SIZE = 5000;
     static {
         String max_cache_size = (String) MDMConfiguration.getConfiguration().get("max_cache_size"); //$NON-NLS-1$
         if (max_cache_size != null) {
-            MAX_CACHE_SIZE = Integer.valueOf(max_cache_size).intValue();
+            MAX_CACHE_SIZE = Integer.valueOf(max_cache_size);
         }
         cachedPojo = new LRUCache<ItemCacheKey, String>(MAX_CACHE_SIZE);
     }
 
-    /**
-     * 
-     */
     public ItemPOJO() {
-        super();
     }
 
-    /**
-     * 
-     * @param clusterPK
-     * @param concept
-     * @param ids
-     * @param time
-     * @param projection
-     */
     public ItemPOJO(DataClusterPOJOPK clusterPK, String concept, String[] ids, long time, Element projection) {
         this.conceptName = concept;
         this.dataClusterPOJOPK = clusterPK;
@@ -135,14 +117,6 @@ public class ItemPOJO implements Serializable {
         this.planPK = null;
     }
 
-    /**
-     * 
-     * @param clusterPK
-     * @param concept
-     * @param ids
-     * @param time
-     * @param projectionAsString
-     */
     public ItemPOJO(DataClusterPOJOPK clusterPK, String concept, String[] ids, long time, String projectionAsString) {
         this.conceptName = concept;
         this.dataClusterPOJOPK = clusterPK;
@@ -150,6 +124,14 @@ public class ItemPOJO implements Serializable {
         this.itemIds = ids;
         this.projectionString = projectionAsString;
         this.planPK = null;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 
     public String getDataModelName() {
@@ -265,15 +247,14 @@ public class ItemPOJO implements Serializable {
     public void setProjectionAsString(String str) throws XtentisException {
         this.projectionString = str;
         try {
-            if (str != null && str.length() > 0)
+            if (str != null && str.length() > 0) {
                 projection = Util.parse(this.projectionString, null).getDocumentElement();
-            else
-                return;
+            }
         } catch (Exception e) {
             String err = "Unable to parse the Item " + this.getItemPOJOPK().getUniqueID() + ". " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
             LOG.error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
     }
 
@@ -318,7 +299,6 @@ public class ItemPOJO implements Serializable {
     /**
      * Loads an Item. User rights are checked.
      * 
-     * @param itemPOJOPK
      * @return the {@link ItemPOJO}
      * @throws XtentisException
      */
@@ -335,12 +315,6 @@ public class ItemPOJO implements Serializable {
 
     }
 
-    /**
-     * 
-     * @param itemPOJOPK
-     * @return
-     * @throws XtentisException
-     */
     public static ItemPOJO adminLoad(ItemPOJOPK itemPOJOPK) throws XtentisException {
         ILocalUser user = LocalUser.getLocalUser();
         
@@ -354,31 +328,22 @@ public class ItemPOJO implements Serializable {
 
     /**
      * Loads an Item<br/>
-     * 
-     * @param revisionID
-     * @param itemPOJOPK
      * @return the {@link ItemPOJO}
-     * @throws XtentisException
      */
     public static ItemPOJO load(String revisionID, ItemPOJOPK itemPOJOPK) throws XtentisException {
         return load(revisionID, itemPOJOPK, true);
-
     }
 
     /**
      * Loads an Item<br/>
-     * 
-     * @param itemPOJOPK
-     * @param checkRights
      * @return the {@link ItemPOJO}
-     * @throws XtentisException
      */
     public static ItemPOJO load(String revisionID, ItemPOJOPK itemPOJOPK, boolean checkRights) throws XtentisException {
         XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
 
         try {
             // retrieve the item
-            String urlid = getFilename(itemPOJOPK);
+            String urlid = itemPOJOPK.getUniqueID();
             ItemCacheKey key = new ItemCacheKey(revisionID, urlid, itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
 
             String item = cachedPojo.get(key);
@@ -492,10 +457,7 @@ public class ItemPOJO implements Serializable {
 
     /**
      * Removes an item
-     * 
-     * @param itemPOJOPK
      * @return The {@link ItemPOJOPK} of the item removed
-     * @throws XtentisException
      */
     public static ItemPOJOPK remove(ItemPOJOPK itemPOJOPK) throws XtentisException {
 
@@ -513,10 +475,10 @@ public class ItemPOJO implements Serializable {
         try {
             // remove the doc
             long res = server
-                    .deleteDocument(revisionID, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), getFilename(itemPOJOPK));
+                    .deleteDocument(revisionID, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), itemPOJOPK.getUniqueID());
             if (res == -1)
                 return null;
-            ItemCacheKey key = new ItemCacheKey(revisionID, getFilename(itemPOJOPK), itemPOJOPK.getDataClusterPOJOPK()
+            ItemCacheKey key = new ItemCacheKey(revisionID, itemPOJOPK.getUniqueID(), itemPOJOPK.getDataClusterPOJOPK()
                     .getUniqueId());
             cachedPojo.remove(key);
             return itemPOJOPK;
@@ -530,11 +492,6 @@ public class ItemPOJO implements Serializable {
     }
 
     /**
-     * @param itemPOJOPK
-     * @param partPath
-     * @return DroppedItemPOJOPK
-     * @throws XtentisException
-     * 
      * drop an item to items-trash
      */
     public static DroppedItemPOJOPK drop(ItemPOJOPK itemPOJOPK, String partPath) throws XtentisException {
@@ -572,9 +529,9 @@ public class ItemPOJO implements Serializable {
             }
 
             String dataClusterName = itemPOJOPK.getDataClusterPOJOPK().getUniqueId();
-            String uniqueID = getFilename(itemPOJOPK);
+            String uniqueID = itemPOJOPK.getUniqueID();
 
-            StringBuffer xmlDocument = new StringBuffer();
+            StringBuilder xmlDocument = new StringBuilder();
             Document sourceDoc = null;
             NodeList toDeleteNodeList = null;
             String xml = server.getDocumentAsString(revisionID, dataClusterName, uniqueID, null);
@@ -599,8 +556,8 @@ public class ItemPOJO implements Serializable {
             // make source left doc && validate
             if (!partPath.equals("/")) {
                 if (toDeleteNodeList != null) {
-                    Node lastParentNode = null;
-                    Node formatSiblingNode = null;
+                    Node lastParentNode;
+                    Node formatSiblingNode;
                     for (int i = 0; i < toDeleteNodeList.getLength(); i++) {
                         Node node = toDeleteNodeList.item(i);
                         lastParentNode = node.getParentNode();
@@ -621,7 +578,7 @@ public class ItemPOJO implements Serializable {
                     DataModelPOJO dataModelPOJO = ObjectPOJO.load(itemPOJO.getDataModelRevision(), DataModelPOJO.class,
                             new DataModelPOJOPK(itemPOJO.getDataModelName()));
                     if (dataModelPOJO != null) {
-                        Element projection = null;
+                        Element projection;
                         try {
                             projection = itemPOJO.getProjection();
                         } catch (Exception e) {
@@ -668,13 +625,13 @@ public class ItemPOJO implements Serializable {
                     ItemCacheKey key = new ItemCacheKey(revisionID, uniqueID, dataClusterName);
                     cachedPojo.remove(key);
                 } else {
-                    String xmlstring = Util.nodeToString(sourceDoc);
+                    String xmlString = Util.nodeToString(sourceDoc);
                     server.start(dataClusterName);
-                    server.putDocumentFromString(xmlstring, uniqueID, dataClusterName, revisionID);
+                    server.putDocumentFromString(xmlString, uniqueID, dataClusterName, revisionID);
                     server.commit(dataClusterName);
                     // update the cache
                     ItemCacheKey key = new ItemCacheKey(revisionID, uniqueID, dataClusterName);
-                    cachedPojo.put(key, xmlstring);
+                    cachedPojo.put(key, xmlString);
                 }
             } catch (Exception e) {
                 server.deleteDocument(null, "MDMItemsTrash", droppedItemPOJO.obtainDroppedItemPK().getUniquePK());
@@ -715,8 +672,8 @@ public class ItemPOJO implements Serializable {
             return null;
         }
         ILocalUser user = LocalUser.getLocalUser();
-        checkAccess(user, true, "write");
-        
+        checkAccess(user,getItemPOJOPK(), true, "write");
+
         // get the universe and revision ID
         UniversePOJO universe = getNonNullUniverse(user);    
         String revisionID = universe.getConceptRevisionID(itemPK.getConceptName());
@@ -761,7 +718,7 @@ public class ItemPOJO implements Serializable {
                 LOG.trace("store() " + itemPK.getUniqueID() + "\n" + xml); //$NON-NLS-1$ //$NON-NLS-2$
             }
 
-            String uniqueId = getFilename(itemPK);
+            String uniqueId = itemPK.getUniqueID();
             String clusterId = getDataClusterPOJOPK().getUniqueId();
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
             if (-1 == server.putDocumentFromString(xml,uniqueId ,clusterId, revisionID)) {
@@ -782,36 +739,33 @@ public class ItemPOJO implements Serializable {
 
     /**
      * Parses a marshaled item back into an {@link ItemPOJO}
-     * 
-     * @param marshaledItem
      * @return the {@link ItemPOJO}
-     * @throws XtentisException
      */
     public static ItemPOJO parse(String marshaledItem) throws XtentisException {
         try {
             Pattern p = Pattern.compile(".*?(<c>.*?)(<p>(.*)</p>|<p/>).*", Pattern.DOTALL); //$NON-NLS-1$
-
             ItemPOJO newItem = new ItemPOJO();
-            Matcher m = null;
-            m = p.matcher(marshaledItem);
+            Matcher m = p.matcher(marshaledItem);
             if (m.matches()) {
                 String h = "<header>" + m.group(1) + "</header>";
                 Element header = Util.parse(h).getDocumentElement();
                 newItem.setConceptName(Util.getFirstTextNode(header, "n"));
                 // used for binding data model
-                if (Util.getFirstTextNode(header, "dmn") != null)
+                if (Util.getFirstTextNode(header, "dmn") != null) {
                     newItem.setDataModelName(Util.getFirstTextNode(header, "dmn"));
-                if (Util.getFirstTextNode(header, "dmr") != null)
+                }
+                if (Util.getFirstTextNode(header, "dmr") != null) {
                     newItem.setDataModelRevision(Util.getFirstTextNode(header, "dmr"));
+                }
                 newItem.setDataClusterPK(new DataClusterPOJOPK(Util.getFirstTextNode(header, "c")));
                 newItem.setItemIds(Util.getTextNodes(header, "i"));
                 newItem.setInsertionTime(Long.parseLong(Util.getFirstTextNode(header, "t")));
                 String plan = Util.getFirstTextNode(header, "sp");
-                if (plan != null)
+                if (plan != null) {
                     newItem.setPlanPK(new SynchronizationPlanPOJOPK(plan));
-                else
+                } else {
                     newItem.setPlanPK(null);
-                // newItem.setProjectionAsString(m.group(2));
+                }
                 if (m.group(2) == null || m.group(2).equals("<p/>")) {
                     newItem.setProjectionAsString("");
                 } else {
@@ -824,9 +778,8 @@ public class ItemPOJO implements Serializable {
         } catch (Exception e) {
             String err = "Unable to parse the item \n" + marshaledItem;
             LOG.error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
-
     }
 
     /**
@@ -834,7 +787,7 @@ public class ItemPOJO implements Serializable {
      * 
      * @return the xml string
      * 
-     * Note: dmn&dmr tags are used for binding data model
+     * Note: dmn & dmr tags are used for binding data model
      * @throws com.amalto.core.util.XtentisException In case of serialization exception.
      */
     @SuppressWarnings("nls")
@@ -848,11 +801,9 @@ public class ItemPOJO implements Serializable {
                 streamWriter.writeStartElement("c");
                 streamWriter.writeCharacters(dataClusterPOJOPK.getUniqueId());
                 streamWriter.writeEndElement();
-
                 streamWriter.writeStartElement("n");
                 streamWriter.writeCharacters(conceptName);
                 streamWriter.writeEndElement();
-
                 if (dataModelName != null) {
                     streamWriter.writeStartElement("dmn");//$NON-NLS-1$
                     streamWriter.writeCharacters(dataModelName);
@@ -868,7 +819,6 @@ public class ItemPOJO implements Serializable {
                     streamWriter.writeCharacters(planPK.getUniqueId());
                     streamWriter.writeEndElement();
                 }
-
                 String[] ids = getItemIds();
                 for (String id : ids) {
                     if (id != null) {
@@ -877,22 +827,18 @@ public class ItemPOJO implements Serializable {
                         streamWriter.writeEndElement();
                     }
                 }
-
                 streamWriter.writeStartElement("t");//$NON-NLS-1$
                 streamWriter.writeCharacters(String.valueOf(insertionTime));
                 streamWriter.writeEndElement();
-
                 if (taskId != null) {
                     streamWriter.writeStartElement("taskId"); //$NON-NLS-1$
                     streamWriter.writeCharacters(taskId);
                     streamWriter.writeEndElement();
                 }
-
                 streamWriter.writeStartElement("p");//$NON-NLS-1$
                 {
                     streamWriter.writeCharacters(" ");
                     streamWriter.flush();
-
                     String xml = getProjectionAsString();
                     stringWriter.append(xml);
                 }
@@ -918,75 +864,63 @@ public class ItemPOJO implements Serializable {
      * Retrieve all {@link ItemPOJOPK}s of items matching a particular concept Pattern and instance pattern, and that
      * are unsynchronized against a particular plan<br/>
      * The user must have the "administration" role to perform this task
-     * 
-     * @param revisionID
-     * @param conceptName
-     * @param instancePattern
-     * @param planPK
+     *
      * @return a Collection of ObjectPOJOPK
      * @throws XtentisException
      */
-    public static ArrayList<ItemPOJOPK> findAllUnsynchronizedPKs(String revisionID, DataClusterPOJOPK dataClusterPOJOPK,
-            String conceptName, String instancePattern, SynchronizationPlanPOJOPK planPK, long start, int limit)
-            throws XtentisException {
+    public static ArrayList<ItemPOJOPK> findAllUnsynchronizedPKs(DataClusterPOJOPK dataClusterPOJOPK,
+                                                                 String conceptName,
+                                                                 String instancePattern,
+                                                                 SynchronizationPlanPOJOPK planPK,
+                                                                 int start,
+                                                                 int limit) throws XtentisException {
         try {
-
             // check if we are admin
             ILocalUser user = LocalUser.getLocalUser();
-            if (!user.getRoles().contains("administration")) {
+            if (!user.getRoles().contains("administration")) { //$NON-NLS-1$
                 String err = "Only an user with the 'administration' role can call the synchronization methods";
                 LOG.error(err);
                 throw new XtentisException(err);
             }
-
-            // get the xml server wrapper
-            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-
-            String collectionpath = CommonUtil.getPath(revisionID, dataClusterPOJOPK.getUniqueId());
-            String conceptPatternCondition = (conceptName == null || "".equals(conceptName)) ? "" : "[n/text() eq \""
-                    + conceptName + "\"]";
-            String instancePatternCondition = (instancePattern == null || ".*".equals(instancePattern)) ? ""
-                    : "[matches(i/text(),\"" + instancePattern + "\")]";
-            String synchronizationCondition = planPK == null || planPK.getIds() == null ? "" : "[not (./sp/text() eq \""
-                    + planPK.getUniqueId() + "\")]";
-            String query = "let $a := collection(\"" + collectionpath + "\")/ii" + conceptPatternCondition
-                    + instancePatternCondition + synchronizationCondition + "\n" + "return subsequence($a," + (start + 1) + ","
-                    + limit + ")";
-            if (EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
-                instancePatternCondition = (instancePattern == null || ".*".equals(instancePattern)) ? ""
-                        : "[ora:matches(i/text(),\"" + instancePattern + "\")]";
-                query = "let $a :=" + " for $pivot0 in collection(\"" + collectionpath + "\")/ii" + conceptPatternCondition
-                        + instancePatternCondition + synchronizationCondition + " return $pivot0 \n" + "return subsequence($a,"
-                        + (start + 1) + "," + limit + ")";
-                // query = "for $pivot0 in collection(\""+collectionpath+
-                // "\")/ii/n/text()return <result>{$pivot0}</result>";
+            // query the xml server wrapper
+            ItemCtrl2Local itemCtrl2Bean = Util.getItemCtrl2Local();
+            List<IWhereItem> conditions = new LinkedList<IWhereItem>();
+            if (instancePattern != null && !".*".equals(instancePattern)) {
+                IWhereItem idCondition = new WhereCondition(conceptName + "/i", //$NON-NLS-1$
+                        WhereCondition.CONTAINS,
+                        instancePattern,
+                        WhereCondition.PRE_NONE);
+                conditions.add(idCondition);
             }
-            // retrieve the objects
-            ArrayList<String> res = server.runQuery(revisionID, dataClusterPOJOPK.getUniqueId(), query, null);
-
-            ArrayList<ItemPOJOPK> list = new ArrayList<ItemPOJOPK>();
-            for (Iterator<String> iterator = res.iterator(); iterator.hasNext();) {
-                String marshaledItem = iterator.next();
-                ItemPOJO pojo = parse(marshaledItem);
-                list.add(pojo.getItemPOJOPK());
+            if (planPK != null && planPK.getIds() != null) {
+                IWhereItem planCondition = new WhereCondition(conceptName + "/sp", //$NON-NLS-1$
+                        WhereCondition.EQUALS,
+                        planPK.getUniqueId(),
+                        WhereCondition.PRE_NOT);
+                conditions.add(planCondition);
             }
-
-            return list;
-
-        } catch (XtentisException e) {
-            throw (e);
+            IWhereItem whereItem = new WhereAnd(conditions);
+            ArrayList<String> elements = new ArrayList<String>();
+            elements.add(conceptName + "/i"); //$NON-NLS-1$
+            ArrayList<String> ids = itemCtrl2Bean.xPathsSearch(dataClusterPOJOPK,
+                    null,
+                    elements,
+                    whereItem,
+                    -1,
+                    start,
+                    limit,
+                    false);
+            ArrayList<ItemPOJOPK> results = new ArrayList<ItemPOJOPK>(ids.size());
+            for (String id : ids) {
+                results.add(new ItemPOJOPK(dataClusterPOJOPK, conceptName, id.split("."))); //$NON-NLS-1$
+            }
+            return results;
         } catch (Exception e) {
             String err = "Error Finding All Unsynchronized PKs" + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             LOG.error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
     }
-
-    /*************************************************************************************************************
-     * 
-     * UTILITIES
-     * 
-     *************************************************************************************************************/
 
     @Override
     public String toString() {
@@ -995,7 +929,7 @@ public class ItemPOJO implements Serializable {
         } catch (XtentisException e) {
             String err = "Unable to serialize the item: " + e.getMessage();
             LOG.error("ERROR SYSTRACE toString() " + err, e);
-            throw new IllegalArgumentException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
 
@@ -1003,12 +937,8 @@ public class ItemPOJO implements Serializable {
         return itemPOJOPK.getUniqueID();
     }
 
-    private static Pattern pathWithoutConditions = Pattern.compile("(.*?)[\\[|/].*");
-
     /**
      * Returns the first part - eg. the concept - from the path
-     * 
-     * @param path
      * @return the Concept
      */
     public static String getConceptFromPath(String path) {
@@ -1046,29 +976,24 @@ public class ItemPOJO implements Serializable {
     public static LRUCache<ItemCacheKey, String> getCache() {
         return cachedPojo;
     }
-    
-    private void checkAccess(ILocalUser user, boolean mutableAccess,String accessLabel) throws XtentisException {
-        checkAccess(user,getItemPOJOPK(), mutableAccess, accessLabel);
-    }
-    
+
     private static void checkAccess(ILocalUser user, ItemPOJOPK itemPOJOPK, boolean mutableAccess, String accessLabel) throws XtentisException {
         assert user != null;
-
         boolean authorizedAccess;
         String username = user.getUsername();
-        
-        if(user.isAdmin(ItemPOJO.class))
-            authorizedAccess = true;           
-        else if (MDMConfiguration.getAdminUser().equals(username) || LocalUser.UNAUTHENTICATED_USER.equals(username)) //$NON-NLS-1$
+        if(user.isAdmin(ItemPOJO.class)) {
             authorizedAccess = true;
-        else if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, itemPOJOPK.getDataClusterPOJOPK().getUniqueId()))
+        } else if (MDMConfiguration.getAdminUser().equals(username) || LocalUser.UNAUTHENTICATED_USER.equals(username)) {
             authorizedAccess = true;
-        else {
+        } else if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, itemPOJOPK.getDataClusterPOJOPK().getUniqueId())) {
+            authorizedAccess = true;
+        } else {
             ItemPOJO itemPOJO = adminLoad(itemPOJOPK);
-            if(mutableAccess)
+            if(mutableAccess) {
                 authorizedAccess = user.userItemCanWrite(itemPOJO, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), itemPOJOPK.getConceptName());
-            else
+            } else {
                 authorizedAccess = user.userItemCanRead(itemPOJO);
+            }
         }
         if (!authorizedAccess) {
             String err = "Unauthorized " + accessLabel + " access by " + "user " + username + " on Item '" + itemPOJOPK.getUniqueID() + "'";
