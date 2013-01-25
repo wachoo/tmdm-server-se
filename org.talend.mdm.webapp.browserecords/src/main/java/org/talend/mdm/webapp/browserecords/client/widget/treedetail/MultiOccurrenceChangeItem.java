@@ -148,8 +148,8 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                 this.add(cloneNodeImg);
                 this.setCellVerticalAlignment(cloneNodeImg, VerticalPanel.ALIGN_BOTTOM);
             }
+            this.add(new Label());// format placeholder, align icon
         }
-        this.add(new Label());// format placeholder, align icon
         this.setCellWidth(label, "200px"); //$NON-NLS-1$
         this.setVisible(typeModel.isVisible());
         Widget w = this.getWidget(this.getWidgetCount() - 1);
