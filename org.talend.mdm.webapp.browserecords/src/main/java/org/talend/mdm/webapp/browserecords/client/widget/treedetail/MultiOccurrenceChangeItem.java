@@ -29,6 +29,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -148,6 +149,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                 this.setCellVerticalAlignment(cloneNodeImg, VerticalPanel.ALIGN_BOTTOM);
             }
         }
+        this.add(new Label());// format placeholder, align icon
         this.setCellWidth(label, "200px"); //$NON-NLS-1$
         this.setVisible(typeModel.isVisible());
         Widget w = this.getWidget(this.getWidgetCount() - 1);
