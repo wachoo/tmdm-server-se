@@ -2505,4 +2505,8 @@ use&lt;/xs:documentation&gt;
 
 &lt;/xs:schema&gt;</schema>
     <description>XML Schema xsd</description>
+    <PK>
+         <ids>XMLSCHEMA---</ids>
+         <unique-id>XMLSCHEMA---</unique-id>
+    </PK>
 </data-model-pOJO>

@@ -24,8 +24,11 @@ import java.io.StringWriter;
  * </p>
  */
 public class ResettableStringWriter extends StringWriter {
+
     private StringWriter delegate = new StringWriter();
+
     private int currentLength = 0;
+
     private int maxLength = -1;
 
     public ResettableStringWriter() {

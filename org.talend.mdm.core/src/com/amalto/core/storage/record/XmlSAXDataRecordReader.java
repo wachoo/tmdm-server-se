@@ -16,12 +16,15 @@ import com.amalto.core.metadata.*;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import org.apache.log4j.Logger;
 import org.xml.sax.*;
 
 import javax.xml.XMLConstants;
 import java.util.Stack;
 
 public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecordReader.Input> {
+
+    public static final Logger LOGGER = Logger.getLogger(XmlSAXDataRecordReader.class);
 
     public static class Input {
 
@@ -73,6 +76,8 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
 
         private final DataRecord dataRecord;
 
+        private int accumulateXml = 0;
+
         public DataRecordContentHandler(ComplexTypeMetadata type, MetadataRepository repository) {
             mainType = type;
             this.repository = repository;
@@ -110,6 +115,13 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
                     }
                 }
             } else {
+                if (accumulateXml > 0) {
+                    charactersBuffer.append('<').append(localName).append('>');
+                    if (localName.equals(field.getName())) {
+                        accumulateXml++;
+                    }
+                    return;
+                }
                 field = ((ComplexTypeMetadata) currentType.peek()).getField(localName);
                 if (field instanceof ReferenceFieldMetadata) {
                     ComplexTypeMetadata actualType = ((ReferenceFieldMetadata) field).getReferencedType();
@@ -117,24 +129,47 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
                     if (mdmType != null) {
                         actualType = repository.getComplexType(mdmType);
                     }
+                    if (actualType == null) {
+                        throw new IllegalArgumentException("Type '" + mdmType + "' does not exist in data model.");
+                    }
                     currentType.push(actualType);
                 } else if (field instanceof ContainedTypeFieldMetadata) {
                     ComplexTypeMetadata actualType = ((ContainedTypeFieldMetadata) field).getContainedType();
                     String xsiType = attributes.getValue(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
                     if (xsiType != null) {
-                        actualType = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), xsiType);
+                        ComplexTypeMetadata type = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), xsiType);
+                        if (type != null) {
+                            actualType = type;
+                        } else {
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("Ignoring xsi:type '" + xsiType + "' because it is not a data model type.");
+                            }
+                        }
                     }
                     DataRecord containedRecord = new DataRecord(actualType, UnsupportedDataRecordMetadata.INSTANCE);
                     dataRecordStack.peek().set(field, containedRecord);
                     dataRecordStack.push(containedRecord);
                     currentType.push(actualType);
                 } else {
-                    currentType.push(field.getType());
+                    TypeMetadata type = field.getType();
+                    if (ClassRepository.EMBEDDED_XML.equals(type.getName())) {
+                        accumulateXml = 1;
+                    }
+                    currentType.push(type);
                 }
             }
         }
 
         public void endElement(String uri, String localName, String qName) throws SAXException {
+            if (accumulateXml > 0) {
+                charactersBuffer.append("</").append(localName).append('>');
+                if (localName.equals(field.getName())) {
+                    accumulateXml--;
+                }
+            }
+            if (accumulateXml > 0) {
+                return;
+            }
             String value = charactersBuffer.reset();
             if (hasMetUserElement && field != null) {
                 if (!value.isEmpty()) {

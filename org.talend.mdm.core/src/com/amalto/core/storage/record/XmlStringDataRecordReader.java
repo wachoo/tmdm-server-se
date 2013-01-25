@@ -11,11 +11,13 @@
 
 package com.amalto.core.storage.record;
 
+import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.metadata.*;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import org.apache.log4j.Logger;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -41,6 +43,8 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
         xmlInputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.TRUE);
     }
 
+    public static final Logger LOGGER = Logger.getLogger(XmlStringDataRecordReader.class);
+
     public DataRecord read(String revisionId, MetadataRepository repository, ComplexTypeMetadata type, String input) {
         if (type == null) {
             throw new IllegalArgumentException("Type can not be null");
@@ -51,6 +55,9 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
 
         try {
             XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(new StringReader(input));
+            ResettableStringWriter xmlAccumulator = new ResettableStringWriter();
+            int skipLevel = Integer.MAX_VALUE;
+            int xmlAccumulatorLevel = 0;
             FieldMetadata field = null;
             Stack<TypeMetadata> currentType = new Stack<TypeMetadata>();
             currentType.push(type);
@@ -114,39 +121,63 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                         if (!(typeMetadata instanceof ComplexTypeMetadata)) {
                             throw new IllegalStateException("Expected a complex type but got a " + typeMetadata.getClass().getName());
                         }
-                        field = ((ComplexTypeMetadata) typeMetadata).getField(startElement.getName().getLocalPart());
-                        TypeMetadata fieldType = field.getType();
-                        // Reads MDM type attribute for actual FK type
-                        if (field instanceof ReferenceFieldMetadata) {
-                            Attribute actualType = startElement.getAttributeByName(new QName(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type")); //$NON-NLS-1$
-                            if (actualType != null) {
-                                fieldType = repository.getComplexType(actualType.getValue());
+                        if (level < skipLevel) {
+                            if (!((ComplexTypeMetadata) typeMetadata).hasField(startElement.getName().getLocalPart())) {
+                                skipLevel = level;
+                                continue;
+                            }
+                            field = ((ComplexTypeMetadata) typeMetadata).getField(startElement.getName().getLocalPart());
+                            TypeMetadata fieldType = field.getType();
+                            if (ClassRepository.EMBEDDED_XML.equals(fieldType.getName())) {
+                                xmlAccumulatorLevel = level;
+                            }
+                            if (xmlAccumulatorLevel > userXmlPayloadLevel) {
+                                xmlAccumulator.append('<').append(startElement.getName().getLocalPart()).append('>');
                             } else {
-                                fieldType = ((ReferenceFieldMetadata) field).getReferencedType();
+                                // Reads MDM type attribute for actual FK type
+                                if (field instanceof ReferenceFieldMetadata) {
+                                    Attribute actualType = startElement.getAttributeByName(new QName(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type")); //$NON-NLS-1$
+                                    if (actualType != null) {
+                                        fieldType = repository.getComplexType(actualType.getValue());
+                                    } else {
+                                        fieldType = ((ReferenceFieldMetadata) field).getReferencedType();
+                                    }
+                                } else if (fieldType instanceof ContainedComplexTypeMetadata) { // Reads xsi:type for actual contained type.
+                                    Attribute actualType = startElement.getAttributeByName(new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type")); //$NON-NLS-1$
+                                    if (actualType != null) {
+                                        TypeMetadata potentialActualType = repository.getNonInstantiableType(fieldType.getNamespace(), actualType.getValue());
+                                        if (potentialActualType != null) {
+                                            fieldType = potentialActualType;
+                                        } else {
+                                            if (LOGGER.isDebugEnabled()) {
+                                                LOGGER.debug("Ignoring xsi:type '" + actualType + "' because it is not a data model type.");
+                                            }
+                                        }
+                                    }
+                                    DataRecord containedDataRecord = new DataRecord((ComplexTypeMetadata) fieldType, UnsupportedDataRecordMetadata.INSTANCE);
+                                    dataRecords.peek().set(field, containedDataRecord);
+                                    dataRecords.push(containedDataRecord);
+                                }
+                                currentType.push(fieldType);
                             }
-                        } else if (fieldType instanceof ContainedComplexTypeMetadata) { // Reads xsi:type for actual contained type.
-                            Attribute actualType = startElement.getAttributeByName(new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type")); //$NON-NLS-1$
-                            if (actualType != null) {
-                                fieldType = repository.getNonInstantiableType(fieldType.getNamespace(), actualType.getValue());
-                            }
-                            DataRecord containedDataRecord = new DataRecord((ComplexTypeMetadata) fieldType, UnsupportedDataRecordMetadata.INSTANCE);
-                            dataRecords.peek().set(field, containedDataRecord);
-                            dataRecords.push(containedDataRecord);
                         }
-                        currentType.push(fieldType);
                     }
                     level++;
                 } else if (xmlEvent.isCharacters()) {
-                    if (level >= userXmlPayloadLevel && field != null) {
-                        Object value;
-                        String data = xmlEvent.asCharacters().getData();
-                        try {
-                            value = MetadataUtils.convert(data, field, currentType.peek());
-                        } catch (Exception e) {
-                            throw new IllegalArgumentException("Field '" + field.getName() + "' of type '" + field.getType().getName() + "' can not receive value '" + data + "'.", e);
-                        }
-                        if (value != null) {
-                            dataRecords.peek().set(field, value);
+                    if (level < skipLevel) {
+                        if (xmlAccumulatorLevel > userXmlPayloadLevel) {
+                            xmlAccumulator.append('<').append(xmlEvent.asCharacters().getData()).append('>');
+                        } else if (level >= userXmlPayloadLevel && field != null) {
+                            Object value;
+                            String data = xmlEvent.asCharacters().getData();
+                            try {
+                                value = MetadataUtils.convert(data, field, currentType.peek());
+                            } catch (Exception e) {
+                                throw new IllegalArgumentException("Field '" + field.getName() + "' of type '" + field.getType().getName() + "' can not receive value '" + data + "'.", e);
+                            }
+                            if (value != null) {
+                                dataRecords.peek().set(field, value);
+                            }
                         }
                     }
                 } else if (xmlEvent.isEndElement()) {
@@ -155,12 +186,23 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                     if (level == userXmlPayloadLevel && endElementLocalPart.equals(type.getName())) {
                         break;
                     }
-                    if (currentType.peek() instanceof ComplexTypeMetadata && !(field instanceof ReferenceFieldMetadata)) {
-                        dataRecords.pop();
+                    if (level < skipLevel) {
+                        if (xmlAccumulatorLevel > userXmlPayloadLevel) {
+                            xmlAccumulator.append("</").append(xmlEvent.asEndElement().getName().getLocalPart()).append('>');
+                            continue;
+                        } else if (xmlAccumulatorLevel == level) {
+                            dataRecords.peek().set(field, xmlAccumulator.reset());
+                            xmlAccumulatorLevel = 0;
+                        } else if (currentType.peek() instanceof ComplexTypeMetadata && !(field instanceof ReferenceFieldMetadata)) {
+                            dataRecords.pop();
+                        }
+                        field = null;
+                        currentType.pop();
                     }
-                    field = null;
-                    currentType.pop();
                     level--;
+                    if (level == skipLevel) {
+                        skipLevel = Integer.MAX_VALUE;
+                    }
                 }
             }
             DataRecord createdDataRecord = dataRecords.pop();

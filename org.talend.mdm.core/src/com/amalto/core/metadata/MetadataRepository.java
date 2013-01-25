@@ -52,6 +52,21 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
     private int anonymousCounter = 0;
 
+    public MetadataRepository() {
+        // TMDM-4444: Adds standard Talend types such as UUID.
+        try {
+            XmlSchemaCollection collection = new XmlSchemaCollection();
+            InputStream internalTypes = MetadataRepository.class.getResourceAsStream("talend_types.xsd"); //$NON-NLS-1$
+            if (internalTypes == null) {
+                throw new IllegalStateException("Could not find internal type data model.");
+            }
+            collection.read(new InputStreamReader(internalTypes, "UTF-8"), new ValidationEventHandler()); //$NON-NLS-1$
+            XmlSchemaWalker.walk(collection, this);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Could not parse internal data model.", e); //$NON-NLS-1$
+        }
+    }
+
     public TypeMetadata getType(String name) {
         return getType(USER_NAMESPACE, name);
     }
@@ -138,23 +153,10 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
         if (inputStream == null) {
             throw new IllegalArgumentException("Input stream can not be null.");
         }
-        ValidationEventHandler validationEventHandler = new ValidationEventHandler();
-        // TMDM-4444: Adds standard Talend types such as UUID.
-        try {
-            XmlSchemaCollection collection = new XmlSchemaCollection();
-            InputStream internalTypes = MetadataRepository.class.getResourceAsStream("talend_types.xsd"); //$NON-NLS-1$
-            if (internalTypes == null) {
-                throw new IllegalStateException("Could not find internal type data model.");
-            }
-            collection.read(new InputStreamReader(internalTypes, "UTF-8"), validationEventHandler); //$NON-NLS-1$
-            XmlSchemaWalker.walk(collection, this);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("Could not parse internal data model.", e); //$NON-NLS-1$
-        }
         // Load user defined data model now
         try {
             XmlSchemaCollection collection = new XmlSchemaCollection();
-            collection.read(new InputStreamReader(inputStream, "UTF-8"), validationEventHandler); //$NON-NLS-1$
+            collection.read(new InputStreamReader(inputStream, "UTF-8"), new ValidationEventHandler()); //$NON-NLS-1$
             XmlSchemaWalker.walk(collection, this);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Could not parse data model.", e); //$NON-NLS-1$

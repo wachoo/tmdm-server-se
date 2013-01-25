@@ -3,49 +3,54 @@ package com.amalto.core.objects.view.ejb;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.util.ArrayListHolder;
+import com.amalto.xmlserver.interfaces.IWhereItem;
 
 
 /**
  * @author bgrieder
  * 
  */
-public class ViewPOJO extends ObjectPOJO{
-   
-		
+public class ViewPOJO extends ObjectPOJO {
+
     private String name;
+
     private String description;
-    private ArrayListHolder searchableBusinessElements;
-    private ArrayListHolder viewableBusinessElements;
-    private ArrayListHolder whereConditions;
+
+    private ArrayListHolder<String> searchableBusinessElements;
+
+    private ArrayListHolder<String> viewableBusinessElements;
+
+    private ArrayListHolder<IWhereItem> whereConditions;
+
     private String transformerPK;
+
     private boolean isTransformerActive;
-    
-    
+
+    public ViewPOJO(String name) {
+   		this.name = name;
+   	}
+
+    public ViewPOJO() {
+        this.searchableBusinessElements = new ArrayListHolder<String>();
+        this.viewableBusinessElements = new ArrayListHolder<String>();
+        this.whereConditions = new ArrayListHolder<IWhereItem>();
+    }
+
     public String getTransformerPK() {
 		return transformerPK;
 	}
-	public void setTransformerPK(String transformerPK) {
+
+    public void setTransformerPK(String transformerPK) {
 		this.transformerPK = transformerPK;
 	}
-	public boolean isTransformerActive() {
+
+    public boolean isTransformerActive() {
 		return isTransformerActive;
 	}
-	public void setTransformerActive(boolean isTransformerActive) {
+
+    public void setTransformerActive(boolean isTransformerActive) {
 		this.isTransformerActive = isTransformerActive;
 	}
-	/**
-     * 
-     */
-    public ViewPOJO() {
-        this.searchableBusinessElements = new ArrayListHolder();
-        this.viewableBusinessElements = new ArrayListHolder();
-        this.whereConditions = new ArrayListHolder();
-    }    
-	public ViewPOJO(String name) {
-		super();
-		this.name = name;
-	}
-	
 
 	/**
 	 * @return Returns the Name.
@@ -61,7 +66,6 @@ public class ViewPOJO extends ObjectPOJO{
 		this.name = name;
 	}
 
-	
 	/**
 	 * @return Returns the Description.
 	 */
@@ -75,36 +79,38 @@ public class ViewPOJO extends ObjectPOJO{
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
-	
 
-	public ArrayListHolder getSearchableBusinessElements() {
+	public ArrayListHolder<String> getSearchableBusinessElements() {
 		return searchableBusinessElements;
 	}
-	public void setSearchableBusinessElements(
-			ArrayListHolder searchableBusinessElements) {
+
+    public void setSearchableBusinessElements(ArrayListHolder<String> searchableBusinessElements) {
 		this.searchableBusinessElements = searchableBusinessElements;
 	}
-	public ArrayListHolder getViewableBusinessElements() {
+
+    public ArrayListHolder<String> getViewableBusinessElements() {
 		return viewableBusinessElements;
 	}
-	public void setViewableBusinessElements(
-			ArrayListHolder viewableBusinessElements) {
+
+	public void setViewableBusinessElements(ArrayListHolder<String> viewableBusinessElements) {
 		this.viewableBusinessElements = viewableBusinessElements;
 	}
-	public ArrayListHolder getWhereConditions() {
+
+	public ArrayListHolder<IWhereItem> getWhereConditions() {
 		return whereConditions;
 	}
-	public void setWhereConditions(ArrayListHolder whereConditions) {
+
+    public void setWhereConditions(ArrayListHolder<IWhereItem> whereConditions) {
 		this.whereConditions = whereConditions;
 	}
-	
-	
+
 	@Override
 	public ObjectPOJOPK getPK() {
-		if (getName()==null) return null;
-		return new ObjectPOJOPK(new String[] {name});
-	}
-	
+        if (getName() == null) {
+            return null;
+        }
+        return new ObjectPOJOPK(new String[]{name});
+    }
+
 
 }
