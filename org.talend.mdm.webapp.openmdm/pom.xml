@@ -11,6 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.talend.mdm.webapp.openmdm</artifactId>
     <name>org.talend.mdm.webapp.openmdm</name>
+    <packaging>war</packaging>
 
     <build>
         <directory>${mdm.build.dir}</directory>
@@ -19,14 +20,39 @@
             <resource>
                 <directory>src</directory>
                 <includes>
-                    <include>**/**.conf</include>
-                    <include>**/**.xsd</include>
                     <include>**/**.xml</include>
-                    <include>**/**.dtd</include>
                     <include>**/**.properties</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>${basedir}/web</directory>
+                <includes>
+                    <include>WEB-INF/*.xml</include>
+                </includes>
+            </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <warName>zz.20.openmdm.webapp</warName>
+                    <warSourceDirectory>${basedir}/web</warSourceDirectory>
+                    <webXml>${basedir}/web/WEB-INF/web.xml</webXml>
+                   
+                    <webResources>
+                        <resource>
+                            <directory>${basedir}</directory>
+                            <includes>
+                                <include>version.properties</include>
+                                <include>RELEASE-*.NOTES</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>
@@ -41,10 +67,14 @@
         <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>xsom</groupId>
+            <groupId>com.sun.xsom</groupId>
             <artifactId>xsom</artifactId>
+            <version>20060306</version>
+            <scope>system</scope>
+            <systemPath>${tom.location}/talend.mdm.libraries/lib/z.xsom.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>jboss</groupId>
