@@ -5,10 +5,9 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.*;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.events.XMLEvent;
 
 import com.amalto.core.ejb.local.ItemCtrl2Local;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
@@ -24,7 +23,6 @@ import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 import com.amalto.core.delegator.ILocalUser;
@@ -65,6 +63,8 @@ public abstract class ObjectPOJO implements Serializable {
     private static Logger LOG = Logger.getLogger(ObjectPOJO.class);
 
     private static final XMLClassDescriptorResolver cdr = new XMLClassDescriptorResolverImpl();
+
+    private static final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 
     /* cached the Object pojos to improve performance*/
     private static LRUCache<ItemCacheKey, String> cachedPojo;
@@ -708,8 +708,8 @@ public abstract class ObjectPOJO implements Serializable {
             //get the xml server wrapper
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
             String clusterName = getCluster(getObjectClass(objectName));
-            String collectionpath = CommonUtil.getPath(revisionID, clusterName);
-            String query = "collection(\"" + collectionpath + "\")/*[string(PK/unique-id/text()) eq '" + uniqueID + "']"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ 
+            String collectionPath = CommonUtil.getPath(revisionID, clusterName);
+            String query = "collection(\"" + collectionPath + "\")/*[string(PK/unique-id/text()) eq '" + uniqueID + "']"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$
             ArrayList<String> res = server.runQuery(
                     revisionID,
                     clusterName,
@@ -787,98 +787,73 @@ public abstract class ObjectPOJO implements Serializable {
      * @return The list of results
      * @throws XtentisException
      */
-    public static ArrayList<ObjectPOJOPK> findPKsByCriteriaWithPaging(Class<? extends ObjectPOJO> objectClass,
-                                                                      String[] idsPaths, IWhereItem whereItem, String orderBy, String direction, int start, int limit,
+    public static Collection<ObjectPOJOPK> findPKsByCriteriaWithPaging(Class<? extends ObjectPOJO> objectClass,
+                                                                      String[] idsPaths,
+                                                                      IWhereItem whereItem,
+                                                                      String orderBy,
+                                                                      String direction,
+                                                                      int start,
+                                                                      int limit,
                                                                       boolean withTotalCount) throws XtentisException {
         try {
-            int numItems = 0;
             // check if we are admin
-            boolean isAdmin = false;
             ILocalUser user = LocalUser.getLocalUser();
-            if (MDMConfiguration.getAdminUser().equals(user.getUsername())
-                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
+            String userName = user.getUsername();
+            boolean isAdmin = false;
+            if (MDMConfiguration.getAdminUser().equals(userName) || LocalUser.UNAUTHENTICATED_USER.equals(userName)) {
                 isAdmin = true;
             } else if (user.isAdmin(objectClass)) {
                 isAdmin = true;
             }
-
             // get the universe and revision ID
             UniversePOJO universe = user.getUniverse();
             if (universe == null) {
-                String err = "ERROR: no Universe set for user '" + user.getUsername() + "'"; //$NON-NLS-1$//$NON-NLS-2$
+                String err = "ERROR: no Universe set for user '" + userName + "'"; //$NON-NLS-1$ //$NON-NLS-2$
                 LOG.error(err);
                 throw new XtentisException(err);
             }
-
-            // Root Elements Names to revision IDs and clusterNames
-            LinkedHashMap<String, String> objectRootElementNameToRevisionID = new LinkedHashMap<String, String>();
-            LinkedHashMap<String, String> objectRootElementNameToClusterName = new LinkedHashMap<String, String>();
-            Set<String> objectNames = getObjectsNames2RootNamesMap().keySet();
-            for (String objectName : objectNames) {
-                String rootElementName = getObjectRootElementName(objectName);
-                objectRootElementNameToRevisionID.put(rootElementName, universe.getXtentisObjectsRevisionIDs().get(objectName));
-                objectRootElementNameToClusterName.put(rootElementName,
-                        getCluster(getObjectClass(objectName)));
-            }
-
-            // get the xml server wrapper
-            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-
-            // get the query
-            String query = server.getXtentisObjectsQuery(objectRootElementNameToRevisionID, objectRootElementNameToClusterName,
-                    getObjectRootElementName(getObjectName(objectClass)), new ArrayList<String>(Arrays.asList(idsPaths)),
-                    whereItem, orderBy, direction, start, limit, withTotalCount);
-
-            // run the query
-            Collection<String> res = server.runQuery(null, null, query, null);
-
-            // Log
-            if (LOG.isTraceEnabled())
-                LOG.trace("findAllPKsByCriteriaWithPaging() QUERY\n" + query + "\nResults size: " + res.size()); //$NON-NLS-1$  //$NON-NLS-2$ 
-
+            // Get the values from databases
+            ItemCtrl2Local itemCtrl = Util.getItemCtrl2Local();
+            DataClusterPOJOPK dataCluster = new DataClusterPOJOPK();
+            ArrayList<String> xPaths = new ArrayList<String>(Arrays.asList(idsPaths));
+            ArrayList<String> results = itemCtrl.xPathsSearch(dataCluster,
+                    null,
+                    xPaths,
+                    whereItem,
+                    -1,
+                    orderBy,
+                    direction,
+                    start,
+                    limit,
+                    withTotalCount);
             // no result --> we are done
-            if (res == null)
-                return new ArrayList<ObjectPOJOPK>();
-
-            ArrayList<ObjectPOJOPK> list = new ArrayList<ObjectPOJOPK>();
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            XPath xPath = XPathFactory.newInstance().newXPath();
-            boolean firstRecord = true;
-            for (String string : res) {
-                // rebuild IDs
-                Document doc = builder.parse(new InputSource(new StringReader(string)));
-                String[] ids = new String[idsPaths.length];
-                if (withTotalCount && firstRecord) {
-                    firstRecord = false;
-                    ids = new String[1];
-                    ids[0] = doc.getDocumentElement().getTextContent();
-                } else {
-                    for (int i = 0; i < ids.length; i++) {
-                        ids[i] = xPath.evaluate("/*/*[" + (i + 1) + "]/text()", doc); //$NON-NLS-1$  //$NON-NLS-2$ 
-                    }
-                }
-                // get ObjectPOJOPK
-                ObjectPOJOPK pk = new ObjectPOJOPK(ids);
-
-                // check authorizations
-                boolean authorized = false;
-                if (isAdmin) {
-                    authorized = true;
-                } else if (user.userCanRead(objectClass, pk.getUniqueId())) {
-                    authorized = true;
-                }
-                if (authorized) {
-                    list.add(pk);
-                    numItems++;
+            if (results == null) {
+                return Collections.emptyList();
+            }
+            // Log
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("findAllPKsByCriteriaWithPaging() Results size: " + results.size()); //$NON-NLS-1$  //$NON-NLS-2$
+            }
+            List<ObjectPOJOPK> pojoPks = new LinkedList<ObjectPOJOPK>();
+            String[] idValues = new String[idsPaths.length];
+            int idIndex = 0;
+            for (String result : results) {
+                XMLEventReader reader = xmlInputFactory.createXMLEventReader(new StringReader(result));
+                XMLEvent xmlEvent = reader.nextEvent();
+                switch (xmlEvent.getEventType()) {
+                    case XMLEvent.CHARACTERS:
+                        idValues[idIndex++] = xmlEvent.asCharacters().getData();
+                        break;
+                    case XMLEvent.END_DOCUMENT:
+                        // check authorizations
+                        if (isAdmin || user.userCanRead(objectClass, result)) {
+                            pojoPks.add(new ObjectPOJOPK(idValues));
+                        }
+                        idIndex = 0;
+                        break;
                 }
             }
-
-            if (BAMLogger.log)
-                BAMLogger
-                        .log("DATA MANAGER", user.getUsername(), "find all by criteria", objectClass, new ObjectPOJOPK(numItems + " Items"), numItems > 0); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
-            return list;
-
+            return pojoPks;
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
@@ -902,7 +877,7 @@ public abstract class ObjectPOJO implements Serializable {
      * @return An orders
      * @throws XtentisException
      */
-    public static ArrayList<ObjectPOJOPK> findAllPKsByCriteria(
+    public static Collection<ObjectPOJOPK> findAllPKsByCriteria(
             Class<? extends ObjectPOJO> objectClass,
             String[] idsPaths,
             IWhereItem whereItem,

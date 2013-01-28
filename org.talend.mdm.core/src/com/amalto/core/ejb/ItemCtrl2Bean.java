@@ -100,7 +100,6 @@ public class ItemCtrl2Bean implements SessionBean {
 
     private static final Logger LOGGER = Logger.getLogger(ItemCtrl2Bean.class);
 
-
     /**
      * ItemCtrlBean.java Constructor
      *
@@ -601,9 +600,10 @@ public class ItemCtrl2Bean implements SessionBean {
                         for (FieldMetadata fieldMetadata : record.getSetFields()) {
                             Object value = record.get(fieldMetadata);
                             if (value != null) {
-                                writer.append("\t<").append(fieldMetadata.getName()).append(">");
+                                String name = fieldMetadata.getName();
+                                writer.append("\t<").append(name).append(">"); //$NON-NLS-1$ //$NON-NLS-2$
                                 writer.append(StringEscapeUtils.escapeXml(String.valueOf(value)));
-                                writer.append("</").append(fieldMetadata.getName()).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                                writer.append("</").append(name).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$
                             }
                         }
                         writer.append("</result>"); //$NON-NLS-1$

@@ -160,6 +160,11 @@ public class UserQueryHelper {
     }
 
     public static TypedExpression getField(MetadataRepository repository, String typeName, String fieldName) {
+        // Considers attributes as elements
+        // TODO This is assuming attributes are elements... which is true when these line were written.
+        if(fieldName.startsWith("@")) { //$NON-NLS-1$
+            fieldName = fieldName.substring(1);
+        }
         ComplexTypeMetadata type = repository.getComplexType(typeName);
         if (type == null) {
             throw new IllegalArgumentException("Type '" + typeName + "' does not exist.");
