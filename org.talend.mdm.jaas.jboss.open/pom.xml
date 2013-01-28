@@ -21,7 +21,23 @@
                     <include>**/**.MF</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>${basedir}</directory>
+                <includes>
+                    <include>RELEASE.NOTES</include>
+                    <include>version.properties</include>
+                </includes>
+            </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <finalName>z.mdm.jaas.openmdm.jboss</finalName>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>
@@ -38,8 +54,6 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <scope>system</scope>
-            <systemPath>${tom.location}/talend.mdm.libraries/lib/log4j.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>jboss</groupId>

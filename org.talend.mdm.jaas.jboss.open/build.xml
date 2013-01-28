@@ -47,30 +47,11 @@
             <param name="mvn.goal" value="install" />
         </antcall>
     </target>
-    
-    <target name="compile">
-        <antcall target="mvn.invoke">
-            <param name="mvn.goal" value="compile" />
-        </antcall>
-        <copy todir="bin">
-            <fileset dir="target/classes" includes="**" />
-        </copy>
-    </target>
 	
-	<target name="package" depends="compile">
-		<buildnumber file="${version.props}"/>
-		<property file="${version.props}" />
-   	   	<property name="version.build.new" value="${major}-${minor}-${rev}_${build.number}"  />
-		<jar destfile="${jar}" manifest="src/META-INF/MANIFEST.MF">
-			<zipfileset dir=".">
-				<include name="RELEASE.NOTES" />
-			</zipfileset>
-			<zipfileset dir=".">
-				<include name="version.properties" />
-			</zipfileset>
-			<zipfileset dir="bin" includes="**/*.class" />
-
-		</jar>
+	<target name="package">
+		<antcall target="mvn.invoke">
+            <param name="mvn.goal" value="package" />
+        </antcall>
 	</target>
 
    	<target name="version"  description="Maintain build.date property">
@@ -80,7 +61,7 @@
        		<entry key="built.by" type="string" value="${user.name}" />
        		<entry key="java.version" type="string" value="${java.vm.version}" />
        	</propertyfile>   	
-     </target>
+    </target>
 		
     <target name="undeploy" description="--> remove packages">		
 		<delete>
@@ -91,7 +72,7 @@
 	
 	<target name="deploy">
 		<echo>Deploying build: ${version.build.new}</echo>
-		<copy file="${jar}" tofile="${jboss.instance.lib}/${jar}"/>
+		<copy file="target/${jar}" tofile="${jboss.instance.lib}/${jar}"/>
 		<copy file="${conf}" tofile="${jboss.instance.dir}/conf/${conf}"/>
     </target>
 	
