@@ -150,7 +150,7 @@ public class JournalDBService {
 
         if (criteria.getEndDate() != null) {
             WSWhereCondition wc = new WSWhereCondition(
-                    "TimeInMillis", WSWhereOperator.LOWER_THAN_OR_EQUAL, criteria.getEndDate().getTime() + "", WSStringPredicate.NONE, false); //$NON-NLS-1$ //$NON-NLS-2$
+                    "TimeInMillis", WSWhereOperator.LOWER_THAN, (criteria.getEndDate().getTime() + 24 * 3600 * 1000) + "", WSStringPredicate.NONE, false); //$NON-NLS-1$ //$NON-NLS-2$
             WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
             conditions.add(wsWhereItem);
         }
