@@ -38,7 +38,7 @@ public class WelcomePortal implements EntryPoint {
 
     public final static String LICENSECONTEXT = "licensemanager", LICENSEAPP = "LicenseManager"; //$NON-NLS-1$ //$NON-NLS-2$
 
-    public final static String JOURNALCONTEXT = "updatereport", JOURNALAPP = "UpdateReport"; //$NON-NLS-1$ //$NON-NLS-2$
+    public final static String JOURNALCONTEXT = "journal", JOURNALAPP = "Journal"; //$NON-NLS-1$ //$NON-NLS-2$
 
     public final static String TASKCONTEXT = "workflowtasks", TASKAPP = "WorkflowTasks";//$NON-NLS-1$ //$NON-NLS-2$
 

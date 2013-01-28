@@ -929,8 +929,8 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native boolean initJournal(String ids, String concept)/*-{
-		$wnd.amalto.updatereport.UpdateReport
-				.browseUpdateReportWithSearchCriteria(concept, ids, true);
+		$wnd.amalto.journal.Journal
+				.browseJournalWithCriteria(ids, concept, true);
 		return true;
     }-*/;
 
