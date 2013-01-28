@@ -54,11 +54,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private int aliasCount = 0;
 
-    private List<ComplexTypeMetadata> selectedTypes;
-
     private String currentAliasName;
-
-    private String mainClassName;
 
     public StandardQueryHandler(Storage storage,
                                 MappingRepository mappingMetadataRepository,
@@ -324,14 +320,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Select select) {
-        selectedTypes = select.getTypes();
+        List<ComplexTypeMetadata> selectedTypes = select.getTypes();
         if (selectedTypes.isEmpty()) {
             throw new IllegalArgumentException("Select clause is expected to select at least one entity type.");
         }
         mainType = selectedTypes.get(0);
         ComplexTypeMetadata database = mappingMetadataRepository.getMappingFromUser(mainType).getDatabase();
-        mainClassName = ClassCreator.PACKAGE_PREFIX + database.getName();
-        criteria = session.createCriteria(mainClassName, database.getName());
+        String mainClassName = ClassCreator.PACKAGE_PREFIX + database.getName();
+        criteria = session.createCriteria(mainClassName, mainType.getName());
         criteria.setReadOnly(true); // We are reading data, turns on ready only mode.
         // Handle JOIN (if any)
         List<Join> joins = select.getJoins();
