@@ -463,7 +463,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         int totalCount = 0;
         List<String> itemPKResults = new LinkedList<String>();
         String typeName = criteria.getConceptName();
-        if (typeName != null) {
+        if (typeName != null && !typeName.isEmpty()) {
             totalCount += getTypeItemCount(criteria, repository.getComplexType(typeName), storage);
             itemPKResults.addAll(getTypeItems(criteria, repository.getComplexType(typeName), storage));
         } else {
