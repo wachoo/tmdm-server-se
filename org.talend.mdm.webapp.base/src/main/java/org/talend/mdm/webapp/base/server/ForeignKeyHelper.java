@@ -20,6 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -85,9 +86,9 @@ public class ForeignKeyHelper {
 
             if (sortDir != null) {
                 if (model.getForeignKeyInfo() != null && model.getForeignKeyInfo().size() > 0)
-                    xpath = model.getXpath() + "/" + config.getSortField(); //$NON-NLS-1$
+                    xpath = StringUtils.substringBefore(xPaths.get(0), "/") + "/" + config.getSortField(); //$NON-NLS-1$ //$NON-NLS-2$
                 else
-                    xpath = model.getXpath() + "/../../i"; //$NON-NLS-1$
+                    xpath = StringUtils.substringBefore(xPaths.get(0), "/") + "/../../i"; //$NON-NLS-1$ //$NON-NLS-2$
             } else {
                 xpath = null;
             }
