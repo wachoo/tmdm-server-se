@@ -470,25 +470,19 @@ public abstract class ObjectPOJO implements Serializable {
      * @throws XtentisException
      */
     public ObjectPOJOPK store(String revisionID) throws XtentisException {
-
         if (getPK() == null) {
             setLastError("Unable to store: the object PK is Null");
             return null;
         }
 
         try {
-
             //get the xml server wrapper
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-
-
             //Clear the synchronization Plan flag - this object is no more Synchronized
             this.lastSynch = null;
-
             //Marshal
             StringWriter sw = new StringWriter();
             Marshaller.marshal(this, sw);
-
             //store
             String dataClusterName = getCluster(this.getClass());
             server.start(dataClusterName);
@@ -552,8 +546,7 @@ public abstract class ObjectPOJO implements Serializable {
                 return XSystemObjects.getXSystemObjectsTOM(XObjectType.DATA_MODEL).keySet();
 
         }
-
-        return new HashSet<String>();
+        return Collections.emptySet();
     }
 
 
@@ -687,91 +680,6 @@ public abstract class ObjectPOJO implements Serializable {
         }
     }
 
-
-    /**
-     * Retrieve the marshaled version (e.g; the xml) of an object<br/>
-     * The user must have the "administration" role to perform this task
-     *
-     * @param uniqueID   The unique ID of the object obtained using {@link #findAllUnsynchronizedPKs(String, String, String)}
-     * @return The XML
-     * @throws XtentisException
-     */
-    public static String getMarshaledObject(String revisionID, String objectName, String uniqueID) throws XtentisException {
-        try {
-            //check if we are admin
-            ILocalUser user = LocalUser.getLocalUser();
-            if (!user.getRoles().contains("administration")) { //$NON-NLS-1$
-                String err = "Only an user with the 'administration' role can call the synchronization methods";
-                LOG.error(err);
-                throw new XtentisException(err);
-            }
-            //get the xml server wrapper
-            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-            String clusterName = getCluster(getObjectClass(objectName));
-            String collectionPath = CommonUtil.getPath(revisionID, clusterName);
-            String query = "collection(\"" + collectionPath + "\")/*[string(PK/unique-id/text()) eq '" + uniqueID + "']"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$
-            ArrayList<String> res = server.runQuery(
-                    revisionID,
-                    clusterName,
-                    query,
-                    null
-            );
-            if (res == null || res.size() < 1) {
-                return null;
-            }
-            return res.get(0);
-        } catch (XtentisException e) {
-            throw (e);
-        } catch (Exception e) {
-            String err = "Error getting the marshaled object '" + objectName + "' of id '" + uniqueID + "' in revision '" + (revisionID == null ? "[HEAD]" : revisionID) + "'"
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            LOG.error(err, e);
-            throw new XtentisException(err, e);
-        }
-    }
-
-    /**
-     * Replaces/Creates an object using its marshaled version (e.g; the xml)<br/>
-     * The user must have the "administration" role to perform this task
-     *
-     * @param uniqueID   The unique ID of the object obtained using {@link #findAllUnsynchronizedPKs(String, String, String)}
-     * @param xml        The marshaled object
-     * @throws XtentisException
-     */
-    public static void putMarshaledObject(String revisionID, String objectName, String uniqueID, String xml) throws XtentisException {
-        try {
-
-            //check if we are admin
-            ILocalUser user = LocalUser.getLocalUser();
-            if (!user.getRoles().contains("administration")) { //$NON-NLS-1$
-                String err = "Only an user with the 'administration' role can call the synchronization methods";
-                LOG.error(err);
-                throw new XtentisException(err);
-            }
-
-            //get the xml server wrapper
-            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-            String cluster = getCluster(getObjectClass(objectName));
-            server.start(cluster);
-            server.putDocumentFromString(
-                    xml,
-                    uniqueID,
-                    cluster,
-                    revisionID
-            );
-            server.commit(cluster);
-            ItemCacheKey key = new ItemCacheKey(revisionID, uniqueID, cluster);
-            cachedPojo.put(key, xml);
-        } catch (XtentisException e) {
-            throw (e);
-        } catch (Exception e) {
-            String err = "Error creating/replacing the marshaled object '" + objectName + "' of id '" + uniqueID + "' in revision '" + (revisionID == null ? "[HEAD]" : revisionID) + "'"
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            LOG.error(err, e);
-            throw new XtentisException(err, e);
-        }
-    }
-
     /**
      * Get the records for which the user is authorized and matching certain conditions
      *
@@ -882,8 +790,7 @@ public abstract class ObjectPOJO implements Serializable {
             String[] idsPaths,
             IWhereItem whereItem,
             String orderBy,
-            String direction
-    ) throws XtentisException {
+            String direction) throws XtentisException {
         return findPKsByCriteriaWithPaging(objectClass, idsPaths, whereItem, orderBy, direction, 0, Integer.MAX_VALUE, false);
     }
 
