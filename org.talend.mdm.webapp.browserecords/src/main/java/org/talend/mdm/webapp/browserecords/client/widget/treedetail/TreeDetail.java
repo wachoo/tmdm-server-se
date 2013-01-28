@@ -151,6 +151,10 @@ public class TreeDetail extends ContentPanel {
         }
     }
 
+    public void executeAfterRenderComplete(RenderCompleteCallBack renderCompleteCallBackL) {
+        renderCompleteCallBackList.add(renderCompleteCallBackL);
+    }
+
     MultiOccurrenceManager multiManager;
 
     public DynamicTreeItem getSelectedItem() {
@@ -697,7 +701,7 @@ public class TreeDetail extends ContentPanel {
         }
     }
 
-    interface RenderCompleteCallBack {
+    public interface RenderCompleteCallBack {
 
         void onSuccess();
     }

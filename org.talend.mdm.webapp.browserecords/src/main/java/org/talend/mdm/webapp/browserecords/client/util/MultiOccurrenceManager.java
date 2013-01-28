@@ -268,9 +268,9 @@ public class MultiOccurrenceManager {
         return null;
     }
 
-    private void handleAddNode(DynamicTreeItem selectedItem, String optId) {
+    private void handleAddNode(final DynamicTreeItem selectedItem, String optId) {
 
-        ItemNodeModel selectedModel = selectedItem.getItemNodeModel();
+        final ItemNodeModel selectedModel = selectedItem.getItemNodeModel();
         TypeModel typeModel = metaDataTypes.get(selectedModel.getTypePath());
         int count = CommonUtil.getCountOfBrotherOfTheSameName(selectedModel);
 
@@ -292,20 +292,21 @@ public class MultiOccurrenceManager {
             // if it has default value
             if (typeModel.getDefaultValue() != null)
                 model.setObjectValue(typeModel.getDefaultValue());
-            DynamicTreeItem treeItem = treeDetail.buildGWTTree(model, null, true, null);
-            ViewUtil.copyStyleToTreeItem(selectedItem, treeItem);
+            final DynamicTreeItem treeItem = treeDetail.buildGWTTree(model, null, true, null);
 
-            DynamicTreeItem parentItem = (DynamicTreeItem) selectedItem.getParentItem();
-            parentItem.insertItem(treeItem, parentItem.getChildIndex(selectedItem) + 1);
-            treeDetail.adjustFieldWidget(treeItem);
+            treeDetail.executeAfterRenderComplete(new TreeDetail.RenderCompleteCallBack() {
 
-            MultiOccurrenceManager multiManager = treeDetail.getMultiManager();
-            multiManager.addMultiOccurrenceNode((DynamicTreeItem) treeItem);
-
-            warningItems(treeItem.getItemNodeModel());
-
-            handleOptIcon(CommonUtil.getRealXPath(selectedModel));
-
+                public void onSuccess() {
+                    ViewUtil.copyStyleToTreeItem(selectedItem, treeItem);
+                    DynamicTreeItem parentItem = (DynamicTreeItem) selectedItem.getParentItem();
+                    parentItem.insertItem(treeItem, parentItem.getChildIndex(selectedItem) + 1);
+                    treeDetail.adjustFieldWidget(treeItem);
+                    MultiOccurrenceManager multiManager = treeDetail.getMultiManager();
+                    multiManager.addMultiOccurrenceNode((DynamicTreeItem) treeItem);
+                    warningItems(treeItem.getItemNodeModel());
+                    handleOptIcon(CommonUtil.getRealXPath(selectedModel));
+                }
+            });
         } else {
             MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
                     .multiOccurrence_maximize(count), null);
