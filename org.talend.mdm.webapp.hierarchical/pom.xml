@@ -11,22 +11,31 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.talend.mdm.webapp.hierarchical</artifactId>
     <name>org.talend.mdm.webapp.hierarchical</name>
+    <packaging>war</packaging>
 
     <build>
         <directory>${mdm.build.dir}</directory>
         <sourceDirectory>src</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>src</directory>
-                <includes>
-                    <include>**/**.conf</include>
-                    <include>**/**.xsd</include>
-                    <include>**/**.xml</include>
-                    <include>**/**.dtd</include>
-                    <include>**/**.properties</include>
-                </includes>
-            </resource>
-        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <warName>zz.20.webapp.hierarchical</warName>
+                    <warSourceDirectory>${basedir}/web</warSourceDirectory>
+                    <webXml>${basedir}/web/WEB-INF/web.xml</webXml>
+                    <webResources>
+                        <resource>
+                            <directory>${basedir}</directory>
+                            <includes>
+                                <include>version.properties</include>
+                                <include>RELEASE-*.NOTES</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>
@@ -39,7 +48,6 @@
             <groupId>dwr</groupId>
             <artifactId>dwr</artifactId>
         </dependency>
-    
         <dependency>
             <groupId>castor</groupId>
             <artifactId>castor-api</artifactId>
@@ -69,5 +77,4 @@
 
 
     </dependencies>
-
 </project>
