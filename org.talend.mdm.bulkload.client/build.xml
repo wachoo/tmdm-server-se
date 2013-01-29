@@ -1,80 +1,52 @@
-<project default="all" basedir=".">
+<project name="org.talend.mdm.patchtool" xmlns:artifact="antlib:org.apache.maven.artifact.ant" default="all">
 
-    <!-- Xerces Java directories -->
-    <property name="src.dir" value="./src"/>
-    <property name="lib.dir" value="./lib"/>
-    <property name="tom.location" value="${basedir}/.."/>
+    <property file="build.properties" />
 
-    <target name="all" depends="jar" description="building bulkloadclient">
-        <!--<eclipse.refreshLocal resource="${basedir}"/>-->
+    <target name="prepare-maven" if="local.developer.build">
+        <path id="maven-ant-tasks.classpath" path="${maven.ant.tasks.file}" />
+        <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
     </target>
 
-    <target name="jar" depends="junit">
+    <property name="build.dir" value="${basedir}/target" />
+    <property name="mdm.build.version" value="${major}.${minor}.${rev}-r${svn.revision}" />
 
-        <delete file="./bulkloadclient.jar"/>
-        <delete file="MANIFEST.MF"/>
-        <manifest file="MANIFEST.MF">
-            <attribute name="Built-By" value="${user.name}"/>
-            <attribute name="Main-Class" value="org.talend.mdm.bulkload.client.BulkloadClientUtil"/>
-        </manifest>
-
-        <jar destfile="./bulkloadclient.jar"
-             basedir="bin"
-             includes="**/*.class"
-             excludes="**/*Test*.class"
-             manifest="MANIFEST.MF"
-                />
+    <target name="clean">
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="clean" />
+        </antcall>
     </target>
 
-    <target name="junit">
-        <delete dir="${basedir}/target/test-classes"/>
-        <mkdir dir="${basedir}/target/test-classes"/>
+    <target name="package">
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="package" />
+        </antcall>
+    </target>
 
-        <delete dir="${basedir}/target/test-reports"/>
-        <mkdir dir="${basedir}/target/test-reports"/>
+    <target name="install">
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="install" />
+        </antcall>
+    </target>
 
-        <path id="base.classpath">
-            <pathelement path="bin"/>
-        </path>
+    <target name="undeploy">
+        <echo>Nothing to undeploy</echo>
+    </target>
 
-        <path id="compile.classpath">
-            <pathelement path="${tom.location}/org.talend.mdm.bulkload.client/bin"/>
-            <pathelement path="${tom.location}/talend.mdm.libraries/lib/junit-3.8.1.jar"/>
-            <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-lang-2.1.jar"/>
-            <pathelement path="${tom.location}/talend.mdm.libraries/lib/commons-httpclient.jar"/>
-            <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-logging-1.1.1.jar"/>
-            <path refid="base.classpath"/>
-        </path>
+    <target name="deploy">
+        <echo>Nothing to deploy</echo>
+    </target>
 
-        <path id="test.classpath">
-            <pathelement path="target/test-classes"/>
-            <path refid="compile.classpath"/>
-        </path>
+    <target name="all" depends="package,undeploy,deploy" />
 
-        <copy todir="${basedir}/target/test-classes" verbose="true">
-            <fileset dir="${basedir}/test" excludes="**/*.java"/>
-        </copy>
+    <target name="mvn.invoke" description="invokes maven" depends="prepare-maven">
+        <property environment="env" />
 
-        <javac srcdir="${basedir}/test" destdir="${basedir}/target/test-classes">
-            <classpath>
-                <path refid="compile.classpath"/>
-            </classpath>
-        </javac>
-
-        <junit printsummary="yes" haltonfailure="yes" showoutput="yes">
-            <classpath>
-                <path refid="test.classpath"/>
-            </classpath>
-
-            <batchtest fork="yes" todir="target/test-reports">
-                <fileset dir="target/test-classes">
-                    <include name="**/*Test.class"/>
-                </fileset>
-            </batchtest>
-
-            <formatter type="plain"/>
-            <formatter type="xml"/>
-        </junit>
+        <artifact:mvn pom="pom.xml" mavenHome="${env.M2_HOME}" fork="true" failonerror="true">
+            <arg value="-V" />
+            <arg value="-Dmdm.build.dir=${build.dir}" />
+            <arg value="-Dmdm.build.version=${mdm.build.version}" />
+            <arg value="${mvn.goal}" />
+        </artifact:mvn>
     </target>
 
 </project>
