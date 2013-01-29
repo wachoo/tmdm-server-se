@@ -44,4 +44,6 @@ public interface JournalService extends RemoteService {
 
     String getReportString(int start, int limit, String sort, String field, String language, String entity, String key,
             String source, String operationType, String startDate, String endDate, boolean isBrowseRecord);
+    
+    boolean isAdmin();
 }

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.journal.client.JournalService;
 import org.talend.mdm.webapp.journal.server.dwr.JournalDWR;
@@ -29,6 +30,7 @@ import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
+import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.Util;
@@ -132,6 +134,14 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         }
 
         return reportString;
+    }
+    
+    public boolean isAdmin() {
+        try{
+            return LocalUser.getLocalUser().getRoles().contains(ICoreConstants.SYSTEM_ADMIN_ROLE);
+        }catch (Exception exception) {
+            return false;
+        }        
     }
 
     private JournalSearchCriteria buildCriteria(String entity, String key, String source, String operationType, String startDate,

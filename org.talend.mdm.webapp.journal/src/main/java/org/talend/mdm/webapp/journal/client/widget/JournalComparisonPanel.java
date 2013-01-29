@@ -49,8 +49,6 @@ public class JournalComparisonPanel extends ContentPanel {
     
     private ToolBar toolbar;
     
-    private Button restoreButton;
-    
     private TreePanel<JournalTreeModel> tree;
     
     private JournalTreeModel root;
@@ -65,27 +63,34 @@ public class JournalComparisonPanel extends ContentPanel {
         this.setLayout(new FitLayout());
         this.setBodyBorder(false);
         
-        restoreButton = new Button(MessagesFactory.getMessages().restore_button());
-        restoreButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));
-        restoreButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-            
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                service.restoreRecord(parameter, new SessionAwareAsyncCallback<Boolean>() {
-                    
-                    public void onSuccess(Boolean success) {
-                        if(success) {
-                            JournalComparisonPanel.this.closeTabPanel();
-                        }
-                    }
-                });
-            };
+        service.isAdmin(new SessionAwareAsyncCallback<Boolean>() {
+
+            public void onSuccess(Boolean isAdmin) {
+                if (isAdmin){
+                    Button restoreButton = new Button(MessagesFactory.getMessages().restore_button());
+                    restoreButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));
+                    restoreButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+                        
+                        @Override
+                        public void componentSelected(ButtonEvent ce) {
+                            service.restoreRecord(parameter, new SessionAwareAsyncCallback<Boolean>() {
+                                
+                                public void onSuccess(Boolean success) {
+                                    if(success) {
+                                        JournalComparisonPanel.this.closeTabPanel();
+                                    }
+                                }
+                            });
+                        };
+                    });
+                    restoreButton.setEnabled(parameter.isAuth());                            
+                    toolbar.add(restoreButton);
+                }
+            }
         });
-        restoreButton.setEnabled(parameter.isAuth());
         
         toolbar = new ToolBar();
         toolbar.add(new FillToolItem());
-        toolbar.add(restoreButton);
         this.setTopComponent(toolbar);
                
         service.getComparisionTree(parameter, new SessionAwareAsyncCallback<JournalTreeModel>() {

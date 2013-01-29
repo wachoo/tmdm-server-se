@@ -42,4 +42,6 @@ public interface JournalServiceAsync {
     void getReportString(int start, int limit, String sort, String field, String language, String entity, String key,
             String source, String operationType, String startDate, String endDate, boolean isBrowseRecord,
             AsyncCallback<String> callback);
+    
+    void isAdmin(AsyncCallback<Boolean> callback);
 }
