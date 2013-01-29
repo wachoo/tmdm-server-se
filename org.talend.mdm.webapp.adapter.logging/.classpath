@@ -3,5 +3,5 @@
 	<classpathentry excluding="com/amalto/webapp/v3/subscriptionengine/dwr/COFlipDWR.java|com/amalto/webapp/v3/subscriptionengine/servlet/RemotePagingSubscriptionEngine.java|com/amalto/webapp/v3/crossreferencing/bean/CrossReferencingContent.java" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>
