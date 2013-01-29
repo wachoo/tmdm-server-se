@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.jdbc.Work;
 
 import javax.xml.XMLConstants;
@@ -186,7 +187,7 @@ class NativeQueryHandler extends AbstractQueryHandler {
         }
     }
 
-    private static class UpdateQueryWork implements Work {
+    private class UpdateQueryWork implements Work {
         private final NativeQuery nativeQuery;
 
         public UpdateQueryWork(NativeQuery nativeQuery) {
@@ -196,9 +197,13 @@ class NativeQueryHandler extends AbstractQueryHandler {
         @Override
         public void execute(Connection connection) throws SQLException {
             Statement statement = null;
+            Transaction transaction = session.getTransaction();
             try {
                 statement = connection.createStatement();
                 statement.executeUpdate(nativeQuery.getQueryText());
+                transaction.commit(); // Don't forget to commit changes
+            } catch (Exception e) {
+                transaction.rollback();
             } finally {
                 if (statement != null) {
                     try {
@@ -208,6 +213,7 @@ class NativeQueryHandler extends AbstractQueryHandler {
                     }
                 }
             }
+
         }
     }
 }
