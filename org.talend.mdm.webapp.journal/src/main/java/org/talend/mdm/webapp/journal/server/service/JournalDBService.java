@@ -55,12 +55,10 @@ import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSGetItem;
-import com.amalto.webapp.util.webservices.WSGetItems;
 import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
-import com.amalto.webapp.util.webservices.WSWhereAnd;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSWhereOperator;
@@ -93,10 +91,8 @@ public class JournalDBService {
     
     public Object[] getResultListByCriteria(JournalSearchCriteria criteria, int start, int limit, String sort, String field,
             boolean isBrowseRecord) throws Exception {
-
-        WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(XSystemObjects.DC_UPDATE_PREPORT.getName());
-        String conceptName = "Update"; //$NON-NLS-1$
-        ArrayList<WSWhereItem> conditions = new ArrayList<WSWhereItem>();
+        
+        List<WSWhereItem> conditions = org.talend.mdm.webapp.journal.server.util.Util.buildWhereItems(criteria, isBrowseRecord);
 
         if (isBrowseRecord) {
             Configuration configuration = Configuration.getInstance(true);
@@ -113,69 +109,9 @@ public class JournalDBService {
             conditions.add(wsWhereDataModel);
         }
 
-        if (criteria.getEntity() != null) {
-            WSWhereCondition wc = new WSWhereCondition(
-                    "Concept", isBrowseRecord ? WSWhereOperator.EQUALS : WSWhereOperator.CONTAINS, criteria.getEntity().trim(), WSStringPredicate.NONE, false); //$NON-NLS-1$
-            WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
-            conditions.add(wsWhereItem);
-        }
-
-        if (criteria.getKey() != null) {
-            WSWhereCondition wc = new WSWhereCondition(
-                    "Key", isBrowseRecord ? WSWhereOperator.EQUALS : WSWhereOperator.CONTAINS, criteria.getKey().trim(), WSStringPredicate.NONE, false); //$NON-NLS-1$
-            WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
-            conditions.add(wsWhereItem);
-        }
-
-        if (criteria.getSource() != null) {
-            WSWhereCondition wc = new WSWhereCondition(
-                    "Source", WSWhereOperator.EQUALS, criteria.getSource().trim(), WSStringPredicate.NONE, false); //$NON-NLS-1$
-            WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
-            conditions.add(wsWhereItem);
-        }
-
-        if (criteria.getOperationType() != null) {
-            WSWhereCondition wc = new WSWhereCondition(
-                    "OperationType", WSWhereOperator.EQUALS, criteria.getOperationType().trim(), WSStringPredicate.NONE, false); //$NON-NLS-1$
-            WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
-            conditions.add(wsWhereItem);
-        }
-
-        if (criteria.getStartDate() != null) {
-            WSWhereCondition wc = new WSWhereCondition(
-                    "TimeInMillis", WSWhereOperator.GREATER_THAN_OR_EQUAL, criteria.getStartDate().getTime() + "", WSStringPredicate.NONE, false); //$NON-NLS-1$ //$NON-NLS-2$
-            WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
-            conditions.add(wsWhereItem);
-        }
-
-        if (criteria.getEndDate() != null) {
-            WSWhereCondition wc = new WSWhereCondition(
-                    "TimeInMillis", WSWhereOperator.LOWER_THAN, (criteria.getEndDate().getTime() + 24 * 3600 * 1000) + "", WSStringPredicate.NONE, false); //$NON-NLS-1$ //$NON-NLS-2$
-            WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
-            conditions.add(wsWhereItem);
-        }
-
-        WSWhereItem wi;
-        if (conditions.size() == 0) {
-            wi = null;
-        } else if (conditions.size() == 1) {
-            wi = conditions.get(0);
-        } else {
-            WSWhereAnd and = new WSWhereAnd(conditions.toArray(new WSWhereItem[conditions.size()]));
-            wi = new WSWhereItem(null, and, null);
-        }
-
-        WSGetItems item = new WSGetItems();
-        item.setConceptName(conceptName);
-        item.setWhereItem(wi);
-        item.setTotalCountOnFirstResult(true);
-        item.setSkip(start);
-        item.setMaxItems(limit);
-        item.setWsDataClusterPK(wsDataClusterPK);
-
         int totalSize = 0;
         List<JournalGridModel> list = new ArrayList<JournalGridModel>();
-        WSStringArray resultsArray = Util.getPort().getItems(item);
+        WSStringArray resultsArray = Util.getPort().getItems( org.talend.mdm.webapp.journal.server.util.Util.buildGetItem(conditions, start, limit));
         String[] results = resultsArray == null ? new String[0] : resultsArray.getStrings();
         Document document = Util.parse(results[0]);
         totalSize = Integer.parseInt(document.getDocumentElement().getTextContent());
@@ -501,4 +437,6 @@ public class JournalDBService {
             return ""; //$NON-NLS-1$
         return str;
     }
+    
+    
 }
