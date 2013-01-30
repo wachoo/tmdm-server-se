@@ -49,7 +49,7 @@ public class SoftIdFieldRef implements FieldMetadata {
 
     @Override
     public <X> X getData(String key) {
-        return getField().getData(key);
+        return getField().<X> getData(key);
     }
 
     @Override
