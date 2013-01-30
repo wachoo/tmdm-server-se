@@ -12,30 +12,51 @@
 // ============================================================================
 package org.talend.mdm.webapp.widget;
 
+import junit.framework.TestCase;
+
 import org.talend.mdm.webapp.base.client.widget.Callback;
 import org.talend.mdm.webapp.base.client.widget.CallbackAction;
 
-import junit.framework.TestCase;
-
-
+@SuppressWarnings("nls")
 public class CallbackActionTest extends TestCase {
-    
-    boolean status = false;
-    final String result = "successful"; //$NON-NLS-1$
-    
-    public void testDoAction(){
-        CallbackAction.getInstance().putAction("testAcion", new Callback() { //$NON-NLS-1$
 
-            public void doAction(Object value,Boolean isClose) {
-                assertEquals(value, result);
-                action();
-            }
-        });   
-        CallbackAction.getInstance().doAction("testAcion", result,false); //$NON-NLS-1$
-        assertTrue(status);        
+    boolean status = false;
+
+    final String result = "successful";
+
+    final String concept = "Product";
+    
+    public void testDoAction() {
+        CallbackAction.getInstance().putAction("testAcion", new Callback() {
+
+                    @Override
+                    public void doAction(String cpt, Object value, Boolean isClose) {
+                        assertNull(cpt);
+                        assertEquals(value, result);
+                        action();
+                    }
+                });
+        CallbackAction.getInstance().doAction("testAcion", result, false);
+        assertTrue(status);
     }
 
-    public void action(){
+    public void testDoAction2() {
+        status = false;
+        CallbackAction.getInstance().putAction("testAcion", new Callback() {
+
+            @Override
+            public void doAction(String cpt, Object value, Boolean isClose) {
+                assertEquals(value, result);
+                assertEquals(cpt, concept);
+                action();
+            }
+        });
+        
+        CallbackAction.getInstance().doAction("testAcion", concept, result, false);
+        assertTrue(status);
+        
+    }
+    public void action() {
         status = true;
     }
 }
