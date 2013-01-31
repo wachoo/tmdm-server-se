@@ -16,7 +16,6 @@
         <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
     </target>
 	
-	<property name="version.props" value="version.properties"/>
 	<property name="build.dir" value="${basedir}/target" />
 	<property name="jboss.dir" value="c:/opt/jboss"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
@@ -33,7 +32,7 @@
     <!-- ================================= 
           target: all              
          ================================= -->
-    <target name="all" depends="clean,version,package,undeploy,deploy">
+    <target name="all" depends="clean,package,undeploy,deploy">
     </target>
 	
 	<target name="clean">
@@ -53,15 +52,6 @@
             <param name="mvn.goal" value="package" />
         </antcall>
 	</target>
-
-   	<target name="version"  description="Maintain build.date property">
-   		<buildnumber file="${version.props}" />
-       	<propertyfile file="${version.props}">
-       		<entry key="build.date" type="date" value="now" />
-       		<entry key="built.by" type="string" value="${user.name}" />
-       		<entry key="java.version" type="string" value="${java.vm.version}" />
-       	</propertyfile>   	
-    </target>
 		
     <target name="undeploy" description="--> remove packages">		
 		<delete>
@@ -71,7 +61,7 @@
     </target>
 	
 	<target name="deploy">
-		<echo>Deploying build: ${version.build.new}</echo>
+		<echo>Deploying build: ${jar}</echo>
 		<copy file="target/${jar}" tofile="${jboss.instance.lib}/${jar}"/>
 		<copy file="${conf}" tofile="${jboss.instance.dir}/conf/${conf}"/>
     </target>
