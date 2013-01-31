@@ -288,7 +288,7 @@ public class TreeDetail extends ContentPanel {
                 }
                 final DynamicTreeItem parentItem = item;
                 if (isOnlyExistFkDisplayedIntoTab) {
-                    parentItem.getElement().setPropertyBoolean("EmptyFkContainer", true); //$NON-NLS-1$
+                    parentItem.getElement().setPropertyBoolean("EmptyFkContainer", false); //$NON-NLS-1$
                     Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                         
                         public void execute() {
