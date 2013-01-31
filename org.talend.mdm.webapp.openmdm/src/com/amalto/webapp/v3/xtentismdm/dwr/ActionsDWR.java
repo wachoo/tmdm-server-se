@@ -45,7 +45,7 @@ public class ActionsDWR {
 			
 			Map<String, XSystemObjects> xDataClustersMap=XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
 			for (int i = 0; i < wsDataClustersPKs.length; i++) {
-				if(!XSystemObjects.isXSystemObject(xDataClustersMap,XObjectType.DATA_CLUSTER, wsDataClustersPKs[i].getPk())){
+				if(!XSystemObjects.isXSystemObject(xDataClustersMap, wsDataClustersPKs[i].getPk())){
 					WSDataCluster wsGetDataCluster=Util.getPort().getDataCluster(new WSGetDataCluster(wsDataClustersPKs[i]));
 					map.put(wsDataClustersPKs[i].getPk(),wsGetDataCluster.getDescription()==null?"":wsGetDataCluster.getDescription()); //$NON-NLS-1$
 				}
@@ -69,7 +69,7 @@ public class ActionsDWR {
 			
 			Map<String, XSystemObjects> xDataModelsMap=XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
 			for (int i = 0; i < wsDataModelsPKs.length; i++) {
-				if(!XSystemObjects.isXSystemObject(xDataModelsMap,XObjectType.DATA_MODEL, wsDataModelsPKs[i].getPk())){
+				if(!XSystemObjects.isXSystemObject(xDataModelsMap, wsDataModelsPKs[i].getPk())){
 					WSDataModel wsDataModel=Util.getPort().getDataModel(new WSGetDataModel(wsDataModelsPKs[i]));
 					map.put(wsDataModelsPKs[i].getPk(), wsDataModel.getDescription()==null?"":wsDataModel.getDescription()); //$NON-NLS-1$
 				}

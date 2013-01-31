@@ -69,8 +69,11 @@ class IdQueryHandler extends AbstractQueryHandler {
             return noResult(select);
         }
         ComplexTypeMetadata mainType = select.getTypes().get(0);
-        String mainTypeName = mainType.getName();
-        String className = ClassCreator.PACKAGE_PREFIX + mainTypeName;
+        ComplexTypeMetadata database = mappingMetadataRepository.getMappingFromUser(mainType).getDatabase();
+        String className = ClassCreator.PACKAGE_PREFIX + database.getName();
+        if (!session.getTransaction().isActive()) {
+            session.getTransaction().begin();
+        }
         Wrapper loadedObject = (Wrapper) session.get(className, (Serializable) idValue);
         if (loadedObject == null) {
             return noResult(select);

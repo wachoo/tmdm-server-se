@@ -116,7 +116,7 @@ public class CommonDWR {
 	private static void filterSystemClustersPK(WSDataClusterPK[] wsDataClustersPK, ArrayList<String> list) {
 		Map<String, XSystemObjects> xDataClustersMap=XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
 		for (int i = 0; i < wsDataClustersPK.length; i++) {
-			if(!XSystemObjects.isXSystemObject(xDataClustersMap,XObjectType.DATA_CLUSTER, wsDataClustersPK[i].getPk())){
+			if(!XSystemObjects.isXSystemObject(xDataClustersMap, wsDataClustersPK[i].getPk())){
 				list.add(wsDataClustersPK[i].getPk());
 			}
 		}
@@ -125,7 +125,7 @@ public class CommonDWR {
 	public static void filterSystemClustersPK(WSDataClusterPK[] wsDataClustersPK, Map<String, String> map) {
 		Map<String, XSystemObjects> xDataClustersMap=XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
 		for (int i = 0; i < wsDataClustersPK.length; i++) {
-			if(!XSystemObjects.isXSystemObject(xDataClustersMap,XObjectType.DATA_CLUSTER, wsDataClustersPK[i].getPk())){
+			if(!XSystemObjects.isXSystemObject(xDataClustersMap, wsDataClustersPK[i].getPk())){
 				map.put(wsDataClustersPK[i].getPk(),wsDataClustersPK[i].getPk());
 			}
 		}
@@ -134,7 +134,7 @@ public class CommonDWR {
 	private static void filterSystemDataModelsPK(WSDataModelPK[] wsDataModelsPK, ArrayList<String> list) {
 		Map<String, XSystemObjects> xDataModelsMap=XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
 		for (int i = 0; i < wsDataModelsPK.length; i++) {
-			if(!XSystemObjects.isXSystemObject(xDataModelsMap,XObjectType.DATA_MODEL, wsDataModelsPK[i].getPk())){
+			if(!XSystemObjects.isXSystemObject(xDataModelsMap, wsDataModelsPK[i].getPk())){
 				list.add(wsDataModelsPK[i].getPk());
 			}	
 		}
@@ -143,7 +143,7 @@ public class CommonDWR {
 	public static void filterSystemDataModelsPK(WSDataModelPK[] wsDataModelsPK, Map<String, String> map) {
 		Map<String, XSystemObjects> xDataModelsMap=XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
 		for (int i = 0; i < wsDataModelsPK.length; i++) {
-			if(!XSystemObjects.isXSystemObject(xDataModelsMap,XObjectType.DATA_MODEL, wsDataModelsPK[i].getPk())){
+			if(!XSystemObjects.isXSystemObject(xDataModelsMap, wsDataModelsPK[i].getPk())){
 				map.put(wsDataModelsPK[i].getPk(), wsDataModelsPK[i].getPk());
 			}
 		}

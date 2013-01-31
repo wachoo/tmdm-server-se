@@ -16,6 +16,9 @@ import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.storage.record.DataRecord;
 import org.hibernate.Session;
 
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * Represents type mapping between data model as specified by the user and data model as used by hibernate storage.
  */
@@ -39,6 +42,29 @@ public abstract class TypeMapping {
         this.user = user;
         this.database = database;
         this.mappings = mappings;
+    }
+
+    protected static <T> void resetList(List<T> oldValues, List<T> newValues) {
+        if (newValues == null) {
+            if (oldValues != null) {
+                oldValues.clear();
+            }
+            return;
+        }
+        Iterator<T> iterator = newValues.iterator();
+        for (int i = 0; iterator.hasNext(); i++) {
+            T nextNew = iterator.next();
+            if (nextNew != null) {
+                if (i < oldValues.size() && !nextNew.equals(oldValues.get(i))) {
+                    oldValues.set(i, nextNew);
+                } else if (i >= oldValues.size()) {
+                    oldValues.add(i, nextNew);
+                }
+            }
+        }
+        while (oldValues.size() > newValues.size()) {
+            oldValues.remove(oldValues.size() - 1);
+        }
     }
 
     public ComplexTypeMetadata getDatabase() {

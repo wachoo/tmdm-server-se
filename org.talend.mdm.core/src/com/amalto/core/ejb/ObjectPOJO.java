@@ -525,10 +525,15 @@ public abstract class ObjectPOJO implements Serializable {
                 ret.remove(XSystemObjects.DC_MDMMigration.getName());
                 return ret;
             }
-            if ("amaltoOBJECTSMenu".equals(cluster)) return XSystemObjects.getXSystemObjects(XObjectType.MENU).keySet();
-            if ("amaltoOBJECTSRole".equals(cluster)) return XSystemObjects.getXSystemObjects(XObjectType.ROLE).keySet();
-            if ("amaltoOBJECTSDataModel".equals(cluster))
+            if ("amaltoOBJECTSMenu".equals(cluster)) {
+                return XSystemObjects.getXSystemObjects(XObjectType.MENU).keySet();
+            }
+            if ("amaltoOBJECTSRole".equals(cluster)) {
+                return XSystemObjects.getXSystemObjects(XObjectType.ROLE).keySet();
+            }
+            if ("amaltoOBJECTSDataModel".equals(cluster)) {
                 return XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL).keySet();
+            }
         } else {
             if ("amaltoOBJECTSDataCluster".equals(cluster)) {
                 Set<String> ret = XSystemObjects.getXSystemObjectsTOM(XObjectType.DATA_CLUSTER).keySet();
@@ -538,17 +543,18 @@ public abstract class ObjectPOJO implements Serializable {
                 ret.remove(XSystemObjects.DC_MDMMigration.getName());
                 return ret;
             }
-            if ("amaltoOBJECTSMenu".equals(cluster))
+            if ("amaltoOBJECTSMenu".equals(cluster)) {
                 return XSystemObjects.getXSystemObjectsTOM(XObjectType.MENU).keySet();
-            if ("amaltoOBJECTSRole".equals(cluster))
+            }
+            if ("amaltoOBJECTSRole".equals(cluster)) {
                 return XSystemObjects.getXSystemObjectsTOM(XObjectType.ROLE).keySet();
-            if ("amaltoOBJECTSDataModel".equals(cluster))
+            }
+            if ("amaltoOBJECTSDataModel".equals(cluster)) {
                 return XSystemObjects.getXSystemObjectsTOM(XObjectType.DATA_MODEL).keySet();
-
+            }
         }
         return Collections.emptySet();
     }
-
 
     /**
      * Retrieve all the PKs - will fetch only the PKs for which the user is authorized
@@ -848,7 +854,7 @@ public abstract class ObjectPOJO implements Serializable {
             unmarshaller.setValidation(false);
             // see 0023397 can't unmarshaller WSPipeline if unmarshaller.setReuseObjects(true)
             unmarshaller.setReuseObjects(false);
-            //Do not remove this line unless you know what you're doing
+            // Do not remove this line unless you know what you're doing
             unmarshaller.setWhitespacePreserve(true);
             return (T) unmarshaller.unmarshal(new InputSource(new StringReader(marshaledItem)));
         } catch (Throwable t) {

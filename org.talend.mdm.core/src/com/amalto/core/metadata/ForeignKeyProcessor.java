@@ -23,15 +23,18 @@ class ForeignKeyProcessor implements XmlSchemaAnnotationProcessor {
         if (annotation != null) {
             Iterator annotations = annotation.getItems().getIterator();
             while (annotations.hasNext()) {
-                XmlSchemaAppInfo appInfo = (XmlSchemaAppInfo) annotations.next();
-                if ("X_ForeignKey".equals(appInfo.getSource())) { //$NON-NLS-1$
-                    handleForeignKey(repository, state, appInfo);
-                } else if ("X_ForeignKeyInfo".equals(appInfo.getSource())) { //$NON-NLS-1$
-                    handleForeignKeyInfo(repository, type, state, appInfo);
-                } else if ("X_FKIntegrity".equals(appInfo.getSource())) { //$NON-NLS-1$
-                    state.setFkIntegrity(Boolean.valueOf(appInfo.getMarkup().item(0).getNodeValue()));
-                } else if ("X_FKIntegrity_Override".equals(appInfo.getSource())) { //$NON-NLS-1$
-                    state.setFkIntegrityOverride(Boolean.valueOf(appInfo.getMarkup().item(0).getNodeValue()));
+                Object next = annotations.next();
+                if (next instanceof XmlSchemaAppInfo) {
+                    XmlSchemaAppInfo appInfo = (XmlSchemaAppInfo) next;
+                    if ("X_ForeignKey".equals(appInfo.getSource())) { //$NON-NLS-1$
+                        handleForeignKey(repository, state, appInfo);
+                    } else if ("X_ForeignKeyInfo".equals(appInfo.getSource())) { //$NON-NLS-1$
+                        handleForeignKeyInfo(repository, type, state, appInfo);
+                    } else if ("X_FKIntegrity".equals(appInfo.getSource())) { //$NON-NLS-1$
+                        state.setFkIntegrity(Boolean.valueOf(appInfo.getMarkup().item(0).getNodeValue()));
+                    } else if ("X_FKIntegrity_Override".equals(appInfo.getSource())) { //$NON-NLS-1$
+                        state.setFkIntegrityOverride(Boolean.valueOf(appInfo.getMarkup().item(0).getNodeValue()));
+                    }
                 }
             }
         }

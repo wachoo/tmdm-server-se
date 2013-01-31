@@ -2382,7 +2382,7 @@ public class Util {
         if (dataClusterPOJOPK != null && dataClusterPOJOPK.getUniqueId() != null) {
             String dcName = dataClusterPOJOPK.getUniqueId();
             Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
-            if (XSystemObjects.isXSystemObject(xDataClustersMap, XObjectType.DATA_CLUSTER, dcName)
+            if (XSystemObjects.isXSystemObject(xDataClustersMap, dcName)
                     || dcName.startsWith("amalto") //$NON-NLS-1$
                     || "MDMDomainObjects".equals(dcName) //$NON-NLS-1$
                     || "FailedAutoCommitSvnMessage".equals(dcName)//$NON-NLS-1$

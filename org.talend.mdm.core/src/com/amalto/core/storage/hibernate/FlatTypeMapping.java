@@ -227,23 +227,6 @@ class FlatTypeMapping extends TypeMapping {
         }
     }
 
-    private static <T> void resetList(List<T> oldValues, List<T> newValues) {
-        Iterator<T> iterator = newValues.iterator();
-        for (int i = 0; iterator.hasNext(); i++) {
-            T nextNew = iterator.next();
-            if (nextNew != null) {
-                if (i < oldValues.size() && !nextNew.equals(oldValues.get(i))) {
-                    oldValues.set(i, nextNew);
-                } else if (i >= oldValues.size()) {
-                    oldValues.add(i, nextNew);
-                }
-            }
-        }
-        while (oldValues.size() > newValues.size()) {
-            oldValues.remove(oldValues.size() - 1);
-        }
-    }
-
     @Override
     public DataRecord setValues(Wrapper from, DataRecord to) {
         StorageClassLoader contextClassLoader = (StorageClassLoader) Thread.currentThread().getContextClassLoader();

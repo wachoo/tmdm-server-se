@@ -21,6 +21,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
@@ -46,6 +47,8 @@ public class ClassRepository extends MetadataRepository {
 
     private final Stack<ComplexTypeMetadata> typeStack = new Stack<ComplexTypeMetadata>();
 
+    private final Map<String, String> entityToJavaClass = new HashMap<String, String>();
+
     public ClassRepository() {
         ComplexTypeMetadata internalMapType = new ComplexTypeMetadataImpl(getUserNamespace(), MAP_TYPE_NAME, false);
         SimpleTypeMetadata embeddedXml = new SimpleTypeMetadata(StringUtils.EMPTY, EMBEDDED_XML);
@@ -68,6 +71,10 @@ public class ClassRepository extends MetadataRepository {
         }
     }
 
+    public String getJavaClass(String entityTypeName) {
+        return entityToJavaClass.get(entityTypeName);
+    }
+
     private TypeMetadata loadClass(Class clazz) {
         String typeName = getTypeName(clazz);
         if (getType(typeName) != null) { // If already defined return it.
@@ -75,6 +82,7 @@ public class ClassRepository extends MetadataRepository {
         } else if (getNonInstantiableType(StringUtils.EMPTY, typeName) != null) {
             return getNonInstantiableType(StringUtils.EMPTY, typeName);
         }
+        entityToJavaClass.put(typeName, clazz.getName());
         if (Map.class.isAssignableFrom(clazz)) {
             return MAP_TYPE;
         }
@@ -196,7 +204,7 @@ public class ClassRepository extends MetadataRepository {
     }
 
     // DataModelPOJO -> data-model-pOJO (serialization convention by castor xml).
-    private static String format(String s) {
+    public static String format(String s) {
         if (s == null) {
             return null;
         }
@@ -215,6 +223,31 @@ public class ClassRepository extends MetadataRepository {
                 typeName.append('-');
                 typeName.append(shift(current));
             } else {
+                typeName.append(current);
+            }
+        }
+        return typeName.toString();
+    }
+
+    // data-model-pOJO -> DataModelPOJO (serialization convention by castor xml).
+    public static String unformat(String s) {
+        if (s == null) {
+            return null;
+        }
+        if (s.length() == 1) {
+            return s.toUpperCase();
+        }
+        StringBuilder typeName = new StringBuilder();
+        char[] chars = s.toCharArray();
+        if (chars.length >= 2 && !isMaj(chars[0])) {
+            chars[0] = shift(chars[0]);
+        }
+        typeName.append(chars[0]);
+        for (int i = 1; i < chars.length; i++) {
+            char current = chars[i];
+            if (chars[i -1] == '-') {
+                typeName.append(shift(current));
+            } else if(current != '-') {
                 typeName.append(current);
             }
         }

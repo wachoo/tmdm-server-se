@@ -4,12 +4,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.ejb.EJBException;
-import javax.ejb.SessionBean;
-import javax.ejb.SessionContext;
-import javax.ejb.TimedObject;
-import javax.ejb.Timer;
-import javax.ejb.TimerService;
+import javax.ejb.*;
 import javax.naming.InitialContext;
 
 import com.amalto.core.ejb.ObjectPOJO;
@@ -23,6 +18,7 @@ import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrl
 import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocalHome;
 import com.amalto.core.objects.configurationinfo.localutil.CoreUpgrades;
 import com.amalto.core.server.ConfigurationInfo;
+import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;
 
@@ -55,6 +51,8 @@ public class ConfigurationInfoCtrlBean implements SessionBean, TimedObject, Conf
     private static final Logger LOGGER = Logger.getLogger(ConfigurationInfoCtrlBean.class);
 
 	private SessionContext context = null;
+
+    private static final Object LOCK = new Object();
 
     public ConfigurationInfoCtrlBean() {
         super();
@@ -116,7 +114,7 @@ public class ConfigurationInfoCtrlBean implements SessionBean, TimedObject, Conf
     }
 
     /**
-     * Get configurationinfo
+     * Get configuration information
      *
      * @throws XtentisException
      * @ejb.interface-method view-type = "both"
@@ -221,7 +219,7 @@ public class ConfigurationInfoCtrlBean implements SessionBean, TimedObject, Conf
             LOGGER.trace("autoUpgrade ");
         }
         try {
-        	ConfigurationInfoCtrlLocal ctrl =  ((ConfigurationInfoCtrlLocalHome)new InitialContext().lookup(ConfigurationInfoCtrlLocalHome.JNDI_NAME)).create();
+        	ConfigurationInfoCtrlLocal ctrl =  Util.getConfigurationInfoCtrlLocal();
         	CoreUpgrades.autoUpgrade(ctrl);
         } catch (Exception e) {
 		    String err = "Unable to upgrade in the background" +": "+e.getClass().getName()+": "+e.getLocalizedMessage();
@@ -271,35 +269,53 @@ public class ConfigurationInfoCtrlBean implements SessionBean, TimedObject, Conf
      * @see #autoUpgradeInBackground()
      */
     public void ejbTimeout(Timer timer) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("ejbTimeout() AutoUpgrade autoUpgradeInBackground ");
+        synchronized (LOCK) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("ejbTimeout() AutoUpgrade autoUpgradeInBackground ");
+            }
+            //recover assemble Proc
+            AssembleProc assembleProc;
+            try {
+                assembleProc = (AssembleProc) timer.getInfo();
+            } catch (NoSuchObjectLocalException e) {
+                // Catching exceptions to detect already cancelled timers is not optimal but there's no way to check
+                // if a timer is cancelled.
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("ejbTimeout() Timer is already cancelled.");
+                }
+                return;
+            }
+            XmlServerSLWrapperLocal server;
+            try {
+                server = Util.getXmlServerCtrlLocal();
+            } catch (Exception e) {
+                String err = "Auto Configuration in the background: unable to access the XML Server wrapper";
+                LOGGER.error(err, e);
+                throw new RuntimeException(err, e);
+            }
+            //cancel all existing timers
+            TimerService timerService = context.getTimerService();
+            Collection<Timer> timers = timerService.getTimers();
+            for (Timer currentTimer : timers) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("ejbTimeout() Cancelling Timer " + currentTimer.getHandle());
+                }
+                try {
+                    currentTimer.cancel();
+                } catch (NoSuchObjectLocalException e) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Ignoring already cancelled timer.", e);
+                    }
+                }
+            }
+            if (server.isUpAndRunning()) {
+                LOGGER.info("--Starting configuration...");
+                assembleProc.run();
+                LOGGER.info("--Done configuration.");
+            } else {
+                LOGGER.info("Auto Upgrade. XML Server not ready. Retrying in 5 seconds ");
+                timerService.createTimer(5000, assembleProc);
+            }
         }
-        //recover assemble Proc
-        AssembleProc assembleProc = (AssembleProc) timer.getInfo();
-        XmlServerSLWrapperLocal server;
-        try {
-            server = ((XmlServerSLWrapperLocalHome) new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-        } catch (Exception e) {
-            String err = "Auto Configuration in the background: unable to access the XML Server wrapper";
-            LOGGER.error(err, e);
-            throw new RuntimeException(err, e);
-        }
-        //cancel all existing timers
-        TimerService timerService = context.getTimerService();
-        Collection<Timer> timers = timerService.getTimers();
-        for (Timer currentTimer : timers) {
-            Logger.getLogger(this.getClass()).debug("ejbTimeout() Cancelling Timer " + currentTimer.getHandle());
-            currentTimer.cancel();
-        }
-        if (server.isUpAndRunning()) {
-            LOGGER.info("--Starting configuration...");
-            assembleProc.run();
-            LOGGER.info("--Done configuration.");
-        } else {
-            LOGGER.info("Auto Upgrade. XML Server not ready. Retrying in 5 seconds ");
-            timerService.createTimer(5000, assembleProc);
-        }
-
     }
-    
 }

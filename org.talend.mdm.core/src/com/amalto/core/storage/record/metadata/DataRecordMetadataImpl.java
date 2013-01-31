@@ -19,7 +19,8 @@ public class DataRecordMetadataImpl implements DataRecordMetadata {
     private long lastModificationTime;
 
     private String taskId;
-    private HashMap<String,String> recordProperties;
+
+    private Map<String,String> recordProperties;
 
     public DataRecordMetadataImpl(long lastModificationTime, String taskId) {
         this.lastModificationTime = lastModificationTime;

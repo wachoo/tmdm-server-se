@@ -37,8 +37,7 @@ import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 
 /**
- * @author hshu
- * @ejb.bean        name="DataModelSynchronizationMDB"  
+ * @ejb.bean        name="DataModelSynchronizationMDB"
  *                  description="Synchronize data model changes with the core side"  
  *                  local-jndi-name="amalto/remote/core/datamodelsynchronization"  
  *                  transaction-type="Container"  
@@ -58,32 +57,16 @@ public class DataModelSynchronizationMDB implements MessageDrivenBean, MessageLi
 
     private static final Logger logger = Logger.getLogger(DataModelSynchronizationMDB.class.getName());
 
-    private MessageDrivenContext ctx = null;
-
     private QueueConnection conn;
 
     private QueueSession session;
 
-    /**
-     * DOC HSHU DataModelSynchronizationMDB constructor comment.
-     */
     public DataModelSynchronizationMDB() {
-
     }
 
-    /*
-     * (non-Jsdoc)
-     * 
-     * @see javax.ejb.MessageDrivenBean#setMessageDrivenContext(javax.ejb.MessageDrivenContext)
-     */
     public void setMessageDrivenContext(MessageDrivenContext ctx) {
-        this.ctx = ctx;
-
     }
 
-    /**
-     * DOC HSHU Comment method "ejbCreate".
-     */
     public void ejbCreate() {
         try {
             init();
@@ -92,13 +75,7 @@ public class DataModelSynchronizationMDB implements MessageDrivenBean, MessageLi
         }
     }
 
-    /*
-     * (non-Jsdoc)
-     * 
-     * @see javax.ejb.MessageDrivenBean#ejbRemove()
-     */
     public void ejbRemove() {
-        ctx = null;
         try {
             if (session != null) {
                 session.close();
@@ -107,25 +84,17 @@ public class DataModelSynchronizationMDB implements MessageDrivenBean, MessageLi
                 conn.close();
             }
         } catch (JMSException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
     }
 
-    /*
-     * (non-Jsdoc)
-     * 
-     * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
-     */
     public void onMessage(Message message) {
         try {
-
             if (message instanceof ObjectMessage) {
                 ObjectMessage msg = (ObjectMessage) message;
-
                 DMUpdateEvent dmUpdateEvent = (DMUpdateEvent) msg.getObject();
                 Logger.getLogger(this.getClass()).info(dmUpdateEvent);
                 String eventType = dmUpdateEvent.getEventType();
-
                 SchemaManager schemaCoreAgent = SchemaCoreAgent.getInstance();
                 SchemaManager schemaWebAgent = SchemaWebAgent.getInstance();
                 if (eventType.equals(DMUpdateEvent.EVENT_TYPE_INIT) || eventType.equals(DMUpdateEvent.EVENT_TYPE_UPDATE)) {
@@ -139,21 +108,13 @@ public class DataModelSynchronizationMDB implements MessageDrivenBean, MessageLi
                     schemaWebAgent.removeFromDatamodelPool(dmUpdateEvent.getDataModelVersion(), dmUpdateEvent.getDataModelPK());
                 }
             }
-
         } catch (JMSException e) {
             logger.error(e.getMessage(), e);
         } catch (Throwable t) {
             logger.error(t.getMessage(), t);
         }
-
     }
 
-    /**
-     * DOC HSHU Comment method "init".
-     * 
-     * @throws JMSException
-     * @throws NamingException
-     */
     private void init() throws JMSException, NamingException {
         InitialContext iniCtx = new InitialContext();
         Object tmp = iniCtx.lookup("java:/XAConnectionFactory");
@@ -163,21 +124,9 @@ public class DataModelSynchronizationMDB implements MessageDrivenBean, MessageLi
         conn.start();
     }
 
-    /**
-     * DOC HSHU Comment method "getSchemaFromDB".
-     * 
-     * @param revisionID
-     * @param uniqueID
-     * @return
-     * @throws XtentisException
-     */
     private String getSchemaFromDB(String revisionID, String uniqueID) throws XtentisException {
-        String dataModelSchema = null;
-
         DataModelPOJO dataModelPOJO = ObjectPOJO.load(revisionID, DataModelPOJO.class, new ObjectPOJOPK(uniqueID));
-        dataModelSchema = dataModelPOJO.getSchema();
-
-        return dataModelSchema;
+        return dataModelPOJO.getSchema();
     }
 
 }

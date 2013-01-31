@@ -44,8 +44,9 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
 
             Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
             for (DataModelPOJOPK dataModelName : allDataModelNames) {
-                if (!xDataClustersMap.containsKey(dataModelName.getUniqueId())) {
-                    get(dataModelName.getUniqueId());
+                String id = dataModelName.getUniqueId();
+                if (!"XMLSCHEMA---".equals(id) && !xDataClustersMap.containsKey(id)) { //$NON-NLS-1$
+                    get(id);
                 }
             }
         } catch (Exception e) {

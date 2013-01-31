@@ -157,7 +157,17 @@ class ScatteredTypeMapping extends TypeMapping {
                     }
                 }
             } else {
-                to.set(mappedDatabaseField.getName(), from.get(field));
+                if (mappedDatabaseField.isMany()) {
+                    List<Object> oldValues = (List<Object>) to.get(mappedDatabaseField.getName());
+                    List<Object> newValues = (List<Object>) from.get(field);
+                    if (oldValues != null) {
+                        resetList(oldValues, newValues);
+                    } else {
+                        to.set(mappedDatabaseField.getName(), newValues);
+                    }
+                } else {
+                    to.set(mappedDatabaseField.getName(), from.get(field));
+                }
             }
         }
         return to;
@@ -217,7 +227,11 @@ class ScatteredTypeMapping extends TypeMapping {
                 DataRecordMetadata recordMetadata = to.getRecordMetadata();
                 Map<String,String> recordProperties = recordMetadata.getRecordProperties();
                 if (!ScatteredMappingCreator.GENERATED_ID.equals(fieldName) && value != null) {
-                    recordProperties.put(fieldName, String.valueOf(value));
+                    try {
+                        recordProperties.put(fieldName, String.valueOf(value));
+                    } catch (Exception e) {
+                        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    }
                 }
             }
         }

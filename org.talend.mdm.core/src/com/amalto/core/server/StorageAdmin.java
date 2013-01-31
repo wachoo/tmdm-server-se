@@ -22,7 +22,10 @@ import java.util.Collection;
  *
  */
 public interface StorageAdmin {
+
     String STAGING_SUFFIX = "#STAGING";
+
+    String SYSTEM_STORAGE = "__SYSTEM";
 
     String[] getAll(String revisionID);
 

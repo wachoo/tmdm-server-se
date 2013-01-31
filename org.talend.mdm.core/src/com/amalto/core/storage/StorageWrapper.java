@@ -41,7 +41,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
 
     private final DataRecordReader<String> xmlStringReader = new XmlStringDataRecordReader();
 
-    private StorageAdmin storageAdmin;
+    protected StorageAdmin storageAdmin;
 
     public StorageWrapper() {
     }
@@ -70,7 +70,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return qb.getSelect();
     }
 
-    private static String getTypeName(String uniqueID) {
+    protected static String getTypeName(String uniqueID) {
         char[] chars = uniqueID.toCharArray();
         StringBuilder typeName = new StringBuilder();
         boolean isType = false;
@@ -430,7 +430,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters, int start, int limit, boolean withTotalCount) throws XmlServerException {
-        Storage storage = storageAdmin.get(clusterName, revisionID);
+        Storage storage = getStorage(clusterName, revisionID);
          // replace parameters in the procedure
         if (parameters != null) {
             for (int i = 0; i < parameters.length; i++) {
@@ -636,13 +636,13 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return storageAdmin;
     }
 
-    private Storage getStorage(String dataClusterName) {
+    protected Storage getStorage(String dataClusterName) {
         StorageAdmin admin = getStorageAdmin();
         Collection<Storage> storages = admin.get(dataClusterName);
         return new TransactionStorage(storages);
     }
 
-    private Storage getStorage(String dataClusterName, String revisionId) {
+    protected Storage getStorage(String dataClusterName, String revisionId) {
         StorageType storageType = dataClusterName.endsWith(StorageAdmin.STAGING_SUFFIX) ? StorageType.STAGING : StorageType.MASTER;
         StorageAdmin admin = getStorageAdmin();
         if (!admin.exist(revisionId, dataClusterName, storageType)) {

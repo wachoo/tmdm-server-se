@@ -67,7 +67,9 @@ public class CoreUpgrades {
     		if(isNeedUpgrade){
     			ConfigurationHelper.removeCluster(null, AbstractMigrationTask.CLUSTER_MIGRATION);
     			org.apache.log4j.Logger.getLogger(CoreUpgrades.class).info("Reset migration history records...");
-    			MDMConfiguration.getConfiguration().setProperty("cluster_override", "true");
+                if (forceupgrade) {
+                    MDMConfiguration.getConfiguration().setProperty("cluster_override", "true");
+                }
     			InitDBUtil.initDB();
     		}
         	//upgrading

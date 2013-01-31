@@ -31,17 +31,20 @@ public class SchematronProcessor implements XmlSchemaAnnotationProcessor {
         if (annotation != null) {
             Iterator annotations = annotation.getItems().getIterator();
             while (annotations.hasNext()) {
-                XmlSchemaAppInfo appInfo = (XmlSchemaAppInfo) annotations.next();
-                if ("X_Schematron".equals(appInfo.getSource())) { //$NON-NLS-1$
-                    try {
-                        // TODO This is not really efficient but doing it nicely would require to rewrite a StringEscapeUtils.unescapeXml()
-                        StringWriter sw = new StringWriter();
-                        Transformer transformer = transformerFactory.newTransformer();
-                        transformer.setOutputProperty("omit-xml-declaration", "yes"); //$NON-NLS-1$ //$NON-NLS-2$
-                        transformer.transform(new DOMSource(appInfo.getMarkup().item(0)), new StreamResult(sw));
-                        state.setSchematron("<schema>" + StringEscapeUtils.unescapeXml(sw.toString()) + "</schema>"); //$NON-NLS-1$ //$NON-NLS-2$
-                    } catch (TransformerException e) {
-                        throw new RuntimeException(e);
+                Object next = annotations.next();
+                if (next instanceof XmlSchemaAppInfo) {
+                    XmlSchemaAppInfo appInfo = (XmlSchemaAppInfo) next;
+                    if ("X_Schematron".equals(appInfo.getSource())) { //$NON-NLS-1$
+                        try {
+                            // TODO This is not really efficient but doing it nicely would require to rewrite a StringEscapeUtils.unescapeXml()
+                            StringWriter sw = new StringWriter();
+                            Transformer transformer = transformerFactory.newTransformer();
+                            transformer.setOutputProperty("omit-xml-declaration", "yes"); //$NON-NLS-1$ //$NON-NLS-2$
+                            transformer.transform(new DOMSource(appInfo.getMarkup().item(0)), new StreamResult(sw));
+                            state.setSchematron("<schema>" + StringEscapeUtils.unescapeXml(sw.toString()) + "</schema>"); //$NON-NLS-1$ //$NON-NLS-2$
+                        } catch (TransformerException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
             }

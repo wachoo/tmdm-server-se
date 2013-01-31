@@ -78,7 +78,7 @@ public class GeneralAction implements GeneralService {
                 ).getWsDataClusterPKs();
         Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
         for (int i = 0; i < wsDataClustersPKs.length; i++) {
-            if (!XSystemObjects.isXSystemObject(xDataClustersMap, XObjectType.DATA_CLUSTER, wsDataClustersPKs[i].getPk())) {
+            if (!XSystemObjects.isXSystemObject(xDataClustersMap, wsDataClustersPKs[i].getPk())) {
                 WSDataCluster wsGetDataCluster = Util.getPort().getDataCluster(new WSGetDataCluster(wsDataClustersPKs[i]));
                 clusters.add(new ComboBoxModel(wsGetDataCluster.getDescription(), wsDataClustersPKs[i].getPk()));
             }
@@ -94,7 +94,7 @@ public class GeneralAction implements GeneralService {
 
         Map<String, XSystemObjects> xDataModelsMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
         for (int i = 0; i < wsDataModelsPKs.length; i++) {
-            if (!XSystemObjects.isXSystemObject(xDataModelsMap, XObjectType.DATA_MODEL, wsDataModelsPKs[i].getPk())) {
+            if (!XSystemObjects.isXSystemObject(xDataModelsMap, wsDataModelsPKs[i].getPk())) {
                 WSDataModel wsDataModel = Util.getPort().getDataModel(new WSGetDataModel(wsDataModelsPKs[i]));
                 models.add(new ComboBoxModel(wsDataModel.getDescription(), wsDataModelsPKs[i].getPk()));
             }

@@ -151,7 +151,8 @@ public class SaverContextFactory {
 
         // Choose right context implementation
         DocumentSaverContext context;
-        if (dataCluster.startsWith(SYSTEM_CONTAINER_PREFIX) || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, XObjectType.DATA_CLUSTER, dataCluster)) {
+        if (dataCluster.startsWith(SYSTEM_CONTAINER_PREFIX)
+                || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, dataCluster)) {
             context = new SystemContext(dataCluster, dataModelName, userDocument);
         } else {
             UserAction userAction = UserAction.UPDATE;

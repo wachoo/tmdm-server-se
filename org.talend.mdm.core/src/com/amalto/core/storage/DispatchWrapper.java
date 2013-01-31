@@ -92,7 +92,7 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
                 return false; // Consider update reports as user data.
             }
             Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
-            return XSystemObjects.isXSystemObject(xDataClustersMap, XObjectType.DATA_CLUSTER, clusterName)
+            return XSystemObjects.isXSystemObject(xDataClustersMap, clusterName)
                     || clusterName.startsWith("amalto") //$NON-NLS-1$
                     || "MDMDomainObjects".equals(clusterName) //$NON-NLS-1$
                     || "FailedAutoCommitSvnMessage".equals(clusterName)//$NON-NLS-1$

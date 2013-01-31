@@ -13,8 +13,11 @@
 
 package com.amalto.core.server;
 
+import com.amalto.core.ejb.ObjectPOJO;
+import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
@@ -24,8 +27,10 @@ import com.amalto.core.storage.hibernate.HibernateStorage;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
+import java.io.*;
 import java.util.*;
 
 public class StorageAdminImpl implements StorageAdmin {
@@ -71,6 +76,9 @@ public class StorageAdminImpl implements StorageAdmin {
             LOGGER.warn("Configuration does not allow creation of SQL storage for '" + dataModelName + "'.");
             return null;
         }
+        if (SYSTEM_STORAGE.equals(storageName)) {
+            return internalCreateSystemStorage(dataSourceName);
+        }
         String actualStorageName = StringUtils.substringBefore(storageName, STAGING_SUFFIX);
         String actualDataModelName = StringUtils.substringBefore(dataModelName, STAGING_SUFFIX);
         try {
@@ -85,6 +93,56 @@ public class StorageAdminImpl implements StorageAdmin {
         } catch (Exception e) {
             throw new RuntimeException("Could not create storage '" + actualStorageName + "' with data model '" + dataModelName + "'.", e);
         }
+    }
+
+    private Storage internalCreateSystemStorage(String dataSourceName) {
+        Storage storage = new HibernateStorage(SYSTEM_STORAGE);
+        ServerContext instance = ServerContext.INSTANCE;
+        DataSource dataSource = instance.get().getDataSource(dataSourceName, SYSTEM_STORAGE, StorageType.MASTER);
+        ClassRepository repository = new ClassRepository();
+        // Parses ObjectPOJO classes
+        Class[] objectsToParse = new Class[ObjectPOJO.OBJECT_TYPES.length];
+        int i = 0;
+        for (Object[] objects : ObjectPOJO.OBJECT_TYPES) {
+            objectsToParse[i++] = (Class) objects[1];
+        }
+        repository.load(objectsToParse);
+        // Load additional types (PROVISIONING...)
+        String[] models = new String[]{
+                "/com/amalto/core/initdb/data/datamodel/PROVISIONING", //$NON-NLS-1$
+                "/com/amalto/core/initdb/data/datamodel/CONF", //$NON-NLS-1$
+                "/com/amalto/core/initdb/data/datamodel/Reporting", //$NON-NLS-1$
+                "/com/amalto/core/initdb/data/datamodel/SearchTemplate" //$NON-NLS-1$
+        };
+        for (String model : models) {
+            try {
+                InputStream builtInStream = this.getClass().getResourceAsStream(model);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(builtInStream));
+                StringBuilder content = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    content.append(line);
+                }
+                DataModelPOJO modelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, content.toString());
+                repository.load(new ByteArrayInputStream(modelPOJO.getSchema().getBytes("UTF-8"))); //$NON-NLS-1$
+            } catch (Exception e) {
+                throw new RuntimeException("Could not parse builtin data model '" + model + "'.", e);
+            }
+        }
+        // License POJO handling
+        try {
+            Class<?> clazz = Class.forName("com.amalto.core.util.license.LicensePOJO"); //$NON-NLS-1$
+            repository.load(clazz);
+        } catch (ClassNotFoundException e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Ignore LicencePOJO parsing. Not running enterprise edition.");
+            }
+        }
+        // Init system storage
+        storage.init(dataSource);
+        storage.prepare(repository, Collections.<FieldMetadata>emptySet(), false, false);
+        registerStorage(SYSTEM_STORAGE, null, storage);
+        return storage;
     }
 
     // Returns null if storage can not be created (e.g. because of missing data source configuration).
@@ -171,6 +229,12 @@ public class StorageAdminImpl implements StorageAdmin {
     public Storage get(String storageName, String revisionId) {
         Storage storage;
         storage = getRegisteredStorage(storageName, revisionId);
+        Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
+        if (getRegisteredStorage(SYSTEM_STORAGE, null) != null
+                && !XSystemObjects.DC_UPDATE_PREPORT.getName().equals(storageName)
+                && XSystemObjects.isXSystemObject(xDataClustersMap, storageName)) {
+            return getRegisteredStorage(SYSTEM_STORAGE, null);
+        }
         if (storage == null) {
             // May get request for "StorageName/Concept", but for SQL it does not make any sense.
             storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
