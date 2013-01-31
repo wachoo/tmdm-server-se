@@ -7,7 +7,6 @@
         <path id="maven-ant-tasks.classpath" path="${maven.ant.tasks.file}" />
         <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
     </target>
-	<property name="version.props" value="version.properties"/>
 		
     <property name="build.dir" value="${basedir}/target" />
     <property name="jboss.dir" value="${jboss.dir}" />
@@ -15,12 +14,13 @@
     <property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
     <property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
 
+    <property name="mdm.build.version" value="${major}.${minor}.${rev}-r${svn.revision}" />
 	<property name="war" value="zz.20.openmdm.webapp.war"/>
 
     <!-- ================================= 
           target: all              
          ================================= -->
-	<target name="all" depends="clean,version,package,undeploy,deploy" description="--> B2BOX WebApp">
+	<target name="all" depends="clean,package,undeploy,deploy" description="--> B2BOX WebApp">
 		<!--eclipse.refreshLocal resource="../"/-->
 	</target>
 	
@@ -29,20 +29,11 @@
             <param name="mvn.goal" value="clean" />
         </antcall>
     </target>
-	
-   	<target name="version"  description="Maintain build.date property">
-   		<buildnumber file="${version.props}" />
-       	<propertyfile file="${version.props}">
-       		<entry key="build.date" type="date" value="now" />
-       	</propertyfile>   	
-   	</target>
 
-   	<target name="package">
-		<copy file="RELEASE.NOTES" tofile="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES"/>
+	<target name="package">
    		<antcall target="mvn.invoke">
             <param name="mvn.goal" value="package" />
         </antcall>
-   		<delete file="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
     </target>
 		
     <target name="undeploy" description="remove packages">		
@@ -53,7 +44,7 @@
 	
 	<target name="deploy">
 		<echo>Deploying ${war} </echo>
-     	<copy file="target/${war}" tofile="${jboss.deploy.dir}/${war}"/>        
+     	<copy file="target/org.talend.mdm.webapp.openmdm-${mdm.build.version}.war" tofile="${jboss.deploy.dir}/${war}"/>        
     </target>
 
     <target name="mvn.invoke" description="invokes maven" depends="prepare-maven">

@@ -18,13 +18,6 @@
         <sourceDirectory>src</sourceDirectory>
         <resources>
             <resource>
-                <directory>src</directory>
-                <includes>
-                    <include>**/**.xml</include>
-                    <include>**/**.properties</include>
-                </includes>
-            </resource>
-            <resource>
                 <directory>${basedir}/web</directory>
                 <includes>
                     <include>WEB-INF/*.xml</include>
@@ -36,20 +29,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <warName>zz.20.openmdm.webapp</warName>
                     <warSourceDirectory>${basedir}/web</warSourceDirectory>
                     <webXml>${basedir}/web/WEB-INF/web.xml</webXml>
-                   
-                    <webResources>
-                        <resource>
-                            <directory>${basedir}</directory>
-                            <includes>
-                                <include>version.properties</include>
-                                <include>RELEASE-*.NOTES</include>
-                            </includes>
-                        </resource>
-                    </webResources>
-
                 </configuration>
             </plugin>
         </plugins>
