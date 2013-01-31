@@ -21,20 +21,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <warName>zz.20.webapp.reporting</warName>
                     <warSourceDirectory>${basedir}/web</warSourceDirectory>
                     <webXml>${basedir}/web/WEB-INF/web.xml</webXml>
-                   
-                    <webResources>
-			            <resource>
-			                <directory>${basedir}</directory>
-			                <includes>
-			                    <include>version.properties</include>
-			                    <include>RELEASE-*.NOTES</include>
-			                </includes>
-			            </resource>
-                    </webResources>
-
                 </configuration>
             </plugin>
         </plugins>
