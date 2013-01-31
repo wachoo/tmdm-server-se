@@ -23,6 +23,7 @@ import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.journal.client.Journal;
 import org.talend.mdm.webapp.journal.client.JournalEvents;
 import org.talend.mdm.webapp.journal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.journal.client.util.KeyUtil;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -37,10 +38,10 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.ColumnData;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
@@ -171,6 +172,7 @@ public class JournalSearchPanel extends FormPanel {
         right.add(keyField, formData);
 
         list.clear();
+        list.add("ALL"); //$NON-NLS-1$
         list.add("CREATE"); //$NON-NLS-1$
         list.add("UPDATE"); //$NON-NLS-1$
         list.add("PHYSICAL_DELETE"); //$NON-NLS-1$
@@ -186,13 +188,16 @@ public class JournalSearchPanel extends FormPanel {
         operationTypeCombo.setValueField("key"); //$NON-NLS-1$
         operationTypeCombo.setStore(this.getListStore(list));
         operationTypeCombo.setTriggerAction(TriggerAction.ALL);
+        operationTypeCombo.setEditable(false);
         operationTypeCombo.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
             public void handleEvent(FieldEvent be) {
-                if (be.getKeyCode() == KeyCodes.KEY_ENTER) {
+                if (be.getKeyCode() == KeyCodes.KEY_ENTER && !operationTypeCombo.isExpanded()) {
                     if (searchButton != null) {
                         searchButton.fireEvent(Events.Select);
                     }
+                } else if (KeyUtil.isCharacter(be.getKeyCode())) {
+                    operationTypeCombo.doQuery(KeyUtil.getKeyValueByKeyCode(be.getKeyCode()), true);
                 }
             }
         });
@@ -271,12 +276,15 @@ public class JournalSearchPanel extends FormPanel {
         JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);
         criteria.setEntity(entityField.getValue());
         criteria.setKey(keyField.getValue());
-        if (sourceCombo.getValue() != null)
+        if (sourceCombo.getValue() != null) {
             criteria.setSource(sourceCombo.getValue().get("key").toString()); //$NON-NLS-1$
-        else
+        } else if (sourceCombo.getRawValue() != null && !"".equals(sourceCombo.getRawValue())) { //$NON-NLS-1$
+            criteria.setSource(sourceCombo.getRawValue());
+        } else {
             criteria.setSource(null);
+        }
 
-        if (operationTypeCombo.getValue() != null)
+        if (operationTypeCombo.getValue() != null && !"ALL".equals(operationTypeCombo.getValue().get("key").toString())) //$NON-NLS-1$ //$NON-NLS-2$
             criteria.setOperationType(operationTypeCombo.getValue().get("key").toString()); //$NON-NLS-1$
         else
             criteria.setOperationType(null);
