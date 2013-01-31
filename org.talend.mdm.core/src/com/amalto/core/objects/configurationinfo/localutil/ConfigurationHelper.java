@@ -35,7 +35,7 @@ public class ConfigurationHelper {
             boolean exist = getServer().existCluster(revisionID, clusterName);
             if (!exist) {
                 getServer().createCluster(revisionID, clusterName);
-                logger.info("Created a new datacluster " + clusterName);
+                logger.info("Created a new data cluster " + clusterName);
             }
         } catch (Exception e) {
             throw new XtentisException(e);
@@ -44,32 +44,43 @@ public class ConfigurationHelper {
     }
 
     public static void removeCluster(String revisionID, String clusterName) throws XtentisException {
-
         try {
             boolean exist = getServer().existCluster(revisionID, clusterName);
             if (exist) {
                 getServer().deleteCluster(revisionID, clusterName);
-                logger.info("Deleted a datacluster " + clusterName);
+                logger.info("Deleted a data cluster " + clusterName);
             }
-
         } catch (Exception e) {
             throw new XtentisException(e);
         }
     }
 
-    public static void putDomcument(String datacluster, String xmlString, String uniqueID) throws XtentisException {
-        XmlServerSLWrapperLocal xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
-        if (xmlServerCtrlLocal.getDocumentAsString(null, datacluster, uniqueID) == null) {
-            xmlServerCtrlLocal.start(datacluster);
-            xmlServerCtrlLocal.putDocumentFromString(xmlString, uniqueID, datacluster, null);
-            xmlServerCtrlLocal.commit(datacluster);
-            logger.info("Inserted document " + uniqueID + " to datacluster " + datacluster);
+    public static void putDocument(String dataCluster, String xmlString, String uniqueID) throws XtentisException {
+        XmlServerSLWrapperLocal server = getServer();
+        if (server.getDocumentAsString(null, dataCluster, uniqueID) == null) {
+            server.start(dataCluster);
+            try {
+                server.putDocumentFromString(xmlString, uniqueID, dataCluster, null);
+                server.commit(dataCluster);
+            } catch (Exception e) {
+                server.rollback(dataCluster);
+                throw new XtentisException(e);
+            }
+            logger.info("Inserted document " + uniqueID + " to data cluster " + dataCluster);
         }
     }
 
-    public static void deleteDocumnet(String revisionID, String clusterName, String uniqueID) throws XtentisException {
-        if (Util.getXmlServerCtrlLocal().getDocumentAsString(null, clusterName, uniqueID) != null) {
-            Util.getXmlServerCtrlLocal().deleteDocument(revisionID, clusterName, uniqueID);
+    public static void deleteDocument(String revisionID, String clusterName, String uniqueID) throws XtentisException {
+        XmlServerSLWrapperLocal server = getServer();
+        if (server.getDocumentAsString(null, clusterName, uniqueID) != null) {
+            server.start(clusterName);
+            try {
+                server.deleteDocument(revisionID, clusterName, uniqueID);
+                server.commit(clusterName);
+            } catch (Exception e) {
+                server.rollback(clusterName);
+                throw new XtentisException(e);
+            }
         }
     }
 }
