@@ -7,7 +7,6 @@
         <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
     </target>
 	
-	<property name="version.props" value="version.properties"/>
 	<property name="build.dir" value="${basedir}/target" />
 	<property name="jboss.dir" value="/opt/jboss"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
@@ -19,12 +18,10 @@
 	
 	<property name="war" value="zz.20.webapp.adapter.logging.war"/>
 
-	<property name="webapp.core.lib" value="../org.talend.mdm.webapp.core/z.mdm.webapp.core.jar"/>
-
     <!-- ================================= 
           target: all              
          ================================= -->
-	<target name="all" depends="clean,version,package,undeploy,deploy">
+	<target name="all" depends="clean,package,undeploy,deploy">
 		<!--
 			On newer eclipse versions - activate Refresh in the External Tools Configuration 
 			<eclipse.refreshLocal resource="${basedir}"/> 
@@ -42,22 +39,11 @@
             <param name="mvn.goal" value="install" />
         </antcall>
     </target>
-	
-   	<target name="version"  description="Maintain build.date property">
-   		<buildnumber file="${version.props}" />
-       	<propertyfile file="${version.props}">
-       		<entry key="build.date" type="date" value="now" />
-       		<entry key="built.by" type="string" value="${user.name}" />
-       		<entry key="java.version" type="string" value="${java.vm.version}" />
-       	</propertyfile>   	
-     </target>
 
    	<target name="package">
-		<copy file="RELEASE.NOTES" tofile="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES"/>
    		<antcall target="mvn.invoke">
             <param name="mvn.goal" value="package" />
         </antcall>
-   		<delete file="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
     </target>
 		
     <target name="undeploy" description="remove packages">		
@@ -67,9 +53,8 @@
     </target>
 	
 	<target name="deploy">
-		<property file="${version.props}" />
-		<echo>Deploying ${major}.${minor}.${rev}-${build.number}</echo>
-     	<copy file="target/${war}" tofile="${jboss.deploy.dir}/${war}"/>        
+		<echo>Deploying ${war}</echo>
+     	<copy file="target/org.talend.mdm.webapp.adapter.logging-${mdm.build.version}.war" tofile="${jboss.deploy.dir}/${war}"/>        
     </target>
 
     <target name="mvn.invoke" description="invokes maven" depends="prepare-maven">
