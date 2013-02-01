@@ -23,6 +23,15 @@
                 </includes>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <finalName>zz.30.service.itemdispatcher</finalName>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>
@@ -34,9 +43,6 @@
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.connector.core</artifactId>
-            <version>${project.version}</version>
-            <scope>system</scope>
-            <systemPath>${tom.location}/org.talend.mdm.connector.core/z.mdm.connector.library.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -50,8 +56,6 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <scope>system</scope>
-            <systemPath>${tom.location}/talend.mdm.libraries/lib/log4j.jar</systemPath>
         </dependency>
     </dependencies>
 
