@@ -15,7 +15,6 @@
         <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
     </target>
 	
-	<property name="version.props" value="version.properties"/>
 	<property name="build.dir" value="${basedir}/target" />
 	<property name="jboss.dir" value="/opt/jboss"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
@@ -30,7 +29,7 @@
     <!-- ================================= 
           target: all              
          ================================= -->
-    <target name="all" depends="clean,version,package,undeploy,deploy">
+    <target name="all" depends="clean,package,undeploy,deploy">
     	<!--eclipse.refreshLocal resource="org.talend.mdm.core"/-->
     </target>
 
@@ -46,30 +45,13 @@
         </antcall>
     </target>
     
-    <target name="compile">
+    <target name="package">
         <antcall target="mvn.invoke">
-            <param name="mvn.goal" value="compile" />
+            <param name="mvn.goal" value="package" />
         </antcall>
-        <copy todir="bin">
-            <fileset dir="target/classes" includes="**" />
-        </copy>
     </target>
-	
-    <target name="version"  description="Maintain build.date property">
-       	<propertyfile file="${version.props}"  comment="streek build date">
-       		<entry key="build.date" type="date" value="now" />
-       	</propertyfile>
-     </target>
 
-   	<target name="package" depends="compile">
-		<buildnumber file="${version.props}"/>
-		<property file="${version.props}" />
-   	   	<property name="version.build.new" value="${major}-${minor}-${rev}_${build.number}"  />
-		<ant antfile="packaging-build.xml"/>
-   		<!--eclipse.refreshLocal resource="org.talend.mdm.core"/-->
-    </target>
-		
-    <target name="undeploy" description="--> remove packages">		
+	<target name="undeploy" description="--> remove packages">		
 		<delete>
 			<fileset dir="${jboss.deploy.dir}" includes="zz.*.mdm.service.dumptoconsole.ejb.jar"/>
 		</delete>
@@ -77,7 +59,7 @@
 	
 	<target name="deploy">
 		<echo>Deploying build: ${version.build.new}</echo>
-		<copy file="zz.30.mdm.service.dumptoconsole.ejb.jar" tofile="${jboss.deploy.dir}/zz.30.mdm.service.dumptoconsole.ejb.jar"/>
+		<copy file="${build.dir}/zz.30.mdm.service.dumptoconsole.ejb.jar" tofile="${jboss.deploy.dir}/zz.30.mdm.service.dumptoconsole.ejb.jar"/>
     </target>
 
     <target name="mvn.invoke" description="invokes maven" depends="prepare-maven">
