@@ -15,22 +15,17 @@ package org.talend.mdm.webapp.journal.server.service;
 import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.ServletException;
-
 import org.dom4j.Attribute;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.talend.mdm.webapp.journal.server.model.ForeignKeyInfoTransformer;
 import org.talend.mdm.webapp.journal.shared.FKInstance;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
-import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 import org.w3c.dom.Document;
@@ -38,18 +33,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.amalto.core.history.Action;
-import com.amalto.core.history.DocumentHistory;
-import com.amalto.core.history.DocumentHistoryFactory;
-import com.amalto.core.history.DocumentHistoryNavigator;
-import com.amalto.core.history.DocumentTransformer;
-import com.amalto.core.history.EmptyDocument;
-import com.amalto.core.history.ModificationMarker;
-import com.amalto.core.history.UniqueIdTransformer;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.metadata.TypeMetadata;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.util.Util;
@@ -74,14 +57,6 @@ import com.sun.xml.xsom.XSType;
  * The server side implementation of the RPC service.
  */
 public class JournalDBService {
-    
-    private DocumentHistory factory = DocumentHistoryFactory.getInstance().create();
-    
-    private static final String CURRENT_ACTION = "current"; //$NON-NLS-1$
-
-    private static final String PREVIOUS_ACTION = "before";  //$NON-NLS-1$
-
-    private static final String NEXT_ACTION = "next";  //$NON-NLS-1$
     
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss"); //$NON-NLS-1$
 
@@ -193,61 +168,6 @@ public class JournalDBService {
         
         return root;
     }
-
-    public String getComparisionTreeString(JournalParameters parameter) throws Exception {
-        DocumentHistoryNavigator navigator = factory.getHistory(parameter.getDataClusterName(), parameter.getDataModelName(),
-                parameter.getConceptName(), parameter.getId(), parameter.getRevisionId());
-
-        MetadataRepository metadataRepository = new MetadataRepository();
-        TypeMetadata documentTypeMetadata = metadataRepository.getType(parameter.getConceptName());
-        if (documentTypeMetadata == null) {
-            try {
-                DataModelPOJO dataModel = com.amalto.core.util.Util.getDataModelCtrlLocal().getDataModel(
-                        new DataModelPOJOPK(parameter.getDataModelName()));
-                if (dataModel == null) {
-                    throw new IllegalArgumentException("Data model '" + parameter.getDataModelName() + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
-                }
-
-                String schemaString = dataModel.getSchema();
-                metadataRepository.load(new ByteArrayInputStream(schemaString.getBytes("UTF-8"))); //$NON-NLS-1$
-
-                documentTypeMetadata = metadataRepository.getType(parameter.getDataModelName());
-                if (documentTypeMetadata == null) {
-                    throw new IllegalArgumentException(
-                            "Cannot find type information for type '" + parameter.getDataModelName() + "' in data cluster '" + parameter.getDataClusterName() + "', in data model '" + parameter.getDataModelName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                }
-            } catch (Exception e) {
-                throw new ServletException("Could not initialize type information", e); //$NON-NLS-1$
-            }
-        }
-
-        navigator.goTo(new Date(parameter.getDate()));
-        Action modificationMarkersAction = navigator.currentAction();
-        com.amalto.core.history.Document document = EmptyDocument.INSTANCE;
-        if (CURRENT_ACTION.equalsIgnoreCase(parameter.getAction())) {
-            document = navigator.current();
-        } else if (PREVIOUS_ACTION.equalsIgnoreCase(parameter.getAction())) {
-            if (navigator.hasPrevious()) {
-                document = navigator.previous();
-            }
-        } else if (NEXT_ACTION.equalsIgnoreCase(parameter.getAction())) {
-            if (navigator.hasNext()) {
-                document = navigator.next();
-            }
-        } else {
-            throw new ServletException(new IllegalArgumentException("Action '" + parameter.getAction() + " is not supported.")); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-
-        List<DocumentTransformer> transformers = Arrays.asList(
-                new ForeignKeyInfoTransformer(documentTypeMetadata, parameter.getDataClusterName()), new UniqueIdTransformer(),
-                new ModificationMarker(modificationMarkersAction));
-        com.amalto.core.history.Document transformedDocument = document;
-        for (DocumentTransformer transformer : transformers) {
-            transformedDocument = document.transform(transformer);
-        }
-
-        return transformedDocument.exportToString();
-    }
     
     public JournalTreeModel getComparisionTreeModel(String xmlStr){
         JournalTreeModel root = new JournalTreeModel("root", "Document"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -267,32 +187,7 @@ public class JournalDBService {
 
         return root;
     }
-    
-    public boolean restoreRecord(JournalParameters parameter) throws Exception {
-        Date historyDate = new Date(parameter.getDate());
-        DocumentHistoryNavigator navigator = factory.getHistory(parameter.getDataClusterName(), parameter.getDataModelName(),
-                parameter.getConceptName(), parameter.getId(), parameter.getRevisionId());
-        navigator.goTo(historyDate);
-        
-        com.amalto.core.history.Document document = EmptyDocument.INSTANCE;
-        if (CURRENT_ACTION.equalsIgnoreCase(parameter.getAction())) {
-            document = navigator.current();
-        } else if (PREVIOUS_ACTION.equalsIgnoreCase(parameter.getAction())) {
-            if (navigator.hasPrevious()) {
-                document = navigator.previous();
-            }
-        } else if (NEXT_ACTION.equalsIgnoreCase(parameter.getAction())) {
-            if (navigator.hasNext()) {
-                document = navigator.next();
-            }
-        } else {
-            throw new ServletException(new IllegalArgumentException("Action '" + parameter.getAction() + " is not supported.")); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-        
-        document.restore();
-        return true;
-    }
-    
+
     private void retrieveElement(org.dom4j.Element element, JournalTreeModel root) {
         List list = element.elements();
         JournalTreeModel model = this.getModelByElement(element);

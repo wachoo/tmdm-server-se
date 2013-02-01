@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.journal.client.JournalService;
 import org.talend.mdm.webapp.journal.server.dwr.JournalDWR;
 import org.talend.mdm.webapp.journal.server.service.JournalDBService;
+import org.talend.mdm.webapp.journal.server.service.JournalHistoryService;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
@@ -90,7 +91,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         JournalTreeModel root = null;
         try {
             if (parameter.isAuth()) {
-                String xmlStr = service.getComparisionTreeString(parameter);
+                String xmlStr = JournalHistoryService.getInstance().getComparisionTreeString(parameter);
                 root = service.getComparisionTreeModel(xmlStr);
             } else {
                 root = new JournalTreeModel("root", "Document"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -112,7 +113,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     public boolean restoreRecord(JournalParameters parameter) throws ServiceException {
         boolean result = false;
         try {
-            result = service.restoreRecord(parameter);
+            result = JournalHistoryService.getInstance().restoreRecord(parameter);
         } catch (Exception e) {
             e.printStackTrace();
         }
