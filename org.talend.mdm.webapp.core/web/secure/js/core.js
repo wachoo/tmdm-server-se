@@ -673,7 +673,7 @@ amalto.core = function () {
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/synchronize.png\"/></span>";
                         }else if(toCheckMenuID=='ItemsTrash.ItemsTrash'){
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/trash.png\"/></span>";
-                        }else if(toCheckMenuID=='updatereport.UpdateReport'){
+                        }else if(toCheckMenuID=='journal.Journal'){
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/updatereport.png\"/></span>";
                         }else if(toCheckMenuID=='workflowtasks.WorkflowTasks'){
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/workflowtasks.png\"/></span>";
