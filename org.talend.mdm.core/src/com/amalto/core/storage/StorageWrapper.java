@@ -71,6 +71,9 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     protected static String getTypeName(String uniqueID) {
+        if (uniqueID == null) {
+            throw new IllegalArgumentException("Unique id can not be null.");
+        }
         char[] chars = uniqueID.toCharArray();
         StringBuilder typeName = new StringBuilder();
         boolean isType = false;
@@ -381,7 +384,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         Storage storage = getStorage(clusterName, revisionId);
         MetadataRepository repository = storage.getMetadataRepository();
         UserQueryBuilder qb = from(repository.getComplexType(conceptName));
-        UserQueryHelper.buildCondition(qb, whereItem, repository);
+        qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             return results.getCount();
