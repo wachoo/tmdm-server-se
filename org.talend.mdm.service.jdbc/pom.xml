@@ -23,6 +23,18 @@
                 </includes>
             </resource>
         </resources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.3.1</version>
+                    <configuration>
+                        <finalName>zz.30.service.jdbc</finalName>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <dependencies>
@@ -47,9 +59,6 @@
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.connector.core</artifactId>
-            <version>${project.version}</version>
-            <scope>system</scope>
-            <systemPath>${tom.location}/org.talend.mdm.connector.core/z.mdm.connector.library.jar</systemPath>
         </dependency>
     </dependencies>
 
