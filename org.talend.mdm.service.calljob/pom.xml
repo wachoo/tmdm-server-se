@@ -18,12 +18,20 @@
             <resource>
                 <directory>src</directory>
                 <includes>
-                    <include>**/**.wsdl</include>
                     <include>**/**.xml</include>
                     <include>**/**.MF</include>
                 </includes>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <finalName>${jar.name}</finalName>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>
@@ -31,9 +39,6 @@
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.connector.core</artifactId>
-            <version>${project.version}</version>
-            <scope>system</scope>
-            <systemPath>${tom.location}/org.talend.mdm.connector.core/z.mdm.connector.library.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -65,14 +70,10 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <scope>system</scope>
-            <systemPath>${tom.location}/talend.mdm.libraries/lib/log4j.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-            <scope>system</scope>
-            <systemPath>${tom.location}/talend.mdm.libraries/lib/z.commons-lang-2.1.jar</systemPath>
         </dependency>
     </dependencies>
 
