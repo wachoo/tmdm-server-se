@@ -430,6 +430,7 @@ public interface IXmlServerSLWrapper {
      *          The index of the last element to search. A negative value or {@value Integer#MAX_VALUE} means no limit
      * @return the XQuery in the native language of the database
      * @throws XmlServerException
+     * @deprecated
      */
     public String getItemsQuery(
         Map<String, String> conceptPatternsToRevisionID,
@@ -459,6 +460,7 @@ public interface IXmlServerSLWrapper {
      * @param metaDataTypes
      * @return the XQuery in the native language of the database
      * @throws XmlServerException
+     * @deprecated
      */
     public String getItemsQuery(
             Map<String, String> conceptPatternsToRevisionID,
@@ -497,6 +499,7 @@ public interface IXmlServerSLWrapper {
      *          The index of the last element to search. A negative value or {@value Integer#MAX_VALUE} means no limit
      * @return the XQuery in the native language of the database
      * @throws XmlServerException
+     * @deprecated
      */
     public String getXtentisObjectsQuery(
         HashMap<String, String> objectRootElementNameToRevisionID,
@@ -524,6 +527,7 @@ public interface IXmlServerSLWrapper {
      * @param totalCountOnfirstRow
      * @return the XQuery in the native language of the database
      * @throws XmlServerException
+     * @deprecated
      */
     public String getXtentisObjectsQuery(
             LinkedHashMap<String, String> objectRootElementNameToRevisionID,
@@ -550,6 +554,7 @@ public interface IXmlServerSLWrapper {
      * @param limit
      * @return
      * @throws XmlServerException
+     * @deprecated
      */
     public String getPivotIndexQuery(
             String clusterName, 
@@ -581,6 +586,7 @@ public interface IXmlServerSLWrapper {
      * @param limit
      * @return
      * @throws XmlServerException
+     * @deprecated
      */
     public String getChildrenItemsQuery(
             String clusterName, 

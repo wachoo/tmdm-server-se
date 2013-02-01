@@ -19,6 +19,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import java.io.*;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 public class SystemDataRecordXmlWriter implements DataRecordWriter {
@@ -134,10 +135,15 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
                 // TODO Limit new field printer instances
                 DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(containedRecord, out);
                 List<FieldMetadata> fields = containedRecord.getType().getFields();
-                out.write("<" + containedField.getName() + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" //$NON-NLS-1$
-                        + " xsi:type=\"java:" //$NON-NLS-1$
-                        + repository.getJavaClass(containedRecord.getType().getName())
-                        + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
+                Class javaClass = repository.getJavaClass(containedRecord.getType().getName());
+                if (javaClass == null || javaClass.isInterface() || Modifier.isAbstract(javaClass.getModifiers())) {
+                    out.write("<" + containedField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
+                } else {
+                    out.write("<" + containedField.getName() + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" //$NON-NLS-1$
+                            + " xsi:type=\"java:" //$NON-NLS-1$
+                            + javaClass.getName()
+                            + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
+                }
                 for (FieldMetadata field : fields) {
                     field.accept(fieldPrinter);
                 }

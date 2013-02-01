@@ -22,6 +22,7 @@ import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.record.*;
 import com.amalto.xmlserver.interfaces.XmlServerException;
 import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -55,6 +56,9 @@ public class SystemStorageWrapper extends StorageWrapper {
         MetadataRepository repository = storage.getMetadataRepository();
         if (clusterName.startsWith(SYSTEM_PREFIX)) {
             return repository.getComplexType(ClassRepository.format(clusterName.substring(SYSTEM_PREFIX.length()) + "POJO"));
+        }
+        if (XSystemObjects.DC_MDMITEMSTRASH.getName().equals(clusterName)) {
+            return repository.getComplexType("dropped-item-pOJO"); //$NON-NLS-1$
         }
         // MIGRATION.completed.record
         return repository.getComplexType(getTypeName(uniqueId));

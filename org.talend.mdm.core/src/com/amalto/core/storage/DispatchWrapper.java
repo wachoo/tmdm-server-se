@@ -95,12 +95,26 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
             return XSystemObjects.isXSystemObject(xDataClustersMap, clusterName)
                     || clusterName.startsWith("amalto") //$NON-NLS-1$
                     || "MDMDomainObjects".equals(clusterName) //$NON-NLS-1$
+                    || XSystemObjects.DC_MDMITEMSTRASH.getName().equals(clusterName)
                     || "FailedAutoCommitSvnMessage".equals(clusterName)//$NON-NLS-1$
                     || "twitter".equals(clusterName) //$NON-NLS-1$
                     || "system".equals(clusterName); //$NON-NLS-1$
         } else {
             return true;
         }
+    }
+
+    private static String getClusterName(Map<String, String> conceptPatternsToClusterName, String conceptName) {
+        String clusterName = null;
+        for (Map.Entry<String, String> conceptPattern : conceptPatternsToClusterName.entrySet()) {
+            if (conceptName.matches(conceptPattern.getKey())) {
+                clusterName = conceptPattern.getValue();
+            }
+        }
+        if (clusterName == null) {
+            throw new IllegalArgumentException("Type '" + conceptName + "' did not match any pattern.");
+        }
+        return clusterName;
     }
 
     public String[] getAllClusters(String revisionID) throws XmlServerException {
@@ -253,11 +267,19 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
     }
 
     public long countItems(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName, String conceptName, IWhereItem whereItem) throws XmlServerException {
-        return mdmInternalWrapper.countItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
+        if (isMDMInternal(getClusterName(conceptPatternsToClusterName, conceptName))) {
+            return mdmInternalWrapper.countItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
+        } else {
+            return userStorageWrapper.countItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
+        }
     }
 
     public long countXtentisObjects(HashMap<String, String> objectRootElementNameToRevisionID, HashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, IWhereItem whereItem) throws XmlServerException {
-        return mdmInternalWrapper.countItems(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, mainObjectRootElementName, whereItem);
+        if (isMDMInternal(getClusterName(objectRootElementNameToClusterName, mainObjectRootElementName))) {
+            return mdmInternalWrapper.countItems(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, mainObjectRootElementName, whereItem);
+        } else {
+            return userStorageWrapper.countItems(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, mainObjectRootElementName, whereItem);
+        }
     }
 
     public String getItemsQuery(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, int limit) throws XmlServerException {

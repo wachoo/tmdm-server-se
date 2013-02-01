@@ -309,10 +309,10 @@ public abstract class ObjectPOJO implements Serializable {
         if (LOG.isTraceEnabled()) {
             LOG.trace("load() " + revisionID + "/" + objectClass + " [" + objectPOJOPK.getUniqueId() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         }
+        String url = objectPOJOPK.getUniqueId();
+        ItemCacheKey key = new ItemCacheKey(revisionID, url, getCluster(objectClass));
         try {
             //retrieve the item
-            String url = objectPOJOPK.getUniqueId();
-            ItemCacheKey key = new ItemCacheKey(revisionID, url, getCluster(objectClass));
             String item = cachedPojo.get(key);
             if (item == null) {
                 //get the xml server wrapper
@@ -324,17 +324,16 @@ public abstract class ObjectPOJO implements Serializable {
                         item = server.getDocumentAsString(null, getCluster(objectClass), url, null);
                     }
                 }
-                //end
-                if (item != null)
+                if (item != null) {
                     cachedPojo.put(key, item);
+                }
             }
             if (item == null) {
                 return null;
             }
             return unmarshal(objectClass, item);
-        } catch (XtentisException e) {
-            throw (e);
         } catch (Exception e) {
+            cachedPojo.remove(key); // Don't cache a xml element that failed the unmarshal.
             String err = "Unable to load the Object  " + objectClass.getName() + "[" + objectPOJOPK.getUniqueId() + "] in Cluster " + getCluster(objectClass)
                     + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             LOG.error(err, e);

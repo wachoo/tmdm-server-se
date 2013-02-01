@@ -13,6 +13,7 @@
 
 package com.amalto.core.server;
 
+import com.amalto.core.ejb.DroppedItemPOJO;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.metadata.FieldMetadata;
@@ -107,6 +108,8 @@ public class StorageAdminImpl implements StorageAdmin {
             objectsToParse[i++] = (Class) objects[1];
         }
         repository.load(objectsToParse);
+        // Additional POJOs
+        repository.load(DroppedItemPOJO.class);
         // Load additional types (PROVISIONING...)
         String[] models = new String[]{
                 "/com/amalto/core/initdb/data/datamodel/PROVISIONING", //$NON-NLS-1$

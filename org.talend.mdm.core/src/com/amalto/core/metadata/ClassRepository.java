@@ -12,6 +12,8 @@
 package com.amalto.core.metadata;
 
 import com.amalto.core.ejb.ObjectPOJO;
+import com.amalto.core.util.ArrayListHolder;
+import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -20,10 +22,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 public class ClassRepository extends MetadataRepository {
 
@@ -47,9 +46,14 @@ public class ClassRepository extends MetadataRepository {
 
     private final Stack<ComplexTypeMetadata> typeStack = new Stack<ComplexTypeMetadata>();
 
-    private final Map<String, String> entityToJavaClass = new HashMap<String, String>();
+    private final Map<String, Class> entityToJavaClass = new HashMap<String, Class>();
+
+    private final Map<Class, Iterable<Class>> registeredSubClasses = new HashMap<Class, Iterable<Class>>();
+
+    private int listCounter = 0;
 
     public ClassRepository() {
+        // Create a type for MAPs
         ComplexTypeMetadata internalMapType = new ComplexTypeMetadataImpl(getUserNamespace(), MAP_TYPE_NAME, false);
         SimpleTypeMetadata embeddedXml = new SimpleTypeMetadata(StringUtils.EMPTY, EMBEDDED_XML);
         embeddedXml.addSuperType(STRING, this);
@@ -58,6 +62,12 @@ public class ClassRepository extends MetadataRepository {
         internalMapType.addField(new SimpleTypeFieldMetadata(internalMapType, false, false, false, "value", embeddedXml, Collections.<String>emptyList(), Collections.<String>emptyList()));
         MAP_TYPE = (ComplexTypeMetadata) internalMapType.freeze(DefaultValidationHandler.INSTANCE);
         addTypeMetadata(MAP_TYPE);
+        // Register known subclasses
+        registeredSubClasses.put(IWhereItem.class, Arrays.<Class>asList(CustomWhereCondition.class,
+                WhereAnd.class,
+                WhereCondition.class,
+                WhereLogicOperator.class,
+                WhereOr.class));
     }
 
     public void load(Class... classes) {
@@ -71,7 +81,7 @@ public class ClassRepository extends MetadataRepository {
         }
     }
 
-    public String getJavaClass(String entityTypeName) {
+    public Class getJavaClass(String entityTypeName) {
         return entityToJavaClass.get(entityTypeName);
     }
 
@@ -82,14 +92,18 @@ public class ClassRepository extends MetadataRepository {
         } else if (getNonInstantiableType(StringUtils.EMPTY, typeName) != null) {
             return getNonInstantiableType(StringUtils.EMPTY, typeName);
         }
-        entityToJavaClass.put(typeName, clazz.getName());
+        entityToJavaClass.put(typeName, clazz);
         if (Map.class.isAssignableFrom(clazz)) {
             return MAP_TYPE;
         }
         boolean isEntity = typeStack.isEmpty();
+        if (ArrayListHolder.class.equals(clazz)) {
+            typeName = typeName + listCounter++;
+        }
         ComplexTypeMetadata classType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, typeName, isEntity);
         addTypeMetadata(classType);
         typeStack.push(classType);
+        String keyFieldName = "";
         if (isEntity && ObjectPOJO.class.isAssignableFrom(clazz)) {
             SimpleTypeFieldMetadata keyField = new SimpleTypeFieldMetadata(typeStack.peek(),
                     true,
@@ -101,6 +115,16 @@ public class ClassRepository extends MetadataRepository {
                     Collections.<String>emptyList());
             keyField.setData(LINK, "PK/unique-id"); //$NON-NLS-1$
             classType.addField(keyField);
+        } else if (isEntity) {
+            keyFieldName = "unique-id";
+        }
+        // Class is abstract / interface: load sub classes
+        if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
+            Iterable<Class> subClasses = getSubclasses(clazz);
+            for (Class subClass : subClasses) {
+                TypeMetadata typeMetadata = loadClass(subClass);
+                typeMetadata.addSuperType(typeStack.peek(), this);
+            }
         }
         // Analyze methods
         Method[] declaredMethods = clazz.getMethods();
@@ -111,6 +135,7 @@ public class ClassRepository extends MetadataRepository {
                     Class<?> returnType = declaredMethod.getReturnType();
                     FieldMetadata newField;
                     boolean isMany = false;
+                    boolean isKey = keyFieldName.equals(fieldName);
                     if (Iterable.class.isAssignableFrom(returnType)) {
                         Type genericReturnType = declaredMethod.getGenericReturnType();
                         if (genericReturnType instanceof ParameterizedType) {
@@ -143,9 +168,9 @@ public class ClassRepository extends MetadataRepository {
                         }
                         TypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, fieldTypeName);
                         newField = new SimpleTypeFieldMetadata(typeStack.peek(),
-                                false,
+                                isKey,
                                 isMany,
-                                false,
+                                isKey,
                                 fieldName,
                                 fieldType,
                                 Collections.<String>emptyList(),
@@ -193,6 +218,11 @@ public class ClassRepository extends MetadataRepository {
             }
         }
         return typeStack.pop();
+    }
+
+    private Iterable<Class> getSubclasses(Class clazz) {
+        Iterable<Class> classes = registeredSubClasses.get(clazz);
+        return classes != null ? classes : Collections.<Class>emptySet();
     }
 
     private String getTypeName(Class clazz) {

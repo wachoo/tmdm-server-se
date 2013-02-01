@@ -84,11 +84,14 @@ class FlatTypeMapping extends TypeMapping {
             if (from == null) {
                 return;
             }
-            List<FieldMetadata> fields = from.getType().getFields();
+            List<FieldMetadata> fields = getFields(from.getType());
             for (FieldMetadata field : fields) {
                 Object value = from.get(field);
                 // Note: database field might be null (would mean this field can be safely ignored in this mapping).
                 FieldMetadata databaseField = getDatabase(field);
+                if (databaseField == null) {
+                    continue;
+                }
                 // "instance of" could be replaced by visitor on field... but is a bit too much for this simple step.
                 if (field instanceof SimpleTypeFieldMetadata || field instanceof EnumerationFieldMetadata) {
                     if (!field.isMany()) {
@@ -139,85 +142,6 @@ class FlatTypeMapping extends TypeMapping {
                             list.clear();
                         }
                     }
-                } else if (field instanceof ContainedTypeFieldMetadata) {
-                    List<FieldMetadata> path = MetadataUtils.path(from.getType(), field);
-                    for (FieldMetadata containedField : path) {
-                        DataRecord containedDataRecord;
-                        if (field.isMany()) {
-                            List<DataRecord> dataRecords = (List<DataRecord>) from.get(containedField);
-                            if (dataRecords.size() > 1) {
-                                throw new IllegalArgumentException("No support for many valued contained fields for this mapping.");
-                            }
-                            containedDataRecord = dataRecords.get(0);
-                        } else {
-                            containedDataRecord = (DataRecord) from.get(containedField.getName());
-                        }
-
-                        if (containedDataRecord == null) {
-                            // Nullify all fields reachable from contained data record.
-                            Set<FieldMetadata> reachableFields = field.getType().accept(new DefaultMetadataVisitor<Set<FieldMetadata>>() {
-                                final Set<FieldMetadata> fields = new HashSet<FieldMetadata>();
-
-                                @Override
-                                public Set<FieldMetadata> visit(ComplexTypeMetadata complexType) {
-                                    super.visit(complexType);
-                                    return fields;
-                                }
-
-                                @Override
-                                public Set<FieldMetadata> visit(ContainedComplexTypeMetadata containedType) {
-                                    super.visit(containedType);
-                                    return fields;
-                                }
-
-                                @Override
-                                public Set<FieldMetadata> visit(ReferenceFieldMetadata referenceField) {
-                                    fields.add(referenceField);
-                                    return fields;
-                                }
-
-                                @Override
-                                public Set<FieldMetadata> visit(SimpleTypeFieldMetadata simpleField) {
-                                    fields.add(simpleField);
-                                    return fields;
-                                }
-
-                                @Override
-                                public Set<FieldMetadata> visit(EnumerationFieldMetadata enumField) {
-                                    fields.add(enumField);
-                                    return fields;
-                                }
-                            });
-                            reachableFields.add(field);
-
-                            for (FieldMetadata fieldMetadata : reachableFields) {
-                                FieldMetadata databaseMapping = getDatabase(fieldMetadata);
-                                if (databaseMapping != null) {
-                                    Iterator<FieldMetadata> pathToValue = MetadataUtils.path(from.getType(), fieldMetadata).iterator();
-                                    Object current = from;
-                                    while (pathToValue.hasNext() && current != null) {
-                                        FieldMetadata currentField = pathToValue.next();
-                                        current = ((DataRecord) current).get(currentField);
-                                    }
-                                    if (databaseMapping.isMany()) {
-                                        List list = (List) to.get(databaseMapping.getName());
-                                        if (current == null) {
-                                            if (list != null) {
-                                                list.clear();
-                                            }
-                                        } else {
-                                            resetList(list, ((List) current));
-                                        }
-                                    } else {
-                                        to.set(databaseMapping.getName(), current);
-                                    }
-
-                                }
-                            }
-                        } else {
-                            setValues(session, containedDataRecord, to);
-                        }
-                    }
                 }
             }
             to.taskId(from.getRecordMetadata().getTaskId());
@@ -225,6 +149,17 @@ class FlatTypeMapping extends TypeMapping {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private List<FieldMetadata> getFields(ComplexTypeMetadata type) {
+        List<FieldMetadata> fields = type.getFields();
+        List<FieldMetadata> returnedFields = new LinkedList<FieldMetadata>(fields);
+        for (FieldMetadata field : fields) {
+            if (field instanceof ContainedTypeFieldMetadata) {
+                returnedFields.addAll(getFields(((ContainedTypeFieldMetadata) field).getContainedType()));
+            }
+        }
+        return returnedFields;
     }
 
     @Override
