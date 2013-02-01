@@ -15,9 +15,7 @@
     </target>
  	
 	<property name="jar" value="zz.30.mdm.service.logging.ejb.jar"/>
- 	
- 	
-  	<property name="version.props" value="version.properties"/>
+
  	<property name="build.dir" value="${basedir}/target" />
   	<property name="jboss.dir" value="/opt/jboss"/>
   	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
@@ -30,7 +28,7 @@
   <!-- ================================= 
    target: all              
    ================================= -->
-  <target name="all" depends="clean,version,package,undeploy,deploy" />
+  <target name="all" depends="clean,package,undeploy,deploy" />
   
     <target name="clean">
         <antcall target="mvn.invoke">
@@ -44,44 +42,12 @@
         </antcall>
     </target>
     
-    <target name="compile">
+    <target name="package">
         <antcall target="mvn.invoke">
-            <param name="mvn.goal" value="compile" />
+            <param name="mvn.goal" value="package" />
         </antcall>
-        <copy todir="bin">
-            <fileset dir="target/classes" includes="**" />
-        </copy>
     </target>
- 	
-  <target name="version"  description="Maintain build.date property">
-   <propertyfile file="${version.props}"  comment="streek build date">
-    <entry key="build.date" type="date" value="now" />
-   </propertyfile>
-  </target>
-  
-  <target name="package" depends="compile">
-	<buildnumber file="${version.props}"/>
-  	<property file="${version.props}" />
-   	<property name="version.build.new" value="${major}-${minor}-${rev}_${build.number}"  />
-	<jar destfile="${jar}">
-		<zipfileset dir="src/META-INF" prefix="META-INF">
-			<include name="ejb-jar.xml"/>
-		</zipfileset>
-		<zipfileset dir="src/META-INF" prefix="META-INF">
-			<include name="jboss.xml"/>
-		</zipfileset>
-		<zipfileset dir=".">
-			<include name="RELEASE.NOTES"/>
-		</zipfileset>
-		<zipfileset dir=".">
-			<include name="version.properties"/>
-		</zipfileset>
-		<zipfileset dir="bin" includes="**/ejb/**/*.class"/>
-		<zipfileset dir="bin" includes="**/util/**/*.class"/>
-		<zipfileset dir="xslt" prefix="com/amalto/service/logging/ejb" includes="**/*.*"/>
-	</jar>
-  </target>
-  
+
   <target name="undeploy" description="--> remove packages">		
    <delete>
     <fileset dir="${jboss.deploy.dir}" includes="zz.*.mdm.service.logging.ejb.jar"/>
@@ -90,7 +56,7 @@
   
   <target name="deploy">
    <echo>Deploying build: ${version.build.new}</echo>
-   <copy file="zz.30.mdm.service.logging.ejb.jar" tofile="${jboss.deploy.dir}/zz.30.mdm.service.logging.ejb.jar"/>
+   <copy file="${build.dir}/${jar}" tofile="${jboss.deploy.dir}/zz.30.mdm.service.logging.ejb.jar"/>
   </target>
   
  	<target name="mvn.invoke" description="invokes maven" depends="prepare-maven">
