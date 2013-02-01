@@ -7,21 +7,22 @@
         <path id="maven-ant-tasks.classpath" path="${maven.ant.tasks.file}" />
         <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
     </target>
-	
-	<property name="version.props" value="version.properties"/>
-		
+
     <property name="build.dir" value="${basedir}/target" />
     <property name="jboss.dir" value="${jboss.dir}" />
     <property name="jboss.instance.dir" value="${jboss.dir}/server/default" />
     <property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
     <property name="jboss.instance.lib" value="${jboss.instance.dir}/lib" />
+    <property name="mdm.build.version" value="${major}.${minor}.${rev}-r${svn.revision}" />
+    <property name="dev.mode.excluded.start" value="" />
+    <property name="dev.mode.excluded.end" value="" />
 
 	<property name="jar" value="zz.30.service.loggingsmtp.jar"/>
 
     <!-- ================================= 
           targets           
          ================================= -->
-	<target name="all" depends="clean,version,package,undeploy,deploy" description="--> B2BOX WebApp">
+	<target name="all" depends="clean,package,undeploy,deploy" description="--> B2BOX WebApp">
 	</target>
 	
     <target name="clean">
@@ -29,42 +30,11 @@
             <param name="mvn.goal" value="clean" />
         </antcall>
     </target>
-      
-    <target name="compile">
+
+   	<target name="package">
         <antcall target="mvn.invoke">
-            <param name="mvn.goal" value="compile" />
+            <param name="mvn.goal" value="package" />
         </antcall>
-        <copy todir="bin">
-            <fileset dir="target/classes" includes="**" />
-        </copy>
-    </target>
-	
-   	<target name="version"  description="Maintain build.date property">
-   		<buildnumber file="${version.props}" />
-       	<propertyfile file="${version.props}">
-       		<entry key="build.date" type="date" value="now" />
-       	</propertyfile>   	
-     </target>
-
-   	<target name="package" depends="compile">
-		<jar destfile="${jar}">
-			<zipfileset dir="src/META-INF" prefix="META-INF">
-				<include name="ejb-jar.xml"/>
-			</zipfileset>
-			<zipfileset dir="src/META-INF" prefix="META-INF">
-				<include name="jboss.xml"/>
-			</zipfileset>
-			<zipfileset dir=".">
-				<include name="RELEASE.NOTES"/>
-			</zipfileset>
-			<zipfileset dir=".">
-				<include name="version.properties"/>
-			</zipfileset>
-			<zipfileset dir="bin" includes="**/ejb/**/*.class"/>
-			<zipfileset dir="bin" includes="**/util/**/*.class"/>
-			<zipfileset dir="xslt" prefix="com/amalto/service/loggingsmtp/ejb" includes="**/*.*"/>
-		</jar>
-
     </target>
 		
     <target name="undeploy" description="remove packages">		
@@ -75,7 +45,7 @@
 	
 	<target name="deploy">
 		<echo>Deploying ${jar} </echo>
-     	<copy file="${jar}" tofile="${jboss.deploy.dir}/${jar}"/>        
+     	<copy file="target/${jar}" tofile="${jboss.deploy.dir}/${jar}"/>        
     </target>
 
     <target name="mvn.invoke" description="invokes maven" depends="prepare-maven">
