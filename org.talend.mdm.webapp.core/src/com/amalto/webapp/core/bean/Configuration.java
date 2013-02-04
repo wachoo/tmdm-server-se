@@ -18,7 +18,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
-import org.jboss.invocation.InvocationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -57,18 +56,21 @@ public class Configuration {
 
     private static class DWRConfigurationContext implements ConfigurationContext {
 
+        @Override
         public HttpSession getSession() {
             HttpSession session = null;
             // Here, we do use a DWR call to store the information into the session, therefore we must use its
             // session only. But when run a GWT application, we must use GWTConfigurationContext to get session
             WebContext ctx = WebContextFactory.get();
-            if (ctx != null)
+            if (ctx != null) {
                 session = ctx.getSession();
-            else if (gwtConfigurationContext != null)
+            } else if (gwtConfigurationContext != null) {
                 session = gwtConfigurationContext.getDefaultConfigurationSession();
+            }
             return session;
         }
 
+        @Override
         public HttpSession getDefaultConfigurationSession() {
             return null;
         }
@@ -93,10 +95,10 @@ public class Configuration {
         return instance;
     }
 
-    public static Configuration getInstance(ConfigurationContext configurationContext) throws Exception {        
+    public static Configuration getInstance(ConfigurationContext configurationContext) throws Exception {
         try {
             Configuration instance;
-            
+
             HttpSession session = configurationContext.getSession();
             if (session == null) {
                 instance = null;
@@ -104,8 +106,9 @@ public class Configuration {
                 instance = (Configuration) session.getAttribute(CONFIGURATION_ATTRIBUTE);
             }
             if (instance == null) {
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug("Configuration instance is null, loading ..."); //$NON-NLS-1$
+                }
                 instance = load(session);
             }
 
@@ -114,26 +117,30 @@ public class Configuration {
         } catch (IllegalStateException e) {
             // Session is already invalidated
             // Throw an exception that will cause the client to redirect to the login page
-            // This particular string signals to the client that the exception from the backend is due to session timeout (see SessionAwareAsyncCallback)
-            InvocationException ie = new InvocationException("<meta http-equiv=\"refresh\" content=\"0; url=/talendmdm/secure\"", e); //$NON-NLS-1$
-            throw ie;
-        }        
+            // This particular string signals to the client that the exception from the backend is due to session
+            // timeout (see SessionAwareAsyncCallback)
+            throw new IllegalStateException("<meta http-equiv=\"refresh\" content=\"0; url=/talendmdm/secure\"", e); //$NON-NLS-1$
+        }
     }
 
     public static void initialize(String cluster, String model, ConfigurationContext configurationContext) throws Exception {
         HttpSession session = configurationContext.getSession();
-        if (session != null)
+        if (session != null) {
             session.setAttribute(CONFIGURATION_ATTRIBUTE, null);
+        }
 
-        if (cluster == null || cluster.trim().length() == 0)
+        if (cluster == null || cluster.trim().length() == 0) {
             throw new Exception("Data Container can't be empty!");
-        if (model == null || model.trim().length() == 0)
+        }
+        if (model == null || model.trim().length() == 0) {
             throw new Exception("Data Model can't be empty!");
+        }
 
         store(cluster, model);
 
-        if (session != null)
+        if (session != null) {
             session.setAttribute(CONFIGURATION_ATTRIBUTE, new Configuration(cluster, model));
+        }
     }
 
     public static Configuration getInstance(boolean forceReload) throws Exception {
@@ -153,16 +160,18 @@ public class Configuration {
     }
 
     private static synchronized void store(String cluster, String model) throws Exception {
-        if (cluster == null || cluster.trim().length() == 0)
+        if (cluster == null || cluster.trim().length() == 0) {
             throw new Exception("nocontainer"); //$NON-NLS-1$
-        else if (model == null || model.trim().length() == 0)
+        } else if (model == null || model.trim().length() == 0) {
             throw new Exception("nomodel"); //$NON-NLS-1$
+        }
         String xml = Util.getAjaxSubject().getXml();
         Document d = Util.parse(xml);
         NodeList nodeList = Util.getNodeList(d, "//property"); //$NON-NLS-1$
         if (nodeList.getLength() == 0) {
-            if (Util.getNodeList(d, "//properties").item(0) == null) //$NON-NLS-1$
+            if (Util.getNodeList(d, "//properties").item(0) == null) {
                 d.getDocumentElement().appendChild(d.createElement("properties")); //$NON-NLS-1$
+            }
             Node node = Util.getNodeList(d, "//properties").item(0).appendChild(d.createElement("property")); //$NON-NLS-1$ //$NON-NLS-2$
             node.appendChild(d.createElement("name")).appendChild(d.createTextNode("cluster")); //$NON-NLS-1$ //$NON-NLS-2$
             ;
@@ -178,19 +187,21 @@ public class Configuration {
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
             if ("cluster".equals(Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
-                if (Util.getFirstTextNode(node, "value") == null) //$NON-NLS-1$
+                if (Util.getFirstTextNode(node, "value") == null) {
                     Util.getNodeList(node, "value").item(0).appendChild(d.createTextNode(cluster)); //$NON-NLS-1$
-                else
+                } else {
                     Util.getNodeList(node, "value").item(0).getFirstChild().setNodeValue(cluster); //$NON-NLS-1$
+                }
             }
         }
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
             if ("model".equals(Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
-                if (Util.getFirstTextNode(node, "value") == null) //$NON-NLS-1$
+                if (Util.getFirstTextNode(node, "value") == null) {
                     Util.getNodeList(node, "value").item(0).appendChild(d.createTextNode(model)); //$NON-NLS-1$
-                else
+                } else {
                     Util.getNodeList(node, "value").item(0).getFirstChild().setNodeValue(model); //$NON-NLS-1$
+                }
             }
         }
         if (com.amalto.core.util.Util.isEnterprise()) {
@@ -205,10 +216,12 @@ public class Configuration {
 
     private static Configuration load(HttpSession session) throws Exception {
         Configuration configuration = loadConfigurationFromDB();
-        if (session != null)
+        if (session != null) {
             session.setAttribute(CONFIGURATION_ATTRIBUTE, configuration);
-        if (LOG.isDebugEnabled())
+        }
+        if (LOG.isDebugEnabled()) {
             LOG.debug("MDM set up with " + configuration.getCluster() + " and " + configuration.getModel()); //$NON-NLS-1$ //$NON-NLS-2$
+        }
 
         return configuration;
     }
@@ -274,8 +287,9 @@ public class Configuration {
             needToStoreAgain = true;
         }
 
-        if (needToStoreAgain)
+        if (needToStoreAgain) {
             store(configuration.getCluster(), configuration.getModel());
+        }
 
         return configuration;
     }
