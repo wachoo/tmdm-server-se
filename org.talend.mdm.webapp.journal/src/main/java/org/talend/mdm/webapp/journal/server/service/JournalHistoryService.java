@@ -81,7 +81,7 @@ public class JournalHistoryService {
                 String schemaString = dataModel.getSchema();
                 metadataRepository.load(new ByteArrayInputStream(schemaString.getBytes("UTF-8"))); //$NON-NLS-1$
 
-                documentTypeMetadata = metadataRepository.getType(parameter.getDataModelName());
+                documentTypeMetadata = metadataRepository.getType(parameter.getConceptName());
                 if (documentTypeMetadata == null) {
                     throw new IllegalArgumentException(
                             "Cannot find type information for type '" + parameter.getDataModelName() + "' in data cluster '" + parameter.getDataClusterName() + "', in data model '" + parameter.getDataModelName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
