@@ -1,5 +1,15 @@
 package com.amalto.core.delegator;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.*;
+
+import com.amalto.xmlserver.interfaces.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
@@ -78,10 +88,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             ViewPOJO view = getViewPOJO(viewPOJOPK);
 
             // Create an ItemWhere which combines the search and and view wheres
-            IWhereItem fullWhere;
-            ArrayList conditions = view.getWhereConditions().getList();
-            Util.fixCondtions(conditions);
-            fullWhere = getFullWhereCondition(whereItem, conditions);
+            ArrayList<IWhereItem> conditions = view.getWhereConditions().getList();
+            Util.fixConditions(conditions);
+            IWhereItem fullWhere = getFullWhereCondition(whereItem, conditions);
 
             // Add View Filters from the Roles
             ArrayList<IWhereItem> roleWhereConditions = getViewWCFromRole(viewPOJOPK);
@@ -122,10 +131,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             ViewPOJO view = getViewPOJO(viewPOJOPK);
 
             // Create an ItemWhere which combines the search and and view wheres
-            IWhereItem fullWhere;
-            ArrayList conditions = view.getWhereConditions().getList();
-            Util.fixCondtions(conditions);
-            fullWhere = getFullWhereCondition(whereItem, conditions);
+            ArrayList<IWhereItem> conditions = view.getWhereConditions().getList();
+            Util.fixConditions(conditions);
+            IWhereItem fullWhere = getFullWhereCondition(whereItem, conditions);
 
             return runChildrenItemsQuery(clusterName, conceptName, PKXpaths,
                     FKXpath, labelXpath, fatherPK,
@@ -164,27 +172,10 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             ViewPOJO view = getViewPOJO(viewPOJOPK);
             whereItem = Util.fixWebCondtions(whereItem);
             // Create an ItemWhere which combines the search and and view wheres
-            IWhereItem fullWhere;
-            ArrayList conditions = view.getWhereConditions().getList();
-            // fix conditions:value of condition do not generate xquery.
-            Util.fixCondtions(conditions);
-
-            if (conditions == null || conditions.size() == 0) {
-                if (whereItem == null)
-                    fullWhere = null;
-                else
-                    fullWhere = whereItem;
-            } else {
-                if (whereItem == null) {
-                    fullWhere = new WhereAnd(conditions);
-                } else {
-                    WhereAnd viewWhere = new WhereAnd(conditions);
-                    WhereAnd wAnd = new WhereAnd();
-                    wAnd.add(whereItem);
-                    wAnd.add(viewWhere);
-                    fullWhere = wAnd;
-                }
-            }
+            ArrayList<IWhereItem> conditions = view.getWhereConditions().getList();
+            // fix conditions: value of condition do not generate xquery.
+            Util.fixConditions(conditions);
+            IWhereItem fullWhere = getFullWhereCondition(whereItem, conditions);
 
             // Add Filters from the Roles
             ILocalUser user = getLocalUser();
@@ -195,9 +186,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 if ("administration".equals(roleName) || "authenticated".equals(roleName)) { //$NON-NLS-1$ //$NON-NLS-2$
                     continue;
                 }
-                //load Role
+                // load Role
                 RolePOJO role = ObjectPOJO.load(RolePOJO.class, new RolePOJOPK(roleName));
-                //get Specifications for the View Object
+                // get Specifications for the View Object
                 RoleSpecification specification = role.getRoleSpecifications().get(objectType);
                 if (specification != null) {
                     if (!specification.isAdmin()) {
@@ -210,7 +201,6 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                                         continue;
                                     }
                                     String conditionValue = RoleWhereCondition.parse(marshaledWhereCondition).toWhereCondition().getRightValueOrPath();
-
                                     if (conditionValue != null && conditionValue.length() > 0) {
                                         roleWhereConditions.add(RoleWhereCondition.parse(marshaledWhereCondition).toWhereCondition());
                                     }
@@ -233,7 +223,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 }
             }
             // Find revision id for type
-            String typeName = ((String) view.getSearchableBusinessElements().getList().get(0)).split("/")[0]; //$NON-NLS-1$
+            String typeName = view.getSearchableBusinessElements().getList().get(0).split("/")[0]; //$NON-NLS-1$
             String revisionId = universe.getConceptRevisionID(typeName);
             // Try to get storage for revision
             Server server = ServerContext.INSTANCE.get();
@@ -312,11 +302,31 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
         }
     }
 
+    private static IWhereItem normalizeConditions(ArrayList<IWhereItem> conditions) {
+        IWhereItem viewCondition = null;
+        for (IWhereItem condition : conditions) {
+            if (viewCondition == null) {
+                viewCondition = condition;
+            } else {
+                if (condition instanceof WhereCondition) {
+                    String predicate = ((WhereCondition) condition).getStringPredicate();
+                    if (WhereCondition.PRE_OR.equals(predicate)) {
+                        viewCondition = new WhereOr(Arrays.asList(viewCondition, condition));
+                    } else if (WhereCondition.PRE_AND.equals(predicate)) {
+                        viewCondition = new WhereAnd(Arrays.asList(viewCondition, condition));
+                    } else {
+                        throw new IllegalArgumentException("Not supported predicate: " + predicate);
+                    }
+                }
+            }
+        }
+        return viewCondition;
+    }
+
     public ItemPOJOPK putItem(ItemPOJO item, String schema, String dataModelName) throws XtentisException {
         if (logger.isTraceEnabled()) {
             logger.trace("putItem() " + item.getItemPOJOPK().getUniqueID());
-        }
-
+		}
         try {
             //make sure the plan is reset
             item.setPlanPK(null);
@@ -548,22 +558,18 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
      */
     protected abstract ArrayList<IWhereItem> getViewWCFromRole(ViewPOJOPK viewPOJOPK) throws Exception;
 
-    protected IWhereItem getFullWhereCondition(IWhereItem whereItem,
-                                               ArrayList<IWhereItem> conditions) {
+    protected static IWhereItem getFullWhereCondition(IWhereItem whereItem, ArrayList<IWhereItem> conditions) {
         IWhereItem fullWhere;
-        if (conditions == null || conditions.size() == 0) {
-            if (whereItem == null)
-                fullWhere = null;
-            else
-                fullWhere = whereItem;
+        IWhereItem viewCondition = normalizeConditions(conditions);
+        if (viewCondition == null) {
+            fullWhere = whereItem;
         } else {
             if (whereItem == null) {
-                fullWhere = new WhereAnd(conditions);
+                fullWhere = viewCondition;
             } else {
-                WhereAnd viewWhere = new WhereAnd(conditions);
                 WhereAnd wAnd = new WhereAnd();
                 wAnd.add(whereItem);
-                wAnd.add(viewWhere);
+                wAnd.add(viewCondition);
                 fullWhere = wAnd;
             }
         }
