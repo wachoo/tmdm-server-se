@@ -349,6 +349,9 @@ public class UserQueryBuilder {
     }
 
     public UserQueryBuilder select(ComplexTypeMetadata type, String fieldName) {
+        if (fieldName.startsWith("@")) {
+            fieldName = fieldName.substring(1); // TODO Not convincing: add a "Attribute" search capability?
+        }
         if (type.hasField(fieldName)) {
             select(type.getField(fieldName));
         } else {

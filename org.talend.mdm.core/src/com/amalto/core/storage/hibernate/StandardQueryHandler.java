@@ -289,7 +289,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private String getAlias(TypeMapping mapping, FieldMetadata databaseField) {
         ComplexTypeMetadata mainType = mapping.getDatabase();
-        String previousAlias = mapping.getUser().getName();
+        String previousAlias = mapping.getDatabase().getName();
         String alias;
         for (FieldMetadata next : MetadataUtils.path(mainType, databaseField)) {
             if (next instanceof ReferenceFieldMetadata) {
@@ -327,7 +327,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         mainType = selectedTypes.get(0);
         ComplexTypeMetadata database = mappingMetadataRepository.getMappingFromUser(mainType).getDatabase();
         String mainClassName = ClassCreator.PACKAGE_PREFIX + database.getName();
-        criteria = session.createCriteria(mainClassName, mainType.getName());
+        criteria = session.createCriteria(mainClassName, database.getName());
         criteria.setReadOnly(true); // We are reading data, turns on ready only mode.
         // Handle JOIN (if any)
         List<Join> joins = select.getJoins();

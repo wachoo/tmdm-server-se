@@ -553,7 +553,7 @@ public class ItemCtrl2Bean implements SessionBean {
                         viewablePaths, whereItem, orderBy, direction, start, limit, spellThreshold, returnCount, Collections.<String, ArrayList<String>>emptyMap());
                 return xmlServer.runQuery(null, null, query, null);
             } else {
-                MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
+                MetadataRepository repository = storage.getMetadataRepository();
                 ComplexTypeMetadata type = repository.getComplexType(typeName);
                 UserQueryBuilder qb = from(type);
                 qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));

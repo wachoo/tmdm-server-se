@@ -727,7 +727,7 @@ public abstract class ObjectPOJO implements Serializable {
             }
             // Get the values from databases
             ItemCtrl2Local itemCtrl = Util.getItemCtrl2Local();
-            DataClusterPOJOPK dataCluster = new DataClusterPOJOPK();
+            DataClusterPOJOPK dataCluster = new DataClusterPOJOPK(ObjectPOJO.getCluster(objectClass));
             ArrayList<String> xPaths = new ArrayList<String>(Arrays.asList(idsPaths));
             ArrayList<String> results = itemCtrl.xPathsSearch(dataCluster,
                     null,
