@@ -39,9 +39,11 @@ import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 public class SystemStorageWrapper extends StorageWrapper {
 
-    public static final String SYSTEM_PREFIX = "amaltoOBJECTS";
+    public static final String SYSTEM_PREFIX = "amaltoOBJECTS"; //$NON-NLS-1$
 
-    public static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
+    public static final String DROPPED_ITEM_TYPE = "dropped-item-pOJO"; //$NON-NLS-1$
+
+    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
 
     public SystemStorageWrapper() {
         // Create "system" storage
@@ -58,7 +60,7 @@ public class SystemStorageWrapper extends StorageWrapper {
             return repository.getComplexType(ClassRepository.format(clusterName.substring(SYSTEM_PREFIX.length()) + "POJO"));
         }
         if (XSystemObjects.DC_MDMITEMSTRASH.getName().equals(clusterName)) {
-            return repository.getComplexType("dropped-item-pOJO"); //$NON-NLS-1$
+            return repository.getComplexType(DROPPED_ITEM_TYPE);
         }
         // MIGRATION.completed.record
         return repository.getComplexType(getTypeName(uniqueId));
@@ -187,9 +189,21 @@ public class SystemStorageWrapper extends StorageWrapper {
         if (type == null) {
             return null; // TODO
         }
-        boolean isUserFormat = uniqueID.indexOf('.') > 0;
-        String documentUniqueId = isUserFormat ? StringUtils.substringAfterLast(uniqueID, ".") : uniqueID;
-        UserQueryBuilder qb = from(type).where(eq(type.getKeyFields().get(0), documentUniqueId));
+        UserQueryBuilder qb;
+        boolean isUserFormat;
+        if (DROPPED_ITEM_TYPE.equals(type.getName())) {
+            isUserFormat = false;
+            // head.Product.Product.0-
+            uniqueID = uniqueID.substring(0, uniqueID.length() - 1);
+            // TODO Filter by revision
+            // String revisionId = StringUtils.substringBefore(uniqueID, ".");
+            String documentUniqueId = StringUtils.substringAfter(uniqueID, ".");
+            qb = from(type).where(eq(type.getKeyFields().get(0), documentUniqueId));
+        } else {
+            isUserFormat = uniqueID.indexOf('.') > 0;
+            String documentUniqueId = isUserFormat ? StringUtils.substringAfterLast(uniqueID, ".") : uniqueID;
+            qb = from(type).where(eq(type.getKeyFields().get(0), documentUniqueId));
+        }
         StorageResults records = storage.fetch(qb.getSelect());
         ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
         try {

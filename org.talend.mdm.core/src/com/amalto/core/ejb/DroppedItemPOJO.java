@@ -4,15 +4,14 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;
-import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
-import org.exolab.castor.xml.ValidationException;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
@@ -21,7 +20,6 @@ import org.xml.sax.InputSource;
 
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.util.LocalUser;
@@ -50,8 +48,6 @@ public class DroppedItemPOJO implements Serializable {
     private Long insertionTime;
 
     private String projection;
-
-    private static XmlServerSLWrapperLocal server;
 
     public DroppedItemPOJO() {
     }
@@ -166,14 +162,12 @@ public class DroppedItemPOJO implements Serializable {
 
     @Override
     public String toString() {
-        //Marshal
+        // Marshal
         StringWriter sw = new StringWriter();
         try {
             Marshaller.marshal(this, sw);
-        } catch (MarshalException e) {
-            e.printStackTrace();
-        } catch (ValidationException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            return "Could not marshal object due to " + e.getMessage();
         }
         return sw.toString();
     }
@@ -195,13 +189,12 @@ public class DroppedItemPOJO implements Serializable {
         }
         ItemPOJOPK refItemPOJOPK = droppedItemPOJOPK.getRefItemPOJOPK();
         String actionName = "recover"; //$NON-NLS-1$
-        // for recover we need to be admin, or have a role of admin , or role of write on instance
+        // for recover we need to be admin, or have a role of admin, or role of write on instance
         rolesFilter(refItemPOJOPK, actionName, "w"); //$NON-NLS-1$
         // get the universe and revision ID
         universeFilter(refItemPOJOPK);
         String sourceItemRevision = droppedItemPOJOPK.getRevisionId();
-        //get XmlServerSLWrapperLocal
-        XmlServerSLWrapperLocal server = getXmlServer();
+        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
         try {
             // load dropped content
             String doc = server.getDocumentAsString(null,
@@ -211,7 +204,7 @@ public class DroppedItemPOJO implements Serializable {
             if (doc == null) {
                 return null;
             }
-            //recover source item
+            // recover source item
             DroppedItemPOJO droppedItemPOJO = (DroppedItemPOJO) Unmarshaller.unmarshal(DroppedItemPOJO.class,
                     new InputSource(new StringReader(doc)));
             String clusterName = refItemPOJOPK.getDataClusterPOJOPK().getUniqueId();
@@ -239,7 +232,7 @@ public class DroppedItemPOJO implements Serializable {
                 server.rollback(MDM_ITEMS_TRASH);
                 throw e;
             }
-            //It need to remove it from cache, because it still be load on cache
+            // It needs to be removed from cache, because it could still be loaded from cache.
             ItemPOJO.getCache().remove(
                     new ItemCacheKey(droppedItemPOJOPK.getRevisionId(),
                             droppedItemPOJOPK.getRefItemPOJOPK().getUniqueID(),
@@ -259,8 +252,7 @@ public class DroppedItemPOJO implements Serializable {
     public static List<DroppedItemPOJOPK> findAllPKs(String regex) throws XtentisException {
         universeFilter();
         // get XmlServerSLWrapperLocal
-        XmlServerSLWrapperLocal server = getXmlServer();
-        initItemsTrash(server);
+        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
         if ("".equals(regex) || "*".equals(regex) || ".*".equals(regex)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             regex = null;
         }
@@ -273,19 +265,23 @@ public class DroppedItemPOJO implements Serializable {
             //build PKs collection
             List<DroppedItemPOJOPK> list = new ArrayList<DroppedItemPOJOPK>();
             for (String uid : ids) {
-                if (regex != null) {
-                    boolean match = uid.matches(regex);
-                    if (match) {
-                        DroppedItemPOJOPK droppedItemPOJOPK = DroppedItemPOJOPK.buildUid2POJOPK(uid);
-                        if (droppedItemPOJOPK != null) {
-                            list.add(droppedItemPOJOPK);
-                        }
+                String[] uidValues = uid.split("\\."); //$NON-NLS-1$
+                if (uidValues.length < 3) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Could not read id '" + uid + "'. Skipping it.");
                     }
-                } else {
-                    DroppedItemPOJOPK droppedItemPOJOPK = DroppedItemPOJOPK.buildUid2POJOPK(uid);
-                    if (droppedItemPOJOPK != null) {
+                    continue;
+                }
+                ItemPOJOPK refItemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(uidValues[0]),
+                        uidValues[1],
+                        Arrays.copyOfRange(uidValues, 2, uidValues.length));
+                DroppedItemPOJOPK droppedItemPOJOPK = new DroppedItemPOJOPK(null, refItemPOJOPK, "/"); //$NON-NLS-1$
+                if (regex != null) {
+                    if (uid.matches(regex)) {
                         list.add(droppedItemPOJOPK);
                     }
+                } else {
+                    list.add(droppedItemPOJOPK);
                 }
             }
             return list;
@@ -309,7 +305,7 @@ public class DroppedItemPOJO implements Serializable {
         //for load we need to be admin, or have a role of admin , or role of write on instance or role of read on instance
         rolesFilter(refItemPOJOPK, actionName, "r"); //$NON-NLS-1$
         //get XmlServerSLWrapperLocal
-        XmlServerSLWrapperLocal server = getXmlServer();
+        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
         //load the dropped item
         try {
             //retrieve the dropped item
@@ -341,7 +337,7 @@ public class DroppedItemPOJO implements Serializable {
         //for remove we need to be admin, or have a role of admin , or role of write on instance
         rolesFilter(refItemPOJOPK, actionName, "w");  //$NON-NLS-1$
         //get XmlServerSLWrapperLocal
-        XmlServerSLWrapperLocal server = getXmlServer();
+        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
         try {
             server.start(MDM_ITEMS_TRASH); //$NON-NLS-1$
             //remove the record
@@ -362,44 +358,6 @@ public class DroppedItemPOJO implements Serializable {
             throw new XtentisException(err, e);
         }
     }
-
-    private static void initItemsTrash(XmlServerSLWrapperLocal server) throws XtentisException {
-        try {
-            //init MDMItemsTrash Cluster
-            if (ObjectPOJO.load(null, DataClusterPOJO.class, new DataClusterPOJOPK(MDM_ITEMS_TRASH)) == null) { //$NON-NLS-1$
-                //create record
-                DataClusterPOJO dataCluster = new DataClusterPOJO(MDM_ITEMS_TRASH, "Holds logical deleted items", null);
-                ObjectPOJOPK pk = dataCluster.store(null);
-                if (pk == null) {
-                    throw new XtentisException("Unable to create the Data Cluster. Please check the XML Server logs");
-                }
-                // create cluster
-                boolean exist = server.existCluster(null, pk.getUniqueId());
-                if (!exist) {
-                    server.createCluster(null, pk.getUniqueId());
-                }
-                // log
-                LOGGER.info("Init MDMItemsTrash Cluster");
-            }
-        } catch (Exception e) {
-            String err = "Unable to init the items-trash " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            throw new XtentisException(err, e);
-        }
-    }
-
-    private static synchronized XmlServerSLWrapperLocal getXmlServer() throws XtentisException {
-        if (server == null) {
-            try {
-                server = Util.getXmlServerCtrlLocal();
-            } catch (Exception e) {
-                String err = "Unable to access the XML Server wrapper";
-                LOGGER.error(err, e);
-                throw new XtentisException(err, e);
-            }
-        }
-        return server;
-    }
-
 
     private static String universeFilter(ItemPOJOPK refItemPOJOPK) throws XtentisException {
         UniversePOJO universe = universeFilter();
