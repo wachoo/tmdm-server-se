@@ -439,6 +439,7 @@ public class TreeDetail extends ContentPanel {
 
             public void onSuccess() {
                 multiManager.addMultiOccurrenceNode((DynamicTreeItem) root);
+                adjustFieldWidget(root);
                 multiManager.handleOptIcons();
                 multiManager.warningAllItems();
             }

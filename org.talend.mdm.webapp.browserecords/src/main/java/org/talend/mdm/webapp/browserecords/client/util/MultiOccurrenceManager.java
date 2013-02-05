@@ -15,6 +15,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailGridFieldCreator;
 
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.Dialog;
@@ -326,7 +327,8 @@ public class MultiOccurrenceManager {
                 }
             };
             // when the treeItem has no children call callback interface immediately.
-            if (treeItem.getChildCount() == 0) {
+            List<ModelData> itemNodeChildren = model.getChildren();
+            if (itemNodeChildren == null || itemNodeChildren.size() == 0) {
                 renderCompleteCallBack.onSuccess();
             } else {
                 treeDetail.executeAfterRenderComplete(renderCompleteCallBack);
