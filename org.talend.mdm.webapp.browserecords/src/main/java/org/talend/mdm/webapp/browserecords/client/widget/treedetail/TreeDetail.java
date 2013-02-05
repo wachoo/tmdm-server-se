@@ -370,6 +370,7 @@ public class TreeDetail extends ContentPanel {
 
                             public void onSuccess() {
                                 multiManager.addMultiOccurrenceNode(selectedItem);
+                                adjustFieldWidget(selectedItem);
                                 multiManager.handleOptIcons();
                                 multiManager.warningAllItems();
                             }

@@ -312,7 +312,7 @@ public class MultiOccurrenceManager {
                 model.setObjectValue(typeModel.getDefaultValue());
             final DynamicTreeItem treeItem = treeDetail.buildGWTTree(model, null, true, null);
 
-            treeDetail.executeAfterRenderComplete(new TreeDetail.RenderCompleteCallBack() {
+            TreeDetail.RenderCompleteCallBack renderCompleteCallBack = new TreeDetail.RenderCompleteCallBack() {
 
                 public void onSuccess() {
                     ViewUtil.copyStyleToTreeItem(selectedItem, treeItem);
@@ -324,7 +324,13 @@ public class MultiOccurrenceManager {
                     warningItems(treeItem.getItemNodeModel());
                     handleOptIcons();
                 }
-            });
+            };
+            // when the treeItem has no children call callback interface immediately.
+            if (treeItem.getChildCount() == 0) {
+                renderCompleteCallBack.onSuccess();
+            } else {
+                treeDetail.executeAfterRenderComplete(renderCompleteCallBack);
+            }
         } else {
             MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
                     .multiOccurrence_maximize(count), null);
