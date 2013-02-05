@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  *
  */
-public class ClosureExecutionStats {
+class ClosureExecutionStats {
 
     private final AtomicInteger errorCount = new AtomicInteger();
 

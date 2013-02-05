@@ -20,13 +20,13 @@ import org.hibernate.criterion.SimpleProjection;
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
 
-public class ManyFieldProjection extends SimpleProjection {
+class ManyFieldProjection extends SimpleProjection {
 
     private final FieldMetadata field;
 
     private final TableResolver resolver;
 
-    public ManyFieldProjection(FieldMetadata field, TableResolver resolver) {
+    ManyFieldProjection(FieldMetadata field, TableResolver resolver) {
         this.field = field;
         this.resolver = resolver;
     }

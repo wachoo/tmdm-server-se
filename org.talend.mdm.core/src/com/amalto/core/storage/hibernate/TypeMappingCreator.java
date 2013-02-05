@@ -39,12 +39,10 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         this.internalRepository = repository;
     }
 
-    String getColumnName(FieldMetadata field, boolean addPrefix) {
+    String getColumnName(FieldMetadata field) {
         StringBuilder buffer = new StringBuilder();
-        if (addPrefix) {
-            for (String currentPrefix : prefix) {
-                buffer.append(currentPrefix).append('_');
-            }
+        for (String currentPrefix : prefix) {
+            buffer.append(currentPrefix).append('_');
         }
         String name = field.getName();
         // Note #1: Hibernate (starting from 4.0) internally sets a lower case letter as first letter if field starts with a
@@ -64,7 +62,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(ReferenceFieldMetadata referenceField) {
-        String name = getColumnName(referenceField, true);
+        String name = getColumnName(referenceField);
         String typeName = referenceField.getReferencedType().getName().replace('-', '_');
         ComplexTypeMetadata referencedType = new SoftTypeRef(internalRepository, referenceField.getReferencedType().getNamespace(), typeName, true);
         FieldMetadata referencedField = new SoftIdFieldRef(internalRepository, typeName);
@@ -87,7 +85,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     referenceField.getHideUsers());
             database.addField(newFlattenField);
         } else {
-            newFlattenField = new SoftFieldRef(internalRepository, getColumnName(referenceField, true), referenceField.getContainingType());
+            newFlattenField = new SoftFieldRef(internalRepository, getColumnName(referenceField), referenceField.getContainingType());
         }
         typeMapping.map(referenceField, newFlattenField);
         return typeMapping;
@@ -128,7 +126,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     false,
                     simpleField.isMany(),
                     isDatabaseMandatory(simpleField, declaringType),
-                    getColumnName(simpleField, true),
+                    getColumnName(simpleField),
                     simpleField.getType(),
                     simpleField.getWriteUsers(),
                     simpleField.getHideUsers());
@@ -144,7 +142,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     false,
                     simpleField.isMany(),
                     isDatabaseMandatory(simpleField, declaringType),
-                    getColumnName(simpleField, true),
+                    getColumnName(simpleField),
                     simpleField.getType(),
                     simpleField.getWriteUsers(),
                     simpleField.getHideUsers());
@@ -166,13 +164,13 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     isKey,
                     enumField.isMany(),
                     isDatabaseMandatory(enumField, enumField.getDeclaringType()),
-                    getColumnName(enumField, true),
+                    getColumnName(enumField),
                     enumField.getType(),
                     enumField.getWriteUsers(),
                     enumField.getHideUsers());
             database.addField(newFlattenField);
         } else {
-            newFlattenField = new SoftFieldRef(internalRepository, getColumnName(enumField, true), enumField.getContainingType());
+            newFlattenField = new SoftFieldRef(internalRepository, getColumnName(enumField), enumField.getContainingType());
         }
         typeMapping.map(enumField, newFlattenField);
         return typeMapping;

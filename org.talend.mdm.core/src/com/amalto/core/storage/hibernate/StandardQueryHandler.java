@@ -27,6 +27,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.*;
 import org.hibernate.impl.CriteriaImpl;
 import org.hibernate.sql.JoinFragment;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import java.util.*;
 
@@ -344,6 +345,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 }
             }
             criteria.setProjection(projectionList);
+        } else {
+            // Hibernate sometimes returns duplicate results (like for User stored in System storage), this line
+            // avoids this situation.
+            criteria.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE);
         }
         // Make projection read only in case code tries to modify it later (see code that handles condition).
         projectionList = ReadOnlyProjectionList.makeReadOnly(projectionList);
@@ -702,7 +707,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             if (condition.getLeft() instanceof Field) {
                 Field leftField = (Field) condition.getLeft();
                 FieldMetadata fieldMetadata = leftField.getFieldMetadata();
-                String alias = mainType.getName();
+                String alias = mapping.getDatabase().getName();
                 FieldMetadata left = mapping.getDatabase(fieldMetadata);
                 // TODO Ugly code path to fix once test coverage is ok.
                 if (!mainType.equals(fieldMetadata.getContainingType()) || fieldMetadata instanceof ReferenceFieldMetadata) {

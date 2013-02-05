@@ -84,12 +84,10 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         if (containingType == null) {
             throw new IllegalStateException("Could not find containing type mapping for field '" + fieldMetadata.getName() + "'.");
         }
-
         TypeMapping mapping = repository.getMappingFromUser(containingType);
         if (mapping == null) {
             throw new IllegalArgumentException("Type '" + containingType.getName() + "' does not have a mapping.");
         }
-
         String fieldName;
         FieldMetadata flattenField = mapping.getDatabase(fieldMetadata);
         if (flattenField == null) {
@@ -110,7 +108,7 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         }
 
         if (includeTypeName) {
-            return mapping.getName() + '.' + fieldName;
+            return mapping.getDatabase().getName() + '.' + fieldName;
         } else {
             return fieldName;
         }

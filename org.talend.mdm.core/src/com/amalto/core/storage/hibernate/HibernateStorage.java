@@ -756,7 +756,7 @@ public class HibernateStorage implements Storage {
 
     private static class MetadataChecker extends DefaultMetadataVisitor<Object> {
 
-        Set<TypeMetadata> processedTypes = new HashSet<TypeMetadata>();
+        final Set<TypeMetadata> processedTypes = new HashSet<TypeMetadata>();
 
         @Override
         public Object visit(SimpleTypeFieldMetadata simpleField) {

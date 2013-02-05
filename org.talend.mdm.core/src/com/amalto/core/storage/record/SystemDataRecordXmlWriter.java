@@ -34,7 +34,7 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
         this(repository, ((String) null));
     }
 
-    public SystemDataRecordXmlWriter(ClassRepository repository, String rootElementName) {
+    private SystemDataRecordXmlWriter(ClassRepository repository, String rootElementName) {
         this.repository = repository;
         this.rootElementName = rootElementName;
     }

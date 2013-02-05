@@ -24,7 +24,7 @@ import java.util.Stack;
 
 public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecordReader.Input> {
 
-    public static final Logger LOGGER = Logger.getLogger(XmlSAXDataRecordReader.class);
+    private static final Logger LOGGER = Logger.getLogger(XmlSAXDataRecordReader.class);
 
     public static class Input {
 

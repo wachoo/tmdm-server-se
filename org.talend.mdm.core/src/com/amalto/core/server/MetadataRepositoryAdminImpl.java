@@ -18,7 +18,6 @@ import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocal;
@@ -41,10 +40,10 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
         try {
             dataModelControl = Util.getDataModelCtrlLocal();
             Collection<DataModelPOJOPK> allDataModelNames = dataModelControl.getDataModelPKs(".*"); //$NON-NLS-1$
-
             Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
             for (DataModelPOJOPK dataModelName : allDataModelNames) {
                 String id = dataModelName.getUniqueId();
+                // XML Schema's schema is not aimed to be parsed.
                 if (!"XMLSCHEMA---".equals(id) && !xDataClustersMap.containsKey(id)) { //$NON-NLS-1$
                     get(id);
                 }
@@ -99,7 +98,7 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
         assertMetadataRepositoryId(metadataRepositoryId);
         synchronized (metadataRepository) {
             try {
-                DataModelPOJOPK pk = new DataModelPOJOPK(StringUtils.substringBeforeLast(metadataRepositoryId, "#"));
+                DataModelPOJOPK pk = new DataModelPOJOPK(StringUtils.substringBeforeLast(metadataRepositoryId, "#")); //$NON-NLS-1$
                 return dataModelControl.existsDataModel(pk) != null;
             } catch (XtentisException e) {
                 throw new RuntimeException(e);
@@ -113,7 +112,7 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
             MetadataRepository repository = metadataRepository.get(metadataRepositoryId);
             if (repository == null) {
                 try {
-                    DataModelPOJOPK pk = new DataModelPOJOPK(StringUtils.substringBeforeLast(metadataRepositoryId, "#"));
+                    DataModelPOJOPK pk = new DataModelPOJOPK(StringUtils.substringBeforeLast(metadataRepositoryId, "#")); //$NON-NLS-1$
                     DataModelPOJO dataModel;
                     try {
                         dataModel = dataModelControl.existsDataModel(pk);
@@ -127,9 +126,9 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
 
                     repository = new MetadataRepository();
                     if (metadataRepositoryId.endsWith(StorageAdmin.STAGING_SUFFIX)) {  // Loads additional types for staging area.
-                        repository.load(MetadataRepositoryAdminImpl.class.getResourceAsStream("stagingInternalTypes.xsd"));
+                        repository.load(MetadataRepositoryAdminImpl.class.getResourceAsStream("stagingInternalTypes.xsd")); //$NON-NLS-1$
                     }
-                    repository.load(new ByteArrayInputStream(schemaAsString.getBytes("UTF-8")));
+                    repository.load(new ByteArrayInputStream(schemaAsString.getBytes("UTF-8"))); //$NON-NLS-1$
                     metadataRepository.put(metadataRepositoryId, repository);
                 } catch (Exception e) {
                     throw new RuntimeException(e);

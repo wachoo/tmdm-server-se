@@ -39,9 +39,9 @@ import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 public class SystemStorageWrapper extends StorageWrapper {
 
-    public static final String SYSTEM_PREFIX = "amaltoOBJECTS"; //$NON-NLS-1$
+    private static final String SYSTEM_PREFIX = "amaltoOBJECTS"; //$NON-NLS-1$
 
-    public static final String DROPPED_ITEM_TYPE = "dropped-item-pOJO"; //$NON-NLS-1$
+    private static final String DROPPED_ITEM_TYPE = "dropped-item-pOJO"; //$NON-NLS-1$
 
     private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
 

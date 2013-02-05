@@ -20,27 +20,24 @@ import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.util.XtentisException;
 
-/**
- * DOC Administrator  class global comment. Detailled comment
- */
 public interface IItemCtrlDelegatorService {
-	   public ArrayList<String> runItemsQuery(LinkedHashMap conceptPatternsToRevisionID, LinkedHashMap conceptPatternsToClusterName,
-	            String forceMainPivot, ArrayList viewableFullPaths, com.amalto.xmlserver.interfaces.IWhereItem whereItem,
-	            String orderBy, String direction, int start, int limit, int spellThreshold, boolean firstTotalCount, Map metaDataTypes, boolean withStartLimit)
-	            throws XtentisException;
 
-	   
-	    public ArrayList<String> runChildrenItemsQuery(String clusterName, String conceptName, String[] PKXpaths, String FKXpath,
-	            String labelXpath, String fatherPK, LinkedHashMap itemsRevisionIDs, String defaultRevisionID,
-	            com.amalto.xmlserver.interfaces.IWhereItem whereItem, int start, int limit) throws XtentisException;
-	   
-	    public ArrayList<String> runPivotIndexQuery(String clusterName, String mainPivotName, LinkedHashMap pivotWithKeys,
-	            LinkedHashMap itemsRevisionIDs, String defaultRevisionID, String[] indexPaths,
-	            com.amalto.xmlserver.interfaces.IWhereItem whereItem, String[] pivotDirections, String[] indexDirections, int start,
-	            int limit) throws XtentisException;
-	    
-	   public  ILocalUser getLocalUser() throws XtentisException;
-	   
-	   public ViewPOJO getViewPOJO(ViewPOJOPK viewPOJOPK)throws Exception;
-	   
+    public ArrayList<String> runItemsQuery(LinkedHashMap conceptPatternsToRevisionID, LinkedHashMap conceptPatternsToClusterName,
+                                           String forceMainPivot, ArrayList viewableFullPaths, com.amalto.xmlserver.interfaces.IWhereItem whereItem,
+                                           String orderBy, String direction, int start, int limit, int spellThreshold, boolean firstTotalCount, Map metaDataTypes, boolean withStartLimit)
+            throws XtentisException;
+
+    public ArrayList<String> runChildrenItemsQuery(String clusterName, String conceptName, String[] PKXpaths, String FKXpath,
+                                                   String labelXpath, String fatherPK, LinkedHashMap itemsRevisionIDs, String defaultRevisionID,
+                                                   com.amalto.xmlserver.interfaces.IWhereItem whereItem, int start, int limit) throws XtentisException;
+
+    public ArrayList<String> runPivotIndexQuery(String clusterName, String mainPivotName, LinkedHashMap pivotWithKeys,
+                                                LinkedHashMap itemsRevisionIDs, String defaultRevisionID, String[] indexPaths,
+                                                com.amalto.xmlserver.interfaces.IWhereItem whereItem, String[] pivotDirections, String[] indexDirections, int start,
+                                                int limit) throws XtentisException;
+
+    public ILocalUser getLocalUser() throws XtentisException;
+
+    public ViewPOJO getViewPOJO(ViewPOJOPK viewPOJOPK) throws Exception;
+
 }

@@ -43,7 +43,7 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
         xmlInputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.TRUE);
     }
 
-    public static final Logger LOGGER = Logger.getLogger(XmlStringDataRecordReader.class);
+    private static final Logger LOGGER = Logger.getLogger(XmlStringDataRecordReader.class);
 
     public DataRecord read(String revisionId, MetadataRepository repository, ComplexTypeMetadata type, String input) {
         if (type == null) {

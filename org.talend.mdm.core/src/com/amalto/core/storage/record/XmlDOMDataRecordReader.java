@@ -29,7 +29,7 @@ import java.util.List;
 
 public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
 
-    public static final Logger LOGGER = Logger.getLogger(XmlDOMDataRecordReader.class);
+    private static final Logger LOGGER = Logger.getLogger(XmlDOMDataRecordReader.class);
 
     public XmlDOMDataRecordReader() {
     }

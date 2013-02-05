@@ -91,7 +91,7 @@ class ManyFieldCriterion extends SQLCriterion {
 
         private final StringBuilder query = new StringBuilder();
 
-        private Object value;
+        private final Object value;
 
         private int currentIndex = 0;
 

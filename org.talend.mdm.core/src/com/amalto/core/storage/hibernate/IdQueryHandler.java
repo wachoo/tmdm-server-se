@@ -86,9 +86,9 @@ class IdQueryHandler extends AbstractQueryHandler {
                 iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, objectIterator, callbacks) {
                     @Override
                     public DataRecord next() {
-                        final DataRecord next = super.next();
-                        final ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, Storage.PROJECTION_TYPE, false);
-                        final DataRecord nextRecord = new DataRecord(explicitProjectionType, next.getRecordMetadata());
+                        DataRecord next = super.next();
+                        ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, Storage.PROJECTION_TYPE, false);
+                        DataRecord nextRecord = new DataRecord(explicitProjectionType, next.getRecordMetadata());
                         ExplicitProjectionAdapter projectionAdapter = new ExplicitProjectionAdapter(next, explicitProjectionType, nextRecord);
                         for (TypedExpression selectedField : selectedFields) {
                             selectedField.accept(projectionAdapter);
