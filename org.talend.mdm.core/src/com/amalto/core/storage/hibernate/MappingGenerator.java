@@ -26,14 +26,16 @@ import java.util.List;
 // TODO Refactor (+ NON-NLS)
 class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
+    /**
+     * Max limit for a string restriction (greater then this -> use CLOB or TEXT).
+     */
+    public static final int MAX_VARCHAR_TEXT_LIMIT = 255;
+
     public static final String DISCRIMINATOR_NAME = "x_talend_class"; //$NON-NLS-1$
 
     private static final String SQL_DELETE_CASCADE = "SQL_DELETE_CASCADE"; //$NON-NLS-1$
 
     private static final Logger LOGGER = Logger.getLogger(MappingGenerator.class);
-
-    // Max limit for a string restriction (greater then this -> use CLOB or TEXT).
-    private static final int MAX_VARCHAR_TEXT_LIMIT = 255;
 
     private static final String TEXT_TYPE_NAME = "text"; //$NON-NLS-1$
 

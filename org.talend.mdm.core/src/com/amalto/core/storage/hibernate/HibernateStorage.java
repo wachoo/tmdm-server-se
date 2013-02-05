@@ -216,9 +216,20 @@ public class HibernateStorage implements Storage {
             } catch (Exception e) {
                 throw new RuntimeException("Exception occurred during type mapping creation.", e);
             }
-            // Set MDM type to database resolver.
+            // Set fields to be indexed in database.
             Set<FieldMetadata> databaseIndexedFields = new HashSet<FieldMetadata>();
             for (FieldMetadata indexedField : indexedFields) {
+                // TMDM-5311: Don't index TEXT fields
+                TypeMetadata indexedFieldType = indexedField.getType();
+                if ("string".equals(indexedFieldType.getName())) { //$NON-NLS-1$
+                    Object maxLength = indexedFieldType.getData(MetadataRepository.DATA_MAX_LENGTH);
+                    if (maxLength != null && Integer.parseInt(String.valueOf(maxLength)) > MappingGenerator.MAX_VARCHAR_TEXT_LIMIT) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Ignore index on field '" + indexedField.getName() + "' because value is stored in TEXT.");
+                        }
+                        continue; // Don't take into indexed fields long text fields
+                    }
+                }
                 TypeMapping mapping = mappingRepository.getMappingFromUser(indexedField.getContainingType());
                 databaseIndexedFields.add(mapping.getDatabase(indexedField));
             }
