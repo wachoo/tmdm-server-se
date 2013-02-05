@@ -1914,6 +1914,29 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
     }
     
+    public void testRemoveSimpleTypeNodeWithOccurrence() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test52_original.xml", "metadata1.xsd");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test52.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, false, true, true,
+                false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("Description", evaluate(committedElement, "/Product/Description"));
+        assertEquals("60", evaluate(committedElement, "/Product/Price"));
+        assertEquals("Lemon", evaluate(committedElement, "/Product/Features/Colors/Color[1]"));
+        assertEquals("", evaluate(committedElement, "/Product/Features/Colors/Color[2]"));
+    }
+    
     private static class MockCommitter implements SaverSession.Committer {
 
         private Element committedElement;
