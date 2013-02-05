@@ -202,6 +202,11 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                         isDeletingContainedElement = true;
                         ((ContainedTypeFieldMetadata) comparedField).getContainedType().accept(this);
                         isDeletingContainedElement = false;
+                    } else if (!isDeletingContainedElement) {
+                        // TMDM-5257: RemoveSimpleTypeNodeWithOccurrence
+                        // Null values may happen if accessor is targeting an element that contains other elements
+                        actions.add(new FieldUpdateAction(date, source, userName, path, oldValue == null ? StringUtils.EMPTY
+                                : oldValue, null, comparedField));
                     }
                 }
                 if (isDeletingContainedElement) {
