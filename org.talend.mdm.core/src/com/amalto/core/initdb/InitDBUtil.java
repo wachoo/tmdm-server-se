@@ -107,9 +107,9 @@ public class InitDBUtil {
         updateDB("/com/amalto/core/initdb/data", initDB); //$NON-NLS-1$
         if (useExtension) {
             updateDB("/com/amalto/core/initdb/extensiondata", initExtensionDB); //$NON-NLS-1$
+            //init db extension job
+            InitDbExtJobRepository.getInstance().execute();
         }
-        //init db extension job
-        InitDbExtJobRepository.getInstance().execute();
     }
 
     private static void updateDB(String resourcePath, Map<String, List<String>> initdb) {
