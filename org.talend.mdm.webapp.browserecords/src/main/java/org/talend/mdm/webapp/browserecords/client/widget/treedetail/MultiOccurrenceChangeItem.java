@@ -116,6 +116,8 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                 }
             });
             this.add(field);
+            field.getElement().getParentElement().getStyle().setPaddingTop(3D, Unit.PX);
+            field.getElement().getParentElement().getStyle().setPaddingBottom(3D, Unit.PX);
         }
 
         if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
@@ -152,9 +154,6 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         }
         this.setCellWidth(label, "200px"); //$NON-NLS-1$
         this.setVisible(typeModel.isVisible());
-        Widget w = this.getWidget(this.getWidgetCount() - 1);
-        w.getElement().getParentElement().getStyle().setPaddingTop(4D, Unit.PX);
-        w.getElement().getParentElement().getStyle().setPaddingBottom(4D, Unit.PX);
     }
 
     public void clearValue() {

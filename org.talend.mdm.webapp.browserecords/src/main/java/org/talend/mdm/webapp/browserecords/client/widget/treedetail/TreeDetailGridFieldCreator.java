@@ -445,12 +445,16 @@ public class TreeDetailGridFieldCreator {
             return;
         if (field instanceof NumberField) {
             ((NumberField) field).setAllowBlank(!mandatory);
+            field.validate();
         } else if (field instanceof BooleanField) {
             ((BooleanField) field).setAllowBlank(!mandatory);
+            field.validate();
         } else if (field instanceof DateField) {
             ((DateField) field).setAllowBlank(!mandatory);
+            field.validate();
         } else if (field instanceof TextField) {
             ((TextField) field).setAllowBlank(!mandatory);
+            field.validate();
         }
     }
 
