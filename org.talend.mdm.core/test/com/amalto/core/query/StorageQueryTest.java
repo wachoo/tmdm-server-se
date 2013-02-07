@@ -341,6 +341,26 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+
+    public void testSelectByIdExclusion() throws Exception {
+        List<FieldMetadata> keyFields = person.getKeyFields();
+        assertEquals(1, keyFields.size());
+        FieldMetadata keyField = keyFields.get(0);
+
+        UserQueryBuilder qb = from(person).where(not(eq(person.getField("id"), "1")));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get(keyField));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
     public void testSelectByIdWithProjection() throws Exception {
         List<FieldMetadata> keyFields = person.getKeyFields();
         assertEquals(1, keyFields.size());
