@@ -528,11 +528,11 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 listElement.getAttributes().setNamedItem(tableName);
                 // lazy="false"
                 Attr lazyAttribute = document.createAttribute("lazy"); //$NON-NLS-1$
-                lazyAttribute.setValue("true"); //$NON-NLS-1$
+                lazyAttribute.setValue("false"); //$NON-NLS-1$
                 listElement.getAttributes().setNamedItem(lazyAttribute);
                 // fetch="join"
                 Attr fetchAttribute = document.createAttribute("fetch"); //$NON-NLS-1$
-                fetchAttribute.setValue("select"); //$NON-NLS-1$
+                fetchAttribute.setValue("join"); //$NON-NLS-1$
                 listElement.getAttributes().setNamedItem(fetchAttribute);
                 // cascade="delete"
                 Attr cascade = document.createAttribute("cascade"); //$NON-NLS-1$

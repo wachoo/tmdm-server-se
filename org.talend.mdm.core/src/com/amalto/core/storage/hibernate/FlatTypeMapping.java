@@ -97,9 +97,22 @@ class FlatTypeMapping extends TypeMapping {
                         if (list == null) {
                             to.set(databaseField.getName(), value);
                         } else {
-                            List valueList = (List) value;
                             if (value != null) {
-                                list.retainAll(valueList);
+                                List valueList = (List) value;
+                                Iterator iterator = valueList.iterator();
+                                for (int i = 0; iterator.hasNext(); i++) {
+                                    Object nextNew = iterator.next();
+                                    if (nextNew != null) {
+                                        if (i < list.size() && !nextNew.equals(list.get(i))) {
+                                            list.set(i, nextNew);
+                                        } else if (i >= list.size()) {
+                                            list.add(i, nextNew);
+                                        }
+                                    }
+                                }
+                                while (list.size() > valueList.size()) {
+                                    list.remove(list.size() - 1);
+                                }
                             } else {
                                 list.clear();
                             }
