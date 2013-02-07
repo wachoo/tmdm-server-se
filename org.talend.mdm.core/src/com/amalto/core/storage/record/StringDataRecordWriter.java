@@ -147,7 +147,7 @@ public class StringDataRecordWriter implements DataRecordWriter {
 
                 @Override
                 public Void visit(ReferenceFieldMetadata referenceField) {
-                    transformedType.addField(new ReferenceFieldMetadata(transformedType, false, false, referenceField.isMandatory(), referenceField.getName(), referenceField.getReferencedField(), referenceField.getForeignKeyInfoField(), referenceField.isFKIntegrity(), referenceField.allowFKIntegrityOverride(), referenceField.getWriteUsers(), referenceField.getHideUsers()));
+                    transformedType.addField(new ReferenceFieldMetadata(transformedType, false, false, referenceField.isMandatory(), referenceField.getName(), referenceField.getReferencedField().getContainingType(), referenceField.getReferencedField(), referenceField.getForeignKeyInfoField(), referenceField.isFKIntegrity(), referenceField.allowFKIntegrityOverride(), referenceField.getType(), referenceField.getWriteUsers(), referenceField.getHideUsers()));
                     return null;
                 }
 

@@ -35,6 +35,7 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.ViewSearchResultsWriter;
+import com.amalto.core.util.Util;
 import com.amalto.core.util.*;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
@@ -223,7 +224,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 }
             }
             // Find revision id for type
-            String typeName = view.getSearchableBusinessElements().getList().get(0).split("/")[0]; //$NON-NLS-1$
+            String typeName = ((String)view.getSearchableBusinessElements().getList().get(0)).split("/")[0]; //$NON-NLS-1$
             String revisionId = universe.getConceptRevisionID(typeName);
             // Try to get storage for revision
             Server server = ServerContext.INSTANCE.get();
