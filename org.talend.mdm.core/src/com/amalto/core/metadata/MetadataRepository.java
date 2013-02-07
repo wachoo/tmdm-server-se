@@ -131,9 +131,14 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
     }
 
     public void load(InputStream inputStream) {
+        load(inputStream, DefaultValidationHandler.INSTANCE);
+    }
+
+    public void load(InputStream inputStream, ValidationHandler handler) {
         if (inputStream == null) {
             throw new IllegalArgumentException("Input stream can not be null.");
         }
+        ValidationEventHandler validationEventHandler = new ValidationEventHandler();
         // TMDM-4444: Adds standard Talend types such as UUID.
         try {
             XmlSchemaCollection collection = new XmlSchemaCollection();
@@ -141,7 +146,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
             if (internalTypes == null) {
                 throw new IllegalStateException("Could not find internal type data model.");
             }
-            collection.read(new InputStreamReader(internalTypes, "UTF-8"), new ValidationEventHandler()); //$NON-NLS-1$
+            collection.read(new InputStreamReader(internalTypes, "UTF-8"), validationEventHandler); //$NON-NLS-1$
             XmlSchemaWalker.walk(collection, this);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Could not parse internal data model.", e); //$NON-NLS-1$
@@ -149,42 +154,39 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
         // Load user defined data model now
         try {
             XmlSchemaCollection collection = new XmlSchemaCollection();
-            collection.read(new InputStreamReader(inputStream, "UTF-8"), new ValidationEventHandler()); //$NON-NLS-1$
+            collection.read(new InputStreamReader(inputStream, "UTF-8"), validationEventHandler); //$NON-NLS-1$
             XmlSchemaWalker.walk(collection, this);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Could not parse data model.", e); //$NON-NLS-1$
         }
         // TMDM-4876 Additional processing for entity inheritance
-        resolveAdditionalSuperTypes();
+        resolveAdditionalSuperTypes(this, handler);
         // "Freeze" all types (a consequence of this will be validation of all fields).
         for (TypeMetadata type : getTypes()) {
-            type.freeze();
+            type.freeze(handler);
         }
     }
 
-    private void resolveAdditionalSuperTypes() {
-        Map<String, TypeMetadata> userEntityTypes = entityTypes.get(USER_NAMESPACE);
-        if (userEntityTypes != null) {
-            for (TypeMetadata current : userEntityTypes.values()) {
-                String complexTypeName = current.getData(COMPLEX_TYPE_NAME);
-                if (complexTypeName != null) {
-                    TypeMetadata nonInstantiableType = getNonInstantiableType(USER_NAMESPACE, complexTypeName);
-                    if (!nonInstantiableType.getSuperTypes().isEmpty()) {
-                        if (nonInstantiableType.getSuperTypes().size() > 1) {
-                            throw new UnsupportedOperationException("Multiple inheritance is not supported.");
+    private static void resolveAdditionalSuperTypes(MetadataRepository repository, ValidationHandler handler) {
+        Collection<ComplexTypeMetadata> types = repository.getUserComplexTypes();
+        for (TypeMetadata current : types) {
+            String complexTypeName = current.getData(COMPLEX_TYPE_NAME);
+            if (complexTypeName != null) {
+                TypeMetadata nonInstantiableType = repository.getNonInstantiableType(USER_NAMESPACE, complexTypeName);
+                if (!nonInstantiableType.getSuperTypes().isEmpty()) {
+                    if (nonInstantiableType.getSuperTypes().size() > 1) {
+                        handler.error("Multiple inheritance is not supported.");
+                    }
+                    TypeMetadata superType = nonInstantiableType.getSuperTypes().iterator().next();
+                    ComplexTypeMetadata entitySuperType = null;
+                    for (TypeMetadata entity : types) {
+                        if (superType.getName().equals(entity.getData(COMPLEX_TYPE_NAME))) {
+                            entitySuperType = (ComplexTypeMetadata) entity;
+                            break;
                         }
-                        TypeMetadata superType = nonInstantiableType.getSuperTypes().iterator().next();
-                        Collection<TypeMetadata> entities = userEntityTypes.values();
-                        ComplexTypeMetadata entitySuperType = null;
-                        for (TypeMetadata entity : entities) {
-                            if (superType.getName().equals(entity.getData(COMPLEX_TYPE_NAME))) {
-                                entitySuperType = (ComplexTypeMetadata) entity;
-                                break;
-                            }
-                        }
-                        if (entitySuperType != null) {
-                            current.addSuperType(entitySuperType, this);
-                        }
+                    }
+                    if (entitySuperType != null) {
+                        current.addSuperType(entitySuperType, repository);
                     }
                 }
             }
@@ -507,7 +509,19 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
             }
         }
         if (isReference) {
-            return new ReferenceFieldMetadata(containingType, false, isMany, isMandatory, fieldName, (ComplexTypeMetadata) referencedType, referencedField, foreignKeyInfo, fkIntegrity, fkIntegrityOverride, allowWriteUsers, hideUsers);
+            return new ReferenceFieldMetadata(containingType,
+                    false,
+                    isMany,
+                    isMandatory,
+                    fieldName,
+                    (ComplexTypeMetadata) referencedType,
+                    referencedField,
+                    foreignKeyInfo,
+                    fkIntegrity,
+                    fkIntegrityOverride,
+                    fieldType,
+                    allowWriteUsers,
+                    hideUsers);
         } else if (isContained) {
             return new ContainedTypeFieldMetadata(containingType, isMany, isMandatory, fieldName, (ContainedComplexTypeMetadata) referencedType, allowWriteUsers, hideUsers);
         } else {

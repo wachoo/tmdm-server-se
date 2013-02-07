@@ -83,8 +83,9 @@ public interface TypeMetadata extends MetadataVisitable, MetadataExtensible {
      * when this method is called.
      *
      * @return A {@link TypeMetadata} that can't be modified afterwards.
+     * @param handler
      */
-    TypeMetadata freeze();
+    TypeMetadata freeze(ValidationHandler handler);
 
     /**
      * @return <code>true</code> if this type can be used to create an entity in MDM, <code>false</code> otherwise. A
@@ -93,7 +94,7 @@ public interface TypeMetadata extends MetadataVisitable, MetadataExtensible {
     boolean isInstantiable();
 
     /**
-     * @return <code>true</code> if type can not be modified ({@link #freeze()} was previously called), <code>false</code>
+     * @return <code>true</code> if type can not be modified ({@link #freeze(ValidationHandler)} was previously called), <code>false</code>
      * otherwise.
      */
     boolean isFrozen();

@@ -93,11 +93,12 @@ public interface FieldMetadata extends MetadataVisitable, MetadataExtensible {
     void setContainingType(ComplexTypeMetadata typeMetadata);
 
     /**
-     * Freezes all modifications that can be done to a field. Similar to {@link com.amalto.core.metadata.TypeMetadata#freeze()}.
+     * Freezes all modifications that can be done to a field. Similar to {@link TypeMetadata#freeze(ValidationHandler)}.
      * @return A frozen field metadata.
-     * @see com.amalto.core.metadata.TypeMetadata#freeze()
+     * @see TypeMetadata#freeze(ValidationHandler)
+     * @param handler A {@link ValidationHandler} to receive all data model errors and warnings (if any).
      */
-    FieldMetadata freeze();
+    FieldMetadata freeze(ValidationHandler handler);
 
     /**
      * Promotes this field to "key". After this method has been called, {@link #isKey()} must return <code>true</code>.

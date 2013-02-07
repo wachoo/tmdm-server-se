@@ -12,8 +12,6 @@ package com.amalto.core.metadata;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
  *
  */
@@ -24,6 +22,8 @@ public class SoftIdFieldRef implements FieldMetadata {
     private final String typeName;
 
     private final String fieldName;
+
+    private FieldMetadata frozenField;
 
     public SoftIdFieldRef(MetadataRepository metadataRepository, String typeName) {
         this(metadataRepository, typeName, null);
@@ -36,27 +36,10 @@ public class SoftIdFieldRef implements FieldMetadata {
     }
 
     private FieldMetadata getField() {
-        ComplexTypeMetadata type = (ComplexTypeMetadata) repository.getType(typeName);
-        if (type == null) {
-            type = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), typeName);
+        if (frozenField == null) {
+            throw new IllegalStateException("Field reference should be frozen before used.");
         }
-        if (type == null) {
-            throw new IllegalArgumentException("Type '" + typeName + "' does not exist.");
-        }
-        List<FieldMetadata> keyFields = type.getKeyFields();
-        if (keyFields.isEmpty()) {
-            throw new IllegalArgumentException("Type '" + typeName + "' does not own a key and no FK field was defined.");
-        }
-
-        if (fieldName == null) {
-            if (keyFields.size() == 1) {
-                return keyFields.get(0);
-            } else {
-                return new CompoundFieldMetadata(keyFields.toArray(new FieldMetadata[keyFields.size()]));
-            }
-        } else {
-            return type.getField(fieldName);
-        }
+        return frozenField;
     }
 
     @Override
@@ -66,7 +49,7 @@ public class SoftIdFieldRef implements FieldMetadata {
 
     @Override
     public <X> X getData(String key) {
-        return getField().<X> getData(key);
+        return getField().getData(key);
     }
 
     @Override
@@ -99,8 +82,33 @@ public class SoftIdFieldRef implements FieldMetadata {
     }
 
     @Override
-    public FieldMetadata freeze() {
-        return getField().freeze();
+    public FieldMetadata freeze(ValidationHandler handler) {
+        if (frozenField != null) {
+            return frozenField;
+        }
+        ComplexTypeMetadata type = (ComplexTypeMetadata) repository.getType(typeName);
+        if (type == null) {
+            type = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), typeName);
+        }
+        if (type == null) {
+            handler.error("Type '" + typeName + "' does not exist.");
+            return this;
+        }
+        List<FieldMetadata> keyFields = type.getKeyFields();
+        if (keyFields.isEmpty()) {
+            handler.error("Type '" + typeName + "' does not own a key and no FK field was defined.");
+            return this;
+        }
+        if (fieldName == null) {
+            if (keyFields.size() == 1) {
+                frozenField = keyFields.get(0);
+            } else {
+                frozenField = new CompoundFieldMetadata(keyFields.toArray(new FieldMetadata[keyFields.size()]));
+            }
+        } else {
+            frozenField = type.getField(fieldName);
+        }
+        return frozenField;
     }
 
     @Override

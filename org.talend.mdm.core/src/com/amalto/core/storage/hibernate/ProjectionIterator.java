@@ -171,14 +171,30 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             currentElement.field = field;
         }
 
-        @Override
+        private void createReferenceElement(ReferenceFieldMetadata fieldMetadata) {
+            FieldMetadata field = new ReferenceFieldMetadata(explicitProjectionType,
+                    false,
+                    false,
+                    false,
+                    fieldMetadata.getName(),
+                    fieldMetadata.getReferencedType(),
+                    fieldMetadata.getReferencedField(),
+                    fieldMetadata.getForeignKeyInfoField(),
+                    false,
+                    false,
+                    new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"),
+                    Collections.<String>emptyList(),
+                    Collections.<String>emptyList());
+            currentElement = new ProjectionElement();
+            currentElement.field = field;
+        }
+
         public ProjectionElement visit(Count count) {
             // Do nothing on field creation, count is expected to be nested in a com.amalto.core.query.user.Alias.
             currentElement.value = values[currentIndex++];
             return null;
         }
 
-        @Override
         public ProjectionElement visit(Alias alias) {
             isAlias = true;
             if (alias.getTypedExpression() instanceof Field) {
@@ -193,7 +209,6 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             return currentElement;
         }
 
-        @Override
         public ProjectionElement visit(Type type) {
             Object value = values[currentIndex++];
             if (value != null) {
@@ -214,13 +229,11 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             return currentElement;
         }
 
-        @Override
         public ProjectionElement visit(StringConstant constant) {
             currentElement.value = values[currentIndex++];
             return currentElement;
         }
 
-        @Override
         public ProjectionElement visit(Timestamp timestamp) {
             if (!isAlias) {
                 createElement(Timestamp.TIMESTAMP_TYPE_NAME, Storage.METADATA_TIMESTAMP);
@@ -229,7 +242,6 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             return currentElement;
         }
 
-        @Override
         public ProjectionElement visit(TaskId taskId) {
             if (!isAlias) {
                 createElement(TaskId.TASK_ID_TYPE_NAME, Storage.METADATA_TASK_ID);
@@ -238,12 +250,14 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             return currentElement;
         }
 
-        @Override
         public ProjectionElement visit(Field field) {
             FieldMetadata fieldMetadata = field.getFieldMetadata();
             if (!isAlias) {
-                currentElement = new ProjectionElement();
-                currentElement.field = fieldMetadata;
+                if (fieldMetadata instanceof ReferenceFieldMetadata) {
+                    createReferenceElement(((ReferenceFieldMetadata) fieldMetadata));
+                } else {
+                    createElement(fieldMetadata.getType().getName(), fieldMetadata.getName());
+                }
             }
             if (fieldMetadata instanceof ReferenceFieldMetadata && ((ReferenceFieldMetadata) fieldMetadata).getReferencedField() instanceof CompoundFieldMetadata) {
                 FieldMetadata referencedField = ((ReferenceFieldMetadata) fieldMetadata).getReferencedField();
@@ -271,7 +285,6 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             return true;
         }
 
-        @Override
         public ProjectionElement visit(StagingStatus stagingStatus) {
             if (!isAlias) {
                 createElement(StagingStatus.STATING_STATUS_TYPE_NAME, Storage.METADATA_STAGING_STATUS);
@@ -280,7 +293,6 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             return currentElement;
         }
 
-        @Override
         public ProjectionElement visit(StagingError stagingError) {
             if (!isAlias) {
                 createElement(StagingError.STATING_ERROR_TYPE_NAME, Storage.METADATA_STAGING_ERROR);
@@ -289,7 +301,6 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
             return currentElement;
         }
 
-        @Override
         public ProjectionElement visit(StagingSource stagingSource) {
             if (!isAlias) {
                 createElement(StagingSource.STATING_SOURCE_TYPE_NAME, Storage.METADATA_STAGING_SOURCE);

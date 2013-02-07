@@ -14,6 +14,7 @@ package com.amalto.core.storage.hibernate;
 import com.amalto.core.metadata.*;
 import org.apache.commons.lang.StringUtils;
 
+import javax.xml.XMLConstants;
 import java.util.Collections;
 import java.util.Stack;
 
@@ -37,10 +38,21 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     private TypeMapping handleField(FieldMetadata field) {
         SimpleTypeFieldMetadata newFlattenField;
         String name = getFieldName(field);
-        newFlattenField = new SimpleTypeFieldMetadata(currentType.peek(), false, field.isMany(), field.isMandatory(), name, field.getType(), field.getWriteUsers(), field.getHideUsers());
+        newFlattenField = new SimpleTypeFieldMetadata(currentType.peek(),
+                false,
+                field.isMany(),
+                field.isMandatory(),
+                name,
+                field.getType(),
+                field.getWriteUsers(),
+                field.getHideUsers());
         TypeMetadata declaringType = field.getDeclaringType();
         if (declaringType != field.getContainingType() && declaringType.isInstantiable()) {
-            newFlattenField.setDeclaringType(new SoftTypeRef(internalRepository, declaringType.getNamespace(), declaringType.getName(), true));
+            SoftTypeRef type = new SoftTypeRef(internalRepository,
+                    declaringType.getNamespace(),
+                    declaringType.getName(),
+                    true);
+            newFlattenField.setDeclaringType(type);
         }
         currentType.peek().addField(newFlattenField);
         mapping.map(field, newFlattenField);
@@ -57,9 +69,15 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         ComplexTypeMetadata fieldReferencedType = referenceField.getReferencedType();
         ComplexTypeMetadata referencedType;
         if (fieldReferencedType.isInstantiable()) {
-            referencedType = new SoftTypeRef(internalRepository, StringUtils.EMPTY, fieldReferencedType.getName(), true);
+            referencedType = new SoftTypeRef(internalRepository,
+                    fieldReferencedType.getNamespace(),
+                    fieldReferencedType.getName(),
+                    true);
         } else {
-            referencedType = new SoftTypeRef(internalRepository, StringUtils.EMPTY, newNonInstantiableTypeName(fieldReferencedType), true);
+            referencedType = new SoftTypeRef(internalRepository,
+                    fieldReferencedType.getNamespace(),
+                    newNonInstantiableTypeName(fieldReferencedType),
+                    true);
         }
 
         FieldMetadata referencedFieldCopy = new SoftIdFieldRef(internalRepository, referencedType.getName());
@@ -77,6 +95,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 null,
                 fkIntegrity,
                 referenceField.allowFKIntegrityOverride(),
+                new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"),
                 referenceField.getWriteUsers(),
                 referenceField.getHideUsers());
         database.addField(newFlattenField);
@@ -160,6 +179,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 null,
                 false,  // No need to enforce FK in references to these technical objects.
                 false,
+                new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"),
                 containedField.getWriteUsers(),
                 containedField.getHideUsers());
         newFlattenField.setData("SQL_DELETE_CASCADE", "true"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -193,13 +213,28 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             internalRepository.addTypeMetadata(database);
             if (complexType.getKeyFields().isEmpty() && complexType.getSuperTypes().isEmpty()) { // Assumes super type will define an id.
                 SoftTypeRef type = new SoftTypeRef(internalRepository, StringUtils.EMPTY, "UUID", false); //$NON-NLS-1$
-                database.addField(new SimpleTypeFieldMetadata(database, true, false, true, GENERATED_ID, type, Collections.<String>emptyList(), Collections.<String>emptyList()));
+                database.addField(new SimpleTypeFieldMetadata(database,
+                        true,
+                        false,
+                        true,
+                        GENERATED_ID,
+                        type,
+                        Collections.<String>emptyList(),
+                        Collections.<String>emptyList()));
             }
             for (TypeMetadata superType : complexType.getSuperTypes()) {
                 if (superType.isInstantiable()) {
-                    database.addSuperType(new SoftTypeRef(internalRepository, superType.getNamespace(), superType.getName(), superType.isInstantiable()), internalRepository);
+                    SoftTypeRef type = new SoftTypeRef(internalRepository,
+                            superType.getNamespace(),
+                            superType.getName(),
+                            superType.isInstantiable());
+                    database.addSuperType(type, internalRepository);
                 } else {
-                    database.addSuperType(new SoftTypeRef(internalRepository, superType.getNamespace(), getNonInstantiableTypeName(superType.getName()), superType.isInstantiable()), internalRepository);
+                    SoftTypeRef type = new SoftTypeRef(internalRepository,
+                            superType.getNamespace(),
+                            getNonInstantiableTypeName(superType.getName()),
+                            superType.isInstantiable());
+                    database.addSuperType(type, internalRepository);
                 }
             }
             super.visit(complexType);

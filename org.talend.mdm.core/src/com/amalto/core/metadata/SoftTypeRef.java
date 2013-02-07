@@ -146,8 +146,8 @@ public class SoftTypeRef implements ComplexTypeMetadata {
     }
 
     @Override
-    public TypeMetadata freeze() {
-        return getType().freeze();
+    public TypeMetadata freeze(ValidationHandler handler) {
+        return getType().freeze(handler);
     }
 
     @Override

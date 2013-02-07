@@ -59,14 +59,14 @@ public class CompoundFieldMetadata extends AbstractMetadataExtensible implements
         throw new UnsupportedOperationException();
     }
 
-    public FieldMetadata freeze() {
+    public FieldMetadata freeze(ValidationHandler handler) {
         if (isFrozen) {
             return this;
         }
         isFrozen = true;
         int i = 0;
         for (FieldMetadata field : fields) {
-            fields[i++] = field.freeze();
+            fields[i++] = field.freeze(handler);
         }
         return this;
     }

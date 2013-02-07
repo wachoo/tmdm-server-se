@@ -22,6 +22,7 @@ import java.util.Set;
 
 import javax.xml.XMLConstants;
 
+import com.amalto.core.metadata.*;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.KeywordAnalyzer;
@@ -36,14 +37,6 @@ import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.ComplexTypeMetadataImpl;
-import com.amalto.core.metadata.DefaultMetadataVisitor;
-import com.amalto.core.metadata.EnumerationFieldMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
-import com.amalto.core.metadata.SimpleTypeFieldMetadata;
-import com.amalto.core.metadata.SimpleTypeMetadata;
 import com.amalto.core.query.user.Alias;
 import com.amalto.core.query.user.BinaryLogicOperator;
 import com.amalto.core.query.user.Compare;
@@ -277,7 +270,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                             nextRecord.set(field, next.get(field));
                         }
                     }
-                    explicitProjectionType.freeze();
+                    explicitProjectionType.freeze(DefaultValidationHandler.INSTANCE);
                     return nextRecord;
                 }
             };
