@@ -438,7 +438,7 @@ public class HibernateStorage implements Storage {
                 @Override
                 public void onEndOfResults() {
                     if (session.isOpen()) { // Prevent any problem if anyone (Hibernate...) already closed session.
-                        session.getTransaction().commit();
+                        session.close();
                     } else {
                         if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("Attempted to close session on end of query result, but it has already been done.");

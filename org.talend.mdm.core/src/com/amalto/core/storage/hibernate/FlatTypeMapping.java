@@ -121,9 +121,9 @@ class FlatTypeMapping extends TypeMapping {
                             to.set(databaseField.getName(), null);
                         }
                     } else {
-                        List list = (List) to.get(databaseField.getName());
+                        List<Object> list = (List<Object>) to.get(databaseField.getName());
                         if (list == null) {
-                            list = new LinkedList();
+                            list = new LinkedList<Object>();
                             to.set(databaseField.getName(), list);
                         }
                         if (value != null) {
@@ -199,9 +199,19 @@ class FlatTypeMapping extends TypeMapping {
                                         FieldMetadata currentField = pathToValue.next();
                                         current = ((DataRecord) current).get(currentField);
                                     }
-                                    if (current == null) {
-                                        to.set(databaseMapping.getName(), null);
+                                    if (databaseMapping.isMany()) {
+                                        List list = (List) to.get(databaseMapping.getName());
+                                        if (current == null) {
+                                            if (list != null) {
+                                                list.clear();
+                                            }
+                                        } else {
+                                            resetList(list, ((List) current));
+                                        }
+                                    } else {
+                                        to.set(databaseMapping.getName(), current);
                                     }
+
                                 }
                             }
                         } else {
@@ -217,10 +227,10 @@ class FlatTypeMapping extends TypeMapping {
         }
     }
 
-    private static void resetList(List oldValues, List newValues) {
-        Iterator iterator = newValues.iterator();
+    private static <T> void resetList(List<T> oldValues, List<T> newValues) {
+        Iterator<T> iterator = newValues.iterator();
         for (int i = 0; iterator.hasNext(); i++) {
-            Object nextNew = iterator.next();
+            T nextNew = iterator.next();
             if (nextNew != null) {
                 if (i < oldValues.size() && !nextNew.equals(oldValues.get(i))) {
                     oldValues.set(i, nextNew);
