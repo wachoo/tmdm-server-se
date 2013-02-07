@@ -176,12 +176,7 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     @Override
     public AbstractQueryHandler visit(UnaryLogicOperator condition) {
-        // TMDM-5319: Using a 'not' predicate, don't do a get by id.
-        if (condition.getPredicate() == Predicate.NOT) {
-            isOnlyId = false;
-        } else {
-            condition.getCondition().accept(this);
-        }
+        condition.getCondition().accept(this);
         return null;
     }
 
