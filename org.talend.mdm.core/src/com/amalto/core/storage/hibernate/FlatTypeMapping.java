@@ -99,21 +99,7 @@ class FlatTypeMapping extends TypeMapping {
                             to.set(databaseField.getName(), value);
                         } else {
                             if (value != null) {
-                                List valueList = (List) value;
-                                Iterator iterator = valueList.iterator();
-                                for (int i = 0; iterator.hasNext(); i++) {
-                                    Object nextNew = iterator.next();
-                                    if (nextNew != null) {
-                                        if (i < list.size() && !nextNew.equals(list.get(i))) {
-                                            list.set(i, nextNew);
-                                        } else if (i >= list.size()) {
-                                            list.add(i, nextNew);
-                                        }
-                                    }
-                                }
-                                while (list.size() > valueList.size()) {
-                                    list.remove(list.size() - 1);
-                                }
+                                resetList(list, (List) value);
                             } else {
                                 list.clear();
                             }
@@ -123,26 +109,32 @@ class FlatTypeMapping extends TypeMapping {
                     StorageClassLoader storageClassLoader = (StorageClassLoader) Thread.currentThread().getContextClassLoader();
                     if (!field.isMany()) {
                         DataRecord dataRecordValue = (DataRecord) value;
-                        Object referencedObject = null;
                         if (dataRecordValue != null) {
                             TypeMetadata referencedType = dataRecordValue.getType();
                             Class<?> referencedClass = storageClassLoader.findClass(referencedType.getName());
-                            referencedObject = createReferencedObject(session, (ComplexTypeMetadata) referencedType, referencedClass, dataRecordValue);
+                            Object referencedObject = createReferencedObject(session, (ComplexTypeMetadata) referencedType, referencedClass, dataRecordValue);
+                            Object databaseValue = to.get(databaseField.getName());
+                            if (databaseValue == null || !referencedObject.equals(databaseValue)) {
+                                to.set(databaseField.getName(), referencedObject);
+                            }
+                        } else {
+                            to.set(databaseField.getName(), null);
                         }
-                        to.set(databaseField.getName(), referencedObject);
                     } else {
-                        List list = (List) to.get(field.getName());
+                        List list = (List) to.get(databaseField.getName());
                         if (list == null) {
                             list = new LinkedList();
                             to.set(databaseField.getName(), list);
                         }
                         if (value != null) {
                             List<DataRecord> valueList = (List<DataRecord>) value;
+                            List<Object> newValues = new LinkedList<Object>();
                             for (DataRecord current : valueList) {
                                 TypeMetadata referencedType = current.getType();
                                 Class<?> referencedClass = storageClassLoader.findClass(referencedType.getName());
-                                list.add(createReferencedObject(session, (ComplexTypeMetadata) referencedType, referencedClass, current));
+                                newValues.add(createReferencedObject(session, (ComplexTypeMetadata) referencedType, referencedClass, current));
                             }
+                            resetList(list, newValues);
                         } else {
                             list.clear();
                         }
@@ -222,6 +214,23 @@ class FlatTypeMapping extends TypeMapping {
             to.timestamp(from.getRecordMetadata().getLastModificationTime());
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static void resetList(List oldValues, List newValues) {
+        Iterator iterator = newValues.iterator();
+        for (int i = 0; iterator.hasNext(); i++) {
+            Object nextNew = iterator.next();
+            if (nextNew != null) {
+                if (i < oldValues.size() && !nextNew.equals(oldValues.get(i))) {
+                    oldValues.set(i, nextNew);
+                } else if (i >= oldValues.size()) {
+                    oldValues.add(i, nextNew);
+                }
+            }
+        }
+        while (oldValues.size() > newValues.size()) {
+            oldValues.remove(oldValues.size() - 1);
         }
     }
 

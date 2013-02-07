@@ -29,7 +29,7 @@ public class ListBridge implements TwoWayFieldBridge {
         return getValueFromObject((List) object);
     }
 
-    private String getValueFromObject(List object) {
+    private static String getValueFromObject(List object) {
         if (object == null) {
             return StringUtils.EMPTY;
         }
