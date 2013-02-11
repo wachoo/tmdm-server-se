@@ -107,6 +107,9 @@ public class SystemStorageTest extends TestCase {
             try {
                 document = documentBuilder.parse(fis1);
                 typeName = document.getDocumentElement().getNodeName();
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
             } finally {
                 fis1.close();
             }
@@ -298,12 +301,12 @@ public class SystemStorageTest extends TestCase {
                 }, new IOFileFilter() {
                     @Override
                     public boolean accept(File file) {
-                        return true;
+                        return !".svn".equals(file.getName());
                     }
 
                     @Override
                     public boolean accept(File file, String s) {
-                        return true;
+                        return !".svn".equals(file.getName());
                     }
                 }
         );
