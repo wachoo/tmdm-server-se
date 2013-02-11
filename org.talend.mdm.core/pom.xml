@@ -43,8 +43,14 @@
                 <includes>
                     <include>**/**.zip</include>
                     <include>**/**.xsd</include>
-                    <include>**/**.xml</include>
                     <include>**/**.dtd</include>
+                </includes>
+                <filtering>false</filtering>
+            </testResource>
+            <testResource>
+                <directory>test</directory>
+                <includes>
+                    <include>**/**.xml</include>
                 </includes>
                 <filtering>true</filtering>
             </testResource>
