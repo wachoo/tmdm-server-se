@@ -54,6 +54,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     public UpdateActionCreator(MutableDocument originalDocument,
                                MutableDocument newDocument,
+                               Date date,
                                boolean preserveCollectionOldValues,
                                String source,
                                String userName,
@@ -62,7 +63,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         this.originalDocument = originalDocument;
         this.newDocument = newDocument;
         this.repository = repository;
-        date = new Date(System.currentTimeMillis());
+        this.date = date;
         this.source = source;
         this.userName = userName;
     }

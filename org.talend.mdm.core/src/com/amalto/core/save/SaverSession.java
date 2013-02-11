@@ -129,7 +129,6 @@ public class SaverSession {
         synchronized (itemsPerDataCluster) {
             SaverSource saverSource = getSaverSource();
             boolean needResetAutoIncrement = false;
-
             MetadataRepository repository = null;
             ComplexTypeMetadata type = null;
             for (Map.Entry<String, Set<ItemPOJO>> currentTransaction : itemsPerDataCluster.entrySet()) {
@@ -152,7 +151,6 @@ public class SaverSession {
                 repository = null;
                 type = null;
             }
-
             // If any change was made to data cluster "UpdateReport", route committed update reports.
             Set<ItemPOJO> updateReport = itemsPerDataCluster.get("UpdateReport"); //$NON-NLS-1$
             if (updateReport != null) {
@@ -160,12 +158,10 @@ public class SaverSession {
                     saverSource.routeItem(updateReportPOJO.getDataClusterPOJOPK().getUniqueId(), updateReportPOJO.getConceptName(), updateReportPOJO.getItemIds());
                 }
             }
-
             // reset the AutoIncrement
             if (needResetAutoIncrement) {
                 saverSource.initAutoIncrement();
             }
-
             // Save current state of autoincrement when save is completed.
             if (hasMetAutoIncrement) {
                 // TMDM-3964 : Auto-Increment Id can not be saved immediately to DB
