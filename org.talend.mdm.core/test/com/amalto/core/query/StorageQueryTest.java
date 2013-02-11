@@ -1429,7 +1429,6 @@ public class StorageQueryTest extends StorageTestCase {
         qb = from(updateReport).where(condition);
         assertEquals(condition, qb.getSelect().getCondition());
         optimizer.optimize(qb.getSelect());
-        qb.getSelect().accept(new UserQueryDumpConsole());
         assertEquals(condition, qb.getSelect().getCondition()); // No data model: no optimization can be done.
 
         condition = and(eq(updateReport.getField("Concept"), "C"), eq(updateReport.getField("DataModel"), "metadata.xsd"));
