@@ -124,9 +124,8 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                 saver.save(session, context);
                 commitCount++;
                 if (commitCount % 200 == 0) {
-                    session.end(committer);
-                    session = SaverSession.newSession(source);
-                    session.begin(destinationStorage.getName(), committer);
+                    end(stats);
+                    begin();
                 }
                 recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_VALIDATE);
                 recordProperties.put(Storage.METADATA_STAGING_ERROR, StringUtils.EMPTY);
