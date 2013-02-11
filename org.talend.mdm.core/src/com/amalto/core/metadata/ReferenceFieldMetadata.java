@@ -115,8 +115,10 @@ public class ReferenceFieldMetadata extends AbstractMetadataExtensible implement
             currentType = currentType.getSuperTypes().iterator().next();
         }
         if (!"string".equals(currentType.getName())) { //$NON-NLS-1$
+            /*
             handler.error("FK field '" + getName() + "' is invalid because it isn't typed as string (nor a string restriction).");
             return this;
+            */
         }
         if (foreignKeyInfo != null) {
             foreignKeyInfo = foreignKeyInfo.freeze(handler);
