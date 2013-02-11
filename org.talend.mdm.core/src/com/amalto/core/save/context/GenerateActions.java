@@ -64,7 +64,7 @@ class GenerateActions implements DocumentSaver {
         List<Action> actions;
         MetadataRepository metadataRepository = saverSource.getMetadataRepository(context.getDataModelName());
         // Generate field update actions for UUID and AutoIncrement elements.
-        UpdateActionCreator updateActions = new UpdateActionCreator(databaseDocument, userDocument,
+        UpdateActionCreator updateActions = new UpdateActionCreator(databaseDocument, userDocument, date,
                 context.preserveOldCollectionValues(), source, userName, metadataRepository);
         UserAction userAction = context.getUserAction();
         switch (userAction) {
@@ -109,7 +109,7 @@ class GenerateActions implements DocumentSaver {
             break;
         case PARTIAL_UPDATE:
             PartialUpdateActionCreator partialUpdateActionCreator = new PartialUpdateActionCreator(databaseDocument,
-                    userDocument, context.preserveOldCollectionValues(), context.getPartialUpdatePivot(),
+                    userDocument, date, context.preserveOldCollectionValues(), context.getPartialUpdatePivot(),
                     context.getPartialUpdateKey(), source, userName, metadataRepository);
             actions = type.accept(partialUpdateActionCreator);
             break;

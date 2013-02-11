@@ -101,6 +101,8 @@ public class HibernateStorage implements Storage {
 
     private TableResolver tableResolver;
 
+    private int batchSize;
+
     /**
      * Create a {@link StorageType#MASTER} storage.
      *
@@ -286,6 +288,7 @@ public class HibernateStorage implements Storage {
                     CacheManager.create(ehCacheConfig);
                 }
                 configuration.configure(StorageClassLoader.HIBERNATE_CONFIG);
+                batchSize = Integer.parseInt(configuration.getProperty("hibernate.jdbc.batch_size")); //$NON-NLS-1$
                 // Logs DDL *before* initialization in case initialization (useful for debugging).
                 if (LOGGER.isTraceEnabled()) {
                     traceDDL();
@@ -488,6 +491,11 @@ public class HibernateStorage implements Storage {
                                 + "' because there is no database field '" + key + "' in type '" + mapping.getName() + "'");
                     }
                 }
+                if (session.getStatistics().getEntityCount() % batchSize == 0) {
+                    // Periodically flush objects to avoid using too much memory.
+                    session.flush();
+                    session.clear();
+                }
                 session.saveOrUpdate(o);
             }
         } catch (ConstraintViolationException e) {
@@ -526,6 +534,9 @@ public class HibernateStorage implements Storage {
         try {
             if (!transaction.wasCommitted()) {
                 transaction.commit();
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[" + this + "] Transaction #" + transaction.hashCode() + " -> Commit done.");
+                }
             } else {
                 LOGGER.warn("Transaction was already committed.");
             }
