@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.talend.mdm</groupId>
         <artifactId>mdm-base</artifactId>
-        <version>${mdm.build.version}</version>
+        <version>5.3-SNAPSHOT</version>
         <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
     </parent>
 
@@ -12,29 +12,37 @@
     <artifactId>org.talend.mdm.jaas.jboss.open</artifactId>
     <name>org.talend.mdm.jaas.jboss.open</name>
 
+    <properties>
+        <lib>z.mdm.jaas.openmdm.jboss</lib>
+    </properties>
+
     <build>
         <sourceDirectory>src</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>src</directory>
-                <includes>
-                    <include>**/**.MF</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <finalName>z.mdm.jaas.openmdm.jboss</finalName>
-                </configuration>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>deploy-jboss</id>
+                        <configuration>
+                            <tasks>
+                                <delete file="${jboss.lib.dir}/${lib}.jar" />
+                                <delete file="${jboss.conf.dir}/login-config.xml" />
+                                
+                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                                    tofile="${jboss.lib.dir}/${lib}.jar" />
+                                <copy file="login-config.xml" tofile="${jboss.conf.dir}/login-config.xml" />
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
 
     <dependencies>
-        <!-- MDM project dependencies -->
+        <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.commmon</artifactId>
@@ -43,21 +51,23 @@
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.xmlserver.interfaces</artifactId>
         </dependency>
-        <!-- MDM 3rd dependencies -->
+
+        <!-- 3rd dependencies -->
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
         <dependency>
             <groupId>jboss</groupId>
-            <artifactId>jbossall-client</artifactId>
+            <artifactId>jboss-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jboss-j2ee</artifactId>
         </dependency>
         <dependency>
             <groupId>jboss</groupId>
             <artifactId>jbosssx</artifactId>
-            <version>4.2.2.GA</version>
-            <scope>system</scope>
-            <systemPath>${tom.location}/talend.mdm.libraries/lib/jbosssx.jar</systemPath>
         </dependency>
     </dependencies>
 

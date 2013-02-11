@@ -4,16 +4,20 @@
     <parent>
         <groupId>org.talend.mdm</groupId>
         <artifactId>mdm-base</artifactId>
-        <version>${mdm.build.version}</version>
+        <version>5.3-SNAPSHOT</version>
         <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.talend.mdm.ext.images.server</artifactId>
     <name>org.talend.mdm.ext.images.server</name>
+    <packaging>war</packaging>
+
+    <properties>
+        <war>zz.50.ext.imageserver.war</war>
+    </properties>
 
     <build>
-        <directory>${mdm.build.dir}</directory>
         <sourceDirectory>src</sourceDirectory>
         <resources>
             <resource>
@@ -27,6 +31,51 @@
                 </includes>
             </resource>
         </resources>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/war/WEB-INF/lib</outputDirectory>
+                            <includeArtifactIds>ssim</includeArtifactIds>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <warSourceDirectory>${basedir}/web</warSourceDirectory>
+                    <webXml>${basedir}/web/WEB-INF/web.xml</webXml>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>deploy-jboss</id>
+                        <configuration>
+                            <tasks>
+                                <delete dir="${jboss.deploy.dir}/${war}" />
+                                <mkdir dir="${jboss.deploy.dir}/${war}" />
+                                <unzip src="${project.build.directory}/${project.build.finalName}.war"
+                                    dest="${jboss.deploy.dir}/${war}">
+                                </unzip>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>
@@ -36,11 +85,8 @@
             <artifactId>log4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>jboss</groupId>
+            <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <scope>system</scope>
-            <version>4.2.2.GA</version>
-            <systemPath>${tom.location}/talend.mdm.libraries/lib/servlet-api.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>commons-fileupload</groupId>
@@ -52,18 +98,21 @@
         </dependency>
         <dependency>
             <groupId>jboss</groupId>
-            <artifactId>jbossall-client</artifactId>
+            <artifactId>jboss-j2ee</artifactId>
         </dependency>
         <dependency>
-            <groupId>ssim</groupId>
+            <groupId>com.mchange</groupId>
             <artifactId>ssim</artifactId>
             <scope>system</scope>
             <version>0.6.0</version>
-            <systemPath>${tom.location}//org.talend.mdm.ext.images.server/libs/ssim-0.6.0.jar</systemPath>
+            <systemPath>${tom.location}/org.talend.mdm.ext.images.server/libs/ssim-0.6.0.jar</systemPath>
         </dependency>
+
+        <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
+            <classifier>ejbs</classifier>
         </dependency>
     </dependencies>
 

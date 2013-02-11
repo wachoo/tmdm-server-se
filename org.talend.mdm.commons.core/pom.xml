@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.talend.mdm</groupId>
         <artifactId>mdm-base</artifactId>
-        <version>${mdm.build.version}</version>
+        <version>5.3-SNAPSHOT</version>
         <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
     </parent>
 
@@ -12,58 +12,14 @@
     <artifactId>org.talend.mdm.commons.core</artifactId>
     <name>org.talend.mdm.commons.core</name>
 
+    <properties>
+        <lib>z.mdm.common.commons.core</lib>
+    </properties>
+    
     <build>
-        <directory>${mdm.build.dir}</directory>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>tests</testSourceDirectory>
-        <resources>
-            <resource>
-                <directory>src</directory>
-                <includes>
-                    <include>**/**.conf</include>
-                    <include>**/**.xsd</include>
-                    <include>**/**.xml</include>
-                    <include>**/**.dtd</include>
-                    <include>**/**.properties</include>
-                </includes>
-                <excludes>
-                    <exclude>org/apache/commons/jxpath/JXPathIntrospector.java</exclude>
-                    <exclude>org/apache/commons/jxpath/KeyManager.java</exclude>
-                    <exclude>org/apache/commons/jxpath/MapDynamicPropertyHandler.java</exclude>
-                    <exclude>org/apache/commons/jxpath/NodeSet.java</exclude>
-                    <exclude>org/apache/commons/jxpath/Variables.java</exclude>
-                    <exclude>org/apache/commons/jxpath/XMLDocumentContainer.java</exclude>
-                    <exclude>org/apache/commons/jxpath/servlet/</exclude>
-                    <exclude>org/apache/commons/jxpath/xml/</exclude>
-                    <exclude>org/apache/commons/jxpath/BasicNodeSet.java</exclude>
-                    <exclude>org/apache/commons/jxpath/BasicVariables.java</exclude>
-                    <exclude>org/apache/commons/jxpath/ClassFunctions.java</exclude>
-                    <exclude>org/apache/commons/jxpath/Container.java</exclude>
-                    <exclude>org/apache/commons/jxpath/DynamicPropertyHandler.java</exclude>
-                    <exclude>org/apache/commons/jxpath/ExpressionContext.java</exclude>
-                    <exclude>org/apache/commons/jxpath/ExtendedKeyManager.java</exclude>
-                    <exclude>org/apache/commons/jxpath/Function.java</exclude>
-                    <exclude>org/apache/commons/jxpath/FunctionLibrary.java</exclude>
-                    <exclude>org/apache/commons/jxpath/Functions.java</exclude>
-                    <exclude>org/apache/commons/jxpath/IdentityManager.java</exclude>
-                    <exclude>org/apache/commons/jxpath/JXPathBasicBeanInfo.java</exclude>
-                    <exclude>org/apache/commons/jxpath/JXPathBeanInfo.java</exclude>
-                    <exclude>org/apache/commons/jxpath/util/JXPath11CompatibleTypeConverter.java</exclude>
-                    <exclude>org/apache/commons/jxpath/util/KeyManagerUtils.java</exclude>
-                    <exclude>org/apache/commons/jxpath/util/ValueUtils.java</exclude>
-                    <exclude>org/apache/commons/jxpath/util/BasicTypeConverter.java</exclude>
-                    <exclude>org/apache/commons/jxpath/util/TypeUtils.java</exclude>
-                    <exclude>org/apache/commons/jxpath/PackageFunctions.java</exclude>
-                    <exclude>org/apache/commons/jxpath/util/MethodLookupUtils.java</exclude>
-                    <exclude>org/apache/commons/jxpath/ri/EvalContext.java</exclude>
-                    <exclude>org/apache/commons/jxpath/ri/axes/</exclude>
-                    <exclude>org/apache/commons/jxpath/ri/model/</exclude>
-                    <exclude>org/apache/commons/jxpath/ri/NamespaceResolver.java</exclude>
-                    <exclude>org/apache/commons/jxpath/functions/ConstructorFunction.java</exclude>
-                    <exclude>org/apache/commons/jxpath/functions/MethodFunction.java</exclude>
-                </excludes>
-            </resource>
-        </resources>
+
         <testResources>
             <testResource>
                 <directory>tests</directory>
@@ -74,83 +30,37 @@
                     <include>**/**.dtd</include>
                     <include>**/**.properties</include>
                 </includes>
-                <excludes>
-                    <exclude>org/talend/mdm/commmon/util/datamodel/management/SchemaManagerAbstractTest.java</exclude>
-                </excludes>
             </testResource>
         </testResources>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>2.5.1</version>
-                    <configuration>
-                        <source>1.6</source>
-                        <target>1.6</target>
-                        <encoding>UTF-8</encoding>
-                        <excludes>
-		                    <exclude>org/apache/commons/jxpath/JXPathIntrospector.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/KeyManager.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/MapDynamicPropertyHandler.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/NodeSet.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/Variables.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/XMLDocumentContainer.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/servlet/</exclude>
-		                    <exclude>org/apache/commons/jxpath/xml/</exclude>
-		                    <exclude>org/apache/commons/jxpath/BasicNodeSet.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/BasicVariables.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/ClassFunctions.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/Container.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/DynamicPropertyHandler.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/ExpressionContext.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/ExtendedKeyManager.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/Function.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/FunctionLibrary.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/Functions.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/IdentityManager.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/JXPathBasicBeanInfo.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/JXPathBeanInfo.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/util/JXPath11CompatibleTypeConverter.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/util/KeyManagerUtils.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/util/ValueUtils.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/util/BasicTypeConverter.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/util/TypeUtils.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/PackageFunctions.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/util/MethodLookupUtils.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/ri/EvalContext.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/ri/axes/</exclude>
-		                    <exclude>org/apache/commons/jxpath/ri/model/</exclude>
-		                    <exclude>org/apache/commons/jxpath/ri/NamespaceResolver.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/functions/ConstructorFunction.java</exclude>
-		                    <exclude>org/apache/commons/jxpath/functions/MethodFunction.java</exclude>
-                        </excludes>
-                    </configuration>
-                </plugin>
-                
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.5</version>
-                    <configuration>
-                        <additionalClasspathElements>
-                            <additionalClasspathElement>${project.build.sourceDirectory}</additionalClasspathElement>
-                            <additionalClasspathElement>${project.build.testSourceDirectory}</additionalClasspathElement>
-                        </additionalClasspathElements>
-						<excludes> 
-							<exclude>**/*AbstractTest.class</exclude> 
-						</excludes> 
-                        <forkMode>always</forkMode>
-                        <useManifestOnlyJar>false</useManifestOnlyJar>
-                        <!-- For GWT testing stuff -->
-                        <systemPropertyVariables>
-                            <gwt.args>-out ${project.build.directory}</gwt.args>
-                            <gwt.persistentunitcachedir>${project.build.directory}</gwt.persistentunitcachedir>
-                        </systemPropertyVariables>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*AbstractTest.class</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>deploy-jboss</id>
+                        <configuration>
+                            <tasks>
+                                <delete file="${jboss.lib.dir}/${lib}.jar" />
+                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                                    tofile="${jboss.lib.dir}/${lib}.jar" />
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>
@@ -163,39 +73,26 @@
             <artifactId>log4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>xsom</groupId>
+            <groupId>com.sun.xsom</groupId>
             <artifactId>xsom</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
             <groupId>jboss</groupId>
-            <artifactId>jbossall-client</artifactId>
+            <artifactId>jboss-j2ee</artifactId>
         </dependency>
-        
+
         <dependency>
-            <groupId>relaxngDatatype</groupId>
+            <groupId>com.sun.xml</groupId>
             <artifactId>relaxngDatatype</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${tom.location}/talend.mdm.libraries/deploy/lib/z.relaxngDatatype.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>relaxngDatatype</groupId>
-            <artifactId>relaxngDatatype</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${tom.location}/talend.mdm.libraries/deploy/lib/z.relaxngDatatype.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>jboss</groupId>
+            <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <scope>system</scope>
-            <version>4.2.2.GA</version>
-            <systemPath>${tom.location}/talend.mdm.libraries/lib/servlet-api.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -206,11 +103,8 @@
             <artifactId>commons-jxpath</artifactId>
         </dependency>
         <dependency>
-            <groupId>xercesImpl</groupId>
+            <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-            <scope>system</scope>
-            <version>2.9.1</version>
-            <systemPath>${tom.location}/talend.mdm.libraries/lib/xercesImpl-2.9.1.jar</systemPath>
         </dependency>
     </dependencies>
 

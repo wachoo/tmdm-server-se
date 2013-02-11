@@ -4,18 +4,17 @@
     <parent>
         <groupId>org.talend.mdm</groupId>
         <artifactId>mdm-base</artifactId>
-        <version>${mdm.build.version}</version>
+        <version>5.3-SNAPSHOT</version>
         <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.talend.mdm</groupId>
     <artifactId>org.talend.mdm.webapp.journal</artifactId>
-    <version>${mdm.build.version}</version>
-    <packaging>war</packaging>
     <name>org.talend.mdm.webapp.journal</name>
+    <packaging>war</packaging>
 
     <dependencies>
+        <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -26,11 +25,13 @@
         </dependency>
         <dependency>
             <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-servlet</artifactId>
+            <artifactId>gwt-user</artifactId>
         </dependency>
+
+        <!-- 3rd party dependencies -->
         <dependency>
             <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-user</artifactId>
+            <artifactId>gwt-servlet</artifactId>
         </dependency>
         <dependency>
             <groupId>com.allen-sauer.gwt.log</groupId>
@@ -46,32 +47,34 @@
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId> 
+            <artifactId>poi</artifactId>
         </dependency>
         <dependency>
-            <groupId>xsom</groupId>
+            <groupId>com.sun.xsom</groupId>
             <artifactId>xsom</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>jboss</groupId>
-            <artifactId>jbossall-client</artifactId>
+            <artifactId>jboss-j2ee</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
-            <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>dwr</groupId>
+            <artifactId>dwr</artifactId>
+        </dependency>
+
         <!-- MDM dependencies -->
-		<dependency>
+        <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.base</artifactId>
-            <version>${project.version}</version>
-            <scope>system</scope>
-            <systemPath>${tom.location}/org.talend.mdm.webapp.base/target/org.talend.mdm.webapp.base.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.core</artifactId>
+            <classifier>lib</classifier>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -84,10 +87,7 @@
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>dwr</groupId>
-            <artifactId>dwr</artifactId>
+            <classifier>ejbs</classifier>
         </dependency>
     </dependencies>
 
@@ -109,13 +109,26 @@
                 </executions>
             </plugin>
 
-            <!-- Apply dev mode exclusions -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
+                    <!-- Apply dev mode exclusions -->
                     <execution>
                         <id>devmode-exclusions</id>
+                        <phase>prepare-package</phase>
+                    </execution>
+                    <!-- Deploy to Jboss -->
+                    <execution>
+                        <id>deploy-jboss</id>
+                        <configuration>
+                            <tasks>
+                                <delete file="${jboss.deploy.dir}/${project.name}.war" />
+
+                                <copy file="${project.build.directory}/${project.build.finalName}.war"
+                                    tofile="${jboss.deploy.dir}/${project.name}.war" />
+                            </tasks>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

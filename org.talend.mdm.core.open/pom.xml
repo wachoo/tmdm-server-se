@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.talend.mdm</groupId>
         <artifactId>mdm-base</artifactId>
-        <version>${mdm.build.version}</version>
+        <version>5.3-SNAPSHOT</version>
         <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
     </parent>
 
@@ -12,8 +12,11 @@
     <artifactId>org.talend.mdm.core.open</artifactId>
     <name>org.talend.mdm.core.open</name>
 
+    <properties>
+        <lib>zz.20.dopen</lib>
+    </properties>
+
     <build>
-        <directory>${mdm.build.dir}</directory>
         <sourceDirectory>src</sourceDirectory>
         <resources>
             <resource>
@@ -24,10 +27,28 @@
                     <include>**/**.xml</include>
                     <include>**/**.dtd</include>
                     <include>**/**.properties</include>
-                    <include>**/**.MF</include>
+                    <include>**/**.wsdl</include>
                 </includes>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>deploy-jboss</id>
+                        <configuration>
+                            <tasks>
+                                <delete file="${jboss.deploy.dir}/${lib}.jar" />
+                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                                    tofile="${jboss.deploy.dir}/${lib}.jar" />
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>
@@ -38,15 +59,22 @@
         </dependency>
         <dependency>
             <groupId>jboss</groupId>
-            <artifactId>jbossall-client</artifactId>
+            <artifactId>jboss-j2ee</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jbosssx</artifactId>
         </dependency>
         <dependency>
             <groupId>jboss.jbossws</groupId>
             <artifactId>jboss-jaxrpc</artifactId>
         </dependency>
+
+        <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
+            <classifier>ejbs</classifier>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -59,9 +87,6 @@
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.connector.core</artifactId>
-            <version>${project.version}</version>
-            <scope>system</scope>
-            <systemPath>${tom.location}/org.talend.mdm.connector.core/z.mdm.connector.library.jar</systemPath>
         </dependency>
     </dependencies>
 

@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.talend.mdm</groupId>
         <artifactId>mdm-base</artifactId>
-        <version>${mdm.build.version}</version>
+        <version>5.3-SNAPSHOT</version>
         <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
     </parent>
 
@@ -12,9 +12,12 @@
     <artifactId>org.talend.mdm.webapp.updatereport</artifactId>
     <name>org.talend.mdm.webapp.updatereport</name>
     <packaging>war</packaging>
+
+    <properties>
+        <war>zz.20.webapp.updatereport</war>
+    </properties>
     
     <build>
-        <directory>${mdm.build.dir}</directory>
         <sourceDirectory>src</sourceDirectory>
         <resources>
             <resource>
@@ -28,7 +31,7 @@
                 </includes>
             </resource>
         </resources>
-        
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -37,6 +40,23 @@
                     <warSourceDirectory>${basedir}/web</warSourceDirectory>
                     <webXml>${basedir}/web/WEB-INF/web.xml</webXml>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>deploy-jboss</id>
+                        <configuration>
+                            <tasks>
+                                <delete file="${jboss.deploy.dir}/${war}.war" />
+
+                                <copy file="${project.build.directory}/${project.build.finalName}.war"
+                                    tofile="${jboss.deploy.dir}/${war}.war" />
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -47,32 +67,27 @@
             <artifactId>log4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>jboss</groupId>
+            <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <scope>system</scope>
-            <version>4.2.2.GA</version>
-            <systemPath>${tom.location}/talend.mdm.libraries/lib/servlet-api.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.sun.xsom</groupId>
             <artifactId>xsom</artifactId>
-            <version>20060306</version>
-            <scope>system</scope>
-            <systemPath>${tom.location}/talend.mdm.libraries/lib/z.xsom.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>jboss</groupId>
-            <artifactId>jbossall-client</artifactId>
+            <artifactId>jboss-j2ee</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <scope>provided</scope>
-            <version>3.0.1-FINAL</version>
         </dependency>
+
+        <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.core</artifactId>
+            <classifier>lib</classifier>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -81,8 +96,9 @@
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
+            <classifier>ejbs</classifier>
         </dependency>
-        
+
     </dependencies>
 
 </project>

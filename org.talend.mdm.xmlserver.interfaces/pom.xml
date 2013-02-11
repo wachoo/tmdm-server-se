@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.talend.mdm</groupId>
         <artifactId>mdm-base</artifactId>
-        <version>${mdm.build.version}</version>
+        <version>5.3-SNAPSHOT</version>
         <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
     </parent>
 
@@ -12,46 +12,30 @@
     <artifactId>org.talend.mdm.xmlserver.interfaces</artifactId>
     <name>org.talend.mdm.xmlserver.interfaces</name>
 
+    <properties>
+        <lib>z.mdm.xmlserver</lib>
+    </properties>
+
     <build>
-        <directory>${mdm.build.dir}</directory>
         <sourceDirectory>src</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>src</directory>
-                <includes>
-                    <include>**/**.conf</include>
-                    <include>**/**.xsd</include>
-                    <include>**/**.xml</include>
-                    <include>**/**.dtd</include>
-                    <include>**/**.properties</include>
-                    <include>**/**.MF</include>
-                </includes>
-                <excludes>
-                    <exclude>com/amalto/xyleme/ejb/OLDXylemeWrapper.java</exclude>
-                    <exclude>com/amalto/xyleme/test/ZZXylemeTest.java</exclude>
-                    <exclude>com/amalto/xmlserver/interfaces/IXmlServerSFWrapper.java</exclude>
-                </excludes>
-            </resource>
-        </resources>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>2.5.1</version>
-                    <configuration>
-                        <source>1.6</source>
-                        <target>1.6</target>
-                        <encoding>UTF-8</encoding>
-                        <excludes>
-		                    <exclude>com/amalto/xyleme/ejb/OLDXylemeWrapper.java</exclude>
-		                    <exclude>com/amalto/xyleme/test/ZZXylemeTest.java</exclude>
-		                    <exclude>com/amalto/xmlserver/interfaces/IXmlServerSFWrapper.java</exclude>
-                        </excludes>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>deploy-jboss</id>
+                        <configuration>
+                            <tasks>
+                                <delete file="${jboss.lib.dir}/${lib}.jar" />
+                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                                    tofile="${jboss.lib.dir}/${lib}.jar" />
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>

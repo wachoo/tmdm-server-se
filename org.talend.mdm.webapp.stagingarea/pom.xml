@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.talend.mdm</groupId>
         <artifactId>mdm-base</artifactId>
-        <version>${mdm.build.version}</version>
+        <version>5.3-SNAPSHOT</version>
         <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
     </parent>
 
@@ -13,18 +13,14 @@
     <name>org.talend.mdm.webapp.stagingarea</name>
 
     <properties>
-        <!-- Temporary -->
-        <maven.test.failure.ignore>true</maven.test.failure.ignore>
+        <restlet.version>2.0.14</restlet.version>
     </properties>
 
     <dependencies>
+        <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
@@ -40,11 +36,17 @@
         </dependency>
         <dependency>
             <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-servlet</artifactId>
+            <artifactId>gwt-user</artifactId>
+        </dependency>
+
+        <!-- 3rd party dependencies -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-user</artifactId>
+            <artifactId>gwt-servlet</artifactId>
         </dependency>
         <dependency>
             <groupId>com.allen-sauer.gwt.log</groupId>
@@ -57,26 +59,28 @@
         <dependency>
             <groupId>org.restlet.gwt</groupId>
             <artifactId>org.restlet</artifactId>
+            <version>${restlet.version}</version>
         </dependency>
         <dependency>
             <groupId>org.restlet.gwt</groupId>
             <artifactId>org.restlet.ext.json</artifactId>
+            <version>${restlet.version}</version>
         </dependency>
         <dependency>
             <groupId>org.restlet.gwt</groupId>
             <artifactId>org.restlet.ext.xml</artifactId>
+            <version>${restlet.version}</version>
         </dependency>
+
         <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.base</artifactId>
-            <version>${project.version}</version>
-            <scope>system</scope>
-            <systemPath>${tom.location}/org.talend.mdm.webapp.base/target/org.talend.mdm.webapp.base.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.core</artifactId>
+            <classifier>lib</classifier>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -112,17 +116,29 @@
                 </executions>
             </plugin>
 
-            <!-- Apply dev mode exclusions -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
+                    <!-- Apply dev mode exclusions -->
                     <execution>
                         <id>devmode-exclusions</id>
+                        <phase>prepare-package</phase>
+                    </execution>
+                    <!-- Deploy to Jboss -->
+                    <execution>
+                        <id>deploy-jboss</id>
+                        <configuration>
+                            <tasks>
+                                <delete file="${jboss.deploy.dir}/${project.name}.war" />
+
+                                <copy file="${project.build.directory}/${project.build.finalName}.war"
+                                    tofile="${jboss.deploy.dir}/${project.name}.war" />
+                            </tasks>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 </project>

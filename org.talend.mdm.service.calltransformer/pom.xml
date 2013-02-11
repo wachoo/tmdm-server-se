@@ -4,13 +4,17 @@
     <parent>
         <groupId>org.talend.mdm</groupId>
         <artifactId>mdm-base</artifactId>
-        <version>${mdm.build.version}</version>
+        <version>5.3-SNAPSHOT</version>
         <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.talend.mdm.service.calltransformer</artifactId>
     <name>org.talend.mdm.service.calltransformer</name>
+
+    <properties>
+        <lib>zz.30.service.calltransformer</lib>
+    </properties>
 
     <build>
         <sourceDirectory>src</sourceDirectory>
@@ -19,23 +23,32 @@
                 <directory>src</directory>
                 <includes>
                     <include>**/**.xml</include>
-                    <include>**/**.MF</include>
                 </includes>
             </resource>
         </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <finalName>zz.30.service.calltransformer</finalName>
-                </configuration>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>deploy-jboss</id>
+                        <configuration>
+                            <tasks>
+                                <delete file="${jboss.deploy.dir}/${lib}.jar" />
+                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                                    tofile="${jboss.deploy.dir}/${lib}.jar" />
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
 
     <dependencies>
-        <!-- MDM project dependencies -->
+        <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.connector.core</artifactId>
@@ -43,15 +56,17 @@
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
+            <classifier>ejbs</classifier>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.xmlserver.interfaces</artifactId>
         </dependency>
-        <!-- MDM 3rd dependencies -->
+
+        <!-- 3rd party dependencies -->
         <dependency>
             <groupId>jboss</groupId>
-            <artifactId>jbossall-client</artifactId>
+            <artifactId>jboss-j2ee</artifactId>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
