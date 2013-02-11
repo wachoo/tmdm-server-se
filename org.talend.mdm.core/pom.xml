@@ -46,6 +46,7 @@
                     <include>**/**.xml</include>
                     <include>**/**.dtd</include>
                 </includes>
+                <filtering>true</filtering>
             </testResource>
         </testResources>
 
