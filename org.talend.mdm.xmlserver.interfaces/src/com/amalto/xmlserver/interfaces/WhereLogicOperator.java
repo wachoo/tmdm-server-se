@@ -14,7 +14,6 @@
 package com.amalto.xmlserver.interfaces;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class WhereLogicOperator implements IWhereItem {
@@ -25,16 +24,13 @@ public class WhereLogicOperator implements IWhereItem {
 
     private final List<IWhereItem> whereItems = new ArrayList<IWhereItem>();
 
-    int type = AND;
-	
+    private int type = AND;
 
 	public WhereLogicOperator(int type) {
-		super();
 		this.type = type;
 	}
 	
 	public WhereLogicOperator(int type, List<IWhereItem> whereElements) {
-		super();
 		this.type = type;
 		whereItems.addAll(whereElements);
 	}
@@ -71,25 +67,28 @@ public class WhereLogicOperator implements IWhereItem {
 		this.type = type;
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	public String toString() {
-		String s="";
-		if (AND == getType()) {
-			for (Iterator<IWhereItem> iter = getItems().iterator(); iter.hasNext(); ) {
-				s+="".equals(s)?"(":" and ";
-				s+= (iter.next());
-			}
-		} else if (OR == getType()) {
-			for (Iterator<IWhereItem> iter = getItems().iterator(); iter.hasNext(); ) {
-				s+="".equals(s)?"(":" and ";
-				s+= (iter.next());
-			}
-		}
-		s+=")";
-		return s;
-	}
-	
-	
+        StringBuilder s = new StringBuilder();
+        if (AND == getType()) {
+            for (IWhereItem item : getItems()) {
+                if(s.length() == 0) {
+                    s.append("(");
+                } else {
+                    s.append(" and ");
+                }
+                s.append(item.toString());
+            }
+        } else if (OR == getType()) {
+            for (IWhereItem item : getItems()) {
+                if (s.length() == 0) {
+                    s.append("(");
+                } else {
+                    s.append(" or ");
+                }
+                s.append(item.toString());
+            }
+        }
+        s.append(")");
+        return s.toString();
+    }
 }

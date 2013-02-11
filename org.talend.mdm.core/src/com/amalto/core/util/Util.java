@@ -1949,7 +1949,7 @@ public class Util {
     public static boolean isSVNAutocommit() throws Exception {
         if (isDefaultSVNUP()) {
             Object service = Util.retrieveComponent(null, "amalto/local/service/svn");
-            return (Boolean) Util.getMethod(service, "isAutocommittosvn").invoke(service, new Object[] {});
+            return (Boolean) Util.getMethod(service, "isAutocommittosvn").invoke(service);
         }
         return false;
     }
@@ -2242,7 +2242,7 @@ public class Util {
                     }
                 }// war
                 if (fileName.endsWith(".zip")) {
-                    while ((z = in.getNextEntry()) != null) {
+                    if ((z = in.getNextEntry()) != null) {
                         String dirName = z.getName();
                         int pos = dirName.indexOf('/');
                         if (pos == -1) {
@@ -2252,7 +2252,6 @@ public class Util {
                         pos = dir.lastIndexOf('_');
                         jobName = dir.substring(0, pos);
                         jobVersion = dir.substring(pos + 1);
-                        break;
                     }
                     if (jobName.length() > 0) {
                         jobInfo = new WSMDMJob(null, null, null);

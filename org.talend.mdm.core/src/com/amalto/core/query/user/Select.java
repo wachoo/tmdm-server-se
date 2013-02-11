@@ -116,6 +116,9 @@ public class Select implements Expression {
         if (condition != null) {
             condition = (Condition) condition.normalize();
         }
+        if (condition == UserQueryHelper.NO_OP_CONDITION) {
+            condition = null;
+        }
         if (selectedFields.isEmpty()) {
             isProjection = false;
         }

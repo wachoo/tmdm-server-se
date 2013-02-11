@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 // TODO Refactor (+ NON-NLS)
-class MappingGenerator extends DefaultMetadataVisitor<Element> {
+public class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     /**
      * Max limit for a string restriction (greater then this -> use CLOB or TEXT).
