@@ -60,7 +60,7 @@
                     <warSourceDirectory>${basedir}/web</warSourceDirectory>
                     <webXml>${basedir}/web/WEB-INF/web.xml</webXml>
                     <!-- WAR is packaged outside EAR, so include our external dependencies -->
-                    <packagingExcludes>WEB-INF/lib/org.talend.mdm*.jar</packagingExcludes>
+                    <packagingExcludes>%regex[WEB-INF/lib/(?!ssim).*.jar]</packagingExcludes>
                 </configuration>
             </plugin>
             <plugin>
