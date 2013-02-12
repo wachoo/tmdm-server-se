@@ -34,24 +34,34 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-libs</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeArtifactIds>ssim</includeArtifactIds>
+                            <outputDirectory>${project.build.directory}/war/WEB-INF/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>deploy-jboss-runtime-libs</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
                     <warSourceDirectory>${basedir}/web</warSourceDirectory>
                     <webXml>${basedir}/web/WEB-INF/web.xml</webXml>
+                    <!-- WAR is packaged outside EAR, so include our external dependencies -->
+                    <packagingExcludes>WEB-INF/lib/org.talend.mdm*.jar</packagingExcludes>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>deploy-jboss-other-libs</id>
-                        <phase>install</phase>
-                        <configuration>
-                            <includeArtifactIds>ssim</includeArtifactIds>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
