@@ -124,7 +124,7 @@
                         <id>deploy-jboss-other-libs</id>
                         <phase>install</phase>
                         <configuration>
-                            <includeArtifactIds>quartz,mysql-connector-java,ojdbc6,sqljdbc4</includeArtifactIds>
+                            <includeArtifactIds>mysql-connector-java,ojdbc6,sqljdbc4</includeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
