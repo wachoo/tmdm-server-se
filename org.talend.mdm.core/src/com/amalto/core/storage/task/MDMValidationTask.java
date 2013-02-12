@@ -23,6 +23,7 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import java.io.*;
 import java.util.Map;
@@ -32,6 +33,10 @@ import static com.amalto.core.query.user.UserStagingQueryBuilder.status;
 
 public class MDMValidationTask extends MetadataRepositoryTask {
 
+    private static final boolean GENERATE_UPDATE_REPORT;
+
+    private static final int CONSUMER_POOL_SIZE;
+
     private final SaverSource source;
 
     private final SaverSession.Committer committer;
@@ -39,6 +44,15 @@ public class MDMValidationTask extends MetadataRepositoryTask {
     private final Storage destinationStorage;
 
     private int recordsCount;
+
+    static {
+        // staging.validation.updatereport tells whether validation should generate update reports
+        String value = MDMConfiguration.getConfiguration().getProperty("staging.validation.updatereport"); //$NON-NLS-1$
+        GENERATE_UPDATE_REPORT = value == null ? true : Boolean.valueOf(value);
+        // staging.validation.pool tells how many threads do staging validation
+        value = MDMConfiguration.getConfiguration().getProperty("staging.validation.pool"); //$NON-NLS-1$
+        CONSUMER_POOL_SIZE = value == null ? 2 : Integer.valueOf(value);
+    }
 
     public MDMValidationTask(Storage storage, Storage destinationStorage, MetadataRepository repository, SaverSource source, SaverSession.Committer committer, ClosureExecutionStats stats) {
         super(storage, repository, stats);
@@ -67,7 +81,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
         } finally {
             records.close();
         }
-        return new MultiThreadedTask(type.getName(), storage, select, 2, closure, stats);
+        return new MultiThreadedTask(type.getName(), storage, select, CONSUMER_POOL_SIZE, closure, stats);
     }
 
     @Override
@@ -115,7 +129,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                     new ByteArrayInputStream(output.toByteArray()),
                     true,
                     true,
-                    true,
+                    GENERATE_UPDATE_REPORT,
                     false);
             context.setTaskId(stagingRecord.getRecordMetadata().getTaskId());
             DocumentSaver saver = context.createSaver();
@@ -123,7 +137,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             try {
                 saver.save(session, context);
                 commitCount++;
-                if (commitCount % 200 == 0) {
+                if (commitCount % 1000 == 0) {
                     end(stats);
                     begin();
                 }
