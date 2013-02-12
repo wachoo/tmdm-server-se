@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import org.quartz.SchedulerConfigException;
 import org.quartz.simpl.SimpleThreadPool;
 import org.quartz.spi.ThreadPool;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import javax.resource.spi.work.*;
 import java.util.HashSet;
@@ -27,6 +28,8 @@ class ThreadDispatcher implements Closure {
 
     private static final Logger LOGGER = Logger.getLogger(ThreadDispatcher.class);
 
+    private static final int QUEUE_SIZE_THRESHOLD;
+
     private final BlockingQueue<DataRecord> queue = new LinkedBlockingQueue<DataRecord>();
 
     private final Set<ConsumerRunnable> childClosures = new HashSet<ConsumerRunnable>();
@@ -34,6 +37,12 @@ class ThreadDispatcher implements Closure {
     private long startTime;
 
     private int count = 0;
+
+    static {
+        // staging.validation.buffer.threshold tells when reader should pause.
+        String value = MDMConfiguration.getConfiguration().getProperty("staging.validation.buffer.threshold"); //$NON-NLS-1$
+        QUEUE_SIZE_THRESHOLD = value == null ? 1000 : Integer.valueOf(value);
+    }
 
     ThreadDispatcher(int threadNumber, Closure closure, ClosureExecutionStats stats) {
         for (int i = 0; i < threadNumber; i++) {
@@ -62,6 +71,12 @@ class ThreadDispatcher implements Closure {
             if (!queue.offer(stagingRecord)) {
                 LOGGER.warn("Not enough consumers for records!");
                 queue.put(stagingRecord); // Wait for free room in queue.
+            }
+            while (queue.size() > QUEUE_SIZE_THRESHOLD) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Pausing read operation / queue size: " + queue.size() + ".");
+                }
+                Thread.sleep(1000);
             }
             count++;
             if (LOGGER.isDebugEnabled()) {
