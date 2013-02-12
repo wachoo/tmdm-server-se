@@ -63,6 +63,10 @@
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>deploy-jboss-runtime-libs</id>
+                        <phase>none</phase>
+                    </execution>
                 </executions>
             </plugin>
 
@@ -81,7 +85,8 @@
                             <tasks>
                                 <zip
                                     destfile="${project.build.directory}/${project.artifactId}-${mdm.build.version}.zip">
-                                    <fileset dir="${project.build.directory}" includes="${project.artifactId}-${mdm.build.version}.jar" />
+                                    <fileset dir="${project.build.directory}"
+                                        includes="${project.artifactId}-${mdm.build.version}.jar" />
                                     <fileset dir="${project.build.directory}/lib" />
                                 </zip>
                             </tasks>

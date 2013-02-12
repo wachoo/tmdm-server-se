@@ -69,31 +69,10 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/war/WEB-INF/lib</outputDirectory>
-                            <!-- icu4j is compiled in a non-1.6 compatible version -->
-                            <excludeArtifactIds>icu4j,cxf-bundle</excludeArtifactIds>
-                            <excludeScope>provided</excludeScope>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
                     <warSourceDirectory>${basedir}/web</warSourceDirectory>
                     <webXml>${basedir}/web/WEB-INF/web.xml</webXml>
-                    <packagingIncludes>secure/**,META-INF/**,WEB-INF/*,WEB-INF/lib/*.jar</packagingIncludes>
-                    <packagingExcludes>WEB-INF/lib/z.*.jar,WEB-INF/lib/org.talend.mdm.*.jar</packagingExcludes>
                 </configuration>
             </plugin>
 
@@ -108,7 +87,8 @@
                                 <delete file="${jboss.lib.dir}/${lib}.jar" />
                                 <delete file="${jboss.deploy.dir}/${war}.war" />
 
-                                <copy file="${project.build.directory}/${project.build.finalName}-lib.jar"
+                                <copy
+                                    file="${project.build.directory}/${project.build.finalName}-lib.jar"
                                     tofile="${jboss.lib.dir}/${lib}.jar" />
                                 <copy file="${project.build.directory}/${project.build.finalName}.war"
                                     tofile="${jboss.deploy.dir}/${war}.war" />
@@ -187,6 +167,10 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
         </dependency>
 
         <!-- MDM dependencies -->
