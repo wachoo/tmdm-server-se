@@ -38,7 +38,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.google.gwt.junit.client.GWTTestCase;
 
 @SuppressWarnings("nls")
-public class FormatCellEditorTest extends GWTTestCase {
+public class FormatCellEditorGWTTest extends GWTTestCase {
 
     Field<?> field;
 

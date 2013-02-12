@@ -18,7 +18,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.junit.client.GWTTestCase;
 
 @SuppressWarnings("nls")
-public class SortSubTypesTest extends GWTTestCase {
+public class SortSubTypesGWTTest extends GWTTestCase {
 
     @Override
     protected void gwtSetUp() throws Exception {

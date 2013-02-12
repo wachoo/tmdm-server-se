@@ -19,7 +19,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.ui.RootPanel;
 
-public class MainFramePanelTest extends GWTTestCase {
+public class MainFramePanelGWTTest extends GWTTestCase {
 
     @Override
     public String getModuleName() {

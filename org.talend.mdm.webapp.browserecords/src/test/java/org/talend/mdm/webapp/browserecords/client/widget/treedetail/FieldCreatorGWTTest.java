@@ -32,7 +32,7 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.junit.client.GWTTestCase;
 
-public class FieldCreatorTest extends GWTTestCase {
+public class FieldCreatorGWTTest extends GWTTestCase {
 
     @Override
     protected void gwtSetUp() throws Exception {
