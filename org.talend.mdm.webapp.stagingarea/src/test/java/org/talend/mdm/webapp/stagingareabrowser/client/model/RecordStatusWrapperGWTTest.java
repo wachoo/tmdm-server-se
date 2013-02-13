@@ -15,7 +15,7 @@ package org.talend.mdm.webapp.stagingareabrowser.client.model;
 import com.google.gwt.junit.client.GWTTestCase;
 
 @SuppressWarnings("nls")
-public class RecordStatusWrapperTest extends GWTTestCase {
+public class RecordStatusWrapperGWTTest extends GWTTestCase {
 
     public void testCheckStatus() {
 
