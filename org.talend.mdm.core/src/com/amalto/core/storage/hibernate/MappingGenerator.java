@@ -13,6 +13,7 @@ package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.*;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
@@ -20,8 +21,12 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 // TODO Refactor (+ NON-NLS)
 class MappingGenerator extends DefaultMetadataVisitor<Element> {
@@ -39,11 +44,15 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     private static final String TEXT_TYPE_NAME = "text"; //$NON-NLS-1$
 
+    private static final String RESERVED_SQL_KEYWORDS = "reservedSQLKeywords.txt";
+
     private final Document document;
 
     private final TableResolver resolver;
 
     private final RDBMSDataSource.DataSourceDialect dialect;
+
+    private static Set<String> reservedKeyWords;
 
     private boolean compositeId;
 
@@ -66,12 +75,48 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         this.resolver = resolver;
         this.dialect = dialect;
         this.generateConstrains = generateConstrains;
+        // Loads reserved SQL keywords.
+        synchronized (MappingGenerator.class) {
+            if (reservedKeyWords == null) {
+                reservedKeyWords = new TreeSet<String>();
+                InputStream reservedKeyWordsList = this.getClass().getResourceAsStream(RESERVED_SQL_KEYWORDS);
+                try {
+                    if (reservedKeyWordsList == null) {
+                        throw new IllegalStateException("File '" + RESERVED_SQL_KEYWORDS + "' was not found.");
+                    }
+                    List list = IOUtils.readLines(reservedKeyWordsList);
+                    for (Object o : list) {
+                        reservedKeyWords.add(String.valueOf(o));
+                    }
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Loaded " + reservedKeyWords.size() + " reserved SQL key words.");
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    try {
+                        if (reservedKeyWordsList != null) {
+                            reservedKeyWordsList.close();
+                        }
+                    } catch (IOException e) {
+                        LOGGER.error("Error occurred when ");
+                    }
+                }
+            }
+        }
     }
 
     /**
+     * <p>
      * Short a string so it doesn't exceed <code>maxLength</code> length. Consecutive calls to this method with same input
      * always return the same value.
+     * </p>
+     * <p>
+     * This method also makes sure the SQL name is not a reserved SQL key word.
+     * </p>
+     * <p>
      * Additionally, this method will replace all '-' characters by '_' in the returned string.
+     * </p>
      * @param s A non null string.
      * @param maxLength A value greater than 0 that indicates the max length for the returned string.
      * @return <code>null</code> if <code>s</code> is null, a shorten string so it doesn't exceed <code>maxLength</code>.
@@ -83,6 +128,16 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         }
         if (s == null) {
             return s;
+        }
+        // Adds a prefix until 's' is no longer a SQL reserved key word.
+        String backup = s;
+        while (reservedKeyWords.contains(s)) {
+            s = "X_" + s;
+        }
+        if (LOGGER.isDebugEnabled()) {
+            if (!s.equals(backup)) {
+                LOGGER.debug("Replaced '" + backup + "' with '" + s + "' because it is a reserved SQL keyword.");
+            }
         }
         if (s.length() < maxLength) {
             return s;
