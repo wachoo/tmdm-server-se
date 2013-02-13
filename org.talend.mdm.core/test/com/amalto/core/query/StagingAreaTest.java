@@ -107,9 +107,9 @@ public class StagingAreaTest extends TestCase {
         storages.put(destination.getName(), destination);
         storages.put("UpdateReport", destination);
 
-        origin.init(ServerContext.INSTANCE.get().getDataSource("H2-DS2", "MDM", StorageType.MASTER));
+        origin.init(ServerContext.INSTANCE.get().getDataSource("H2-DS2", "MDM", StorageType.STAGING));
         origin.prepare(stagingRepository, true);
-        destination.init(ServerContext.INSTANCE.get().getDataSource("H2-DS2", "MDM", StorageType.STAGING));
+        destination.init(ServerContext.INSTANCE.get().getDataSource("H2-DS2", "MDM", StorageType.MASTER));
         destination.prepare(repository, true);
     }
 
