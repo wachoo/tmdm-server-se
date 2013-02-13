@@ -23,7 +23,6 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.journal.client.JournalService;
-import org.talend.mdm.webapp.journal.server.dwr.JournalDWR;
 import org.talend.mdm.webapp.journal.server.service.JournalDBService;
 import org.talend.mdm.webapp.journal.server.service.JournalHistoryService;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
@@ -52,7 +51,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     private JournalDBService service = new JournalDBService();
 
     private static final Messages MESSAGES = MessagesFactory.getMessages(
-            "org.talend.mdm.webapp.journal.client.i18n.JournalMessages", JournalDWR.class.getClassLoader()); //$NON-NLS-1$
+            "org.talend.mdm.webapp.journal.client.i18n.JournalMessages", JournalAction.class.getClassLoader()); //$NON-NLS-1$
 
     public PagingLoadResult<JournalGridModel> getJournalList(JournalSearchCriteria criteria, PagingLoadConfig load)
             throws ServiceException {
@@ -115,7 +114,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         try {
             result = JournalHistoryService.getInstance().restoreRecord(parameter);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage());
         }
         return result;
     }
@@ -136,13 +135,16 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
 
         return reportString;
     }
-    
+
     public boolean isAdmin() {
-        try{
+        try {
             return LocalUser.getLocalUser().getRoles().contains(ICoreConstants.SYSTEM_ADMIN_ROLE);
-        }catch (Exception exception) {
+        } catch (Exception e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.error(e.getMessage());
+            }
             return false;
-        }        
+        }
     }
 
     private JournalSearchCriteria buildCriteria(String entity, String key, String source, String operationType, String startDate,

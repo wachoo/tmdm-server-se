@@ -16,38 +16,38 @@ import com.extjs.gxt.ui.client.data.BaseModel;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public class JournalGridModel extends BaseModel implements IsSerializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     private String ids;
-    
+
     private String dataContainer;
-    
+
     private String dataModel;
-    
+
     private String entity;
-    
+
     private String key;
-    
+
     private String revisionId;
-    
+
     private String operationType;
-    
+
     private String operationTime;
-    
+
     private String source;
-    
+
     private String userName;
-    
+
     private String operationDate;
 
     public JournalGridModel() {
 
     }
-    
+
     public String getIds() {
         return ids;
     }
@@ -56,96 +56,97 @@ public class JournalGridModel extends BaseModel implements IsSerializable {
         set("ids", ids); //$NON-NLS-1$
         this.ids = ids;
     }
-    
+
     public String getDataContainer() {
         return dataContainer;
     }
-    
+
     public void setDataContainer(String dataContainer) {
         set("dataContainer", dataContainer); //$NON-NLS-1$
         this.dataContainer = dataContainer;
     }
-    
+
     public String getDataModel() {
         return dataModel;
     }
-   
+
     public void setDataModel(String dataModel) {
-        set("dataModel",  dataModel); //$NON-NLS-1$
+        set("dataModel", dataModel); //$NON-NLS-1$
         this.dataModel = dataModel;
     }
-    
+
     public String getEntity() {
         return entity;
     }
-    
+
     public void setEntity(String entity) {
-        set("entity",  entity); //$NON-NLS-1$
+        set("entity", entity); //$NON-NLS-1$
         this.entity = entity;
     }
-    
+
     public String getKey() {
         return key;
     }
-    
+
     public void setKey(String key) {
-        set("key",  key); //$NON-NLS-1$
+        set("key", key); //$NON-NLS-1$
         this.key = key;
     }
-    
+
     public String getRevisionId() {
         return revisionId;
     }
-    
+
     public void setRevisionId(String revisionId) {
-        set("revisionId",  revisionId); //$NON-NLS-1$
+        set("revisionId", revisionId); //$NON-NLS-1$
         this.revisionId = revisionId;
     }
-    
+
     public String getOperationType() {
         return operationType;
     }
-    
+
     public void setOperationType(String operationType) {
-        set("operationType",  operationType); //$NON-NLS-1$
+        set("operationType", operationType); //$NON-NLS-1$
         this.operationType = operationType;
     }
-    
+
     public String getOperationTime() {
         return operationTime;
     }
-    
+
     public void setOperationTime(String operationTime) {
         this.operationTime = operationTime;
     }
-    
+
     public String getSource() {
         return source;
     }
-    
+
     public void setSource(String source) {
-        set("source",  source); //$NON-NLS-1$
+        set("source", source); //$NON-NLS-1$
         this.source = source;
     }
-    
+
     public String getUserName() {
         return userName;
     }
-    
+
     public void setUserName(String userName) {
-        set("userName",  userName); //$NON-NLS-1$
+        set("userName", userName); //$NON-NLS-1$
         this.userName = userName;
     }
-    
+
     public String getOperationDate() {
         return operationDate;
     }
 
     public void setOperationDate(String operationDate) {
-        set("operationTime",  operationDate); //$NON-NLS-1$
+        set("operationTime", operationDate); //$NON-NLS-1$
         this.operationDate = operationDate;
     }
-    
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(ids).append(","); //$NON-NLS-1$

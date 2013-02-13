@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.dom4j.Attribute;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
@@ -57,16 +58,18 @@ import com.sun.xml.xsom.XSType;
  * The server side implementation of the RPC service.
  */
 public class JournalDBService {
-    
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss"); //$NON-NLS-1$
+
+    private static final Logger LOG = Logger.getLogger(JournalDBService.class);
+
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss"); //$NON-NLS-1$
 
     public JournalDBService() {
 
     }
-    
+
     public Object[] getResultListByCriteria(JournalSearchCriteria criteria, int start, int limit, String sort, String field,
             boolean isBrowseRecord) throws Exception {
-        
+
         List<WSWhereItem> conditions = org.talend.mdm.webapp.journal.server.util.Util.buildWhereItems(criteria, isBrowseRecord);
 
         if (isBrowseRecord) {
@@ -86,7 +89,8 @@ public class JournalDBService {
 
         int totalSize = 0;
         List<JournalGridModel> list = new ArrayList<JournalGridModel>();
-        WSStringArray resultsArray = Util.getPort().getItems( org.talend.mdm.webapp.journal.server.util.Util.buildGetItem(conditions, start, limit));
+        WSStringArray resultsArray = Util.getPort().getItems(
+                org.talend.mdm.webapp.journal.server.util.Util.buildGetItem(conditions, start, limit));
         String[] results = resultsArray == null ? new String[0] : resultsArray.getStrings();
         Document document = Util.parse(results[0]);
         totalSize = Integer.parseInt(document.getDocumentElement().getTextContent());
@@ -101,7 +105,7 @@ public class JournalDBService {
         resArr[1] = list;
         return resArr;
     }
-        
+
     public JournalTreeModel getDetailTreeModel(String[] idsArr) throws Exception {
         WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(XSystemObjects.DC_UPDATE_PREPORT.getName());
         String conceptName = "Update"; //$NON-NLS-1$
@@ -109,18 +113,20 @@ public class JournalDBService {
         WSItem wsItem = Util.getPort().getItem(wsGetItem);
         String content = wsItem.getContent();
         JournalTreeModel root = new JournalTreeModel("Update"); //$NON-NLS-1$
-        
-        if (content == null)
+
+        if (content == null) {
             return root;
-        
-        if (content.length() == 0)
+        }
+
+        if (content.length() == 0) {
             return root;
-        
+        }
+
         Document doc = Util.parse(content);
         String concept = Util.getFirstTextNode(doc, "/Update/Concept"); //$NON-NLS-1$
         String dataModel = Util.getFirstTextNode(doc, "/Update/DataModel"); //$NON-NLS-1$
         String dataCluster = Util.getFirstTextNode(doc, "/Update/DataCluster"); //$NON-NLS-1$
-            
+
         root.add(new JournalTreeModel("UserName:" + checkNull(Util.getFirstTextNode(doc, "/Update/UserName")))); //$NON-NLS-1$ //$NON-NLS-2$
         root.add(new JournalTreeModel("Source:" + checkNull(Util.getFirstTextNode(doc, "/Update/Source")))); //$NON-NLS-1$ //$NON-NLS-2$
         root.add(new JournalTreeModel("TimeInMillis:" + checkNull(Util.getFirstTextNode(doc, "/Update/TimeInMillis")))); //$NON-NLS-1$ //$NON-NLS-2$
@@ -135,8 +141,8 @@ public class JournalDBService {
         Set<String> roleSet = Util.getNoAccessRoleSet(decl);
         boolean isAuth = Util.isAuth(roleSet);
         root.setAuth(isAuth);
-        
-        if(isAuth) {
+
+        if (isAuth) {
             NodeList ls = Util.getNodeList(doc, "/Update/Item"); //$NON-NLS-1$
             if (ls.getLength() > 0) {
                 for (int i = 0; i < ls.getLength(); i++) {
@@ -147,7 +153,7 @@ public class JournalDBService {
 
                     String oldValue = checkNull(Util.getFirstTextNode(doc, "/Update/Item[" + (i + 1) + "]/oldValue")); //$NON-NLS-1$//$NON-NLS-2$
                     String newValue = checkNull(Util.getFirstTextNode(doc, "/Update/Item[" + (i + 1) + "]/newValue")); //$NON-NLS-1$ //$NON-NLS-2$
-                    
+
                     if (fkInstance.isRetireveFKInfo() && !"".equals(oldValue) && fkInstance.getFkInfo() != null) { //$NON-NLS-1$
                         oldValue = getFKInfoByRetrieveConf(dataCluster, fkInstance.getFkInfo(), oldValue);
                     }
@@ -155,35 +161,35 @@ public class JournalDBService {
                     if (fkInstance.isRetireveFKInfo() && !"".equals(newValue) && fkInstance.getFkInfo() != null) { //$NON-NLS-1$
                         newValue = getFKInfoByRetrieveConf(dataCluster, fkInstance.getFkInfo(), newValue);
                     }
-                    
+
                     list.add(new JournalTreeModel("path:" + path)); //$NON-NLS-1$
                     list.add(new JournalTreeModel("oldValue:" + oldValue)); //$NON-NLS-1$
                     list.add(new JournalTreeModel("newValue:" + newValue)); //$NON-NLS-1$
-                    
+
                     JournalTreeModel itemModel = new JournalTreeModel("Item", list); //$NON-NLS-1$
                     root.add(itemModel);
                 }
             }
         }
-        
+
         return root;
     }
-    
-    public JournalTreeModel getComparisionTreeModel(String xmlStr){
+
+    public JournalTreeModel getComparisionTreeModel(String xmlStr) {
         JournalTreeModel root = new JournalTreeModel("root", "Document"); //$NON-NLS-1$ //$NON-NLS-2$
-        if(xmlStr == null)
+        if (xmlStr == null) {
             return root;
-        
+        }
+
         SAXReader reader = new SAXReader();
         org.dom4j.Document document = null;
         try {
             document = reader.read(new ByteArrayInputStream(xmlStr.getBytes()));
+            org.dom4j.Element rootElement = document.getRootElement();
+            this.retrieveElement(rootElement, root);
         } catch (DocumentException e) {
-            e.printStackTrace();
-        }  
-
-        org.dom4j.Element rootElement = document.getRootElement();
-        this.retrieveElement(rootElement, root);
+            LOG.error(e.getMessage(), e);
+        }
 
         return root;
     }
@@ -192,41 +198,43 @@ public class JournalDBService {
         List list = element.elements();
         JournalTreeModel model = this.getModelByElement(element);
         root.add(model);
-        if(list.size() == 0){
+        if (list.size() == 0) {
             return;
         }
-        
-        for(Object obj : list){
-            org.dom4j.Element el = (org.dom4j.Element)obj;
+
+        for (Object obj : list) {
+            org.dom4j.Element el = (org.dom4j.Element) obj;
             retrieveElement(el, model);
         }
     }
-    
+
     private JournalTreeModel getModelByElement(org.dom4j.Element element) {
         JournalTreeModel model = null;
-        Attribute idAttr=element.attribute("id"); //$NON-NLS-1$
+        Attribute idAttr = element.attribute("id"); //$NON-NLS-1$
         String id = null;
-        if(idAttr != null){
+        if (idAttr != null) {
             id = idAttr.getValue();
         }
-        
-        Attribute clsAttr=element.attribute("cls"); //$NON-NLS-1$
+
+        Attribute clsAttr = element.attribute("cls"); //$NON-NLS-1$
         String cls = null;
-        if(clsAttr != null){
+        if (clsAttr != null) {
             cls = clsAttr.getValue();
         }
-        
+
         String value = element.getText();
-        if(!value.equalsIgnoreCase("")) //$NON-NLS-1$
+        if (!value.equalsIgnoreCase("")) { //$NON-NLS-1$
             value = ":" + value; //$NON-NLS-1$
-        
-        if (cls == null)
+        }
+
+        if (cls == null) {
             model = new JournalTreeModel(id, element.getName() + value);
-        else
+        } else {
             model = new JournalTreeModel(id, element.getName() + value, cls);
+        }
         return model;
     }
-    
+
     private String getFKInfoByRetrieveConf(String dataCluster, String fkInfo, String rightValueOrPath) {
         String fkInfoValue = ""; //$NON-NLS-1$
         String conceptName = fkInfo.substring(0, fkInfo.indexOf("/")); //$NON-NLS-1$
@@ -249,7 +257,7 @@ public class JournalDBService {
                 fkInfoValue = it.getTextContent();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
 
         return fkInfoValue;
@@ -267,7 +275,7 @@ public class JournalDBService {
         String timeInMillis = checkNull(Util.getFirstTextNode(doc, "result/Update/TimeInMillis")); //$NON-NLS-1$
 
         model.setDataContainer(checkNull(Util.getFirstTextNode(doc, "result/Update/DataCluster"))); //$NON-NLS-1$
-        model.setDataModel(checkNull(Util.getFirstTextNode(doc, "result/Update/DataModel")));  //$NON-NLS-1$
+        model.setDataModel(checkNull(Util.getFirstTextNode(doc, "result/Update/DataModel"))); //$NON-NLS-1$
         model.setEntity(checkNull(Util.getFirstTextNode(doc, "result/Update/Concept"))); //$NON-NLS-1$
         model.setKey(checkNull(Util.getFirstTextNode(doc, "result/Update/Key"))); //$NON-NLS-1$
         model.setRevisionId(checkNull(Util.getFirstTextNode(doc, "result/Update/RevisionID"))); //$NON-NLS-1$
@@ -296,8 +304,9 @@ public class JournalDBService {
                 if (term instanceof XSElementDecl && ((XSElementDecl) term).getName().equals(path)) {
                     XSElementDecl childElem = (XSElementDecl) child.getTerm();
                     XSAnnotation xsa = childElem.getAnnotation();
-                    if (xsa == null)
+                    if (xsa == null) {
                         continue;
+                    }
                     Element el = (Element) xsa.getAnnotation();
                     NodeList annotList = el.getChildNodes();
 
@@ -305,8 +314,9 @@ public class JournalDBService {
                         if ("appinfo".equals(annotList.item(k).getLocalName())) { //$NON-NLS-1$
                             Node source1 = annotList.item(k).getAttributes().getNamedItem("source"); //$NON-NLS-1$
 
-                            if (source1 == null)
+                            if (source1 == null) {
                                 continue;
+                            }
                             String appinfoSource = annotList.item(k).getAttributes().getNamedItem("source").getNodeValue(); //$NON-NLS-1$
 
                             if ("X_ForeignKeyInfo".equals(appinfoSource)) { //$NON-NLS-1$
@@ -326,12 +336,13 @@ public class JournalDBService {
     }
 
     private String checkNull(String str) {
-        if (str == null)
+        if (str == null) {
             return ""; //$NON-NLS-1$
-        if (str.equalsIgnoreCase("null")) //$NON-NLS-1$
+        }
+        if (str.equalsIgnoreCase("null")) { //$NON-NLS-1$
             return ""; //$NON-NLS-1$
+        }
         return str;
     }
-    
-    
+
 }

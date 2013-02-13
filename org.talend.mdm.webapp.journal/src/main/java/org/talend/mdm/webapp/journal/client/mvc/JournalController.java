@@ -19,7 +19,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public class JournalController extends Controller {
 
@@ -31,10 +31,12 @@ public class JournalController extends Controller {
         registerEventTypes(JournalEvents.DoSearch);
     }
 
+    @Override
     public void initialize() {
         view = new JournalView(this);
     }
 
+    @Override
     public void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type == JournalEvents.InitFrame) {
