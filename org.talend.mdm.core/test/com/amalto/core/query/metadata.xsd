@@ -746,6 +746,28 @@
         <xsd:restriction base="xsd:string"/>
     </xsd:simpleType>
 
+    <!-- SQL KEYWORD RESERVED ENTITY TYPE NAME-->
+    <xsd:element name="Group">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element maxOccurs="1" minOccurs="1" name="Id" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="Group">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="Id"/>
+        </xsd:unique>
+    </xsd:element>
+
     <!-- INHERITANCE TYPE MODEL -->
     <xsd:element name="A" type="A">
         <xsd:unique name="A">

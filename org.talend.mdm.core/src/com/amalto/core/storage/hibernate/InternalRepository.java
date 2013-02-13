@@ -51,6 +51,9 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
 
     MetadataVisitor<TypeMapping> getTypeMappingCreator(TypeMetadata type, HibernateStorage.TypeMappingStrategy strategy) {
         if ("Update".equals(type.getName())) { //$NON-NLS-1$
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Mapping strategy: " + type.getName() + " -> fixed update report mapping.");
+            }
             return new UpdateReportMappingCreator(type, userRepository, mappings);
         }
         switch (strategy) {
@@ -59,12 +62,12 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
                 return getTypeMappingCreator(type, actualStrategy);
             case FLAT:
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(type.getName() + " -> FLAT");
+                    LOGGER.debug("Mapping strategy: " + type.getName() + " -> FLAT");
                 }
                 return new TypeMappingCreator(internalRepository, mappings);
             case SCATTERED:
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(type.getName() + " -> SCATTERED");
+                    LOGGER.debug("Mapping strategy: " + type.getName() + " -> SCATTERED");
                 }
                 return new ScatteredMappingCreator(internalRepository, mappings);
             default:
