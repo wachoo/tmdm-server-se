@@ -187,9 +187,9 @@
                 <executions>
                     <execution>
                         <id>gwt-compile</id>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
+                        <configuration>
+                            <module>org.talend.mdm.webapp.browserecords.BrowseRecords</module>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

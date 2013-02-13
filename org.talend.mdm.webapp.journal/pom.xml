@@ -102,9 +102,6 @@
                         <configuration>
                             <module>org.talend.mdm.webapp.journal.journal</module>
                         </configuration>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>

@@ -78,9 +78,6 @@
                         <configuration>
                             <module>org.talend.mdm.webapp.welcomeportal.welcomeportal</module>
                         </configuration>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>

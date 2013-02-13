@@ -87,13 +87,9 @@
                         <configuration>
                             <module>org.talend.mdm.webapp.general.General</module>
                         </configuration>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
-
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

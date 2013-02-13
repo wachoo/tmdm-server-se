@@ -93,18 +93,12 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
-                <configuration>
-                    <style>PRETTY</style>
-                </configuration>
                 <executions>
                     <execution>
                         <id>gwt-compile</id>
                         <configuration>
                             <module>org.talend.mdm.webapp.recyclebin.recyclebin</module>
                         </configuration>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
