@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
@@ -28,12 +29,17 @@ import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.ReportDocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.UserAction;
+import org.apache.log4j.Logger;
 
 class GenerateActions implements DocumentSaver {
 
-    private static final int PRECISION = 1000;
+    private static final Logger LOGGER = Logger.getLogger(GenerateActions.class);
+
+    private static final int PRECISION = 16;
 
     private final DocumentSaver next;
+
+    private final static AtomicLong lastUpdateTime = new AtomicLong();
 
     private final static AtomicInteger counter = new AtomicInteger();
 
@@ -55,7 +61,20 @@ class GenerateActions implements DocumentSaver {
         } else {
             source = StringUtils.EMPTY;
         }
-        Date date = new Date((System.currentTimeMillis() - PRECISION) + (counter.incrementAndGet() % PRECISION));
+        long mdmUpdateTime = System.currentTimeMillis();
+        synchronized (lastUpdateTime) {
+            // System.currentTimeMillis() is not precise enough when MDM is stressed, this code ensures time follow a
+            // strict sequence.
+            if(lastUpdateTime.get() == mdmUpdateTime) {
+                long backup = mdmUpdateTime;
+                mdmUpdateTime += (counter.incrementAndGet() % (PRECISION - 1)) + 1;
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Changed time from " + backup + " to " + mdmUpdateTime + " (diff: " + (mdmUpdateTime - backup) + " ms)");
+                }
+            }
+            lastUpdateTime.set(mdmUpdateTime);
+        }
+        Date date = new Date(mdmUpdateTime);
         SaverSource saverSource = session.getSaverSource();
         String userName = saverSource.getUserName();
 

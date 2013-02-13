@@ -62,7 +62,8 @@ class Save implements DocumentSaver {
         }
 
         List<FieldMetadata> keyFields = updateReportType.getKeyFields();
-        LinkedList<String> ids = new LinkedList<String>();
+        List<String> ids = new LinkedList<String>();
+        long updateReportTime = 0;
         for (FieldMetadata keyField : keyFields) {
             String keyFieldName = keyField.getName();
             Accessor keyAccessor = updateReportDocument.createAccessor(keyFieldName);
@@ -70,11 +71,19 @@ class Save implements DocumentSaver {
                 throw new RuntimeException("Unexpected state: update report does not have value for key '" + keyFieldName + "'.");
             }
             ids.add(keyAccessor.get());
+            if ("TimeInMillis".equals(keyFieldName)) { //$NON-NLS-1$
+                updateReportTime = Long.parseLong(keyAccessor.get());
+            }
         }
-
+        if (updateReportTime < 1) { // This is unexpected (would mean update report "TimeInMillis" is not present).
+            throw new IllegalStateException("Missing update report time value.");
+        }
         String[] idAsArray = ids.toArray(new String[ids.size()]);
-        ItemPOJO updateReport = new ItemPOJO(new DataClusterPOJOPK(UpdateReport.UPDATE_REPORT_DATA_MODEL), UpdateReport.UPDATE_REPORT_TYPE, idAsArray,
-                System.currentTimeMillis(), updateReportDocument.asDOM().getDocumentElement());
+        ItemPOJO updateReport = new ItemPOJO(new DataClusterPOJOPK(UpdateReport.UPDATE_REPORT_DATA_MODEL),
+                UpdateReport.UPDATE_REPORT_TYPE,
+                idAsArray,
+                updateReportTime,
+                updateReportDocument.asDOM().getDocumentElement());
         updateReport.setDataModelName(UpdateReport.UPDATE_REPORT_DATA_MODEL);
         updateReport.setDataModelRevision(saverSource.getConceptRevisionID(updateReport.getConceptName()));
         // Call session's save to save all items in correct order (one transaction per data cluster for the XML db).
