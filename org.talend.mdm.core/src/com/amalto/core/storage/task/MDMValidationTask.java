@@ -23,6 +23,7 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import java.io.*;
@@ -36,6 +37,8 @@ public class MDMValidationTask extends MetadataRepositoryTask {
     private static final boolean GENERATE_UPDATE_REPORT;
 
     private static final int CONSUMER_POOL_SIZE;
+
+    private static final Logger LOGGER = Logger.getLogger(MDMValidationTask.class);
 
     private final SaverSource source;
 
@@ -163,7 +166,13 @@ public class MDMValidationTask extends MetadataRepositoryTask {
         }
 
         public synchronized void end(ClosureExecutionStats stats) {
-            session.end(committer);
+            try {
+                session.end(committer);
+            } catch (Exception e) {
+                // This is unexpected (session should only contain records that won't fail commit).
+                LOGGER.error("Could not commit changes.", e);
+                session.abort(committer);
+            }
             storage.commit();
             storage.end();
         }
