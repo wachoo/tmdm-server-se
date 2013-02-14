@@ -741,7 +741,7 @@ public class ItemCtrl2Bean implements SessionBean {
                     if (!type.getKeyFields().isEmpty()) { // Don't try to count types that don't have any PK.
                         UserQueryBuilder qb = from(type)
                                 .select(alias(UserQueryBuilder.count(), "count"));
-
+                        qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
                         StorageResults countResult = storage.fetch(qb.getSelect());
                         Iterator<DataRecord> resultsIterator = countResult.iterator();
                         if (resultsIterator.hasNext()) {
