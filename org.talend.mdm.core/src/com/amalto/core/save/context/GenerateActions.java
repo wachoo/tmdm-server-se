@@ -35,7 +35,7 @@ class GenerateActions implements DocumentSaver {
 
     private static final Logger LOGGER = Logger.getLogger(GenerateActions.class);
 
-    private static final int PRECISION = 16;
+    private static final int PRECISION = 32;
 
     private final DocumentSaver next;
 
