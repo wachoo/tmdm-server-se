@@ -33,7 +33,7 @@ public class FullTextIndexCleaner implements StorageCleaner {
         RDBMSDataSource dataSource = (RDBMSDataSource) storageDataSource;
         if (dataSource.supportFullText()) {
             String dataSourceIndexDirectory = dataSource.getIndexDirectory();
-            File indexDirectory = new File(dataSourceIndexDirectory);
+            File indexDirectory = new File(dataSourceIndexDirectory + '/' + storage.getName());
             if (indexDirectory.exists()) {
                 try {
                     FileUtils.deleteDirectory(indexDirectory);
