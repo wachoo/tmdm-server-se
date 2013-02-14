@@ -32,6 +32,7 @@
                     <include>**/**.xsd</include>
                     <include>**/**.xml</include>
                     <include>**/**.dtd</include>
+                    <include>**/**.txt</include>
                     <include>**/initdb/data/**</include>
                     <include>**/util/phonet-utf8.*</include>
                 </includes>
