@@ -18,10 +18,7 @@ import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
+import org.w3c.dom.*;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.TransformerException;
@@ -75,6 +72,15 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
     private void _read(MetadataRepository repository, DataRecord dataRecord, ComplexTypeMetadata type, Element element) {
         String tagName = element.getTagName();
         NodeList children = element.getChildNodes();
+        NamedNodeMap attributes = element.getAttributes();
+        for (int i = 0; i < attributes.getLength(); i++) {
+            Node attribute = attributes.item(i);
+            if (!type.hasField(attribute.getNodeName())) {
+                continue;
+            }
+            FieldMetadata field = type.getField(attribute.getNodeName());
+            dataRecord.set(field, MetadataUtils.convert(attribute.getNodeValue(), field));
+        }
         for (int i = 0; i < children.getLength(); i++) {
             Node currentChild = children.item(i);
             if (currentChild instanceof Element) {

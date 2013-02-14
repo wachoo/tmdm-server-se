@@ -171,8 +171,9 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
         } catch (InvocationTargetException e) {
             String err = "Unable to execute the Routing Order '" + routingOrderPOJO.getName() + "'." +
                     " The service: '" + routingOrderPOJO.getServiceJNDI() + "' failed. ";
-            if (e.getCause() != null) err +=
-                    (e.getCause() instanceof XtentisException ? "" : e.getCause().getClass().getName() + ": ") + e.getCause().getMessage();
+            if (e.getCause() != null) {
+                err += (e.getCause() instanceof XtentisException ? "" : e.getCause().getClass().getName() + ": ") + e.getCause().getMessage();
+            }
             moveToFailedQueue(routingOrderPOJO, err, e, cleanUpRoutingOrder);
         }
         //The service call completed successfully -- add to the COMPLETED queue
@@ -255,8 +256,9 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
             failedRO = (FailedRoutingOrderV2POJO) routingOrderPOJO;
         } else {
             failedRO = new FailedRoutingOrderV2POJO(routingOrderPOJO);
-            if (cleanUpRoutingOrder)
+            if (cleanUpRoutingOrder) {
                 removeRoutingOrder(routingOrderPOJO.getAbstractRoutingOrderPOJOPK());
+            }
         }
         failedRO.setMessage(
                 failedRO.getMessage() +

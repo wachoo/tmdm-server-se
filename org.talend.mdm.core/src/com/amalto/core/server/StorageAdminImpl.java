@@ -236,7 +236,7 @@ public class StorageAdminImpl implements StorageAdmin {
         if (getRegisteredStorage(SYSTEM_STORAGE, null) != null
                 && !XSystemObjects.DC_UPDATE_PREPORT.getName().equals(storageName)
                 && (XSystemObjects.isXSystemObject(xDataClustersMap, storageName)
-                    || "amaltoOBJECTSActiveRoutingOrderV2".equals(storageName))) { //$NON-NLS-1$
+                    || storageName.startsWith("amaltoOBJECTS"))) { //$NON-NLS-1$
             return getRegisteredStorage(SYSTEM_STORAGE, null);
         }
         if (storage == null) {

@@ -425,7 +425,9 @@ public abstract class ObjectPOJO implements Serializable {
             //for storing we need to be admin, or have a role of admin , or role of write on instance
             boolean authorized = false;
             ILocalUser user = LocalUser.getLocalUser();
-            if (user.getUsername() == null) return null;
+            if (user.getUsername() == null) {
+                return null;
+            }
             if (MDMConfiguration.getAdminUser().equals(user.getUsername())
                     || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
                 authorized = true;
@@ -489,8 +491,7 @@ public abstract class ObjectPOJO implements Serializable {
                     sw.toString(),
                     getPK().getUniqueId(),
                     dataClusterName,
-                    revisionID
-            )) {
+                    revisionID)) {
                 setLastError("Unable to store: check The XML Server Wrapper Logs");
                 server.rollback(dataClusterName);
                 return null;
@@ -510,7 +511,6 @@ public abstract class ObjectPOJO implements Serializable {
             LOG.error(err, e);
             throw new XtentisException(err, e);
         }
-
     }
 
     @SuppressWarnings("nls")
@@ -748,22 +748,25 @@ public abstract class ObjectPOJO implements Serializable {
                 LOG.trace("findAllPKsByCriteriaWithPaging() Results size: " + results.size()); //$NON-NLS-1$  //$NON-NLS-2$
             }
             List<ObjectPOJOPK> pojoPks = new LinkedList<ObjectPOJOPK>();
-            String[] idValues = new String[idsPaths.length];
-            int idIndex = 0;
             for (String result : results) {
                 XMLEventReader reader = xmlInputFactory.createXMLEventReader(new StringReader(result));
                 XMLEvent xmlEvent = reader.nextEvent();
-                switch (xmlEvent.getEventType()) {
-                    case XMLEvent.CHARACTERS:
-                        idValues[idIndex++] = xmlEvent.asCharacters().getData();
-                        break;
-                    case XMLEvent.END_DOCUMENT:
-                        // check authorizations
-                        if (isAdmin || user.userCanRead(objectClass, result)) {
-                            pojoPks.add(new ObjectPOJOPK(idValues));
-                        }
-                        idIndex = 0;
-                        break;
+                String[] idValues = new String[idsPaths.length];
+                int idIndex = 0;
+                while (xmlEvent.getEventType() != XMLEvent.END_DOCUMENT) {
+                    switch (xmlEvent.getEventType()) {
+                        case XMLEvent.CHARACTERS:
+                            String data = xmlEvent.asCharacters().getData().trim();
+                            if (!data.isEmpty()) {
+                                idValues[idIndex++] = data;
+                            }
+                            break;
+                    }
+                    xmlEvent = reader.nextEvent();
+                }
+                // check authorizations
+                if (isAdmin || user.userCanRead(objectClass, result)) {
+                    pojoPks.add(new ObjectPOJOPK(idValues));
                 }
             }
             return pojoPks;
