@@ -169,11 +169,6 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(ContainedTypeFieldMetadata containedField) {
-        if (processedTypes.contains(containedField.getContainedType())) {
-            return null;
-        } else {
-            processedTypes.add(containedField.getContainedType());
-        }
         String fieldName = getFieldName(containedField);
         String containedTypeName = newNonInstantiableTypeName(containedField.getContainedType());
         SoftTypeRef typeRef = new SoftTypeRef(internalRepository,
@@ -196,7 +191,10 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         newFlattenField.setData("SQL_DELETE_CASCADE", "true"); //$NON-NLS-1$ //$NON-NLS-2$
         currentType.peek().addField(newFlattenField);
         mapping.map(containedField, newFlattenField);
-        containedField.getContainedType().accept(this);
+        if (!processedTypes.contains(containedField.getContainedType())) {
+            processedTypes.add(containedField.getContainedType());
+            containedField.getContainedType().accept(this);
+        }
         return null;
     }
 

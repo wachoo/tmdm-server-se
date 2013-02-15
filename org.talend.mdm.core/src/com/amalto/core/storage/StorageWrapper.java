@@ -23,16 +23,14 @@ import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.XmlServerException;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
@@ -133,11 +131,27 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
-        throw new NotImplementedException();
+        return putDocumentFromFile(fileName, uniqueID, clusterName, revisionID, IXmlServerSLWrapper.TYPE_DOCUMENT);
     }
 
     public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID, String documentType) throws XmlServerException {
-        throw new NotImplementedException();
+        long startTime = System.currentTimeMillis();
+        File file = new File(fileName);
+        if (!file.canRead()) {
+            throw new XmlServerException("Can not read file '" + fileName + "'."); //$NON-NLS-1$
+        }
+        String content;
+        try {
+            if ("BINARY".equals(documentType)) { //$NON-NLS-1$
+                content = "<filename>" + file.getName() + "</filename>"; //$NON-NLS-1$ //$NON-NLS-2$
+            } else {
+                content = FileUtils.readFileToString(file);
+            }
+            putDocumentFromString(content, uniqueID, clusterName, revisionID);
+        } catch (Exception e) {
+            throw new XmlServerException("Can not save document file.", e); //$NON-NLS-1$
+        }
+        return System.currentTimeMillis() - startTime;
     }
 
     public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
