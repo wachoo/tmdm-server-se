@@ -273,7 +273,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             }
             typeToQuery = Collections.singletonList(complexType);
         } else {
-            typeToQuery = MetadataUtils.sortTypes(repository);
+            typeToQuery = getClusterTypes(clusterName, revisionID);
         }
         for (ComplexTypeMetadata currentType : typeToQuery) {
             UserQueryBuilder qb = from(currentType).selectId(currentType);
@@ -485,7 +485,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             itemPKResults.addAll(getTypeItems(criteria, repository.getComplexType(typeName), storage));
         } else {
             // TMDM-4651: Returns type in correct dependency order.
-            Collection<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
+            Collection<ComplexTypeMetadata> types = getClusterTypes(clusterName, criteria.getRevisionId());
             int maxCount = criteria.getMaxItems();
             if(criteria.getSkip() < 0) { // MDM Studio may send negative values
                 criteria.setSkip(0);
@@ -510,6 +510,12 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
         itemPKResults.add(0, "<totalCount>" + totalCount + "</totalCount>");  //$NON-NLS-1$ //$NON-NLS-2$
         return itemPKResults;
+    }
+
+    protected Collection<ComplexTypeMetadata> getClusterTypes(String clusterName, String revisionID) {
+        Storage storage = getStorage(clusterName, revisionID);
+        MetadataRepository repository = storage.getMetadataRepository();
+        return MetadataUtils.sortTypes(repository);
     }
 
     private int getTypeItemCount(ItemPKCriteria criteria, ComplexTypeMetadata type, Storage storage) {        

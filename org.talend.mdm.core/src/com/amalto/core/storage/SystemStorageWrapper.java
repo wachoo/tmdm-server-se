@@ -11,10 +11,7 @@
 
 package com.amalto.core.storage;
 
-import com.amalto.core.metadata.ClassRepository;
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.*;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
@@ -32,18 +29,24 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Iterator;
+import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.eq;
 import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 public class SystemStorageWrapper extends StorageWrapper {
 
+    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
+
     private static final String SYSTEM_PREFIX = "amaltoOBJECTS"; //$NON-NLS-1$
 
     private static final String DROPPED_ITEM_TYPE = "dropped-item-pOJO"; //$NON-NLS-1$
 
-    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
+    private static final String COMPLETED_ROUTING_ORDER = "completed-routing-order-v2-pOJO"; //$NON-NLS-1$
+
+    private static final String FAILED_ROUTING_ORDER = "failed-routing-order-v2-pOJO"; //$NON-NLS-1$
+
+    private static final String ACTIVE_ROUTING_ORDER = "active-routing-order-v2-pOJO"; //$NON-NLS-1$
 
     public SystemStorageWrapper() {
         // Create "system" storage
@@ -57,7 +60,7 @@ public class SystemStorageWrapper extends StorageWrapper {
     private ComplexTypeMetadata getType(String clusterName, Storage storage, String uniqueId) {
         MetadataRepository repository = storage.getMetadataRepository();
         if (clusterName.startsWith(SYSTEM_PREFIX)) {
-            return repository.getComplexType(ClassRepository.format(clusterName.substring(SYSTEM_PREFIX.length()) + "POJO"));
+            return repository.getComplexType(ClassRepository.format(clusterName.substring(SYSTEM_PREFIX.length()) + "POJO")); //$NON-NLS-1$
         }
         if (XSystemObjects.DC_MDMITEMSTRASH.getName().equals(clusterName)) {
             return repository.getComplexType(DROPPED_ITEM_TYPE);
@@ -99,6 +102,63 @@ public class SystemStorageWrapper extends StorageWrapper {
     @Override
     public boolean existCluster(String revision, String cluster) throws XmlServerException {
         return true;
+    }
+
+    @Override
+    protected Collection<ComplexTypeMetadata> getClusterTypes(String clusterName, String revisionID) {
+        Storage storage = getStorage(clusterName, revisionID);
+        MetadataRepository repository = storage.getMetadataRepository();
+        return filter(repository, clusterName);
+    }
+
+    public static Collection<ComplexTypeMetadata> filter(MetadataRepository repository, String clusterName) {
+        if (XSystemObjects.DC_CONF.getName().equals(clusterName)) {
+            return filter(repository, "Conf", "AutoIncrement"); //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (XSystemObjects.DC_CROSSREFERENCING.getName().equals(clusterName)) {
+            return Collections.emptyList(); // TODO Support crossreferencing
+        } else if (XSystemObjects.DC_PROVISIONING.getName().equals(clusterName)) {
+            return filter(repository, "User", "Role"); //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (XSystemObjects.DC_XTENTIS_COMMON_REPORTING.getName().equals(clusterName)) {
+            return filter(repository, "Reporting", "hierarchical-report"); //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (XSystemObjects.DC_SEARCHTEMPLATE.getName().equals(clusterName)) {
+            return filter(repository, "BrowseItem", "HierarchySearchItem"); //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (XSystemObjects.DC_JCAADAPTERS.getName().equals(clusterName)) {
+            // Not supported
+            return Collections.emptyList();
+        } else if (XSystemObjects.DC_INBOX.getName().equals(clusterName)) {
+            // Not supported
+            return Collections.emptyList();
+        } else {
+            return repository.getUserComplexTypes();
+        }
+    }
+
+    public static Collection<ComplexTypeMetadata> filter(MetadataRepository repository, String... typeNames) {
+        final Set<ComplexTypeMetadata> filteredTypes = new HashSet<ComplexTypeMetadata>();
+        MetadataVisitor<Void> transitiveTypeClosure = new DefaultMetadataVisitor<Void>() {
+            @Override
+            public Void visit(ComplexTypeMetadata complexType) {
+                if (complexType.isInstantiable()) {
+                    filteredTypes.add(complexType);
+                }
+                return super.visit(complexType);
+            }
+
+            @Override
+            public Void visit(ContainedComplexTypeMetadata containedType) {
+                if (containedType.isInstantiable()) {
+                    filteredTypes.add(containedType);
+                }
+                return super.visit(containedType);
+            }
+        };
+        for (String typeName : typeNames) {
+            ComplexTypeMetadata type = repository.getComplexType(typeName);
+            if (type != null) {
+                type.accept(transitiveTypeClosure);
+            }
+        }
+        return filteredTypes;
     }
 
     @Override
@@ -197,8 +257,13 @@ public class SystemStorageWrapper extends StorageWrapper {
             uniqueID = uniqueID.substring(0, uniqueID.length() - 1);
             // TODO Filter by revision
             // String revisionId = StringUtils.substringBefore(uniqueID, ".");
-            String documentUniqueId = StringUtils.substringAfter(uniqueID, ".");
+            String documentUniqueId = StringUtils.substringAfter(uniqueID, "."); //$NON-NLS-1$
             qb = from(type).where(eq(type.getKeyFields().get(0), documentUniqueId));
+        } else if(COMPLETED_ROUTING_ORDER.equals(type.getName())
+                || FAILED_ROUTING_ORDER.equals(type.getName())
+                || ACTIVE_ROUTING_ORDER.equals(type.getName())) {
+            isUserFormat = false;
+            qb = from(type).where(eq(type.getKeyFields().get(0), uniqueID));
         } else {
             isUserFormat = uniqueID.indexOf('.') > 0;
             String documentUniqueId = isUserFormat ? StringUtils.substringAfterLast(uniqueID, ".") : uniqueID;

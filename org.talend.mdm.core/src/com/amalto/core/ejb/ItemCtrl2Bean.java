@@ -28,6 +28,7 @@ import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
+import com.amalto.core.storage.SystemStorageWrapper;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -677,8 +678,7 @@ public class ItemCtrl2Bean implements SessionBean {
                 XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
                 return server.countItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
             } else {
-                MetadataRepository repository = mdmServer.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
-
+                MetadataRepository repository = storage.getMetadataRepository();
                 Collection<ComplexTypeMetadata> types;
                 if ("*".equals(conceptName)) {
                     types = repository.getUserComplexTypes();
@@ -1122,7 +1122,12 @@ public class ItemCtrl2Bean implements SessionBean {
                 }
             } else {
                 MetadataRepository repository = storage.getMetadataRepository();
-                Collection<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
+                Collection<ComplexTypeMetadata> types;
+                if (Util.isSystemDC(dataClusterPOJOPK)) {
+                    types = SystemStorageWrapper.filter(repository, dataClusterPOJOPK.getUniqueId());
+                } else {
+                    types = MetadataUtils.sortTypes(repository);
+                }
                 for (ComplexTypeMetadata type : types) {
                     concepts.put(type.getName(), universe.getConceptRevisionID(type.getName()));
                 }
