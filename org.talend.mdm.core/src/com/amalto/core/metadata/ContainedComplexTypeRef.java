@@ -90,4 +90,14 @@ public class ContainedComplexTypeRef extends ContainedComplexTypeMetadata {
         }
         return subTypes;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return reference.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return reference.hashCode();
+    }
 }
