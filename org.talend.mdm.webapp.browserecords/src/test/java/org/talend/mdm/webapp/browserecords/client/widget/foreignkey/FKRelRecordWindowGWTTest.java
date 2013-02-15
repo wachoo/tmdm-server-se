@@ -24,7 +24,7 @@ import com.extjs.gxt.ui.client.Registry;
 import com.google.gwt.junit.client.GWTTestCase;
 
 @SuppressWarnings("nls")
-public class FKRelRecordWindowTest extends GWTTestCase {
+public class FKRelRecordWindowGWTTest extends GWTTestCase {
 
     private String foreignKey = "Product/Family";
 

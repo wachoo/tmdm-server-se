@@ -23,7 +23,7 @@ import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.ui.RootPanel;
 
 @SuppressWarnings("nls")
-public class CurrentValidationTest extends GWTTestCase {
+public class CurrentValidationGWTTest extends GWTTestCase {
 
     private StagingContainerSummaryView summaryView;
 

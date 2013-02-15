@@ -25,7 +25,7 @@ import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import com.google.gwt.junit.client.GWTTestCase;
 
 @SuppressWarnings("nls")
-public class ItemCreatorTest extends GWTTestCase {
+public class ItemCreatorGWTTest extends GWTTestCase {
 
     public void testCreateDefaultItemBean() {
         LinkedHashMap<String, TypeModel> types = new LinkedHashMap<String, TypeModel>();

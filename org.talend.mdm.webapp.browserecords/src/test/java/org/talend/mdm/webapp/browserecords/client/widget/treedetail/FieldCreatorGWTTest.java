@@ -32,7 +32,7 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.junit.client.GWTTestCase;
 
-public class FieldCreatorTest extends GWTTestCase {
+public class FieldCreatorGWTTest extends GWTTestCase {
 
     @Override
     protected void gwtSetUp() throws Exception {
@@ -41,47 +41,47 @@ public class FieldCreatorTest extends GWTTestCase {
         session.put(UserSession.APP_HEADER, new AppHeader());
         Registry.register(BrowseRecords.USER_SESSION, session);
     }
-    
+
     public void testFieldReadOnly() {
-        
+
         ComplexTypeModel product = new ComplexTypeModel();
         product.setTypePath("Product"); //$NON-NLS-1$
-        
+
         SimpleTypeModel pictureType = new SimpleTypeModel("Picture", DataTypeCreator.getDataType("Picture", "string")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
         pictureType.setTypePath("Product/Picture"); //$NON-NLS-1$
-        
+
         SimpleTypeModel idType = new SimpleTypeModel("Id", DataTypeCreator.getDataType("string", "string")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
         idType.setTypePath("Product/Id"); //$NON-NLS-1$
         idType.setReadOnly(true);
-        
+
         SimpleTypeModel nameType = new SimpleTypeModel("Name", DataTypeCreator.getDataType("string", "string")); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
         nameType.setTypePath("Product/Name"); //$NON-NLS-1$
         nameType.setReadOnly(true);
-        
+
         SimpleTypeModel descriptionType = new SimpleTypeModel("Description", DataTypeConstants.MLS); //$NON-NLS-1$
         descriptionType.setTypePath("Product/Description"); //$NON-NLS-1$
         descriptionType.setReadOnly(true);
-        
+
         ComplexTypeModel featuresType = new ComplexTypeModel();
         featuresType.setTypePath("Product/Features"); //$NON-NLS-1$
-        
+
         ComplexTypeModel sizesType = new ComplexTypeModel();
         sizesType.setTypePath("Product/Features/Sizes"); //$NON-NLS-1$
-        
+
         SimpleTypeModel sizeType = new SimpleTypeModel("Size", DataTypeCreator.getDataType("string", "string")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         sizeType.setTypePath("Product/Features/Sizes/Size"); //$NON-NLS-1$
-        
+
         ComplexTypeModel colorsType = new ComplexTypeModel();
         colorsType.setTypePath("Product/Features/Colors"); //$NON-NLS-1$
-        
+
         SimpleTypeModel colorType = new SimpleTypeModel("Color", DataTypeCreator.getDataType("string", "string")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
         colorType.setTypePath("Product/Features/Colors/Color"); //$NON-NLS-1$
-        
+
         SimpleTypeModel priceType = new SimpleTypeModel("Price", DataTypeCreator.getDataType("decimal", "decimal")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
         priceType.setTypePath("Product/Price"); //$NON-NLS-1$
-        
+
         ItemNodeModel productNode = new ItemNodeModel("Product"); //$NON-NLS-1$
-        
+
         ItemNodeModel pictureNode = new ItemNodeModel("Picture"); //$NON-NLS-1$
         ItemNodeModel idNode = new ItemNodeModel("Id"); //$NON-NLS-1$
         idNode.setKey(true);
@@ -89,31 +89,31 @@ public class FieldCreatorTest extends GWTTestCase {
         ItemNodeModel descriptionNode = new ItemNodeModel("Description"); //$NON-NLS-1$
         ItemNodeModel featuresNode = new ItemNodeModel("Features"); //$NON-NLS-1$
         ItemNodeModel priceNode = new ItemNodeModel("Price"); //$NON-NLS-1$
-        
+
         productNode.add(pictureNode);
         productNode.add(idNode);
         productNode.add(nameNode);
         productNode.add(descriptionNode);
         productNode.add(featuresNode);
         productNode.add(priceNode);
-        
+
         ItemNodeModel sizesNode = new ItemNodeModel("Sizes"); //$NON-NLS-1$
         ItemNodeModel colorsNode = new ItemNodeModel("Colors"); //$NON-NLS-1$
         featuresNode.add(sizesNode);
         featuresNode.add(colorsNode);
-        
+
         ItemNodeModel size1Node = new ItemNodeModel("Size"); //$NON-NLS-1$
         ItemNodeModel size2Node = new ItemNodeModel("Size"); //$NON-NLS-1$
         sizesNode.add(size1Node);
         sizesNode.add(size2Node);
-        
+
         ItemNodeModel color1Node = new ItemNodeModel("Color"); //$NON-NLS-1$
         ItemNodeModel color2Node = new ItemNodeModel("Color"); //$NON-NLS-1$
         colorsNode.add(color1Node);
         colorsNode.add(color2Node);
-        
+
         Map<String, Field<?>> fieldMap = new HashMap<String, Field<?>>();
-        
+
         Field<?> pictureField = TreeDetailGridFieldCreator.createField(pictureNode, pictureType, "en", fieldMap, //$NON-NLS-1$
                 ItemDetailToolBar.CREATE_OPERATION, null);
         assertNotNull(pictureField);
@@ -166,7 +166,7 @@ public class FieldCreatorTest extends GWTTestCase {
         assertEquals(false, priceField.isReadOnly());
 
     }
-    
+
     @SuppressWarnings("nls")
     public void testPolymorphismTypeFieldCreate() {
         ComplexTypeModel addressType = new ComplexTypeModel("AddressType", DataTypeCreator.getDataType("AddressType", "string"));
@@ -196,6 +196,7 @@ public class FieldCreatorTest extends GWTTestCase {
         assertEquals(usAddressType.getName(), usModel.getValue());
     }
 
+    @Override
     public String getModuleName() {
         return "org.talend.mdm.webapp.browserecords.TestBrowseRecords"; //$NON-NLS-1$
     }

@@ -22,7 +22,7 @@ import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerMod
 import com.google.gwt.junit.client.GWTTestCase;
 
 @SuppressWarnings("nls")
-public class RestServiceHandlerTest extends GWTTestCase {
+public class RestServiceHandlerGWTTest extends GWTTestCase {
 
     RestServiceHandler handler;
 

@@ -24,7 +24,7 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 
 @SuppressWarnings("nls")
-public class StagingContainerSummaryViewTest extends GWTTestCase {
+public class StagingContainerSummaryViewGWTTest extends GWTTestCase {
 
     @Override
     protected void gwtSetUp() throws Exception {
