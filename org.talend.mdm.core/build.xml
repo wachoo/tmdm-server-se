@@ -104,6 +104,9 @@
         <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
             <fileset dir="${basedir}/src" includes="**/**.dtd" />
         </copy>
+        <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
+            <fileset dir="${basedir}/src" includes="**/**.txt" />
+        </copy>
 
         <delete dir="${basedir}/target/test-reports" />
         <mkdir dir="${basedir}/target/test-reports" />
@@ -164,7 +167,7 @@
             </classpath>
         </javac>
 
-        <junit printsummary="yes" haltonfailure="yes" showoutput="yes">
+        <junit printsummary="yes" haltonfailure="no" showoutput="yes">
             <classpath>
                 <path refid="test.classpath" />
             </classpath>
