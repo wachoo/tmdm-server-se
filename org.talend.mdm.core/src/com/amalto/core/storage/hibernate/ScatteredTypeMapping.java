@@ -57,7 +57,8 @@ class ScatteredTypeMapping extends TypeMapping {
                 if (!field.isMany()) {
                     DataRecord containedRecord = (DataRecord) from.get(field);
                     if (containedRecord != null) {
-                        ComplexTypeMetadata referencedType = containedRecord.getType();
+                        TypeMapping mappingFromUser = mappings.getMappingFromUser(containedRecord.getType());
+                        ComplexTypeMetadata referencedType = mappingFromUser != null ? mappingFromUser.getDatabase() : containedRecord.getType();
                         Wrapper existingValue = (Wrapper) to.get(referenceFieldMetadata.getName());
                         boolean needCreate = existingValue == null;
                         if (!needCreate) {
