@@ -61,18 +61,20 @@ class GenerateActions implements DocumentSaver {
         } else {
             source = StringUtils.EMPTY;
         }
-        long mdmUpdateTime = System.currentTimeMillis();
+        long mdmUpdateTime;
         synchronized (lastUpdateTime) {
+            mdmUpdateTime = System.currentTimeMillis();
             // System.currentTimeMillis() is not precise enough when MDM is stressed, this code ensures time follow a
             // strict sequence.
-            if(lastUpdateTime.get() == mdmUpdateTime) {
+            if(lastUpdateTime.get() >= mdmUpdateTime) {
                 long backup = mdmUpdateTime;
-                mdmUpdateTime += (counter.incrementAndGet() % (PRECISION - 1)) + 1;
+                mdmUpdateTime += lastUpdateTime.incrementAndGet();
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Changed time from " + backup + " to " + mdmUpdateTime + " (diff: " + (mdmUpdateTime - backup) + " ms)");
                 }
+            } else {
+                lastUpdateTime.set(mdmUpdateTime);
             }
-            lastUpdateTime.set(mdmUpdateTime);
         }
         Date date = new Date(mdmUpdateTime);
         SaverSource saverSource = session.getSaverSource();
