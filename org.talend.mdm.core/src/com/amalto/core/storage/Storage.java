@@ -15,7 +15,6 @@ import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.record.DataRecord;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import java.util.Set;
 
@@ -25,20 +24,35 @@ import java.util.Set;
 public interface Storage {
 
     /**
-     * Default datasource name to be used (from datasources configuration content).
+     * Name of the column where MDM timestamp is stored.
      */
-    String DEFAULT_DATA_SOURCE_NAME = MDMConfiguration.getConfiguration().getProperty("db.default.datasource", "RDBMS-1"); //$NON-NLS-1$
-
     String METADATA_TIMESTAMP = "x_talend_timestamp"; //$NON-NLS-1$
 
+    /**
+     * Name of the column where MDM task id is stored.
+     */
     String METADATA_TASK_ID = "x_talend_task_id"; //$NON-NLS-1$
 
+    /**
+     * Name of the column where MDM source is stored (for STAGING databases only).
+     */
     String METADATA_STAGING_SOURCE = "x_talend_staging_source"; //$NON-NLS-1$
 
+    /**
+     * Name of the column where MDM status (validated...) is stored (for STAGING databases only).
+     * @see {@link com.amalto.core.storage.task.StagingConstants}
+     */
     String METADATA_STAGING_STATUS = "x_talend_staging_status"; //$NON-NLS-1$
 
+    /**
+     * Name of the column where last MDM validation error is stored (for STAGING databases only).
+     */
     String METADATA_STAGING_ERROR = "x_talend_staging_error"; //$NON-NLS-1$
 
+    /**
+     * Name of type for explicit projection (i.e. selection of a field within MDM entity). Declared fields in this type
+     * varies from one query to another (if selected fields in query changed).
+     */
     String PROJECTION_TYPE = "$ExplicitProjection$"; //$NON-NLS-1$
 
     /**
@@ -178,10 +192,19 @@ public interface Storage {
      */
     Set<String> getFullTextSuggestion(String keyword, FullTextSuggestion mode, int suggestionSize);
 
+    /**
+     * @return Name of this storage instance. This is the name used for creation in {@link com.amalto.core.server.StorageAdmin#create(String, String, String, String)}.
+     */
     String getName();
 
+    /**
+     * @return The {@link DataSource} used by this instance.
+     */
     DataSource getDataSource();
 
+    /**
+     * @return the {@link StorageType} for this instance.
+     */
     StorageType getType();
 
     enum FullTextSuggestion {

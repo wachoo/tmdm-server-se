@@ -33,9 +33,9 @@ import com.amalto.xmlserver.interfaces.XmlServerException;
 
 public class DispatchWrapper implements IXmlServerSLWrapper {
 
-    private static final IXmlServerSLWrapper mdmInternalWrapper;
+    private static IXmlServerSLWrapper mdmInternalWrapper;
 
-    private static final IXmlServerSLWrapper userStorageWrapper;
+    private static IXmlServerSLWrapper userStorageWrapper;
 
     private final static Logger LOGGER = Logger.getLogger(DispatchWrapper.class);
 
@@ -43,26 +43,35 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
 
     private boolean internalWrapperUp;
 
-    static {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("--- Using dispatch wrapper ---");
-        }
+    public DispatchWrapper() {
         String mdmInternalWrapperClass = (String) MDMConfiguration.getConfiguration().get("mdm.internal.wrapper"); //$NON-NLS-1$
         String userWrapperClass = (String) MDMConfiguration.getConfiguration().get("user.wrapper");  //$NON-NLS-1$
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("MDM internal storage: " + mdmInternalWrapperClass);
-            LOGGER.debug("User data storage: " + userWrapperClass);
-        }
         try {
-            mdmInternalWrapper = (IXmlServerSLWrapper) Class.forName(mdmInternalWrapperClass).newInstance();
-            userStorageWrapper = (IXmlServerSLWrapper) Class.forName(userWrapperClass).newInstance();
+            IXmlServerSLWrapper internal = (IXmlServerSLWrapper) Class.forName(mdmInternalWrapperClass).newInstance();
+            IXmlServerSLWrapper user = (IXmlServerSLWrapper) Class.forName(userWrapperClass).newInstance();
+            init(internal, user);
         } catch (Throwable e) {
             LOGGER.error("Initialization error", e);
             throw new RuntimeException(e);
         }
     }
 
-    public DispatchWrapper() {
+    protected DispatchWrapper(IXmlServerSLWrapper internal, IXmlServerSLWrapper user) {
+        init(internal, user);
+    }
+
+    private static void init(IXmlServerSLWrapper internal, IXmlServerSLWrapper user) {
+        if (mdmInternalWrapper == null || userStorageWrapper == null) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("--- Using dispatch wrapper ---");
+            }
+            mdmInternalWrapper = internal;
+            userStorageWrapper = user;
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("MDM internal storage: " + internal.getClass().getName());
+                LOGGER.debug("User data storage: " + user.getClass().getName());
+            }
+        }
     }
 
     public boolean isUpAndRunning() {

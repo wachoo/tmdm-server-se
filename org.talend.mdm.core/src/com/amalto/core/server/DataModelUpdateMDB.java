@@ -96,7 +96,8 @@ public class DataModelUpdateMDB implements MessageDrivenBean, MessageListener {
                                 if (dataClusterControl.existsDataCluster(new DataClusterPOJOPK(updatedDataModelName)) != null) {
                                     Server server = ServerContext.INSTANCE.get();
                                     StorageAdmin storageAdmin = server.getStorageAdmin();
-                                    storageAdmin.create(updatedDataModelName, updatedDataModelName, Storage.DEFAULT_DATA_SOURCE_NAME, null);
+                                    String dataSourceName = storageAdmin.getDatasource(updatedDataModelName);
+                                    storageAdmin.create(updatedDataModelName, updatedDataModelName, dataSourceName, null);
                                 }
                             } catch (Exception e) {
                                 LOGGER.error("Exception occurred during data model initialization.", e);

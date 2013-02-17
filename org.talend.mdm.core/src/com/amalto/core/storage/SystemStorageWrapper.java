@@ -51,9 +51,11 @@ public class SystemStorageWrapper extends StorageWrapper {
     public SystemStorageWrapper() {
         // Create "system" storage
         Server server = ServerContext.INSTANCE.get();
-        server.getStorageAdmin().create(StorageAdmin.SYSTEM_STORAGE,
+        StorageAdmin admin = server.getStorageAdmin();
+        String dataSourceName = admin.getDatasource(StorageAdmin.SYSTEM_STORAGE);
+        admin.create(StorageAdmin.SYSTEM_STORAGE,
                 StorageAdmin.SYSTEM_STORAGE,
-                Storage.DEFAULT_DATA_SOURCE_NAME,
+                dataSourceName,
                 null);
     }
 

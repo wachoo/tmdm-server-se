@@ -38,10 +38,20 @@ public class StorageAdminImpl implements StorageAdmin {
 
     private final Map<String, Map<String, Storage>> storages = new StorageMap();
 
-    private Logger LOGGER = Logger.getLogger(StorageAdminImpl.class);
+    private static final Logger LOGGER = Logger.getLogger(StorageAdminImpl.class);
+
+    /**
+     * Default datasource name to be used for user/master data (from datasources configuration content).
+     */
+    private static final String DEFAULT_USER_DATA_SOURCE_NAME = MDMConfiguration.getConfiguration().getProperty("db.default.datasource", "RDBMS-1"); //$NON-NLS-1$
+
+    /**
+     * Default datasource name to be used for system data (from datasources configuration content).
+     */
+    private static final String DEFAULT_SYSTEM_DATA_SOURCE_NAME = MDMConfiguration.getConfiguration().getProperty("db.system.datasource", "SYSTEM"); //$NON-NLS-1$
 
     // Default value is "false" (meaning the storage will not remove existing data).
-    private static final boolean autoClean = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("db.autoClean", "false"));
+    private static final boolean autoClean = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("db.autoClean", "false")); //$NON-NLS-1$ //$NON-NLS-2$
 
     public String[] getAll(String revisionID) {
         Set<String> allStorageNames = new HashSet<String>();
@@ -215,7 +225,7 @@ public class StorageAdminImpl implements StorageAdmin {
         }
         if (storage == null && !isHead(revision)) {
             LOGGER.info("Container '" + storageName + "' does not exist in revision '" + revision + "', creating it.");
-            String dataSourceName = HibernateStorage.DEFAULT_DATA_SOURCE_NAME;
+            String dataSourceName = getDatasource(storageName);
             storage = create(storageName, storageName, dataSourceName, revision);
         }
         return storage != null && storage.getType() == storageType;
@@ -227,6 +237,17 @@ public class StorageAdminImpl implements StorageAdmin {
 
     public void close() {
         deleteAll(null, false);
+    }
+
+    @Override
+    public String getDatasource(String storageName) {
+        // This is not customized: in fact, there should be a way to customize storage -> datasource mapping (like
+        // MDM container configuration).
+        if(SYSTEM_STORAGE.equals(storageName)) {
+            return DEFAULT_SYSTEM_DATA_SOURCE_NAME;
+        } else {
+            return DEFAULT_USER_DATA_SOURCE_NAME;
+        }
     }
 
     public Storage get(String storageName, String revisionId) {
@@ -249,7 +270,7 @@ public class StorageAdminImpl implements StorageAdmin {
         }
         if (storage == null && !isHead(revisionId)) {
             LOGGER.info("Container '" + storageName + "' does not exist in revision '" + revisionId + "', creating it.");
-            String dataSourceName = HibernateStorage.DEFAULT_DATA_SOURCE_NAME;
+            String dataSourceName = getDatasource(storageName);
             storage = create(storageName, storageName, dataSourceName, revisionId);
         }
         return storage;

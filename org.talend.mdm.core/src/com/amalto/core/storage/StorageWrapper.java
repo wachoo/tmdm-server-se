@@ -120,7 +120,9 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     public long createCluster(String revisionID, String clusterName) throws XmlServerException {
         long start = System.currentTimeMillis();
         {
-            getStorageAdmin().create(clusterName, clusterName, Storage.DEFAULT_DATA_SOURCE_NAME, null);
+            StorageAdmin admin = getStorageAdmin();
+            String dataSourceName = admin.getDatasource(clusterName);
+            admin.create(clusterName, clusterName, dataSourceName, null);
         }
         return System.currentTimeMillis() - start;
     }
