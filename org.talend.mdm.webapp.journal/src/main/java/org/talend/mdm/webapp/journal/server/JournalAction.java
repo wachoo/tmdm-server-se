@@ -53,6 +53,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.journal.client.i18n.JournalMessages", JournalAction.class.getClassLoader()); //$NON-NLS-1$
 
+    @Override
     public PagingLoadResult<JournalGridModel> getJournalList(JournalSearchCriteria criteria, PagingLoadConfig load)
             throws ServiceException {
 
@@ -62,80 +63,106 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         String field = load.getSortField();
         boolean isBrowseRecord = criteria.isBrowseRecord();
 
-        Object[] result = null;
         try {
-            result = service.getResultListByCriteria(criteria, start, limit, sort, field, isBrowseRecord);
+            Object[] result = service.getResultListByCriteria(criteria, start, limit, sort, field, isBrowseRecord);
+
+            int totalSize = Integer.parseInt(result[0].toString());
+            List<JournalGridModel> resultList = (List<JournalGridModel>) result[1];
+
+            return new BasePagingLoadResult<JournalGridModel>(resultList, load.getOffset(), totalSize);
+        } catch (ServiceException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
         } catch (Exception e) {
-            LOG.error(e.getMessage());
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getMessage());
         }
-
-        int totalSize = Integer.parseInt(result[0].toString());
-        List<JournalGridModel> resultList = (List<JournalGridModel>) result[1];
-
-        return new BasePagingLoadResult<JournalGridModel>(resultList, load.getOffset(), totalSize);
     }
 
+    @Override
     public JournalTreeModel getDetailTreeModel(String ids) throws ServiceException {
         String[] idsArr = ids.split("\\."); //$NON-NLS-1$
-        JournalTreeModel root = null;
+
         try {
-            root = service.getDetailTreeModel(idsArr);
+            JournalTreeModel root = service.getDetailTreeModel(idsArr);
+            return root;
+        } catch (ServiceException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
         } catch (Exception e) {
-            LOG.error(e.getMessage());
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getMessage());
         }
-        return root;
     }
 
+    @Override
     public JournalTreeModel getComparisionTree(JournalParameters parameter) throws ServiceException {
-        JournalTreeModel root = null;
+
         try {
+            JournalTreeModel root;
             if (parameter.isAuth()) {
                 String xmlStr = JournalHistoryService.getInstance().getComparisionTreeString(parameter);
                 root = service.getComparisionTreeModel(xmlStr);
             } else {
                 root = new JournalTreeModel("root", "Document"); //$NON-NLS-1$ //$NON-NLS-2$
             }
+            return root;
+        } catch (ServiceException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
         } catch (Exception e) {
-            LOG.error(e.getMessage());
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getMessage());
         }
-        return root;
     }
 
+    @Override
     public boolean isEnterpriseVersion() {
         return Webapp.INSTANCE.isEnterpriseVersion();
     }
 
+    @Override
     public boolean checkDCAndDM(String dataContainer, String dataModel) {
         return Util.checkDCAndDM(dataContainer, dataModel);
     }
 
+    @Override
     public boolean restoreRecord(JournalParameters parameter) throws ServiceException {
-        boolean result = false;
         try {
-            result = JournalHistoryService.getInstance().restoreRecord(parameter);
+            boolean result = JournalHistoryService.getInstance().restoreRecord(parameter);
+            return result;
+        } catch (ServiceException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
         } catch (Exception e) {
-            LOG.error(e.getMessage());
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getMessage());
         }
-        return result;
     }
 
+    @Override
     public String getReportString(int start, int limit, String sort, String field, String language, String entity, String key,
-            String source, String operationType, String startDate, String endDate, boolean isBrowseRecord) {
+            String source, String operationType, String startDate, String endDate, boolean isBrowseRecord)
+            throws ServiceException {
 
-        JournalSearchCriteria criteria = this.buildCriteria(entity, key, source, operationType, startDate, endDate);
-        String reportString = null;
         try {
+            JournalSearchCriteria criteria = this.buildCriteria(entity, key, source, operationType, startDate, endDate);
+
             Object[] result = service.getResultListByCriteria(criteria, start, limit, sort, field, isBrowseRecord);
             List<JournalGridModel> resultList = (List<JournalGridModel>) result[1];
-            reportString = this.generateEventString(resultList, language, criteria.getStartDate());
-
+            String reportString = this.generateEventString(resultList, language, criteria.getStartDate());
+            return reportString;
+        } catch (ServiceException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
         } catch (Exception e) {
-            LOG.error(e.getMessage());
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getMessage());
         }
 
-        return reportString;
     }
 
+    @Override
     public boolean isAdmin() {
         try {
             return LocalUser.getLocalUser().getRoles().contains(ICoreConstants.SYSTEM_ADMIN_ROLE);
