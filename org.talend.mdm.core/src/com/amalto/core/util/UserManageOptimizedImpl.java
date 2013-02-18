@@ -83,7 +83,7 @@ public class UserManageOptimizedImpl extends UserManage {
                     -1);
             return number > 0;
         } catch (Exception e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 

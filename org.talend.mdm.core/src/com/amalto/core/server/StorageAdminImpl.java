@@ -36,22 +36,24 @@ import java.util.*;
 
 public class StorageAdminImpl implements StorageAdmin {
 
-    private final Map<String, Map<String, Storage>> storages = new StorageMap();
-
     private static final Logger LOGGER = Logger.getLogger(StorageAdminImpl.class);
+
+    private static final String JCA_ADAPTER_DATA_MODEL = "jcaAdapter.xsd"; //$NON-NLS-1$
 
     /**
      * Default datasource name to be used for user/master data (from datasources configuration content).
      */
-    private static final String DEFAULT_USER_DATA_SOURCE_NAME = MDMConfiguration.getConfiguration().getProperty("db.default.datasource", "RDBMS-1"); //$NON-NLS-1$
+    private static final String DEFAULT_USER_DATA_SOURCE_NAME = MDMConfiguration.getConfiguration().getProperty("db.default.datasource", "RDBMS-1"); //$NON-NLS-1$ //$NON-NLS-2$
 
     /**
      * Default datasource name to be used for system data (from datasources configuration content).
      */
-    private static final String DEFAULT_SYSTEM_DATA_SOURCE_NAME = MDMConfiguration.getConfiguration().getProperty("db.system.datasource", "SYSTEM"); //$NON-NLS-1$
+    private static final String DEFAULT_SYSTEM_DATA_SOURCE_NAME = MDMConfiguration.getConfiguration().getProperty("db.system.datasource", "SYSTEM"); //$NON-NLS-1$ //$NON-NLS-2$
 
     // Default value is "false" (meaning the storage will not remove existing data).
     private static final boolean autoClean = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("db.autoClean", "false")); //$NON-NLS-1$ //$NON-NLS-2$
+
+    private final Map<String, Map<String, Storage>> storages = new StorageMap();
 
     public String[] getAll(String revisionID) {
         Set<String> allStorageNames = new HashSet<String>();
@@ -120,6 +122,12 @@ public class StorageAdminImpl implements StorageAdmin {
         repository.load(objectsToParse);
         // Additional POJOs
         repository.load(DroppedItemPOJO.class);
+        // Loads definition for JCAAdapters (Logging, SVN...)
+        InputStream stream = this.getClass().getResourceAsStream(JCA_ADAPTER_DATA_MODEL);
+        if (stream == null) {
+            throw new IllegalStateException("Could not find resource '" + JCA_ADAPTER_DATA_MODEL + "' in classpath.");
+        }
+        repository.load(stream);
         // Load additional types (PROVISIONING...)
         String[] models = new String[]{
                 "/com/amalto/core/initdb/data/datamodel/PROVISIONING", //$NON-NLS-1$
@@ -251,8 +259,7 @@ public class StorageAdminImpl implements StorageAdmin {
     }
 
     public Storage get(String storageName, String revisionId) {
-        Storage storage;
-        storage = getRegisteredStorage(storageName, revisionId);
+        Storage storage = getRegisteredStorage(storageName, revisionId);
         Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
         if (getRegisteredStorage(SYSTEM_STORAGE, null) != null
                 && !XSystemObjects.DC_UPDATE_PREPORT.getName().equals(storageName)
@@ -268,7 +275,7 @@ public class StorageAdminImpl implements StorageAdmin {
                 throw new IllegalStateException("Expected a SQL storage for '" + storageName + "' but got a '" + storage.getClass().getName() + "'.");
             }
         }
-        if (storage == null && !isHead(revisionId)) {
+        if (storage == null) {
             LOGGER.info("Container '" + storageName + "' does not exist in revision '" + revisionId + "', creating it.");
             String dataSourceName = getDatasource(storageName);
             storage = create(storageName, storageName, dataSourceName, revisionId);
@@ -308,6 +315,4 @@ public class StorageAdminImpl implements StorageAdmin {
             return value;
         }
     }
-
-
 }

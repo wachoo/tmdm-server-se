@@ -685,20 +685,16 @@ public class ItemCtrl2Bean implements SessionBean {
                 } else {
                     types = Collections.singletonList(repository.getComplexType(conceptName));
                 }
-
                 long count = 0;
                 for (ComplexTypeMetadata type : types) {
                     if (!type.getKeyFields().isEmpty()) { // Don't try to count types that don't have any PK.
-                        UserQueryBuilder qb = from(type)
-                                .select(alias(UserQueryBuilder.count(), "count"));
+                        UserQueryBuilder qb = from(type);
                         qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
-                        StorageResults countResult = storage.fetch(qb.getSelect());
-                        Iterator<DataRecord> resultsIterator = countResult.iterator();
-                        if (resultsIterator.hasNext()) {
-                            Object countObjectValue = resultsIterator.next().get("count");
-                            count += Long.parseLong(String.valueOf(countObjectValue));
-                        } else {
-                            throw new IllegalStateException("Count returned no result for type '" + type.getName() + "'.");
+                        StorageResults result = storage.fetch(qb.getSelect());
+                        try {
+                            count += result.getCount();
+                        } finally {
+                            result.close();
                         }
                     }
                 }

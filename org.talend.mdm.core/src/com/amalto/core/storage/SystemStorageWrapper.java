@@ -52,11 +52,7 @@ public class SystemStorageWrapper extends StorageWrapper {
         // Create "system" storage
         Server server = ServerContext.INSTANCE.get();
         StorageAdmin admin = server.getStorageAdmin();
-        String dataSourceName = admin.getDatasource(StorageAdmin.SYSTEM_STORAGE);
-        admin.create(StorageAdmin.SYSTEM_STORAGE,
-                StorageAdmin.SYSTEM_STORAGE,
-                dataSourceName,
-                null);
+        admin.get(StorageAdmin.SYSTEM_STORAGE, null);
     }
 
     private ComplexTypeMetadata getType(String clusterName, Storage storage, String uniqueId) {
@@ -310,6 +306,13 @@ public class SystemStorageWrapper extends StorageWrapper {
     public long deleteDocument(String revisionID, String clusterName, String uniqueID, String documentType) throws XmlServerException {
         Storage storage = getStorage(clusterName);
         ComplexTypeMetadata type = getType(clusterName, storage, uniqueID);
+        if (DROPPED_ITEM_TYPE.equals(type.getName())) {
+            // head.Product.Product.0-
+            uniqueID = uniqueID.substring(0, uniqueID.length() - 1);
+            // TODO Filter by revision
+            // String revisionId = StringUtils.substringBefore(uniqueID, ".");
+            uniqueID = StringUtils.substringAfter(uniqueID, "."); //$NON-NLS-1$
+        }
         if (type == null) {
             return 0; // TODO
         }
