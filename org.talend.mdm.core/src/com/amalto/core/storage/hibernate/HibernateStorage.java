@@ -190,10 +190,14 @@ public class HibernateStorage implements Storage {
         if (autoPrepare) {
             LOGGER.info("Preparing database before schema generation.");
             StorageInitializer initializer = new JDBCStorageInitializer();
-            if (!initializer.isInitialized(this)) {
-                initializer.initialize(this);
+            if (initializer.supportInitialization(this)) {
+                if (!initializer.isInitialized(this)) {
+                    initializer.initialize(this);
+                } else {
+                    LOGGER.info("Database is already prepared.");
+                }
             } else {
-                LOGGER.info("Database is already prepared.");
+                LOGGER.info("Datasource is not configured for automatic initialization.");
             }
         } else {
             LOGGER.info("*NOT* preparing database before schema generation.");

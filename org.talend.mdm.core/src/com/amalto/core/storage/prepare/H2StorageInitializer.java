@@ -20,6 +20,11 @@ import com.amalto.core.storage.datasource.RDBMSDataSource;
 class H2StorageInitializer implements StorageInitializer {
 
     @Override
+    public boolean supportInitialization(Storage storage) {
+        return true;
+    }
+
+    @Override
     public boolean isInitialized(Storage storage) {
         return false; // Returns always false to ensure initialize() is called.
     }

@@ -20,6 +20,14 @@ public interface StorageInitializer {
 
     /**
      * @param storage A {@link Storage} implementation.
+     * @return <code>true</code> if other methods can safely be called.
+     * @see #isInitialized(com.amalto.core.storage.Storage)
+     * @see #initialize(com.amalto.core.storage.Storage)
+     */
+    boolean supportInitialization(Storage storage);
+
+    /**
+     * @param storage A {@link Storage} implementation.
      * @return <code>true</code> if {@link Storage} is already initialized, <code>false</code> otherwise.
      */
     boolean isInitialized(Storage storage);
