@@ -50,16 +50,15 @@ public class StorageFullTextTest extends StorageTestCase {
                 + "    <Name>Product family #1</Name>\n" + "</ProductFamily>"));
         allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>2</Id>\n"
                 + "    <Name>Product family #2</Name>\n" + "</ProductFamily>"));
-        allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
-                        + "    <Name>talend</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
-                        + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
-                        + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
-                        + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
-                        + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
-                        + "    </Features>\n" + "    <Status>Pending</Status>\n"
-                        + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
-        allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>2</Id>\n" + "    <Name>Renault car</Name>\n"
-                + "    <ShortDescription>A car</ShortDescription>\n"
+        allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n" + "    <Name>talend</Name>\n"
+                + "    <ShortDescription>Short description word</ShortDescription>\n"
+                + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
+                + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
+                + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
+                + "    </Features>\n" + "    <Status>Pending</Status>\n" + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
+        allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>2</Id>\n"
+                + "    <Name>Renault car</Name>\n" + "    <ShortDescription>A car</ShortDescription>\n"
                 + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
                 + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
                 + "            <Color>Blue 2</Color>\n" + "            <Color>Blue 1</Color>\n"
@@ -208,9 +207,7 @@ public class StorageFullTextTest extends StorageTestCase {
     }
 
     public void testFKSearchWithProjection() throws Exception {
-        UserQueryBuilder qb = from(product)
-                .select(product.getField("Family"))
-                .where(fullText("car"));
+        UserQueryBuilder qb = from(product).select(product.getField("Family")).where(fullText("car"));
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -220,9 +217,8 @@ public class StorageFullTextTest extends StorageTestCase {
             for (DataRecord result : results) {
                 writer.write(result, resultWriter);
             }
-            assertEquals("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">\n" +
-                    "\t<Family>[1]</Family>\n" +
-                    "</result>", resultWriter.toString());
+            assertEquals("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" + "\t<Family>[1]</Family>\n"
+                    + "</result>", resultWriter.toString());
         } finally {
             results.close();
         }
@@ -297,8 +293,8 @@ public class StorageFullTextTest extends StorageTestCase {
             storage.close();
         }
     }
-    
-    public void testSimpleWithoutFkValueSearch() throws Exception {        
+
+    public void testSimpleWithoutFkValueSearch() throws Exception {
         UserQueryBuilder qb = from(product).select(product.getField("Family")).where(fullText("talend")).limit(20);
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -310,40 +306,33 @@ public class StorageFullTextTest extends StorageTestCase {
             results.close();
         }
     }
-    
-    public void testFullTestWithCompositeKeySearch() throws Exception { 
+
+    public void testFullTestWithCompositeKeySearch() throws Exception {
         ComplexTypeMetadata a1 = repository.getComplexType("a1");
         ComplexTypeMetadata a2 = repository.getComplexType("a2");
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords
-                .add(factory
-                        .read("1",
-                                repository,
-                                a2,
-                                "<a2><subelement>1</subelement><subelement1>10</subelement1><b3>String b3</b3><b4>String b4</b4></a2>"));
-        allRecords
-                .add(factory
-                        .read("1",
-                                repository,
-                                a1,
-                                "<a1><subelement>1</subelement><subelement1>11</subelement1><b1>String b1</b1><b2>[1][10]</b2></a1>"));
-        
+        allRecords.add(factory.read("1", repository, a2,
+                "<a2><subelement>1</subelement><subelement1>10</subelement1><b3>String b3</b3><b4>String b4</b4></a2>"));
+        allRecords.add(factory.read("1", repository, a1,
+                "<a1><subelement>1</subelement><subelement1>11</subelement1><b1>String b1</b1><b2>[1][10]</b2></a1>"));
+
         storage.begin();
         storage.update(allRecords);
         storage.commit();
-        
-        try{
-            UserQueryBuilder qb = from(a1).selectId(a1).select(a1.getField("b1")).select(a1.getField("b2")).where(fullText("String")).limit(20);
+
+        try {
+            UserQueryBuilder qb = from(a1).selectId(a1).select(a1.getField("b1")).select(a1.getField("b2"))
+                    .where(fullText("String")).limit(20);
             storage.fetch(qb.getSelect());
-            
-        }catch (RuntimeException runtimeException){
-            if (FullTextQueryCompositeKeyException.class.isInstance(runtimeException.getCause())){
+
+        } catch (RuntimeException runtimeException) {
+            if (FullTextQueryCompositeKeyException.class.isInstance(runtimeException.getCause())) {
                 assertEquals("a1", runtimeException.getCause().getMessage());
-            }else{
+            } else {
                 throw runtimeException;
             }
-        }             
+        }
     }
 }

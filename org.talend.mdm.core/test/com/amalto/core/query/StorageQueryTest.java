@@ -1195,7 +1195,7 @@ public class StorageQueryTest extends StorageTestCase {
             for (DataRecord result : results) {
                 writer.write(result, resultWriter);
             }
-            assertEquals("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">\n" + "\t<id>1</id>\n"
+            assertEquals("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" + "\t<id>1</id>\n"
                     + "\t<creationDate>2010-10-10</creationDate>\n" + "\t<creationTime>2010-10-10T00:00:01</creationTime>\n"
                     + "\t<name>France</name>\n" + "</result>", resultWriter.toString());
         } finally {
@@ -2006,7 +2006,7 @@ public class StorageQueryTest extends StorageTestCase {
 
         assertEquals(7, resultsAsString.size());
 
-        final String startRoot = "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">";
+        final String startRoot = "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
         final String endRoot = "</result>";
 
         assertEquals(startRoot + "<subelement>111</subelement><subelement1>222</subelement1><name>qwe</name><fk>[ccc][ddd]</fk>"
