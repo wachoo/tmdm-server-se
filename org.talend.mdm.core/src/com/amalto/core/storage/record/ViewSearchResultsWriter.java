@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.record;
@@ -28,13 +27,16 @@ import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
 
 public class ViewSearchResultsWriter implements DataRecordWriter {
+
+    @Override
     public void write(DataRecord record, OutputStream output) throws IOException {
         Writer out = new BufferedWriter(new OutputStreamWriter(output, "UTF-8")); //$NON-NLS-1$
         write(record, out);
     }
 
+    @Override
     public void write(DataRecord record, Writer writer) throws IOException {
-        writer.write("<result xmlns:xsi=\"" + XMLConstants.W3C_XML_SCHEMA_NS_URI + "\">\n"); //$NON-NLS-1$ //$NON-NLS-2$
+        writer.write("<result xmlns:xsi=\"" + XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI + "\">\n"); //$NON-NLS-1$ //$NON-NLS-2$
         for (FieldMetadata fieldMetadata : record.getSetFields()) {
             Object value = record.get(fieldMetadata);
             String name = fieldMetadata.getName();
@@ -73,7 +75,7 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
                 valueAsString.append('[').append(String.valueOf(current)).append(']');
             }
             stringValue = valueAsString.toString();
-        }else {
+        } else {
             stringValue = String.valueOf(value);
         }
         if (fieldMetadata instanceof ReferenceFieldMetadata) {

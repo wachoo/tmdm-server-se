@@ -13,23 +13,7 @@
 
 package com.amalto.core.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.alias;
-import static com.amalto.core.query.user.UserQueryBuilder.and;
-import static com.amalto.core.query.user.UserQueryBuilder.contains;
-import static com.amalto.core.query.user.UserQueryBuilder.emptyOrNull;
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
-import static com.amalto.core.query.user.UserQueryBuilder.gt;
-import static com.amalto.core.query.user.UserQueryBuilder.gte;
-import static com.amalto.core.query.user.UserQueryBuilder.isNull;
-import static com.amalto.core.query.user.UserQueryBuilder.lt;
-import static com.amalto.core.query.user.UserQueryBuilder.lte;
-import static com.amalto.core.query.user.UserQueryBuilder.neq;
-import static com.amalto.core.query.user.UserQueryBuilder.not;
-import static com.amalto.core.query.user.UserQueryBuilder.or;
-import static com.amalto.core.query.user.UserQueryBuilder.startsWith;
-import static com.amalto.core.query.user.UserQueryBuilder.taskId;
-import static com.amalto.core.query.user.UserQueryBuilder.timestamp;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -172,18 +156,10 @@ public class StorageQueryTest extends StorageTestCase {
                                 repository,
                                 person,
                                 "<Person><id>3</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>"));
-        allRecords
-                .add(factory
-                        .read("1",
-                                repository,
-                                a,
-                                "<A><id>1</id><textA>TextA</textA><nestedB><text>Text</text></nestedB></A>"));
-        allRecords
-                .add(factory
-                        .read("1",
-                                repository,
-                                a,
-                                "<A><id>2</id><textA>TextA</textA><nestedB><text>Text</text></nestedB><refA>[1]</refA></A>"));
+        allRecords.add(factory.read("1", repository, a,
+                "<A><id>1</id><textA>TextA</textA><nestedB><text>Text</text></nestedB></A>"));
+        allRecords.add(factory.read("1", repository, a,
+                "<A><id>2</id><textA>TextA</textA><nestedB><text>Text</text></nestedB><refA>[1]</refA></A>"));
         allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>1</Id>\n"
                 + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
                 + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
@@ -200,8 +176,8 @@ public class StorageQueryTest extends StorageTestCase {
                 + "    <Name>Product family #1</Name>\n" + "</ProductFamily>"));
         allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>2</Id>\n"
                 + "    <Name>Product family #2</Name>\n" + "</ProductFamily>"));
-        allRecords.add(factory.read("1", repository, store, "<Store>\n" + "    <Id>1</Id>\n"
-                        + "    <Name>Store #1</Name>\n" + "</Store>"));
+        allRecords.add(factory.read("1", repository, store, "<Store>\n" + "    <Id>1</Id>\n" + "    <Name>Store #1</Name>\n"
+                + "</Store>"));
         allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
                 + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
                 + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
@@ -210,8 +186,8 @@ public class StorageQueryTest extends StorageTestCase {
                 + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
                 + "    </Features>\n" + "    <Status>Pending</Status>\n" + "    <Family>[2]</Family>\n"
                 + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
-        allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>2</Id>\n" + "    <Name>Renault car</Name>\n"
-                + "    <ShortDescription>A car</ShortDescription>\n"
+        allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>2</Id>\n"
+                + "    <Name>Renault car</Name>\n" + "    <ShortDescription>A car</ShortDescription>\n"
                 + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
                 + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
                 + "            <Color>Blue 2</Color>\n" + "            <Color>Blue 1</Color>\n"
@@ -355,7 +331,6 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
     }
-
 
     public void testSelectByIdExclusion() throws Exception {
         List<FieldMetadata> keyFields = person.getKeyFields();
@@ -1195,7 +1170,7 @@ public class StorageQueryTest extends StorageTestCase {
             for (DataRecord result : results) {
                 writer.write(result, resultWriter);
             }
-            assertEquals("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">\n" + "\t<id>1</id>\n"
+            assertEquals("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" + "\t<id>1</id>\n"
                     + "\t<creationDate>2010-10-10</creationDate>\n" + "\t<creationTime>2010-10-10T00:00:01</creationTime>\n"
                     + "\t<name>France</name>\n" + "</result>", resultWriter.toString());
         } finally {
@@ -1419,7 +1394,8 @@ public class StorageQueryTest extends StorageTestCase {
     public void testUpdateReportQueryOptimization() throws Exception {
         UpdateReportOptimizer optimizer = new UpdateReportOptimizer();
 
-        Condition condition = and(eq(updateReport.getField("Concept"), "Product"), eq(updateReport.getField("DataModel"), "metadata.xsd"));
+        Condition condition = and(eq(updateReport.getField("Concept"), "Product"),
+                eq(updateReport.getField("DataModel"), "metadata.xsd"));
         UserQueryBuilder qb = from(updateReport).where(condition);
         assertEquals(condition, qb.getSelect().getCondition());
         optimizer.optimize(qb.getSelect());
@@ -1437,13 +1413,8 @@ public class StorageQueryTest extends StorageTestCase {
         optimizer.optimize(qb.getSelect());
         assertNotSame(condition, qb.getSelect().getCondition()); // C has super type, so condition changed.
 
-        condition = and(
-                eq(updateReport.getField("Concept"), "C"),
-                and(
-                    eq(updateReport.getField("DataModel"), "metadata.xsd"),
-                    eq(updateReport.getField("TimeInMillis"), "0")
-                )
-        );
+        condition = and(eq(updateReport.getField("Concept"), "C"),
+                and(eq(updateReport.getField("DataModel"), "metadata.xsd"), eq(updateReport.getField("TimeInMillis"), "0")));
         qb = from(updateReport).where(condition);
         assertEquals(condition, qb.getSelect().getCondition());
         optimizer.optimize(qb.getSelect());
@@ -1740,19 +1711,14 @@ public class StorageQueryTest extends StorageTestCase {
     public void testValueCollectionSearchInNested() throws Exception {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords
-                .add(factory
-                        .read("1",
-                                repository,
-                                person,
-                                "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John" +
-                                        "</middlename><firstname>Juste</firstname><addresses><address>[3][false]" +
-                                        "</address><address>[1][false]</address></addresses><age>30</age>" +
-                                        "<knownAddresses><knownAddress><Street>Street 1</Street><City>City 1</City>" +
-                                        "<Phone>012345</Phone></knownAddress>" +
-                                        "<knownAddress><Street>Street 2</Street><City>City 2</City><Phone>567890" +
-                                        "</Phone></knownAddress></knownAddresses>" +
-                                        "<Status>Friend</Status></Person>"));
+        allRecords.add(factory.read("1", repository, person,
+                "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John"
+                        + "</middlename><firstname>Juste</firstname><addresses><address>[3][false]"
+                        + "</address><address>[1][false]</address></addresses><age>30</age>"
+                        + "<knownAddresses><knownAddress><Street>Street 1</Street><City>City 1</City>"
+                        + "<Phone>012345</Phone></knownAddress>"
+                        + "<knownAddress><Street>Street 2</Street><City>City 2</City><Phone>567890"
+                        + "</Phone></knownAddress></knownAddresses>" + "<Status>Friend</Status></Person>"));
         storage.begin();
         storage.update(allRecords);
         storage.commit();
@@ -1776,31 +1742,24 @@ public class StorageQueryTest extends StorageTestCase {
     public void testValueSelectInNested() throws Exception {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords
-                .add(factory
-                        .read("1",
-                                repository,
-                                person,
-                                "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John" +
-                                        "</middlename><firstname>Juste</firstname><addresses><address>[3][false]" +
-                                        "</address><address>[1][false]</address></addresses><age>30</age>" +
-                                        "<knownAddresses><knownAddress><Street>Street 1</Street><City>City 1</City>" +
-                                        "<Phone>012345</Phone></knownAddress>" +
-                                        "<knownAddress><Street>Street 2</Street><City>City 2</City><Phone>567890" +
-                                        "</Phone></knownAddress></knownAddresses>" +
-                                        "<Status>Friend</Status></Person>"));
+        allRecords.add(factory.read("1", repository, person,
+                "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John"
+                        + "</middlename><firstname>Juste</firstname><addresses><address>[3][false]"
+                        + "</address><address>[1][false]</address></addresses><age>30</age>"
+                        + "<knownAddresses><knownAddress><Street>Street 1</Street><City>City 1</City>"
+                        + "<Phone>012345</Phone></knownAddress>"
+                        + "<knownAddress><Street>Street 2</Street><City>City 2</City><Phone>567890"
+                        + "</Phone></knownAddress></knownAddresses>" + "<Status>Friend</Status></Person>"));
         storage.begin();
         storage.update(allRecords);
         storage.commit();
-        UserQueryBuilder qb = from(person)
-                .selectId(person)
-                .select(person.getField("knownAddresses/knownAddress/City"));
+        UserQueryBuilder qb = from(person).selectId(person).select(person.getField("knownAddresses/knownAddress/City"));
         StorageResults results = storage.fetch(qb.getSelect());
         List<String> expected = new LinkedList<String>();
         expected.add("City 1");
         expected.add("City 2");
         for (DataRecord result : results) {
-            assertTrue(expected.remove((String) result.get("City")));
+            assertTrue(expected.remove(result.get("City")));
         }
         assertTrue(expected.isEmpty());
     }
@@ -1811,18 +1770,10 @@ public class StorageQueryTest extends StorageTestCase {
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords
-                .add(factory
-                        .read("1",
-                                repository,
-                                a2,
-                                "<a2><subelement>1</subelement><subelement1>10</subelement1><b3>String b3</b3><b4>String b4</b4></a2>"));
-        allRecords
-                .add(factory
-                        .read("1",
-                                repository,
-                                a1,
-                                "<a1><subelement>1</subelement><subelement1>11</subelement1><b1>String b1</b1><b2>[1][10]</b2></a1>"));
+        allRecords.add(factory.read("1", repository, a2,
+                "<a2><subelement>1</subelement><subelement1>10</subelement1><b3>String b3</b3><b4>String b4</b4></a2>"));
+        allRecords.add(factory.read("1", repository, a1,
+                "<a1><subelement>1</subelement><subelement1>11</subelement1><b1>String b1</b1><b2>[1][10]</b2></a1>"));
         storage.begin();
         storage.update(allRecords);
         storage.commit();
@@ -1884,11 +1835,13 @@ public class StorageQueryTest extends StorageTestCase {
 
         DataRecordWriter writer = new DataRecordWriter() {
 
+            @Override
             public void write(DataRecord record, OutputStream output) throws IOException {
                 Writer out = new BufferedWriter(new OutputStreamWriter(output, "UTF-8")); //$NON-NLS-1$
                 write(record, out);
             }
 
+            @Override
             public void write(DataRecord record, Writer writer) throws IOException {
                 writer.write("<result>"); //$NON-NLS-1$
                 for (FieldMetadata fieldMetadata : record.getSetFields()) {
@@ -1975,7 +1928,8 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(7, results.getCount());
         DataRecordXmlWriter writer = new DataRecordXmlWriter();
         StringWriter output = new StringWriter();
-        List<String> expectedResults = new LinkedList<String>(Arrays.asList(E2_Record1, E2_Record2, E2_Record3, E2_Record4, E2_Record5, E2_Record6, E2_Record7));
+        List<String> expectedResults = new LinkedList<String>(Arrays.asList(E2_Record1, E2_Record2, E2_Record3, E2_Record4,
+                E2_Record5, E2_Record6, E2_Record7));
         for (DataRecord result : results) {
             writer.write(result, output);
             expectedResults.remove(output.toString());
@@ -2024,10 +1978,10 @@ public class StorageQueryTest extends StorageTestCase {
         }
         assertEquals(2, strings.size());
         assertEquals(
-                "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">\n\t<Id>1</Id>\n\t<Name>Product name</Name>\n\t<Family>[2]</Family>\n\t<Id>2</Id>\n\t<Name>Product family #2</Name>\n</result>",
+                "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t<Id>1</Id>\n\t<Name>Product name</Name>\n\t<Family>[2]</Family>\n\t<Id>2</Id>\n\t<Name>Product family #2</Name>\n</result>",
                 strings.get(0));
         assertEquals(
-                "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">\n\t<Id>2</Id>\n\t<Name>Renault car</Name>\n\t<Family/>\n\t<Id/>\n\t<Name/>\n</result>",
+                "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t<Id>2</Id>\n\t<Name>Renault car</Name>\n\t<Family/>\n\t<Id/>\n\t<Name/>\n</result>",
                 strings.get(1));
     }
 
@@ -2047,7 +2001,7 @@ public class StorageQueryTest extends StorageTestCase {
         conditions.add(cond);
         WhereAnd fullWhere = new WhereAnd(conditions);
         qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
-        
+
         StorageResults results = storage.fetch(qb.getSelect());
         assertEquals(2, results.getCount());
 
@@ -2067,7 +2021,7 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(2, resultsAsString.size());
 
         StringBuilder sb = new StringBuilder();
-        sb.append("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">\n");
+        sb.append("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
         sb.append("\t<Id>1</Id>\n");
         sb.append("\t<Name>Product name</Name>\n");
         sb.append("\t<ProductFamily_Name>Product family #2</ProductFamily_Name>\n");
@@ -2075,7 +2029,7 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(sb.toString(), resultsAsString.get(0));
 
         sb = new StringBuilder();
-        sb.append("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">\n");
+        sb.append("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
         sb.append("\t<Id>2</Id>\n");
         sb.append("\t<Name>Renault car</Name>\n");
         sb.append("\t<ProductFamily_Name/>\n");
@@ -2104,7 +2058,7 @@ public class StorageQueryTest extends StorageTestCase {
 
         assertEquals(7, resultsAsString.size());
 
-        final String startRoot = "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\">";
+        final String startRoot = "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
         final String endRoot = "</result>";
 
         assertEquals(startRoot + "<subelement>111</subelement><subelement1>222</subelement1><name>qwe</name><fk>[ccc][ddd]</fk>"
@@ -2115,17 +2069,20 @@ public class StorageQueryTest extends StorageTestCase {
                 + endRoot, resultsAsString.get(2).replaceAll("\\r|\\n|\\t", ""));
         assertEquals(startRoot + "<subelement>666</subelement><subelement1>777</subelement1><name>iuj</name><fk>[aaa][bbb]</fk>"
                 + endRoot, resultsAsString.get(3).replaceAll("\\r|\\n|\\t", ""));
-        assertEquals(startRoot+ "<subelement>6767</subelement><subelement1>7878</subelement1><name>ioiu</name><fk>[ccc][ddd]</fk>"
-                + endRoot, resultsAsString.get(4).replaceAll("\\r|\\n|\\t", ""));
-        assertEquals(startRoot + "<subelement>999</subelement><subelement1>888</subelement1><name>iuiiu</name><fk>[ccc][ddd]</fk>"
-                + endRoot, resultsAsString.get(5).replaceAll("\\r|\\n|\\t", ""));
-        assertEquals(startRoot + "<subelement>119</subelement><subelement1>120</subelement1><name>zhang</name>"
-                + endRoot,resultsAsString.get(6).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot
+                + "<subelement>6767</subelement><subelement1>7878</subelement1><name>ioiu</name><fk>[ccc][ddd]</fk>" + endRoot,
+                resultsAsString.get(4).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot
+                + "<subelement>999</subelement><subelement1>888</subelement1><name>iuiiu</name><fk>[ccc][ddd]</fk>" + endRoot,
+                resultsAsString.get(5).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot + "<subelement>119</subelement><subelement1>120</subelement1><name>zhang</name>" + endRoot,
+                resultsAsString.get(6).replaceAll("\\r|\\n|\\t", ""));
     }
 
     public void testStringFieldConstraint() throws Exception {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
-        DataRecord dataRecord = factory.read("1", repository, product, "<Product>\n" + "    <Id>3</Id>\n" + "    <Name>A long name to be short due to constraints</Name>\n"
+        DataRecord dataRecord = factory.read("1", repository, product, "<Product>\n" + "    <Id>3</Id>\n"
+                + "    <Name>A long name to be short due to constraints</Name>\n"
                 + "    <ShortDescription>A car</ShortDescription>\n"
                 + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
                 + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
