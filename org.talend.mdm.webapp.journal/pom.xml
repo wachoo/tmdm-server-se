@@ -65,6 +65,14 @@
             <groupId>dwr</groupId>
             <artifactId>dwr</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-jxpath</groupId>
+            <artifactId>commons-jxpath</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml</groupId>
+            <artifactId>relaxngDatatype</artifactId>
+        </dependency>
 
         <!-- MDM dependencies -->
         <dependency>
@@ -88,6 +96,10 @@
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
             <classifier>ejbs</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.xmlserver.interfaces</artifactId>
         </dependency>
     </dependencies>
 

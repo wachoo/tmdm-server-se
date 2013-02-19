@@ -17,7 +17,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -35,7 +34,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.bean.Configuration;
-import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSGetItem;
@@ -60,11 +58,13 @@ import com.sun.xml.xsom.XSType;
 public class JournalDBService {
 
     private static final Logger LOG = Logger.getLogger(JournalDBService.class);
+    
+    private WebService webService;
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss"); //$NON-NLS-1$
 
-    public JournalDBService() {
-
+    public JournalDBService(WebService webService) {
+        this.webService = webService;
     }
 
     public Object[] getResultListByCriteria(JournalSearchCriteria criteria, int start, int limit, String sort, String field,
@@ -89,7 +89,7 @@ public class JournalDBService {
 
         int totalSize = 0;
         List<JournalGridModel> list = new ArrayList<JournalGridModel>();
-        WSStringArray resultsArray = Util.getPort().getItems(
+        WSStringArray resultsArray = webService.getItems(
                 org.talend.mdm.webapp.journal.server.util.Util.buildGetItem(conditions, start, limit));
         String[] results = resultsArray == null ? new String[0] : resultsArray.getStrings();
         Document document = Util.parse(results[0]);
@@ -110,7 +110,7 @@ public class JournalDBService {
         WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(XSystemObjects.DC_UPDATE_PREPORT.getName());
         String conceptName = "Update"; //$NON-NLS-1$
         WSGetItem wsGetItem = new WSGetItem(new WSItemPK(wsDataClusterPK, conceptName, idsArr));
-        WSItem wsItem = Util.getPort().getItem(wsGetItem);
+        WSItem wsItem = webService.getItem(wsGetItem);
         String content = wsItem.getContent();
         JournalTreeModel root = new JournalTreeModel("Update"); //$NON-NLS-1$
 
@@ -137,9 +137,9 @@ public class JournalDBService {
         root.add(new JournalTreeModel("DataModel:" + checkNull(dataModel))); //$NON-NLS-1$
         root.add(new JournalTreeModel("Key:" + checkNull(Util.getFirstTextNode(doc, "/Update/Key")))); //$NON-NLS-1$ //$NON-NLS-2$                       
 
-        XSElementDecl decl = this.getXSElementDecl(dataModel, concept);
+        XSElementDecl decl = webService.getXSElementDecl(dataModel, concept);
         Set<String> roleSet = Util.getNoAccessRoleSet(decl);
-        boolean isAuth = Util.isAuth(roleSet);
+        boolean isAuth = webService.isAuth(roleSet);
         root.setAuth(isAuth);
 
         if (isAuth) {
@@ -247,7 +247,7 @@ public class JournalDBService {
         String ids[] = { value };
 
         try {
-            WSItem wsItem = Util.getPort().getItem(
+            WSItem wsItem = webService.getItem(
                     new WSGetItem(new WSItemPK(new WSDataClusterPK(dataCluster), conceptName, ids)));
             Document document = Util.parse(wsItem.getContent());
             NodeList list = Util.getNodeList(document, "/" + fkInfo); //$NON-NLS-1$
@@ -261,11 +261,6 @@ public class JournalDBService {
         }
 
         return fkInfoValue;
-    }
-
-    private XSElementDecl getXSElementDecl(String dataModel, String concept) throws Exception {
-        Map<String, XSElementDecl> map = CommonDWR.getConceptMap(dataModel);
-        return map.get(concept);
     }
 
     private JournalGridModel parseString2Model(String xmlStr) throws Exception {

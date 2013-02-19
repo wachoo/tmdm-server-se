@@ -32,6 +32,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.talend.mdm.webapp.journal.server.service.JournalDBService;
+import org.talend.mdm.webapp.journal.server.service.WebServiceImp;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 
@@ -46,8 +47,6 @@ public class JournalExportServlet extends HttpServlet {
     private static final Logger LOG = Logger.getLogger(JournalExportServlet.class);
 
     private static final long serialVersionUID = 1L;
-
-    private JournalDBService service = new JournalDBService();
 
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.journal.client.i18n.JournalMessages", JournalExportServlet.class.getClassLoader()); //$NON-NLS-1$
@@ -108,6 +107,7 @@ public class JournalExportServlet extends HttpServlet {
 
         Object[] resultArr = null;
         try {
+            JournalDBService service = new JournalDBService(new WebServiceImp());
             resultArr = service.getResultListByCriteria(criteria, 0, -1, null, null, false);
 
             List<JournalGridModel> resultList = (List<JournalGridModel>) resultArr[1];

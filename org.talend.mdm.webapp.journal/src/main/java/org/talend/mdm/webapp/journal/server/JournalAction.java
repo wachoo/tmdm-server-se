@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.journal.client.JournalService;
 import org.talend.mdm.webapp.journal.server.service.JournalDBService;
 import org.talend.mdm.webapp.journal.server.service.JournalHistoryService;
+import org.talend.mdm.webapp.journal.server.service.WebServiceImp;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
@@ -48,7 +49,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
 
     private static final Logger LOG = Logger.getLogger(JournalAction.class);
 
-    private JournalDBService service = new JournalDBService();
+    private JournalDBService service = new JournalDBService(new WebServiceImp());
 
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.journal.client.i18n.JournalMessages", JournalAction.class.getClassLoader()); //$NON-NLS-1$

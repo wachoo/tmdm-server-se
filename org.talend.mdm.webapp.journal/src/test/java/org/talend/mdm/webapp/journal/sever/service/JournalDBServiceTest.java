@@ -1,0 +1,170 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2010 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+package org.talend.mdm.webapp.journal.sever.service;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+import junit.framework.TestCase;
+
+import org.dom4j.tree.DefaultElement;
+import org.talend.mdm.webapp.journal.server.service.JournalDBService;
+import org.talend.mdm.webapp.journal.shared.JournalGridModel;
+import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
+import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
+
+import com.extjs.gxt.ui.client.data.ModelData;
+
+/**
+ * DOC talend2  class global comment. Detailled comment
+ */
+
+public class JournalDBServiceTest extends TestCase{
+    
+    JournalDBService journalDBService = new JournalDBService(new WebServiceMock());
+    
+    public void testGetResultListByCriteria () throws Exception {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  //$NON-NLS-1$
+        JournalSearchCriteria criteria = new JournalSearchCriteria();
+        criteria.setEntity("TestModel"); //$NON-NLS-1$
+        criteria.setStartDate(dateFormat.parse("2012-07-01")); //$NON-NLS-1$
+        criteria.setEndDate(dateFormat.parse("2012-09-30")); //$NON-NLS-1$
+        criteria.setKey("1"); //$NON-NLS-1$
+        criteria.setOperationType("CREATE"); //$NON-NLS-1$
+        criteria.setSource("genericUI"); //$NON-NLS-1$
+        
+        Object[] result = journalDBService.getResultListByCriteria(criteria, 0, 20, "NONE", null, false); //$NON-NLS-1$   
+        assertEquals(1, result[0]);
+        List<JournalGridModel> journalGridModelList = (List<JournalGridModel>)result[1];        
+        JournalGridModel journalGridModel = journalGridModelList.get(0);
+        assertEquals("Product", journalGridModel.getDataContainer()); //$NON-NLS-1$
+        assertEquals("Product", journalGridModel.getDataModel()); //$NON-NLS-1$
+        assertEquals("Product", journalGridModel.getEntity()); //$NON-NLS-1$
+        assertEquals("123", journalGridModel.getKey()); //$NON-NLS-1$
+        assertEquals("CREATE", journalGridModel.getOperationType()); //$NON-NLS-1$
+        assertEquals("genericUI.1360140140037", journalGridModel.getIds()); //$NON-NLS-1$
+        assertEquals("administrator", journalGridModel.getUserName()); //$NON-NLS-1$
+    }
+    
+    public void testGetDetailTreeModel() throws Exception {
+        String[] ids = {"genericUI","1360140140037"}; //$NON-NLS-1$ //$NON-NLS-2$
+        JournalTreeModel journalTreeModel = journalDBService.getDetailTreeModel(ids);
+        assertEquals("Update", journalTreeModel.getName()); //$NON-NLS-1$
+        assertEquals(10, journalTreeModel.getChildCount());
+        JournalTreeModel childModel = (JournalTreeModel)journalTreeModel.getChild(0);
+        assertEquals("UserName:administrator", childModel.getName()); //$NON-NLS-1$
+        childModel = (JournalTreeModel)journalTreeModel.getChild(1);
+        assertEquals("Source:genericUI", childModel.getName()); //$NON-NLS-1$
+        childModel = (JournalTreeModel)journalTreeModel.getChild(2);
+        assertEquals("TimeInMillis:1361153957282", childModel.getName()); //$NON-NLS-1$
+        childModel = (JournalTreeModel)journalTreeModel.getChild(3);
+        assertEquals("OperationType:UPDATE", childModel.getName()); //$NON-NLS-1$
+        childModel = (JournalTreeModel)journalTreeModel.getChild(4);
+        assertEquals("Concept:Product", childModel.getName()); //$NON-NLS-1$
+        childModel = (JournalTreeModel)journalTreeModel.getChild(5);
+        assertEquals("RevisionID:", childModel.getName()); //$NON-NLS-1$
+        childModel = (JournalTreeModel)journalTreeModel.getChild(6);
+        assertEquals("DataCluster:Product", childModel.getName()); //$NON-NLS-1$
+        childModel = (JournalTreeModel)journalTreeModel.getChild(7);
+        assertEquals("DataModel:Product", childModel.getName()); //$NON-NLS-1$
+        childModel = (JournalTreeModel)journalTreeModel.getChild(8);
+        assertEquals("Key:1",childModel.getName()); //$NON-NLS-1$
+        childModel = (JournalTreeModel)journalTreeModel.getChild(9);        
+        assertEquals("path:Name",((JournalTreeModel)childModel.getChild(0)).getName()); //$NON-NLS-1$
+        assertEquals("oldValue:1",((JournalTreeModel)childModel.getChild(1)).getName()); //$NON-NLS-1$
+        assertEquals("newValue:123",((JournalTreeModel)childModel.getChild(2)).getName()); //$NON-NLS-1$
+    }
+    
+    public void testGetComparisionTreeModel() throws NoSuchMethodException,InvocationTargetException,IllegalArgumentException,IllegalAccessException {
+        String xmlString = "<result><Update><UserName>Jennifer</UserName><Source>genericUI</Source><TimeInMillis>1360032633336</TimeInMillis><OperationType>UPDATE</OperationType><RevisionID>null</RevisionID><DataCluster>DStar</DataCluster><DataModel>DStar</DataModel><Concept>Agency</Concept><Key>2</Key><Item><path>Name</path><oldValue>23456</oldValue><newValue>34567</newValue></Item></Update></result>"; //$NON-NLS-1$
+        JournalTreeModel returnValue = journalDBService.getComparisionTreeModel(xmlString);
+        assertEquals("root", returnValue.getId()); //$NON-NLS-1$
+        assertEquals("Document", returnValue.getName()); //$NON-NLS-1$
+        JournalTreeModel journalTreeModel = (JournalTreeModel) returnValue.getChild(0);
+        assertEquals("result",journalTreeModel.getName()); //$NON-NLS-1$
+        journalTreeModel = (JournalTreeModel) journalTreeModel.getChild(0);
+        assertEquals("Update",journalTreeModel.getName()); //$NON-NLS-1$
+        List<ModelData> journalTreeModelList = journalTreeModel.getChildren();
+        assertEquals("UserName:Jennifer",journalTreeModelList.get(0).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Source:genericUI",journalTreeModelList.get(1).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("TimeInMillis:1360032633336",journalTreeModelList.get(2).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("OperationType:UPDATE",journalTreeModelList.get(3).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("RevisionID:null",journalTreeModelList.get(4).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("DataCluster:DStar",journalTreeModelList.get(5).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("DataModel:DStar",journalTreeModelList.get(6).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Concept:Agency",journalTreeModelList.get(7).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Key:2",journalTreeModelList.get(8).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
+        journalTreeModel = (JournalTreeModel) journalTreeModelList.get(9);
+        journalTreeModelList = journalTreeModel.getChildren();
+        assertEquals("oldValue:23456",journalTreeModelList.get(1).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("newValue:34567",journalTreeModelList.get(2).get("name")); //$NON-NLS-1$ //$NON-NLS-2$  
+    }
+    
+    public void testGetModelByElement() throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+        Method method = journalDBService.getClass().getDeclaredMethod("getModelByElement", org.dom4j.Element.class); //$NON-NLS-1$
+        method.setAccessible(true);
+        
+        org.dom4j.Element element = new DefaultElement("Product"); //$NON-NLS-1$
+        element.addAttribute("id", "18-Product-1"); //$NON-NLS-1$ //$NON-NLS-2$
+        element.setText("text_value"); //$NON-NLS-1$
+        
+        Object returnValue = method.invoke(journalDBService, new Object[] { element });
+        method.setAccessible(false);        
+        JournalTreeModel journalTreeModel = (JournalTreeModel)returnValue;
+        assertEquals("18-Product-1", journalTreeModel.getId()); //$NON-NLS-1$      
+        assertEquals("Product:text_value", journalTreeModel.getName()); //$NON-NLS-1$        
+    }
+    
+    public void testGetFKInfoByRetrieveConf() throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+        Method method = journalDBService.getClass().getDeclaredMethod("getFKInfoByRetrieveConf", String.class,String.class,String.class); //$NON-NLS-1$
+        method.setAccessible(true);
+        Object returnValue = method.invoke(journalDBService, new Object[] { "Product","ProductFamily/Name","[1]" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$            
+        method.setAccessible(false);   
+        assertEquals("Test_Product_FKInfo", returnValue); //$NON-NLS-1$                  
+    }
+    
+    public void testParseString2Model() throws NoSuchMethodException,InvocationTargetException,IllegalArgumentException,IllegalAccessException {
+        String xmlString = "<result><Update><UserName>Jennifer</UserName><Source>genericUI</Source><TimeInMillis>1360032633336</TimeInMillis><OperationType>UPDATE</OperationType><RevisionID>null</RevisionID><DataCluster>DStar</DataCluster><DataModel>DStar</DataModel><Concept>Agency</Concept><Key>2</Key><Item><path>Name</path><oldValue>23456</oldValue><newValue>34567</newValue></Item></Update></result>"; //$NON-NLS-1$        
+        Method method = journalDBService.getClass().getDeclaredMethod("parseString2Model", String.class); //$NON-NLS-1$
+        method.setAccessible(true);
+        JournalGridModel returnValue = (JournalGridModel)method.invoke(journalDBService, new Object[] { xmlString });
+        method.setAccessible(false);
+        assertEquals("DStar", returnValue.getDataContainer()); //$NON-NLS-1$
+        assertEquals("DStar", returnValue.getDataModel()); //$NON-NLS-1$   
+        assertEquals("Agency", returnValue.getEntity()); //$NON-NLS-1$   
+        assertEquals("genericUI.1360032633336", returnValue.getIds()); //$NON-NLS-1$   
+        assertEquals("2", returnValue.getKey()); //$NON-NLS-1$   
+        assertEquals("", returnValue.getRevisionId()); //$NON-NLS-1$   
+        assertEquals("UPDATE", returnValue.getOperationType()); //$NON-NLS-1$   
+        assertEquals("genericUI", returnValue.getSource()); //$NON-NLS-1$   
+        assertEquals("1360032633336", returnValue.getOperationTime()); //$NON-NLS-1$    
+        assertEquals("20130205 10:50:33", returnValue.getOperationDate()); //$NON-NLS-1$ 
+        assertEquals("Jennifer", returnValue.getUserName()); //$NON-NLS-1$        
+    }
+            
+    public void testCheckNull() throws NoSuchMethodException,InvocationTargetException,IllegalArgumentException,IllegalAccessException {
+        
+        Method method = journalDBService.getClass().getDeclaredMethod("checkNull", String.class); //$NON-NLS-1$
+        method.setAccessible(true);
+        Object returnValue = method.invoke(journalDBService, new Object[] { "genericUI" }); //$NON-NLS-1$            
+        assertEquals("genericUI", returnValue); //$NON-NLS-1$
+        returnValue = method.invoke(journalDBService, new Object[] { "null" }); //$NON-NLS-1$            
+        assertEquals("", returnValue); //$NON-NLS-1$
+        returnValue = method.invoke(journalDBService, new Object[] { null });        
+        assertEquals("", returnValue); //$NON-NLS-1$
+        method.setAccessible(false);
+    }
+}
