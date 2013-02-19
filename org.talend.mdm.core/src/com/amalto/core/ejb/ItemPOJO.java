@@ -62,14 +62,14 @@ import com.amalto.core.util.XtentisException;
  */
 public class ItemPOJO implements Serializable {
 
-    public final static String LOGGING_EVENT = "logging_event"; //$NON-NLS-1$
-
     /**
      * FIXME The newInstance() is deprecated and the newFactory() method should be used instead. However since no
      * changes in behavior are defined by this replacement method, keep deprecated method to ensure there's no
      * class loading issues for now (see TMDM-3604).
      **/
     private static final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
+
+    private static Pattern pLoad = Pattern.compile(".*?(<c>.*?</taskId>|<c>.*?</t>).*?(<p>(.*)</p>|<p/>).*", Pattern.DOTALL); //$NON-NLS-1$
 
     private static LRUCache<ItemCacheKey, String> cachedPojo;
 
@@ -289,12 +289,11 @@ public class ItemPOJO implements Serializable {
      * @return the pk, null if undefined
      */
     public ItemPOJOPK getItemPOJOPK() {
-        if ((getDataClusterPOJOPK() == null) || (getConceptName() == null) || (getItemIds() == null))
+        if (getDataClusterPOJOPK() == null || getConceptName() == null || getItemIds() == null) {
             return null;
+        }
         return new ItemPOJOPK(getDataClusterPOJOPK(), getConceptName(), getItemIds());
     }
-
-    private static Pattern pLoad = Pattern.compile(".*?(<c>.*?</taskId>|<c>.*?</t>).*?(<p>(.*)</p>|<p/>).*", Pattern.DOTALL); //$NON-NLS-1$
 
     /**
      * Loads an Item. User rights are checked.
@@ -343,100 +342,87 @@ public class ItemPOJO implements Serializable {
 
         try {
             // retrieve the item
-            String urlid = itemPOJOPK.getUniqueID();
-            ItemCacheKey key = new ItemCacheKey(revisionID, urlid, itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
-
+            String id = itemPOJOPK.getUniqueID();
+            ItemCacheKey key = new ItemCacheKey(revisionID, id, itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
             String item = cachedPojo.get(key);
             if (item == null) {
-                item = server.getDocumentAsString(revisionID, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), urlid);
+                item = server.getDocumentAsString(revisionID, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), id);
                 // TODO Store in cache in case when there's no inheritance.
             }
-
             if (item == null) {
                 return null;
             }
-
             ItemPOJO newItem = new ItemPOJO();
-
             // Build the result
             newItem.setDataClusterPK(itemPOJOPK.getDataClusterPOJOPK());
             newItem.setConceptName(itemPOJOPK.getConceptName());
             newItem.setItemIds(itemPOJOPK.getIds());
-
             Matcher m = pLoad.matcher(item);
             if (m.matches()) {
                 String h = "<header>" + m.group(1) + "</header>"; //$NON-NLS-1$ //$NON-NLS-2$
                 Element header = Util.parse(h).getDocumentElement();
                 // used for binding data model
-                String dm=Util.getFirstTextNode(header, "dmn");//$NON-NLS-1$
+                String dm = Util.getFirstTextNode(header, "dmn");//$NON-NLS-1$
                 if (dm == null) {
-                	dm=Util.getFirstTextNode(header, "dm");//$NON-NLS-1$
+                    dm = Util.getFirstTextNode(header, "dm");//$NON-NLS-1$
                 }
                 newItem.setDataModelName(dm); //$NON-NLS-1$
-                
-                if (Util.getFirstTextNode(header, "dmr") != null) //$NON-NLS-1$
+                if (Util.getFirstTextNode(header, "dmr") != null) { //$NON-NLS-1$
                     newItem.setDataModelRevision(Util.getFirstTextNode(header, "dmr")); //$NON-NLS-1$
-                
+                }
                 //if <t> after <taskId> then see 0021697
-                String time=null;
-                if(!m.group(1).contains("<t>")){ //$NON-NLS-1$
-                	Pattern tp=Pattern.compile("<t>(.*?)</t>"); //$NON-NLS-1$
-                	Matcher tm=tp.matcher(item);
-                	if(tm.find()){
-                		time=tm.group(1);
-                	}
-                }else{
-                	time=Util.getFirstTextNode(header, "t"); //$NON-NLS-1$
+                String time = null;
+                if (!m.group(1).contains("<t>")) { //$NON-NLS-1$
+                    Pattern tp = Pattern.compile("<t>(.*?)</t>"); //$NON-NLS-1$
+                    Matcher tm = tp.matcher(item);
+                    if (tm.find()) {
+                        time = tm.group(1);
+                    }
+                } else {
+                    time = Util.getFirstTextNode(header, "t"); //$NON-NLS-1$
                 }
-                if(time!=null){
-                	try{
-                	newItem.setInsertionTime(Long.parseLong(time)); //$NON-NLS-1$
-                	}catch(Exception e){
-                		LOG.error(e);
-                	}
+                if (time != null) {
+                    try {
+                        newItem.setInsertionTime(Long.parseLong(time)); //$NON-NLS-1$
+                    } catch (Exception e) {
+                        LOG.error(e);
+                    }
                 }
-                
                 String plan = Util.getFirstTextNode(header, "sp"); //$NON-NLS-1$
-                if (plan != null)
+                if (plan != null) {
                     newItem.setPlanPK(new SynchronizationPlanPOJOPK(plan));
-                else
+                } else {
                     newItem.setPlanPK(null);
+                }
                 String taskId = Util.getFirstTextNode(header, "taskId"); //$NON-NLS-1$
                 if (taskId != null) {
                     newItem.setTaskId(taskId);
                 } else {
                     newItem.setTaskId(""); //$NON-NLS-1$
                 }
-
                 if (m.group(2) == null || m.group(2).equals("<p/>")) { //$NON-NLS-1$
                     newItem.setProjectionAsString(""); //$NON-NLS-1$
                 } else {
                     newItem.setProjectionAsString(m.group(3));
                 }
-
             } else {
                 newItem.setProjectionAsString(item);
             }
-
             // check user rights
             if (checkRights && newItem.getDataModelName() != null) {
                 try {
                     AppinfoSourceHolder appinfoSourceHolder = new AppinfoSourceHolder(new AppinfoSourceHolderPK(
                             newItem.getDataModelName(), newItem.getConceptName()));
-
                     SchemaCoreAgent.getInstance().analyzeAccessRights(
                             new DataModelID(newItem.getDataModelName(), newItem.getDataModelRevision()),
                             newItem.getConceptName(), appinfoSourceHolder);
-
                     String itemContentString = newItem.getProjectionAsString();
                     HashSet<String> roles = LocalUser.getLocalUser().getRoles();
-
                     Document cleanedDocument = SchemaCoreAgent.getInstance().executeHideCheck(itemContentString, roles,
                             appinfoSourceHolder, false);
-
-                    if (cleanedDocument != null)
+                    if (cleanedDocument != null) {
                         newItem.setProjectionAsString(Util.nodeToString(cleanedDocument));
-
+                    }
                 } catch (Exception e) {
                     String err = "Unable to check user rights of the item " + itemPOJOPK.getUniqueID() + ": "
                             + e.getClass().getName() + ": " + e.getLocalizedMessage();
@@ -444,9 +430,7 @@ public class ItemPOJO implements Serializable {
                     throw e;
                 }
             }
-
             return newItem;
-
         } catch (Exception e) {
             String err = "Unable to load the item  " + itemPOJOPK.getUniqueID() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
@@ -460,101 +444,97 @@ public class ItemPOJO implements Serializable {
      * @return The {@link ItemPOJOPK} of the item removed
      */
     public static ItemPOJOPK remove(ItemPOJOPK itemPOJOPK) throws XtentisException {
-
-        if (itemPOJOPK == null)
+        if (itemPOJOPK == null) {
             return null;
-
+        }
         ILocalUser user = LocalUser.getLocalUser();
-        checkAccess(user, itemPOJOPK, true, "delete");
+        checkAccess(user, itemPOJOPK, true, "delete"); //$NON-NLS-1$
         // get the universe and revision ID
         UniversePOJO universe = getNonNullUniverse(user);
         String revisionID = universe.getConceptRevisionID(itemPOJOPK.getConceptName());
-
         XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-
         try {
             // remove the doc
-            long res = server
-                    .deleteDocument(revisionID, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), itemPOJOPK.getUniqueID());
-            if (res == -1)
-                return null;
-            ItemCacheKey key = new ItemCacheKey(revisionID, itemPOJOPK.getUniqueID(), itemPOJOPK.getDataClusterPOJOPK()
-                    .getUniqueId());
+            String clusterName = itemPOJOPK.getDataClusterPOJOPK().getUniqueId();
+            server.start(clusterName);
+            long res = server.deleteDocument(revisionID, clusterName, itemPOJOPK.getUniqueID());
+            if (res == -1) {
+                server.rollback(clusterName);
+            } else {
+                server.commit(clusterName);
+            }
+            ItemCacheKey key = new ItemCacheKey(revisionID, itemPOJOPK.getUniqueID(), clusterName);
             cachedPojo.remove(key);
             return itemPOJOPK;
         } catch (Exception e) {
             String err = "Unable to remove the item " + itemPOJOPK.getUniqueID() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
             LOG.error(err, e);
-            throw new XtentisException(err,e);
+            throw new XtentisException(err, e);
         }
-
     }
 
     /**
      * drop an item to items-trash
      */
     public static DroppedItemPOJOPK drop(ItemPOJOPK itemPOJOPK, String partPath) throws XtentisException {
-
         // validate input
-        if (itemPOJOPK == null)
+        if (itemPOJOPK == null) {
             return null;
-        if (partPath == null || partPath.length() == 0) 
+        }
+        if (partPath == null || partPath.length() == 0) {
             partPath = "/"; //$NON-NLS-1$
-
+        }
         ILocalUser user = LocalUser.getLocalUser();
-        checkAccess(user, itemPOJOPK, true, "drop");
+        checkAccess(user, itemPOJOPK, true, "drop"); //$NON-NLS-1$
         // get the universe and revision ID
         UniversePOJO universe = getNonNullUniverse(user);
         String revisionID = universe.getConceptRevisionID(itemPOJOPK.getConceptName());
-
         // get XmlServerSLWrapperLocal
         XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-
         try {
             // init MDMItemsTrash Cluster
-            if (ObjectPOJO.load(null, DataClusterPOJO.class, new DataClusterPOJOPK("MDMItemsTrash")) == null) {
+            if (ObjectPOJO.load(null, DataClusterPOJO.class, new DataClusterPOJOPK("MDMItemsTrash")) == null) { //$NON-NLS-1$
                 // create record
                 DataClusterPOJO dataCluster = new DataClusterPOJO("MDMItemsTrash", "Holds logical deleted items", null);
                 ObjectPOJOPK pk = dataCluster.store(null);
-                if (pk == null)
+                if (pk == null) {
                     throw new XtentisException("Unable to create the Data Cluster. Please check the XML Server logs");
-
+                }
                 // create cluster
                 boolean exist = server.existCluster(null, pk.getUniqueId());
-                if (!exist)
+                if (!exist) {
                     server.createCluster(null, pk.getUniqueId());
+                }
                 // log
                 LOG.info("Init MDMItemsTrash Cluster");
             }
-
             String dataClusterName = itemPOJOPK.getDataClusterPOJOPK().getUniqueId();
             String uniqueID = itemPOJOPK.getUniqueID();
-
             StringBuilder xmlDocument = new StringBuilder();
             Document sourceDoc = null;
             NodeList toDeleteNodeList = null;
             String xml = server.getDocumentAsString(revisionID, dataClusterName, uniqueID, null);
-            if (xml == null)
+            if (xml == null) {
                 return null;
+            }
             // get to delete item content
-            if (partPath.equals("/")) {
+            if (partPath.equals("/")) {  //$NON-NLS-1$
                 xmlDocument.append(xml);
-
             } else {
-                String xPath = "/ii/p" + partPath;
+                String xPath = "/ii/p" + partPath; //$NON-NLS-1$
                 sourceDoc = Util.parse(xml);
                 toDeleteNodeList = Util.getNodeList(sourceDoc, xPath);
-                if (toDeleteNodeList.getLength() == 0)
+                if (toDeleteNodeList.getLength() == 0) {
                     throw new XtentisException("\nThe target content is not exist or have been deleted already.");
+                }
                 for (int i = 0; i < toDeleteNodeList.getLength(); i++) {
                     Node node = toDeleteNodeList.item(i);
                     xmlDocument.append(Util.nodeToString(node));
                 }
             }
-
             // make source left doc && validate
-            if (!partPath.equals("/")) {
+            if (!partPath.equals("/")) { //$NON-NLS-1$
                 if (toDeleteNodeList != null) {
                     Node lastParentNode;
                     Node formatSiblingNode;
@@ -590,7 +570,6 @@ public class ItemPOJO implements Serializable {
                     }
                 }
             }
-
             // str 2 pojo
             DroppedItemPOJO droppedItemPOJO = new DroppedItemPOJO(revisionID,
                     itemPOJOPK.getDataClusterPOJOPK(),
@@ -601,11 +580,9 @@ public class ItemPOJO implements Serializable {
                     xmlDocument.toString(),
                     user.getUsername(),
                     System.currentTimeMillis());
-
             // Marshal
             StringWriter sw = new StringWriter();
             Marshaller.marshal(droppedItemPOJO, sw);
-
             // copy item content
             server.start("MDMItemsTrash"); //$NON-NLS-1$
             long res = server.putDocumentFromString(sw.toString(), droppedItemPOJO.obtainDroppedItemPK().getUniquePK(),
@@ -616,10 +593,8 @@ public class ItemPOJO implements Serializable {
                 return null;
             }
             // delete source item
-
             try {
                 if (partPath.equals("/")) { //$NON-NLS-1$
-
                     server.deleteDocument(revisionID, dataClusterName, uniqueID);
                     // update the cache
                     ItemCacheKey key = new ItemCacheKey(revisionID, uniqueID, dataClusterName);
@@ -637,12 +612,9 @@ public class ItemPOJO implements Serializable {
                 server.deleteDocument(null, "MDMItemsTrash", droppedItemPOJO.obtainDroppedItemPK().getUniquePK());
                 throw new XtentisException(e);
             }
-
             //It need to remove it from cache, because it still be load on cache after it has be drop
-            cachedPojo.remove(new ItemCacheKey(revisionID,itemPOJOPK.getUniqueID(), itemPOJOPK.getDataClusterPOJOPK().getUniqueId()));
-            
+            cachedPojo.remove(new ItemCacheKey(revisionID, itemPOJOPK.getUniqueID(), itemPOJOPK.getDataClusterPOJOPK().getUniqueId()));
             return droppedItemPOJO.obtainDroppedItemPK();
-
         } catch (SAXException e) {
             String err = "The remaining item did not obey the rules of data model.\nYou can modify the data model, and try it again.\n\n"
                     + e.getLocalizedMessage();
@@ -651,9 +623,8 @@ public class ItemPOJO implements Serializable {
             String err = "Unable to drop the item " + itemPOJOPK.getUniqueID() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
             LOG.error(err, e);
-            throw new XtentisException(err,e);
+            throw new XtentisException(err, e);
         }
-
     }
 
     /**
@@ -672,21 +643,18 @@ public class ItemPOJO implements Serializable {
             return null;
         }
         ILocalUser user = LocalUser.getLocalUser();
-        checkAccess(user,getItemPOJOPK(), true, "write");
-
+        checkAccess(user,getItemPOJOPK(), true, "write"); //$NON-NLS-1$
         // get the universe and revision ID
         UniversePOJO universe = getNonNullUniverse(user);    
         String revisionID = universe.getConceptRevisionID(itemPK.getConceptName());
-
         // used for binding data model
-        if (this.getDataModelName() != null) {
+        if (getDataModelName() != null) {
             String objectName = ObjectPOJO.getObjectsClasses2NamesMap().get(DataModelPOJO.class);
             String dataModelRevisionID = universe.getXtentisObjectsRevisionIDs().get(objectName);
             if (dataModelRevisionID != null) {
                 this.dataModelRevision = dataModelRevisionID;
             }
         }
-        
         return store(revisionID, putInCache);
     }
 
@@ -717,7 +685,6 @@ public class ItemPOJO implements Serializable {
             if(LOG.isTraceEnabled()) {
                 LOG.trace("store() " + itemPK.getUniqueID() + "\n" + xml); //$NON-NLS-1$ //$NON-NLS-2$
             }
-
             String uniqueId = itemPK.getUniqueID();
             String clusterId = getDataClusterPOJOPK().getUniqueId();
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
@@ -747,27 +714,27 @@ public class ItemPOJO implements Serializable {
             ItemPOJO newItem = new ItemPOJO();
             Matcher m = p.matcher(marshaledItem);
             if (m.matches()) {
-                String h = "<header>" + m.group(1) + "</header>";
+                String h = "<header>" + m.group(1) + "</header>"; //$NON-NLS-1$ //$NON-NLS-2$
                 Element header = Util.parse(h).getDocumentElement();
-                newItem.setConceptName(Util.getFirstTextNode(header, "n"));
+                newItem.setConceptName(Util.getFirstTextNode(header, "n")); //$NON-NLS-1$
                 // used for binding data model
-                if (Util.getFirstTextNode(header, "dmn") != null) {
-                    newItem.setDataModelName(Util.getFirstTextNode(header, "dmn"));
+                if (Util.getFirstTextNode(header, "dmn") != null) { //$NON-NLS-1$
+                    newItem.setDataModelName(Util.getFirstTextNode(header, "dmn")); //$NON-NLS-1$
                 }
-                if (Util.getFirstTextNode(header, "dmr") != null) {
-                    newItem.setDataModelRevision(Util.getFirstTextNode(header, "dmr"));
+                if (Util.getFirstTextNode(header, "dmr") != null) { //$NON-NLS-1$
+                    newItem.setDataModelRevision(Util.getFirstTextNode(header, "dmr")); //$NON-NLS-1$
                 }
-                newItem.setDataClusterPK(new DataClusterPOJOPK(Util.getFirstTextNode(header, "c")));
-                newItem.setItemIds(Util.getTextNodes(header, "i"));
-                newItem.setInsertionTime(Long.parseLong(Util.getFirstTextNode(header, "t")));
-                String plan = Util.getFirstTextNode(header, "sp");
+                newItem.setDataClusterPK(new DataClusterPOJOPK(Util.getFirstTextNode(header, "c"))); //$NON-NLS-1$
+                newItem.setItemIds(Util.getTextNodes(header, "i")); //$NON-NLS-1$
+                newItem.setInsertionTime(Long.parseLong(Util.getFirstTextNode(header, "t"))); //$NON-NLS-1$
+                String plan = Util.getFirstTextNode(header, "sp"); //$NON-NLS-1$
                 if (plan != null) {
                     newItem.setPlanPK(new SynchronizationPlanPOJOPK(plan));
                 } else {
                     newItem.setPlanPK(null);
                 }
-                if (m.group(2) == null || m.group(2).equals("<p/>")) {
-                    newItem.setProjectionAsString("");
+                if (m.group(2) == null || m.group(2).equals("<p/>")) { //$NON-NLS-1$
+                    newItem.setProjectionAsString(""); //$NON-NLS-1$
                 } else {
                     newItem.setProjectionAsString(m.group(3));
                 }
@@ -796,38 +763,38 @@ public class ItemPOJO implements Serializable {
         XMLStreamWriter streamWriter = null;
         try {
             streamWriter = xmlOutputFactory.createXMLStreamWriter(stringWriter);
-            streamWriter.writeStartElement("ii");
+            streamWriter.writeStartElement("ii"); //$NON-NLS-1$
             {
-                streamWriter.writeStartElement("c");
+                streamWriter.writeStartElement("c"); //$NON-NLS-1$
                 streamWriter.writeCharacters(dataClusterPOJOPK.getUniqueId());
                 streamWriter.writeEndElement();
-                streamWriter.writeStartElement("n");
+                streamWriter.writeStartElement("n"); //$NON-NLS-1$
                 streamWriter.writeCharacters(conceptName);
                 streamWriter.writeEndElement();
                 if (dataModelName != null) {
-                    streamWriter.writeStartElement("dmn");//$NON-NLS-1$
+                    streamWriter.writeStartElement("dmn"); //$NON-NLS-1$
                     streamWriter.writeCharacters(dataModelName);
                     streamWriter.writeEndElement();
                 }
                 if (dataModelRevision != null) {
-                    streamWriter.writeStartElement("dmr");//$NON-NLS-1$
+                    streamWriter.writeStartElement("dmr"); //$NON-NLS-1$
                     streamWriter.writeCharacters(dataModelRevision);
                     streamWriter.writeEndElement();
                 }
                 if (planPK != null) {
-                    streamWriter.writeStartElement("sp");//$NON-NLS-1$
+                    streamWriter.writeStartElement("sp"); //$NON-NLS-1$
                     streamWriter.writeCharacters(planPK.getUniqueId());
                     streamWriter.writeEndElement();
                 }
                 String[] ids = getItemIds();
                 for (String id : ids) {
                     if (id != null) {
-                        streamWriter.writeStartElement("i");//$NON-NLS-1$
+                        streamWriter.writeStartElement("i"); //$NON-NLS-1$
                         streamWriter.writeCharacters(id.trim());
                         streamWriter.writeEndElement();
                     }
                 }
-                streamWriter.writeStartElement("t");//$NON-NLS-1$
+                streamWriter.writeStartElement("t"); //$NON-NLS-1$
                 streamWriter.writeCharacters(String.valueOf(insertionTime));
                 streamWriter.writeEndElement();
                 if (taskId != null) {
@@ -837,7 +804,7 @@ public class ItemPOJO implements Serializable {
                 }
                 streamWriter.writeStartElement("p");//$NON-NLS-1$
                 {
-                    streamWriter.writeCharacters(" ");
+                    streamWriter.writeCharacters(" "); //$NON-NLS-1$
                     streamWriter.flush();
                     String xml = getProjectionAsString();
                     stringWriter.append(xml);
@@ -933,40 +900,20 @@ public class ItemPOJO implements Serializable {
         }
     }
 
-    public static String getFilename(ItemPOJOPK itemPOJOPK) {
-        return itemPOJOPK.getUniqueID();
-    }
-
     /**
      * Returns the first part - eg. the concept - from the path
      * @return the Concept
      */
     public static String getConceptFromPath(String path) {
-        if (!path.endsWith("/"))
-            path += "/";
+        if (!path.endsWith("/")) {
+            path += "/"; //$NON-NLS-1$
+        }
         Matcher m = pathWithoutConditions.matcher(path);
         if (m.matches()) {
             return m.group(1);
         } else {
             return null;
         }
-    }
-
-    public static String getBindingSchema(ItemPOJO itemPOJO) {
-        String schema = null;
-        try {
-            String dataModelName = itemPOJO.getDataModelName();
-            String dataModelRevision = itemPOJO.getDataModelRevision();
-            if (dataModelName != null && dataModelName.length() > 0) {
-                DataModelPOJO sp = ObjectPOJO.load(dataModelRevision, DataModelPOJO.class, new DataModelPOJOPK(dataModelName));
-                if (sp != null) {
-                    schema = sp.getSchema();
-                }
-            }
-        } catch (XtentisException e) {
-            LOG.error(e.getMessage(),e);
-        }
-        return schema;
     }
 
     public static void clearCache() {

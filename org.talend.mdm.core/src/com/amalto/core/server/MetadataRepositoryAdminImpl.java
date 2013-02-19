@@ -128,7 +128,9 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
                     if (metadataRepositoryId.endsWith(StorageAdmin.STAGING_SUFFIX)) {  // Loads additional types for staging area.
                         repository.load(MetadataRepositoryAdminImpl.class.getResourceAsStream("stagingInternalTypes.xsd")); //$NON-NLS-1$
                     }
-                    repository.load(new ByteArrayInputStream(schemaAsString.getBytes("UTF-8"))); //$NON-NLS-1$
+                    if (schemaAsString != null && !schemaAsString.isEmpty()) {
+                        repository.load(new ByteArrayInputStream(schemaAsString.getBytes("UTF-8"))); //$NON-NLS-1$
+                    }
                     metadataRepository.put(metadataRepositoryId, repository);
                 } catch (Exception e) {
                     throw new RuntimeException(e);

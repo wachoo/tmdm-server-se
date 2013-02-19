@@ -100,6 +100,9 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
             if (XSystemObjects.DC_UPDATE_PREPORT.getName().equals(clusterName)) {
                 return false; // Consider update reports as user data.
             }
+            if (XSystemObjects.DC_CROSSREFERENCING.getName().equals(clusterName)) {
+                return false; // Consider cross reference as user data.
+            }
             Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
             return XSystemObjects.isXSystemObject(xDataClustersMap, clusterName)
                     || clusterName.startsWith("amalto") //$NON-NLS-1$

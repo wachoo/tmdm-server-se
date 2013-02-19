@@ -96,7 +96,7 @@ public class StorageAdminImpl implements StorageAdmin {
         String actualDataModelName = StringUtils.substringBefore(dataModelName, STAGING_SUFFIX);
         try {
             Storage masterDataModelStorage = internalCreateStorage(actualDataModelName, actualStorageName, dataSourceName, StorageType.MASTER, revisionId);
-            if (!XSystemObjects.DC_UPDATE_PREPORT.getName().equalsIgnoreCase(actualStorageName)) { //TODO would be better to decide whether a staging area should be created or not in a method.
+            if (supportStaging(actualStorageName)) {
                 boolean hasDataSource = ServerContext.INSTANCE.get().hasDataSource(dataSourceName, actualStorageName, StorageType.STAGING);
                 if (hasDataSource) {
                     internalCreateStorage(actualDataModelName, actualStorageName, dataSourceName, StorageType.STAGING, revisionId);
@@ -106,6 +106,11 @@ public class StorageAdminImpl implements StorageAdmin {
         } catch (Exception e) {
             throw new RuntimeException("Could not create storage '" + actualStorageName + "' with data model '" + dataModelName + "'.", e);
         }
+    }
+
+    public boolean supportStaging(String storageName) {
+        return !XSystemObjects.DC_UPDATE_PREPORT.getName().equalsIgnoreCase(storageName)
+                && !XSystemObjects.DC_CROSSREFERENCING.getName().equalsIgnoreCase(storageName);
     }
 
     private Storage internalCreateSystemStorage(String dataSourceName) {
@@ -263,6 +268,7 @@ public class StorageAdminImpl implements StorageAdmin {
         Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
         if (getRegisteredStorage(SYSTEM_STORAGE, null) != null
                 && !XSystemObjects.DC_UPDATE_PREPORT.getName().equals(storageName)
+                && !XSystemObjects.DC_CROSSREFERENCING.getName().equals(storageName)
                 && (XSystemObjects.isXSystemObject(xDataClustersMap, storageName)
                     || storageName.startsWith("amaltoOBJECTS"))) { //$NON-NLS-1$
             return getRegisteredStorage(SYSTEM_STORAGE, null);
@@ -275,7 +281,7 @@ public class StorageAdminImpl implements StorageAdmin {
                 throw new IllegalStateException("Expected a SQL storage for '" + storageName + "' but got a '" + storage.getClass().getName() + "'.");
             }
         }
-        if (storage == null) {
+        if (storage == null && supportStaging(storageName)) {
             LOGGER.info("Container '" + storageName + "' does not exist in revision '" + revisionId + "', creating it.");
             String dataSourceName = getDatasource(storageName);
             storage = create(storageName, storageName, dataSourceName, revisionId);

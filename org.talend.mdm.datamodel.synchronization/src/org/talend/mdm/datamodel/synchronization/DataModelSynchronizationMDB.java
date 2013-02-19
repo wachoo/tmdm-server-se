@@ -93,7 +93,7 @@ public class DataModelSynchronizationMDB implements MessageDrivenBean, MessageLi
             if (message instanceof ObjectMessage) {
                 ObjectMessage msg = (ObjectMessage) message;
                 DMUpdateEvent dmUpdateEvent = (DMUpdateEvent) msg.getObject();
-                Logger.getLogger(this.getClass()).info(dmUpdateEvent);
+                logger.info(dmUpdateEvent);
                 String eventType = dmUpdateEvent.getEventType();
                 SchemaManager schemaCoreAgent = SchemaCoreAgent.getInstance();
                 SchemaManager schemaWebAgent = SchemaWebAgent.getInstance();

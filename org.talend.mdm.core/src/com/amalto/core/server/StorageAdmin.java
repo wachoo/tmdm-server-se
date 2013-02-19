@@ -110,4 +110,12 @@ public interface StorageAdmin {
      * @see #create(String, String, String, String)
      */
     Collection<Storage> get(String storageName);
+
+    /**
+     * Returns if <code>storageName</code> is allowed to get a staging area (for instance Update Report and Crossreferencing
+     * are not allowed to).
+     * @param storageName A storage name.
+     * @return <code>true</code> if <code>storageName</code> can have a staging area, <code>false</code> otherwise.
+     */
+    boolean supportStaging(String storageName);
 }

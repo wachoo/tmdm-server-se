@@ -259,31 +259,6 @@ public class ClassRepository extends MetadataRepository {
         return typeName.toString();
     }
 
-    // data-model-pOJO -> DataModelPOJO (serialization convention by castor xml).
-    public static String unformat(String s) {
-        if (s == null) {
-            return null;
-        }
-        if (s.length() == 1) {
-            return s.toUpperCase();
-        }
-        StringBuilder typeName = new StringBuilder();
-        char[] chars = s.toCharArray();
-        if (chars.length >= 2 && !isMaj(chars[0])) {
-            chars[0] = shift(chars[0]);
-        }
-        typeName.append(chars[0]);
-        for (int i = 1; i < chars.length; i++) {
-            char current = chars[i];
-            if (chars[i -1] == '-') {
-                typeName.append(shift(current));
-            } else if(current != '-') {
-                typeName.append(current);
-            }
-        }
-        return typeName.toString();
-    }
-
     private static boolean isMaj(char c) {
         return c >= 'A' && c < 'a';
     }

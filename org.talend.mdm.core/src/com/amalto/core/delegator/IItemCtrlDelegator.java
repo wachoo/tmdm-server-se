@@ -203,7 +203,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             Server server = ServerContext.INSTANCE.get();
             Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), revisionId);
             if (storage != null) {
-                MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
+                MetadataRepository repository = storage.getMetadataRepository();
                 // Build query (from 'main' type)
                 ComplexTypeMetadata type = repository.getComplexType(typeName);
                 if (type == null) {
@@ -420,7 +420,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
         String revisionId = universe.getConceptRevisionID(conceptName);
         Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), revisionId);
         if (storage != null) {
-            MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
+            MetadataRepository repository = storage.getMetadataRepository();
             ComplexTypeMetadata type = repository.getComplexType(conceptName);
             UserQueryBuilder qb = UserQueryBuilder.from(type);
             // Condition and paging

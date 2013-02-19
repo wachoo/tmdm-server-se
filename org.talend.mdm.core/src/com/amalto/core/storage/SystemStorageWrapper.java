@@ -312,9 +312,8 @@ public class SystemStorageWrapper extends StorageWrapper {
             // TODO Filter by revision
             // String revisionId = StringUtils.substringBefore(uniqueID, ".");
             uniqueID = StringUtils.substringAfter(uniqueID, "."); //$NON-NLS-1$
-        }
-        if (type == null) {
-            return 0; // TODO
+        } else {
+            uniqueID = StringUtils.substringAfterLast(uniqueID, ".");
         }
         long start = System.currentTimeMillis();
         {
