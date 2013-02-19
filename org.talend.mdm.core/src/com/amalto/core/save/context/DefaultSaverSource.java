@@ -20,6 +20,8 @@ import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.server.DataModel;
+import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.XmlServer;
 import com.amalto.core.servlet.LoadServlet;
 import com.amalto.core.util.*;
@@ -35,8 +37,6 @@ public class DefaultSaverSource implements SaverSource {
     private final XmlServer database;
 
     private final DataModel dataModel;
-
-    private final Map<String, MetadataRepository> repositories = new HashMap<String, MetadataRepository>();
 
     private final Map<String, String> schemasAsString = new HashMap<String, String>();
 
@@ -90,15 +90,8 @@ public class DefaultSaverSource implements SaverSource {
 
     public MetadataRepository getMetadataRepository(String dataModelName) {
         try {
-            synchronized (repositories) {
-                if (repositories.get(dataModelName) == null) {
-                    MetadataRepository repository = new MetadataRepository();
-                    InputStream schema = getSchema(dataModelName);
-                    repository.load(schema);
-                    repositories.put(dataModelName, repository);
-                }
-                return repositories.get(dataModelName);
-            }
+            MetadataRepositoryAdmin admin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
+            return admin.get(dataModelName);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -203,9 +196,6 @@ public class DefaultSaverSource implements SaverSource {
 
     public void invalidateTypeCache(String dataModelName) {
         XmlSchemaValidator.invalidateCache(dataModelName);
-        synchronized (repositories) {
-            repositories.remove(dataModelName);
-        }
         synchronized (schemasAsString) {
             schemasAsString.remove(dataModelName);
         }
