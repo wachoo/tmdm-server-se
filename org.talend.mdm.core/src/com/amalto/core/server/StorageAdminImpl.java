@@ -285,7 +285,7 @@ public class StorageAdminImpl implements StorageAdmin {
                 throw new IllegalStateException("Expected a SQL storage for '" + storageName + "' but got a '" + storage.getClass().getName() + "'.");
             }
         }
-        if (storage == null && supportStaging(storageName)) {
+        if (storage == null && supportStaging(storageName) && !isHead(revisionId)) {
             LOGGER.info("Container '" + storageName + "' does not exist in revision '" + revisionId + "', creating it.");
             String dataSourceName = getDatasource(storageName);
             storage = create(storageName, storageName, dataSourceName, revisionId);
