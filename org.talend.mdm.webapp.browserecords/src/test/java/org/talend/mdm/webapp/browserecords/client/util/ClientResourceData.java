@@ -63,21 +63,21 @@ public class ClientResourceData {
         StringBuffer model = new StringBuffer();
         model.append("<models concept=\"Product\">");
         model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Product\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Id\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Name\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"false\"  minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Description\"/>");
-        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"false\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Features\"/>");
-        model.append("     <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Features/Sizes\"/>");
-        model.append("        <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"-1\" typePath=\"Product/Features/Sizes/Size\"/>");
-        model.append("     <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Features/Colors\"/>");
-        model.append("        <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"1\"  maxOccurs=\"-1\" typePath=\"Product/Features/Colors/Color\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Availability\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Price\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"true\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Family\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/OnlineStore\"/>");
-        model.append("     <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Stores\"/>");
-        model.append("        <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"-1\" typePath=\"Product/Stores/Store\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Picture\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Id\" name=\"Id\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Name\" name=\"Name\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"false\"  minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Description\" name=\"Description\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"false\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Features\" name=\"Features\" dataType=\"anonymous\"/>");
+        model.append("     <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Features/Sizes\" name=\"Sizes\" dataType=\"anonymous\"/>");
+        model.append("        <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"-1\" typePath=\"Product/Features/Sizes/Size\" name=\"Size\" dataType=\"Size\"/>");
+        model.append("     <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Features/Colors\" name=\"Colors\" dataType=\"anonymous\"/>");
+        model.append("        <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"1\"  maxOccurs=\"-1\" typePath=\"Product/Features/Colors/Color\" name=\"Color\" dataType=\"Color\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Availability\" name=\"Availability\" dataType=\"boolean\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Price\" name=\"Price\" dataType=\"decimal\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"true\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Family\" name=\"Family\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/OnlineStore\" name=\"OnlineStore\" dataType=\"URL\"/>");
+        model.append("     <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Stores\" name=\"Stores\" dataType=\"anonymous\"/>");
+        model.append("        <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"-1\" typePath=\"Product/Stores/Store\" name=\"Store\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Picture\" name=\"Picture\" dataType=\"PICTURE\"/>");
         model.append("</models>");
         return model.toString();
     }
@@ -95,10 +95,10 @@ public class ClientResourceData {
     public static String getModelCustomer() {
         StringBuffer model = new StringBuffer();
         model.append("<models concept=\"Customer\">");
-        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Customer\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Customer/firstname\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"false\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Customer/lastname\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Customer/description\"/>");
+        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Customer\" name=\"\" dataType=\"\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Customer/firstname\" name=\"firstname\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"false\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Customer/lastname\" name=\"lastname\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Customer/description\" name=\"description\" dataType=\"string\"/>");
         model.append("</models>");
         return model.toString();
     }
@@ -121,14 +121,14 @@ public class ClientResourceData {
     public static String getModelContract() {
         StringBuffer model = new StringBuffer();
         model.append("<models concept=\"Contract\">");
-        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Contract\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Contract/id\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Contract/description\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Contract/owner\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Contract/effectiveDate\"/>");
-        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Contract/partyNotes\"/>");
-        model.append("     <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Contract/partyNotes/firstPartyNote\"/>");
-        model.append("     <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Contract/partyNotes/secondPartyNote\"/>");
+        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Contract\" name=\"\" dataType=\"\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Contract/id\" name=\"id\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Contract/description\" name=\"description\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Contract/owner\" name=\"owner\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Contract/effectiveDate\" name=\"effectiveDate\" dataType=\"dateTime\"/>");
+        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Contract/partyNotes\" name=\"partyNotes\" dataType=\"anonymous\"/>");
+        model.append("     <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Contract/partyNotes/firstPartyNote\" name=\"firstPartyNote\" dataType=\"string\"/>");
+        model.append("     <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Contract/partyNotes/secondPartyNote\" name=\"secondPartyNote\" dataType=\"string\"/>");
         model.append("</models>");
         return model.toString();
     }
@@ -147,11 +147,11 @@ public class ClientResourceData {
     public static String getModelA() {
         StringBuffer modelA = new StringBuffer();
         modelA.append("<models concept=\"Test\">");
-        modelA.append("<model isSimple=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test\"/>");
-        modelA.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/subelement\"/>");
-        modelA.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/name\"/>");
-        modelA.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/age\"/>");
-        modelA.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/memo\"/>");
+        modelA.append("<model isSimple=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test\" name=\"Test\" dataType=\"Test\"/>");
+        modelA.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/subelement\" name=\"subelement\" dataType=\"string\"/>");
+        modelA.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/name\" name=\"name\" dataType=\"string\"/>");
+        modelA.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/age\" name=\"age\" dataType=\"int\"/>");
+        modelA.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/memo\" name=\"memo\" dataType=\"string\"/>");
         modelA.append("</models>");
         return modelA.toString();
     }
@@ -170,11 +170,11 @@ public class ClientResourceData {
     public static String getModelB() {
         StringBuffer modelB = new StringBuffer();
         modelB.append("<models concept=\"Test\">");
-        modelB.append("<model isSimple=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test\"/>");
-        modelB.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/subelement\"/>");
-        modelB.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/name\"/>");
-        modelB.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/age\"/>");
-        modelB.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/memo\"/>");
+        modelB.append("<model isSimple=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test\" name=\"Test\" dataType=\"Test\"/>");
+        modelB.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/subelement\" name=\"subelement\" dataType=\"string\"/>");
+        modelB.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/name\" name=\"name\" dataType=\"string\"/>");
+        modelB.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/age\" name=\"age\" dataType=\"int\"/>");
+        modelB.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/memo\" name=\"memo\" dataType=\"string\"/>");
         modelB.append("</models>");
         return modelB.toString();
     }
@@ -193,11 +193,11 @@ public class ClientResourceData {
     public static String getModelC() {
         StringBuffer modelC = new StringBuffer();
         modelC.append("<models concept=\"Test\">");
-        modelC.append("<model isSimple=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test\"/>");
-        modelC.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/subelement\"/>");
-        modelC.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"false\" typePath=\"Test/name\"/>");
-        modelC.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"false\" typePath=\"Test/age\"/>");
-        modelC.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"false\" typePath=\"Test/memo\"/>");
+        modelC.append("<model isSimple=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test\" name=\"Test\" dataType=\"Test\"/>");
+        modelC.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/subelement\" name=\"subelement\" dataType=\"string\"/>");
+        modelC.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"false\" typePath=\"Test/name\" name=\"name\" dataType=\"string\"/>");
+        modelC.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"false\" typePath=\"Test/age\" name=\"age\" dataType=\"int\"/>");
+        modelC.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"false\" typePath=\"Test/memo\" name=\"memo\" dataType=\"string\"/>");
         modelC.append("</models>");
         return modelC.toString();
     }
@@ -216,11 +216,11 @@ public class ClientResourceData {
     public static String getModelD() {
         StringBuffer modelD = new StringBuffer();
         modelD.append("<models concept=\"Test\">");
-        modelD.append("<model isSimple=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test\"/>");
-        modelD.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/subelement\"/>");
-        modelD.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/name\"/>");
-        modelD.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" typePath=\"Test/age\"/>");
-        modelD.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" typePath=\"Test/memo\"/>");
+        modelD.append("<model isSimple=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test\" name=\"Test\" dataType=\"Test\"/>");
+        modelD.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/subelement\" name=\"subelement\" dataType=\"string\"/>");
+        modelD.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/name\" name=\"name\" dataType=\"string\"/>");
+        modelD.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" typePath=\"Test/age\" name=\"age\" dataType=\"int\"/>");
+        modelD.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" typePath=\"Test/memo\" name=\"memo\" dataType=\"string\"/>");
         modelD.append("</models>");
         return modelD.toString();
     }
@@ -242,11 +242,11 @@ public class ClientResourceData {
     public static String getModelE() {
         StringBuffer modelE = new StringBuffer();
         modelE.append("<models concept=\"Test\">");
-        modelE.append("<model isSimple=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test\"/>");
-        modelE.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/subelement\"/>");
-        modelE.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/name\"/>");
-        modelE.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/age\"/>");
-        modelE.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"-1\" typePath=\"Test/memo\"/>");
+        modelE.append("<model isSimple=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test\" name=\"Test\" dataType=\"Test\"/>");
+        modelE.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/subelement\" name=\"subelement\" dataType=\"string\"/>");
+        modelE.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/name\" name=\"name\" dataType=\"string\"/>");
+        modelE.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/age\" name=\"age\" dataType=\"int\"/>");
+        modelE.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"-1\" typePath=\"Test/memo\" name=\"memo\" dataType=\"string\"/>");
         modelE.append("</models>");
         return modelE.toString();
     }
@@ -268,11 +268,11 @@ public class ClientResourceData {
     public static String getModelF() {
         StringBuffer modelF = new StringBuffer();
         modelF.append("<models concept=\"Test\">");
-        modelF.append("<model isSimple=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test\"/>");
-        modelF.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/subelement\"/>");
-        modelF.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/name\"/>");
-        modelF.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/age\"/>");
-        modelF.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/memo\"/>");
+        modelF.append("<model isSimple=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test\" name=\"Test\" dataType=\"Test\"/>");
+        modelF.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/subelement\" name=\"subelement\" dataType=\"string\"/>");
+        modelF.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/name\" name=\"name\" dataType=\"string\"/>");
+        modelF.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/age\" name=\"age\" dataType=\"int\"/>");
+        modelF.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/memo\" name=\"memo\" dataType=\"string\"/>");
         modelF.append("</models>");
         return modelF.toString();
     }
@@ -300,14 +300,14 @@ public class ClientResourceData {
     public static String getModelG() {
         StringBuffer modelG = new StringBuffer();
         modelG.append("<models concept=\"Test\">");
-        modelG.append("<model isSimple=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test\"/>");
-        modelG.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/subelement\"/>");
-        modelG.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/name\"/>");
-        modelG.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/age\"/>");
-        modelG.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/memo\"/>");
-        modelG.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp\"/>");
-        modelG.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/title\"/>");
-        modelG.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/address\"/>");
+        modelG.append("<model isSimple=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test\" name=\"Test\" dataType=\"Test\"/>");
+        modelG.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/subelement\" name=\"subelement\" dataType=\"string\"/>");
+        modelG.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/name\" name=\"name\" dataType=\"string\"/>");
+        modelG.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/age\" name=\"age\" dataType=\"int\"/>");
+        modelG.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/memo\" name=\"memo\" dataType=\"string\"/>");
+        modelG.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp\" name=\"cp\" dataType=\"CP\"/>");
+        modelG.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/title\" name=\"title\" dataType=\"string\"/>");
+        modelG.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/address\" name=\"address\" dataType=\"string\"/>");
         modelG.append("</models>");
         return modelG.toString();
     }
@@ -332,15 +332,15 @@ public class ClientResourceData {
     public static String getModelH() {
         StringBuffer modelH = new StringBuffer();
         modelH.append("<models concept=\"Test\">"); //$NON-NLS-1$
-        modelH.append("<model isSimple=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test\"/>"); //$NON-NLS-1$
-        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/id\"/>"); //$NON-NLS-1$
-        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/name\"/>"); //$NON-NLS-1$
-        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp\"/>"); //$NON-NLS-1$
-        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/title\"/>"); //$NON-NLS-1$
-        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/address\"/>"); //$NON-NLS-1$
-        modelH.append("<model isSimple=\"true\" isFk=\"true\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/fk\"/>"); //$NON-NLS-1$
-        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/cpChild\"/>"); //$NON-NLS-1$
-        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/cpChild/tel\"/>"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test\" name=\"Test\" dataType=\"Test\"/>"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/id\" name=\"id\" dataType=\"string\"/>"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/name\" name=\"name\" dataType=\"string\"/>"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp\" name=\"cp\" dataType=\"CP\"/>"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/title\" name=\"title\" dataType=\"string\"/>"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/address\" name=\"address\" dataType=\"string\"/>"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"true\" isFk=\"true\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/fk\" name=\"fk\" dataType=\"string\"/>"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/cpChild\" name=\"cpChild\" dataType=\"anonymous\"/>"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/cpChild/tel\" name=\"tel\" dataType=\"string\"/>"); //$NON-NLS-1$
         modelH.append("</models>"); //$NON-NLS-1$
         return modelH.toString();
     }
@@ -364,11 +364,11 @@ public class ClientResourceData {
         StringBuffer model = new StringBuffer();
         model.append("<models concept=\"Product\">");
         model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Product\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Id\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Name\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"true\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Family\"/>");
-        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Stores\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"-1\" typePath=\"Product/Stores/Store\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Id\" name=\"Id\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Name\" name=\"Name\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"true\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Family\" name=\"Family\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Stores\" name=\"Stores\" dataType=\"anonymous\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"-1\" typePath=\"Product/Stores/Store\" name=\"Store\" dataType=\"string\"/>");
         model.append("</models>");
         return model.toString();
     }
@@ -377,8 +377,8 @@ public class ClientResourceData {
         StringBuffer model = new StringBuffer();
         model.append("<models concept=\"ProductFamily\">");
         model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"ProductFamily\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"ProductFamily/Id\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"ProductFamily/Name\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"ProductFamily/Id\" name=\"Id\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"ProductFamily/Name\" name=\"Name\" dataType=\"string\"/>");
         model.append("</models>");
         return model.toString();
     }
@@ -387,10 +387,10 @@ public class ClientResourceData {
         StringBuffer model = new StringBuffer();
         model.append("<models concept=\"Product\">");
         model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Product\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Id\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Name\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"true\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Family\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"true\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Supplier\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Id\" name=\"Id\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Name\" name=\"Name\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"true\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Family\" name=\"Family\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"true\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Supplier\" name=\"Supplier\" dataType=\"string\"/>");
         model.append("</models>");
         return model.toString();
     }
