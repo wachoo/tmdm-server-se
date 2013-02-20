@@ -156,6 +156,8 @@ public class UserQueryHelper {
     }
 
     public static TypedExpression getField(MetadataRepository repository, String typeName, String fieldName) {
+        // Additional trim() (in case XPath is like "Entity/FieldName  ").
+        fieldName = fieldName.trim();
         ComplexTypeMetadata type = repository.getComplexType(typeName);
         if (type == null) {
             throw new IllegalArgumentException("Type '" + typeName + "' does not exist.");
