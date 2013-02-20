@@ -191,7 +191,12 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
                 if (simpleField.isKey()) {
                     idValueMap.put(currentPath, uuidValue);
                 }
-                actions.add(new FieldUpdateAction(date, source, userName, currentPath, StringUtils.EMPTY, uuidValue, simpleField));
+                int size = document.createAccessor(currentPath).size();
+                for (int i = 1; i <= size; i++) {
+                    actions.add(new FieldUpdateAction(date, source, userName, currentPath + '[' + i + ']', StringUtils.EMPTY,
+                            uuidValue, simpleField));
+                    uuidValue = UUID.randomUUID().toString();
+                }
             } else {
                 if (simpleField.isKey()) {
                     Accessor accessor = document.createAccessor(currentPath);
