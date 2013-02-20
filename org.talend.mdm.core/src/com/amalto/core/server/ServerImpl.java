@@ -62,6 +62,11 @@ class ServerImpl implements Server {
                     throw new IllegalArgumentException("Datasource '" + dataSourceName + "' does not declare a staging area.");
                 }
                 return configuration.getStaging();
+            case SYSTEM:
+                if (!configuration.hasSystem()) {
+                    throw new IllegalArgumentException("Datasource '" + dataSourceName + "' does not declare a system section.");
+                }
+                return configuration.getSystem();
             default:
                 throw new NotImplementedException("Not supported: " + type);
         }

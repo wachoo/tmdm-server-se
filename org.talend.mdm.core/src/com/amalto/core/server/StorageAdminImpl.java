@@ -25,6 +25,7 @@ import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceFactory;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.hibernate.HibernateStorage;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -44,11 +45,6 @@ public class StorageAdminImpl implements StorageAdmin {
      * Default datasource name to be used for user/master data (from datasources configuration content).
      */
     private static final String DEFAULT_USER_DATA_SOURCE_NAME = MDMConfiguration.getConfiguration().getProperty("db.default.datasource", "RDBMS-1"); //$NON-NLS-1$ //$NON-NLS-2$
-
-    /**
-     * Default datasource name to be used for system data (from datasources configuration content).
-     */
-    private static final String DEFAULT_SYSTEM_DATA_SOURCE_NAME = MDMConfiguration.getConfiguration().getProperty("db.system.datasource", "SYSTEM"); //$NON-NLS-1$ //$NON-NLS-2$
 
     // Default value is "false" (meaning the storage will not remove existing data).
     private static final boolean autoClean = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("db.autoClean", "false")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -114,9 +110,9 @@ public class StorageAdminImpl implements StorageAdmin {
     }
 
     private Storage internalCreateSystemStorage(String dataSourceName) {
-        Storage storage = new HibernateStorage(SYSTEM_STORAGE);
+        Storage storage = new HibernateStorage(SYSTEM_STORAGE, StorageType.SYSTEM);
         ServerContext instance = ServerContext.INSTANCE;
-        DataSource dataSource = instance.get().getDataSource(dataSourceName, SYSTEM_STORAGE, StorageType.MASTER);
+        DataSource dataSource = instance.get().getDataSource(dataSourceName, SYSTEM_STORAGE, StorageType.SYSTEM);
         ClassRepository repository = new ClassRepository();
         // Parses ObjectPOJO classes
         Class[] objectsToParse = new Class[ObjectPOJO.OBJECT_TYPES.length];
@@ -231,12 +227,24 @@ public class StorageAdminImpl implements StorageAdmin {
             storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
         }
         Storage storage;
-        if (storageType == StorageType.STAGING && !storageName.endsWith(STAGING_SUFFIX)) {
-            storage = getRegisteredStorage(storageName + STAGING_SUFFIX, revision);
-        } else {
-            storage = getRegisteredStorage(storageName, revision);
+        switch (storageType) {
+            case STAGING:
+                if (!storageName.endsWith(STAGING_SUFFIX)) {
+                    storage = getRegisteredStorage(storageName + STAGING_SUFFIX, revision);
+                } else {
+                    storage = getRegisteredStorage(storageName, revision);
+                }
+                break;
+            case MASTER:
+                storage = getRegisteredStorage(storageName, revision);
+                break;
+            case SYSTEM:
+                storage = getRegisteredStorage(SYSTEM_STORAGE, null);
+                break;
+            default:
+                throw new NotImplementedException("No support for storage type '" + storageType + "'.");
         }
-        if (storage == null && !isHead(revision)) {
+        if (storage == null) {
             LOGGER.info("Container '" + storageName + "' does not exist in revision '" + revision + "', creating it.");
             String dataSourceName = getDatasource(storageName);
             storage = create(storageName, storageName, dataSourceName, revision);
@@ -256,11 +264,7 @@ public class StorageAdminImpl implements StorageAdmin {
     public String getDatasource(String storageName) {
         // This is not customized: in fact, there should be a way to customize storage -> datasource mapping (like
         // MDM container configuration).
-        if(SYSTEM_STORAGE.equals(storageName)) {
-            return DEFAULT_SYSTEM_DATA_SOURCE_NAME;
-        } else {
-            return DEFAULT_USER_DATA_SOURCE_NAME;
-        }
+        return DEFAULT_USER_DATA_SOURCE_NAME;
     }
 
     public Storage get(String storageName, String revisionId) {

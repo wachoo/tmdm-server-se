@@ -17,21 +17,31 @@ public class DataSourceDefinition {
 
     private final DataSource staging;
 
-    public DataSourceDefinition(DataSource master, DataSource staging) {
+    private final DataSource system;
+
+    public DataSourceDefinition(DataSource master, DataSource staging, DataSource system) {
         this.master = master;
         this.staging = staging;
-    }
-
-    public boolean hasStaging() {
-        return staging != null;
+        this.system = system;
     }
 
     public DataSource getMaster() {
         return master;
     }
 
+    public boolean hasStaging() {
+        return staging != null;
+    }
+
     public DataSource getStaging() {
         return staging;
     }
 
+    public boolean hasSystem() {
+        return system != null;
+    }
+
+    public DataSource getSystem() {
+        return system;
+    }
 }

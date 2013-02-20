@@ -191,12 +191,13 @@ public class DataSourceFactory {
             for (int i = 0; i < datasources.getLength(); i++) {
                 Node currentDataSourceElement = datasources.item(i);
                 String name = (String) evaluate(currentDataSourceElement, "@name", XPathConstants.STRING); //$NON-NLS-1$
-                DataSource master = getDataSourceConfiguration(currentDataSourceElement, name, "master");
+                DataSource master = getDataSourceConfiguration(currentDataSourceElement, name, "master"); //$NON-NLS-1$
                 if (master == null) {
                     throw new IllegalArgumentException("Data source '" + name + "'does not declare a master data section");
                 }
-                DataSource staging = getDataSourceConfiguration(currentDataSourceElement, name, "staging");
-                nameToDataSources.put(name, new DataSourceDefinition(master, staging));
+                DataSource staging = getDataSourceConfiguration(currentDataSourceElement, name, "staging"); //$NON-NLS-1$
+                DataSource system = getDataSourceConfiguration(currentDataSourceElement, name, "system"); //$NON-NLS-1$
+                nameToDataSources.put(name, new DataSourceDefinition(master, staging, system));
             }
             return nameToDataSources;
         } catch (XPathExpressionException e) {

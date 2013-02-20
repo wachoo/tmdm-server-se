@@ -12,7 +12,7 @@
 package com.amalto.core.storage;
 
 /**
- * Describes what type ({@link #MASTER} or {@link #STAGING}) a SQL storage is.
+ * Describes what type ({@link #MASTER}, {@link #STAGING} or {@link #SYSTEM}) a SQL storage is.
  */
 public enum StorageType {
     /**
@@ -22,5 +22,9 @@ public enum StorageType {
     /**
      * Indicates storage stores unvalidated data.
      */
-    STAGING
+    STAGING,
+    /**
+     * Indicates storage stores system data (MDM internal objects).
+     */
+    SYSTEM
 }

@@ -277,6 +277,7 @@ public class HibernateStorage implements Storage {
             switch (storageType) {
                 case MASTER:
                 case STAGING:
+                case SYSTEM:
                     hibernateClassCreator = new ClassCreator(storageClassLoader);
                     break;
             }
@@ -401,6 +402,7 @@ public class HibernateStorage implements Storage {
         if (typeMappingRepository == null) {
             switch (storageType) {
                 case MASTER:
+                case SYSTEM:
                     typeMappingRepository = new UserTypeMappingRepository();
                     break;
                 case STAGING:

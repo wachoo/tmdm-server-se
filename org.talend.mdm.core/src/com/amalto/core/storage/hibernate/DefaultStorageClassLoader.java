@@ -105,6 +105,7 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
     public MappingGenerator getMappingGenerator(Document document, TableResolver resolver) {
         switch (type) {
             case MASTER:
+            case SYSTEM:
                 return new MappingGenerator(document, resolver, dialect);
             case STAGING:
                 return new MappingGenerator(document, resolver, dialect, false);

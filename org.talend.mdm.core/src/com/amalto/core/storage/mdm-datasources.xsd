@@ -14,6 +14,12 @@
            elementFormDefault="qualified"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            targetNamespace="http://www.talend.com/mdm/datasources" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xs:simpleType name="datasourceTypeEnum">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="RDBMS"/>
+            <xsd:enumeration value="XML"/>
+        </xsd:restriction>
+    </xs:simpleType>
     <xs:element name="datasources" type="datasourcesType"/>
     <xs:complexType name="datasourcesType">
         <xs:sequence>
@@ -25,14 +31,7 @@
             <xs:element name="master" minOccurs="1" maxOccurs="1">
                 <xs:complexType>
                     <xsd:all>
-                        <xs:element name="type" minOccurs="1" maxOccurs="1" default="RDBMS">
-                            <xs:simpleType>
-                                <xs:restriction base="xs:string">
-                                    <xs:enumeration value="RDBMS"/>
-                                    <xs:enumeration value="XML"/>
-                                </xs:restriction>
-                            </xs:simpleType>
-                        </xs:element>
+                        <xs:element name="type" type="datasourceTypeEnum" minOccurs="1" maxOccurs="1" default="RDBMS"/>
                         <xs:element ref="configuration" minOccurs="1" maxOccurs="1"/>
                     </xsd:all>
                 </xs:complexType>
@@ -40,14 +39,15 @@
             <xs:element name="staging" minOccurs="0" maxOccurs="1">
                 <xs:complexType>
                     <xsd:all>
-                        <xs:element name="type" minOccurs="1" maxOccurs="1" default="RDBMS">
-                            <xs:simpleType>
-                                <xs:restriction base="xs:string">
-                                    <xs:enumeration value="RDBMS"/>
-                                    <xs:enumeration value="XML"/>
-                                </xs:restriction>
-                            </xs:simpleType>
-                        </xs:element>
+                        <xs:element name="type" type="datasourceTypeEnum" minOccurs="1" maxOccurs="1" default="RDBMS"/>
+                        <xs:element ref="configuration" minOccurs="1" maxOccurs="1"/>
+                    </xsd:all>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="system" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xsd:all>
+                        <xs:element name="type" type="datasourceTypeEnum" minOccurs="1" maxOccurs="1" default="RDBMS"/>
                         <xs:element ref="configuration" minOccurs="1" maxOccurs="1"/>
                     </xsd:all>
                 </xs:complexType>
