@@ -456,13 +456,7 @@ public class ItemPOJO implements Serializable {
         try {
             // remove the doc
             String clusterName = itemPOJOPK.getDataClusterPOJOPK().getUniqueId();
-            server.start(clusterName);
-            long res = server.deleteDocument(revisionID, clusterName, itemPOJOPK.getUniqueID());
-            if (res == -1) {
-                server.rollback(clusterName);
-            } else {
-                server.commit(clusterName);
-            }
+            server.deleteDocument(revisionID, clusterName, itemPOJOPK.getUniqueID());
             ItemCacheKey key = new ItemCacheKey(revisionID, itemPOJOPK.getUniqueID(), clusterName);
             cachedPojo.remove(key);
             return itemPOJOPK;

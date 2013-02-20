@@ -19,6 +19,7 @@ import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.record.*;
 import com.amalto.xmlserver.interfaces.XmlServerException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -47,6 +48,8 @@ public class SystemStorageWrapper extends StorageWrapper {
     private static final String FAILED_ROUTING_ORDER = "failed-routing-order-v2-pOJO"; //$NON-NLS-1$
 
     private static final String ACTIVE_ROUTING_ORDER = "active-routing-order-v2-pOJO"; //$NON-NLS-1$
+
+    private static final Logger LOGGER = Logger.getLogger(SystemStorageWrapper.class);
 
     public SystemStorageWrapper() {
         // Create "system" storage
@@ -194,6 +197,12 @@ public class SystemStorageWrapper extends StorageWrapper {
             }
             MetadataRepository repository = storage.getMetadataRepository();
             DataRecord record = reader.read(revisionID, repository, type, root);
+            for (FieldMetadata keyField : type.getKeyFields()) {
+                if (record.get(keyField) == null) {
+                    LOGGER.warn("Ignoring update for record '" + uniqueID + "' (does not provide key information).");
+                    return 0;
+                }
+            }
             storage.update(record);
         }
         return System.currentTimeMillis() - start;

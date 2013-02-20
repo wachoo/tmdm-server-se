@@ -19,7 +19,6 @@ import org.exolab.castor.xml.Unmarshaller;
 import org.exolab.castor.xml.XMLClassDescriptorResolver;
 import org.exolab.castor.xml.util.XMLClassDescriptorResolverImpl;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
-import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -54,11 +53,10 @@ import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 
-
-/**
- * @author Bruno Grieder
- */
 public abstract class ObjectPOJO implements Serializable {
+
+    // Don't change this id, it forces compatibility with pre-5.3 versions (even if structure slightly changed).
+    public static final long serialVersionUID = 3157316606545297572l;
 
     private static Logger LOG = Logger.getLogger(ObjectPOJO.class);
 
