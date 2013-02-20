@@ -6,6 +6,7 @@ import java.util.List;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
@@ -45,20 +46,24 @@ public class CommonUtilTestData {
                     int maxOccurs = childEl.getAttribute("maxOccurs") == null ? 1 : Integer.parseInt(childEl
                             .getAttribute("maxOccurs"));
                     String typePath = childEl.getAttribute("typePath");
+                    String dataType = childEl.getAttribute("dataType");
+                    String name = childEl.getAttribute("name");
                     TypeModel tm = null;
+
                     if (isSimple) {
-                        SimpleTypeModel stm = new SimpleTypeModel();
+                        SimpleTypeModel stm = new SimpleTypeModel(name, DataTypeCreator.getDataType(dataType, ""));
                         stm.setForeignkey(isFk ? "fk/fk" : null);
                         stm.setXpath(typePath.replaceAll(":\\w+", ""));
                         tm = stm;
                     } else {
-                        ComplexTypeModel ctm = new ComplexTypeModel();
+                        ComplexTypeModel ctm = new ComplexTypeModel(name, DataTypeCreator.getDataType(dataType, ""));
                         ctm.setXpath(typePath.replaceAll(":\\w+", ""));
                         tm = ctm;
                     }
 
-                    if (isPk)
+                    if (isPk) {
                         ids.add(typePath);
+                    }
                     tm.setReadOnly(isReadOnly);
                     tm.setVisible(isVisible);
                     tm.setTypePath(typePath);
@@ -68,8 +73,9 @@ public class CommonUtilTestData {
                 }
             }
         }
-        if (ids.size() > 0)
+        if (ids.size() > 0) {
             entity.setKeys(ids.toArray(new String[ids.size()]));
+        }
 
         return entity;
     }
@@ -83,8 +89,9 @@ public class CommonUtilTestData {
         ItemNodeModel node = new ItemNodeModel(el.getNodeName());
         node.setTypePath(getElTypePath(el));
         TypeModel tm = entityModel.getMetaDataTypes().get(node.getTypePath());
-        if (tm == null)
+        if (tm == null) {
             throw new RuntimeException(node.getTypePath() + " does not exist! ");
+        }
         if (tm.isSimpleType()) {
             if (tm.getForeignkey() != null && tm.getForeignkey().trim().length() > 0) {
                 if (el.getFirstChild().getNodeType() == Node.TEXT_NODE && el.getFirstChild().getNodeValue() != null
@@ -110,8 +117,9 @@ public class CommonUtilTestData {
 
         if (entityModel.getKeys() != null) {
             for (String key : entityModel.getKeys()) {
-                if (key.equals(node.getTypePath()))
+                if (key.equals(node.getTypePath())) {
                     node.setKey(true);
+                }
             }
         }
 

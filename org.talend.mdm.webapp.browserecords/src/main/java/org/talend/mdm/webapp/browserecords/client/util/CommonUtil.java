@@ -194,6 +194,8 @@ public class CommonUtil {
                     setDefaultValue(model, node);
                 } else if (isCreate && isCallByServerSide) {
                     node.setChangeValue(true);
+                } else if (model.getType().getTypeName().equals(DataTypeConstants.UUID.getTypeName())) {
+                	setDefaultValue(model, node);
                 }
             } else {
                 ComplexTypeModel complexModel = (ComplexTypeModel) model;
