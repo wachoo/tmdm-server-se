@@ -6,6 +6,7 @@ import java.util.List;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
@@ -45,14 +46,16 @@ public class CommonUtilTestData {
                     int maxOccurs = childEl.getAttribute("maxOccurs") == null ? 1 : Integer.parseInt(childEl
                             .getAttribute("maxOccurs"));
                     String typePath = childEl.getAttribute("typePath");
+                    String dataType = childEl.getAttribute("dataType");
+                    String name = childEl.getAttribute("name");
                     TypeModel tm = null;
                     if (isSimple) {
-                        SimpleTypeModel stm = new SimpleTypeModel();
+                        SimpleTypeModel stm = new SimpleTypeModel(name, DataTypeCreator.getDataType(dataType, ""));
                         stm.setForeignkey(isFk ? "fk/fk" : null);
                         stm.setXpath(typePath.replaceAll(":\\w+", ""));
                         tm = stm;
                     } else {
-                        ComplexTypeModel ctm = new ComplexTypeModel();
+                        ComplexTypeModel ctm = new ComplexTypeModel(name, DataTypeCreator.getDataType(dataType, ""));
                         ctm.setXpath(typePath.replaceAll(":\\w+", ""));
                         tm = ctm;
                     }
