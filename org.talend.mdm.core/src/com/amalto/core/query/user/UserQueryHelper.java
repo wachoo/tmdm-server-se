@@ -165,6 +165,8 @@ public class UserQueryHelper {
         if(fieldName.startsWith("@")) { //$NON-NLS-1$
             fieldName = fieldName.substring(1);
         }
+        // Additional trim() (in case XPath is like "Entity/FieldName  ").
+        fieldName = fieldName.trim();
         ComplexTypeMetadata type = repository.getComplexType(typeName);
         if (type == null) {
             throw new IllegalArgumentException("Type '" + typeName + "' does not exist.");
