@@ -21,6 +21,7 @@ import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.schema.validation.XmlSchemaValidator;
+import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.servlet.LoadServlet;
 import com.amalto.core.util.*;
