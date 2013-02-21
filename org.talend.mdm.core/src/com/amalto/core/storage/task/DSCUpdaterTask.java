@@ -77,6 +77,7 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
         private XMLStreamWriter writer;
 
         private ResettableStringWriter output;
+        private GetMethod get;
 
         public DSCTaskClosure(Storage origin, XMLOutputFactory xmlOutputFactory) {
             this.origin = origin;
@@ -210,7 +211,7 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
                     state.setCredentials(new AuthScope("localhost", 8080), new UsernamePasswordCredentials("administrator", "administrator")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     HttpConnection connection = new HttpConnection("localhost", 8080); //$NON-NLS-1$
                     connection.open();
-                    GetMethod get = new GetMethod("/org.talend.datastewardship-5.1.0-SNAPSHOT/dataloader"); //$NON-NLS-1$
+                    get = new GetMethod("/org.talend.datastewardship-5.1.0-SNAPSHOT/dataloader");
                     get.setQueryString(new NameValuePair[]{
                             new NameValuePair("INPUT_TASKS", output.toString()) //$NON-NLS-1$
                     });
@@ -219,11 +220,19 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
                     throw new RuntimeException(e);
                 } finally {
                     output.reset();
+                    get = null;
                 }
             } catch (XMLStreamException e) {
                 throw new RuntimeException(e);
             }
 
+        }
+
+        @Override
+        public void cancel() {
+            if (get != null) {
+                get.abort();
+            }
         }
 
         private String getFieldType(FieldMetadata field) {

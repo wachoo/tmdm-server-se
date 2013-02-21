@@ -70,6 +70,10 @@ public class ClusterTask extends MetadataRepositoryTask {
             storage.update(stagingRecord);
         }
 
+        @Override
+        public void cancel() {
+        }
+
         public void end(ClosureExecutionStats stats) {
             storage.commit();
         }

@@ -72,15 +72,19 @@ public class MergeTask extends MetadataRepositoryTask {
             if (!groupRecord.isEmpty()) {
                 String lastTaskId = groupRecord.getLast().getRecordMetadata().getTaskId();
                 String currentTaskId = stagingRecord.getRecordMetadata().getTaskId();
-                if (!lastTaskId.equals(currentTaskId) || (currentTaskId == null || "null".equals(currentTaskId))) { //$NON-NLS-1$ // Update status of last record of group.
-                    setGoldenRecord(groupRecord, stats);
+                if ((currentTaskId == null || "null".equals(currentTaskId)) || !lastTaskId.equals(currentTaskId)) { //$NON-NLS-1$ // Update status of last record of group.
+                    setGoldenRecord(groupRecord);
                     groupRecord.clear();
                 }
             }
             groupRecord.add(stagingRecord);
         }
 
-        private void setGoldenRecord(List<DataRecord> stagingRecords, ClosureExecutionStats stats) {
+        @Override
+        public void cancel() {
+        }
+
+        private void setGoldenRecord(List<DataRecord> stagingRecords) {
             if (stagingRecords.size() == 1) {
                 DataRecord stagingRecord = stagingRecords.get(0);
                 DataRecordMetadata recordMetadata = stagingRecord.getRecordMetadata();
@@ -99,7 +103,7 @@ public class MergeTask extends MetadataRepositoryTask {
 
         public void end(ClosureExecutionStats stats) {
             if (!groupRecord.isEmpty()) {
-                setGoldenRecord(groupRecord, stats);
+                setGoldenRecord(groupRecord);
             }
             storage.commit();
         }
