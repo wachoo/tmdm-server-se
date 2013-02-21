@@ -150,8 +150,7 @@ public class JournalDBServiceTest extends TestCase{
         assertEquals("", returnValue.getRevisionId()); //$NON-NLS-1$   
         assertEquals("UPDATE", returnValue.getOperationType()); //$NON-NLS-1$   
         assertEquals("genericUI", returnValue.getSource()); //$NON-NLS-1$   
-        assertEquals("1360032633336", returnValue.getOperationTime()); //$NON-NLS-1$    
-        assertEquals("20130205 10:50:33", returnValue.getOperationDate()); //$NON-NLS-1$ 
+        assertEquals("1360032633336", returnValue.getOperationTime()); //$NON-NLS-1$
         assertEquals("Jennifer", returnValue.getUserName()); //$NON-NLS-1$        
     }
             
