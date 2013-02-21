@@ -55,7 +55,8 @@ public class SystemStorageWrapper extends StorageWrapper {
         // Create "system" storage
         Server server = ServerContext.INSTANCE.get();
         StorageAdmin admin = server.getStorageAdmin();
-        admin.get(StorageAdmin.SYSTEM_STORAGE, null);
+        String datasource = admin.getDatasource(StorageAdmin.SYSTEM_STORAGE);
+        admin.create(StorageAdmin.SYSTEM_STORAGE, StorageAdmin.SYSTEM_STORAGE, datasource, null);
     }
 
     private ComplexTypeMetadata getType(String clusterName, Storage storage, String uniqueId) {
