@@ -48,20 +48,6 @@ cluster_override=false
 ######################################################
 # eXist DB Settings
 ######################################################
-xmldb.server.name=localhost
-xmldb.server.port=8180
-xmldb.administrator.username=admin
-xmldb.administrator.password=1bc29b36f623ba82aaf6724fd3b16718
-xmldb.driver=org.exist.xmldb.DatabaseImpl
-xmldb.dbid=exist
-xmldb.dburl=exist/xmlrpc/db
-xmldb.isupurl=exist/
-xmldb.type=exist
-xmlserver.class=com.amalto.xmldb.XmldbSLWrapper
-
-######################################################
-# RDBMS Settings
-######################################################
 #xmldb.server.name=localhost
 #xmldb.server.port=8180
 #xmldb.administrator.username=admin
@@ -71,12 +57,15 @@ xmlserver.class=com.amalto.xmldb.XmldbSLWrapper
 #xmldb.dburl=exist/xmlrpc/db
 #xmldb.isupurl=exist/
 #xmldb.type=exist
-#xmlserver.class=com.amalto.core.storage.DispatchWrapper
-#mdm.internal.wrapper=com.amalto.xmldb.XmldbSLWrapper
-#user.wrapper=com.amalto.core.storage.StorageWrapper
-#db.autoPrepare=true
-#db.datasources=datasources.xml
-#db.default.datasource=RDBMS-1
+#xmlserver.class=com.amalto.xmldb.XmldbSLWrapper
+
+######################################################
+# RDBMS Settings
+######################################################
+xmlserver.class=com.amalto.core.storage.SQLWrapper
+db.autoPrepare=true
+db.datasources=datasources.xml
+db.default.datasource=RDBMS-1
 
 ######################################################
 # Subscription Engine
