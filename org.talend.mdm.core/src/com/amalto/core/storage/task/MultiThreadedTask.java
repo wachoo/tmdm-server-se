@@ -124,6 +124,7 @@ public class MultiThreadedTask implements Task {
 
     public void cancel() {
         isCancelled.set(true);
+        closure.cancel();
     }
 
     public void waitForCompletion() throws InterruptedException {

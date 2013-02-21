@@ -91,6 +91,11 @@ class ThreadDispatcher implements Closure {
         }
     }
 
+    @Override
+    public void cancel() {
+        queue.clear();
+    }
+
     public void end(ClosureExecutionStats stats) {
         for (int i = 0; i < childClosures.size(); i++) {
             queue.offer(new EndDataRecord());

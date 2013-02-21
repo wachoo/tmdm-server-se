@@ -165,6 +165,10 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             }
         }
 
+        @Override
+        public void cancel() {
+        }
+
         public synchronized void end(ClosureExecutionStats stats) {
             try {
                 session.end(committer);

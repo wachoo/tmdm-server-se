@@ -80,6 +80,10 @@ public class MergeTask extends MetadataRepositoryTask {
             groupRecord.add(stagingRecord);
         }
 
+        @Override
+        public void cancel() {
+        }
+
         private void setGoldenRecord(List<DataRecord> stagingRecords) {
             if (stagingRecords.size() == 1) {
                 DataRecord stagingRecord = stagingRecords.get(0);
