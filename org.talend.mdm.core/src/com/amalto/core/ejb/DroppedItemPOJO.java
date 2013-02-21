@@ -266,16 +266,16 @@ public class DroppedItemPOJO implements Serializable {
             List<DroppedItemPOJOPK> list = new ArrayList<DroppedItemPOJOPK>();
             for (String uid : ids) {
                 String[] uidValues = uid.split("\\."); //$NON-NLS-1$
-                if (uidValues.length < 3) {
+                if (uidValues.length < 4) {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Could not read id '" + uid + "'. Skipping it.");
                     }
                     continue;
                 }
-                ItemPOJOPK refItemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(uidValues[0]),
-                        uidValues[1],
-                        Arrays.copyOfRange(uidValues, 2, uidValues.length));
-                DroppedItemPOJOPK droppedItemPOJOPK = new DroppedItemPOJOPK(null, refItemPOJOPK, "/"); //$NON-NLS-1$
+                uidValues[uidValues.length - 1] = uidValues[uidValues.length - 1].replace("-", ""); //$NON-NLS-1$//$NON-NLS-2$
+                ItemPOJOPK refItemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(uidValues[1]), uidValues[2], Arrays.copyOfRange(
+                        uidValues, 3, uidValues.length));
+                DroppedItemPOJOPK droppedItemPOJOPK = new DroppedItemPOJOPK(uidValues[0], refItemPOJOPK, "/"); //$NON-NLS-1$
                 if (regex != null) {
                     if (uid.matches(regex)) {
                         list.add(droppedItemPOJOPK);
