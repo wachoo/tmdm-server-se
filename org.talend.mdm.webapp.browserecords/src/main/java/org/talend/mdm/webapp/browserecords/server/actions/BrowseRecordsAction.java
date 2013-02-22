@@ -181,7 +181,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     private final List<String> numberTypeNmes = Arrays.asList("double", "float", "decimal", "int", "integer", "long", "short"); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$
 
-    public String deleteItemBean(ItemBean item, boolean override, String language) throws ServiceException {
+    public String deleteItemBean(ItemBean item, boolean override, String language, int size) throws ServiceException {
         try {
             String dataClusterPK = getCurrentDataCluster();
             String concept = item.getConcept();
@@ -211,6 +211,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         message = message == null ? "" : message; //$NON-NLS-1$
                     } else if (message == null || message.length() == 0) {
                         message = MESSAGES.getMessage("delete_process_validation_success"); //$NON-NLS-1$
+                    } else if (message != null && size > 1) {
+                        message = item.getIds() + ":" + message; //$NON-NLS-1$
                     }
                 } else {
                     if (outputErrorMessage == null) {
@@ -246,8 +248,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public List<String> deleteItemBeans(List<ItemBean> items, boolean override, String language) throws ServiceException {
         List<String> itemResults = new ArrayList<String>();
+        int size = items.size();
         for (ItemBean item : items) {
-            String itemResult = deleteItemBean(item, override, language);
+            String itemResult = deleteItemBean(item, override, language, size);
             itemResults.add(itemResult);
         }
         return itemResults;
