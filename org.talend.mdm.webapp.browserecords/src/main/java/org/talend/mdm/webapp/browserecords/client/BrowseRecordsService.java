@@ -64,8 +64,6 @@ public interface BrowseRecordsService extends RemoteService {
 
     ViewBean getView(String viewPk, String language) throws ServiceException;
 
-    String deleteItemBean(ItemBean item, boolean override, String language) throws ServiceException;
-
     List<String> deleteItemBeans(List<ItemBean> items, boolean override, String language) throws ServiceException;
 
     Map<ItemBean, FKIntegrityResult> checkFKIntegrity(List<ItemBean> selectedItems) throws ServiceException;

@@ -31,7 +31,7 @@ public class PhysicalDeleteAction implements DeleteAction {
                 if (msgs != null) {
                     StringBuilder sb = new StringBuilder();
                     for (String msg : msgs) {
-                        sb.append(MultilanguageMessageParser.pickOutISOMessage(msg)).append("\n"); //$NON-NLS-1$
+                        sb.append(MultilanguageMessageParser.pickOutISOMessage(msg)).append("<br/>"); //$NON-NLS-1$
                     }
                     String msg = sb.toString().trim();
                     if (msg.length() > 0) {
