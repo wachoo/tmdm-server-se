@@ -147,7 +147,9 @@ public class HibernateStorage implements Storage {
     }
 
     @Override
-    public synchronized void prepare(MetadataRepository repository, Set<FieldMetadata> indexedFields, boolean force,
+    public synchronized void prepare(MetadataRepository repository,
+                                     Set<FieldMetadata> indexedFields,
+                                     boolean force,
                                      boolean dropExistingData) {
         if (!force && isPrepared) {
             return; // No op operation
@@ -737,13 +739,14 @@ public class HibernateStorage implements Storage {
 
     @Override
     public void close(boolean dropExistingData) {
-        if (dropExistingData) {
+        // Close hibernate so all connections get released before drop schema.
+        close();
+        if (dropExistingData) { // Drop schema if asked for...
             LOGGER.info("Deleting data and schema of storage '" + storageName + "' (" + storageType + ").");
             JDBCStorageCleaner cleaner = new JDBCStorageCleaner(new FullTextIndexCleaner());
             cleaner.clean(this);
             LOGGER.info("Data and schema of storage '" + storageName + "' (" + storageType + ") deleted.");
         }
-        close();
     }
 
     private StorageResults internalFetch(Session session, Expression userQuery, Set<EndOfResultsCallback> callbacks) {
@@ -775,6 +778,8 @@ public class HibernateStorage implements Storage {
 
     private static class MetadataChecker extends DefaultMetadataVisitor<Object> {
 
+        Set<TypeMetadata> processedTypes = new HashSet<TypeMetadata>();
+
         @Override
         public Object visit(SimpleTypeFieldMetadata simpleField) {
             String simpleFieldTypeName = simpleField.getType().getName();
@@ -799,6 +804,11 @@ public class HibernateStorage implements Storage {
         @Override
         public Object visit(ContainedTypeFieldMetadata containedField) {
             assertField(containedField);
+            if (processedTypes.contains(containedField.getContainedType())) {
+                return null;
+            } else {
+                processedTypes.add(containedField.getContainedType());
+            }
             return super.visit(containedField);
         }
 
