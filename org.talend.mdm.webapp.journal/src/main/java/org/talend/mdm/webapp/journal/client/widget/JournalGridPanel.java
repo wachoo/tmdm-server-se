@@ -67,6 +67,8 @@ public class JournalGridPanel extends ContentPanel {
     private PagingLoader<PagingLoadResult<JournalGridModel>> loader;
 
     private final static int PAGE_SIZE = 20;
+    
+    private PagingLoadConfig pagingLoadConfig;
 
     public JournalGridPanel() {
         this.setLayout(new FitLayout());
@@ -134,7 +136,9 @@ public class JournalGridPanel extends ContentPanel {
 
             @Override
             protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<JournalGridModel>> callback) {
-                service.getJournalList(criteria, (PagingLoadConfig) loadConfig,
+                pagingLoadConfig = (PagingLoadConfig)loadConfig;
+                pagingLoadConfig.setLimit(pagetoolBar.getPageSize());
+                service.getJournalList(criteria, pagingLoadConfig,
                         new SessionAwareAsyncCallback<PagingLoadResult<JournalGridModel>>() {
 
                             public void onSuccess(PagingLoadResult<JournalGridModel> result) {
@@ -196,7 +200,7 @@ public class JournalGridPanel extends ContentPanel {
     }
 
     public void refreshGrid() {
-        pagetoolBar.refresh();
+        pagetoolBar.first();
     }
 
     public void openTabPanel(final JournalGridModel gridModel) {

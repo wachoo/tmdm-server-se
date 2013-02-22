@@ -12,8 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.sever.util;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Date;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -21,6 +22,8 @@ import junit.framework.TestCase;
 import org.talend.mdm.webapp.journal.server.util.Util;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 
+import com.amalto.webapp.util.webservices.WSGetItems;
+import com.amalto.webapp.util.webservices.WSGetItemsSort;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSWhereOperator;
@@ -31,17 +34,22 @@ import com.amalto.webapp.util.webservices.WSWhereOperator;
  */
 @SuppressWarnings("nls")
 public class UtilTest extends TestCase {
+    
+    private JournalSearchCriteria criteria;   
 
-    public void testBuildWhereItems() throws Exception {
-
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        JournalSearchCriteria criteria = new JournalSearchCriteria();
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        criteria = new JournalSearchCriteria();
         criteria.setEntity("TestModel"); //$NON-NLS-1$
-        criteria.setStartDate(dateFormat.parse("2012-07-01")); //$NON-NLS-1$
-        criteria.setEndDate(dateFormat.parse("2012-09-30")); //$NON-NLS-1$
+        criteria.setStartDate(new Date()); //$NON-NLS-1$
         criteria.setKey("1"); //$NON-NLS-1$
         criteria.setOperationType("CREATE"); //$NON-NLS-1$
         criteria.setSource("genericUI"); //$NON-NLS-1$
+    }
+
+
+    public void testBuildWhereItems() throws Exception {
 
         List<WSWhereItem> conditions = Util.buildWhereItems(criteria, true);
 
@@ -55,15 +63,56 @@ public class UtilTest extends TestCase {
                 assertEquals(condition.getRightValueOrPath(), "genericUI"); //$NON-NLS-1$
             } else if ("OperationType".equals(condition.getLeftPath())) { //$NON-NLS-1$
                 assertEquals(condition.getRightValueOrPath(), "CREATE"); //$NON-NLS-1$
-            } else if ("TimeInMillis".equals(condition.getLeftPath()) && WSWhereOperator.GREATER_THAN_OR_EQUAL.equals(condition.getOperator())) { //$NON-NLS-1$
-                assertEquals(condition.getRightValueOrPath(), String.valueOf(dateFormat.parse("2012-7-1").getTime())); //$NON-NLS-1$
-            } else if ("TimeInMillis".equals(condition.getLeftPath()) && WSWhereOperator.LOWER_THAN.equals(condition.getOperator())) { //$NON-NLS-1$
-                assertEquals(condition.getRightValueOrPath(), String.valueOf(dateFormat.parse("2012-10-1").getTime())); //$NON-NLS-1$
+            } else if ("TimeInMillis".equals(condition.getLeftPath())) { //$NON-NLS-1$
+                assertEquals(WSWhereOperator.GREATER_THAN_OR_EQUAL, condition.getOperator());
             } else {
                 assertFalse(true);
             }
-
         }
     }
-
+    
+    public void testBuildGetItem() {
+        List<WSWhereItem> conditions = Util.buildWhereItems(criteria, true);
+        WSGetItems item = Util.buildGetItem(conditions, 0, 20);
+        assertEquals("Update", item.getConceptName());
+        assertNotNull(item.getWhereItem());
+        assertEquals(true, item.getTotalCountOnFirstResult().booleanValue());
+        assertEquals(0, item.getSkip());
+        assertEquals(20, item.getMaxItems());
+    }
+    
+    public void testBuildGetItemsSort() {
+        List<WSWhereItem> conditions = Util.buildWhereItems(criteria, true);
+        WSGetItemsSort itemSort = Util.buildGetItemsSort(conditions, 0, 20, "ASC", "key");
+        assertNotNull(itemSort.getConceptName());
+        assertEquals(true, itemSort.getTotalCountOnFirstResult().booleanValue());
+        assertEquals(0, itemSort.getSkip());
+        assertEquals(20, itemSort.getMaxItems());
+        assertEquals("ASC",itemSort.getSort());
+        assertEquals("Update/Key",itemSort.getDir());
+    }
+    
+    public void testGetOrderXPath() throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+        Method method = Util.class.getDeclaredMethod("getOrderXPath", String.class); //$NON-NLS-1$
+        method.setAccessible(true);
+        Object returnValue = method.invoke(Util.class, new Object[] { "dataContainer" }); //$NON-NLS-1$ 
+        assertEquals("Update/DataCluster", returnValue); //$NON-NLS-1$
+        returnValue = method.invoke(Util.class, new Object[] { "dataModel" }); //$NON-NLS-1$ 
+        assertEquals("Update/DataModel", returnValue); //$NON-NLS-1$
+        returnValue = method.invoke(Util.class, new Object[] { "entity" }); //$NON-NLS-1$ 
+        assertEquals("Update/Concept", returnValue); //$NON-NLS-1$
+        returnValue = method.invoke(Util.class, new Object[] { "key" }); //$NON-NLS-1$ 
+        assertEquals("Update/Key", returnValue); //$NON-NLS-1$
+        returnValue = method.invoke(Util.class, new Object[] { "revisionId" }); //$NON-NLS-1$ 
+        assertEquals("Update/RevisionID", returnValue); //$NON-NLS-1$
+        returnValue = method.invoke(Util.class, new Object[] { "operationType" }); //$NON-NLS-1$ 
+        assertEquals("Update/OperationType", returnValue); //$NON-NLS-1$
+        returnValue = method.invoke(Util.class, new Object[] { "operationTime" }); //$NON-NLS-1$ 
+        assertEquals("Update/TimeInMillis", returnValue); //$NON-NLS-1$
+        returnValue = method.invoke(Util.class, new Object[] { "source" }); //$NON-NLS-1$ 
+        assertEquals("Update/Source", returnValue); //$NON-NLS-1$
+        returnValue = method.invoke(Util.class, new Object[] { "userName" }); //$NON-NLS-1$ 
+        assertEquals("Update/UserName", returnValue); //$NON-NLS-1$
+    }
+    
 }

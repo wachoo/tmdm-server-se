@@ -580,7 +580,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             Collection res = com.amalto.core.util.Util.getItemCtrl2Local().getItems(
                     new DataClusterPOJOPK(wsGetItemsSort.getWsDataClusterPK().getPk()), wsGetItemsSort.getConceptName(),
                     XConverter.WS2VO(wsGetItemsSort.getWhereItem(), new WhereConditionForcePivotFilter(wcfContext)),
-                    wsGetItemsSort.getSpellTreshold(), wsGetItemsSort.getSort(), wsGetItemsSort.getDir(), wsGetItemsSort.getSkip(), wsGetItemsSort.getMaxItems(), wsGetItemsSort.getTotalCountOnFirstResult());
+                    wsGetItemsSort.getSpellTreshold(),wsGetItemsSort.getDir(), wsGetItemsSort.getSort(), wsGetItemsSort.getSkip(), wsGetItemsSort.getMaxItems(), wsGetItemsSort.getTotalCountOnFirstResult());
             return new WSStringArray((String[]) res.toArray(new String[res.size()]));
         } catch (com.amalto.core.util.XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));

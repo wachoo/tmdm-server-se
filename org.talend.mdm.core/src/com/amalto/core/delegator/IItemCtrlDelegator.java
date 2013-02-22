@@ -434,7 +434,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                     throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
                 }
                 OrderBy.Direction queryDirection;
-                if ("ascending".equals(direction)) { //$NON-NLS-1$
+                if ("ascending".equals(direction) || "ASC".equals(direction)) { //$NON-NLS-1$ //$NON-NLS-2$
                     queryDirection = OrderBy.Direction.ASC;
                 } else {
                     queryDirection = OrderBy.Direction.DESC;

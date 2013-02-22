@@ -25,6 +25,7 @@ import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSGetItems;
+import com.amalto.webapp.util.webservices.WSGetItemsSort;
 import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSStringArray;
@@ -60,10 +61,10 @@ public class WebServiceMock implements WebService {
             return null;
         }        
     }
-
-    public WSStringArray getItems(WSGetItems wsGetItems) throws XtentisWebappException, RemoteException {
-        if ("Update".equals(wsGetItems.getConceptName()) && "UpdateReport".equals(wsGetItems.getWsDataClusterPK().getPk())) { //$NON-NLS-1$ //$NON-NLS-2$
-            String[] result = {"<totalCount>1</totalCount>","<result><Update><UserName>administrator</UserName><Source>genericUI</Source><TimeInMillis>1360140140037</TimeInMillis><OperationType>CREATE</OperationType><RevisionID>null</RevisionID><DataCluster>Product</DataCluster><DataModel>Product</DataModel><Concept>Product</Concept><Key>123</Key></Update></result>"}; //$NON-NLS-1$ //$NON-NLS-2$
+    
+    public WSStringArray getItemsBySort(WSGetItemsSort wsGetItemsSort) throws RemoteException, XtentisWebappException {
+        if ("Update".equals(wsGetItemsSort.getConceptName()) && "UpdateReport".equals(wsGetItemsSort.getWsDataClusterPK().getPk()) && "ASC".equals(wsGetItemsSort.getSort()) && "Update/Key".equals(wsGetItemsSort.getDir())) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            String[] result = {"<totalCount>1</totalCount>","<result><Update><UserName>administrator</UserName><Source>genericUI</Source><TimeInMillis>1360140140037</TimeInMillis><OperationType>UPDATE</OperationType><RevisionID>null</RevisionID><DataCluster>Product</DataCluster><DataModel>Product</DataModel><Concept>Product</Concept><Key>1</Key></Update></result>"}; //$NON-NLS-1$ //$NON-NLS-2$
             return new WSStringArray(result);
         } else {
             return null;

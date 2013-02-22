@@ -46,15 +46,15 @@ public class JournalDBServiceTest extends TestCase{
         criteria.setOperationType("CREATE"); //$NON-NLS-1$
         criteria.setSource("genericUI"); //$NON-NLS-1$
         
-        Object[] result = journalDBService.getResultListByCriteria(criteria, 0, 20, "NONE", null, false); //$NON-NLS-1$   
+        Object[] result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key", false); //$NON-NLS-1$ //$NON-NLS-2$   
         assertEquals(1, result[0]);
         List<JournalGridModel> journalGridModelList = (List<JournalGridModel>)result[1];        
         JournalGridModel journalGridModel = journalGridModelList.get(0);
         assertEquals("Product", journalGridModel.getDataContainer()); //$NON-NLS-1$
         assertEquals("Product", journalGridModel.getDataModel()); //$NON-NLS-1$
         assertEquals("Product", journalGridModel.getEntity()); //$NON-NLS-1$
-        assertEquals("123", journalGridModel.getKey()); //$NON-NLS-1$
-        assertEquals("CREATE", journalGridModel.getOperationType()); //$NON-NLS-1$
+        assertEquals("1", journalGridModel.getKey()); //$NON-NLS-1$
+        assertEquals("UPDATE", journalGridModel.getOperationType()); //$NON-NLS-1$
         assertEquals("genericUI.1360140140037", journalGridModel.getIds()); //$NON-NLS-1$
         assertEquals("administrator", journalGridModel.getUserName()); //$NON-NLS-1$
     }
@@ -154,8 +154,7 @@ public class JournalDBServiceTest extends TestCase{
         assertEquals("Jennifer", returnValue.getUserName()); //$NON-NLS-1$        
     }
             
-    public void testCheckNull() throws NoSuchMethodException,InvocationTargetException,IllegalArgumentException,IllegalAccessException {
-        
+    public void testCheckNull() throws NoSuchMethodException,InvocationTargetException,IllegalArgumentException,IllegalAccessException {        
         Method method = journalDBService.getClass().getDeclaredMethod("checkNull", String.class); //$NON-NLS-1$
         method.setAccessible(true);
         Object returnValue = method.invoke(journalDBService, new Object[] { "genericUI" }); //$NON-NLS-1$            

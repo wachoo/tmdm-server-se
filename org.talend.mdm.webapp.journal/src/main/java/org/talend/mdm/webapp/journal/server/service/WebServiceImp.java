@@ -20,7 +20,7 @@ import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSGetItem;
-import com.amalto.webapp.util.webservices.WSGetItems;
+import com.amalto.webapp.util.webservices.WSGetItemsSort;
 import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.sun.xml.xsom.XSElementDecl;
@@ -36,9 +36,9 @@ public class WebServiceImp implements WebService {
     public WSItem getItem(WSGetItem wSGetItem) throws XtentisWebappException, RemoteException {
         return Util.getPort().getItem(wSGetItem);
     }
-
-    public WSStringArray getItems(WSGetItems wsGetItems) throws XtentisWebappException, RemoteException {
-        return Util.getPort().getItems(wsGetItems);
+    
+    public WSStringArray getItemsBySort(WSGetItemsSort wsGetItemsSort) throws RemoteException, XtentisWebappException {
+        return Util.getPort().getItemsSort(wsGetItemsSort);
     }
 
     public XSElementDecl getXSElementDecl(String dataModel, String concept) throws Exception {

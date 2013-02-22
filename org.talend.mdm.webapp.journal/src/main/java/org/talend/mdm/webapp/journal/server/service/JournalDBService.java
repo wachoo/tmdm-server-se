@@ -89,8 +89,8 @@ public class JournalDBService {
 
         int totalSize = 0;
         List<JournalGridModel> list = new ArrayList<JournalGridModel>();
-        WSStringArray resultsArray = webService.getItems(
-                org.talend.mdm.webapp.journal.server.util.Util.buildGetItem(conditions, start, limit));
+        WSStringArray resultsArray = webService.getItemsBySort(
+                org.talend.mdm.webapp.journal.server.util.Util.buildGetItemsSort(conditions, start, limit,sort,field));
         String[] results = resultsArray == null ? new String[0] : resultsArray.getStrings();
         Document document = Util.parse(results[0]);
         totalSize = Integer.parseInt(document.getDocumentElement().getTextContent());
