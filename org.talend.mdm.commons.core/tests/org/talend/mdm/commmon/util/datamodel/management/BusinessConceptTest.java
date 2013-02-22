@@ -34,7 +34,9 @@ public class BusinessConceptTest extends SchemaManagerAbstractTest {
         assertEquals("Product", bizConcept.getName());
         
         Map<String, String> xpathTypeMap = bizConcept.getXpathTypeMap();
+        Map<String, String> xpathDerivedSimpleTypeMap = bizConcept.getXpathDerivedSimpleTypeMap();
         assertNotNull(xpathTypeMap);
+        assertNotNull(xpathDerivedSimpleTypeMap);
         
         // basic simple type
         assertEquals("xsd:boolean", xpathTypeMap.get("Product/Availability"));
@@ -48,6 +50,7 @@ public class BusinessConceptTest extends SchemaManagerAbstractTest {
         // derived simple type
         assertEquals("xsd:string", xpathTypeMap.get("Product/Features/Sizes/Size"));
         assertEquals("xsd:string", xpathTypeMap.get("Product/Picture"));
+        assertEquals("xsd:PICTURE", xpathDerivedSimpleTypeMap.get("Product/Picture"));
 
         // key path
         List<String> keyPaths = bizConcept.getKeyFiledPaths();

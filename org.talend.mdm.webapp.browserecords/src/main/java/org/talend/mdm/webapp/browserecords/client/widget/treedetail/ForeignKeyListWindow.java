@@ -213,6 +213,7 @@ public class ForeignKeyListWindow extends Window {
                     baseConfig.set("currentXpath", currentXpath); //$NON-NLS-1$
                     baseConfig.set("dataObject", currentXpath.split("/")[0]); //$NON-NLS-1$ //$NON-NLS-2$
                 }
+                baseConfig.set("language", Locale.getLanguage()); //$NON-NLS-1$
                 service.getForeignKeyList(baseConfig, typeModel, BrowseRecords.getSession().getAppHeader().getDatacluster(),
                         hasForeignKeyFilter, currentFilterText,
                         new SessionAwareAsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {

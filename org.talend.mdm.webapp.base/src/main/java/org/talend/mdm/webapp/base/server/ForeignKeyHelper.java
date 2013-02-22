@@ -27,6 +27,7 @@ import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.server.util.Constants;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -121,6 +122,11 @@ public class ForeignKeyHelper {
             }
 
             String fk = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
+            BusinessConcept businessConcept = schemaManager.getBusinessConcept(fk);
+            // init foreignKey info type
+            if (model.getForeignKeyInfo() != null && model.getForeignKeyInfo().size() > 0 && businessConcept != null) {
+                businessConcept.load();
+            }
 
             for (int currentResult = 1; currentResult < results.length; currentResult++) { // TMDM-2834: first
                                                                                            // result is count
@@ -131,7 +137,6 @@ public class ForeignKeyHelper {
                 Element resultAsDOM = Util.parse(results[currentResult]).getDocumentElement();
 
                 ForeignKeyBean bean = new ForeignKeyBean();
-                BusinessConcept businessConcept = schemaManager.getBusinessConcept(fk);
                 if (businessConcept != null && businessConcept.getCorrespondTypeName() != null) {
                     bean.setTypeName(businessConcept.getCorrespondTypeName());
                     bean.setConceptName(fk);
@@ -147,7 +152,7 @@ public class ForeignKeyHelper {
                 }
 
                 if (resultAsDOM.getNodeName().equals("result")) { //$NON-NLS-1$
-                    initFKBean(resultAsDOM, bean, fk, model.getForeignKeyInfo());
+                    initFKBean(resultAsDOM, bean, fk, model.getForeignKeyInfo(), businessConcept != null ? businessConcept.getXpathDerivedSimpleTypeMap() : null, (String) config.get("language")); //$NON-NLS-1$
                     convertFKInfo2DisplayInfo(bean, model.getForeignKeyInfo());
                 } else {
                     bean.set(resultAsDOM.getNodeName(), resultAsDOM.getTextContent().trim());
@@ -322,15 +327,20 @@ public class ForeignKeyHelper {
         return null;
     }
 
-    private static void initFKBean(Element ele, ForeignKeyBean bean, String fk, List<String> getForeignKeyInfos) {
+    private static void initFKBean(Element ele, ForeignKeyBean bean, String fk, List<String> getForeignKeyInfos, Map<String, String> xpathTypeMap, String language) {
         for (int i = 0; i < ele.getChildNodes().getLength(); i++) {
             if (ele.getChildNodes().item(i) instanceof Element) {
                 Element curEle = (Element) ele.getChildNodes().item(i);
                 bean.set(curEle.getNodeName(), curEle.getTextContent().trim());
-                if (getForeignKeyInfos.contains(fk + "/" + curEle.getNodeName())) { //$NON-NLS-1$
-                    bean.getForeignKeyInfo().put(fk + "/" + curEle.getNodeName(), curEle.getTextContent().trim()); //$NON-NLS-1$
+                String fkInfo = fk + "/" + curEle.getNodeName(); //$NON-NLS-1$
+                if (getForeignKeyInfos != null && getForeignKeyInfos.contains(fkInfo)) {
+                    if (xpathTypeMap != null && xpathTypeMap.containsKey(fkInfo) && xpathTypeMap.get(fkInfo).equals("xsd:MULTI_LINGUAL")) { //$NON-NLS-1$
+                        bean.getForeignKeyInfo().put(fkInfo, MultilanguageMessageParser.getValueByLanguage(curEle.getTextContent().trim(), language));
+                    } else {
+                        bean.getForeignKeyInfo().put(fkInfo, curEle.getTextContent().trim());    
+                    }
                 }
-                initFKBean(curEle, bean, fk, getForeignKeyInfos);
+                initFKBean(curEle, bean, fk, getForeignKeyInfos, xpathTypeMap, language);
             }
         }
     }
