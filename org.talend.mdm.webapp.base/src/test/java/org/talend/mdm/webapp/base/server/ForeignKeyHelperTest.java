@@ -26,6 +26,7 @@ import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 
@@ -375,19 +376,22 @@ public class ForeignKeyHelperTest extends TestCase {
         bean1.set("Id", "1");
         bean1.set("Code", "10001");
         bean1.set("i", "1");
+        bean1.set("Description", "[EN:Talend MDM][FR:Talend DQ]");
         bean1.getForeignKeyInfo().put("Store/Id", "1");
         bean1.getForeignKeyInfo().put("Store/Code", "10001");
         bean1.getForeignKeyInfo().put("Store/Name", "Apple Store");
+        bean1.getForeignKeyInfo().put("Stroe/Description", MultilanguageMessageParser.getValueByLanguage((String)bean1.get("Description"), "en"));
         
         List<String> fkInfoList = new ArrayList<String>();
         fkInfoList.add("Store/Name");
         fkInfoList.add("Store/Code");
         fkInfoList.add("Store/Id");
+        fkInfoList.add("Stroe/Description");
         
         ForeignKeyHelper.convertFKInfo2DisplayInfo(bean1, fkInfoList);
         
         assertNotNull(bean1.getDisplayInfo());
-        assertEquals("Apple Store-10001-1", bean1.getDisplayInfo());
+        assertEquals("Apple Store-10001-1-Talend MDM", bean1.getDisplayInfo());
         
         
         ForeignKeyBean bean2 = new ForeignKeyBean();

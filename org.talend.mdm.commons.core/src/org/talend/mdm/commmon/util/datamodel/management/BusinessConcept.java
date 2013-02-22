@@ -72,6 +72,8 @@ public class BusinessConcept {
     private Map<String, ReusableType> subReuseTypeMap;
 
     private Map<String, String> xpathTypeMap;
+    
+    private Map<String, String> xpathDerivedSimpleTypeMap;
 
     private List<String> keyFiledPaths;
 
@@ -172,7 +174,12 @@ public class BusinessConcept {
         inheritanceForeignKeyMap = new HashMap<String, String>();
         subReuseTypeMap = new HashMap<String, ReusableType>();
         xpathTypeMap = new HashMap<String, String>();
+        xpathDerivedSimpleTypeMap = new HashMap<String, String>();
         keyFiledPaths = new ArrayList<String>();
+    }
+
+    public Map<String, String> getXpathDerivedSimpleTypeMap() {
+        return this.xpathDerivedSimpleTypeMap;
     }
 
     public Map<String, String> getDefaultValueRulesMap() {
@@ -302,6 +309,7 @@ public class BusinessConcept {
                 } else if (e.getType() instanceof XSSimpleType) {
                     if (isDerivedSimpleType(e)) {
                         xpathTypeMap.put(currentXPath, TYPE_PREFIX + e.getType().getBaseType().getName());
+                        xpathDerivedSimpleTypeMap.put(currentXPath, TYPE_PREFIX + e.getType().getName());
                     } else {
                         xpathTypeMap.put(currentXPath, TYPE_PREFIX + e.getType().getName());
                     }

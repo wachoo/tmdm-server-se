@@ -341,7 +341,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return gettedValue.toString();
     }
 
-    private ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids, boolean isNeedExceptionMessage, String modelType)
+    private ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids, boolean isNeedExceptionMessage, String modelType,
+            EntityModel entityModel, String language)
             throws Exception {
         String xpathForeignKey = model.getForeignkey();
         if (xpathForeignKey == null) {
@@ -379,11 +380,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         NodeList nodes = com.amalto.core.util.Util.getNodeList(document,
                                 StringUtils.substringAfter(foreignKeyPath, "/")); //$NON-NLS-1$
                         if (nodes.getLength() == 1) {
-                            bean.getForeignKeyInfo().put(foreignKeyPath, nodes.item(0).getTextContent());
+                            String value = nodes.item(0).getTextContent();
+                            TypeModel typeModel = entityModel.getTypeModel(foreignKeyPath);
+                            if (typeModel != null && typeModel.getType().equals(DataTypeConstants.MLS)) {
+                                value = MultilanguageMessageParser.getValueByLanguage(value, language);
+                            }
+                            bean.getForeignKeyInfo().put(foreignKeyPath, value);
                             if (formattedId.equals("")) { //$NON-NLS-1$
-                                formattedId += nodes.item(0).getTextContent();
+                                formattedId += value;
                             } else {
-                                formattedId += "-" + nodes.item(0).getTextContent(); //$NON-NLS-1$
+                                formattedId += "-" + value; //$NON-NLS-1$
                             }
                         }
                     }
@@ -616,7 +622,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                     String modelType = value.getAttribute("tmdm:type"); //$NON-NLS-1$
                                     itemBean.set(path, path + "-" + value.getTextContent()); //$NON-NLS-1$
                                     itemBean.setForeignkeyDesc(
-                                            path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent(), false, modelType)); //$NON-NLS-1$    
+                                            path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent(), false, modelType, getEntityModel(typeModel.getForeignkey().split("/")[0], language), language)); //$NON-NLS-1$ //$NON-NLS-2$    
 
                                 } else {
                                     itemBean.set(path, value.getTextContent());
@@ -632,7 +638,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel) throws Exception {
+    public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel,
+            Map<String, EntityModel> map, String language) throws Exception {
         if (itemBean.getItemXml() != null) {
             org.dom4j.Document docXml = DocumentHelper.parseText(itemBean.getItemXml());
             int i = 0;
@@ -651,7 +658,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     String modelType = el.attributeValue(new QName("type", new Namespace("tmdm", "http://www.talend.com/mdm"))); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
                     itemBean.set(path, path + "-" + el.getText()); //$NON-NLS-1$
                     itemBean.setForeignkeyDesc(
-                            path + "-" + el.getText(), getForeignKeyDesc(typeModel, el.getText(), false, modelType)); //$NON-NLS-1$
+                            path + "-" + el.getText(), getForeignKeyDesc(typeModel, el.getText(), false, modelType, map.get(typeModel.getXpath()), language)); //$NON-NLS-1$
                 } else {
                     itemBean.set(path, el.getText());
                 }
@@ -868,6 +875,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 .viewSearch(
                         new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewBean.getViewPK()), wi, -1, skip,
                                 max, sortCol, sortDir)).getStrings();
+        // set foreignKey's EntityModel
+        Map<String, EntityModel> map = new HashMap<String, EntityModel>();
+        if (results.length > 0 && viewBean.getViewableXpaths() != null) {
+            for (String xpath : viewBean.getViewableXpaths()) {
+                TypeModel typeModel = entityModel.getMetaDataTypes().get(xpath);
+                if (typeModel != null && typeModel.getForeignkey() != null) {
+                    map.put(xpath, getEntityModel(typeModel.getForeignkey().split("/")[0], language)); //$NON-NLS-1$
+                }
+            }
+        }
 
         // TODO change ids to array?
         List<String> idsArray = new ArrayList<String>();
@@ -968,7 +985,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             } else if (checkSmartViewExistsByOpt(concept, language)) {
                 itemBean.setSmartViewMode(ItemBean.PERSOMODE);
             }
-            dynamicAssembleByResultOrder(itemBean, viewBean, entityModel);
+            dynamicAssembleByResultOrder(itemBean, viewBean, entityModel, map, language);
             itemBeans.add(itemBean);
         }
         return new Object[] { itemBeans, totalSize };
@@ -1684,7 +1701,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (modelType != null && modelType.trim().length() > 0) {
                 nodeModel.setTypeName(modelType);
             }
-            ForeignKeyBean fkBean = getForeignKeyDesc(model, el.getTextContent(), true, modelType);
+            ForeignKeyBean fkBean = getForeignKeyDesc(model, el.getTextContent(), true, modelType,
+                    getEntityModel(foreignKey.split("/")[0], language), language); //$NON-NLS-1$
             if (fkBean != null) {
                 String fkNotFoundMessage = fkBean.get("foreignKeyDeleteMessage"); //$NON-NLS-1$
                 if (fkNotFoundMessage != null) {// fix bug TMDM-2757

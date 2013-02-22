@@ -102,7 +102,7 @@ public class BrowseRecordsActionTest extends TestCase {
         viewBean.addViewableXpath("Contrat/detailContrat/@xsi:type");
         EntityModel entityModel = new EntityModel();
         entityModel.setMetaDataTypes(new LinkedHashMap<String, TypeModel>());
-        action.dynamicAssembleByResultOrder(itemBean, viewBean, entityModel);
+        action.dynamicAssembleByResultOrder(itemBean, viewBean, entityModel, new HashMap<String, EntityModel>(), "en");
         assertEquals("5005007",itemBean.get("Contrat/numeroContrat"));
         assertEquals("AP-RE",itemBean.get("Contrat/detailContrat/@xsi:type"));      
     }
