@@ -62,10 +62,6 @@
             <artifactId>dom4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>dwr</groupId>
-            <artifactId>dwr</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-jxpath</groupId>
             <artifactId>commons-jxpath</artifactId>
         </dependency>
