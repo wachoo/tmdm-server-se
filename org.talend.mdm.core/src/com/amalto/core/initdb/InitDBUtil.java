@@ -1,10 +1,27 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.core.initdb;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -21,16 +38,15 @@ import org.w3c.dom.NodeList;
 import com.amalto.core.objects.configurationinfo.localutil.ConfigurationHelper;
 
 /**
- * Create system init data cluster / data model. etc
- * Current only support head universe
+ * Create system init data cluster / data model. etc Current only support head universe
  */
 public class InitDBUtil {
 
     private static final Logger logger = Logger.getLogger(InitDBUtil.class);
 
-    private static final Map<String, List<String>> initDB = new HashMap<String, List<String>>();
+    private static final Map<String, List<String>> initDB = new LinkedHashMap<String, List<String>>();
 
-    private static final Map<String, List<String>> initExtensionDB = new HashMap<String, List<String>>();
+    private static final Map<String, List<String>> initExtensionDB = new LinkedHashMap<String, List<String>>();
 
     private static final String INIT_DB_CONFIG = "/com/amalto/core/initdb/initdb.xml"; //$NON-NLS-1$
 
@@ -54,18 +70,22 @@ public class InitDBUtil {
         } catch (Exception e) {
             logger.error(e.getCause());
         } finally {
-            if (dbIn != null) try {
-                dbIn.close();
-            } catch (Exception e) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Could not close stream.", e);
+            if (dbIn != null) {
+                try {
+                    dbIn.close();
+                } catch (Exception e) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Could not close stream.", e); //$NON-NLS-1$
+                    }
                 }
             }
-            if (edbIn != null) try {
-                edbIn.close();
-            } catch (Exception e) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Could not close stream.", e);
+            if (edbIn != null) {
+                try {
+                    edbIn.close();
+                } catch (Exception e) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Could not close stream.", e); //$NON-NLS-1$
+                    }
                 }
             }
         }
@@ -107,7 +127,7 @@ public class InitDBUtil {
         updateDB("/com/amalto/core/initdb/data", initDB); //$NON-NLS-1$
         if (useExtension) {
             updateDB("/com/amalto/core/initdb/extensiondata", initExtensionDB); //$NON-NLS-1$
-            //init db extension job
+            // init db extension job
             InitDbExtJobRepository.getInstance().execute();
         }
     }
@@ -116,16 +136,16 @@ public class InitDBUtil {
         for (Entry<String, List<String>> entry : initdb.entrySet()) {
             String dataCluster = entry.getKey();
             try {
-                ConfigurationHelper.createCluster(null, dataCluster);//slow but more reliable
+                ConfigurationHelper.createCluster(null, dataCluster);// slow but more reliable
             } catch (Exception e) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Could not create cluster.", e);
+                    logger.debug("Could not create cluster.", e); //$NON-NLS-1$
                 }
             }
             List<String> list = entry.getValue();
             // create items
             Iterator<String> iterator = list.iterator();
-            while(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 String item = iterator.next();
                 try {
                     InputStream in = InitDBUtil.class.getResourceAsStream(resourcePath + "/" + item); //$NON-NLS-1$
@@ -142,7 +162,7 @@ public class InitDBUtil {
                     ConfigurationHelper.putDocument(dataCluster, xmlString, uniqueID);
                 } catch (Exception e) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Could not delete document.", e);
+                        logger.debug("Could not delete document.", e); //$NON-NLS-1$
                     }
                 } finally {
                     iterator.remove();
@@ -160,19 +180,19 @@ public class InitDBUtil {
         try {
             String line = reader.readLine();
             while (line != null) {
-                result.append(line).append("\n");
+                result.append(line).append("\n"); //$NON-NLS-1$
                 line = reader.readLine();
             }
         } catch (Exception e) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Could not read from stream.", e);
+                logger.debug("Could not read from stream.", e); //$NON-NLS-1$
             }
         } finally {
             try {
                 reader.close();
             } catch (IOException e) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Could not close stream.", e);
+                    logger.debug("Could not close stream.", e); //$NON-NLS-1$
                 }
             }
         }
