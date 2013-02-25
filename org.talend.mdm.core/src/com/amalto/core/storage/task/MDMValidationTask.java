@@ -13,6 +13,7 @@ package com.amalto.core.storage.task;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.SimpleTypeFieldMetadata;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
@@ -22,8 +23,10 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.DataRecordXmlWriter.OverrideValue;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import java.io.*;
@@ -109,7 +112,17 @@ public class MDMValidationTask extends MetadataRepositoryTask {
         public MDMValidationClosure(SaverSource source, SaverSession.Committer committer, Storage destinationStorage) {
             this.source = source;
             this.committer = committer;
-            writer = new DataRecordXmlWriter();
+            writer = new DataRecordXmlWriter(new OverrideValue() {
+
+                @Override
+                public Object overrideValue(DataRecord record, SimpleTypeFieldMetadata simpleField, Object originalValue) {
+                    if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(simpleField.getType().getName())
+                            || EUUIDCustomType.UUID.getName().equalsIgnoreCase(simpleField.getType().getName())) {
+                        return StringUtils.EMPTY;
+                    }
+                    return originalValue;
+                }
+            });
             this.destinationStorage = destinationStorage;
         }
 

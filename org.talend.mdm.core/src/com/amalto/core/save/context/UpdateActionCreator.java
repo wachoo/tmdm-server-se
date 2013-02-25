@@ -19,6 +19,7 @@ import com.amalto.core.metadata.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import java.util.*;
 
 // TODO Clean up: preserveCollectionOldValues is dedicated to partial update only!
@@ -248,7 +249,12 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                                 }
                             }
                         }
-                        actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newAccessor.get(), comparedField));
+                        if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(comparedField.getType().getName())
+                                || EUUIDCustomType.UUID.getName().equalsIgnoreCase(comparedField.getType().getName())){
+                            actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, oldValue, comparedField));
+                        } else {
+                            actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newAccessor.get(), comparedField));
+                        }
                     } else if (oldValue != null && oldValue.equals(newValue)) {
                         generateNoOp(path);
                     }
