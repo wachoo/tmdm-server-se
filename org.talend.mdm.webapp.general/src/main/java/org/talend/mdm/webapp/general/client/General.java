@@ -20,6 +20,7 @@ import org.talend.mdm.webapp.general.client.message.PublicMessageService;
 import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
 import org.talend.mdm.webapp.general.client.mvc.controller.GeneralController;
 
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
@@ -49,8 +50,16 @@ public class General implements EntryPoint {
         Dispatcher dispatcher = Dispatcher.get();
         dispatcher.addController(new GeneralController());
         dispatcher.dispatch(GeneralEvent.LoadUser);
-
+        if (!GXT.isIE) {
+            preventSelecStart();
+        }
     }
+
+    private native void preventSelecStart()/*-{
+        $doc.body.onselectstart = function() {
+            return false;
+        };
+    }-*/;
 
     public native void recordStatus()/*-{
         var instance = this;
