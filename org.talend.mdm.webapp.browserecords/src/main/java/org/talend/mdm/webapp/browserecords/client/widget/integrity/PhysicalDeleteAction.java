@@ -29,13 +29,18 @@ public class PhysicalDeleteAction implements DeleteAction {
             public void onSuccess(List<String> msgs) {
                 progressBar.close();
                 if (msgs != null) {
-                    StringBuilder sb = new StringBuilder();
-                    for (String msg : msgs) {
-                        sb.append(MultilanguageMessageParser.pickOutISOMessage(msg)).append("<br/>"); //$NON-NLS-1$
-                    }
-                    String msg = sb.toString().trim();
-                    if (msg.length() > 0) {
-                        MessageBox.info(message.info_title(), msg, null);
+                    if(msgs.size() > 0) {
+                        StringBuilder sb = new StringBuilder(MultilanguageMessageParser.pickOutISOMessage(msgs.get(0)));
+                        for (int i=1; i<msgs.size(); i++) {
+                            String str = MultilanguageMessageParser.pickOutISOMessage(msgs.get(i));
+                            if(str != null && str.trim().length() > 0) {
+                                sb.append("<br/>").append(MultilanguageMessageParser.pickOutISOMessage(str)); //$NON-NLS-1$
+                            }
+                        }
+                        String msg = sb.toString().trim();
+                        if (msg.length() > 0) {
+                            MessageBox.info(message.info_title(), msg, null);
+                        }
                     }
                 }
                 postDeleteAction.doAction();
