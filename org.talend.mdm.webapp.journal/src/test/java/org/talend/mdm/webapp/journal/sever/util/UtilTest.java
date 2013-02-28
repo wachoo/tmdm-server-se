@@ -95,24 +95,32 @@ public class UtilTest extends TestCase {
     public void testGetOrderXPath() throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         Method method = Util.class.getDeclaredMethod("getOrderXPath", String.class); //$NON-NLS-1$
         method.setAccessible(true);
-        Object returnValue = method.invoke(Util.class, new Object[] { "dataContainer" }); //$NON-NLS-1$ 
+        Object returnValue = method.invoke(null, new Object[] { "dataContainer" }); //$NON-NLS-1$ 
         assertEquals("Update/DataCluster", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(Util.class, new Object[] { "dataModel" }); //$NON-NLS-1$ 
+        returnValue = method.invoke(null, new Object[] { "dataModel" }); //$NON-NLS-1$ 
         assertEquals("Update/DataModel", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(Util.class, new Object[] { "entity" }); //$NON-NLS-1$ 
+        returnValue = method.invoke(null, new Object[] { "entity" }); //$NON-NLS-1$ 
         assertEquals("Update/Concept", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(Util.class, new Object[] { "key" }); //$NON-NLS-1$ 
+        returnValue = method.invoke(null, new Object[] { "key" }); //$NON-NLS-1$ 
         assertEquals("Update/Key", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(Util.class, new Object[] { "revisionId" }); //$NON-NLS-1$ 
+        returnValue = method.invoke(null, new Object[] { "revisionId" }); //$NON-NLS-1$ 
         assertEquals("Update/RevisionID", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(Util.class, new Object[] { "operationType" }); //$NON-NLS-1$ 
+        returnValue = method.invoke(null, new Object[] { "operationType" }); //$NON-NLS-1$ 
         assertEquals("Update/OperationType", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(Util.class, new Object[] { "operationTime" }); //$NON-NLS-1$ 
+        returnValue = method.invoke(null, new Object[] { "operationTime" }); //$NON-NLS-1$ 
         assertEquals("Update/TimeInMillis", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(Util.class, new Object[] { "source" }); //$NON-NLS-1$ 
+        returnValue = method.invoke(null, new Object[] { "source" }); //$NON-NLS-1$ 
         assertEquals("Update/Source", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(Util.class, new Object[] { "userName" }); //$NON-NLS-1$ 
+        returnValue = method.invoke(null, new Object[] { "userName" }); //$NON-NLS-1$ 
         assertEquals("Update/UserName", returnValue); //$NON-NLS-1$
+        returnValue = method.invoke(null, new Object[] { "otherField1" }); //$NON-NLS-1$ 
+        assertEquals("Update/otherField1", returnValue); //$NON-NLS-1$
+        returnValue = method.invoke(null, new Object[] { "otherField2" }); //$NON-NLS-1$ 
+        assertEquals("Update/otherField2", returnValue); //$NON-NLS-1$
+        returnValue = method.invoke(null, new Object[] { "" }); //$NON-NLS-1$
+        assertNull(returnValue);
+        returnValue = method.invoke(null, new Object[] { null }); //$NON-NLS-1$
+        assertNull(returnValue);
     }
     
 }

@@ -133,7 +133,7 @@ public class Util {
     }
     
     private static String getOrderXPath(String fieldName) {
-        if (fieldName != null) {
+        if (fieldName != null && fieldName.length() > 0) {
             String elementName = ""; //$NON-NLS-1$
             if ("dataContainer".equals(fieldName)) { //$NON-NLS-1$
                 elementName = "DataCluster"; //$NON-NLS-1$
