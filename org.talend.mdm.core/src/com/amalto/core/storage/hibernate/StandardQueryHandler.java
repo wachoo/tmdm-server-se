@@ -429,7 +429,23 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (!hasPaging) {
             return createResults(criteria.scroll(ScrollMode.FORWARD_ONLY), select.isProjection());
         } else {
-            return createResults(criteria.list(), select.isProjection());
+            // TMDM-5388 it need to remove the duplicate record, but using the Criteria.DISTINCT_ROOT_ENTITY will lead to using alias or paging failed.
+            // so the following method is a temporary workaround, it need to be fixed.
+            criteria.setMaxResults(Integer.MAX_VALUE);
+            List totalList = criteria.list();
+            LinkedHashSet set = new LinkedHashSet(totalList);
+            totalList.clear();
+            totalList.addAll(set);
+            List currentPageList = new ArrayList();
+            if (totalList != null) {
+                for (int i = paging.getStart(); i < (paging.getStart() + pageSize); i++) {
+                    if (totalList.size() <= i) {
+                        break;
+                    }
+                    currentPageList.add(totalList.get(i));
+                }
+            }
+            return createResults(currentPageList, select.isProjection());
         }
     }
 
