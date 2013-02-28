@@ -433,11 +433,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
             // so the following method is a temporary workaround, it need to be fixed.
             criteria.setMaxResults(Integer.MAX_VALUE);
             List totalList = criteria.list();
-            LinkedHashSet set = new LinkedHashSet(totalList);
-            totalList.clear();
-            totalList.addAll(set);
             List currentPageList = new ArrayList();
             if (totalList != null) {
+                LinkedHashSet set = new LinkedHashSet(totalList);
+                totalList.clear();
+                totalList.addAll(set);
                 for (int i = paging.getStart(); i < (paging.getStart() + pageSize); i++) {
                     if (totalList.size() <= i) {
                         break;
