@@ -1,22 +1,24 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.*;
-import com.amalto.core.query.user.*;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.record.DataRecord;
+import static org.hibernate.criterion.Restrictions.*;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -24,14 +26,72 @@ import org.hibernate.Criteria;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
-import org.hibernate.criterion.*;
+import org.hibernate.criterion.CriteriaSpecification;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projection;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.impl.CriteriaImpl;
 import org.hibernate.sql.JoinFragment;
 import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
-import java.util.*;
-
-import static org.hibernate.criterion.Restrictions.*;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.CompoundFieldMetadata;
+import com.amalto.core.metadata.ContainedComplexTypeMetadata;
+import com.amalto.core.metadata.DefaultMetadataVisitor;
+import com.amalto.core.metadata.EnumerationFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.SimpleTypeFieldMetadata;
+import com.amalto.core.query.user.Alias;
+import com.amalto.core.query.user.BigDecimalConstant;
+import com.amalto.core.query.user.BinaryLogicOperator;
+import com.amalto.core.query.user.BooleanConstant;
+import com.amalto.core.query.user.ByteConstant;
+import com.amalto.core.query.user.Compare;
+import com.amalto.core.query.user.ComplexTypeExpression;
+import com.amalto.core.query.user.Condition;
+import com.amalto.core.query.user.Count;
+import com.amalto.core.query.user.DateConstant;
+import com.amalto.core.query.user.DateTimeConstant;
+import com.amalto.core.query.user.DoubleConstant;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.Field;
+import com.amalto.core.query.user.FloatConstant;
+import com.amalto.core.query.user.FullText;
+import com.amalto.core.query.user.Id;
+import com.amalto.core.query.user.IntegerConstant;
+import com.amalto.core.query.user.IsEmpty;
+import com.amalto.core.query.user.IsNull;
+import com.amalto.core.query.user.Isa;
+import com.amalto.core.query.user.Join;
+import com.amalto.core.query.user.LongConstant;
+import com.amalto.core.query.user.NotIsEmpty;
+import com.amalto.core.query.user.NotIsNull;
+import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.Paging;
+import com.amalto.core.query.user.Predicate;
+import com.amalto.core.query.user.Range;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.ShortConstant;
+import com.amalto.core.query.user.StagingError;
+import com.amalto.core.query.user.StagingSource;
+import com.amalto.core.query.user.StagingStatus;
+import com.amalto.core.query.user.StringConstant;
+import com.amalto.core.query.user.TaskId;
+import com.amalto.core.query.user.TimeConstant;
+import com.amalto.core.query.user.Timestamp;
+import com.amalto.core.query.user.Type;
+import com.amalto.core.query.user.TypedExpression;
+import com.amalto.core.query.user.UnaryLogicOperator;
+import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.core.query.user.VisitorAdapter;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.record.DataRecord;
 
 class StandardQueryHandler extends AbstractQueryHandler {
 
@@ -57,14 +117,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private String currentAliasName;
 
-    public StandardQueryHandler(Storage storage,
-                                MappingRepository mappingMetadataRepository,
-                                TableResolver resolver,
-                                StorageClassLoader storageClassLoader,
-                                Session session,
-                                Select select,
-                                List<TypedExpression> selectedFields,
-                                Set<EndOfResultsCallback> callbacks) {
+    public StandardQueryHandler(Storage storage, MappingRepository mappingMetadataRepository, TableResolver resolver,
+            StorageClassLoader storageClassLoader, Session session, Select select, List<TypedExpression> selectedFields,
+            Set<EndOfResultsCallback> callbacks) {
         super(storage, mappingMetadataRepository, storageClassLoader, session, select, selectedFields, callbacks);
         this.resolver = resolver;
         criterionFieldCondition = new CriterionFieldCondition();
@@ -76,10 +131,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (isProjection) {
             iterator = new ProjectionIterator(listIterator, selectedFields, callbacks, mappingMetadataRepository);
         } else {
-            iterator = new ListIterator(mappingMetadataRepository,
-                    storageClassLoader,
-                    listIterator,
-                    callbacks);
+            iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, listIterator, callbacks);
         }
 
         return new HibernateStorageResults(storage, select, iterator);
@@ -90,10 +142,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (isProjection) {
             iterator = new ProjectionIterator(scrollableResults, selectedFields, callbacks, mappingMetadataRepository);
         } else {
-            iterator = new ScrollableIterator(mappingMetadataRepository,
-                    storageClassLoader,
-                    scrollableResults,
-                    callbacks);
+            iterator = new ScrollableIterator(mappingMetadataRepository, storageClassLoader, scrollableResults, callbacks);
         }
         return new HibernateStorageResults(storage, select, iterator);
     }
@@ -106,17 +155,17 @@ class StandardQueryHandler extends AbstractQueryHandler {
         String rightTableName = fieldMetadata.getContainingType().getName();
         int joinType;
         switch (join.getJoinType()) {
-            case INNER:
-                joinType = JoinFragment.INNER_JOIN;
-                break;
-            case LEFT_OUTER:
-                joinType = JoinFragment.LEFT_OUTER_JOIN;
-                break;
-            case FULL:
-                joinType = JoinFragment.FULL_JOIN;
-                break;
-            default:
-                throw new NotImplementedException("No support for join type " + join.getJoinType());
+        case INNER:
+            joinType = JoinFragment.INNER_JOIN;
+            break;
+        case LEFT_OUTER:
+            joinType = JoinFragment.LEFT_OUTER_JOIN;
+            break;
+        case FULL:
+            joinType = JoinFragment.FULL_JOIN;
+            break;
+        default:
+            throw new NotImplementedException("No support for join type " + join.getJoinType());
         }
 
         // Select a path from mainType to the selected field (properties are '.' separated).
@@ -126,7 +175,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
             containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
         }
         TypeMapping leftTypeMapping = mappingMetadataRepository.getMappingFromUser(containingType);
-        List<FieldMetadata> path = MetadataUtils.path(mainTypeMapping.getDatabase(), leftTypeMapping.getDatabase(join.getLeftField().getFieldMetadata()));
+        List<FieldMetadata> path = MetadataUtils.path(mainTypeMapping.getDatabase(),
+                leftTypeMapping.getDatabase(join.getLeftField().getFieldMetadata()));
         // Empty path means no path then this is an error (all joined entities should be reachable from main type).
         if (path.isEmpty()) {
             String destinationFieldName;
@@ -256,6 +306,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         final FieldMetadata database = mapping.getDatabase(userFieldMetadata);
         final String alias = getAlias(mapping, database);
         database.accept(new DefaultMetadataVisitor<Void>() {
+
             @Override
             public Void visit(ReferenceFieldMetadata referenceField) {
                 // Automatically selects referenced ID in case of FK.
@@ -356,6 +407,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         Condition condition = select.getCondition();
         if (condition != null) {
             boolean hasActualCondition = condition.accept(new VisitorAdapter<Boolean>() {
+
                 @Override
                 public Boolean visit(Isa isa) {
                     return true;
@@ -429,23 +481,16 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (!hasPaging) {
             return createResults(criteria.scroll(ScrollMode.FORWARD_ONLY), select.isProjection());
         } else {
-            // TMDM-5388 it need to remove the duplicate record, but using the Criteria.DISTINCT_ROOT_ENTITY will lead to using alias or paging failed.
-            // so the following method is a temporary workaround, it need to be fixed.
-            criteria.setMaxResults(Integer.MAX_VALUE);
-            List totalList = criteria.list();
-            List currentPageList = new ArrayList();
-            if (totalList != null) {
-                LinkedHashSet set = new LinkedHashSet(totalList);
-                totalList.clear();
-                totalList.addAll(set);
-                for (int i = paging.getStart(); i < (paging.getStart() + pageSize); i++) {
-                    if (totalList.size() <= i) {
-                        break;
-                    }
-                    currentPageList.add(totalList.get(i));
-                }
+            // TMDM-5388 Remove the duplicated records, but using the Criteria.DISTINCT_ROOT_ENTITY will lead
+            // to using alias or paging failed.
+            // so the following code is a temporary workaround, it need to be fixed.
+            List list = criteria.list();
+            if (list != null && list.size() > 1) {
+                Set set = new LinkedHashSet(list);
+                list.clear();
+                list.addAll(set);
             }
-            return createResults(currentPageList, select.isProjection());
+            return createResults(list, select.isProjection());
         }
     }
 
@@ -475,12 +520,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
             String fieldName = condition.criterionFieldName;
             OrderBy.Direction direction = orderBy.getDirection();
             switch (direction) {
-                case ASC:
-                    criteria.addOrder(Order.asc(fieldName));
-                    break;
-                case DESC:
-                    criteria.addOrder(Order.desc(fieldName));
-                    break;
+            case ASC:
+                criteria.addOrder(Order.asc(fieldName));
+                break;
+            case DESC:
+                criteria.addOrder(Order.desc(fieldName));
+                break;
             }
         }
 
@@ -587,10 +632,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 // First, need to join with all tables to get to the table that stores the type
                 TypeMapping typeMapping = mappingMetadataRepository.getMappingFromUser(mainType);
                 ComplexTypeMetadata database = typeMapping.getDatabase();
-                FieldMetadata field = database.getField(StringUtils.substringAfter(fieldCondition.criterionFieldName.replace('.', '/'), "/")); //$NON-NLS-1$
+                FieldMetadata field = database.getField(StringUtils.substringAfter(
+                        fieldCondition.criterionFieldName.replace('.', '/'), "/")); //$NON-NLS-1$
                 List<FieldMetadata> path = MetadataUtils.path(database, field);
                 if (path.isEmpty()) {
-                    throw new IllegalStateException("Expected field '" + field.getName() + "' to be reachable from '" + database.getName() + "'.");
+                    throw new IllegalStateException("Expected field '" + field.getName() + "' to be reachable from '"
+                            + database.getName() + "'.");
                 }
                 // Generate the joins
                 String alias = getAlias(typeMapping, field);
@@ -759,13 +806,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
                                 break;
                             }
                         }
-                        return new ManyFieldCriterion(typeCheckCriteria, resolver, left, condition.getRight().accept(VALUE_ADAPTER));
+                        return new ManyFieldCriterion(typeCheckCriteria, resolver, left, condition.getRight().accept(
+                                VALUE_ADAPTER));
                     } else {
                         throw new IllegalStateException("Expected a criteria instance of " + CriteriaImpl.class.getName() + ".");
                     }
                 }
             }
-            if (!rightFieldCondition.isProperty) {  // "Standard" comparison between a field and a constant value.
+            if (!rightFieldCondition.isProperty) { // "Standard" comparison between a field and a constant value.
                 Object compareValue = condition.getRight().accept(VALUE_ADAPTER);
                 if (condition.getLeft() instanceof Field) {
                     Field leftField = (Field) condition.getLeft();
@@ -778,8 +826,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 Predicate predicate = condition.getPredicate();
                 if (compareValue instanceof Boolean && predicate == Predicate.EQUALS) {
                     if (!(Boolean) compareValue) {
-                        // Special case for boolean: when looking for 'false' value, consider null values as 'false' too.
-                        return or(eq(leftFieldCondition.criterionFieldName, compareValue), isNull(leftFieldCondition.criterionFieldName));
+                        // Special case for boolean: when looking for 'false' value, consider null values as 'false'
+                        // too.
+                        return or(eq(leftFieldCondition.criterionFieldName, compareValue),
+                                isNull(leftFieldCondition.criterionFieldName));
                     }
                 }
                 if (predicate == Predicate.EQUALS) {
@@ -841,12 +891,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     return Restrictions.ltProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName);
                 } else if (predicate == Predicate.GREATER_THAN_OR_EQUALS) {
                     // No GTE for properties, do it "manually"
-                    return or(Restrictions.gtProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName),
-                            Restrictions.eqProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName));
+                    return or(Restrictions.gtProperty(leftFieldCondition.criterionFieldName,
+                            rightFieldCondition.criterionFieldName), Restrictions.eqProperty(
+                            leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName));
                 } else if (predicate == Predicate.LOWER_THAN_OR_EQUALS) {
                     // No LTE for properties, do it "manually"
-                    return or(Restrictions.ltProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName),
-                            Restrictions.eqProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName));
+                    return or(Restrictions.ltProperty(leftFieldCondition.criterionFieldName,
+                            rightFieldCondition.criterionFieldName), Restrictions.eqProperty(
+                            leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName));
                 } else {
                     throw new NotImplementedException("No support for predicate '" + predicate.getClass() + "'");
                 }
@@ -937,7 +989,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
             FieldCondition condition = new FieldCondition();
             condition.isMany = field.getFieldMetadata().isMany();
             // Use line below to allow searches on collection fields (but Hibernate 4 should be used).
-            // condition.criterionFieldName = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field, StandardQueryHandler.this.mappingMetadataRepository);
+            // condition.criterionFieldName = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field,
+            // StandardQueryHandler.this.mappingMetadataRepository);
             condition.criterionFieldName = getFieldName(field, StandardQueryHandler.this.mappingMetadataRepository);
             condition.isProperty = true;
             return condition;
