@@ -27,6 +27,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.*;
 import org.hibernate.impl.CriteriaImpl;
 import org.hibernate.sql.JoinFragment;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import java.util.*;
 
@@ -318,12 +319,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Count count) {
-        // Do a count on key field (first key field in case of composite key but this should not matter).
-        if (mainType.getKeyFields().isEmpty()) {
-            throw new IllegalArgumentException("Type '" + mainType.getName() + "' does not own a key (count is based on key).");
-        }
-        Field keyField = new Field(mainType.getKeyFields().get(0));
-        projectionList.add(Projections.count(getFieldName(keyField, mappingMetadataRepository)));
+        projectionList.add(Projections.rowCount());
         return null;
     }
 
@@ -353,6 +349,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 }
             }
             criteria.setProjection(projectionList);
+        } else {
+            // TMDM-5388: Hibernate sometimes returns duplicate results (like for User stored in System storage), this
+            // line avoids this situation.
+            criteria.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE);
         }
         // Make projection read only in case code tries to modify it later (see code that handles condition).
         projectionList = ReadOnlyProjectionList.makeReadOnly(projectionList);
@@ -433,15 +433,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (!hasPaging) {
             return createResults(criteria.scroll(ScrollMode.FORWARD_ONLY), select.isProjection());
         } else {
-            // TMDM-5388 it need to remove the duplicate record, but using the Criteria.DISTINCT_ROOT_ENTITY will lead
-            // to using alias or paging failed.
-            // so the following method is a temporary workaround, it need to be fixed.
             List list = criteria.list();
-            if (list != null && list.size() > 1) {
-                Set set = new LinkedHashSet(list);
-                list.clear();
-                list.addAll(set);
-            }
             return createResults(list, select.isProjection());
         }
     }
