@@ -14,7 +14,6 @@ import static org.hibernate.criterion.Restrictions.*;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -397,8 +396,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
             }
             criteria.setProjection(projectionList);
         } else {
-            // Hibernate sometimes returns duplicate results (like for User stored in System storage), this line
-            // avoids this situation.
+            // TMDM-5388: Hibernate sometimes returns duplicate results (like for User stored in System storage), this
+            // line avoids this situation.
             criteria.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE);
         }
         // Make projection read only in case code tries to modify it later (see code that handles condition).
@@ -481,15 +480,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (!hasPaging) {
             return createResults(criteria.scroll(ScrollMode.FORWARD_ONLY), select.isProjection());
         } else {
-            // TMDM-5388 Remove the duplicated records, but using the Criteria.DISTINCT_ROOT_ENTITY will lead
-            // to using alias or paging failed.
-            // so the following code is a temporary workaround, it need to be fixed.
             List list = criteria.list();
-            if (list != null && list.size() > 1) {
-                Set set = new LinkedHashSet(list);
-                list.clear();
-                list.addAll(set);
-            }
             return createResults(list, select.isProjection());
         }
     }
