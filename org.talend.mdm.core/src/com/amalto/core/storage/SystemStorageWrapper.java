@@ -328,7 +328,16 @@ public class SystemStorageWrapper extends StorageWrapper {
         long start = System.currentTimeMillis();
         {
             UserQueryBuilder qb = from(type).where(eq(type.getKeyFields().get(0), uniqueID));
-            storage.delete(qb.getSelect());
+            try {
+                storage.begin();
+                storage.delete(qb.getSelect());
+                storage.commit();
+            } catch (Exception e) {
+                storage.rollback();
+                throw new XmlServerException(e);
+            } finally {
+                storage.end();
+            }
         }
         return System.currentTimeMillis() - start;
     }
