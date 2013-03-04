@@ -13,6 +13,7 @@ import com.amalto.core.ejb.local.ItemCtrl2Local;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
+import org.apache.commons.collections.map.LRUMap;
 import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
@@ -46,7 +47,6 @@ import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.util.BAMLogger;
-import com.amalto.core.util.LRUCache;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -65,7 +65,7 @@ public abstract class ObjectPOJO implements Serializable {
     private static final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 
     /* cached the Object pojos to improve performance*/
-    private static LRUCache<ItemCacheKey, String> cachedPojo;
+    private static Map cachedPojo;
 
     private static int MAX_CACHE_SIZE = 5000;
 
@@ -132,7 +132,7 @@ public abstract class ObjectPOJO implements Serializable {
         if (max_cache_size != null) {
             MAX_CACHE_SIZE = Integer.valueOf(max_cache_size);
         }
-        cachedPojo = new LRUCache<ItemCacheKey, String>(MAX_CACHE_SIZE);
+        cachedPojo = Collections.synchronizedMap(new LRUMap(MAX_CACHE_SIZE));
     }
 
     public static String getCluster(Class<? extends ObjectPOJO> objectClass) {
@@ -311,7 +311,7 @@ public abstract class ObjectPOJO implements Serializable {
         ItemCacheKey key = new ItemCacheKey(revisionID, url, getCluster(objectClass));
         try {
             //retrieve the item
-            String item = cachedPojo.get(key);
+            String item = (String) cachedPojo.get(key);
             if (item == null) {
                 //get the xml server wrapper
                 XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
@@ -511,10 +511,9 @@ public abstract class ObjectPOJO implements Serializable {
         }
     }
 
-    @SuppressWarnings("nls")
     private static Set<String> getSystemObjectIDs(String cluster) {
         if (Util.isEnterprise()) {
-            if ("amaltoOBJECTSDataCluster".equals(cluster)) {
+            if ("amaltoOBJECTSDataCluster".equals(cluster)) { //$NON-NLS-1$
                 Set<String> ret = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER).keySet();
                 // ignore Revision MDMItemImages MDMMigration
                 ret.remove(XSystemObjects.DC_REVISION.getName());
@@ -522,17 +521,17 @@ public abstract class ObjectPOJO implements Serializable {
                 ret.remove(XSystemObjects.DC_MDMMigration.getName());
                 return ret;
             }
-            if ("amaltoOBJECTSMenu".equals(cluster)) {
+            if ("amaltoOBJECTSMenu".equals(cluster)) { //$NON-NLS-1$
                 return XSystemObjects.getXSystemObjects(XObjectType.MENU).keySet();
             }
-            if ("amaltoOBJECTSRole".equals(cluster)) {
+            if ("amaltoOBJECTSRole".equals(cluster)) { //$NON-NLS-1$
                 return XSystemObjects.getXSystemObjects(XObjectType.ROLE).keySet();
             }
-            if ("amaltoOBJECTSDataModel".equals(cluster)) {
+            if ("amaltoOBJECTSDataModel".equals(cluster)) { //$NON-NLS-1$
                 return XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL).keySet();
             }
         } else {
-            if ("amaltoOBJECTSDataCluster".equals(cluster)) {
+            if ("amaltoOBJECTSDataCluster".equals(cluster)) { //$NON-NLS-1$
                 Set<String> ret = XSystemObjects.getXSystemObjectsTOM(XObjectType.DATA_CLUSTER).keySet();
                 // ignore Revision MDMItemImages MDMMigration
                 ret.remove(XSystemObjects.DC_REVISION.getName());
@@ -540,13 +539,13 @@ public abstract class ObjectPOJO implements Serializable {
                 ret.remove(XSystemObjects.DC_MDMMigration.getName());
                 return ret;
             }
-            if ("amaltoOBJECTSMenu".equals(cluster)) {
+            if ("amaltoOBJECTSMenu".equals(cluster)) { //$NON-NLS-1$
                 return XSystemObjects.getXSystemObjectsTOM(XObjectType.MENU).keySet();
             }
-            if ("amaltoOBJECTSRole".equals(cluster)) {
+            if ("amaltoOBJECTSRole".equals(cluster)) { //$NON-NLS-1$
                 return XSystemObjects.getXSystemObjectsTOM(XObjectType.ROLE).keySet();
             }
-            if ("amaltoOBJECTSDataModel".equals(cluster)) {
+            if ("amaltoOBJECTSDataModel".equals(cluster)) { //$NON-NLS-1$
                 return XSystemObjects.getXSystemObjectsTOM(XObjectType.DATA_MODEL).keySet();
             }
         }
@@ -574,9 +573,9 @@ public abstract class ObjectPOJO implements Serializable {
             }
             String revisionID = universe.getXtentisObjectsRevisionIDs().get(getObjectsClasses2NamesMap().get(objectClass));
 
-
-            if ("".equals(regex) || "*".equals(regex) || ".*".equals(regex))
-                regex = null; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$
+            if ("".equals(regex) || "*".equals(regex) || ".*".equals(regex))  {//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                regex = null;
+            }
 
             //get the xml server wrapper
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
@@ -585,7 +584,9 @@ public abstract class ObjectPOJO implements Serializable {
             //retrieve the item
             String[] ids = server.getAllDocumentsUniqueID(revisionID, cluster);
             //see 0013859            
-            if (ids == null || ids.length == 0) ids = new String[0];
+            if (ids == null || ids.length == 0) {
+                ids = new String[0];
+            }
             //add system default object ids
             Set<String> allId = new HashSet<String>();
             allId.addAll(Arrays.asList(ids));
@@ -868,7 +869,7 @@ public abstract class ObjectPOJO implements Serializable {
         cachedPojo.clear();
     }
 
-    public static LRUCache<ItemCacheKey, String> getCache() {
+    public static Map getCache() {
         return cachedPojo;
     }
 }

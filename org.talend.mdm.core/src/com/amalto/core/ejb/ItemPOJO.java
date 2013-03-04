@@ -51,15 +51,11 @@ import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.schema.manage.AppinfoSourceHolder;
 import com.amalto.core.schema.manage.AppinfoSourceHolderPK;
 import com.amalto.core.schema.manage.SchemaCoreAgent;
-import com.amalto.core.util.LRUCache;
+import org.apache.commons.collections.map.LRUMap;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
-/**
- * @author Bruno Grieder
- * 
- */
 public class ItemPOJO implements Serializable {
 
     /**
@@ -71,7 +67,7 @@ public class ItemPOJO implements Serializable {
 
     private static Pattern pLoad = Pattern.compile(".*?(<c>.*?</taskId>|<c>.*?</t>).*?(<p>(.*)</p>|<p/>).*", Pattern.DOTALL); //$NON-NLS-1$
 
-    private static LRUCache<ItemCacheKey, String> cachedPojo;
+    private static Map cachedPojo;
 
     public static Logger LOG = Logger.getLogger(ItemPOJO.class);
 
@@ -102,7 +98,7 @@ public class ItemPOJO implements Serializable {
         if (max_cache_size != null) {
             MAX_CACHE_SIZE = Integer.valueOf(max_cache_size);
         }
-        cachedPojo = new LRUCache<ItemCacheKey, String>(MAX_CACHE_SIZE);
+        cachedPojo = Collections.synchronizedMap(new LRUMap(MAX_CACHE_SIZE));
     }
 
     public ItemPOJO() {
@@ -344,7 +340,7 @@ public class ItemPOJO implements Serializable {
             // retrieve the item
             String id = itemPOJOPK.getUniqueID();
             ItemCacheKey key = new ItemCacheKey(revisionID, id, itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
-            String item = cachedPojo.get(key);
+            String item = (String) cachedPojo.get(key);
             if (item == null) {
                 item = server.getDocumentAsString(revisionID, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), id);
                 // TODO Store in cache in case when there's no inheritance.
@@ -914,7 +910,7 @@ public class ItemPOJO implements Serializable {
         cachedPojo.clear();
     }
 
-    public static LRUCache<ItemCacheKey, String> getCache() {
+    public static Map getCache() {
         return cachedPojo;
     }
 

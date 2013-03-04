@@ -10,6 +10,7 @@
 
 package com.amalto.core.metadata;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -94,14 +95,14 @@ public class SoftIdFieldRef implements FieldMetadata {
             handler.error("Type '" + typeName + "' does not exist.");
             return this;
         }
-        List<FieldMetadata> keyFields = type.getKeyFields();
+        Collection<FieldMetadata> keyFields = type.getKeyFields();
         if (keyFields.isEmpty()) {
             handler.error("Type '" + typeName + "' does not own a key and no FK field was defined.");
             return this;
         }
         if (fieldName == null) {
             if (keyFields.size() == 1) {
-                frozenField = keyFields.get(0);
+                frozenField = keyFields.iterator().next();
             } else {
                 frozenField = new CompoundFieldMetadata(keyFields.toArray(new FieldMetadata[keyFields.size()]));
             }

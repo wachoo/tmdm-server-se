@@ -676,9 +676,9 @@ public class HibernateStorage implements Storage {
                 Class<?> clazz = storageClassLoader.getClassFromType(mapping.getDatabase());
 
                 Serializable idValue;
-                List<FieldMetadata> keyFields = currentType.getKeyFields();
+                Collection<FieldMetadata> keyFields = currentType.getKeyFields();
                 if (keyFields.size() == 1) {
-                    idValue = (Serializable) currentDataRecord.get(keyFields.get(0));
+                    idValue = (Serializable) currentDataRecord.get(keyFields.iterator().next());
                 } else {
                     List<Object> compositeIdValues = new LinkedList<Object>();
                     for (FieldMetadata keyField : keyFields) {

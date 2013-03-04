@@ -14,15 +14,11 @@ package com.amalto.core.history.accessor;
 import com.amalto.core.history.MutableDocument;
 
 import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  *
  */
 public class DOMAccessorFactory {
-
-    private static final Pattern pattern = Pattern.compile("(\\w+)\\[(\\d+)\\]"); //$NON-NLS-1$
 
     private DOMAccessorFactory() {
     }
@@ -41,12 +37,14 @@ public class DOMAccessorFactory {
             if (element.startsWith("@")) { //$NON-NLS-1$
                 current = new AttributeAccessor(current, element.substring(1), document);
             } else if (element.contains("[")) { //$NON-NLS-1$
-                Matcher matcher = pattern.matcher(element);
-                if (matcher.matches()) {
-                    current = new ManyFieldAccessor(current, matcher.group(1), Integer.parseInt(matcher.group(2)) - 1, document);
-                } else {
+                int indexStart = element.indexOf('[');
+                int indexEnd = element.indexOf(']');
+                if (indexStart < 0  || indexEnd < 0) {
                     throw new RuntimeException("Field name '" + element + "' did not match many field pattern in path '" + xpath + "'.");
                 }
+                String fieldName = element.substring(0, indexStart);
+                int index = Integer.parseInt(element.substring(indexStart + 1, indexEnd)) - 1;
+                current = new ManyFieldAccessor(current, fieldName, index, document);
             } else {
                 current = new UnaryFieldAccessor(current, element, document);
             }

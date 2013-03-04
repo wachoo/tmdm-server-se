@@ -122,7 +122,7 @@ public class SoftTypeRef implements ComplexTypeMetadata {
     }
 
     @Override
-    public List<FieldMetadata> getFields() {
+    public Collection<FieldMetadata> getFields() {
         return getTypeAsComplex().getFields();
     }
 
@@ -186,7 +186,7 @@ public class SoftTypeRef implements ComplexTypeMetadata {
     }
 
     @Override
-    public List<FieldMetadata> getKeyFields() {
+    public Collection<FieldMetadata> getKeyFields() {
         return getTypeAsComplex().getKeyFields();
     }
 

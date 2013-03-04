@@ -20,6 +20,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import java.util.Collection;
 import java.util.List;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
@@ -65,7 +66,7 @@ public class UserQueryHelper {
                 isPerformingTypeCheck = true;
             }
             if (UserQueryBuilder.ALL_FIELD.equals(leftFieldName)) {
-                List<FieldMetadata> list = leftType.getFields();
+                Collection<FieldMetadata> list = leftType.getFields();
                 Condition condition = NO_OP_CONDITION;
                 for (FieldMetadata fieldMetadata : list) {
                     if (fieldMetadata instanceof SimpleTypeFieldMetadata){
@@ -183,14 +184,14 @@ public class UserQueryHelper {
         } else if (UserQueryBuilder.TASK_ID_FIELD.equals(fieldName)) {
             return taskId();
         } else if (UserQueryBuilder.ID_FIELD.equals(fieldName)) {
-            List<FieldMetadata> keyFields = type.getKeyFields();
+            Collection<FieldMetadata> keyFields = type.getKeyFields();
             if (keyFields.isEmpty()) {
                 throw new IllegalArgumentException("Can not query id on type '" + typeName + "' because type has no id field.");
             }
             if (keyFields.size() > 1) {
                 throw new NotImplementedException("No support for query on composite key.");
             }
-            return new Field(keyFields.get(0));
+            return new Field(keyFields.iterator().next());
         } else if (UserQueryBuilder.STAGING_STATUS_FIELD.equals(fieldName)) {
             return UserStagingQueryBuilder.status();
         } else if (UserQueryBuilder.STAGING_SOURCE_FIELD.equals(fieldName)) {

@@ -10,11 +10,7 @@
 
 package com.amalto.core.save.context;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.NotImplementedException;
@@ -35,13 +31,9 @@ class GenerateActions implements DocumentSaver {
 
     private static final Logger LOGGER = Logger.getLogger(GenerateActions.class);
 
-    private static final int PRECISION = 32;
-
     private final DocumentSaver next;
 
     private final static AtomicLong lastUpdateTime = new AtomicLong();
-
-    private final static AtomicInteger counter = new AtomicInteger();
 
     GenerateActions(DocumentSaver next) {
         this.next = next;
@@ -102,7 +94,7 @@ class GenerateActions implements DocumentSaver {
             List<String> idValues = new LinkedList<String>();
             Map<String,String> idValueMap = createActions.getIdValueMap();
             // TODO This piece of code may have serious issues if key follows: (AUTO_INC, document value, UUID)
-            List<FieldMetadata> keys = type.getKeyFields();
+            Collection<FieldMetadata> keys = type.getKeyFields();
             // This guarantees key values are in correct order with key fields (for cases where ID is
             // composed of mixed AUTO_INCREMENT and user fields).
             for (FieldMetadata fieldMetadata : keys) {

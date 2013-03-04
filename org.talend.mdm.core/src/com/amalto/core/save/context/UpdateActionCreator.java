@@ -25,6 +25,8 @@ import java.util.*;
 // TODO Clean up: preserveCollectionOldValues is dedicated to partial update only!
 class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
+    private static final Logger LOGGER = Logger.getLogger(UpdateActionCreator.class);
+
     protected final Stack<String> path = new Stack<String>();
 
     protected final LinkedList<Action> actions = new LinkedList<Action>();
@@ -318,8 +320,6 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     }
 
     private class CompareClosure implements Closure {
-
-        private Logger LOGGER = Logger.getLogger(CompareClosure.class);
 
         public void execute(FieldMetadata field) {
             compare(field);

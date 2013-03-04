@@ -20,6 +20,7 @@ import org.hibernate.Session;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
@@ -49,11 +50,11 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
                     // Hibernate needs a active session to read instances.
                     session.getTransaction().begin();
                 }
-                List<FieldMetadata> keyFields = dataRecord.getType().getKeyFields();
+                Collection<FieldMetadata> keyFields = dataRecord.getType().getKeyFields();
                 if (keyFields.size() == 0) {
                     throw new IllegalArgumentException("Type '" + dataRecord.getType().getName() + "' does not define any key field.");
                 } else if (keyFields.size() == 1) {
-                    String keyFieldName = keyFields.get(0).getName();
+                    String keyFieldName = keyFields.iterator().next().getName();
                     Serializable id = (Serializable) dataRecord.get(keyFieldName);
                     if (id == null) {
                         throw new IllegalArgumentException("Instance of type '" + dataRecord.getType().getName() + "' does not have value for '" + keyFieldName + "'.");

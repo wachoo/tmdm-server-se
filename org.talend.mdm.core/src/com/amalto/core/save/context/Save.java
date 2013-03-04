@@ -24,6 +24,7 @@ import com.amalto.core.save.SaverSession;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -61,7 +62,7 @@ class Save implements DocumentSaver {
             throw new IllegalStateException("Could not find UpdateReport type.");
         }
 
-        List<FieldMetadata> keyFields = updateReportType.getKeyFields();
+        Collection<FieldMetadata> keyFields = updateReportType.getKeyFields();
         List<String> ids = new LinkedList<String>();
         long updateReportTime = 0;
         for (FieldMetadata keyField : keyFields) {

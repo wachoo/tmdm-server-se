@@ -18,15 +18,12 @@ import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.accessor.DOMAccessorFactory;
 import com.amalto.core.save.context.SaverContextFactory;
-import com.amalto.core.util.Util;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import java.io.StringWriter;
 
 public class DOMDocument implements MutableDocument {
@@ -43,11 +40,7 @@ public class DOMDocument implements MutableDocument {
 
     public DOMDocument(Node node) {
         DocumentBuilder documentBuilder;
-        try {
-            documentBuilder = SaverContextFactory.DOM_PARSER_FACTORY.newDocumentBuilder();
-        } catch (ParserConfigurationException e) {
-            throw new RuntimeException("Could not acquire new document builder.", e);
-        }
+        documentBuilder = SaverContextFactory.DOCUMENT_BUILDER;
         org.w3c.dom.Document document = documentBuilder.newDocument();
         document.adoptNode(node);
         document.appendChild(node);

@@ -5,7 +5,7 @@
 	<numeroContrat/>
 	<interlocuteurClientOperationnel/>
 	<typesEda>
-		<typeEDA xsi:type="Balit">
+		<typeEDA xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Balit">
 			<dateDebutApplication></dateDebutApplication>
 			<dateFinApplication></dateFinApplication>
 			<Transaction>

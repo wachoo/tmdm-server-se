@@ -23,10 +23,7 @@ import org.w3c.dom.Element;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 // TODO Refactor (+ NON-NLS)
 public class MappingGenerator extends DefaultMetadataVisitor<Element> {
@@ -196,7 +193,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         cacheElement.getAttributes().setNamedItem(regionAttribute);
         classElement.appendChild(cacheElement);
 
-        List<FieldMetadata> keyFields = complexType.getKeyFields();
+        Collection<FieldMetadata> keyFields = complexType.getKeyFields();
         List<FieldMetadata> allFields = new ArrayList<FieldMetadata>(complexType.getFields());
 
         // Process key fields first (Hibernate DTD enforces IDs to be declared first in <class/> element).
@@ -267,7 +264,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     tableName.setValue(formatSQLName(resolver.get(subType), resolver.getNameMaxLength()));
                     unionSubclass.setAttributeNode(tableName);
 
-                    List<FieldMetadata> subTypeFields = subType.getFields();
+                    Collection<FieldMetadata> subTypeFields = subType.getFields();
                     for (FieldMetadata subTypeField : subTypeFields) {
                         if (!complexType.hasField(subTypeField.getName()) && !subTypeField.isKey()) {
                             unionSubclass.appendChild(subTypeField.accept(this));
@@ -294,7 +291,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                         discriminator.setValue(ClassCreator.PACKAGE_PREFIX + subType.getName());
                         subclass.setAttributeNode(discriminator);
 
-                        List<FieldMetadata> subTypeFields = subType.getFields();
+                        Collection<FieldMetadata> subTypeFields = subType.getFields();
                         for (FieldMetadata subTypeField : subTypeFields) {
                             if (!complexType.hasField(subTypeField.getName()) && !subTypeField.isKey()) {
                                 subclass.appendChild(subTypeField.accept(this));
@@ -618,7 +615,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 listElement.getAttributes().setNamedItem(cascade);
                 // Keys
                 Element key = document.createElement("key"); //$NON-NLS-1$
-                List<FieldMetadata> keyFields = field.getContainingType().getKeyFields();
+                Collection<FieldMetadata> keyFields = field.getContainingType().getKeyFields();
                 for (FieldMetadata keyField : keyFields) {
                     Element column = document.createElement("column"); //$NON-NLS-1$
                     Attr columnName = document.createAttribute("name"); //$NON-NLS-1$

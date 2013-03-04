@@ -26,13 +26,7 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -295,9 +289,9 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testSelectId() throws Exception {
-        List<FieldMetadata> keyFields = person.getKeyFields();
+        Collection<FieldMetadata> keyFields = person.getKeyFields();
         assertEquals(1, keyFields.size());
-        FieldMetadata keyField = keyFields.get(0);
+        FieldMetadata keyField = keyFields.iterator().next();
 
         UserQueryBuilder qb = from(person).select(person.getField("id"));
 
@@ -314,9 +308,9 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testSelectById() throws Exception {
-        List<FieldMetadata> keyFields = person.getKeyFields();
+        Collection<FieldMetadata> keyFields = person.getKeyFields();
         assertEquals(1, keyFields.size());
-        FieldMetadata keyField = keyFields.get(0);
+        FieldMetadata keyField = keyFields.iterator().next();
 
         UserQueryBuilder qb = from(person).where(eq(person.getField("id"), "1"));
 
@@ -333,9 +327,9 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testSelectByIdExclusion() throws Exception {
-        List<FieldMetadata> keyFields = person.getKeyFields();
+        Collection<FieldMetadata> keyFields = person.getKeyFields();
         assertEquals(1, keyFields.size());
-        FieldMetadata keyField = keyFields.get(0);
+        FieldMetadata keyField = keyFields.iterator().next();
 
         UserQueryBuilder qb = from(person).where(not(eq(person.getField("id"), "1")));
 
@@ -352,9 +346,9 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testSelectByIdWithProjection() throws Exception {
-        List<FieldMetadata> keyFields = person.getKeyFields();
+        Collection<FieldMetadata> keyFields = person.getKeyFields();
         assertEquals(1, keyFields.size());
-        FieldMetadata keyField = keyFields.get(0);
+        FieldMetadata keyField = keyFields.iterator().next();
 
         UserQueryBuilder qb = from(person).select(person.getField("id")).where(eq(person.getField("id"), "1"));
 

@@ -20,6 +20,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import javax.xml.XMLConstants;
 import java.io.*;
+import java.util.Collection;
 import java.util.List;
 
 public class DataRecordXmlWriter implements DataRecordWriter {
@@ -55,7 +56,7 @@ public class DataRecordXmlWriter implements DataRecordWriter {
 
     public void write(DataRecord record, Writer writer) throws IOException {
         DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(record, writer, override);
-        List<FieldMetadata> fields = type == null ? record.getType().getFields() : type.getFields();
+        Collection<FieldMetadata> fields = type == null ? record.getType().getFields() : type.getFields();
         writer.write("<" + getRootElementName(record) + ">"); //$NON-NLS-1$ //$NON-NLS-2$
         for (FieldMetadata field : fields) {
             field.accept(fieldPrinter);
@@ -132,7 +133,7 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                     if (containedRecord != null) {
                         // TODO Limit new field printer instances
                         DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(containedRecord, out);
-                        List<FieldMetadata> fields = containedRecord.getType().getFields();
+                        Collection<FieldMetadata> fields = containedRecord.getType().getFields();
                         writeContainedField(containedField, containedRecord);
                         for (FieldMetadata field : fields) {
                             field.accept(fieldPrinter);
@@ -145,7 +146,7 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                         for (DataRecord dataRecord : recordList) {
                             // TODO Limit new field printer instances
                             DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(dataRecord, out);
-                            List<FieldMetadata> fields = dataRecord.getType().getFields();
+                            Collection<FieldMetadata> fields = dataRecord.getType().getFields();
                             writeContainedField(containedField, dataRecord);
                             for (FieldMetadata field : fields) {
                                 field.accept(fieldPrinter);
@@ -246,7 +247,7 @@ public class DataRecordXmlWriter implements DataRecordWriter {
 
         private String getFK(DataRecord record) {
             StringBuilder builder = new StringBuilder();
-            List<FieldMetadata> keyFields = record.getType().getKeyFields();
+            Collection<FieldMetadata> keyFields = record.getType().getKeyFields();
             for (FieldMetadata keyField : keyFields) {
                 builder.append('[').append(record.get(keyField)).append(']');
             }

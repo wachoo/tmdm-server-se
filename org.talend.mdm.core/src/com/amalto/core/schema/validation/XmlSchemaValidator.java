@@ -13,6 +13,7 @@ package com.amalto.core.schema.validation;
 
 import com.amalto.core.util.SAXErrorHandler;
 import com.amalto.core.util.ValidateException;
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -31,6 +32,8 @@ public class XmlSchemaValidator implements Validator {
 
     private static final Map<String, Schema> schemaCache = new HashMap<String, Schema>();
 
+    private static final MultiKeyMap validatorCache = new MultiKeyMap();;
+
     private final InputStream schemaAsStream;
 
     private final String dataModelName;
@@ -44,20 +47,7 @@ public class XmlSchemaValidator implements Validator {
     }
 
     public void validate(Element element) throws ValidateException {
-        Schema parsedSchema;
-        synchronized (schemaCache) {
-            try {
-                parsedSchema = schemaCache.get(dataModelName);
-                if (parsedSchema == null) {
-                    parsedSchema = schemaFactory.newSchema(new StreamSource(schemaAsStream));
-                    schemaCache.put(dataModelName, parsedSchema);
-                }
-            } catch (SAXException e) {
-                throw new RuntimeException("Exception occurred during XML schema parsing.", e);
-            }
-        }
-
-        javax.xml.validation.Validator validator = parsedSchema.newValidator();
+        javax.xml.validation.Validator validator = getValidator();
         SAXErrorHandler errorHandler = new SAXErrorHandler();
         try {
             validator.setErrorHandler(errorHandler);
@@ -66,18 +56,39 @@ public class XmlSchemaValidator implements Validator {
             // All errors are expected to be handled by the error handler.
             throw new RuntimeException("Unexpected validation issue.", e);
         }
-
         String errors = errorHandler.getErrors();
         if (!errors.isEmpty()) {
             throw new ValidateException(errors);
         }
-
         next.validate(element);
+    }
+
+    private javax.xml.validation.Validator getValidator() {
+        javax.xml.validation.Validator validator;
+        synchronized (schemaCache) {
+            try {
+                validator = (javax.xml.validation.Validator) validatorCache.get(dataModelName, Thread.currentThread());
+                if (validator != null) {
+                    return validator;
+                }
+                Schema parsedSchema = schemaCache.get(dataModelName);
+                if (parsedSchema == null) {
+                    parsedSchema = schemaFactory.newSchema(new StreamSource(schemaAsStream));
+                    schemaCache.put(dataModelName, parsedSchema);
+                }
+                validator = parsedSchema.newValidator();
+                validatorCache.put(dataModelName, Thread.currentThread(), validator);
+            } catch (SAXException e) {
+                throw new RuntimeException("Exception occurred during XML schema parsing.", e);
+            }
+        }
+        return validator;
     }
 
     public static void invalidateCache(String dataModelName) {
         synchronized (schemaCache) {
             schemaCache.remove(dataModelName);
+            validatorCache.clear();
         }
     }
 }

@@ -51,7 +51,7 @@ public class ContainedComplexTypeRef extends ContainedComplexTypeMetadata {
     }
 
     @Override
-    public List<FieldMetadata> getFields() {
+    public Collection<FieldMetadata> getFields() {
         return reference.getFields();
     }
 

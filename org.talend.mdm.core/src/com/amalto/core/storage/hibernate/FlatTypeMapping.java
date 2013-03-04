@@ -152,7 +152,7 @@ class FlatTypeMapping extends TypeMapping {
     }
 
     private List<FieldMetadata> getFields(ComplexTypeMetadata type) {
-        List<FieldMetadata> fields = type.getFields();
+        Collection<FieldMetadata> fields = type.getFields();
         List<FieldMetadata> returnedFields = new LinkedList<FieldMetadata>(fields);
         for (FieldMetadata field : fields) {
             if (field instanceof ContainedTypeFieldMetadata) {
@@ -262,9 +262,9 @@ class FlatTypeMapping extends TypeMapping {
         if (referencedIdValue instanceof DataRecord) {
             Serializable referencedValueId;
             DataRecord idAsDataRecord = (DataRecord) referencedIdValue;
-            List<FieldMetadata> keyFields = idAsDataRecord.getType().getKeyFields();
+            Collection<FieldMetadata> keyFields = idAsDataRecord.getType().getKeyFields();
             if (keyFields.size() == 1) {
-                referencedValueId = (Serializable) idAsDataRecord.get(keyFields.get(0));
+                referencedValueId = (Serializable) idAsDataRecord.get(keyFields.iterator().next());
             } else {
                 ClassLoader storageClassLoader = Thread.currentThread().getContextClassLoader();
                 List<Object> ids = new LinkedList<Object>();

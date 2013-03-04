@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.List;
+import java.util.Collection;
 
 public class FullTextResultsWriter implements DataRecordWriter {
     private final String keyword;
@@ -37,7 +37,7 @@ public class FullTextResultsWriter implements DataRecordWriter {
     }
 
     public void write(DataRecord record, Writer writer) throws IOException {
-        List<FieldMetadata> keyFields = record.getType().getKeyFields();
+        Collection<FieldMetadata> keyFields = record.getType().getKeyFields();
 
         writer.write("<item>"); //$NON-NLS-1$
         {

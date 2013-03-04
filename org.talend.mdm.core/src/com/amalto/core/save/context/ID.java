@@ -24,12 +24,13 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -52,7 +53,7 @@ class ID implements DocumentSaver {
         if (type == null) {
             throw new IllegalStateException("Type of record being saved is expected to be set at this step.");
         }
-        List<FieldMetadata> keyFields = type.getKeyFields();
+        Collection<FieldMetadata> keyFields = type.getKeyFields();
         SaverSource database = session.getSaverSource();
         String dataCluster = context.getDataCluster();
 
@@ -93,16 +94,8 @@ class ID implements DocumentSaver {
         String revisionID = context.getRevisionID();
         DocumentBuilder documentBuilder;
         DocumentBuilder validationDocumentBuilder;
-        try {
-            documentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOM_PARSER_FACTORY.newDocumentBuilder(), false);
-        } catch (ParserConfigurationException e) {
-            throw new RuntimeException("Could not acquire a document builder.", e);
-        }
-        try {
-            validationDocumentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOM_PARSER_FACTORY.newDocumentBuilder(), true);
-        } catch (ParserConfigurationException e) {
-            throw new RuntimeException("Could not acquire a document builder for validation.", e);
-        }
+        documentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOCUMENT_BUILDER, false);
+        validationDocumentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOCUMENT_BUILDER, true);
         if (xmlDocumentId.length > 0 && database.exist(dataCluster, typeName, revisionID, xmlDocumentId)) {
             context.setId(xmlDocumentId);
             NonCloseableInputStream nonCloseableInputStream = new NonCloseableInputStream(database.get(dataCluster, typeName, revisionID, xmlDocumentId));
@@ -156,11 +149,12 @@ class ID implements DocumentSaver {
         if (userXmlPayloadElement.getLength() > 1) {
             throw new IllegalStateException("Document has multiple payload elements.");
         }
-        NodeList children = userXmlPayloadElement.item(0).getChildNodes();
-        for (int i = 0; i < children.getLength(); i++) {
-            if (children.item(i) instanceof Element) {
-                return (Element) children.item(i);
+        Node current = userXmlPayloadElement.item(0).getFirstChild();
+        while (current != null) {
+            if (current instanceof Element) {
+                return (Element) current;
             }
+            current = current.getNextSibling();
         }
         throw new IllegalStateException("Element 'p' is expected to have an XML element as child.");
     }

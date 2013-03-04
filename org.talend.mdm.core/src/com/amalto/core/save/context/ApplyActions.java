@@ -56,16 +56,17 @@ class ApplyActions implements DocumentSaver {
     }
 
     private void clean(Element element, Cleaner cleaner, boolean removeTalendAttributes) {
-        NodeList children = element.getChildNodes();
         if (removeTalendAttributes) {
             element.removeAttributeNS(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type"); //$NON-NLS-1$
         }
-        for (int i = children.getLength(); i >= 0; i--) {
-            Node node = children.item(i);
-            if (node instanceof Element) {
-                Element currentElement = (Element) node;
+        Node current = element.getLastChild();
+        while (current != null) {
+            Node next = current.getPreviousSibling();
+            if (current.getNodeType() == Node.ELEMENT_NODE) {
+                Element currentElement = (Element) current;
                 clean(currentElement, cleaner, removeTalendAttributes);
             }
+            current = next;
         }
         if (cleaner.clean(element)) {
             element.getParentNode().removeChild(element);

@@ -10,7 +10,7 @@
 
 package com.amalto.core.save.context;
 
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -23,8 +23,6 @@ import com.amalto.core.save.UserAction;
 
 class UserContext extends AbstractDocumentSaverContext {
 
-    private final List<Action> actions = new LinkedList<Action>();
-
     private final String dataCluster;
 
     private final String dataModel;
@@ -34,6 +32,8 @@ class UserContext extends AbstractDocumentSaverContext {
     private final boolean invokeBeforeSaving;
 
     private final boolean updateReport;
+
+    private List<Action> actions = Collections.emptyList();
 
     private UserAction userAction;
 
@@ -107,8 +107,7 @@ class UserContext extends AbstractDocumentSaverContext {
 
     @Override
     public void setActions(List<Action> actions) {
-        this.actions.clear();
-        this.actions.addAll(actions);
+        this.actions = actions;
     }
 
     @Override

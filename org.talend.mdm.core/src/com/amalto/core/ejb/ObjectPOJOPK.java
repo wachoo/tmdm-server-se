@@ -18,11 +18,10 @@ public class ObjectPOJOPK implements Serializable{
 	}
 
 	/**
-	 * For Marshalling puproses only
+	 * For marshalling purposes only
 	 */
 	public ObjectPOJOPK () {
 	}
-
 
 	public String[] getIds() {
 		return ids;
@@ -42,10 +41,7 @@ public class ObjectPOJOPK implements Serializable{
 
 	@Override
 	public boolean equals(Object obj) {
-        if (obj instanceof ObjectPOJOPK) {
-        	return this.getUniqueId().equals(((ObjectPOJOPK)obj).getUniqueId());
-        }
-        return false;
-	}
+        return obj instanceof ObjectPOJOPK && this.getUniqueId().equals(((ObjectPOJOPK) obj).getUniqueId());
+    }
 
 }

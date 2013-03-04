@@ -124,7 +124,7 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         @Override
         public Object visit(Id id) {
             ComplexTypeMetadata type = id.getType();
-            List<FieldMetadata> keyFields = type.getKeyFields();
+            Collection<FieldMetadata> keyFields = type.getKeyFields();
             List<String> ids = new LinkedList<String>();
             StringBuilder builder = null;
             String idAsString = id.getId();
@@ -152,12 +152,13 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
             } else {
                 ids.add(idAsString);
             }
+            Iterator<FieldMetadata> iterator = keyFields.iterator();
             if (ids.size() == 1) {
-                return MetadataUtils.convert(ids.get(0), keyFields.get(0));
+                return MetadataUtils.convert(ids.get(0), iterator.next());
             } else {
                 Object[] convertedId = new Object[ids.size()];
                 for (int i = 0; i< ids.size(); i++) {
-                    convertedId[i] = MetadataUtils.convert(ids.get(i), keyFields.get(i));
+                    convertedId[i] = MetadataUtils.convert(ids.get(i), iterator.next());
                 }
                 return convertedId;
             }

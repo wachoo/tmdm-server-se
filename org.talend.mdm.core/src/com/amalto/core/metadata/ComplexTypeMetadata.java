@@ -24,7 +24,7 @@ public interface ComplexTypeMetadata extends TypeMetadata {
      *         might return an empty list if no key field is defined for this type.
      * @see #registerKey(FieldMetadata)
      */
-    List<FieldMetadata> getKeyFields();
+    Collection<FieldMetadata> getKeyFields();
 
     /**
      * @param keyField Register <code>keyField</code> as a key for this type.
@@ -51,7 +51,7 @@ public interface ComplexTypeMetadata extends TypeMetadata {
      *
      * @return A collection of super types.
      */
-    List<FieldMetadata> getFields();
+    Collection<FieldMetadata> getFields();
 
     /**
      * Adds a new field to this type. Please note that if {@link com.amalto.core.metadata.FieldMetadata#isKey()} returns

@@ -41,7 +41,7 @@ public class DOMDocumentTest extends TestCase {
     }
 
     public void testIncludeXSINamespace() throws Exception {
-        String xml = "<Organisation xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><IdOrganisation>5797</IdOrganisation></Organisation>";
+        String xml = "<Organisation xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><IdOrganisation xsi:type=\"xsd:string\">5797</IdOrganisation></Organisation>";
         InputStream documentStream = new ByteArrayInputStream(xml.getBytes("UTF-8"));
         // Parsing
         MutableDocument userDocument;

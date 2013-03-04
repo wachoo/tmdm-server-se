@@ -165,8 +165,6 @@ public class Util {
 
     private static final String JAXP_SCHEMA_SOURCE = "http://java.sun.com/xml/jaxp/properties/schemaSource"; //$NON-NLS-1$
 
-    private static LRUCache<String, Document> xmlCache = new LRUCache<String, Document>(20);
-
     private static DocumentBuilderFactory nonValidatingDocumentBuilderFactory;
 
     static {
@@ -212,12 +210,7 @@ public class Util {
     }
 
     public static Document parseXSD(String xsd) throws ParserConfigurationException, IOException, SAXException {
-        Document doc = xmlCache.get(xsd);
-        if (doc != null)
-            return doc;
-        doc = parse(xsd, null);
-        xmlCache.put(xsd, doc);
-        return doc;
+        return parse(xsd, null);
     }
 
     private static synchronized DocumentBuilderFactory getDocumentBuilderFactory() {
@@ -439,135 +432,6 @@ public class Util {
         return getFirstTextNode(contextNode, xPath, contextNode);
     }
 
-    static LRUCache<String, List<String>> xsdNodesCache = new LRUCache<String, List<String>>(20);
-
-    public static List<String> getALLNodesFromSchema(Node doc) throws XtentisException {
-        List<String> list = new ArrayList<String>();
-        String prefix = doc.getPrefix();
-        NodeList l = Util.getNodeList(doc, "./" + prefix + ":element/@name");
-
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setNamespaceAware(true);
-        factory.setValidating(false);
-        DocumentBuilder builder;
-
-        for (int i = 0; i < l.getLength(); i++) {
-            Node n = l.item(i);
-            list.add(n.getNodeValue());
-        }
-
-        try {
-            for (int xsdType = 0; xsdType < 2; xsdType++) {
-                try {
-                    if (xsdType == 0)
-                        l = Util.getNodeList(doc, "./xsd:import");
-                    else
-                        l = Util.getNodeList(doc, "./xsd:include");
-                } catch (XtentisException e) {
-                    continue;
-                }
-                for (int elemNum = 0; elemNum < l.getLength(); elemNum++) {
-                    Node importNode = l.item(elemNum);
-                    Node schemaLocation = importNode.getAttributes().getNamedItem("schemaLocation");
-                    if (schemaLocation == null) {
-                        continue;
-                    }
-                    String xsdLocation = schemaLocation.getNodeValue();
-                    Pattern httpUrl = Pattern.compile("(http|https|ftp):(//|\\\\)(.*):(.*)");
-                    Matcher match = httpUrl.matcher(xsdLocation);
-                    Document d = null;
-                    if (match.matches()) {
-                        List<String> authorizations = Util.getAuthorizationInfo();
-                        String xsd = Util.getResponseFromURL(xsdLocation, authorizations.get(0), authorizations.get(1));
-                        d = Util.parse(xsd);
-                    } else {
-                        builder = factory.newDocumentBuilder();
-                        FileInputStream fio = new FileInputStream(xsdLocation);
-                        try {
-                            d = builder.parse(fio);
-                        } finally {
-                            fio.close();
-                        }
-                    }
-
-                    list.addAll(getALLNodesFromSchema(d.getDocumentElement()));
-                }
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(Util.class).error(ex);
-        }
-
-        return list;
-    }
-
-    public static Element getNameSpaceFromSchema(Node doc, String typeName) throws XtentisException {
-        Pattern mask = Pattern.compile("(.*?):(.*?)");
-        Matcher matcher = mask.matcher(typeName);
-        String prefix;
-        if (matcher.matches()) {
-            prefix = matcher.group(1);
-        } else {
-            prefix = null;
-        }
-
-        Element ns = null;
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        // Schema validation based on schemaURL
-        factory.setNamespaceAware(true);
-        factory.setValidating(false);
-        DocumentBuilder builder;
-        try {
-            builder = factory.newDocumentBuilder();
-            NodeList list = Util.getNodeList(doc, ".//" + "xsd:import");
-            for (int id = 0; id < list.getLength() && prefix != null; id++) {
-                Node node = list.item(id);
-                if (node.getAttributes().getNamedItem("schemaLocation") == null) {
-                    continue;
-                }
-                String schemaLocation = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
-                String namespace = node.getAttributes().getNamedItem("namespace").getNodeValue();
-                NodeList l = Util.getNodeList(doc, "//*[@type='" + typeName + "']", namespace, prefix);
-                if (l.getLength() > 0)
-                    return (Element) l.item(0);
-                Document d = builder.parse(new FileInputStream(schemaLocation));
-                ns = getNameSpaceFromSchema(d, typeName);
-                if (ns != null)
-                    return ns;
-            }
-            if (list.getLength() == 0 || prefix == null) {
-                list = Util.getNodeList(doc, ".//" + "xsd:include");
-                for (int id = 0; id < list.getLength(); id++) {
-                    Node node = list.item(id);
-                    Document d;
-                    String schemaLocation = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
-                    Pattern httpUrl = Pattern.compile("(http|https|ftp):(//|\\\\)(.*):(.*)");
-                    Matcher match = httpUrl.matcher(schemaLocation);
-                    if (match.matches()) {
-                        // to-fix : we need to provide a flexible way to find the user/pwd, rather than the hard code
-                        // out here.
-                        List<String> authorizations = Util.getAuthorizationInfo();
-                        String xsd = Util.getResponseFromURL(schemaLocation, authorizations.get(0), authorizations.get(1));
-                        d = Util.parse(xsd);
-                    } else {
-                        d = builder.parse(new FileInputStream(schemaLocation));
-                    }
-
-                    ns = getNameSpaceFromSchema(d, typeName);
-                    if (ns != null)
-                        return ns;
-                }
-                list = Util.getNodeList(doc, "//*[@name='" + typeName + "']");
-                if (list.getLength() > 0)
-                    return (Element) list.item(0);
-            }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            Logger.getLogger(Util.class).error(e);
-        }
-
-        return ns;
-    }
-
     public static String getResponseFromURL(String url, String user, String pwd) {
         StringBuilder buffer = new StringBuilder();
         String credentials = new String(Base64.encodeBase64((user + ":" + pwd).getBytes()));
@@ -713,17 +577,10 @@ public class Util {
         return null;
     }
 
-    private static final LRUCache<String, XSDKey> xsdKeyCache = new LRUCache<String, XSDKey>(40);
-    
     public static XSDKey getBusinessConceptKey(Document xsd, String businessConceptName) throws TransformerException {
         try {
             String schema = nodeToString(xsd);
-            // FIXME: sometimes this bug 'Concept/.../Conpcet/Id' happens in the cache, so I have to remove getFromCache
-            // first!
-            XSDKey key = xsdKeyCache.get(schema + "#" + businessConceptName);
-            // XSDKey key = null;
-            if (key != null)
-                return key;
+            XSDKey key = null;
             String[] selectors;
             String[] fields;
             selectors = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element/xsd:unique[@name='" + businessConceptName
@@ -773,10 +630,8 @@ public class Util {
 
                         key = getBusinessConceptKey(d, businessConceptName);
                         if (key != null) {
-                            xsdKeyCache.put(nodeToString(d) + "#" + businessConceptName, key);
                             break;
                         }
-
                     }
                 }
                 return key;
@@ -808,7 +663,6 @@ public class Util {
                 }
 
                 key = new XSDKey(selectors[0], fields, fieldTypes);
-                xsdKeyCache.put(schema + "#" + businessConceptName, key);
                 return key;
             }
 
@@ -849,12 +703,7 @@ public class Util {
         return authorizations;
     }
 
-    private static final LRUCache<String, Map<String, XSElementDecl>> conceptMapCache = new LRUCache<String, Map<String, XSElementDecl>>(10);
-
     public static Map<String, XSElementDecl> getConceptMap(String xsd) throws Exception {
-        if (conceptMapCache.get(xsd) != null) {
-            return conceptMapCache.get(xsd);
-        }
         XSOMParser reader = new XSOMParser();
         reader.setAnnotationParser(new DomAnnotationParserFactory());
         reader.setEntityResolver(new SecurityEntityResolver());
@@ -874,16 +723,10 @@ public class Util {
             map = schema.getElementDecls();
             mapForAll.putAll(map);
         }
-        conceptMapCache.put(xsd, mapForAll);
         return mapForAll;
     }
 
-    private static final LRUCache<String, Map<String, XSType>> cTypeMapCache = new LRUCache<String, Map<String, XSType>>(10);
-
     public static Map<String, XSType> getConceptTypeMap(String xsd) throws Exception {
-        if (cTypeMapCache.get(xsd) != null) {
-            return cTypeMapCache.get(xsd);
-        }
         XSOMParser reader = new XSOMParser();
         reader.setAnnotationParser(new DomAnnotationParserFactory());
         reader.setEntityResolver(new SecurityEntityResolver());
@@ -903,7 +746,6 @@ public class Util {
             map = schema.getTypes();
             mapForAll.putAll(map);
         }
-        cTypeMapCache.put(xsd, mapForAll);
         return mapForAll;
     }
 

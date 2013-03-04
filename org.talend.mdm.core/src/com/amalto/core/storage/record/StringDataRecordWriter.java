@@ -73,7 +73,7 @@ public class StringDataRecordWriter implements DataRecordWriter {
     }
 
     private void internalWrite(final DataRecord record, final Writer out) throws IOException {
-        List<FieldMetadata> fields = record.getType().getFields();
+        Collection<FieldMetadata> fields = record.getType().getFields();
         final Iterator<FieldMetadata> fieldsIterator = fields.iterator();
         while (fieldsIterator.hasNext()) {
             FieldMetadata field = fieldsIterator.next();

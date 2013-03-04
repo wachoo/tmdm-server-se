@@ -22,7 +22,7 @@ import org.w3c.dom.*;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.TransformerException;
-import java.util.List;
+import java.util.Collection;
 
 public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
 
@@ -60,7 +60,7 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
         }
         // Process fields that are links to other field values.
         ComplexTypeMetadata dataRecordType = dataRecord.getType();
-        List<FieldMetadata> fields = dataRecordType.getFields();
+        Collection<FieldMetadata> fields = dataRecordType.getFields();
         for (FieldMetadata field : fields) {
             if (field.getData(ClassRepository.LINK) != null) {
                 dataRecord.set(field, dataRecord.get(field.<String>getData(ClassRepository.LINK)));
@@ -71,7 +71,6 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
 
     private void _read(MetadataRepository repository, DataRecord dataRecord, ComplexTypeMetadata type, Element element) {
         String tagName = element.getTagName();
-        NodeList children = element.getChildNodes();
         NamedNodeMap attributes = element.getAttributes();
         for (int i = 0; i < attributes.getLength(); i++) {
             Node attribute = attributes.item(i);
@@ -81,10 +80,11 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
             FieldMetadata field = type.getField(attribute.getNodeName());
             dataRecord.set(field, MetadataUtils.convert(attribute.getNodeValue(), field));
         }
-        for (int i = 0; i < children.getLength(); i++) {
-            Node currentChild = children.item(i);
-            if (currentChild instanceof Element) {
-                Element child = (Element) currentChild;
+        NodeList children = element.getChildNodes();
+        Node current = element.getFirstChild();
+        while (current != null) {
+            if (current.getNodeType() == Node.ELEMENT_NODE) {
+                Element child = (Element) current;
                 if (!type.hasField(child.getTagName())) {
                     continue;
                 }
@@ -114,7 +114,7 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
                 } else {
                     _read(repository, dataRecord, type, child);
                 }
-            } else if (currentChild instanceof Text) {
+            } else if (current.getNodeType() == Node.TEXT_NODE) {
                 String textContent = element.getFirstChild().getNodeValue().trim();
                 if (!textContent.isEmpty()) {
                     FieldMetadata field = type.getField(tagName);
@@ -130,7 +130,7 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
                     }
                 }
             }
+            current = current.getNextSibling();
         }
     }
-
 }

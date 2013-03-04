@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.List;
+import java.util.Collection;
 
 class ItemPKCriteriaResultsWriter implements DataRecordWriter {
 
@@ -60,7 +60,7 @@ class ItemPKCriteriaResultsWriter implements DataRecordWriter {
             writer.write("<taskId>" + taskId + "</taskId>"); //$NON-NLS-1$ //$NON-NLS-2$
             writer.write("<n>" + typeName + "</n>"); //$NON-NLS-1$ //$NON-NLS-2$
             writer.write("<ids>"); //$NON-NLS-1$
-            List<FieldMetadata> keyFields = itemType.getKeyFields();
+            Collection<FieldMetadata> keyFields = itemType.getKeyFields();
             for (FieldMetadata keyField : keyFields) {
                 writer.write("<i>" + record.get(keyField) + "</i>"); //$NON-NLS-1$ //$NON-NLS-2$
             }

@@ -43,7 +43,7 @@ class ScatteredTypeMapping extends TypeMapping {
     Object _setValues(Session session, DataRecord from, Wrapper to) {
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         TypeMapping mapping = mappings.getMappingFromUser(from.getType());
-        List<FieldMetadata> fields;
+        Collection<FieldMetadata> fields;
         if (mapping != null) {
             fields = mapping.getUser().getFields();
         } else {
@@ -116,7 +116,7 @@ class ScatteredTypeMapping extends TypeMapping {
                 if (!field.isMany()) {
                     DataRecord referencedObject = (DataRecord) from.get(field);
                     if (referencedObject != null) {
-                        List<FieldMetadata> keyFields = referencedObject.getType().getKeyFields();
+                        Collection<FieldMetadata> keyFields = referencedObject.getType().getKeyFields();
                         Object referenceId;
                         if (keyFields.size() > 1) {
                             List<Object> referenceIdList = new LinkedList<Object>();
@@ -125,7 +125,7 @@ class ScatteredTypeMapping extends TypeMapping {
                             }
                             referenceId = referenceIdList;
                         } else {
-                            referenceId = referencedObject.get(keyFields.get(0));
+                            referenceId = referencedObject.get(keyFields.iterator().next());
                         }
                         to.set(mappedDatabaseField.getName(), getReferencedObject(contextClassLoader, session, mappings.getMappingFromUser(referencedObject.getType()).getDatabase(), referenceId));
                     } else {
@@ -136,7 +136,7 @@ class ScatteredTypeMapping extends TypeMapping {
                     if (referencedObjectList != null) {
                         List<Object> wrappers = new LinkedList<Object>();
                         for (DataRecord dataRecord : referencedObjectList) {
-                            List<FieldMetadata> keyFields = dataRecord.getType().getKeyFields();
+                            Collection<FieldMetadata> keyFields = dataRecord.getType().getKeyFields();
                             Object referenceId;
                             if (keyFields.size() > 1) {
                                 List<Object> referenceIdList = new LinkedList<Object>();
@@ -145,7 +145,7 @@ class ScatteredTypeMapping extends TypeMapping {
                                 }
                                 referenceId = referenceIdList;
                             } else {
-                                referenceId = dataRecord.get(keyFields.get(0));
+                                referenceId = dataRecord.get(keyFields.iterator().next());
                             }
                             wrappers.add(getReferencedObject(contextClassLoader, session, dataRecord.getType(), referenceId));
                         }
@@ -231,7 +231,7 @@ class ScatteredTypeMapping extends TypeMapping {
                     try {
                         recordProperties.put(fieldName, String.valueOf(value));
                     } catch (Exception e) {
-                        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                        throw new RuntimeException("Unexpected set error.", e);
                     }
                 }
             }

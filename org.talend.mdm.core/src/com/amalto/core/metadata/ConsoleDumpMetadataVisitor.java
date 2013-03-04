@@ -13,6 +13,7 @@ package com.amalto.core.metadata;
 
 import org.apache.log4j.Logger;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -140,7 +141,7 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
         } else {
             processedTypes.add(containedType);
         }
-        List<FieldMetadata> fields = containedType.getFields();
+        Collection<FieldMetadata> fields = containedType.getFields();
         indent++;
         {
             for (FieldMetadata field : fields) {

@@ -36,7 +36,7 @@ class ManyFieldProjection extends SimpleProjection {
         ComplexTypeMetadata containingType = field.getContainingType();
         String containerTable = MappingGenerator.formatSQLName(containingType.getName(), resolver.getNameMaxLength());
         String collectionTable = MappingGenerator.formatSQLName(containerTable + '_' + field.getName(), resolver.getNameMaxLength());
-        String containerIdColumn = MappingGenerator.formatSQLName(containingType.getKeyFields().get(0).getName(), resolver.getNameMaxLength());
+        String containerIdColumn = MappingGenerator.formatSQLName(containingType.getKeyFields().iterator().next().getName(), resolver.getNameMaxLength());
         StringBuilder sqlFragment = new StringBuilder();
         sqlFragment.append("(select group_concat(") //$NON-NLS-1$
                 .append(collectionTable)

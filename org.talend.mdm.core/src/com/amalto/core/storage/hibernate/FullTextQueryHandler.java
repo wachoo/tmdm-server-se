@@ -12,13 +12,7 @@
 package com.amalto.core.storage.hibernate;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.XMLConstants;
 
@@ -282,9 +276,9 @@ class FullTextQueryHandler extends AbstractQueryHandler {
     private static Object getReferencedId(DataRecord next, ReferenceFieldMetadata field) {
         DataRecord record = (DataRecord) next.get(field);
         if (record != null){
-            List<FieldMetadata> keyFields = record.getType().getKeyFields();
+            Collection<FieldMetadata> keyFields = record.getType().getKeyFields();
             if (keyFields.size() == 1) {
-                return record.get(keyFields.get(0));
+                return record.get(keyFields.iterator().next());
             } else {
                 List<Object> compositeKeyValues = new ArrayList<Object>(keyFields.size());
                 for (FieldMetadata keyField : keyFields) {

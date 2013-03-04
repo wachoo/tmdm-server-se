@@ -90,13 +90,14 @@ public class BeforeSaving implements DocumentSaver {
                         item = (Node) XPATH.evaluate(xpath, doc, XPathConstants.NODE);
                     }
                     if (item != null && item instanceof Element) {
-                        NodeList list = item.getChildNodes();
                         Node node = null;
-                        for (int i = 0; i < list.getLength(); i++) {
-                            if (list.item(i) instanceof Element) {
-                                node = list.item(i);
+                        Node current = item.getFirstChild();
+                        while (current != null) {
+                            if (current instanceof Element) {
+                                node = current;
                                 break;
                             }
+                            current = item.getNextSibling();
                         }
                         if (node != null) {
                             // set back the modified item by the process
@@ -138,29 +139,28 @@ public class BeforeSaving implements DocumentSaver {
         } catch (Exception e) {
             return false;
         }
-
-        if (nodeList.getLength() != 1)
+        if (nodeList.getLength() != 1) {
             return false;
-
+        }
         Node reportNode = nodeList.item(0);
-        if (reportNode.getNodeType() != Node.ELEMENT_NODE)
+        if (reportNode.getNodeType() != Node.ELEMENT_NODE) {
             return false;
-
+        }
         NamedNodeMap attrMap = reportNode.getAttributes();
         Node attribute = attrMap.getNamedItem("type"); //$NON-NLS-1$
-        if (attribute == null)
+        if (attribute == null) {
             return false;
-
-        if (!attribute.getNodeValue().equalsIgnoreCase("info") && !attribute.getNodeValue().equalsIgnoreCase("error")) //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        if (!"info".equalsIgnoreCase(attribute.getNodeValue()) && !"error".equalsIgnoreCase(attribute.getNodeValue())) { //$NON-NLS-1$ //$NON-NLS-2$
             return false;
-
+        }
         NodeList messageNodeList = reportNode.getChildNodes();
-        if (messageNodeList.getLength() > 1)
+        if (messageNodeList.getLength() > 1) {
             return false;
-
-        if (messageNodeList.getLength() == 0)
+        }
+        if (messageNodeList.getLength() == 0) {
             return true;
-
+        }
         Node messageNode = messageNodeList.item(0);
         return messageNode.getNodeType() == Node.TEXT_NODE;
     }

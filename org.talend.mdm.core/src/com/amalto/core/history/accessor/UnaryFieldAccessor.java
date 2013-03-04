@@ -46,16 +46,15 @@ class UnaryFieldAccessor implements DOMAccessor {
         Element element = null;
         Node parentNode = parent.getNode();
         if (parentNode != null) {
-            NodeList children = parentNode.getChildNodes();
-            for (int i = 0; i < children.getLength(); i++) {
-                Node currentChild = children.item(i);
-                if (fieldName.equals(currentChild.getNodeName())) {
-                    element = (Element) currentChild;
+            Node current = parentNode.getFirstChild();
+            while (current != null) {
+                if (fieldName.equals(current.getNodeName())) {
+                    element = (Element) current;
                     break;
                 }
+                current = current.getNextSibling();
             }
         }
-
         return element;
     }
 

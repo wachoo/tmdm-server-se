@@ -19,8 +19,6 @@ import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import org.w3c.dom.Document;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.util.List;
 
 class UpdateReport implements DocumentSaver {
@@ -40,13 +38,9 @@ class UpdateReport implements DocumentSaver {
         MutableDocument databaseDocument = context.getDatabaseDocument();
 
         UpdateReportDocument updateReportDocument;
-        try {
-            Document updateReportAsDOM = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-            updateReportAsDOM.appendChild(updateReportAsDOM.createElement(UPDATE_REPORT_TYPE));
-            updateReportDocument = new UpdateReportDocument(updateReportAsDOM, databaseDocument);
-        } catch (ParserConfigurationException e) {
-            throw new RuntimeException(e);
-        }
+        Document updateReportAsDOM = SaverContextFactory.DOCUMENT_BUILDER.newDocument();
+        updateReportAsDOM.appendChild(updateReportAsDOM.createElement(UPDATE_REPORT_TYPE));
+        updateReportDocument = new UpdateReportDocument(updateReportAsDOM, databaseDocument);
 
         StringBuilder key = new StringBuilder();
         String[] id = context.getId();

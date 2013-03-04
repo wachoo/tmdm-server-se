@@ -20,6 +20,7 @@ import com.amalto.core.save.ReportDocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -49,7 +50,7 @@ class SystemActions implements DocumentSaver {
         context.setActions(actions);
 
         // Get ID from the system document
-        List<FieldMetadata> keyFields = context.getType().getKeyFields();
+        Collection<FieldMetadata> keyFields = context.getType().getKeyFields();
         String[] ids = new String[keyFields.size()];
         int i = 0;
         for (FieldMetadata keyField : keyFields) {

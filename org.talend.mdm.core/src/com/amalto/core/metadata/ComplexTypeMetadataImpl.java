@@ -139,15 +139,15 @@ public class ComplexTypeMetadataImpl extends AbstractMetadataExtensible implemen
         return isFrozen;
     }
 
-    public List<FieldMetadata> getKeyFields() {
-        return new ArrayList<FieldMetadata>(keyFields.values());
+    public Collection<FieldMetadata> getKeyFields() {
+        return Collections.unmodifiableCollection(keyFields.values());
     }
 
-    public List<FieldMetadata> getFields() {
+    public Collection<FieldMetadata> getFields() {
         if (!isFrozen) {
             throw new IllegalStateException("Type should be frozen before calling this method.");
         }
-        return Collections.unmodifiableList(new LinkedList<FieldMetadata>(fieldMetadata.values()));
+        return Collections.unmodifiableCollection(fieldMetadata.values());
     }
 
     public boolean isAssignableFrom(TypeMetadata type) {
@@ -223,7 +223,7 @@ public class ComplexTypeMetadataImpl extends AbstractMetadataExtensible implemen
                 isInstantiable);
         repository.addTypeMetadata(copy);
 
-        List<FieldMetadata> fields = getFields();
+        Collection<FieldMetadata> fields = getFields();
         for (FieldMetadata field : fields) {
             copy.addField(field.copy(repository));
         }
@@ -231,7 +231,7 @@ public class ComplexTypeMetadataImpl extends AbstractMetadataExtensible implemen
             copy.addSuperType(superType.copy(repository), repository);
         }
 
-        List<FieldMetadata> typeKeyFields = getKeyFields();
+        Collection<FieldMetadata> typeKeyFields = getKeyFields();
         for (FieldMetadata typeKeyField : typeKeyFields) {
             copy.registerKey(typeKeyField.copy(repository));
         }
@@ -331,7 +331,7 @@ public class ComplexTypeMetadataImpl extends AbstractMetadataExtensible implemen
                 if (isInstantiable() == superType.isInstantiable()) {
                     superType = superType.freeze(handler);
                     if (superType instanceof ComplexTypeMetadata) {
-                        List<FieldMetadata> thisTypeKeyFields = getKeyFields();
+                        Collection<FieldMetadata> thisTypeKeyFields = getKeyFields();
                         for (FieldMetadata thisTypeKeyField : thisTypeKeyFields) {
                             if (!((ComplexTypeMetadata) superType).hasField(thisTypeKeyField.getName())) {
                                 handler.error("Type '" + name + "' cannot add field(s) to its key because " +
@@ -346,7 +346,7 @@ public class ComplexTypeMetadataImpl extends AbstractMetadataExtensible implemen
                 }
                 if (superType instanceof ComplexTypeMetadata) {
                     ((ComplexTypeMetadata) superType).registerSubType(this);
-                    List<FieldMetadata> superTypeFields = ((ComplexTypeMetadata) superType).getFields();
+                    Collection<FieldMetadata> superTypeFields = ((ComplexTypeMetadata) superType).getFields();
                     for (FieldMetadata superTypeField : superTypeFields) {
                         superTypeField.adopt(this, repository);
                     }

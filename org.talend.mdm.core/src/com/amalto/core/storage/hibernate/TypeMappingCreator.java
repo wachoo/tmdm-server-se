@@ -93,7 +93,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(ContainedComplexTypeMetadata containedType) {
-        List<FieldMetadata> fields = containedType.getFields();
+        Collection<FieldMetadata> fields = containedType.getFields();
         for (FieldMetadata field : fields) {
             field.accept(this);
         }
@@ -179,11 +179,11 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     @Override
     public TypeMapping visit(ComplexTypeMetadata complexType) {
         typeMapping = new FlatTypeMapping(complexType, TypeMappingCreator.this.mappings);
-        List<FieldMetadata> fields = complexType.getFields();
+        Collection<FieldMetadata> fields = complexType.getFields();
         for (FieldMetadata field : fields) {
             field.accept(this);
         }
-        List<FieldMetadata> keyFields = complexType.getKeyFields();
+        Collection<FieldMetadata> keyFields = complexType.getKeyFields();
         ComplexTypeMetadata database = typeMapping.getDatabase();
         Collection<TypeMetadata> superTypes = complexType.getSuperTypes();
         for (TypeMetadata superType : superTypes) {

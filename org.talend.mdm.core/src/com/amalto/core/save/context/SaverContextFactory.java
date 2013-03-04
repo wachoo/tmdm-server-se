@@ -26,17 +26,15 @@ import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.SAXParserFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.InputStream;
 import java.util.Map;
 
 public class SaverContextFactory {
 
-    public static final DocumentBuilderFactory DOM_PARSER_FACTORY;
+    public static final DocumentBuilder DOCUMENT_BUILDER;
 
     private static final Map<String, XSystemObjects> SYSTEM_DATA_CLUSTERS = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
-
-    private static final SAXParserFactory SAX_PARSER_FACTORY = SAXParserFactory.newInstance();
 
     private static final String SYSTEM_CONTAINER_PREFIX = "amalto";  //$NON-NLS-1$
 
@@ -64,13 +62,16 @@ public class SaverContextFactory {
     }
 
     static {
-        DOM_PARSER_FACTORY = DocumentBuilderFactory.newInstance();
-        DOM_PARSER_FACTORY.setNamespaceAware(true);
-        DOM_PARSER_FACTORY.setIgnoringComments(true);
-        DOM_PARSER_FACTORY.setValidating(false);
-
-        SAX_PARSER_FACTORY.setNamespaceAware(false);
-        SAX_PARSER_FACTORY.setValidating(false);
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        factory.setIgnoringComments(true);
+        factory.setValidating(false);
+        try {
+            factory.setFeature("http://apache.org/xml/features/dom/defer-node-expansion", false);
+            DOCUMENT_BUILDER = factory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException("Could not acquire a document builder.", e);
+        }
     }
 
     /**
@@ -141,7 +142,7 @@ public class SaverContextFactory {
         MutableDocument userDocument;
         try {
             // Don't ignore talend internal attributes when parsing this document
-            DocumentBuilder documentBuilder = new SkipAttributeDocumentBuilder(DOM_PARSER_FACTORY.newDocumentBuilder(), false);
+            DocumentBuilder documentBuilder = new SkipAttributeDocumentBuilder(DOCUMENT_BUILDER, false);
             InputSource source = new InputSource(documentStream);
             Document userDomDocument = documentBuilder.parse(source);
             userDocument = new DOMDocument(userDomDocument);

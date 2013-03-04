@@ -52,7 +52,7 @@ class ManyFieldCriterion extends SQLCriterion {
             String containingTypeAlias = criteriaQuery.getSQLAlias(typeCriteria);
             String containingType = type.getName().toUpperCase();
             String fieldName = field.getName().toUpperCase();
-            String containingTypeKey = type.getKeyFields().get(0).getName();
+            String containingTypeKey = type.getKeyFields().iterator().next().getName();
             StringBuilder builder = new StringBuilder();
             String joinedTableName = MappingGenerator.formatSQLName(containingType + '_' + fieldName,
                     resolver.getNameMaxLength());

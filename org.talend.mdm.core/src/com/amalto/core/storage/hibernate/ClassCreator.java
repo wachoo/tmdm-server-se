@@ -68,7 +68,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
 
     @Override
     public Void visit(ContainedComplexTypeMetadata containedType) {
-        List<FieldMetadata> fields = containedType.getFields();
+        Collection<FieldMetadata> fields = containedType.getFields();
         for (FieldMetadata field : fields) {
             field.accept(this);
         }
@@ -112,7 +112,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             annotationsAttribute.setAnnotation(indexedAnnotation);
             classFile.addAttribute(annotationsAttribute);
 
-            List<FieldMetadata> keyFields = complexType.getKeyFields();
+            Collection<FieldMetadata> keyFields = complexType.getKeyFields();
             // Composite id class.
             if (keyFields.size() > 1) {
                 String idClassName = PACKAGE_PREFIX + typeName + "_ID"; //$NON-NLS-1$
@@ -173,7 +173,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             // Optimized getter
             StringBuilder getFieldsMethodBody = new StringBuilder();
             getFieldsMethodBody.append("public Object get(String name) {"); //$NON-NLS-1$
-            List<FieldMetadata> typeFields = complexType.getFields();
+            Collection<FieldMetadata> typeFields = complexType.getFields();
             if (typeFields.isEmpty()) {
                 throw new IllegalArgumentException("Type '" + typeName + "' does not contain any field.");
             }

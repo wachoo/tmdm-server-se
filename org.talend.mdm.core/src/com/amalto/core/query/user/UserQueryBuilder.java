@@ -16,6 +16,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -601,7 +602,7 @@ public class UserQueryBuilder {
     }
 
     public UserQueryBuilder selectId(ComplexTypeMetadata typeMetadata) {
-        List<FieldMetadata> keyFields = typeMetadata.getKeyFields();
+        Collection<FieldMetadata> keyFields = typeMetadata.getKeyFields();
         for (FieldMetadata keyField : keyFields) {
             select(keyField);
         }

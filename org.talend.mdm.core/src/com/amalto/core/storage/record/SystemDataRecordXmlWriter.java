@@ -134,7 +134,7 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
             } else {
                 // TODO Limit new field printer instances
                 DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(containedRecord, out);
-                List<FieldMetadata> fields = containedRecord.getType().getFields();
+                Collection<FieldMetadata> fields = containedRecord.getType().getFields();
                 Class javaClass = repository.getJavaClass(containedRecord.getType().getName());
                 if (javaClass == null || javaClass.isInterface() || Modifier.isAbstract(javaClass.getModifiers())) {
                     out.write("<" + containedField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$

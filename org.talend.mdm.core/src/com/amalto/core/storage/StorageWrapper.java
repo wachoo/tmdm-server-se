@@ -50,7 +50,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             typeForSelect = (ComplexTypeMetadata) typeForSelect.getSuperTypes().iterator().next();
         }
         UserQueryBuilder qb = UserQueryBuilder.from(typeForSelect);
-        List<FieldMetadata> keyFields = type.getKeyFields();
+        Collection<FieldMetadata> keyFields = type.getKeyFields();
 
         if (splitUniqueId.length < (2 + keyFields.size())) {
             StringBuilder builder = new StringBuilder();
@@ -593,7 +593,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 paths.add(currentPath.toString());
                 if (currentPath.toString().isEmpty()) {
                     // TODO Implement compound key support
-                    qb.where(eq(type.getKeyFields().get(0), id.toString()));
+                    qb.where(eq(type.getKeyFields().iterator().next(), id.toString()));
                 } else {
                     Condition globalCondition = UserQueryHelper.NO_OP_CONDITION;
                     for (String path : paths) {
@@ -607,11 +607,11 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                     qb.where(globalCondition);
                 }
             } else {
-                List<FieldMetadata> keyFields = type.getKeyFields();
+                Collection<FieldMetadata> keyFields = type.getKeyFields();
                 if (keyFields.size() > 1) {
                     throw new IllegalArgumentException("Expected type '" + type.getName() + "' to contain only 1 key field.");
                 }
-                String uniqueKeyFieldName = keyFields.get(0).getName();
+                String uniqueKeyFieldName = keyFields.iterator().next().getName();
                 qb.where(eq(type.getField(uniqueKeyFieldName), keysKeywords));
             }
         }

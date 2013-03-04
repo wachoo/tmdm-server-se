@@ -1018,7 +1018,8 @@ public class DocumentSaveTest extends TestCase {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
 
-        SaverSource source = new TestSaverSource(repository, false, "test1_original.xml", "metadata1.xsd");
+        TestSaverSource source = new TestSaverSource(repository, false, "test1_original.xml", "metadata1.xsd");
+        source.setUserName("admin");
         {
             SaverSession session = SaverSession.newSession(source);
             {
@@ -1033,42 +1034,29 @@ public class DocumentSaveTest extends TestCase {
             session.end(new MockCommitter());
         }
 
-        long saveTime = System.currentTimeMillis();
-        long max = 0;
-        long min = Long.MAX_VALUE;
+        long saveTime = System.nanoTime();
         {
             SaverSession session = SaverSession.newSession(source);
             {
                 for (int i = 0; i < 200; i++) {
-                    long singleExecTime = System.currentTimeMillis();
-                    {
-                        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-                        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml,
-                                true, true, true, false);
-                        DocumentSaver saver = context.createSaver();
-                        saver.save(session, context);
-                    }
-                    singleExecTime = (System.currentTimeMillis() - singleExecTime);
-                    if (singleExecTime > max) {
-                        max = singleExecTime;
-                    }
-                    if (singleExecTime < min) {
-                        min = singleExecTime;
-                    }
+                    InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
+                    DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml,
+                            true, true, true, false);
+                    DocumentSaver saver = context.createSaver();
+                    saver.save(session, context);
                 }
             }
             session.end(new MockCommitter());
         }
-        LOG.info("Time (mean): " + (System.currentTimeMillis() - saveTime) / 200f + " ms.");
-        LOG.info("Time (min): " + min);
-        LOG.info("Time (max): " + max);
+        LOG.info("Time (mean): " + (System.nanoTime() - saveTime) / 200f / 1000f / 1000f + " ms.");
     }
 
     public void testUpdatePerformance() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
 
-        SaverSource source = new TestSaverSource(repository, true, "test1_original.xml", "metadata1.xsd");
+        TestSaverSource source = new TestSaverSource(repository, true, "test1_original.xml", "metadata1.xsd");
+        source.setUserName("admin");
         {
             SaverSession session = SaverSession.newSession(source);
             {

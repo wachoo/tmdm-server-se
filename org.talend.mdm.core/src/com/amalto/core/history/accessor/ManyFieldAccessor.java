@@ -30,6 +30,8 @@ class ManyFieldAccessor implements DOMAccessor {
 
     private final MutableDocument document;
 
+    private Element cachedCollectionItemNode;
+
     public ManyFieldAccessor(DOMAccessor parent, String fieldName, int index, MutableDocument document) {
         this.parent = parent;
         this.fieldName = fieldName;
@@ -38,29 +40,32 @@ class ManyFieldAccessor implements DOMAccessor {
     }
 
     private Element getCollectionItemNode() {
+        if (cachedCollectionItemNode != null) {
+            return cachedCollectionItemNode;
+        }
         Element collectionItemNode = null;
         Node node = parent.getNode();
         if (node == null) {
             throw new IllegalStateException("Could not find parent node in document.");
         }
         NodeList children = node.getChildNodes();
-
         if (index > children.getLength()) {
             return null;
         }
-
         int currentIndex = 0;
-        for (int i = 0; i < children.getLength(); i++) {
-            if (fieldName.equals(children.item(i).getNodeName())) {
+        Node current = node.getFirstChild();
+        while (current != null) {
+            if (fieldName.equals(current.getNodeName())) {
                 if (index == currentIndex) {
-                    collectionItemNode = (Element) children.item(i);
+                    collectionItemNode = (Element) current;
                     break;
                 } else {
                     currentIndex++;
                 }
             }
+            current = current.getNextSibling();
         }
-
+        cachedCollectionItemNode = collectionItemNode;
         return collectionItemNode;
     }
 

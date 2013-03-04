@@ -168,7 +168,7 @@ public class SystemStorageWrapper extends StorageWrapper {
         Storage storage = getStorage(clusterName, revisionID);
         ComplexTypeMetadata type = getType(clusterName, storage, null);
         if (type != null) {
-            FieldMetadata keyField = type.getKeyFields().get(0);
+            FieldMetadata keyField = type.getKeyFields().iterator().next();
             UserQueryBuilder qb = from(type).select(keyField);
             StorageResults results = storage.fetch(qb.getSelect());
             try {
@@ -266,16 +266,16 @@ public class SystemStorageWrapper extends StorageWrapper {
             // TODO Filter by revision
             // String revisionId = StringUtils.substringBefore(uniqueID, ".");
             String documentUniqueId = StringUtils.substringAfter(uniqueID, "."); //$NON-NLS-1$
-            qb = from(type).where(eq(type.getKeyFields().get(0), documentUniqueId));
+            qb = from(type).where(eq(type.getKeyFields().iterator().next(), documentUniqueId));
         } else if(COMPLETED_ROUTING_ORDER.equals(type.getName())
                 || FAILED_ROUTING_ORDER.equals(type.getName())
                 || ACTIVE_ROUTING_ORDER.equals(type.getName())) {
             isUserFormat = false;
-            qb = from(type).where(eq(type.getKeyFields().get(0), uniqueID));
+            qb = from(type).where(eq(type.getKeyFields().iterator().next(), uniqueID));
         } else {
             isUserFormat = uniqueID.indexOf('.') > 0;
             String documentUniqueId = isUserFormat ? StringUtils.substringAfterLast(uniqueID, ".") : uniqueID;
-            qb = from(type).where(eq(type.getKeyFields().get(0), documentUniqueId));
+            qb = from(type).where(eq(type.getKeyFields().iterator().next(), documentUniqueId));
         }
         StorageResults records = storage.fetch(qb.getSelect());
         ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
@@ -327,7 +327,7 @@ public class SystemStorageWrapper extends StorageWrapper {
         }
         long start = System.currentTimeMillis();
         {
-            UserQueryBuilder qb = from(type).where(eq(type.getKeyFields().get(0), uniqueID));
+            UserQueryBuilder qb = from(type).where(eq(type.getKeyFields().iterator().next(), uniqueID));
             try {
                 storage.begin();
                 storage.delete(qb.getSelect());
