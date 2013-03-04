@@ -26,16 +26,21 @@ import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.server.util.Constants;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.base.shared.XpathUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.webapp.core.dmagent.SchemaAbstractWebAgent;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.Util;
@@ -62,7 +67,7 @@ public class ForeignKeyHelper {
         schemaManager = _schemaManager;
     }
 
-    public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
+    public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,EntityModel entityModel,
             String dataClusterPK, boolean ifFKFilter, String value) throws Exception {
 
         ForeignKeyHolder holder = getForeignKeyHolder((String) config.get("xml"), (String) config.get("dataObject"), //$NON-NLS-1$ //$NON-NLS-2$
@@ -153,7 +158,7 @@ public class ForeignKeyHelper {
                 }
 
                 if (resultAsDOM.getNodeName().equals("result")) { //$NON-NLS-1$
-                    initFKBean(resultAsDOM, bean, fk, model.getForeignKeyInfo(), businessConcept != null ? businessConcept.getXpathDerivedSimpleTypeMap() : null, (String) config.get("language")); //$NON-NLS-1$
+                    initFKBean(dataClusterPK,entityModel,resultAsDOM, bean, fk, model.getForeignKeyInfo(), businessConcept != null ? businessConcept.getXpathDerivedSimpleTypeMap() : null, (String) config.get("language")); //$NON-NLS-1$
                     convertFKInfo2DisplayInfo(bean, model.getForeignKeyInfo());
                 } else {
                     bean.set(resultAsDOM.getNodeName(), resultAsDOM.getTextContent().trim());
@@ -328,21 +333,66 @@ public class ForeignKeyHelper {
         return null;
     }
 
-    private static void initFKBean(Element ele, ForeignKeyBean bean, String fk, List<String> getForeignKeyInfos, Map<String, String> xpathTypeMap, String language) {
+    private static void initFKBean(String dataClusterPK,EntityModel entityModel,Element ele, ForeignKeyBean bean, String fk, List<String> getForeignKeyInfos, Map<String, String> xpathTypeMap, String language) throws Exception {
         for (int i = 0; i < ele.getChildNodes().getLength(); i++) {
             if (ele.getChildNodes().item(i) instanceof Element) {
                 Element curEle = (Element) ele.getChildNodes().item(i);
-                bean.set(curEle.getNodeName(), curEle.getTextContent().trim());
+                String value = curEle.getTextContent().trim();
                 String fkInfo = fk + "/" + curEle.getNodeName(); //$NON-NLS-1$
                 if (getForeignKeyInfos != null && getForeignKeyInfos.contains(fkInfo)) {
+                    value = getDisplayValue(curEle.getTextContent().trim(),fkInfo,dataClusterPK,entityModel,language);
                     if (xpathTypeMap != null && xpathTypeMap.containsKey(fkInfo) && xpathTypeMap.get(fkInfo).equals("xsd:MULTI_LINGUAL")) { //$NON-NLS-1$
-                        bean.getForeignKeyInfo().put(fkInfo, MultilanguageMessageParser.getValueByLanguage(curEle.getTextContent().trim(), language));
+                        bean.getForeignKeyInfo().put(fkInfo, MultilanguageMessageParser.getValueByLanguage(value, language));
                     } else {
-                        bean.getForeignKeyInfo().put(fkInfo, curEle.getTextContent().trim());    
+                        bean.getForeignKeyInfo().put(fkInfo, value);    
                     }
                 }
-                initFKBean(curEle, bean, fk, getForeignKeyInfos, xpathTypeMap, language);
+                bean.set(curEle.getNodeName(), value);
+                initFKBean(dataClusterPK,entityModel,curEle, bean, fk, getForeignKeyInfos, xpathTypeMap, language);
             }
+        }
+    }
+    
+    public static String getDisplayValue(String value,String path,String dataClusterPK,EntityModel entityModel,String language) throws Exception {        
+        List<String> subFKInfoList = null;
+        String subFKInfo = ""; //$NON-NLS-1$
+        TypeModel subModel = entityModel.getTypeModel(path);
+        if (subModel != null && subModel.getForeignKeyInfo() != null && subModel.getForeignKeyInfo().size() >0 && !"".equals(value)) { //$NON-NLS-1$
+            subFKInfoList =  subModel.getForeignKeyInfo();
+        }
+        
+        if (subFKInfoList != null) {            
+            ItemPOJOPK pk = new ItemPOJOPK();
+            String[] ids = CommonUtil.extractFKRefValue(value,language);
+            pk.setIds(ids);
+            String conceptName = subModel.getForeignkey().split("/")[0]; //$NON-NLS-1$
+            pk.setConceptName(conceptName);
+            pk.setDataClusterPOJOPK(new DataClusterPOJOPK(dataClusterPK));
+            ItemPOJO item = com.amalto.core.util.Util.getItemCtrl2Local().getItem(pk);
+            if (item != null) {
+                org.w3c.dom.Document document = item.getProjection().getOwnerDocument();
+                List<String> foreignKeyInfo = subModel.getForeignKeyInfo();  
+                for (String foreignKeyPath : foreignKeyInfo) {
+                    NodeList nodes = com.amalto.core.util.Util.getNodeList(document,
+                            StringUtils.substringAfter(foreignKeyPath, "/")); //$NON-NLS-1$
+                    if (nodes.getLength() == 1) {
+                        String foreignKeyValue = nodes.item(0).getTextContent();      
+                                              
+                        if (subModel.getType().equals(DataTypeConstants.MLS)) {
+                            foreignKeyValue = MultilanguageMessageParser.getValueByLanguage(foreignKeyValue, language);
+                        }               
+
+                        if (subFKInfo.equals("")) { //$NON-NLS-1$
+                            subFKInfo += foreignKeyValue;
+                        } else {
+                            subFKInfo += "-" + foreignKeyValue; //$NON-NLS-1$
+                        }
+                    }
+                }                
+            }           
+            return subFKInfo;
+        } else {
+            return value;
         }
     }
 

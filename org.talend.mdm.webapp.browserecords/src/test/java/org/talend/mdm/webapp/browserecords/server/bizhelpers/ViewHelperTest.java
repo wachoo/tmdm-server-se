@@ -19,10 +19,10 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeCustomized;
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
-import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
-import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 
 import com.amalto.webapp.util.webservices.WSView;
 

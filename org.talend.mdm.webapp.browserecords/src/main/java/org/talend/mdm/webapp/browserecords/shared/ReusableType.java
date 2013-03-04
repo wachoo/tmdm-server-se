@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecords.shared;
 import java.io.Serializable;
 import java.util.List;
 
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 

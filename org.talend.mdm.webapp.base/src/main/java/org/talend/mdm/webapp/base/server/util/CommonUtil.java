@@ -14,6 +14,9 @@ package org.talend.mdm.webapp.base.server.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.webapp.base.client.model.Criteria;
@@ -23,6 +26,8 @@ import org.talend.mdm.webapp.base.client.util.Parser;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.mockup.FakeData;
 
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
@@ -41,6 +46,11 @@ public class CommonUtil {
     public static final String AND = "AND"; //$NON-NLS-1$
 
     public static final String OR = "OR"; //$NON-NLS-1$ 
+    
+    private static final Pattern extractIdPattern = Pattern.compile("\\[.*?\\]"); //$NON-NLS-1$
+    
+    private static final Messages MESSAGES = MessagesFactory.getMessages(
+            "org.talend.mdm.webapp.base.client.i18n.BaseMessages", CommonUtil.class.getClassLoader()); //$NON-NLS-1$    
 
     /**
      * DOC HSHU Comment method "getPort".
@@ -201,5 +211,23 @@ public class CommonUtil {
                 new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewPk), wi, -1, skip, max, sortCol, sortDir))
                 .getStrings();
         return results;
+    }
+    
+    public static String[] extractFKRefValue(String ids,String language) {
+        List<String> idList = new ArrayList<String>();
+        Matcher matcher = extractIdPattern.matcher(ids);
+        boolean hasMatchedOnce = false;
+        while (matcher.find()) {
+            String id = matcher.group();
+            id = id.replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            idList.add(id);
+            hasMatchedOnce = true;
+        }
+
+        if (hasMatchedOnce) {
+            throw new IllegalArgumentException(MESSAGES.getMessage(new Locale(language), "exception_fk_malform", ids)); //$NON-NLS-1$
+        }
+
+        return idList.toArray(new String[idList.size()]);
     }
 }

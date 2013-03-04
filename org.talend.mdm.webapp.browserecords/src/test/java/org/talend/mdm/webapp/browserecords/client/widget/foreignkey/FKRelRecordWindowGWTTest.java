@@ -13,12 +13,12 @@
 package org.talend.mdm.webapp.browserecords.client.widget.foreignkey;
 
 
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.util.ClientResourceData;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtilTestData;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKRelRecordWindow;
-import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.google.gwt.junit.client.GWTTestCase;

@@ -12,7 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.typefield;
 
-import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
 

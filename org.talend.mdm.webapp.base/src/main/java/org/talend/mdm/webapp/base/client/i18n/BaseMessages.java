@@ -61,4 +61,6 @@ public interface BaseMessages extends Messages {
     String add_btn();
 
     String remove_btn();
+    
+    String exception_fk_malform(String fk);
 }

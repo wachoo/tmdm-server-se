@@ -22,12 +22,12 @@ import java.util.Map;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.widget.MultiLanguageField;
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.base.shared.FacetModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
-import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
@@ -48,7 +48,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCrea
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldSource;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldStyle;
-import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 
 import com.extjs.gxt.ui.client.Style.HideMode;

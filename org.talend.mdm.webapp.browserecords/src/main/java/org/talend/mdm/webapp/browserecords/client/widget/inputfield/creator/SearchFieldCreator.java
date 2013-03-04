@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.OperatorConstants;
@@ -22,7 +23,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKField;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCreateContext;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldSource;
-import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;

@@ -21,6 +21,8 @@ import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.model.MultiLanguageModel;
+import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -37,7 +39,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
-import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.SortDir;
@@ -64,6 +65,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Format;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
@@ -215,12 +217,19 @@ public class ForeignKeyListWindow extends Window {
                 }
                 baseConfig.set("language", Locale.getLanguage()); //$NON-NLS-1$
                 service.getForeignKeyList(baseConfig, typeModel, BrowseRecords.getSession().getAppHeader().getDatacluster(),
-                        hasForeignKeyFilter, currentFilterText,
+                        hasForeignKeyFilter, currentFilterText,Locale.getLanguage(),
                         new SessionAwareAsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
 
                             @Override
                             protected void doOnFailure(Throwable caught) {
-                                callback.onFailure(caught);
+                                String err = caught.getMessage();
+                                if (err != null) {                                
+                                    MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                            MultilanguageMessageParser.pickOutISOMessage(err), null);
+                                    callback.onSuccess(new BasePagingLoadResult<ForeignKeyBean>(new ArrayList<ForeignKeyBean>(),0,0));
+                                } else {
+                                    callback.onFailure(caught);
+                                }
                             }
 
                             public void onSuccess(ItemBasePageLoadResult<ForeignKeyBean> result) {

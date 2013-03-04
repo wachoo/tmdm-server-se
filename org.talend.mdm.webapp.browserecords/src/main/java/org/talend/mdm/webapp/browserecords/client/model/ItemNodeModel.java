@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.talend.mdm.webapp.browserecords.shared.EntityModel;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;

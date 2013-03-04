@@ -129,4 +129,8 @@ public final class BaseMessagesImpl implements BaseMessages {
     public String remove_btn() {
         return MESSAGES.getMessage("remove_btn");
     }
+    
+    public String exception_fk_malform(String fk) {
+        return MESSAGES.getMessage("exception_fk_malform",fk);
+    }
 }
