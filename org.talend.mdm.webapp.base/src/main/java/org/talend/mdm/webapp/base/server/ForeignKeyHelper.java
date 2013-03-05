@@ -340,7 +340,9 @@ public class ForeignKeyHelper {
                 String value = curEle.getTextContent().trim();
                 String fkInfo = fk + "/" + curEle.getNodeName(); //$NON-NLS-1$
                 if (getForeignKeyInfos != null && getForeignKeyInfos.contains(fkInfo)) {
-                    value = getDisplayValue(curEle.getTextContent().trim(),fkInfo,dataClusterPK,entityModel,language);
+                    if (entityModel != null) {
+                        value = getDisplayValue(curEle.getTextContent().trim(),fkInfo,dataClusterPK,entityModel,language);
+                    }
                     if (xpathTypeMap != null && xpathTypeMap.containsKey(fkInfo) && xpathTypeMap.get(fkInfo).equals("xsd:MULTI_LINGUAL")) { //$NON-NLS-1$
                         bean.getForeignKeyInfo().put(fkInfo, MultilanguageMessageParser.getValueByLanguage(value, language));
                     } else {
