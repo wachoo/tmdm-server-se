@@ -600,7 +600,13 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                         Condition pathCondition = UserQueryHelper.NO_OP_CONDITION;
                         Set<FieldMetadata> candidateFields = Collections.singleton(type.getField(path));
                         for (FieldMetadata candidateField : candidateFields) {
-                            pathCondition = or(eq(candidateField, idForLookup.toString()), pathCondition);
+                            if (candidateField instanceof ReferenceFieldMetadata
+                                    && ((ReferenceFieldMetadata) candidateField).getReferencedField() instanceof CompoundFieldMetadata) {
+                                // composite key: fkValue of the form '[value1.value2.value3...]'
+                                pathCondition = or(eq(candidateField, StringUtils.replace(idForLookup.toString(), ".", "][")), pathCondition); //$NON-NLS-1$ //$NON-NLS-2$
+                            } else {
+                                pathCondition = or(eq(candidateField, idForLookup.toString()), pathCondition);
+                            }
                         }
                         globalCondition = or(globalCondition, pathCondition);
                     }
