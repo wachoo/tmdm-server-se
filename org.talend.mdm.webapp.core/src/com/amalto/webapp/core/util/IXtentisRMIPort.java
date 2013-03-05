@@ -46,11 +46,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.server.MetadataRepositoryAdmin;
-import com.amalto.core.server.ServerContext;
 import org.apache.log4j.Logger;
 import org.jboss.security.Base64Encoder;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -72,6 +67,9 @@ import com.amalto.core.ejb.TransformerPOJO;
 import com.amalto.core.ejb.TransformerPOJOPK;
 import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlUtil;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
@@ -103,6 +101,8 @@ import com.amalto.core.save.SaveException;
 import com.amalto.core.save.SaverHelper;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.DocumentSaver;
+import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.exception.FullTextQueryCompositeKeyException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
@@ -116,13 +116,13 @@ import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 public abstract class IXtentisRMIPort implements XtentisPort {
 
     private static Logger LOG = Logger.getLogger(IXtentisRMIPort.class);
-    
+
     private String INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE = "delete_failure_constraint_violation"; //$NON-NLS-1$
-    
+
     // full text query entity include composite key
     public static final String FULLTEXT_QUERY_COMPOSITEKEY_EXCEPTION_MESSAGE = "fulltext_query_compositekey_fail"; //$NON-NLS-1$
-    
-    //default remote error
+
+    // default remote error
     public static final String DEFAULT_REMOTE_ERROR_MESSAGE = "default_remote_error_message"; //$NON-NLS-1$
 
     /***************************************************************************
@@ -135,6 +135,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * Components Management
      * **************************************************************************/
 
+    @Override
     public WSVersion getComponentVersion(WSGetComponentVersion wsGetComponentVersion) throws RemoteException {
         try {
             if (WSComponent.DataManager.equals(wsGetComponentVersion.getComponent())) {
@@ -155,6 +156,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * Initialize
      * **************************************************************************/
 
+    @Override
     public WSInt initMDM(WSInitData initData) throws RemoteException {
         throw new RemoteException("initMDM not implemented as RMI call");
     }
@@ -163,6 +165,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * Logout
      * **************************************************************************/
 
+    @Override
     public WSString logout(WSLogout wsLogout) throws RemoteException {
         org.apache.log4j.Logger.getLogger(this.getClass()).trace("logout() ");
         String msg = "OK";
@@ -181,6 +184,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * Data Model
      * **************************************************************************/
 
+    @Override
     public WSDataModel getDataModel(WSGetDataModel wsDataModelget) throws RemoteException {
         try {
             return XConverter.VO2WS(com.amalto.core.util.Util.getDataModelCtrlLocal().getDataModel(
@@ -190,6 +194,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSDataModelPKArray getDataModelPKs(WSRegexDataModelPKs regexp) throws RemoteException {
         try {
 
@@ -208,6 +213,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSDataModelPK deleteDataModel(WSDeleteDataModel wsDeleteDataModel) throws RemoteException {
         try {
             return new WSDataModelPK(com.amalto.core.util.Util.getDataModelCtrlLocal()
@@ -217,6 +223,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSBoolean existsDataModel(WSExistsDataModel wsExistsDataModel) throws RemoteException {
         try {
             return new WSBoolean((Util.getDataModelCtrlLocal().existsDataModel(
@@ -226,6 +233,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSDataModelPK putDataModel(WSPutDataModel wsDataModel) throws RemoteException {
         try {
             WSDataModelPK wsDataModelPK = new WSDataModelPK(Util.getDataModelCtrlLocal()
@@ -241,6 +249,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSString checkSchema(WSCheckSchema wsSchema) throws RemoteException {
         try {
             return new WSString(com.amalto.core.util.Util.getDataModelCtrlLocal().checkSchema(wsSchema.getSchema()));
@@ -267,14 +276,14 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         return serviceConfigResponse;
     }
 
+    @Override
     public WSString putBusinessConcept(WSPutBusinessConcept wsPutBusinessConcept) throws RemoteException {
         WSBusinessConcept bc = wsPutBusinessConcept.getBusinessConcept();
         try {
             String s = "<xsd:element name=" + bc.getName() + " type=" + bc.getBusinessTemplate() + ">" + "	<xsd:annotation>";
             WSI18NString[] labels = bc.getWsLabel();
             for (WSI18NString label : labels) {
-                s += "<xsd:appinfo source=\"" + label.getLanguage().getValue() + "\">" + label.getLabel()
-                        + "</xsd:appinfo>";
+                s += "<xsd:appinfo source=\"" + label.getLanguage().getValue() + "\">" + label.getLabel() + "</xsd:appinfo>";
             }
             WSI18NString[] docs = bc.getWsDescription();
             for (WSI18NString doc : docs) {
@@ -294,6 +303,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSString putBusinessConceptSchema(WSPutBusinessConceptSchema wsPutBusinessConceptSchema) throws RemoteException {
         try {
             return new WSString(Util.getDataModelCtrlLocal().putBusinessConceptSchema(
@@ -304,6 +314,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSString deleteBusinessConcept(WSDeleteBusinessConcept wsDeleteBusinessConcept) throws RemoteException {
         try {
             return new WSString(com.amalto.core.util.Util.getDataModelCtrlLocal().deleteBusinessConcept(
@@ -314,6 +325,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSStringArray getBusinessConcepts(WSGetBusinessConcepts wsGetBusinessConcepts) throws RemoteException {
         try {
             return new WSStringArray(com.amalto.core.util.Util.getDataModelCtrlLocal().getAllBusinessConceptsNames(
@@ -323,12 +335,13 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSConceptKey getBusinessConceptKey(WSGetBusinessConceptKey wsGetBusinessConceptKey) throws RemoteException {
         try {
             MetadataRepositoryAdmin metadataRepositoryAdmin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
             MetadataRepository repository = metadataRepositoryAdmin.get(wsGetBusinessConceptKey.getWsDataModelPK().getPk());
             ComplexTypeMetadata type = repository.getComplexType(wsGetBusinessConceptKey.getConcept());
-            List<FieldMetadata> keyFields = type.getKeyFields();
+            Collection<FieldMetadata> keyFields = type.getKeyFields();
             String[] fields = new String[keyFields.size()];
             int i = 0;
             for (FieldMetadata keyField : keyFields) {
@@ -344,6 +357,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * DataCluster
      * **************************************************************************/
 
+    @Override
     public WSDataCluster getDataCluster(WSGetDataCluster wsDataClusterGet) throws RemoteException {
         try {
             return XConverter.VO2WS(com.amalto.core.util.Util.getDataClusterCtrlLocal().getDataCluster(
@@ -353,6 +367,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSBoolean existsDataCluster(WSExistsDataCluster wsExistsDataCluster) throws RemoteException {
         try {
             return new WSBoolean(com.amalto.core.util.Util.getDataClusterCtrlLocal().existsDataCluster(
@@ -362,6 +377,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSBoolean existsDBDataCluster(WSExistsDBDataCluster wsExistsDataCluster) throws RemoteException {
         try {
             String revisionId = wsExistsDataCluster.getRevisionID();
@@ -373,6 +389,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSDataClusterPKArray getDataClusterPKs(WSRegexDataClusterPKs regexp) throws RemoteException {
         try {
             WSDataClusterPKArray array = new WSDataClusterPKArray();
@@ -389,6 +406,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSDataClusterPK deleteDataCluster(WSDeleteDataCluster wsDeleteDataCluster) throws RemoteException {
         try {
             return new WSDataClusterPK(com.amalto.core.util.Util.getDataClusterCtrlLocal()
@@ -398,6 +416,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSDataClusterPK putDataCluster(WSPutDataCluster wsDataCluster) throws RemoteException {
         try {
             return new WSDataClusterPK(com.amalto.core.util.Util.getDataClusterCtrlLocal()
@@ -407,6 +426,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSBoolean putDBDataCluster(WSPutDBDataCluster wsDataCluster) throws RemoteException {
         try {
             Util.getXmlServerCtrlLocal().createCluster(wsDataCluster.getRevisionID(), wsDataCluster.getName());
@@ -418,6 +438,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSStringArray getConceptsInDataCluster(WSGetConceptsInDataCluster wsGetConceptsInDataCluster) throws RemoteException {
         try {
             Collection<String> results = com.amalto.core.util.Util.getItemCtrl2Local()
@@ -435,6 +456,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * View
      * **************************************************************************/
 
+    @Override
     public WSView getView(WSGetView wsViewGet) throws RemoteException {
         try {
             return XConverter.VO2WS(com.amalto.core.util.Util.getViewCtrlLocalHome().create()
@@ -446,6 +468,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSBoolean existsView(WSExistsView wsExistsView) throws RemoteException {
         try {
             return new WSBoolean(com.amalto.core.util.Util.getViewCtrlLocalHome().create()
@@ -455,6 +478,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSViewPKArray getViewPKs(WSGetViewPKs regexp) throws RemoteException {
         try {
             ArrayList l;
@@ -474,6 +498,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSViewPK deleteView(WSDeleteView wsDeleteView) throws RemoteException {
         try {
             return new WSViewPK(com.amalto.core.util.Util.getViewCtrlLocalHome().create()
@@ -485,6 +510,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSViewPK putView(WSPutView wsView) throws RemoteException {
         try {
             return new WSViewPK(com.amalto.core.util.Util.getViewCtrlLocalHome().create()
@@ -500,6 +526,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * Search
      * **************************************************************************/
 
+    @Override
     public WSStringArray viewSearch(WSViewSearch wsViewSearch) throws RemoteException {
         try {
             Collection res = Util.getItemCtrl2Local().viewSearch(
@@ -518,6 +545,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSStringArray xPathsSearch(WSXPathsSearch wsXPathsSearch) throws RemoteException {
         try {
             Collection res = com.amalto.core.util.Util.getItemCtrl2Local().xPathsSearch(
@@ -525,8 +553,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     new ArrayList<String>(Arrays.asList(wsXPathsSearch.getViewablePaths().getStrings())),
                     XConverter.WS2VO(wsXPathsSearch.getWhereItem()), wsXPathsSearch.getSpellTreshold(),
                     wsXPathsSearch.getOrderBy(), wsXPathsSearch.getDirection(), wsXPathsSearch.getSkip(),
-                    wsXPathsSearch.getMaxItems(),
-                    wsXPathsSearch.getReturnCount());
+                    wsXPathsSearch.getMaxItems(), wsXPathsSearch.getReturnCount());
             return new WSStringArray((String[]) res.toArray(new String[res.size()]));
         } catch (com.amalto.core.util.XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
@@ -535,6 +562,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSStringArray getItemsPivotIndex(WSGetItemsPivotIndex wsGetItemsPivotIndex) throws RemoteException {
         try {
             Collection res = Util.getItemCtrl2Local().getItemsPivotIndex(
@@ -555,6 +583,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSStringArray getItems(WSGetItems wsGetItems) throws RemoteException {
         try {
             Map wcfContext = new HashMap();
@@ -563,7 +592,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             Collection res = com.amalto.core.util.Util.getItemCtrl2Local().getItems(
                     new DataClusterPOJOPK(wsGetItems.getWsDataClusterPK().getPk()), wsGetItems.getConceptName(),
                     XConverter.WS2VO(wsGetItems.getWhereItem(), new WhereConditionForcePivotFilter(wcfContext)),
-                    wsGetItems.getSpellTreshold(), wsGetItems.getSkip(), wsGetItems.getMaxItems(), wsGetItems.getTotalCountOnFirstResult());
+                    wsGetItems.getSpellTreshold(), wsGetItems.getSkip(), wsGetItems.getMaxItems(),
+                    wsGetItems.getTotalCountOnFirstResult());
             return new WSStringArray((String[]) res.toArray(new String[res.size()]));
         } catch (com.amalto.core.util.XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
@@ -572,6 +602,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSStringArray getItemsSort(WSGetItemsSort wsGetItemsSort) throws RemoteException {
         try {
             Map wcfContext = new HashMap();
@@ -580,7 +611,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             Collection res = com.amalto.core.util.Util.getItemCtrl2Local().getItems(
                     new DataClusterPOJOPK(wsGetItemsSort.getWsDataClusterPK().getPk()), wsGetItemsSort.getConceptName(),
                     XConverter.WS2VO(wsGetItemsSort.getWhereItem(), new WhereConditionForcePivotFilter(wcfContext)),
-                    wsGetItemsSort.getSpellTreshold(),wsGetItemsSort.getDir(), wsGetItemsSort.getSort(), wsGetItemsSort.getSkip(), wsGetItemsSort.getMaxItems(), wsGetItemsSort.getTotalCountOnFirstResult());
+                    wsGetItemsSort.getSpellTreshold(), wsGetItemsSort.getDir(), wsGetItemsSort.getSort(),
+                    wsGetItemsSort.getSkip(), wsGetItemsSort.getMaxItems(), wsGetItemsSort.getTotalCountOnFirstResult());
             return new WSStringArray((String[]) res.toArray(new String[res.size()]));
         } catch (com.amalto.core.util.XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
@@ -588,7 +620,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
-    
+
+    @Override
     public WSItemPKsByCriteriaResponse getItemPKsByCriteria(WSGetItemPKsByCriteria wsGetItemPKsByCriteria) throws RemoteException {
         try {
 
@@ -598,7 +631,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
             if (MDMConfiguration.getAdminUser().equals(user.getUsername())
-                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$
+                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
                 authorized = true;
             } else if (user.userCanRead(DataClusterPOJO.class, dataClusterName)) {
                 authorized = true;
@@ -614,7 +647,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             // The meat of this method should be ported to ItemCtrlBean
             String revisionID = null;
             String conceptName = wsGetItemPKsByCriteria.getConceptName();
-            if ( conceptName == null) {
+            if (conceptName == null) {
                 if (user.getUniverse().getItemsRevisionIDs().size() > 0) {
                     throw new RemoteException("User " + user.getUsername() + " is using items coming from multiple revisions."
                             + " In that particular case, the concept must be specified");
@@ -636,7 +669,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             criteria.setToDate(wsGetItemPKsByCriteria.getToDate());
             criteria.setMaxItems(wsGetItemPKsByCriteria.getMaxItems());
             criteria.setSkip(wsGetItemPKsByCriteria.getSkip());
-            criteria.setUseFTSearch(false);            
+            criteria.setUseFTSearch(false);
             List<String> results = com.amalto.core.util.Util.getItemCtrl2Local().getItemPKsByCriteria(criteria);
 
             WSItemPKsByCriteriaResponseResults[] res = new WSItemPKsByCriteriaResponseResults[results.size()];
@@ -661,6 +694,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSItem getItem(WSGetItem wsGetItem) throws RemoteException {
         org.apache.log4j.Logger.getLogger(this.getClass()).trace(
                 "getItem() " + wsGetItem.getWsItemPK().getConceptName() + "    "
@@ -675,9 +709,11 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         } catch (com.amalto.core.util.XtentisException e) {
             String entityNotFoundErrorMessage = "entity_not_found";
             if (com.amalto.webapp.core.util.Util.causeIs(e, com.amalto.core.util.EntityNotFoundException.class)) {
-                throw new RemoteException("", new WebCoreException(entityNotFoundErrorMessage, com.amalto.webapp.core.util.Util.cause(e, com.amalto.core.util.EntityNotFoundException.class))); //$NON-NLS-1$
+                throw new RemoteException(
+                        "", new WebCoreException(entityNotFoundErrorMessage, com.amalto.webapp.core.util.Util.cause(e, com.amalto.core.util.EntityNotFoundException.class))); //$NON-NLS-1$
             } else if (com.amalto.webapp.core.util.Util.causeIs(e, org.hibernate.ObjectNotFoundException.class)) {
-                throw new RemoteException("", new WebCoreException(entityNotFoundErrorMessage, com.amalto.webapp.core.util.Util.cause(e, org.hibernate.ObjectNotFoundException.class))); //$NON-NLS-1$
+                throw new RemoteException(
+                        "", new WebCoreException(entityNotFoundErrorMessage, com.amalto.webapp.core.util.Util.cause(e, org.hibernate.ObjectNotFoundException.class))); //$NON-NLS-1$
             }
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
@@ -685,6 +721,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSBoolean existsItem(WSExistsItem wsExistsItem) throws RemoteException {
         try {
             return new WSBoolean((com.amalto.core.util.Util.getItemCtrl2Local().existsItem(
@@ -697,6 +734,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSStringArray quickSearch(WSQuickSearch wsQuickSearch) throws RemoteException {
         try {
             Collection c = com.amalto.core.util.Util.getItemCtrl2Local().quickSearch(
@@ -715,6 +753,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSString getBusinessConceptValue(WSGetBusinessConceptValue wsGetBusinessConceptValue) throws RemoteException {
         try {
             ItemPOJO iv = com.amalto.core.util.Util.getItemCtrl2Local().getItem(
@@ -729,6 +768,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSStringArray getFullPathValues(WSGetFullPathValues wsGetFullPathValues) throws RemoteException {
         try {
 
@@ -737,8 +777,9 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     XConverter.WS2VO(wsGetFullPathValues.getWhereItem()), wsGetFullPathValues.getSpellThreshold(),
                     wsGetFullPathValues.getOrderBy(), wsGetFullPathValues.getDirection());
 
-            if (res == null)
+            if (res == null) {
                 return null;
+            }
 
             return new WSStringArray((String[]) res.toArray(new String[res.size()]));
 
@@ -750,12 +791,13 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
+
     private String itemAsString(ItemPOJO iv) throws Exception {
 
         String item = "<businessconcept>" + "	<cluster>" + iv.getDataClusterPOJOPK().getUniqueId() + "</cluster>";
         String[] ids = iv.getItemIds();
-        for (int i = 0; i < ids.length; i++) {
-            item += "	<id>" + ids[i] + "</id>";
+        for (String id : ids) {
+            item += "	<id>" + id + "</id>";
         }
         item += "	<lastmodifiedtime>" + iv.getInsertionTime() + "</lastmodifiedtime>";
         item += "	<projection>" + iv.getProjection() + "</projection>";
@@ -767,6 +809,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     /***************************************************************************
      * Put Item
      * **************************************************************************/
+    @Override
     public WSItemPK putItem(WSPutItem wsPutItem) throws RemoteException {
         try {
             WSDataClusterPK dataClusterPK = wsPutItem.getWsDataClusterPK();
@@ -779,10 +822,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             DocumentSaver saver;
             try {
                 session.begin(dataClusterPK.getPk());
-                saver = SaverHelper.saveItem(wsPutItem.getXmlString(),
-                        session,
-                        !wsPutItem.getIsUpdate(),
-                        dataClusterName,
+                saver = SaverHelper.saveItem(wsPutItem.getXmlString(), session, !wsPutItem.getIsUpdate(), dataClusterName,
                         dataModelName);
                 // Cause items being saved to be committed to database.
                 session.end();
@@ -807,10 +847,12 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     /***************************************************************************
      * Extract Items
      * **************************************************************************/
+    @Override
     public WSPipeline extractUsingTransformer(WSExtractUsingTransformer wsExtractUsingTransformer) throws RemoteException {
         throw new RemoteException("Not Supported!");
     }
 
+    @Override
     public WSPipeline extractUsingTransformerThruView(WSExtractUsingTransformerThruView wsExtractUsingTransformerThruView)
             throws RemoteException {
         try {
@@ -835,15 +877,17 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     /***************************************************************************
      * Delete Items
      * **************************************************************************/
+    @Override
     public WSItemPK deleteItem(WSDeleteItem wsDeleteItem) throws RemoteException {
         try {
             ItemPOJOPK itemPK = new ItemPOJOPK(new DataClusterPOJOPK(wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk()),
                     wsDeleteItem.getWsItemPK().getConceptName(), wsDeleteItem.getWsItemPK().getIds());
             ItemPOJOPK ipk = com.amalto.core.util.Util.getItemCtrl2Local().deleteItem(itemPK, wsDeleteItem.getOverride());
             return ipk == null ? null : wsDeleteItem.getWsItemPK();
-        } catch (com.amalto.core.util.XtentisException e) {            
+        } catch (com.amalto.core.util.XtentisException e) {
             if (com.amalto.webapp.core.util.Util.causeIs(e, com.amalto.core.storage.exception.ConstraintViolationException.class)) {
-                throw new RemoteException("", new WebCoreException(INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE, com.amalto.webapp.core.util.Util.cause(e, com.amalto.core.storage.exception.ConstraintViolationException.class))); //$NON-NLS-1$                     
+                throw new RemoteException(
+                        "", new WebCoreException(INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE, com.amalto.webapp.core.util.Util.cause(e, com.amalto.core.storage.exception.ConstraintViolationException.class))); //$NON-NLS-1$                     
             }
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
@@ -851,11 +895,13 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSInt deleteItems(WSDeleteItems wsDeleteItems) throws RemoteException {
         try {
             int numItems = com.amalto.core.util.Util.getItemCtrl2Local().deleteItems(
                     new DataClusterPOJOPK(wsDeleteItems.getWsDataClusterPK().getPk()), wsDeleteItems.getConceptName(),
-                    XConverter.WS2VO(wsDeleteItems.getWsWhereItem()), wsDeleteItems.getSpellTreshold(), wsDeleteItems.isOverride());
+                    XConverter.WS2VO(wsDeleteItems.getWsWhereItem()), wsDeleteItems.getSpellTreshold(),
+                    wsDeleteItems.isOverride());
             return new WSInt(numItems);
         } catch (com.amalto.core.util.XtentisException e) {
             if (com.amalto.webapp.core.util.Util.causeIs(e, com.amalto.core.storage.exception.ConstraintViolationException.class)) {
@@ -871,6 +917,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * DirectQuery
      * **************************************************************************/
 
+    @Override
     public WSStringArray runQuery(WSRunQuery wsRunQuery) throws RemoteException {
         try {
             DataClusterPOJOPK dcpk = (wsRunQuery.getWsDataClusterPK() == null) ? null : new DataClusterPOJOPK(wsRunQuery
@@ -888,6 +935,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     /***************************************************************************
      * RoutingRule
      * **************************************************************************/
+    @Override
     public WSRoutingRule getRoutingRule(WSGetRoutingRule wsRoutingRuleGet) throws RemoteException {
         try {
             return XConverter.VO2WS(Util.getRoutingRuleCtrlLocal().getRoutingRule(
@@ -899,6 +947,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSBoolean existsRoutingRule(WSExistsRoutingRule wsExistsRoutingRule) throws RemoteException {
         try {
             return new WSBoolean(Util.getRoutingRuleCtrlLocal().existsRoutingRule(
@@ -910,12 +959,13 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSRoutingRulePKArray getRoutingRulePKs(WSGetRoutingRulePKs regexp) throws RemoteException {
         try {
             Collection<RoutingRulePOJOPK> pks = Util.getRoutingRuleCtrlLocal().getRoutingRulePKs(regexp.getRegex());
             ArrayList<WSRoutingRulePK> list = new ArrayList<WSRoutingRulePK>();
-            for (Iterator iter = pks.iterator(); iter.hasNext();) {
-                RoutingRulePOJOPK pk = (RoutingRulePOJOPK) iter.next();
+            for (Object element : pks) {
+                RoutingRulePOJOPK pk = (RoutingRulePOJOPK) element;
                 list.add(new WSRoutingRulePK(pk.getUniqueId()));
             }
             return new WSRoutingRulePKArray(list.toArray(new WSRoutingRulePK[list.size()]));
@@ -926,6 +976,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSRoutingRulePK deleteRoutingRule(WSDeleteRoutingRule wsDeleteRoutingRule) throws RemoteException {
         try {
             return new WSRoutingRulePK(Util.getRoutingRuleCtrlLocal()
@@ -937,6 +988,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSRoutingRulePK putRoutingRule(WSPutRoutingRule wsRoutingRule) throws RemoteException {
         try {
             return new WSRoutingRulePK(Util.getRoutingRuleCtrlLocal()
@@ -952,6 +1004,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * SERVICES
      * **************************************************************************/
 
+    @Override
     public WSString getServiceConfiguration(WSServiceGetConfiguration wsGetConfiguration) throws RemoteException {
         try {
             Object service = com.amalto.core.util.Util.retrieveComponent(null, wsGetConfiguration.getJndiName());
@@ -966,6 +1019,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSString putServiceConfiguration(WSServicePutConfiguration wsPutConfiguration) throws RemoteException {
         try {
             Object service = com.amalto.core.util.Util.retrieveComponent(null, wsPutConfiguration.getJndiName());
@@ -980,6 +1034,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSString serviceAction(WSServiceAction wsServiceAction) throws RemoteException {
         org.apache.log4j.Logger.getLogger(this.getClass()).debug("serviceAction() " + wsServiceAction.getJndiName());
         try {
@@ -1007,6 +1062,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSServicesList getServicesList(WSGetServicesList wsGetServicesList) throws RemoteException {
         try {
             ArrayList<WSServicesListItem> wsList = new ArrayList<WSServicesListItem>();
@@ -1028,6 +1084,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * Stored Procedures
      * **************************************************************************/
 
+    @Override
     public WSStoredProcedurePK deleteStoredProcedure(WSDeleteStoredProcedure wsStoredProcedureDelete) throws RemoteException {
         try {
             StoredProcedureCtrlLocal ctrl = com.amalto.core.util.Util.getStoredProcedureCtrlLocal();
@@ -1041,14 +1098,16 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSStringArray executeStoredProcedure(WSExecuteStoredProcedure wsExecuteStoredProcedure) throws RemoteException {
         try {
             StoredProcedureCtrlLocal ctrl = com.amalto.core.util.Util.getStoredProcedureCtrlLocal();
             Collection c = ctrl.execute(new StoredProcedurePOJOPK(wsExecuteStoredProcedure.getWsStoredProcedurePK().getPk()),
                     wsExecuteStoredProcedure.getRevisionID(), new DataClusterPOJOPK(wsExecuteStoredProcedure.getWsDataClusterPK()
                             .getPk()), wsExecuteStoredProcedure.getParameters());
-            if (c == null)
+            if (c == null) {
                 return null;
+            }
             String[] xmls = new String[c.size()];
             int i = 0;
             for (Iterator iter = c.iterator(); iter.hasNext();) {
@@ -1062,6 +1121,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSStoredProcedure getStoredProcedure(WSGetStoredProcedure wsGetStoredProcedure) throws RemoteException {
         try {
             StoredProcedureCtrlLocal ctrl = com.amalto.core.util.Util.getStoredProcedureCtrlLocal();
@@ -1075,6 +1135,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSBoolean existsStoredProcedure(WSExistsStoredProcedure wsExistsStoredProcedure) throws RemoteException {
         try {
             StoredProcedureCtrlLocal ctrl = com.amalto.core.util.Util.getStoredProcedureCtrlLocal();
@@ -1086,12 +1147,14 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSStoredProcedurePKArray getStoredProcedurePKs(WSRegexStoredProcedure regex) throws RemoteException {
         try {
             StoredProcedureCtrlLocal ctrl = com.amalto.core.util.Util.getStoredProcedureCtrlLocal();
             Collection c = ctrl.getStoredProcedurePKs(regex.getRegex());
-            if (c == null)
+            if (c == null) {
                 return null;
+            }
             WSStoredProcedurePK[] pks = new WSStoredProcedurePK[c.size()];
             int i = 0;
             for (Iterator iter = c.iterator(); iter.hasNext();) {
@@ -1105,6 +1168,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSStoredProcedurePK putStoredProcedure(WSPutStoredProcedure wsStoredProcedure) throws RemoteException {
         try {
             StoredProcedureCtrlLocal ctrl = com.amalto.core.util.Util.getStoredProcedureCtrlLocal();
@@ -1121,6 +1185,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * Ping - test that we can authenticate by getting a server response
      * **************************************************************************/
 
+    @Override
     public WSString ping(WSPing wsPing) throws RemoteException {
         try {
             return new WSString(wsPing.getEcho());
@@ -1135,6 +1200,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
     private transient ConnectionFactory cxFactory = null;
 
+    @Override
     public WSConnectorInteractionResponse connectorInteraction(WSConnectorInteraction wsConnectorInteraction)
             throws RemoteException {
         // This one does not call an EJB
@@ -1200,8 +1266,9 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
     private Connection getConnection(String JNDIName) throws RemoteException {
         try {
-            if (cxFactory == null)
+            if (cxFactory == null) {
                 cxFactory = (ConnectionFactory) (new InitialContext()).lookup(JNDIName);
+            }
             return cxFactory.getConnection();
         } catch (Exception e) {
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
@@ -1212,10 +1279,10 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         try {
             HashMap<String, Object> map = new HashMap<String, Object>();
             if (params != null) {
-                for (int i = 0; i < params.length; i++) {
-                    if (params[i] != null) {
-                        String key = params[i].getKey();
-                        byte[] bytes = (new BASE64Decoder()).decodeBuffer(params[i].getBase64StringValue());
+                for (WSBase64KeyValue param : params) {
+                    if (param != null) {
+                        String key = param.getKey();
+                        byte[] bytes = (new BASE64Decoder()).decodeBuffer(param.getBase64StringValue());
                         if (bytes != null) {
                             ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
                             ObjectInputStream ois = new ObjectInputStream(bais);
@@ -1234,8 +1301,9 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
     private WSBase64KeyValue[] getKeyValuesFromMap(HashMap params) throws RemoteException {
         try {
-            if (params == null)
+            if (params == null) {
                 return null;
+            }
             WSBase64KeyValue[] keyValues = new WSBase64KeyValue[params.size()];
             Set keys = params.keySet();
             int i = 0;
@@ -1263,6 +1331,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * Transformer
      * **************************************************************************/
 
+    @Override
     public WSTransformerPK deleteTransformer(WSDeleteTransformer wsTransformerDelete) throws RemoteException {
         try {
             TransformerCtrlLocal ctrl = com.amalto.core.util.Util.getTransformerCtrlLocal();
@@ -1274,6 +1343,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSTransformer getTransformer(WSGetTransformer wsGetTransformer) throws RemoteException {
         try {
             TransformerCtrlLocal ctrl = com.amalto.core.util.Util.getTransformerCtrlLocal();
@@ -1284,6 +1354,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSBoolean existsTransformer(WSExistsTransformer wsExistsTransformer) throws RemoteException {
         try {
             TransformerCtrlLocal ctrl = com.amalto.core.util.Util.getTransformerCtrlLocal();
@@ -1295,12 +1366,14 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSTransformerPKArray getTransformerPKs(WSGetTransformerPKs regex) throws RemoteException {
         try {
             TransformerCtrlLocal ctrl = com.amalto.core.util.Util.getTransformerCtrlLocal();
             Collection c = ctrl.getTransformerPKs(regex.getRegex());
-            if (c == null)
+            if (c == null) {
                 return null;
+            }
             WSTransformerPK[] pks = new WSTransformerPK[c.size()];
             int i = 0;
             for (Iterator iter = c.iterator(); iter.hasNext();) {
@@ -1312,6 +1385,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSTransformerPK putTransformer(WSPutTransformer wsTransformer) throws RemoteException {
         try {
             TransformerCtrlLocal ctrl = com.amalto.core.util.Util.getTransformerCtrlLocal();
@@ -1322,6 +1396,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSPipeline processBytesUsingTransformer(WSProcessBytesUsingTransformer wsProcessBytesUsingTransformer)
             throws RemoteException {
         try {
@@ -1335,10 +1410,11 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             // Add the Item PKs to the pipeline as comma seperated lines
             String pksAsLine = "";
             Collection<ItemPOJOPK> pks = (Collection<ItemPOJOPK>) context.get(TransformerCtrlBean.CTX_PKS);
-            for (Iterator iter = pks.iterator(); iter.hasNext();) {
-                ItemPOJOPK pk = (ItemPOJOPK) iter.next();
-                if (!"".equals(pksAsLine))
+            for (Object element : pks) {
+                ItemPOJOPK pk = (ItemPOJOPK) element;
+                if (!"".equals(pksAsLine)) {
                     pksAsLine += "\n";
+                }
                 pksAsLine += pk.getConceptName() + "," + Util.joinStrings(pk.getIds(), ",");
             }
             pipeline.put(TransformerCtrlBean.CTX_PKS, new com.amalto.core.util.TypedContent(null, pksAsLine.getBytes("UTF-8"),
@@ -1352,6 +1428,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSBackgroundJobPK processBytesUsingTransformerAsBackgroundJob(
             WSProcessBytesUsingTransformerAsBackgroundJob wsProcessBytesUsingTransformerAsBackgroundJob) throws RemoteException {
         try {
@@ -1370,6 +1447,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
     }
 
+    @Override
     public WSPipeline processFileUsingTransformer(WSProcessFileUsingTransformer wsProcessFileUsingTransformer)
             throws RemoteException {
         try {
@@ -1385,10 +1463,11 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             // Add the Item PKs to the pipeline as comma seperated lines
             String pksAsLine = "";
             Collection<ItemPOJOPK> pks = (Collection<ItemPOJOPK>) context.get(TransformerCtrlBean.CTX_PIPELINE);
-            for (Iterator iter = pks.iterator(); iter.hasNext();) {
-                ItemPOJOPK pk = (ItemPOJOPK) iter.next();
-                if (!"".equals(pksAsLine))
+            for (Object element : pks) {
+                ItemPOJOPK pk = (ItemPOJOPK) element;
+                if (!"".equals(pksAsLine)) {
                     pksAsLine += "\n";
+                }
                 pksAsLine += pk.getConceptName() + "," + Util.joinStrings(pk.getIds(), ",");
             }
             pipeline.put(TransformerCtrlBean.CTX_PIPELINE,
@@ -1403,6 +1482,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
     }
 
+    @Override
     public WSBackgroundJobPK processFileUsingTransformerAsBackgroundJob(
             WSProcessFileUsingTransformerAsBackgroundJob wsProcessFileUsingTransformerAsBackgroundJob) throws RemoteException {
         try {
@@ -1427,6 +1507,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    @Override
     public WSTransformerV2PK deleteTransformerV2(WSDeleteTransformerV2 wsTransformerV2Delete) throws RemoteException {
         try {
             TransformerV2CtrlLocal ctrl = Util.getTransformerV2CtrlLocal();
@@ -1442,6 +1523,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    @Override
     public WSTransformerV2 getTransformerV2(WSGetTransformerV2 wsGetTransformerV2) throws RemoteException {
         try {
             TransformerV2CtrlLocal ctrl = Util.getTransformerV2CtrlLocal();
@@ -1457,6 +1539,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    @Override
     public WSBoolean existsTransformerV2(WSExistsTransformerV2 wsExistsTransformerV2) throws RemoteException {
         try {
             TransformerV2CtrlLocal ctrl = Util.getTransformerV2CtrlLocal();
@@ -1472,12 +1555,14 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    @Override
     public WSTransformerV2PKArray getTransformerV2PKs(WSGetTransformerV2PKs regex) throws RemoteException {
         try {
             TransformerV2CtrlLocal ctrl = Util.getTransformerV2CtrlLocal();
             Collection c = ctrl.getTransformerPKs(regex.getRegex());
-            if (c == null)
+            if (c == null) {
                 return null;
+            }
             WSTransformerV2PK[] pks = new WSTransformerV2PK[c.size()];
             int i = 0;
             for (Iterator iter = c.iterator(); iter.hasNext();) {
@@ -1493,6 +1578,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    @Override
     public WSTransformerV2PK putTransformerV2(WSPutTransformerV2 wsTransformerV2) throws RemoteException {
         try {
             TransformerV2CtrlLocal ctrl = Util.getTransformerV2CtrlLocal();
@@ -1507,6 +1593,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    @Override
     public WSTransformerContext executeTransformerV2(WSExecuteTransformerV2 wsExecuteTransformerV2) throws RemoteException {
         try {
             final String RUNNING = "XtentisWSBean.executeTransformerV2.running";
@@ -1515,11 +1602,13 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             TransformerV2CtrlLocal ctrl = Util.getTransformerV2CtrlLocal();
             ctrl.execute(context, XConverter.WS2POJO(wsExecuteTransformerV2.getWsTypedContent()), new TransformerCallBack() {
 
+                @Override
                 public void contentIsReady(TransformerContext context) throws com.amalto.core.util.XtentisException {
                     org.apache.log4j.Logger.getLogger(this.getClass()).debug(
                             "XtentisWSBean.executeTransformerV2.contentIsReady() ");
                 }
 
+                @Override
                 public void done(TransformerContext context) throws com.amalto.core.util.XtentisException {
                     org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.done() ");
                     context.put(RUNNING, Boolean.FALSE);
@@ -1538,6 +1627,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    @Override
     public WSBackgroundJobPK executeTransformerV2AsJob(WSExecuteTransformerV2AsJob wsExecuteTransformerV2AsJob)
             throws RemoteException {
         try {
@@ -1545,11 +1635,13 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             BackgroundJobPOJOPK bgPK = ctrl.executeAsJob(
                     XConverter.WS2POJO(wsExecuteTransformerV2AsJob.getWsTransformerContext()), new TransformerCallBack() {
 
+                        @Override
                         public void contentIsReady(TransformerContext context) throws com.amalto.core.util.XtentisException {
                             org.apache.log4j.Logger.getLogger(this.getClass()).debug(
                                     "XtentisWSBean.executeTransformerV2AsJob.contentIsReady() ");
                         }
 
+                        @Override
                         public void done(TransformerContext context) throws com.amalto.core.util.XtentisException {
                             org.apache.log4j.Logger.getLogger(this.getClass()).debug(
                                     "XtentisWSBean.executeTransformerV2AsJob.done() ");
@@ -1565,6 +1657,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    @Override
     public WSTransformerContext extractThroughTransformerV2(WSExtractThroughTransformerV2 wsExtractThroughTransformerV2)
             throws RemoteException {
         try {
@@ -1584,6 +1677,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    @Override
     public WSBoolean existsTransformerPluginV2(WSExistsTransformerPluginV2 wsExistsTransformerPlugin) throws RemoteException {
         try {
             return new WSBoolean(Util.existsComponent(null, wsExistsTransformerPlugin.getJndiName()));
@@ -1598,6 +1692,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    @Override
     public WSString getTransformerPluginV2Configuration(WSTransformerPluginV2GetConfiguration wsGetConfiguration)
             throws RemoteException {
         try {
@@ -1617,6 +1712,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    @Override
     public WSString putTransformerPluginV2Configuration(WSTransformerPluginV2PutConfiguration wsPutConfiguration)
             throws RemoteException {
         try {
@@ -1635,6 +1731,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    @Override
     public WSTransformerPluginV2Details getTransformerPluginV2Details(
             WSGetTransformerPluginV2Details wsGetTransformerPluginDetails) throws RemoteException {
         try {
@@ -1656,8 +1753,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                                     : wsGetTransformerPluginDetails.getLanguage() });
             ArrayList<WSTransformerPluginV2VariableDescriptor> wsInputVariableDescriptors = new ArrayList<WSTransformerPluginV2VariableDescriptor>();
             if (inputVariableDescriptors != null) {
-                for (Iterator iter = inputVariableDescriptors.iterator(); iter.hasNext();) {
-                    TransformerPluginVariableDescriptor descriptor = (TransformerPluginVariableDescriptor) iter.next();
+                for (Object element : inputVariableDescriptors) {
+                    TransformerPluginVariableDescriptor descriptor = (TransformerPluginVariableDescriptor) element;
                     wsInputVariableDescriptors.add(XConverter.POJO2WS(descriptor));
                 }
             }
@@ -1669,8 +1766,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                                     : wsGetTransformerPluginDetails.getLanguage() });
             ArrayList<WSTransformerPluginV2VariableDescriptor> wsOutputVariableDescriptors = new ArrayList<WSTransformerPluginV2VariableDescriptor>();
             if (outputVariableDescriptors != null) {
-                for (Iterator iter = outputVariableDescriptors.iterator(); iter.hasNext();) {
-                    TransformerPluginVariableDescriptor descriptor = (TransformerPluginVariableDescriptor) iter.next();
+                for (Object element : outputVariableDescriptors) {
+                    TransformerPluginVariableDescriptor descriptor = (TransformerPluginVariableDescriptor) element;
                     wsOutputVariableDescriptors.add(XConverter.POJO2WS(descriptor));
                 }
             }
@@ -1691,6 +1788,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    @Override
     public WSTransformerPluginV2SList getTransformerPluginV2SList(WSGetTransformerPluginV2SList wsGetTransformerPluginsList)
             throws RemoteException {
         try {
@@ -1719,6 +1817,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * Menu
      * **************************************************************************/
 
+    @Override
     public WSMenuPK deleteMenu(WSDeleteMenu wsMenuDelete) throws RemoteException {
         try {
             MenuCtrlLocal ctrl = com.amalto.core.util.Util.getMenuCtrlLocal();
@@ -1729,6 +1828,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSMenu getMenu(WSGetMenu wsGetMenu) throws RemoteException {
         try {
             MenuCtrlLocal ctrl = com.amalto.core.util.Util.getMenuCtrlLocal();
@@ -1739,6 +1839,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSBoolean existsMenu(WSExistsMenu wsExistsMenu) throws RemoteException {
         try {
             MenuCtrlLocal ctrl = Util.getMenuCtrlLocal();
@@ -1750,12 +1851,14 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSMenuPKArray getMenuPKs(WSGetMenuPKs regex) throws RemoteException {
         try {
             MenuCtrlLocal ctrl = com.amalto.core.util.Util.getMenuCtrlLocal();
             Collection c = ctrl.getMenuPKs(regex.getRegex());
-            if (c == null)
+            if (c == null) {
                 return null;
+            }
             WSMenuPK[] pks = new WSMenuPK[c.size()];
             int i = 0;
             for (Iterator iter = c.iterator(); iter.hasNext();) {
@@ -1767,6 +1870,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSMenuPK putMenu(WSPutMenu wsMenu) throws RemoteException {
         try {
             MenuCtrlLocal ctrl = com.amalto.core.util.Util.getMenuCtrlLocal();
@@ -1781,6 +1885,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * BACKGROUND JOBS
      * **************************************************************************/
 
+    @Override
     public WSBackgroundJobPKArray findBackgroundJobPKs(WSFindBackgroundJobPKs status) throws RemoteException {
         try {
             throw new RemoteException("WSBackgroundJobPKArray is not implemented in this version of the core");
@@ -1791,6 +1896,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSBackgroundJob getBackgroundJob(WSGetBackgroundJob wsGetBackgroundJob) throws RemoteException {
         try {
             return XConverter.POJO2WS(BackgroundJobCtrlUtil.getLocalHome().create()
@@ -1804,6 +1910,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSBackgroundJobPK putBackgroundJob(WSPutBackgroundJob wsPutBackgroundJob) throws RemoteException {
         try {
             return new WSBackgroundJobPK(BackgroundJobCtrlUtil.getLocalHome().create()
@@ -1817,6 +1924,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSString count(WSCount wsCount) throws RemoteException {
         try {
 
@@ -1842,6 +1950,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * Routing Order V2
      * **************************************************************************/
 
+    @Override
     public WSRoutingOrderV2PK deleteRoutingOrderV2(WSDeleteRoutingOrderV2 wsDeleteRoutingOrder) throws RemoteException {
         try {
             RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
@@ -1855,6 +1964,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSRoutingOrderV2PK executeRoutingOrderV2Asynchronously(
             WSExecuteRoutingOrderV2Asynchronously wsExecuteRoutingOrderAsynchronously) throws RemoteException {
         try {
@@ -1872,6 +1982,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSString executeRoutingOrderV2Synchronously(WSExecuteRoutingOrderV2Synchronously wsExecuteRoutingOrderSynchronously)
             throws RemoteException {
         try {
@@ -1888,6 +1999,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSRoutingOrderV2 existsRoutingOrderV2(WSExistsRoutingOrderV2 wsExistsRoutingOrder) throws RemoteException {
         try {
             RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
@@ -1901,6 +2013,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSRoutingOrderV2 getRoutingOrderV2(WSGetRoutingOrderV2 wsGetRoutingOrderV2) throws RemoteException {
         try {
             RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
@@ -1914,6 +2027,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSRoutingOrderV2PKArray getRoutingOrderV2PKsByCriteria(
             WSGetRoutingOrderV2PKsByCriteria wsGetRoutingOrderV2PKsByCriteria) throws RemoteException {
         try {
@@ -1922,8 +2036,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             // fetch results
             Collection<AbstractRoutingOrderV2POJOPK> pks = getRoutingOrdersByCriteria(wsGetRoutingOrderV2PKsByCriteria
                     .getWsSearchCriteria());
-            for (Iterator<AbstractRoutingOrderV2POJOPK> iterator = pks.iterator(); iterator.hasNext();) {
-                AbstractRoutingOrderV2POJOPK abstractRoutingOrderV2POJOPK = iterator.next();
+            for (AbstractRoutingOrderV2POJOPK abstractRoutingOrderV2POJOPK : pks) {
                 list.add(XConverter.POJO2WS(abstractRoutingOrderV2POJOPK));
             }
             wsPKArray.setWsRoutingOrder(list.toArray(new WSRoutingOrderV2PK[list.size()]));
@@ -1937,6 +2050,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSRoutingOrderV2Array getRoutingOrderV2SByCriteria(WSGetRoutingOrderV2SByCriteria wsGetRoutingOrderV2SByCriteria)
             throws RemoteException {
         try {
@@ -1946,8 +2060,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             // fetch results
             Collection<AbstractRoutingOrderV2POJOPK> pks = getRoutingOrdersByCriteria(wsGetRoutingOrderV2SByCriteria
                     .getWsSearchCriteria());
-            for (Iterator<AbstractRoutingOrderV2POJOPK> iterator = pks.iterator(); iterator.hasNext();) {
-                AbstractRoutingOrderV2POJOPK abstractRoutingOrderV2POJOPK = iterator.next();
+            for (AbstractRoutingOrderV2POJOPK abstractRoutingOrderV2POJOPK : pks) {
                 list.add(XConverter.POJO2WS(ctrl.getRoutingOrder(abstractRoutingOrderV2POJOPK)));
             }
             wsPKArray.setWsRoutingOrder(list.toArray(new WSRoutingOrderV2[list.size()]));
@@ -1997,15 +2110,17 @@ public abstract class IXtentisRMIPort implements XtentisPort {
      * Routing Engine V2
      * **************************************************************************/
 
+    @Override
     public WSRoutingRulePKArray routeItemV2(WSRouteItemV2 wsRouteItem) throws RemoteException {
         try {
             RoutingEngineV2CtrlLocal ctrl = Util.getRoutingEngineV2CtrlLocal();
             RoutingRulePOJOPK[] rules = ctrl.route(XConverter.WS2POJO(wsRouteItem.getWsItemPK()));
             ArrayList<WSRoutingRulePK> list = new ArrayList<WSRoutingRulePK>();
-            if (rules == null || rules.length == 0)
+            if (rules == null || rules.length == 0) {
                 return null;
-            for (int i = 0; i < rules.length; i++) {
-                list.add(new WSRoutingRulePK(rules[i].getUniqueId()));
+            }
+            for (RoutingRulePOJOPK rule : rules) {
+                list.add(new WSRoutingRulePK(rule.getUniqueId()));
             }
             return new WSRoutingRulePKArray(list.toArray(new WSRoutingRulePK[list.size()]));
         } catch (com.amalto.core.util.XtentisException e) {
@@ -2017,6 +2132,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSRoutingEngineV2Status routingEngineV2Action(WSRoutingEngineV2Action wsRoutingEngineAction) throws RemoteException {
         try {
             RoutingEngineV2CtrlLocal ctrl = Util.getRoutingEngineV2CtrlLocal();
@@ -2057,6 +2173,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public com.amalto.webapp.util.webservices.WSServiceGetDocument getServiceDocument(WSString serviceName)
             throws RemoteException {
         try {
@@ -2082,18 +2199,21 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSDroppedItemPK dropItem(WSDropItem wsDropItem) throws RemoteException {
         try {
             WSItemPK wsItemPK = wsDropItem.getWsItemPK();
             String partPath = wsDropItem.getPartPath();
 
-            DroppedItemPOJOPK droppedItemPOJOPK = Util.getItemCtrl2Local().dropItem(XConverter.WS2POJO(wsItemPK), partPath, wsDropItem.isOverride());
+            DroppedItemPOJOPK droppedItemPOJOPK = Util.getItemCtrl2Local().dropItem(XConverter.WS2POJO(wsItemPK), partPath,
+                    wsDropItem.isOverride());
 
             return XConverter.POJO2WS(droppedItemPOJOPK);
 
-        }catch (com.amalto.core.util.XtentisException e) {
+        } catch (com.amalto.core.util.XtentisException e) {
             if (com.amalto.webapp.core.util.Util.causeIs(e, com.amalto.core.storage.exception.ConstraintViolationException.class)) {
-                throw new RemoteException("", new WebCoreException(INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE, com.amalto.webapp.core.util.Util.cause(e, com.amalto.core.storage.exception.ConstraintViolationException.class))); //$NON-NLS-1$                     
+                throw new RemoteException(
+                        "", new WebCoreException(INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE, com.amalto.webapp.core.util.Util.cause(e, com.amalto.core.storage.exception.ConstraintViolationException.class))); //$NON-NLS-1$                     
             }
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
@@ -2101,6 +2221,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSDroppedItemPKArray findAllDroppedItemsPKs(WSFindAllDroppedItemsPKs regex) throws RemoteException {
         try {
 
@@ -2121,6 +2242,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSDroppedItem loadDroppedItem(WSLoadDroppedItem wsLoadDroppedItem) throws RemoteException {
         try {
 
@@ -2136,6 +2258,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSItemPK recoverDroppedItem(WSRecoverDroppedItem wsRecoverDroppedItem) throws RemoteException {
         try {
 
@@ -2151,6 +2274,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSDroppedItemPK removeDroppedItem(WSRemoveDroppedItem wsRemoveDroppedItem) throws RemoteException {
         try {
 
@@ -2166,6 +2290,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSItemPK putItemWithReport(WSPutItemWithReport wsPutItemWithReport) throws RemoteException {
         WSPutItem wsPutItem = wsPutItemWithReport.getWsPutItem();
         WebSaver webSaver = new WebSaver(wsPutItem.getWsDataClusterPK().getPk(), wsPutItem.getWsDataModelPK().getPk(),
@@ -2173,6 +2298,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         return webSaver.saveItemWithReport(wsPutItemWithReport);
     }
 
+    @Override
     public WSMDMConfig getMDMConfiguration() throws RemoteException {
         WSMDMConfig mdmConfig = new WSMDMConfig();
         Properties property = MDMConfiguration.getConfiguration();
@@ -2192,6 +2318,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         return mdmConfig;
     }
 
+    @Override
     public WSItemPKArray putItemArray(WSPutItemArray wsPutItemArray) throws RemoteException {
         WSPutItem[] items = wsPutItemArray.getWsPutItem();
         try {
@@ -2201,10 +2328,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 String dataClusterName = item.getWsDataClusterPK().getPk();
                 String dataModelName = item.getWsDataModelPK().getPk();
 
-                DocumentSaver saver = SaverHelper.saveItem(item.getXmlString(),
-                        session,
-                        !item.getIsUpdate(),
-                        dataClusterName,
+                DocumentSaver saver = SaverHelper.saveItem(item.getXmlString(), session, !item.getIsUpdate(), dataClusterName,
                         dataModelName);
                 pks.add(new WSItemPK(new WSDataClusterPK(), saver.getSavedConceptName(), saver.getSavedId()));
             }
@@ -2218,6 +2342,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSItemPKArray putItemWithReportArray(WSPutItemWithReportArray wsPutItemWithReportArray) throws RemoteException {
         try {
             WSPutItemWithReport[] items = wsPutItemWithReportArray.getWsPutItem();
@@ -2232,16 +2357,13 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
                 DocumentSaver saver;
                 try {
-                    saver = SaverHelper.saveItemWithReport(wsPutItem.getXmlString(),
-                            session,
-                            !wsPutItem.getIsUpdate(),
-                            dataClusterName,
-                            dataModelName,
-                            source,
-                            item.getInvokeBeforeSaving());
-                    item.setSource(saver.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
+                    saver = SaverHelper.saveItemWithReport(wsPutItem.getXmlString(), session, !wsPutItem.getIsUpdate(),
+                            dataClusterName, dataModelName, source, item.getInvokeBeforeSaving());
+                    item.setSource(saver.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before
+                                                                    // saving message as source.
                 } catch (SaveException e) {
-                    item.setSource(e.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
+                    item.setSource(e.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before
+                                                                // saving message as source.
                     throw new RemoteException("Could not save record.", e);
                 }
                 pks.add(new WSItemPK(new WSDataClusterPK(), saver.getSavedConceptName(), saver.getSavedId()));
@@ -2256,11 +2378,13 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSCheckServiceConfigResponse checkServiceConfiguration(WSCheckServiceConfigRequest serviceName) throws RemoteException {
         // TODO Auto-generated method stub
         return null;
     }
 
+    @Override
     public WSStringArray getChildrenItems(WSGetChildrenItems wsGetChildrenItems) throws RemoteException {
         try {
             Collection res = Util.getItemCtrl2Local().getChildrenItems(wsGetChildrenItems.getClusterName(),
@@ -2276,17 +2400,20 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSItemPKsByCriteriaResponse getItemPKsByFullCriteria(WSGetItemPKsByFullCriteria wsGetItemPKsByFullCriteria)
             throws RemoteException {
         return doGetItemPKsByCriteria(wsGetItemPKsByFullCriteria.getWsGetItemPKsByCriteria(),
                 wsGetItemPKsByFullCriteria.isUseFTSearch());
     }
 
+    @Override
     public WSCategoryData getMDMCategory(WSCategoryData wsCategoryDataRequest) throws RemoteException {
         // TODO Auto-generated method stub
         return null;
     }
 
+    @Override
     public FKIntegrityCheckResult checkFKIntegrity(WSDeleteItem item) throws RemoteException {
         try {
             WSItemPK wsItemPK = item.getWsItemPK();
@@ -2300,16 +2427,19 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSItemPK putItemByOperatorType(WSPutItemByOperatorType putItemByOperatorType) throws RemoteException {
         // TODO Auto-generated method stub
         return null;
     }
 
+    @Override
     public WSBoolean isItemModifiedByOther(WSIsItemModifiedByOther wsItem) throws RemoteException {
         // TODO Auto-generated method stub
         return null;
     }
 
+    @Override
     public WSString countItemsByCustomFKFilters(WSCountItemsByCustomFKFilters wsCountItemsByCustomFKFilters)
             throws RemoteException {
         try {
@@ -2324,6 +2454,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSStringArray getItemsByCustomFKFilters(WSGetItemsByCustomFKFilters wsGetItemsByCustomFKFilters)
             throws RemoteException {
         try {
@@ -2331,9 +2462,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     new DataClusterPOJOPK(wsGetItemsByCustomFKFilters.getWsDataClusterPK().getPk()),
                     new ArrayList<String>(Arrays.asList(wsGetItemsByCustomFKFilters.getViewablePaths().getStrings())),
                     wsGetItemsByCustomFKFilters.getInjectedXpath(), XConverter.WS2VO(wsGetItemsByCustomFKFilters.getWhereItem()),
-                    wsGetItemsByCustomFKFilters.getSkip(),
-                    wsGetItemsByCustomFKFilters.getMaxItems(), wsGetItemsByCustomFKFilters.getOrderBy(),
-                    wsGetItemsByCustomFKFilters.getDirection(),
+                    wsGetItemsByCustomFKFilters.getSkip(), wsGetItemsByCustomFKFilters.getMaxItems(),
+                    wsGetItemsByCustomFKFilters.getOrderBy(), wsGetItemsByCustomFKFilters.getDirection(),
                     wsGetItemsByCustomFKFilters.getReturnCount());
             return new WSStringArray((String[]) res.toArray(new String[res.size()]));
         } catch (XtentisException e) {
@@ -2353,7 +2483,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
             if (MDMConfiguration.getAdminUser().equals(user.getUsername())
-                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$
+                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
                 authorized = true;
             } else if (user.userCanRead(DataClusterPOJO.class, dataClusterName)) {
                 authorized = true;
@@ -2368,7 +2498,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             // It would be too demanding to get all the concepts in all revisions (?)
             // The meat of this method should be ported to ItemCtrlBean
             String revisionID = null;
-            String conceptName = wsGetItemPKsByCriteria.getConceptName(); 
+            String conceptName = wsGetItemPKsByCriteria.getConceptName();
             if (conceptName == null) {
                 if (user.getUniverse().getItemsRevisionIDs().size() > 0) {
                     throw new RemoteException("User " + user.getUsername() + " is using items coming from multiple revisions."
@@ -2399,8 +2529,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
             WSItemPKsByCriteriaResponseResults[] res = new WSItemPKsByCriteriaResponseResults[results.size()];
             int i = 0;
-            for (Iterator iter = results.iterator(); iter.hasNext();) {
-                String result = (String) iter.next();
+            for (Object element : results) {
+                String result = (String) element;
                 if (i == 0) {
                     res[i++] = new WSItemPKsByCriteriaResponseResults(System.currentTimeMillis(), new WSItemPK(
                             wsGetItemPKsByCriteria.getWsDataClusterPK(), result, null), ""); //$NON-NLS-1$
@@ -2432,6 +2562,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    @Override
     public WSBoolean isPagingAccurate(WSInt currentTotalSize) throws RemoteException {
         List<String> noSupportAccurateDbs = Arrays.asList("qizx");//$NON-NLS-1$
         Properties props = MDMConfiguration.getConfiguration();
@@ -2449,6 +2580,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         return result;
     }
 
+    @Override
     public WSBoolean supportStaging() throws RemoteException {
         WSBoolean result = new WSBoolean(false);
         try {
@@ -2461,10 +2593,10 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
         return result;
     }
-    
+
     private RemoteException handleException(Throwable throwable) {
         WebCoreException webCoreException;
-        if (WebCoreException.class.isInstance(throwable)) { 
+        if (WebCoreException.class.isInstance(throwable)) {
             webCoreException = (WebCoreException) throwable;
         } else if (FullTextQueryCompositeKeyException.class.isInstance(throwable)) {
             webCoreException = new WebCoreException(FULLTEXT_QUERY_COMPOSITEKEY_EXCEPTION_MESSAGE, throwable);
