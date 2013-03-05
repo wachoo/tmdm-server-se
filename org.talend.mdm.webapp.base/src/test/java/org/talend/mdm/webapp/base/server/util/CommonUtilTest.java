@@ -328,4 +328,11 @@ public class CommonUtilTest extends TestCase {
         criteria = CommonUtil.buildCriteriaByIds(keys, ids);
         assertEquals("((Product/Id EQUALS 10001) AND (Product/Name EQUALS Test))", criteria);
     }
+    
+    public void testExtractFKRefValue() {
+        String ids = "[1][2]";
+        String[] id = CommonUtil.extractFKRefValue(ids, "en");
+        assertEquals("1", id[0]);
+        assertEquals("2", id[1]);        
+    }
 }
