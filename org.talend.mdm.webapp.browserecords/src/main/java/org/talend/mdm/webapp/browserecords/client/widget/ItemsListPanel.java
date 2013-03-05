@@ -680,9 +680,10 @@ public class ItemsListPanel extends ContentPanel {
             final ListStore<ItemBean> store = grid.getStore();
             final ItemBean itemBean = store.findModel(ids);
             if (itemBean != null) {
+                String dataCluster = BrowseRecords.getSession().getAppHeader().getDatacluster();
                 EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
                 ViewBean viewbean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
-                service.getItem(itemBean, viewbean.getViewPK(), entityModel, Locale.getLanguage(),
+                service.queryItemBeanById(dataCluster, viewbean, entityModel, ids, Locale.getLanguage(),
                         new SessionAwareAsyncCallback<ItemBean>() {
 
                             public void onSuccess(ItemBean result) {

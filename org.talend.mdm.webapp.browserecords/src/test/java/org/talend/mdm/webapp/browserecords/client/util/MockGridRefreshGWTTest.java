@@ -534,6 +534,16 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
 
         }
 
+        /* (non-Javadoc)
+         * @see org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync#queryItemBeanById(java.lang.String, org.talend.mdm.webapp.browserecords.shared.ViewBean, org.talend.mdm.webapp.base.shared.EntityModel, java.lang.String, java.lang.String, com.google.gwt.user.client.rpc.AsyncCallback)
+         */
+        @Override
+        public void queryItemBeanById(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String id,
+                String language, AsyncCallback<ItemBean> callback) {
+            // TODO Auto-generated method stub
+            
+        }
+
     }
 
     @Override

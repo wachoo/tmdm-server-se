@@ -53,6 +53,9 @@ public interface BrowseRecordsServiceAsync {
 
     void queryItemBeans(QueryModel config,String language, AsyncCallback<ItemBasePageLoadResult<ItemBean>> callback);
 
+    void queryItemBeanById(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String id, String language,
+            AsyncCallback<ItemBean> callback);
+    
     void saveItemBean(ItemBean item, String language, AsyncCallback<String> callback);
 
     void getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, String language, AsyncCallback<ItemBean> callback);
