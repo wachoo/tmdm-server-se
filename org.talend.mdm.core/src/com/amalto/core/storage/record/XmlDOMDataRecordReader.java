@@ -23,6 +23,7 @@ import org.w3c.dom.*;
 import javax.xml.XMLConstants;
 import javax.xml.transform.TransformerException;
 import java.util.Collection;
+import java.util.List;
 
 public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
 
@@ -70,7 +71,9 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
     }
 
     private void _read(MetadataRepository repository, DataRecord dataRecord, ComplexTypeMetadata type, Element element) {
+        // TODO Don't use getChildNodes() but getNextSibling() calls (but cause regressions -> see TMDM-5410).
         String tagName = element.getTagName();
+        NodeList children = element.getChildNodes();
         NamedNodeMap attributes = element.getAttributes();
         for (int i = 0; i < attributes.getLength(); i++) {
             Node attribute = attributes.item(i);
@@ -80,11 +83,10 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
             FieldMetadata field = type.getField(attribute.getNodeName());
             dataRecord.set(field, MetadataUtils.convert(attribute.getNodeValue(), field));
         }
-        NodeList children = element.getChildNodes();
-        Node current = element.getFirstChild();
-        while (current != null) {
-            if (current.getNodeType() == Node.ELEMENT_NODE) {
-                Element child = (Element) current;
+        for (int i = 0; i < children.getLength(); i++) {
+            Node currentChild = children.item(i);
+            if (currentChild instanceof Element) {
+                Element child = (Element) currentChild;
                 if (!type.hasField(child.getTagName())) {
                     continue;
                 }
@@ -114,7 +116,7 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
                 } else {
                     _read(repository, dataRecord, type, child);
                 }
-            } else if (current.getNodeType() == Node.TEXT_NODE) {
+            } else if (currentChild instanceof Text) {
                 String textContent = element.getFirstChild().getNodeValue().trim();
                 if (!textContent.isEmpty()) {
                     FieldMetadata field = type.getField(tagName);
@@ -130,7 +132,6 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
                     }
                 }
             }
-            current = current.getNextSibling();
         }
     }
 }
