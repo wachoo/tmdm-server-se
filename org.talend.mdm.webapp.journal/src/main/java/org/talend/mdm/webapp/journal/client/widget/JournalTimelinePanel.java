@@ -95,8 +95,8 @@ public class JournalTimelinePanel extends ContentPanel {
         String[] cfgArray = (startIndex + config).split(","); //$NON-NLS-1$
         start = Integer.parseInt(cfgArray[0]);
         limit = Integer.parseInt(cfgArray[1]);
-        sort = cfgArray[2];
-        field = cfgArray[3].equalsIgnoreCase("null") ? "" : cfgArray[3]; //$NON-NLS-1$ //$NON-NLS-2$
+        sort = "ASC"; //$NON-NLS-1$
+        field = "operationTime"; //$NON-NLS-1$
         language = cfgArray[4];
         loadTimeline(start);
     }
@@ -111,14 +111,16 @@ public class JournalTimelinePanel extends ContentPanel {
     }
 
     public native void parseResult(String result)/*-{
-        var obj = result.split("@||@");
-        jsonData = eval('(' + obj[0] + ')');
-        if (this.@org.talend.mdm.webapp.journal.client.widget.JournalTimelinePanel::isInit) {
-            this.@org.talend.mdm.webapp.journal.client.widget.JournalTimelinePanel::isInit = false;
-            this.@org.talend.mdm.webapp.journal.client.widget.JournalTimelinePanel::renderTimeline(Lcom/google/gwt/core/client/JavaScriptObject;Ljava/lang/String;)(jsonData,obj[1]);
-        } else {
-            if (!this.@org.talend.mdm.webapp.journal.client.widget.JournalTimelinePanel::eventCache[this.@org.talend.mdm.webapp.journal.client.widget.JournalTimelinePanel::start]) {
-                this.@org.talend.mdm.webapp.journal.client.widget.JournalTimelinePanel::eventSource.loadJSON(jsonData, document.location.href);                
+        if (result != null){
+            var obj = result.split("@||@");
+            jsonData = eval('(' + obj[0] + ')');
+            if (this.@org.talend.mdm.webapp.journal.client.widget.JournalTimelinePanel::isInit) {
+                this.@org.talend.mdm.webapp.journal.client.widget.JournalTimelinePanel::isInit = false;
+                this.@org.talend.mdm.webapp.journal.client.widget.JournalTimelinePanel::renderTimeline(Lcom/google/gwt/core/client/JavaScriptObject;Ljava/lang/String;)(jsonData,obj[1]);
+            } else {
+                if (!this.@org.talend.mdm.webapp.journal.client.widget.JournalTimelinePanel::eventCache[this.@org.talend.mdm.webapp.journal.client.widget.JournalTimelinePanel::start]) {
+                    this.@org.talend.mdm.webapp.journal.client.widget.JournalTimelinePanel::eventSource.loadJSON(jsonData, document.location.href);
+                }
                 this.@org.talend.mdm.webapp.journal.client.widget.JournalTimelinePanel::eventCache[this.@org.talend.mdm.webapp.journal.client.widget.JournalTimelinePanel::start] = true;
             }
         }

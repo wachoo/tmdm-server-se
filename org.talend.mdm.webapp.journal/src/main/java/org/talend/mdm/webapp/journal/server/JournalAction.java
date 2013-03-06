@@ -259,9 +259,12 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         return this.getDateStringPlusGMT(d);
     }
 
-    private String getDateStringPlusGMT(Date d) {
+    private String getDateStringPlusGMT(Date date) {
+        if (date == null) {
+            date = new Date();
+        }
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd yyyy HH:mm:ss", Locale.ENGLISH); //$NON-NLS-1$
-        String timeStr = sdf.format(d);
+        String timeStr = sdf.format(date);
         return timeStr + " GMT"; //$NON-NLS-1$
     }
 }

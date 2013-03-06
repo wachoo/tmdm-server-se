@@ -84,7 +84,9 @@ public class JournalTabPanel extends TabPanel {
 
         timeLineTabItem.addListener(Events.Resize, new Listener<ComponentEvent>(){
             public void handleEvent(ComponentEvent be) {
-                timeLineTabItem.fireEvent(Events.Select);
+                if (journalTimelinePanel.isRendered()) { 
+                    timeLineTabItem.fireEvent(Events.Select);
+                }
             }            
         });
 
