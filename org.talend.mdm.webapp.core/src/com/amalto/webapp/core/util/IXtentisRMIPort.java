@@ -2558,4 +2558,21 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
+
+    public WSBoolean isPagingAccurate(WSInt currentTotalSize) throws RemoteException {
+        List<String> noSupportAccurateDbs = Arrays.asList("qizx");//$NON-NLS-1$
+        Properties props = MDMConfiguration.getConfiguration();
+        String dbName = props.getProperty("xmldb.type");//$NON-NLS-1$
+        WSBoolean result = new WSBoolean(true);
+        if (noSupportAccurateDbs.contains(dbName)) {
+            String ecountsamplesize = props.getProperty("xmldb.qizx.ecountsamplesize"); //$NON-NLS-1$
+            if (ecountsamplesize != null && ecountsamplesize.trim().length() > 0) {
+                int size = Integer.parseInt(ecountsamplesize);
+                if (currentTotalSize.getValue() > size) {
+                    result.set_true(false);
+                }
+            }
+        }
+        return result;
+    }
 }

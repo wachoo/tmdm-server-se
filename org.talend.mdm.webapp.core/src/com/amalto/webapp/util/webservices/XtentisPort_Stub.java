@@ -13385,4 +13385,7 @@ public class XtentisPort_Stub
                                         };
     
     private static final QName[] understoodHeaderNames = new QName[] {  };
+    public WSBoolean isPagingAccurate(WSInt currentTotalSize) throws RemoteException {
+        throw new RuntimeException("Not implemented in web service");
+    }
 }
