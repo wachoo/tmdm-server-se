@@ -411,4 +411,7 @@ public interface BrowseRecordsMessages extends Messages {
     
     String invalid_data(String name);
 
+    String of_word();
+
+    String display_items();
 }

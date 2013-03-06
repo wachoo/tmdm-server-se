@@ -42,6 +42,7 @@ import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.ListLoadResult;
+import com.extjs.gxt.ui.client.data.LoadEvent;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -113,10 +114,12 @@ public class ForeignKeyListWindow extends Window {
     private List<String> foreignKeyInfo;
 
     private String foreignKeyFilter;
-    
+
     private String xml;
 
     private String currentXpath;
+
+    private boolean isPagingAccurate;
 
     public ForeignKeyListWindow() {
     }
@@ -163,7 +166,7 @@ public class ForeignKeyListWindow extends Window {
         String value = filter.getRawValue();
         if (value == null || value.trim().length() == 0) {
             value = ".*"; //$NON-NLS-1$
-        }else{
+        } else {
             value = "'" + filter.getRawValue() + "'"; //$NON-NLS-1$ //$NON-NLS-2$
         }
         return value;
@@ -191,10 +194,10 @@ public class ForeignKeyListWindow extends Window {
 
             @Override
             public void load(final Object loadConfig, final AsyncCallback<PagingLoadResult<ForeignKeyBean>> callback) {
-            		PagingLoadConfig config = (PagingLoadConfig) loadConfig;
-                
+                PagingLoadConfig config = (PagingLoadConfig) loadConfig;
+
                 final String currentFilterText = getFilterValue();
-                
+
                 if (hasForeignKeyFilter) {
                     config.set("xml", xml); //$NON-NLS-1$
                     config.set("currentXpath", currentXpath); //$NON-NLS-1$
@@ -211,8 +214,8 @@ public class ForeignKeyListWindow extends Window {
 
                             public void onSuccess(ItemBasePageLoadResult<ForeignKeyBean> result) {
                                 if (currentFilterText.equals(getFilterValue())) {
-                                    callback.onSuccess(new BasePagingLoadResult<ForeignKeyBean>(result.getData(), result.getOffset(),
-                                            result.getTotalLength()));
+                                    callback.onSuccess(new BasePagingLoadResult<ForeignKeyBean>(result.getData(), result
+                                            .getOffset(), result.getTotalLength()));
                                 }
                             }
 
@@ -351,7 +354,15 @@ public class ForeignKeyListWindow extends Window {
 
         List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
         // build columns by specify store
-        final PagingToolBar pageToolBar = new PagingToolBar(pageSize);
+        final PagingToolBar pageToolBar = new PagingToolBar(pageSize) {
+
+            @Override
+            protected void onLoad(LoadEvent event) {
+                String of_word = MessagesFactory.getMessages().of_word();
+                msgs.setDisplayMsg("{0} - {1} " + of_word + " " + (isPagingAccurate ? "" : "~") + "{2}"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                super.onLoad(event);
+            }
+        };
         pageToolBar.bind(loader);
         pageToolBar.setEnabled(true);
 
@@ -379,9 +390,9 @@ public class ForeignKeyListWindow extends Window {
 
                 public Object render(final ForeignKeyBean fkBean, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ForeignKeyBean> store, Grid<ForeignKeyBean> grid) {
-                	String result = ""; //$NON-NLS-1$
-                    if (fkBean != null){
-                        if (fkBean.get(property) != null && !"".equals(fkBean.get(property))){ //$NON-NLS-1$
+                    String result = ""; //$NON-NLS-1$
+                    if (fkBean != null) {
+                        if (fkBean.get(property) != null && !"".equals(fkBean.get(property))) { //$NON-NLS-1$
                             result = fkBean.get(property) + "-"; //$NON-NLS-1$
                         }
                         return result = result + fkBean.getId();
@@ -449,7 +460,7 @@ public class ForeignKeyListWindow extends Window {
     protected void closeOrHideWindow() {
         hide(null);
     }
-    
+
     public void setCurrentXpath(String currentXpath) {
         this.currentXpath = currentXpath;
     }

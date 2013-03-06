@@ -125,6 +125,8 @@ public class ItemsListPanel extends ContentPanel {
     
     private PagingLoadConfig pagingLoadConfig;
 
+    private boolean isPagingAccurate;
+
     BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
     RpcProxy<PagingLoadResult<ItemBean>> proxy = new RpcProxy<PagingLoadResult<ItemBean>>() {
@@ -158,6 +160,7 @@ public class ItemsListPanel extends ContentPanel {
             service.queryItemBeans(qm, new SessionAwareAsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
 
                 public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
+                    isPagingAccurate = result.isPagingAccurate();
                     callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result
                             .getTotalLength()));
                     if (result.getTotalLength() == 0)
@@ -294,7 +297,15 @@ public class ItemsListPanel extends ContentPanel {
         int usePageSize = PAGE_SIZE;
         if (StateManager.get().get("grid") != null) //$NON-NLS-1$
             usePageSize = Integer.valueOf(((Map<?, ?>) StateManager.get().get("grid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
-        pagingBar = new PagingToolBarEx(usePageSize);
+        pagingBar = new PagingToolBarEx(usePageSize) {
+
+            @Override
+            protected void onLoad(LoadEvent event) {
+                String of_word = MessagesFactory.getMessages().of_word();
+                msgs.setDisplayMsg("{0} - {1} " + of_word + " " + (isPagingAccurate ? "" : "~") + "{2}"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                super.onLoad(event);
+            }
+        };
         pagingBar.setHideMode(HideMode.VISIBILITY);
         pagingBar.getMessages().setDisplayMsg(MessagesFactory.getMessages().page_displaying_records());
 
