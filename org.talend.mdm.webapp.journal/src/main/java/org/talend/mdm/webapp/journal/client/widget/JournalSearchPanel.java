@@ -313,6 +313,10 @@ public class JournalSearchPanel extends FormPanel {
         return map;
     }
     
+    public void initPanel() {
+        resetButton.fireEvent(Events.Select);
+    }
+    
     public void setEntityFieldValue(String value) {
         this.entityField.setValue(value);
     }

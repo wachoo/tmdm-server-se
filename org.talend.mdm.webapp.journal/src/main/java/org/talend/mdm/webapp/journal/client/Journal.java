@@ -37,6 +37,8 @@ public class Journal implements EntryPoint {
     public static final String JOURNAL_ID = "Journal"; //$NON-NLS-1$
     
     public static final String SEARCH_CRITERIA = "SearchCriteria"; //$NON-NLS-1$
+    
+    public static boolean browseReocrd = false;
 
     private native void registerJournalService()/*-{
                 
@@ -90,7 +92,12 @@ public class Journal implements EntryPoint {
         $wnd.amalto.journal = {};
         $wnd.amalto.journal.Journal = function(){
 
-        function initUI(){        
+        function initUI(){
+        if (@org.talend.mdm.webapp.journal.client.Journal::browseReocrd) {
+            @org.talend.mdm.webapp.journal.client.Journal::browseReocrd = false;
+        } else {
+            @org.talend.mdm.webapp.journal.client.Journal::resetSearchCondition()();
+        }        
         instance.@org.talend.mdm.webapp.journal.client.Journal::initUI()();
         }
 
@@ -107,6 +114,8 @@ public class Journal implements EntryPoint {
         @org.talend.mdm.webapp.journal.client.GenerateContainer::generateContentPanel()();
         panel = this.@org.talend.mdm.webapp.journal.client.Journal::createPanel()();
         tabPanel.add(panel);
+        } else {
+        @org.talend.mdm.webapp.journal.client.Journal::onSearchWithCriteria()();    
         }
         tabPanel.setSelection(panel.getItemId());
     }-*/;
@@ -158,10 +167,12 @@ public class Journal implements EntryPoint {
     }
     
     public static void initJournalfromBrowseRecord(String ids, String concept) {
+        resetSearchCondition();
         JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);
         criteria.setBrowseRecord(true);
         criteria.setEntity(concept);
         criteria.setKey(ids);
+        browseReocrd = true;
     }
     
     public static void setSearchField(String ids, String concept) {
@@ -172,5 +183,17 @@ public class Journal implements EntryPoint {
     public static void onSearchWithCriteria(){
         Dispatcher dispatcher = Dispatcher.get();
         dispatcher.dispatch(JournalEvents.DoSearch);
+    }
+    
+    public static void resetSearchCondition() {
+        JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);
+        criteria.setBrowseRecord(false);
+        criteria.setEntity(null);
+        criteria.setKey(null);
+        criteria.setOperationType(null);
+        criteria.setSource(null);
+        criteria.setStartDate(null);
+        criteria.setEndDate(null);
+        JournalSearchPanel.getInstance().initPanel();
     }
 }
