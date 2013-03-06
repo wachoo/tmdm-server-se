@@ -385,13 +385,11 @@ public abstract class ObjectPOJO implements Serializable {
             //get the xml server wrapper
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
             //remove the doc
-            server.start(getCluster(objectClass));
             long res = server.deleteDocument(
                     revisionID,
                     getCluster(objectClass),
                     objectPOJOPK.getUniqueId()
             );
-            server.commit(getCluster(objectClass));
             if (res == -1) {
                 return null;
             }
