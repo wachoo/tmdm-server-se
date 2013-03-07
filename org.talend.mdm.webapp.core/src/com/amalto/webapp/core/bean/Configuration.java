@@ -41,8 +41,6 @@ public class Configuration {
     private static final String CONFIGURATION_ATTRIBUTE = "configuration"; //$NON-NLS-1$
 
     private static ConfigurationContext defaultConfigurationContext = new DWRConfigurationContext();
-    
-    private static ConfigurationContext gwtConfigurationContext;
 
     private String cluster;
 
@@ -51,26 +49,20 @@ public class Configuration {
     public interface ConfigurationContext {
 
         public HttpSession getSession();
-        
-        public HttpSession getDefaultConfigurationSession();
     }
 
     private static class DWRConfigurationContext implements ConfigurationContext {
 
         public HttpSession getSession() {
-            HttpSession session = null;
+            HttpSession session;
             // Here, we do use a DWR call to store the information into the session, therefore we must use its
-            // session only. But when run a GWT application, we must use GWTConfigurationContext to get session
+            // session only
             WebContext ctx = WebContextFactory.get();
             if (ctx != null)
                 session = ctx.getSession();
-            else if (gwtConfigurationContext != null)
-                session = gwtConfigurationContext.getDefaultConfigurationSession();
+            else
+                session = null;
             return session;
-        }
-        
-        public HttpSession getDefaultConfigurationSession() {
-            return null;
         }
     }
 
@@ -291,10 +283,6 @@ public class Configuration {
 
     public void setModel(String model) {
         this.model = model;
-    }
-    
-    public static void setGwtConfigurationContext(ConfigurationContext _gwtConfigurationContext) {
-        gwtConfigurationContext = _gwtConfigurationContext;
     }
 
     @Override
