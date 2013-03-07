@@ -220,14 +220,12 @@ public class DroppedItemPOJO implements Serializable {
                 throw e;
             }
             //delete dropped item
-            server.start(MDM_ITEMS_TRASH);
             try {
                 server.deleteDocument(
                         null,
                         MDM_ITEMS_TRASH,
                         droppedItemPOJOPK.getUniquePK()
                 );
-                server.commit(MDM_ITEMS_TRASH);
             } catch (Exception e) {
                 server.rollback(MDM_ITEMS_TRASH);
                 throw e;
@@ -340,18 +338,16 @@ public class DroppedItemPOJO implements Serializable {
         //get XmlServerSLWrapperLocal
         XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
         try {
-            server.start(MDM_ITEMS_TRASH); //$NON-NLS-1$
             //remove the record
             long res = server.deleteDocument(
                     null,
                     MDM_ITEMS_TRASH,
                     droppedItemPOJOPK.getUniquePK()
             );
-            server.commit(MDM_ITEMS_TRASH); //$NON-NLS-1$
-            if (res == -1) return null;
-
+            if (res == -1) {
+                return null;
+            }
             return droppedItemPOJOPK;
-
         } catch (Exception e) {
             String err = "Unable to " + actionName + " the dropped item " + droppedItemPOJOPK.getUniquePK()
                     + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();

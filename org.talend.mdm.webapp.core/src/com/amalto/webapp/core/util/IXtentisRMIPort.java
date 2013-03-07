@@ -2261,16 +2261,13 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     @Override
     public WSItemPK recoverDroppedItem(WSRecoverDroppedItem wsRecoverDroppedItem) throws RemoteException {
         try {
-
             ItemPOJOPK itemPOJOPK = Util.getDroppedItemCtrlLocal().recoverDroppedItem(
                     XConverter.WS2POJO(wsRecoverDroppedItem.getWsDroppedItemPK()));
-
             return XConverter.POJO2WS(itemPOJOPK);
-
         } catch (XtentisException e) {
-            throw (new RemoteException(e.getLocalizedMessage()));
+            throw new RemoteException(e.getLocalizedMessage(), e);
         } catch (Exception e) {
-            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
 

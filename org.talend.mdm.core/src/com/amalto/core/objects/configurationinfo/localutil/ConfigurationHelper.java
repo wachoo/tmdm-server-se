@@ -73,12 +73,9 @@ public class ConfigurationHelper {
     public static void deleteDocument(String revisionID, String clusterName, String uniqueID) throws XtentisException {
         XmlServerSLWrapperLocal server = getServer();
         if (server.getDocumentAsString(null, clusterName, uniqueID) != null) {
-            server.start(clusterName);
             try {
                 server.deleteDocument(revisionID, clusterName, uniqueID);
-                server.commit(clusterName);
             } catch (Exception e) {
-                server.rollback(clusterName);
                 throw new XtentisException(e);
             }
         }
