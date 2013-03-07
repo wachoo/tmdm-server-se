@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.general.gwt;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,6 +26,8 @@ public class GwtWebContext {
     private final HttpServletResponse response;
 
     private final HttpServlet servlet;
+    
+    public static final String GENERALCONTEXT = "/general"; //$NON-NLS-1$
 
     public GwtWebContext(HttpServletRequest request, HttpServletResponse response, HttpServlet servlet) {
         this.request = request;
@@ -50,5 +53,18 @@ public class GwtWebContext {
 
     public HttpServlet getServlet() {
         return servlet;
+    }
+    
+    public HttpSession getDefaultConfigurationSession() {
+        ServletContext context = this.servlet.getServletContext();
+        if (context != null) {
+            ServletContext generalAppContext = context.getContext(GENERALCONTEXT);
+            if (generalAppContext != null) {
+                if (getSession() == null)
+                    return null;
+                return (HttpSession) generalAppContext.getAttribute(GENERALCONTEXT + getSession().getId());
+            }
+        }
+        return null;
     }
 }
