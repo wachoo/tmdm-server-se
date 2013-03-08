@@ -12,10 +12,7 @@
 // ============================================================================
 package com.amalto.core.initdb;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -27,7 +24,7 @@ import java.util.Map.Entry;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
@@ -149,7 +146,7 @@ public class InitDBUtil {
                 String item = iterator.next();
                 try {
                     InputStream in = InitDBUtil.class.getResourceAsStream(resourcePath + "/" + item); //$NON-NLS-1$
-                    String xmlString = getString(in);
+                    String xmlString = IOUtils.toString(in, "UTF-8"); //$NON-NLS-1$
                     String uniqueID = item;
                     int pos = item.lastIndexOf('/');
                     if (pos != -1) {
@@ -169,33 +166,5 @@ public class InitDBUtil {
                 }
             }
         }
-    }
-
-    public static String getString(InputStream in) {
-        if (in == null) {
-            return StringUtils.EMPTY;
-        }
-        StringBuilder result = new StringBuilder();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        try {
-            String line = reader.readLine();
-            while (line != null) {
-                result.append(line).append("\n"); //$NON-NLS-1$
-                line = reader.readLine();
-            }
-        } catch (Exception e) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Could not read from stream.", e); //$NON-NLS-1$
-            }
-        } finally {
-            try {
-                reader.close();
-            } catch (IOException e) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Could not close stream.", e); //$NON-NLS-1$
-                }
-            }
-        }
-        return result.toString();
     }
 }
