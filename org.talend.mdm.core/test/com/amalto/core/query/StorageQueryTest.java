@@ -49,6 +49,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -1094,6 +1096,42 @@ public class StorageQueryTest extends StorageTestCase {
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testFKOrderBy() throws Exception {
+        UserQueryBuilder qb = from(address)
+                .selectId(address)
+                .select(address.getField("country"))
+                .orderBy(address.getField("country"), OrderBy.Direction.ASC);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(5, results.getCount());
+            int previousValue = -1;
+            for (DataRecord result : results) {
+                int newValue = ((Integer) result.get(address.getField("country")));
+                assertTrue(previousValue <= newValue);
+                previousValue = newValue;
+            }
+        } finally {
+            results.close();
+        }
+
+        qb = from(address)
+                .selectId(address)
+                .select(address.getField("country"))
+                .orderBy(address.getField("country"), OrderBy.Direction.DESC);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(5, results.getCount());
+            int previousValue = Integer.MAX_VALUE;
+            for (DataRecord result : results) {
+                int newValue = ((Integer) result.get(address.getField("country")));
+                assertTrue(previousValue >= newValue);
+                previousValue = newValue;
+            }
         } finally {
             results.close();
         }

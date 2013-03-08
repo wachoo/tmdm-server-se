@@ -455,7 +455,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (orderByExpression instanceof Field) {
             Field field = (Field) orderByExpression;
             FieldMetadata userFieldMetadata = field.getFieldMetadata();
-            TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(mainType);
+            TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(field.getFieldMetadata().getContainingType());
             FieldMetadata database = mapping.getDatabase(userFieldMetadata);
             String alias = getAlias(mapping, database);
             condition.criterionFieldName = alias + '.' + database.getName();

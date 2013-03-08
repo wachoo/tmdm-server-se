@@ -431,7 +431,13 @@ public class UserQueryBuilder {
         if (field == null) {
             throw new IllegalArgumentException("Field cannot be null");
         }
-        return orderBy(new Field(field), direction);
+        if (field instanceof ReferenceFieldMetadata) {
+            // Order by a FK field is equivalent to a join on FK + a order by clause on referenced field.
+            return join(field)
+                    .orderBy(new Field(((ReferenceFieldMetadata) field).getReferencedField()), direction);
+        } else {
+            return orderBy(new Field(field), direction);
+        }
     }
 
     public UserQueryBuilder orderBy(TypedExpression field, OrderBy.Direction direction) {
