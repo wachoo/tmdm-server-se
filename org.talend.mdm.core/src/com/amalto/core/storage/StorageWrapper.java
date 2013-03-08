@@ -755,6 +755,11 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             this.storages = storages;
         }
 
+        @Override
+        public int getCapabilities() {
+            return CAP_TRANSACTION;
+        }
+
         public void init(DataSource dataSource) {
             throw new UnsupportedOperationException();
         }

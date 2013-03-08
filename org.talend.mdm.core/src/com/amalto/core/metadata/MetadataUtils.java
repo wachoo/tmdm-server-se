@@ -247,7 +247,11 @@ public class MetadataUtils {
 
             TypeMetadata type = field.getType();
             if (!(field instanceof ContainedTypeFieldMetadata)) {  // Contained (anonymous types) values can't have values
-                return convert(xmlData, type);
+                try {
+                    return convert(xmlData, type);
+                } catch (Exception e) {
+                    throw new RuntimeException("Could not convert value for field '" + field.getName() + "'", e);
+                }
             } else {
                 return null;
             }

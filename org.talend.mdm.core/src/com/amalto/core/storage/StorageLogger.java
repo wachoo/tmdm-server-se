@@ -32,6 +32,11 @@ public class StorageLogger implements Storage {
         this.delegate = delegate;
     }
 
+    @Override
+    public int getCapabilities() {
+        return delegate.getCapabilities();
+    }
+
     public void init(DataSource dataSource) {
         delegate.init(dataSource);
     }

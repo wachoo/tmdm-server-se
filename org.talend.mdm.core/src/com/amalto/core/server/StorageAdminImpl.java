@@ -218,6 +218,29 @@ public class StorageAdminImpl implements StorageAdmin {
             default:
                 throw new IllegalArgumentException("No support for storage type '" + storageType + "'.");
         }
+        if (LOGGER.isDebugEnabled()) {
+            StringBuilder capabilitiesAsString = new StringBuilder();
+            int capabilities = dataModelStorage.getCapabilities();
+            capabilitiesAsString.append(" TRANSACTION"); //$NON-NLS-1$
+            if ((capabilities & Storage.CAP_TRANSACTION) == Storage.CAP_TRANSACTION) {
+                capabilitiesAsString.append("(+)"); //$NON-NLS-1$
+            } else {
+                capabilitiesAsString.append("(-)"); //$NON-NLS-1$
+            }
+            capabilitiesAsString.append(" FULL TEXT"); //$NON-NLS-1$
+            if ((capabilities & Storage.CAP_FULL_TEXT) == Storage.CAP_FULL_TEXT) {
+                capabilitiesAsString.append("(+)"); //$NON-NLS-1$
+            } else {
+                capabilitiesAsString.append("(-)"); //$NON-NLS-1$
+            }
+            capabilitiesAsString.append(" INTEGRITY"); //$NON-NLS-1$
+            if ((capabilities & Storage.CAP_INTEGRITY) == Storage.CAP_INTEGRITY) {
+                capabilitiesAsString.append("(+)"); //$NON-NLS-1$
+            } else {
+                capabilitiesAsString.append("(-)"); //$NON-NLS-1$
+            }
+            LOGGER.debug("Storage capabilities:" + capabilitiesAsString);
+        }
         return dataModelStorage;
     }
 

@@ -96,7 +96,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private static final Logger LOGGER = Logger.getLogger(StandardQueryHandler.class);
 
-    private static final StringConstant EMPTY_STRING_CONSTANT = (new StringConstant(StringUtils.EMPTY));
+    private static final StringConstant EMPTY_STRING_CONSTANT = new StringConstant(StringUtils.EMPTY);
 
     private final CriterionAdapter CRITERION_VISITOR = new CriterionAdapter();
 

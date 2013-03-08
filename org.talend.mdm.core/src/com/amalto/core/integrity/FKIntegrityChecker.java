@@ -131,10 +131,8 @@ public class FKIntegrityChecker {
     public FKIntegrityCheckResult getFKIntegrityPolicy(String clusterName, String concept, String[] ids, FKIntegrityCheckDataSource dataSource) throws XtentisException {
         // Extract data model from database
         String dataModel = dataSource.getDataModel(clusterName, concept, ids);
-
         // Gets field(s) to check
         Set<ReferenceFieldMetadata> fieldToCheck = dataSource.getForeignKeyList(concept, dataModel);
-
         // Sort all fields by FK integrity policy
         Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields = new HashMap<FKIntegrityCheckResult, Set<FieldMetadata>>();
         for (ReferenceFieldMetadata incomingReference : fieldToCheck) {
@@ -142,7 +140,6 @@ public class FKIntegrityChecker {
                 boolean allowOverride = incomingReference.allowFKIntegrityOverride();
                 String referencingTypeName = getFromTypeNameThroughIncomingReference(incomingReference);
                 long count = dataSource.countInboundReferences(clusterName, ids, referencingTypeName, incomingReference);
-
                 if (count > 0) {
                     if (allowOverride) {
                         get(checkResultToFields, FORBIDDEN_OVERRIDE_ALLOWED).add(incomingReference);
@@ -157,13 +154,10 @@ public class FKIntegrityChecker {
                 get(checkResultToFields, ALLOWED).add(incomingReference);
             }
         }
-
-
         if (checkResultToFields.isEmpty()) {
             // No FK pointing to record was found... returns allowed.
             return ALLOWED;
         }
-
         // Interpretation of results
         if (hasOnly(FORBIDDEN, checkResultToFields)) {
             return FORBIDDEN;
@@ -185,10 +179,8 @@ public class FKIntegrityChecker {
             } else {
                 throw new IllegalStateException("Cannot resolve FK integrity conflict."); //$NON-NLS-1$
             }
-
             // Log in server's log how conflict was solved.
             dataSource.resolvedConflict(checkResultToFields, conflictResolution);
-
             return conflictResolution;
         }
     }
@@ -196,22 +188,19 @@ public class FKIntegrityChecker {
     /**
      * Get from type name by incomingReference
      * 
-     * @param incomingReference
      * @return The from type name
      */
     private String getFromTypeNameThroughIncomingReference(ReferenceFieldMetadata incomingReference) {
-
-        if (incomingReference == null)
+        if (incomingReference == null) {
             throw new IllegalArgumentException("The input reference field metadata should is null! "); //$NON-NLS-1$
-
+        }
         String rootTypeName = incomingReference.getData(ForeignKeyIntegrity.ATTRIBUTE_ROOTTYPE);
         if (rootTypeName != null && rootTypeName.trim().length() > 0) {
             return rootTypeName;
-        }else{
+        } else {
             TypeMetadata referencingType = incomingReference.getContainingType();
             return referencingType.getName();
         }
-
     }
 
     /**
@@ -221,10 +210,10 @@ public class FKIntegrityChecker {
      * @param key The key where the caller expects an non-null value.
      * @return The value for <code>key</code> or a newly created value if it didn't exist in <code>map</code>.
      */
-    private static Set<FieldMetadata> get(Map<FKIntegrityCheckResult, Set<FieldMetadata>> map, FKIntegrityCheckResult key) {
-        Set<FieldMetadata> value = map.get(key);
+    private static <K,V> Set<V> get(Map<K, Set<V>> map, K key) {
+        Set<V> value = map.get(key);
         if (value == null) {
-            value = new HashSet<FieldMetadata>();
+            value = new HashSet<V>();
             map.put(key, value);
         }
         return value;

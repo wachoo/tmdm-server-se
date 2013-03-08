@@ -24,6 +24,26 @@ import java.util.Set;
 public interface Storage {
 
     /**
+     * Indicates storage supports transactions.
+     */
+    byte CAP_TRANSACTION = 1;
+
+    /**
+     * Indicates storage supports full text queries.
+     */
+    byte CAP_FULL_TEXT = 2;
+
+    /**
+     * Indicate storage supports referential integrity.
+     */
+    byte CAP_INTEGRITY = 4;
+
+    /**
+     * @return A bit mask of capabilities for this storage implementation.
+     */
+    int getCapabilities();
+
+    /**
      * Name of the column where MDM timestamp is stored.
      */
     String METADATA_TIMESTAMP = "x_talend_timestamp"; //$NON-NLS-1$

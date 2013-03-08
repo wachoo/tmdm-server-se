@@ -48,6 +48,11 @@ public class SecuredStorage implements Storage {
         this.delegator = delegator;
     }
 
+    @Override
+    public int getCapabilities() {
+        return delegate.getCapabilities();
+    }
+
     public void init(DataSource dataSource) {
         delegate.init(dataSource);
     }

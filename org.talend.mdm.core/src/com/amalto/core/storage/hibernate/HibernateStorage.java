@@ -124,6 +124,15 @@ public class HibernateStorage implements Storage {
     }
 
     @Override
+    public int getCapabilities() {
+        int capabilities = CAP_TRANSACTION | CAP_INTEGRITY;
+        if (dataSource.supportFullText()) {
+            capabilities |= CAP_FULL_TEXT;
+        }
+        return capabilities;
+    }
+
+    @Override
     public void init(DataSource dataSource) {
         // Stateless components
         if (dataSource == null) {
@@ -236,6 +245,7 @@ public class HibernateStorage implements Storage {
                         continue; // Don't take into indexed fields long text fields
                     }
                 }
+                // TODO Go up the containment tree in case containing type is anonymous.
                 TypeMapping mapping = mappingRepository.getMappingFromUser(indexedField.getContainingType());
                 databaseIndexedFields.add(mapping.getDatabase(indexedField));
             }
