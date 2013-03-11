@@ -102,12 +102,14 @@ public class BeforeSaving implements DocumentSaver {
                         if (node != null) {
                             // set back the modified item by the process
                             context.setUserDocument(new DOMDocument(node));
+                            context.setDatabaseDocument(null);
+                            context.setDatabaseValidationDocument(null);
                             if (context.getUserAction() == UserAction.CREATE) {
                                 context.setId(new String[0]); // Will re-read id from document.
                             }
                             // Redo a set of actions and security checks.
                             // TMDM-4599: Adds UpdateReport phase so a new update report is generated based on latest changes.
-                            next = new GenerateActions(new Security(new UpdateReport(next)));
+                            next = new ID(new GenerateActions(new Security(new UpdateReport(new ApplyActions(next)))));
                         }
                     }
                 }
