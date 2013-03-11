@@ -70,10 +70,10 @@ class UserContext extends AbstractDocumentSaverContext {
         if (validate) {
             saver = new Validation(saver);
         }
-        saver = new ApplyActions(saver); // Apply actions is mandatory
         if (invokeBeforeSaving) {
             saver = new BeforeSaving(saver);
         }
+        saver = new ApplyActions(saver); // Apply actions is mandatory
         if (updateReport) {
             saver = new UpdateReport(saver);
         }
