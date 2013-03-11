@@ -322,7 +322,11 @@ public class ItemCtrl2Bean implements SessionBean {
         patternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
         XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
         try {
-            return server.deleteItems(patternsToRevisionID, patternsToClusterName, conceptName, search);
+            int count = server.deleteItems(patternsToRevisionID, patternsToClusterName, conceptName, search);
+            if (count > 0){
+                ItemPOJO.clearCache();
+            }
+            return count;
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
