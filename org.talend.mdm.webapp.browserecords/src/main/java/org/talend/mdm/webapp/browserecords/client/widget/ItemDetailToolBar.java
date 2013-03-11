@@ -432,6 +432,7 @@ public class ItemDetailToolBar extends ToolBar {
             duplicateButton.setId("duplicateButton"); //$NON-NLS-1$
             duplicateButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.duplicate()));
             duplicateButton.setToolTip(MessagesFactory.getMessages().duplicate_tip());
+            duplicateButton.setEnabled(!viewBean.getBindingEntityModel().getMetaDataTypes().get(itemBean.getConcept()).isDenyCreatable());
             duplicateButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 @Override
