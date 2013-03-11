@@ -122,7 +122,7 @@ public class DefaultSaverSource implements SaverSource {
     public OutputReport invokeBeforeSaving(DocumentSaverContext context, MutableDocument updateReportDocument) {
         try {
             return Util.beforeSaving(context.getType().getName(),
-                    context.getUserDocument().exportToString(),
+                    context.getDatabaseDocument().exportToString(),
                     updateReportDocument.exportToString());
         } catch (Exception e) {
             throw new RuntimeException(e);
