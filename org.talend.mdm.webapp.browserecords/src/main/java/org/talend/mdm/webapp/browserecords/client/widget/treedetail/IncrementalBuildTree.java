@@ -126,15 +126,6 @@ public class IncrementalBuildTree implements IncrementalCommand {
 				treeDetail.getFkRender().RenderForeignKey(itemNode, foreighKeyMap.get(model), model, treeDetail.getToolBar(), viewBean, treeDetail, treeDetail.getItemsDetailPanel());
 			}
 			foreighKeyMap.clear();
-
-			TypeModel itemType = metaDataTypes.get(itemNode.getTypePath());
-			if (itemType instanceof ComplexTypeModel){
-				List<TypeModel> subTypes = ((ComplexTypeModel) itemType).getSubTypes();
-				if (subTypes != null && subTypes.size() == 1){
-					// All went to FK Tab, in that case return null so the tree item is hide
-					item.getElement().setPropertyBoolean("EmptyFkContainer", true); //$NON-NLS-1$
-				}
-			}
         }
 	}
 	
