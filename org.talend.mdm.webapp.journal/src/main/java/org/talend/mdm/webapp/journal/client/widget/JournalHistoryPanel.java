@@ -41,7 +41,7 @@ public class JournalHistoryPanel extends ContentPanel {
         this.setHeading(MessagesFactory.getMessages().data_change_viewer());
         this.setLayout(new BorderLayout());
         
-        BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 220);
+        BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 200);
         northData.setCollapsible(false);
         northData.setSplit(true);
         northData.setMargins(new Margins(0, 0, 0, 0));        

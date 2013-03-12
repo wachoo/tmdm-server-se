@@ -72,4 +72,10 @@ public interface JournalMessages extends Messages {
     public String error_level();
     
     public String select_contain_model_msg();
+    
+    public String view_updatereport_button();
+    
+    public String updatereport_label();
+    
+    public String change_properties();
 }
