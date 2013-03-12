@@ -1,0 +1,17 @@
+<EntityA> 
+  <Id>111</Id>
+  <nodes>
+    <node>
+       <label>lab1</label>
+       <uuid></uuid>
+    </node>
+    <node>
+       <label>lab2</label>
+       <uuid></uuid>
+    </node>
+    <node>
+       <label>lab3</label>
+       <uuid></uuid>
+    </node>
+  </nodes>
+</EntityA>

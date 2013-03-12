@@ -73,7 +73,7 @@ class UnaryFieldAccessor implements DOMAccessor {
             Node lastAccessedNode = document.getLastAccessedNode();
             if (parentNode == lastAccessedNode) {
                 parentNode.insertBefore(newElement, parentNode.getFirstChild());
-            } else if (lastAccessedNode != null) {
+            } else if (lastAccessedNode != null && lastAccessedNode.getParentNode() == parentNode) {
                 parentNode.insertBefore(newElement, lastAccessedNode.getNextSibling());
             } else {
                 parentNode.appendChild(newElement);
