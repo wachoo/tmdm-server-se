@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
+import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -265,7 +266,7 @@ public class DroppedItemPOJO implements Serializable {
             for (String uid : ids) {
                 String[] uidValues = uid.split("\\."); //$NON-NLS-1$
                 ItemPOJOPK refItemPOJOPK;
-                if (uidValues.length < 4) {
+                if (MDMConfiguration.getDBType() != EDBType.QIZX) {
                     refItemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(uidValues[0]), uidValues[1], Arrays.copyOfRange(
                                                 uidValues, 2, uidValues.length));
                 } else {
