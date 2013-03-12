@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.journal.server.servlet;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -61,6 +62,7 @@ public class JournalExportServlet extends HttpServlet {
 
             List<JournalGridModel> resultList = (List<JournalGridModel>) resultArr[1];
             int i = 1;
+            SimpleDateFormat simpleDateFormat= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //$NON-NLS-1$            
             for (JournalGridModel model : resultList) {
                 HSSFRow row = journalExcel.createRow((short)i++);
                 row.createCell((short) 0).setCellValue(model.getDataContainer());
@@ -69,7 +71,11 @@ public class JournalExportServlet extends HttpServlet {
                 row.createCell((short) 3).setCellValue(model.getKey());
                 row.createCell((short) 4).setCellValue(model.getRevisionId());
                 row.createCell((short) 5).setCellValue(model.getOperationType());
-                row.createCell((short) 6).setCellValue(model.getOperationTime());
+                String operationTimeValue = (model.getOperationTime() == null ? "" : model.getOperationTime()); //$NON-NLS-1$
+                if (!"".equals(operationTimeValue)) { //$NON-NLS-1$
+                    operationTimeValue = simpleDateFormat.format(new Date(Long.parseLong(model.getOperationTime())));                    
+                }
+                row.createCell((short) 6).setCellValue(operationTimeValue);
                 row.createCell((short) 7).setCellValue(model.getSource());
                 row.createCell((short) 8).setCellValue(model.getUserName());
             }
