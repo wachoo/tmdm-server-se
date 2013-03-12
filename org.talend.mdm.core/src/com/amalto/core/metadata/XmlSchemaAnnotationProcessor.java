@@ -12,6 +12,7 @@
 package com.amalto.core.metadata;
 
 import org.apache.ws.commons.schema.XmlSchemaAnnotation;
+import org.eclipse.xsd.XSDAnnotation;
 
 /**
  * Enrich a {@link ComplexTypeMetadata} being built with information contained in XML Schema information.
@@ -30,4 +31,5 @@ interface XmlSchemaAnnotationProcessor {
      */
     void process(MetadataRepository repository, ComplexTypeMetadata type, XmlSchemaAnnotation annotation, XmlSchemaAnnotationProcessorState state);
 
+    void process(MetadataRepository repository, ComplexTypeMetadata type, XSDAnnotation annotation, XmlSchemaAnnotationProcessorState state);
 }

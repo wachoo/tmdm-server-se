@@ -15,9 +15,9 @@ package com.amalto.core.metadata;
  *
  */
 public interface ValidationHandler {
-    void error(String message);
+    void error(TypeMetadata type, String message, int lineNumber, int columnNumber);
 
-    void fatal(String message);
+    void fatal(TypeMetadata type, String message, int lineNumber, int columnNumber);
 
-    void warning(String message);
+    void warning(TypeMetadata type, String message, int lineNumber, int columnNumber);
 }

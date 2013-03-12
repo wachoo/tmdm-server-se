@@ -23,17 +23,17 @@ public class DefaultValidationHandler implements ValidationHandler {
     }
 
     @Override
-    public void error(String message) {
+    public void error(TypeMetadata type, String message, int lineNumber, int columnNumber) {
         throw new RuntimeException(message);
     }
 
     @Override
-    public void fatal(String message) {
+    public void fatal(TypeMetadata type, String message, int lineNumber, int columnNumber) {
         throw new RuntimeException(message);
     }
 
     @Override
-    public void warning(String message) {
+    public void warning(TypeMetadata type, String message, int lineNumber, int columnNumber) {
         LOGGER.warn(message);
     }
 }

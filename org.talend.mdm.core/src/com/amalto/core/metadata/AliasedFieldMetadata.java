@@ -24,12 +24,16 @@ public class AliasedFieldMetadata extends SimpleTypeFieldMetadata {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AliasedFieldMetadata)) return false;
-        if (!super.equals(o)) return false;
-
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof AliasedFieldMetadata)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         AliasedFieldMetadata that = (AliasedFieldMetadata) o;
-
         return !(realFieldName != null ? !realFieldName.equals(that.realFieldName) : that.realFieldName != null);
     }
 

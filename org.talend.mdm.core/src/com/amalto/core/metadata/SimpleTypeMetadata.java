@@ -93,7 +93,10 @@ public class SimpleTypeMetadata extends AbstractMetadataExtensible implements Ty
                     superType = superType.freeze(handler);
                     superTypes.add(superType);
                 } else {
-                    handler.error("Non instantiable type cannot inherits from entity type.");
+                    handler.error(superType,
+                            "Non instantiable type cannot inherits from entity type.",
+                            superType.<Integer>getData(MetadataRepository.XSD_LINE_NUMBER),
+                            superType.<Integer>getData(MetadataRepository.XSD_COLUMN_NUMBER));
                 }
             }
         }

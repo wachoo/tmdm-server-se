@@ -11,7 +11,10 @@
 
 package com.amalto.core.metadata.xsd;
 
+import com.amalto.core.metadata.MetadataRepository;
 import org.apache.ws.commons.schema.*;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.xsd.*;
 
 import java.util.Iterator;
 
@@ -73,4 +76,46 @@ public class XmlSchemaWalker {
         }
     }
 
+    public static void walk(XSDSchema xmlSchema, XSDVisitor visitor) {
+        // Visit element first (create MDM entity types)
+        EList elements = xmlSchema.getElementDeclarations();
+        for (Object element : elements) {
+            walk(((XSDElementDeclaration) element), visitor);
+        }
+        // Visit remaining types (sometimes used in case of inheritance by entity types).
+        EList types = xmlSchema.getTypeDefinitions();
+        for (Object type : types) {
+            walk(((XSDTypeDefinition) type), visitor);
+        }
+    }
+
+    public static void walk(XSDTypeDefinition type, XSDVisitor visitor) {
+        if (type instanceof XSDSimpleTypeDefinition) {
+            walk(((XSDSimpleTypeDefinition) type), visitor);
+        } else if (type instanceof XSDComplexTypeDefinition) {
+            walk(((XSDComplexTypeDefinition) type), visitor);
+        } else {
+            throw new IllegalArgumentException("Not supported XML Schema type: " + type.getClass().getName());
+        }
+    }
+
+    public static void walk(XSDElementDeclaration element, XSDVisitor visitor) {
+        visitor.visitElement(element);
+    }
+
+    private static void walk(XSDSimpleTypeDefinition xmlSchemaType, XSDVisitor visitor) {
+        visitor.visitSimpleType(xmlSchemaType);
+    }
+
+    private static void walk(XSDComplexTypeDefinition xmlSchemaType, XSDVisitor visitor) {
+        visitor.visitComplexType(xmlSchemaType);
+    }
+
+    public static void walk(XSDConcreteComponent component, XSDVisitor visitor) {
+        if (component instanceof XSDElementDeclaration) {
+            walk(((XSDElementDeclaration) component), visitor);
+        } else {
+            throw new IllegalArgumentException("Not supported XML Schema type: " + component.getClass().getName());
+        }
+    }
 }

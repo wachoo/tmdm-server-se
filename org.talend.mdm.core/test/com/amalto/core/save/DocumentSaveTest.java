@@ -453,7 +453,21 @@ public class DocumentSaveTest extends TestCase {
 
         Element committedElement = committer.getCommittedElement();
         assertEquals(
-                "<AutoIncrement><id>AutoIncrement</id><entry><key>[HEAD].CoreTestsContainer.auto_increment.auto_increment</key><value>1</value></entry><entry><key>[HEAD].Product.ProductFamily.Id</key><value>30</value></entry><entry><key>[HEAD].CoreTestsContainer.auto_increment1.auto_increment1</key><value>1</value></entry></AutoIncrement>",
+                "<AutoIncrement>\n" +
+                        "<id>AutoIncrement</id>\n" +
+                        "<entry>\n" +
+                        "<key>[HEAD].CoreTestsContainer.auto_increment.auto_increment</key>\n" +
+                        "<value>1</value>\n" +
+                        "</entry>\n" +
+                        "<entry>\n" +
+                        "<key>[HEAD].Product.ProductFamily.Id</key>\n" +
+                        "<value>30</value>\n" +
+                        "</entry>\n" +
+                        "<entry>\n" +
+                        "<key>[HEAD].CoreTestsContainer.auto_increment1.auto_increment1</key>\n" +
+                        "<value>1</value>\n" +
+                        "</entry>\n" +
+                        "</AutoIncrement>\n",
                 Util.nodeToString(committedElement));
         assertTrue(source.hasCalledInitAutoIncrement);
 

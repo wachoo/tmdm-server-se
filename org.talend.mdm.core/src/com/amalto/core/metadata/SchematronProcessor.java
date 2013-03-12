@@ -14,6 +14,9 @@ package com.amalto.core.metadata;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.ws.commons.schema.XmlSchemaAnnotation;
 import org.apache.ws.commons.schema.XmlSchemaAppInfo;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.xsd.XSDAnnotation;
+import org.w3c.dom.Element;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -45,6 +48,27 @@ public class SchematronProcessor implements XmlSchemaAnnotationProcessor {
                         } catch (TransformerException e) {
                             throw new RuntimeException(e);
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void process(MetadataRepository repository, ComplexTypeMetadata type, XSDAnnotation annotation, XmlSchemaAnnotationProcessorState state) {
+        if (annotation != null) {
+            EList<Element> annotations = annotation.getApplicationInformation();
+            for (Element appInfo : annotations) {
+                if ("X_Schematron".equals(appInfo.getAttribute("source"))) { //$NON-NLS-1$ //$NON-NLS-2$
+                    try {
+                        // TODO This is not really efficient but doing it nicely would require to rewrite a StringEscapeUtils.unescapeXml()
+                        StringWriter sw = new StringWriter();
+                        Transformer transformer = transformerFactory.newTransformer();
+                        transformer.setOutputProperty("omit-xml-declaration", "yes"); //$NON-NLS-1$ //$NON-NLS-2$
+                        transformer.transform(new DOMSource(appInfo.getFirstChild()), new StreamResult(sw));
+                        state.setSchematron("<schema>" + StringEscapeUtils.unescapeXml(sw.toString()) + "</schema>"); //$NON-NLS-1$ //$NON-NLS-2$
+                    } catch (TransformerException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             }

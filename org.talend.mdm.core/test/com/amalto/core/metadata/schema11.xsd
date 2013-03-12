@@ -15,8 +15,8 @@
     <xsd:element name="Personne">
         <xsd:annotation>
             <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
-            <xsd:appinfo source="X_PrimaryKeyInfo">Personne/Prenom</xsd:appinfo>
-            <xsd:appinfo source="X_PrimaryKeyInfo">Personne/Nom</xsd:appinfo>
+            <xsd:appinfo source="X_PrimaryKeyInfo">Personne/PrenomUsuel</xsd:appinfo>
+            <xsd:appinfo source="X_PrimaryKeyInfo">Personne/NomUsuel</xsd:appinfo>
             <xsd:appinfo source="X_Schematron">&lt;pattern name="DateEntreeGroupe" &gt; &lt;rule context="/"&gt;&lt;assert
                 test="fn:yearFromDate(DateEntreeGroupe)&gt;fn:yearFromDate(DateNaissance)+15"&gt;&lt;![CDATA[[FR:La date
                 d'entr閑 du groupe doit 阾re au moins de 15 ans sup閞ieure ?la date de naissance]]]&gt;&lt;/assert&gt;&lt;/rule&gt;
@@ -27,7 +27,7 @@
         </xsd:annotation>
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:element maxOccurs="1" minOccurs="1" name="IdMDM" type="AUTO_INCREMENT">
+                <xsd:element maxOccurs="1" minOccurs="2" name="IdMDM" type="AUTO_INCREMENT">
                     <xsd:annotation>
                         <xsd:appinfo source="X_Hide">System_Admin</xsd:appinfo>
                         <xsd:appinfo source="X_Hide">System_Interactive</xsd:appinfo>
@@ -696,7 +696,7 @@
     <xsd:element name="ElementOrganisationPj">
         <xsd:annotation>
             <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
-            <xsd:appinfo source="X_PrimaryKeyInfo">ElementOrganisation/Nom</xsd:appinfo>
+            <xsd:appinfo source="X_PrimaryKeyInfo">ElementOrganisationPj/Nom</xsd:appinfo>
             <xsd:appinfo source="X_Label_FR">Element d'organisation PJ</xsd:appinfo>
         </xsd:annotation>
         <xsd:complexType>

@@ -334,8 +334,10 @@ public class ComplexTypeMetadataImpl extends AbstractMetadataExtensible implemen
                         Collection<FieldMetadata> thisTypeKeyFields = getKeyFields();
                         for (FieldMetadata thisTypeKeyField : thisTypeKeyFields) {
                             if (!((ComplexTypeMetadata) superType).hasField(thisTypeKeyField.getName())) {
-                                handler.error("Type '" + name + "' cannot add field(s) to its key because " +
-                                        "super type '" + superType.getName() + "' already defines key.");
+                                handler.error(superType, "Type '" + name + "' cannot add field(s) to its key because " +
+                                        "super type '" + superType.getName() + "' already defines key.",
+                                        superType.<Integer>getData(MetadataRepository.XSD_LINE_NUMBER),
+                                        superType.<Integer>getData(MetadataRepository.XSD_COLUMN_NUMBER));
                             }
                         }
                         ((ComplexTypeMetadata) superType).registerSubType(this);

@@ -10,8 +10,7 @@
 
 package com.amalto.core.metadata;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  *
@@ -23,6 +22,8 @@ public class SoftIdFieldRef implements FieldMetadata {
     private final String typeName;
 
     private final String fieldName;
+
+    private final Map<String, Object> additionalData = new HashMap<String, Object>();
 
     private FieldMetadata frozenField;
 
@@ -45,12 +46,12 @@ public class SoftIdFieldRef implements FieldMetadata {
 
     @Override
     public synchronized void setData(String key, Object data) {
-        getField().setData(key, data);
+        additionalData.put(key, data);
     }
 
     @Override
     public <X> X getData(String key) {
-        return getField().<X> getData(key);
+        return (X) additionalData.get(key);
     }
 
     @Override
@@ -92,12 +93,15 @@ public class SoftIdFieldRef implements FieldMetadata {
             type = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), typeName);
         }
         if (type == null) {
-            handler.error("Type '" + typeName + "' does not exist.");
+            handler.error(null, "Type '" + typeName + "' does not exist.", -1, -1);
             return this;
         }
         Collection<FieldMetadata> keyFields = type.getKeyFields();
         if (keyFields.isEmpty()) {
-            handler.error("Type '" + typeName + "' does not own a key and no FK field was defined.");
+            handler.error(type,
+                    "Type '" + typeName + "' does not own a key and no FK field was defined.",
+                    type.<Integer>getData(MetadataRepository.XSD_LINE_NUMBER),
+                    type.<Integer>getData(MetadataRepository.XSD_COLUMN_NUMBER));
             return this;
         }
         if (fieldName == null) {
@@ -108,6 +112,10 @@ public class SoftIdFieldRef implements FieldMetadata {
             }
         } else {
             frozenField = type.getField(fieldName);
+        }
+        Set<Map.Entry<String, Object>> data = additionalData.entrySet();
+        for (Map.Entry<String, Object> currentData : data) {
+            frozenField.setData(currentData.getKey(), currentData.getValue());
         }
         return frozenField;
     }

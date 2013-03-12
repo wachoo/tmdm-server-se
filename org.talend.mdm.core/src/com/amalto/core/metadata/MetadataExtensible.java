@@ -23,6 +23,7 @@ interface MetadataExtensible {
     /**
      * Returns the defined property for the given name, or <code>null</code> if it has not been set.
      *
+     *
      * @param key the name of the property
      * @return the value or <code>null</code> if it has not been set
      */
