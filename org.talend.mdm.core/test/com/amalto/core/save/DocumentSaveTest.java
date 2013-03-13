@@ -27,7 +27,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
@@ -37,6 +36,7 @@ import org.w3c.dom.Element;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.history.MutableDocument;
+import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverSource;
@@ -452,25 +452,12 @@ public class DocumentSaveTest extends TestCase {
         session.end(committer);
 
         Element committedElement = committer.getCommittedElement();
-        assertEquals(
-                "<AutoIncrement>\n" +
-                        "<id>AutoIncrement</id>\n" +
-                        "<entry>\n" +
-                        "<key>[HEAD].CoreTestsContainer.auto_increment.auto_increment</key>\n" +
-                        "<value>1</value>\n" +
-                        "</entry>\n" +
-                        "<entry>\n" +
-                        "<key>[HEAD].Product.ProductFamily.Id</key>\n" +
-                        "<value>30</value>\n" +
-                        "</entry>\n" +
-                        "<entry>\n" +
-                        "<key>[HEAD].CoreTestsContainer.auto_increment1.auto_increment1</key>\n" +
-                        "<value>1</value>\n" +
-                        "</entry>\n" +
-                        "</AutoIncrement>\n",
-                Util.nodeToString(committedElement));
+        assertEquals("<AutoIncrement>" + "<id>AutoIncrement</id>" + "<entry>"
+                + "<key>[HEAD].CoreTestsContainer.auto_increment.auto_increment</key>" + "<value>1</value>" + "</entry>"
+                + "<entry>" + "<key>[HEAD].Product.ProductFamily.Id</key>" + "<value>30</value>" + "</entry>" + "<entry>"
+                + "<key>[HEAD].CoreTestsContainer.auto_increment1.auto_increment1</key>" + "<value>1</value>" + "</entry>"
+                + "</AutoIncrement>", Util.nodeToString(committedElement));
         assertTrue(source.hasCalledInitAutoIncrement);
-
     }
 
     public void testWithClone() throws Exception {
@@ -1054,8 +1041,8 @@ public class DocumentSaveTest extends TestCase {
             {
                 for (int i = 0; i < 200; i++) {
                     InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-                    DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml,
-                            true, true, true, false);
+                    DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true,
+                            true, true, false);
                     DocumentSaver saver = context.createSaver();
                     saver.save(session, context);
                 }
@@ -1585,8 +1572,10 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
         assertEquals("", evaluate(committer.getCommittedElement(), "/Societe/Contacts/Contact[8]"));
-        assertEquals("+33 0 00 00 00 00", evaluate(committer.getCommittedElement(), "/Societe/Contacts/Contact[7]/SpecialisationContactType/Numero"));
-        assertEquals("+33 1 47 16 02 03", evaluate(committer.getCommittedElement(), "/Societe/Contacts/Contact[5]/SpecialisationContactType/Numero"));
+        assertEquals("+33 0 00 00 00 00",
+                evaluate(committer.getCommittedElement(), "/Societe/Contacts/Contact[7]/SpecialisationContactType/Numero"));
+        assertEquals("+33 1 47 16 02 03",
+                evaluate(committer.getCommittedElement(), "/Societe/Contacts/Contact[5]/SpecialisationContactType/Numero"));
     }
 
     public void test39() throws Exception {
@@ -1641,7 +1630,8 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test42.xml");
-        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("Product", "test42", "Source", recordXml, true, false, "Personne/Contextes/Contexte", "", false);
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("Product", "test42", "Source", recordXml,
+                true, false, "Personne/Contextes/Contexte", "", false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1661,7 +1651,8 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test43.xml");
-        DocumentSaverContext context = session.getContextFactory().create("Product", "test43", "Source", recordXml, true, true, false, false);
+        DocumentSaverContext context = session.getContextFactory().create("Product", "test43", "Source", recordXml, true, true,
+                false, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1681,7 +1672,8 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test44.xml");
-        DocumentSaverContext context = session.getContextFactory().create("Product", "test44", "Source", recordXml, false, true, false, false);
+        DocumentSaverContext context = session.getContextFactory().create("Product", "test44", "Source", recordXml, false, true,
+                false, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1702,7 +1694,8 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test45.xml");
-        DocumentSaverContext context = session.getContextFactory().create("Product", "test45", "Source", recordXml, false, true, false, false);
+        DocumentSaverContext context = session.getContextFactory().create("Product", "test45", "Source", recordXml, false, true,
+                false, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1745,7 +1738,8 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test47.xml");
-        DocumentSaverContext context = session.getContextFactory().create("Eda", "test47", "Source", recordXml, false, true, false, false);
+        DocumentSaverContext context = session.getContextFactory().create("Eda", "test47", "Source", recordXml, false, true,
+                false, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1753,7 +1747,6 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
     }
-   
 
     public void test47() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
@@ -1764,7 +1757,8 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test48.xml");
-        DocumentSaverContext context = session.getContextFactory().create("Product", "test48", "Source", recordXml, false, true, false, false);
+        DocumentSaverContext context = session.getContextFactory().create("Product", "test48", "Source", recordXml, false, true,
+                false, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1772,7 +1766,7 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
     }
-    
+
     public void testPolymorphismForeignKeys() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata10.xsd"));
@@ -1804,8 +1798,8 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test51.xml");
-        DocumentSaverContext context = session.getContextFactory().create("TestFK", "Individual", "Source", recordXml, true, true,
-                true, false);
+        DocumentSaverContext context = session.getContextFactory().create("TestFK", "Individual", "Source", recordXml, true,
+                true, true, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1815,7 +1809,6 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(ItemPOJO.getCache().get(new ItemCacheKey("HEAD", "12", "TestFK")) == null);
     }
 
-    
     public void testPartialUpdateWithEmptyString() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
@@ -1825,8 +1818,8 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test50.xml");
-        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test50", "Source", recordXml, true,
-                false, "Personne/Contextes/Contexte", "IdContexte", true);
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test50", "Source", recordXml,
+                true, false, "Personne/Contextes/Contexte", "IdContexte", true);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1836,7 +1829,7 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("", evaluate(committer.getCommittedElement(), "/Personne/Contextes/Contexte[2]/DateFinContexte"));
         assertEquals("[1]", evaluate(committer.getCommittedElement(), "/Personne/Contextes/Contexte[2]/OrganisationFk"));
     }
-    
+
     public void testSaveWithPolymorphismNode() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("Personne.xsd"));
@@ -1844,7 +1837,8 @@ public class DocumentSaveTest extends TestCase {
         TestSaverSource source = new TestSaverSource(repository, false, "", "Personne.xsd");
         source.setUserName("System_Admin");
 
-        // 1. /Personne/Contextes/Contexte all of nodes are empty(including Polymorphism node: SpecialisationContactType)
+        // 1. /Personne/Contextes/Contexte all of nodes are empty(including Polymorphism node:
+        // SpecialisationContactType)
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("Personne.xml");
         DocumentSaverContext context = session.getContextFactory().create("MDM", "Vinci", "Source", recordXml, true, true, true,
@@ -1856,13 +1850,15 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
-        assertNull(Util.getFirstTextNode(committedElement, "/Personne/Contextes/Contexte/Contacts/Contact/SpecialisationContactType"));
+        assertNull(Util.getFirstTextNode(committedElement,
+                "/Personne/Contextes/Contexte/Contacts/Contact/SpecialisationContactType"));
         assertNotNull(evaluate(committedElement, "/Personne/IdMDM"));
         assertEquals("[2]", evaluate(committedElement, "/Personne/TypePersonneFk"));
         assertEquals("3", evaluate(committedElement, "/Personne/NomUsuel"));
         assertEquals("3", evaluate(committedElement, "/Personne/PrenomUsuel"));
-        
-        // 2. /Personne/Contextes/Contexte all of nodes are empty(excluding Polymorphism node: SpecialisationContactType=SpecialisationContactEmail)
+
+        // 2. /Personne/Contextes/Contexte all of nodes are empty(excluding Polymorphism node:
+        // SpecialisationContactType=SpecialisationContactEmail)
         session = SaverSession.newSession(source);
         recordXml = DocumentSaveTest.class.getResourceAsStream("Personne3.xml");
         context = session.getContextFactory().create("MDM", "Vinci", "Source", recordXml, true, true, true, true);
@@ -1874,8 +1870,9 @@ public class DocumentSaveTest extends TestCase {
             assertNotNull(e.getCause());
             assertTrue(e.getCause() instanceof ValidateException);
         }
-        
-        // 3. /Personne/Contextes/Contexte all of mandatory nodes are filled(including Polymorphism node: SpecialisationContactType=SpecialisationContactEmail)
+
+        // 3. /Personne/Contextes/Contexte all of mandatory nodes are filled(including Polymorphism node:
+        // SpecialisationContactType=SpecialisationContactEmail)
         session = SaverSession.newSession(source);
         recordXml = DocumentSaveTest.class.getResourceAsStream("Personne4.xml");
         context = session.getContextFactory().create("MDM", "Vinci", "Source", recordXml, true, true, true, true);
@@ -1886,9 +1883,14 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
         committedElement = committer.getCommittedElement();
-        assertEquals("SpecialisationContactEmail", evaluate(committedElement, "/Personne/Contextes/Contexte[1]/Contacts/Contact[1]/SpecialisationContactType/@xsi:type"));
-        assertEquals("[1]", Util.getFirstTextNode(committedElement, "/Personne/Contextes/Contexte/Contacts/Contact/SpecialisationContactType/NatureEmailFk"));
-        assertEquals("[1]", Util.getFirstTextNode(committedElement, "/Personne/Contextes/Contexte/Contacts/Contact/StatutContactFk"));
+        assertEquals(
+                "SpecialisationContactEmail",
+                evaluate(committedElement,
+                        "/Personne/Contextes/Contexte[1]/Contacts/Contact[1]/SpecialisationContactType/@xsi:type"));
+        assertEquals("[1]", Util.getFirstTextNode(committedElement,
+                "/Personne/Contextes/Contexte/Contacts/Contact/SpecialisationContactType/NatureEmailFk"));
+        assertEquals("[1]",
+                Util.getFirstTextNode(committedElement, "/Personne/Contextes/Contexte/Contacts/Contact/StatutContactFk"));
         assertEquals("[1]", Util.getFirstTextNode(committedElement, "/Personne/Contextes/Contexte/StatutContexteFk"));
         assertNotNull(evaluate(committedElement, "/Personne/Contextes/Contexte/IdContexte"));
         assertNotNull(evaluate(committedElement, "/Personne/IdMDM"));
@@ -1906,8 +1908,8 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test50.xml");
-        DocumentSaverContext context = session.getContextFactory().create("MDM", "Test50", "Source", recordXml, false,
-                false, true, false);
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "Test50", "Source", recordXml, false, false,
+                true, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1915,7 +1917,7 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
     }
-    
+
     public void test53() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata12.xsd"));
@@ -1925,17 +1927,17 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test53.xml");
-        DocumentSaverContext context = session.getContextFactory().create("Product", "Test53", "Source", recordXml, false,
-                false, true, false);
+        DocumentSaverContext context = session.getContextFactory().create("Product", "Test53", "Source", recordXml, false, false,
+                true, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
         session.end(committer);
-        
+
         assertTrue(committer.hasSaved());
         assertNotNull(committer.getCommittedElement());
     }
-    
+
     public void testRemoveSimpleTypeNodeWithOccurrence() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
@@ -1958,7 +1960,7 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("Lemon", evaluate(committedElement, "/Product/Features/Colors/Color[1]"));
         assertEquals("", evaluate(committedElement, "/Product/Features/Colors/Color[2]"));
     }
-    
+
     public void testProductFamilyUpdate() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
@@ -1980,20 +1982,21 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("60", evaluate(committedElement, "/Product/Price"));
         assertEquals("[2]", evaluate(committedElement, "/Product/Family"));
     }
-    
+
     private static class MockCommitter implements SaverSession.Committer {
 
         private Element committedElement;
 
-
         private boolean hasSaved = false;
 
+        @Override
         public void begin(String dataCluster) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Start on '" + dataCluster + "'");
             }
         }
 
+        @Override
         public void commit(String dataCluster) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Commit on '" + dataCluster + "'");
@@ -2001,6 +2004,7 @@ public class DocumentSaveTest extends TestCase {
             ItemPOJO.getCache().clear();
         }
 
+        @Override
         public void save(ItemPOJO item, ComplexTypeMetadata type, String revisionId) {
             hasSaved = true;
             try {
@@ -2009,9 +2013,8 @@ public class DocumentSaveTest extends TestCase {
                     for (String idValue : item.getItemIds()) {
                         idAsString += idValue;
                     }
-                    ItemCacheKey itemCacheKey = new ItemCacheKey(revisionId,
-                            idAsString,
-                            item.getDataClusterPOJOPK().getUniqueId());
+                    ItemCacheKey itemCacheKey = new ItemCacheKey(revisionId, idAsString, item.getDataClusterPOJOPK()
+                            .getUniqueId());
                     ItemPOJO.getCache().put(itemCacheKey, "Cached");
                 }
                 committedElement = item.getProjection();
@@ -2027,6 +2030,7 @@ public class DocumentSaveTest extends TestCase {
             }
         }
 
+        @Override
         public void rollback(String dataCluster) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Rollback on '" + dataCluster + "'");
@@ -2065,21 +2069,24 @@ public class DocumentSaveTest extends TestCase {
         private int currentId = 0;
 
         public TestSaverSource(MetadataRepository repository, boolean exist, String originalDocumentFileName,
-                               String schemaFileName) {
+                String schemaFileName) {
             this.repository = repository;
             this.exist = exist;
             this.originalDocumentFileName = originalDocumentFileName;
             this.schemaFileName = schemaFileName;
         }
 
+        @Override
         public InputStream get(String dataClusterName, String typeName, String revisionId, String[] key) {
             return DocumentSaveTest.class.getResourceAsStream(originalDocumentFileName);
         }
 
+        @Override
         public boolean exist(String dataCluster, String typeName, String revisionId, String[] key) {
             return exist;
         }
 
+        @Override
         public synchronized MetadataRepository getMetadataRepository(String dataModelName) {
             if ("UpdateReport".equals(dataModelName)) {
                 if (updateReportRepository == null) {
@@ -2091,19 +2098,23 @@ public class DocumentSaveTest extends TestCase {
             return repository;
         }
 
+        @Override
         public InputStream getSchema(String dataModelName) {
             return DocumentSaveTest.class.getResourceAsStream(schemaFileName);
         }
 
+        @Override
         public String getUniverse() {
             return "Universe";
         }
 
+        @Override
         public OutputReport invokeBeforeSaving(DocumentSaverContext context, MutableDocument updateReportDocument) {
             String message = "<report><message type=\"info\">change the value successfully!</message></report>";
             return new OutputReport(message, null);
         }
 
+        @Override
         public Set<String> getCurrentUserRoles() {
             if ("User".equals(userName)) {
                 return Collections.singleton("User");
@@ -2112,36 +2123,45 @@ public class DocumentSaveTest extends TestCase {
             }
         }
 
+        @Override
         public String getUserName() {
             return userName;
         }
 
+        @Override
         public boolean existCluster(String revisionID, String dataClusterName) {
             return true;
         }
 
+        @Override
         public String getConceptRevisionID(String typeName) {
             return "HEAD";
         }
 
+        @Override
         public void resetLocalUsers() {
         }
 
+        @Override
         public void initAutoIncrement() {
             hasCalledInitAutoIncrement = true;
         }
 
+        @Override
         public void routeItem(String dataCluster, String typeName, String[] id) {
         }
 
+        @Override
         public void invalidateTypeCache(String dataModelName) {
             lastInvalidatedTypeCache = dataModelName;
         }
 
+        @Override
         public void saveAutoIncrement() {
             hasSavedAutoIncrement = true;
         }
 
+        @Override
         public String nextAutoIncrementId(String universe, String dataCluster, String conceptName) {
             return String.valueOf(currentId++);
         }
@@ -2166,7 +2186,7 @@ public class DocumentSaveTest extends TestCase {
         private final boolean newOutput;
 
         public AlterRecordTestSaverSource(MetadataRepository repository, boolean exist, String fileName, boolean OK,
-                                          boolean newOutput) {
+                boolean newOutput) {
             super(repository, exist, fileName, "metadata1.xsd");
             this.OK = OK;
             this.newOutput = newOutput;
@@ -2182,7 +2202,8 @@ public class DocumentSaveTest extends TestCase {
             OutputReport report = new OutputReport(message, item);
 
             if (newOutput) {
-                item = "<exchange><item>" + "<Agency><Id>5258f292-5670-473b-bc01-8b63434682f3</Id><Name>beforeSaving_Agency</Name></Agency></item></exchange>";
+                item = "<exchange><item>"
+                        + "<Agency><Id>5258f292-5670-473b-bc01-8b63434682f3</Id><Name>beforeSaving_Agency</Name></Agency></item></exchange>";
                 report.setItem(item);
             }
             return report;
@@ -2196,7 +2217,7 @@ public class DocumentSaveTest extends TestCase {
         private final boolean newOutput;
 
         public TestSaverSourceWithOutputReportItem(MetadataRepository repository, boolean exist, String fileName, boolean OK,
-                                                   boolean newOutput) {
+                boolean newOutput) {
             super(repository, exist, fileName, "autoIncrementPK.xsd");
             this.OK = OK;
             this.newOutput = newOutput;
@@ -2229,6 +2250,7 @@ public class DocumentSaveTest extends TestCase {
             this.source = source;
         }
 
+        @Override
         public void run() {
             SaverSession session = SaverSession.newSession(source);
             {
@@ -2258,10 +2280,12 @@ public class DocumentSaveTest extends TestCase {
             declaredPrefix.put("tmdm", SkipAttributeDocumentBuilder.TALEND_NAMESPACE);
         }
 
+        @Override
         public String getNamespaceURI(String prefix) {
             return declaredPrefix.get(prefix);
         }
 
+        @Override
         public String getPrefix(String namespaceURI) {
             Set<Map.Entry<String, String>> entries = declaredPrefix.entrySet();
             for (Map.Entry<String, String> entry : entries) {
@@ -2272,6 +2296,7 @@ public class DocumentSaveTest extends TestCase {
             return null;
         }
 
+        @Override
         public Iterator getPrefixes(String namespaceURI) {
             return declaredPrefix.keySet().iterator();
         }
