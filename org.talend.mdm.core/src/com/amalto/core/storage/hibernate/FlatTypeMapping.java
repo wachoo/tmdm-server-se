@@ -52,7 +52,7 @@ class FlatTypeMapping extends TypeMapping {
 
     public void freeze() {
         if (!isFrozen) {
-            ValidationHandler handler = DefaultValidationHandler.INSTANCE;
+            ValidationHandler handler = new DefaultValidationHandler();
             // Ensure mapped type are frozen.
             try {
                 database.freeze(handler);
@@ -75,6 +75,7 @@ class FlatTypeMapping extends TypeMapping {
                 frozen.put(entry.getKey(), entry.getValue().freeze(handler));
             }
             databaseToUser = frozen;
+            handler.end();
             isFrozen = true;
         }
     }

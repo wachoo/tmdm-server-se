@@ -103,7 +103,9 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                 explicitProjectionType.addField(element.field);
                 record.set(element.field, element.value);
             }
-            explicitProjectionType.freeze(DefaultValidationHandler.INSTANCE);
+            DefaultValidationHandler handler = new DefaultValidationHandler();
+            explicitProjectionType.freeze(handler);
+            handler.end();
         } catch (Exception e) {
             notifyCallbacks();
             throw new RuntimeException(e);

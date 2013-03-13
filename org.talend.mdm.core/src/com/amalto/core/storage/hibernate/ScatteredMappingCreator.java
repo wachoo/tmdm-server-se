@@ -143,6 +143,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     originalContainedType.getDenyDelete(ComplexTypeMetadata.DeleteType.PHYSICAL),
                     originalContainedType.getDenyDelete(ComplexTypeMetadata.DeleteType.LOGICAL),
                     originalContainedType.getSchematron(),
+                    originalContainedType.getPrimaryKeyInfo(),
                     false);
             internalRepository.addTypeMetadata(internalContainedType);
             if (superTypeName == null) {  // Generate a technical ID only if contained type does not have super type (subclasses will inherit it).

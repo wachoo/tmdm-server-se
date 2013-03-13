@@ -264,7 +264,9 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                             nextRecord.set(field, next.get(field));
                         }
                     }
-                    explicitProjectionType.freeze(DefaultValidationHandler.INSTANCE);
+                    DefaultValidationHandler handler = new DefaultValidationHandler();
+                    explicitProjectionType.freeze(handler);
+                    handler.end();
                     return nextRecord;
                 }
             };

@@ -27,7 +27,7 @@
         </xsd:annotation>
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:element maxOccurs="1" minOccurs="2" name="IdMDM" type="AUTO_INCREMENT">
+                <xsd:element maxOccurs="1" minOccurs="1" name="IdMDM" type="AUTO_INCREMENT">
                     <xsd:annotation>
                         <xsd:appinfo source="X_Hide">System_Admin</xsd:appinfo>
                         <xsd:appinfo source="X_Hide">System_Interactive</xsd:appinfo>

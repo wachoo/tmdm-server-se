@@ -1329,7 +1329,7 @@
     </xsd:element>
     <xsd:element name="PurCat_Hierarchy_Ref">
         <xsd:annotation>
-            <xsd:appinfo source="X_PrimaryKeyInfo">PurCat_Ref/SupCatCodePK</xsd:appinfo>
+            <xsd:appinfo source="X_PrimaryKeyInfo">PurCat_Hierarchy_Ref/SupCatCodePK</xsd:appinfo>
             <xsd:appinfo source="X_Label_EN">Purchasing Category Codes</xsd:appinfo>
             <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
             <xsd:appinfo source="X_Hide">MDM_Requester</xsd:appinfo>

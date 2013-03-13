@@ -4,8 +4,8 @@
         <xsd:annotation>
             <xsd:appinfo source="X_Label_FR">Personne</xsd:appinfo>
             <xsd:appinfo source="X_PrimaryKeyInfo">Personne/IdVINCI</xsd:appinfo>
-            <xsd:appinfo source="X_PrimaryKeyInfo">Personne/Prenom</xsd:appinfo>
-            <xsd:appinfo source="X_PrimaryKeyInfo">Personne/Nom</xsd:appinfo>
+            <xsd:appinfo source="X_PrimaryKeyInfo">Personne/PrenomUsuel</xsd:appinfo>
+            <xsd:appinfo source="X_PrimaryKeyInfo">Personne/NomUsuel</xsd:appinfo>
 
             <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
         </xsd:annotation>

@@ -152,11 +152,11 @@ class UpdateReportTypeMapping extends TypeMapping {
 
     /**
      * "Freeze" both database and internal types.
-     * @see com.amalto.core.metadata.TypeMetadata#freeze(com.amalto.core.metadata.ValidationHandler)
+     * @see TypeMetadata#freeze(ValidationHandler)
      */
     public void freeze() {
         if (!isFrozen) {
-            ValidationHandler handler = DefaultValidationHandler.INSTANCE;
+            ValidationHandler handler = new DefaultValidationHandler();
             // Ensure mapped type are frozen.
             try {
                 database.freeze(handler);
@@ -180,7 +180,7 @@ class UpdateReportTypeMapping extends TypeMapping {
                 frozen.put(entry.getKey(), entry.getValue().freeze(handler));
             }
             databaseToUser = frozen;
-
+            handler.end();
             isFrozen = true;
         }
     }
