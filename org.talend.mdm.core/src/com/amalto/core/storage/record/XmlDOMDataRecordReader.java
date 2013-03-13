@@ -11,7 +11,9 @@
 
 package com.amalto.core.storage.record;
 
-import com.amalto.core.metadata.*;
+import com.amalto.core.metadata.ClassRepository;
+import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;

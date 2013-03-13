@@ -14,7 +14,7 @@ package com.amalto.core.ejb;
 
 import junit.framework.TestCase;
 
-import com.amalto.core.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;

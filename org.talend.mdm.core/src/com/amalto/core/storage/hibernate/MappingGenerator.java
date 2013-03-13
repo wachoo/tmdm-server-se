@@ -11,7 +11,8 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.*;
+import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;

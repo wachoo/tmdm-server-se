@@ -12,9 +12,9 @@
 package com.amalto.core.save.context;
 
 import com.amalto.core.history.MutableDocument;
-import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.util.OutputReport;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import java.io.InputStream;
 import java.util.Set;

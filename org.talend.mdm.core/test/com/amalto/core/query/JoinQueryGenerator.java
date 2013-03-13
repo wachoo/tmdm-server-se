@@ -11,7 +11,7 @@
 
 package com.amalto.core.query;
 
-import com.amalto.core.metadata.*;
+import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryBuilder;
 

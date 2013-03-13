@@ -14,12 +14,14 @@ import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldUpdateAction;
-import com.amalto.core.metadata.*;
+import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import org.talend.mdm.commmon.util.core.EUUIDCustomType;
+import org.talend.mdm.commmon.metadata.*;
+
 import java.util.*;
 
 // TODO Clean up: preserveCollectionOldValues is dedicated to partial update only!

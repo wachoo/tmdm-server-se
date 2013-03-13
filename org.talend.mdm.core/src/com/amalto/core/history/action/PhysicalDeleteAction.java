@@ -13,7 +13,7 @@ package com.amalto.core.history.action;
 
 import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.MutableDocument;
-import com.amalto.core.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import java.util.Date;
 import java.util.List;

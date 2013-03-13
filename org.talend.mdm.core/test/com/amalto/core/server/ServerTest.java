@@ -17,9 +17,9 @@ import java.util.Collections;
 
 import junit.framework.TestCase;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;

@@ -12,10 +12,10 @@
 package com.amalto.core.save;
 
 import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.server.XmlServer;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 public class DefaultCommitter implements SaverSession.Committer {
 

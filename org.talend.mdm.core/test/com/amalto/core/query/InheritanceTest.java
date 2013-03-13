@@ -16,8 +16,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.storage.StorageResults;

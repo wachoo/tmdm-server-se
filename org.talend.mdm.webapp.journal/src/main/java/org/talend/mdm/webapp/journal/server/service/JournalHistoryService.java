@@ -19,6 +19,8 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
 import org.talend.mdm.webapp.journal.server.model.ForeignKeyInfoTransformer;
 import org.talend.mdm.webapp.journal.shared.JournalParameters;
 
@@ -30,8 +32,6 @@ import com.amalto.core.history.DocumentTransformer;
 import com.amalto.core.history.EmptyDocument;
 import com.amalto.core.history.ModificationMarker;
 import com.amalto.core.history.UniqueIdTransformer;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.metadata.TypeMetadata;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 

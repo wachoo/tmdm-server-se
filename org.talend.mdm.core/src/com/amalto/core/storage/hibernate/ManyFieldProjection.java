@@ -11,14 +11,14 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.SimpleProjection;
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
 
 class ManyFieldProjection extends SimpleProjection {
 

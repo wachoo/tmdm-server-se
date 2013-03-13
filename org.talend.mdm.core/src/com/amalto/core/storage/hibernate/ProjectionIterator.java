@@ -11,7 +11,6 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.*;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
@@ -19,6 +18,7 @@ import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.ScrollableResults;
+import org.talend.mdm.commmon.metadata.*;
 
 import javax.xml.XMLConstants;
 import java.io.IOException;

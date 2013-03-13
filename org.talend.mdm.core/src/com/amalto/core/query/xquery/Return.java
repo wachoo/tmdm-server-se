@@ -11,11 +11,11 @@
 
 package com.amalto.core.query.xquery;
 
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.TypeMetadata;
 import com.amalto.core.query.user.Count;
 import com.amalto.core.query.user.Field;
 import com.amalto.core.query.user.VisitorAdapter;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
 
 import java.util.ArrayList;
 import java.util.List;

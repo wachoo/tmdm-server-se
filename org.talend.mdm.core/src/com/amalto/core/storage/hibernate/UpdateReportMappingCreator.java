@@ -1,6 +1,6 @@
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.*;
+import org.talend.mdm.commmon.metadata.*;
 
 import javax.xml.XMLConstants;
 import java.util.Collections;

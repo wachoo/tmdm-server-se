@@ -11,7 +11,7 @@
 
 package com.amalto.core.save.context;
 
-import com.amalto.core.metadata.*;
+import org.talend.mdm.commmon.metadata.*;
 
 import java.util.Set;
 import java.util.Stack;

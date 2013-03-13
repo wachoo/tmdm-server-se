@@ -11,9 +11,9 @@
 
 package com.amalto.core.storage;
 
-import com.amalto.core.metadata.ConsoleDumpMetadataVisitor;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.ConsoleDumpMetadataVisitor;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryDumpConsole;
 import com.amalto.core.storage.datasource.DataSource;

@@ -11,7 +11,8 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.*;
+import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
@@ -21,6 +22,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.engine.TypedValue;
+import org.talend.mdm.commmon.metadata.*;
 
 import java.sql.Timestamp;
 import java.util.*;

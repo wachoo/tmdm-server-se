@@ -12,7 +12,9 @@
 package com.amalto.core.storage.record;
 
 import com.amalto.core.load.io.ResettableStringWriter;
-import com.amalto.core.metadata.*;
+import com.amalto.core.metadata.ClassRepository;
+import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;

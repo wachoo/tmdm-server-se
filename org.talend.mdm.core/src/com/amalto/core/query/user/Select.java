@@ -11,12 +11,8 @@
 
 package com.amalto.core.query.user;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.ContainedTypeFieldMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,8 +20,6 @@ import java.util.List;
  *
  */
 public class Select implements Expression {
-
-    private static final Logger LOGGER = Logger.getLogger(Select.class);
 
     private final List<TypedExpression> selectedFields = new LinkedList<TypedExpression>();
 

@@ -20,8 +20,8 @@ import javax.xml.XMLConstants;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;

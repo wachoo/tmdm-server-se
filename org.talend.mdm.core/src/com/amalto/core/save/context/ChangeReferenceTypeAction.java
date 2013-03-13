@@ -23,7 +23,7 @@ import org.w3c.dom.Document;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
-import com.amalto.core.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 class ChangeReferenceTypeAction extends AbstractChangeTypeAction {
 

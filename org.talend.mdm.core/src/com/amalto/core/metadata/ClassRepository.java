@@ -16,6 +16,7 @@ import com.amalto.core.util.ArrayListHolder;
 import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.*;
 
 import javax.xml.XMLConstants;
 import java.lang.reflect.Method;

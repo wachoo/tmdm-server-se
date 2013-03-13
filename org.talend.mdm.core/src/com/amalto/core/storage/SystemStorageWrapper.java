@@ -11,7 +11,8 @@
 
 package com.amalto.core.storage;
 
-import com.amalto.core.metadata.*;
+import com.amalto.core.metadata.ClassRepository;
+import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
@@ -20,6 +21,7 @@ import com.amalto.core.storage.record.*;
 import com.amalto.xmlserver.interfaces.XmlServerException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.*;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

@@ -17,10 +17,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
-import com.amalto.core.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
 import com.amalto.core.util.XtentisException;
 
 /**

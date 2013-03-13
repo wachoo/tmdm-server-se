@@ -15,8 +15,8 @@ import java.util.Map;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
-import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.save.context.DocumentSaver;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 /**
  * A context holding information about the save of a <b>single</b> record in MDM.

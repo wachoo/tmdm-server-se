@@ -11,7 +11,8 @@
 
 package com.amalto.core.storage.record;
 
-import com.amalto.core.metadata.*;
+import com.amalto.core.metadata.ClassRepository;
+import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;

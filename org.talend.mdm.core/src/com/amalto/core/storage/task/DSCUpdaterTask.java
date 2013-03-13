@@ -1,7 +1,7 @@
 package com.amalto.core.storage.task;
 
 import com.amalto.core.load.io.ResettableStringWriter;
-import com.amalto.core.metadata.*;
+import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserStagingQueryBuilder;
 import com.amalto.core.storage.Storage;

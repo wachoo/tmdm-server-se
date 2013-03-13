@@ -11,7 +11,7 @@
 
 package com.amalto.core.storage;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import com.amalto.core.query.user.*;
 
 import java.util.Iterator;

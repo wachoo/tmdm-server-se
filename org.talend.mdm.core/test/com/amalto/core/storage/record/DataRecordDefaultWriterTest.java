@@ -17,8 +17,8 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 
 
 /**

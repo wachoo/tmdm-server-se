@@ -11,13 +11,14 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.*;
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.Session;
+import org.talend.mdm.commmon.metadata.*;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;

@@ -13,12 +13,14 @@
 
 package com.amalto.core.query.user;
 
-import com.amalto.core.metadata.*;
+import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.webservice.WSStringPredicate;
 import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.*;
 
 import java.util.Collection;
 import java.util.List;

@@ -11,7 +11,7 @@
 
 package com.amalto.core.query.user;
 
-import com.amalto.core.metadata.*;
+import org.talend.mdm.commmon.metadata.*;
 import org.apache.log4j.Logger;
 
 import java.util.List;

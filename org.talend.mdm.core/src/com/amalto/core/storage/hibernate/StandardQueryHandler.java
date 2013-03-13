@@ -36,15 +36,7 @@ import org.hibernate.impl.CriteriaImpl;
 import org.hibernate.sql.JoinFragment;
 import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.CompoundFieldMetadata;
-import com.amalto.core.metadata.ContainedComplexTypeMetadata;
-import com.amalto.core.metadata.DefaultMetadataVisitor;
-import com.amalto.core.metadata.EnumerationFieldMetadata;
-import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataUtils;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
-import com.amalto.core.metadata.SimpleTypeFieldMetadata;
 import com.amalto.core.query.user.Alias;
 import com.amalto.core.query.user.BigDecimalConstant;
 import com.amalto.core.query.user.BinaryLogicOperator;
@@ -91,6 +83,7 @@ import com.amalto.core.query.user.VisitorAdapter;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
+import org.talend.mdm.commmon.metadata.*;
 
 class StandardQueryHandler extends AbstractQueryHandler {
 

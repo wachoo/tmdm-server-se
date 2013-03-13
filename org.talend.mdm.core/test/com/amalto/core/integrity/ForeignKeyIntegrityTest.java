@@ -11,7 +11,7 @@
 
 package com.amalto.core.integrity;
 
-import com.amalto.core.metadata.*;
+import org.talend.mdm.commmon.metadata.*;
 import junit.framework.TestCase;
 
 import java.util.Collections;

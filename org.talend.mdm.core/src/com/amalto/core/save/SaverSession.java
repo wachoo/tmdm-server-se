@@ -12,11 +12,11 @@
 package com.amalto.core.save;
 
 import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import java.util.HashMap;

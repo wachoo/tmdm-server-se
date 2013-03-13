@@ -13,8 +13,9 @@
 
 package com.amalto.core.server;
 
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
+
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import java.util.Set;
 

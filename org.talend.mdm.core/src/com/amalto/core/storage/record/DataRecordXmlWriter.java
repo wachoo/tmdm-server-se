@@ -11,12 +11,12 @@
 
 package com.amalto.core.storage.record;
 
-import com.amalto.core.metadata.*;
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.talend.mdm.commmon.metadata.*;
 
 import javax.xml.XMLConstants;
 import java.io.*;

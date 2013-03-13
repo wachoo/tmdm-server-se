@@ -11,10 +11,13 @@
 
 package com.amalto.core.query.user;
 
-import com.amalto.core.metadata.*;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 
 import java.util.Collection;
 import java.util.List;
@@ -465,7 +468,7 @@ public class UserQueryBuilder {
      * </p>
      * <p>
      * If left field is a FK, use this method for Joins when right field is a simple PK (i.e. joined entity does not
-     * have composite id). If this is the case, consider using {@link #join(com.amalto.core.metadata.FieldMetadata)}.
+     * have composite id). If this is the case, consider using {@link #join(FieldMetadata)}.
      * </p>
      *
      * @param leftField  The left field for the join operation.

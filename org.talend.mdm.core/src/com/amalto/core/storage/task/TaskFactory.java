@@ -11,7 +11,7 @@
 
 package com.amalto.core.storage.task;
 
-import com.amalto.core.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.storage.Storage;
 
 public class TaskFactory {

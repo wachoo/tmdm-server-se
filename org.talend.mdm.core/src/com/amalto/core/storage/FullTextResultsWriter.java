@@ -11,12 +11,12 @@
 
 package com.amalto.core.storage;
 
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.SimpleTypeFieldMetadata;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
 
 import java.io.IOException;
 import java.io.OutputStream;

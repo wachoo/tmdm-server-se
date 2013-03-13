@@ -18,9 +18,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.MetadataRepository;
 
 public class Util {
 
@@ -55,15 +55,16 @@ public class Util {
 
             if (metadata != null) {
                 List<String> noAccessRoles = metadata.getHideUsers();
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug("Roles without access " + noAccessRoles); //$NON-NLS-1$
+                }
                 noAccessRoles.retainAll(roles);
                 boolean userIsNoAccess = !noAccessRoles.isEmpty();
-
                 result = !userIsNoAccess;
             } else {
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug("Complex Type " + conceptName + " not found"); //$NON-NLS-1$ //$NON-NLS-2$
+                }
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

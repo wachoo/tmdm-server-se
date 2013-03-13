@@ -11,7 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.*;
+import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.Storage;
 
 import javax.xml.XMLConstants;

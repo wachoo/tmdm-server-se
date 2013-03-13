@@ -11,7 +11,8 @@
 
 package com.amalto.core.query.user;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
+
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 public class Id implements Expression {
 

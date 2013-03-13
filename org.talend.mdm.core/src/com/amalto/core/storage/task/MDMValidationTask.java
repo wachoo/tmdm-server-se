@@ -11,9 +11,9 @@
 
 package com.amalto.core.storage.task;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;

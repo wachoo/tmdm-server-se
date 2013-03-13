@@ -12,7 +12,7 @@
 package com.amalto.core.storage;
 
 import com.amalto.core.load.io.ResettableStringWriter;
-import com.amalto.core.metadata.*;
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
@@ -26,6 +26,7 @@ import com.amalto.xmlserver.interfaces.XmlServerException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.metadata.*;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;

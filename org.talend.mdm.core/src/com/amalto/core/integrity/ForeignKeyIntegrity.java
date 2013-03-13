@@ -11,7 +11,7 @@
 
 package com.amalto.core.integrity;
 
-import com.amalto.core.metadata.*;
+import org.talend.mdm.commmon.metadata.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,7 +19,7 @@ import java.util.Stack;
 
 /**
  * Returns the field that references the concept <code>typeName</code>. References are returned as a {@link Set} of
- * {@link com.amalto.core.metadata.ReferenceFieldMetadata}.
+ * {@link ReferenceFieldMetadata}.
  */
 public class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFieldMetadata>> {
 

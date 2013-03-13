@@ -11,8 +11,8 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.TypeMetadata;
 import org.apache.commons.collections.map.MultiKeyMap;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
 
 import java.util.Collection;
 

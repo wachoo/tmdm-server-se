@@ -11,8 +11,8 @@
 
 package com.amalto.core.query;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.xquery.*;

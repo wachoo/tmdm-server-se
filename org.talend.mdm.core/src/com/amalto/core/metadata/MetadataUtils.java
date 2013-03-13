@@ -19,7 +19,7 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.metadata.*;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;

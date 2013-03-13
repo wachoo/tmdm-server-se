@@ -11,8 +11,8 @@
 
 package com.amalto.core.server;
 
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.apache.log4j.Logger;
 
 import java.io.InputStream;

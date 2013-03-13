@@ -11,7 +11,7 @@
 
 package com.amalto.core.storage.record;
 
-import com.amalto.core.metadata.*;
+import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.hibernate.TypeMapping;
 import org.apache.commons.lang.NotImplementedException;
 
