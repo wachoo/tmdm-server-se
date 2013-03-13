@@ -237,7 +237,7 @@ public class HibernateStorage implements Storage {
             for (FieldMetadata indexedField : indexedFields) {
                 // TMDM-5311: Don't index TEXT fields
                 TypeMetadata indexedFieldType = indexedField.getType();
-                if ("string".equals(indexedFieldType.getName())) { //$NON-NLS-1$
+                if (indexedFieldType.getData(MetadataRepository.DATA_MAX_LENGTH) != null) {
                     Object maxLength = indexedFieldType.getData(MetadataRepository.DATA_MAX_LENGTH);
                     if (maxLength != null && Integer.parseInt(String.valueOf(maxLength)) > MappingGenerator.MAX_VARCHAR_TEXT_LIMIT) {
                         if (LOGGER.isDebugEnabled()) {

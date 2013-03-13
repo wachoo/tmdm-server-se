@@ -12,8 +12,11 @@
 package com.amalto.core.query.user;
 
 
+import com.amalto.core.metadata.MetadataUtils;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
+
+import javax.xml.XMLConstants;
 
 /**
  *
@@ -39,12 +42,7 @@ public class Field implements TypedExpression {
     }
 
     public String getTypeName() {
-        TypeMetadata type = fieldMetadata.getType();
-        // Move up the inheritance tree to find the "most generic" type (used when simple types inherits from XSD types,
-        // in this case, the XSD type is interesting, not the custom one).
-        while (!type.getSuperTypes().isEmpty()) {
-            type = type.getSuperTypes().iterator().next();
-        }
+        TypeMetadata type = MetadataUtils.getSuperConcreteType(fieldMetadata.getType());
         return type.getName();
     }
 
@@ -56,9 +54,7 @@ public class Field implements TypedExpression {
         if (!(o instanceof Field)) {
             return false;
         }
-
         Field field = (Field) o;
-
         return !(fieldMetadata != null ? !fieldMetadata.getName().equals(field.fieldMetadata.getName()) : field.fieldMetadata != null);
     }
 

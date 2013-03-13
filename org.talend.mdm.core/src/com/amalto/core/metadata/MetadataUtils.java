@@ -21,6 +21,7 @@ import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
 import org.talend.mdm.commmon.metadata.*;
 
+import javax.xml.XMLConstants;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -258,13 +259,40 @@ public class MetadataUtils {
         }
     }
 
-    public static Object convert(String dataAsString, TypeMetadata type) {
+    /**
+     * Returns the top level type for <code>type</code> parameter: this method returns the type before <i>anyType</i>
+     * in type hierarchy. This does not apply to types declared in {@link XMLConstants#W3C_XML_SCHEMA_NS_URI}.
+     * <ul>
+     * <li>In an MDM entity B inherits from A, getSuperConcreteType(B) returns A.</li>
+     * <li>If a simple type LimitedString extends xsd:string, getSuperConcreteType(LimitedString) returns xsd:string.</li>
+     * <li>getSuperConcreteType(xsd:long) returns xsd:long (even if xsd:long extends xsd:decimal).</li>
+     * <li>If the type does not have any super type, this method returns the <code>type</code> parameter.</li>
+     * </ul>
+     * @param type A non null type that may have super types.
+     * @return The higher type in inheritance tree before <i>anyType</i>.
+     */
+    public static TypeMetadata getSuperConcreteType(TypeMetadata type) {
+        if (type == null) {
+            return null;
+        }
         // Move up the inheritance tree to find the "most generic" type (used when simple types inherits from XSD types,
         // in this case, the XSD type is interesting, not the custom one).
-        while (!type.getSuperTypes().isEmpty()) {
-            type = type.getSuperTypes().iterator().next();
+        if (!XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(type.getNamespace())) {
+            while (!type.getSuperTypes().isEmpty()) {
+                TypeMetadata superType = type.getSuperTypes().iterator().next();
+                if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(superType.getNamespace())
+                        && ("anyType".equals(superType.getName())
+                        || "anySimpleType".equals(superType.getName()))) {
+                    break;
+                }
+                type = superType;
+            }
         }
-        return convert(dataAsString, type.getName());
+        return type;
+    }
+
+    public static Object convert(String dataAsString, TypeMetadata type) {
+        return convert(dataAsString, getSuperConcreteType(type).getName());
     }
 
     public static Object convert(String dataAsString, String type) {
@@ -354,12 +382,7 @@ public class MetadataUtils {
      *         a {@link Class#forName(String)} call.
      */
     public static String getJavaType(TypeMetadata metadata) {
-        // Move up the inheritance tree to find the "most generic" type (used when simple types inherits from XSD types,
-        // in this case, the XSD type is interesting, not the custom one).
-        while (!metadata.getSuperTypes().isEmpty()) {
-            metadata = metadata.getSuperTypes().iterator().next();
-        }
-        String type = metadata.getName();
+        String type = getSuperConcreteType(metadata).getName();
         if ("string".equals(type)) { //$NON-NLS-1$
             return "java.lang.String"; //$NON-NLS-1$
         } else if ("anyURI".equals(type)) {
