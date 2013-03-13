@@ -48,6 +48,8 @@ public class SystemStorageWrapper extends StorageWrapper {
     private static final String FAILED_ROUTING_ORDER = "failed-routing-order-v2-pOJO"; //$NON-NLS-1$
 
     private static final String ACTIVE_ROUTING_ORDER = "active-routing-order-v2-pOJO"; //$NON-NLS-1$
+    
+    private static final String PROVISIONING_PREFIX_INFO = "PROVISIONING.User."; //$NON-NLS-1$
 
     private static final Logger LOGGER = Logger.getLogger(SystemStorageWrapper.class);
 
@@ -274,7 +276,12 @@ public class SystemStorageWrapper extends StorageWrapper {
             qb = from(type).where(eq(type.getKeyFields().iterator().next(), uniqueID));
         } else {
             isUserFormat = uniqueID.indexOf('.') > 0;
-            String documentUniqueId = isUserFormat ? StringUtils.substringAfterLast(uniqueID, ".") : uniqueID;
+            String documentUniqueId = uniqueID;
+            if (uniqueID.startsWith(PROVISIONING_PREFIX_INFO)) {
+                documentUniqueId = StringUtils.substringAfter(uniqueID, PROVISIONING_PREFIX_INFO);
+            } else if (isUserFormat) {
+                documentUniqueId = StringUtils.substringAfterLast(uniqueID, "."); //$NON-NLS-1$
+            }
             qb = from(type).where(eq(type.getKeyFields().iterator().next(), documentUniqueId));
         }
         StorageResults records = storage.fetch(qb.getSelect());
@@ -286,10 +293,11 @@ public class SystemStorageWrapper extends StorageWrapper {
             if (iterator.hasNext()) {
                 DataRecord result = iterator.next();
                 if (isUserFormat) {
-                    String[] splitUniqueId = uniqueID.split("\\."); //$NON-NLS-1$
+                    String identifier = uniqueID.startsWith(PROVISIONING_PREFIX_INFO) ? StringUtils.substringAfter(uniqueID,
+                            PROVISIONING_PREFIX_INFO) : uniqueID.split("\\.")[2]; //$NON-NLS-1$
                     long timestamp = result.getRecordMetadata().getLastModificationTime();
                     String taskId = result.getRecordMetadata().getTaskId();
-                    byte[] start = ("<ii><c>" + clusterName + "</c><dmn>" + clusterName + "</dmn><dmr/><sp/><t>" + timestamp + "</t><taskId>" + taskId + "</taskId><i>" + splitUniqueId[2] + "</i><p>").getBytes(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+                    byte[] start = ("<ii><c>" + clusterName + "</c><dmn>" + clusterName + "</dmn><dmr/><sp/><t>" + timestamp + "</t><taskId>" + taskId + "</taskId><i>" + identifier + "</i><p>").getBytes(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
                     output.write(start);
                 }
                 dataRecordXmlWriter.write(result, output);
@@ -323,7 +331,8 @@ public class SystemStorageWrapper extends StorageWrapper {
             // String revisionId = StringUtils.substringBefore(uniqueID, ".");
             uniqueID = StringUtils.substringAfter(uniqueID, "."); //$NON-NLS-1$
         } else {
-            uniqueID = StringUtils.substringAfterLast(uniqueID, ".");
+            uniqueID = uniqueID.startsWith(PROVISIONING_PREFIX_INFO) ? StringUtils.substringAfter(uniqueID, 
+                    PROVISIONING_PREFIX_INFO) : StringUtils.substringAfterLast(uniqueID, "."); //$NON-NLS-1$
         }
         long start = System.currentTimeMillis();
         {
