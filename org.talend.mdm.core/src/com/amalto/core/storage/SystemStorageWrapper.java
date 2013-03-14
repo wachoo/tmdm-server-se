@@ -333,8 +333,11 @@ public class SystemStorageWrapper extends StorageWrapper {
             // String revisionId = StringUtils.substringBefore(uniqueID, ".");
             uniqueID = StringUtils.substringAfter(uniqueID, "."); //$NON-NLS-1$
         } else {
-            uniqueID = uniqueID.startsWith(PROVISIONING_PREFIX_INFO) ? StringUtils.substringAfter(uniqueID, 
-                    PROVISIONING_PREFIX_INFO) : StringUtils.substringAfterLast(uniqueID, "."); //$NON-NLS-1$
+            if (uniqueID.startsWith(PROVISIONING_PREFIX_INFO)) {
+                uniqueID = StringUtils.substringAfter(uniqueID, PROVISIONING_PREFIX_INFO);
+            } else if (uniqueID.contains(".")) { //$NON-NLS-1$
+                uniqueID = StringUtils.substringAfterLast(uniqueID, "."); //$NON-NLS-1$
+            }
         }
         long start = System.currentTimeMillis();
         {
