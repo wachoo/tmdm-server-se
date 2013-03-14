@@ -27,17 +27,17 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.history.MutableDocument;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverSource;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
@@ -452,23 +452,11 @@ public class DocumentSaveTest extends TestCase {
         session.end(committer);
 
         Element committedElement = committer.getCommittedElement();
-        assertEquals(
-                "<AutoIncrement>\n" +
-                        "<id>AutoIncrement</id>\n" +
-                        "<entry>\n" +
-                        "<key>[HEAD].CoreTestsContainer.auto_increment.auto_increment</key>\n" +
-                        "<value>1</value>\n" +
-                        "</entry>\n" +
-                        "<entry>\n" +
-                        "<key>[HEAD].Product.ProductFamily.Id</key>\n" +
-                        "<value>30</value>\n" +
-                        "</entry>\n" +
-                        "<entry>\n" +
-                        "<key>[HEAD].CoreTestsContainer.auto_increment1.auto_increment1</key>\n" +
-                        "<value>1</value>\n" +
-                        "</entry>\n" +
-                        "</AutoIncrement>\n",
-                Util.nodeToString(committedElement));
+        assertEquals("<AutoIncrement>" + "<id>AutoIncrement</id>" + "<entry>"
+                + "<key>[HEAD].CoreTestsContainer.auto_increment.auto_increment</key>" + "<value>1</value>" + "</entry>"
+                + "<entry>" + "<key>[HEAD].Product.ProductFamily.Id</key>" + "<value>30</value>" + "</entry>" + "<entry>"
+                + "<key>[HEAD].CoreTestsContainer.auto_increment1.auto_increment1</key>" + "<value>1</value>" + "</entry>"
+                + "</AutoIncrement>", Util.nodeToString(committedElement, true, false));
         assertTrue(source.hasCalledInitAutoIncrement);
 
     }

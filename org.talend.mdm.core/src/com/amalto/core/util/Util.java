@@ -30,14 +30,29 @@ import java.security.Principal;
 import java.security.acl.Group;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.MissingResourceException;
+import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.ejb.*;
+import javax.ejb.CreateException;
+import javax.ejb.EJBException;
+import javax.ejb.EJBLocalHome;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
@@ -61,15 +76,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocal;
-import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
-import com.amalto.core.objects.routing.v2.ejb.local.*;
-import com.sun.xml.xsom.XSElementDecl;
-import com.sun.xml.xsom.XSSchema;
-import com.sun.xml.xsom.XSSchemaSet;
-import com.sun.xml.xsom.XSType;
-import com.sun.xml.xsom.parser.XSOMParser;
-import com.sun.xml.xsom.util.DomAnnotationParserFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.jxpath.AbstractFactory;
 import org.apache.commons.jxpath.JXPathContext;
@@ -112,6 +118,7 @@ import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.jobox.JobContainer;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocal;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocalHome;
+import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocal;
 import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocalHome;
 import com.amalto.core.objects.customform.ejb.local.CustomFormCtrlLocal;
 import com.amalto.core.objects.customform.ejb.local.CustomFormCtrlLocalHome;
@@ -120,11 +127,18 @@ import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocal;
 import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocalHome;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
 import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocalHome;
 import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocal;
 import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocalHome;
 import com.amalto.core.objects.role.ejb.local.RoleCtrlLocal;
 import com.amalto.core.objects.role.ejb.local.RoleCtrlLocalHome;
+import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
+import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocalHome;
+import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal;
+import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocalHome;
+import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocal;
+import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocalHome;
 import com.amalto.core.objects.storedprocedure.ejb.local.StoredProcedureCtrlLocal;
 import com.amalto.core.objects.storedprocedure.ejb.local.StoredProcedureCtrlLocalHome;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
@@ -143,6 +157,12 @@ import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereLogicOperator;
 import com.amalto.xmlserver.interfaces.XmlServerException;
+import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.XSSchema;
+import com.sun.xml.xsom.XSSchemaSet;
+import com.sun.xml.xsom.XSType;
+import com.sun.xml.xsom.parser.XSOMParser;
+import com.sun.xml.xsom.util.DomAnnotationParserFactory;
 
 @SuppressWarnings("deprecation")
 public class Util {
@@ -392,6 +412,7 @@ public class Util {
         try {
             XPath path = XPathFactory.newInstance().newXPath();
             path.setNamespaceContext(new NamespaceContext() {
+
                 @Override
                 public String getNamespaceURI(String s) {
                     return namespaceNode.getNamespaceURI();
@@ -423,8 +444,9 @@ public class Util {
 
     public static String getFirstTextNode(Node contextNode, String xPath, Node namespaceNode) throws TransformerException {
         String[] res = getTextNodes(contextNode, xPath, namespaceNode);
-        if (res.length == 0)
+        if (res.length == 0) {
             return null;
+        }
         return res[0];
     }
 
@@ -464,8 +486,9 @@ public class Util {
      */
     public static boolean existsComponent(String RMIProviderURL, String jndiName) throws XtentisException {
 
-        if ((RMIProviderURL == null) || (RMIProviderURL.equals("")))
+        if ((RMIProviderURL == null) || (RMIProviderURL.equals(""))) {
             RMIProviderURL = "LOCAL";
+        }
 
         Hashtable<String, String> env = null;
         if (!"LOCAL".equals(RMIProviderURL)) {
@@ -505,8 +528,9 @@ public class Util {
      */
     public static Object retrieveComponent(String RMIProviderURL, String jndiName) throws XtentisException {
 
-        if ((RMIProviderURL == null) || (RMIProviderURL.equals("")))
+        if ((RMIProviderURL == null) || (RMIProviderURL.equals(""))) {
             RMIProviderURL = "LOCAL";
+        }
 
         Hashtable<String, String> env = null;
         if (!"LOCAL".equals(RMIProviderURL)) {
@@ -587,8 +611,9 @@ public class Util {
                     + "']/xsd:selector/@xpath", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
 
             // Fix for TMDM-2351
-            String[] businessConceptXSDTypeNameLookup = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element[@name='" + businessConceptName
-                    + "']/@type", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
+            String[] businessConceptXSDTypeNameLookup = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element[@name='"
+                    + businessConceptName + "']/@type",
+                    getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
             String businessConceptXSDTypeName;
             if (businessConceptXSDTypeNameLookup.length > 0) {
                 businessConceptXSDTypeName = businessConceptXSDTypeNameLookup[0];
@@ -596,8 +621,9 @@ public class Util {
                 businessConceptXSDTypeName = businessConceptName;
             }
 
-            fields = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element/xsd:unique[@name='" + businessConceptName + "']/xsd:field/@xpath", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
-                       
+            fields = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element/xsd:unique[@name='" + businessConceptName
+                    + "']/xsd:field/@xpath", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
+
             if (selectors.length == 0) {
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                 factory.setNamespaceAware(true);
@@ -606,10 +632,11 @@ public class Util {
                 NodeList list;
 
                 for (int xsdType = 0; xsdType < 2; xsdType++) {
-                    if (xsdType == 0)
+                    if (xsdType == 0) {
                         list = Util.getNodeList(xsd, "./xsd:import");
-                    else
+                    } else {
                         list = Util.getNodeList(xsd, "./xsd:include");
+                    }
                     for (int elemNum = 0; elemNum < list.getLength(); elemNum++) {
                         Node importNode = list.item(elemNum);
                         if (importNode.getAttributes().getNamedItem("schemaLocation") == null) {
@@ -641,21 +668,25 @@ public class Util {
                 for (String field : fields) {
                     String[] xpathExpressions = new String[] {
                             "xsd:element[@name='" + businessConceptXSDTypeName + "']//xsd:element[@name='" + field + "']/@type",
-                            "xsd:complexType[@name='" + businessConceptXSDTypeName + "']//xsd:element[@name='" + field + "']/@type"
-                    };
+                            "xsd:complexType[@name='" + businessConceptXSDTypeName + "']//xsd:element[@name='" + field
+                                    + "']/@type" };
 
                     for (String xpathExpression : xpathExpressions) {
-                        String[] textNodes = Util.getTextNodes(xsd.getDocumentElement(), xpathExpression, getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
+                        String[] textNodes = Util.getTextNodes(xsd.getDocumentElement(), xpathExpression,
+                                getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
                         if (textNodes.length == 1) {
-                           fieldTypes[fieldIndex] = textNodes[0];
+                            fieldTypes[fieldIndex] = textNodes[0];
                         } else if (textNodes.length > 1) {
-                            throw new IllegalStateException("Field '" + field + "' is not unique within type '" + businessConceptName + "' (XSD type: "+businessConceptXSDTypeName+".");
+                            throw new IllegalStateException("Field '" + field + "' is not unique within type '"
+                                    + businessConceptName + "' (XSD type: " + businessConceptXSDTypeName + ".");
                         }
                     }
 
                     if (fieldTypes[fieldIndex] == null) {
-                        // Fix for TMDM-2378: in case of inheritance, field might not be in this type. Actual and fix requires
-                        // huge refactoring of this method (possible use of com.amalto.core.metadata.TypeMetadata for instance).
+                        // Fix for TMDM-2378: in case of inheritance, field might not be in this type. Actual and fix
+                        // requires
+                        // huge refactoring of this method (possible use of com.amalto.core.metadata.TypeMetadata for
+                        // instance).
                         fieldTypes[fieldIndex] = "xsd:string";
                     } else {
                         fieldIndex++;
@@ -797,7 +828,7 @@ public class Util {
     /**
      * Extracts the item PK by reading it and its model<br>
      * The less costly of all methods since all parsing is already done
-     *
+     * 
      * @return the Item PK
      */
     public static ItemPOJOPK getItemPOJOPK(DataClusterPOJOPK dataClusterPOJOPK, Element item, Document dataModel)
@@ -818,7 +849,7 @@ public class Util {
 
     /**
      * Returns a namespaced root element of a document Useful to create a namespace holder element
-     *
+     * 
      * @return the root Element
      */
     public static Element getRootElement(String elementName, String namespace, String prefix) throws TransformerException {
@@ -843,7 +874,7 @@ public class Util {
 
     /**
      * Generates an xml string from a node (not pretty formatted)
-     *
+     * 
      * @param n the node
      * @return the xml string
      * @throws TransformerException
@@ -854,20 +885,26 @@ public class Util {
 
     /**
      * Generates an xml string from a node with or without the xml declaration (not pretty formatted)
-     *
+     * 
      * @param n the node
      * @return the xml string
      * @throws TransformerException
      */
     public static String nodeToString(Node n, boolean omitXMLDeclaration) throws TransformerException {
+        return nodeToString(n, omitXMLDeclaration, LOGGER.isDebugEnabled());
+    }
+
+    public static String nodeToString(Node n, boolean omitXMLDeclaration, boolean indent) throws TransformerException {
         StringWriter sw = new StringWriter();
         Transformer transformer = transformerFactory.newTransformer();
-        if (omitXMLDeclaration)
+        if (omitXMLDeclaration) {
             transformer.setOutputProperty("omit-xml-declaration", "yes");
-        else
+        } else {
             transformer.setOutputProperty("omit-xml-declaration", "no");
-        if (LOGGER.isDebugEnabled())
+        }
+        if (indent) {
             transformer.setOutputProperty("indent", "yes");
+        }
         transformer.transform(new DOMSource(n), new StreamResult(sw));
         return sw.toString().replaceAll("\r\n", "\n");
     }
@@ -894,7 +931,7 @@ public class Util {
 
     /**
      * Get a node list from an xPath
-     *
+     * 
      * @throws XtentisException
      */
     public static NodeList getNodeList(Document d, String xPath) throws XtentisException {
@@ -903,7 +940,7 @@ public class Util {
 
     /**
      * Get a node list from an xPath
-     *
+     * 
      * @throws XtentisException
      */
     public static NodeList getNodeList(Node contextNode, String xPath) throws XtentisException {
@@ -912,14 +949,16 @@ public class Util {
 
     /**
      * Get a node list from an xPath
-     *
+     * 
      * @throws XtentisException
      */
-    public static NodeList getNodeList(Node contextNode, String xPath, final String namespace, final String prefix) throws XtentisException {
+    public static NodeList getNodeList(Node contextNode, String xPath, final String namespace, final String prefix)
+            throws XtentisException {
         try {
             XPathFactory xPathFactory = XPathFactory.newInstance();
             XPath xPathParser = xPathFactory.newXPath();
             xPathParser.setNamespaceContext(new NamespaceContext() {
+
                 @Override
                 public String getNamespaceURI(String s) {
                     if (prefix != null && prefix.equals(s)) {
@@ -955,7 +994,7 @@ public class Util {
 
     /**
      * Join an array of strings into a single string using a separator
-     *
+     * 
      * @return a single string or null
      */
     public static String joinStrings(String[] strings, String separator) {
@@ -974,12 +1013,13 @@ public class Util {
 
     /**
      * Returns the first part - eg. the concept - from the path
-     *
+     * 
      * @return The concept extracted from the path
      */
     public static String getConceptFromPath(String path) {
-        if (!path.endsWith("/"))
+        if (!path.endsWith("/")) {
             path += "/";
+        }
         Matcher m = conceptFromPathPattern.matcher(path);
         if (m.matches()) {
             return m.group(1);
@@ -990,7 +1030,7 @@ public class Util {
 
     /**
      * Returns the list of items that look like parts numbers
-     *
+     * 
      * @param value The value to match
      * @return The list
      */
@@ -1029,7 +1069,7 @@ public class Util {
 
     /**
      * Extracts the username of the logged user from the {@link Subject}
-     *
+     * 
      * @return The username
      * @throws XtentisException
      */
@@ -1071,10 +1111,12 @@ public class Util {
                     }
                 }
             }
-            if (userName == null)
+            if (userName == null) {
                 userName = "";
-            if (password == null)
+            }
+            if (password == null) {
                 password = "";
+            }
             token = userName + "/" + password;
         } catch (XtentisException e) {
             Logger.getLogger(Util.class).error(e);
@@ -1105,19 +1147,19 @@ public class Util {
     private static Pattern regexAMP = Pattern.compile("&amp;");
 
     public static String xmlDecode(String string) {
-        if (string == null)
+        if (string == null) {
             return null;
+        }
         string = regexLT.matcher(string).replaceAll("<");
         string = regexGT.matcher(string).replaceAll(">");
         string = regexAMP.matcher(string).replaceAll("&");
         return string;
     }
 
-
     /*********************************************************************
-     *
+     * 
      * LOCAL HOME GETTERS This cache system requires a JBoss restart on every core deployment
-     *
+     * 
      *********************************************************************/
 
     // The only Static HashMap around (hopefully)
@@ -1152,6 +1194,7 @@ public class Util {
     public static CustomFormCtrlLocal getCustomFormCtrlLocal() throws NamingException, CreateException {
         return getCustomFormCtrlLocalHome().create();
     }
+
     public static RoutingOrderV2CtrlLocal getRoutingOrderV2CtrlLocal() throws NamingException, CreateException {
         return getRoutingOrderV2CtrlLocalHome().create();
     }
@@ -1298,7 +1341,7 @@ public class Util {
     /**
      * Extract the charset of a content type<br>
      * e.g 'utf-8' in 'text/xml; charset="utf-8"'
-     *
+     * 
      * @return the charset
      */
     public static String extractCharset(String contentType) {
@@ -1313,35 +1356,38 @@ public class Util {
     /**
      * Extract the MIME type and sub type of a content type<br>
      * e.g 'text/xml' in 'text/xml; charset="utf-8"'
-     *
+     * 
      * @return the MIME Type and SubType
      */
     public static String extractTypeAndSubType(String contentType) {
-        if (contentType == null)
+        if (contentType == null) {
             return null;
+        }
         return contentType.split(";")[0].trim().toLowerCase();
     }
 
     /**
      * Extracts a byte array from an InputStream
-     *
+     * 
      * @return the byte array
      * @throws IOException
      */
     public static byte[] getBytesFromStream(InputStream is) throws IOException {
-        if (is == null)
+        if (is == null) {
             return null;
+        }
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         int b;
-        while ((b = is.read()) != -1)
+        while ((b = is.read()) != -1) {
             bos.write(b);
+        }
         return bos.toByteArray();
     }
 
     /*********************************************************************
-     *
+     * 
      * GUID Generator
-     *
+     * 
      *********************************************************************/
 
     /** Cached per JVM server IP. */
@@ -1354,7 +1400,7 @@ public class Util {
      * A 32 byte GUID generator (Globally Unique ID). These artificial keys SHOULD <strong>NOT </strong> be seen by the
      * user, not even touched by the DBA but with very rare exceptions, just manipulated by the database and the
      * programs.
-     *
+     * 
      * Usage: Add an id field (type java.lang.String) to your EJB, and add setId(XXXUtil.generateGUID(this)); to the
      * ejbCreate method.
      */
@@ -1434,7 +1480,7 @@ public class Util {
 
     /**
      * Executes a BeforeSaving process if any
-     *
+     * 
      * @param concept A concept/type name.
      * @param xml The xml of the document being saved.
      * @param resultUpdateReport Update report that corresponds to the save event.
@@ -1465,11 +1511,13 @@ public class Util {
                 TypedContent wsTypedContent = new TypedContent(exchangeData.getBytes("UTF-8"), "text/xml; charset=utf-8"); //$NON-NLS-1$
                 ctrl.execute(context, wsTypedContent, new TransformerCallBack() {
 
+                    @Override
                     public void contentIsReady(TransformerContext context) throws XtentisException {
                         org.apache.log4j.Logger.getLogger(this.getClass()).debug(
                                 "XtentisWSBean.executeTransformerV2.contentIsReady() "); //$NON-NLS-1$
                     }
 
+                    @Override
                     public void done(TransformerContext context) throws XtentisException {
                         org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.done() "); //$NON-NLS-1$
                         context.put(RUNNING, Boolean.FALSE);
@@ -1490,9 +1538,9 @@ public class Util {
                     }
                     if (ITransformerConstants.VARIABLE_OUTPUTITEM_OF_BEFORESAVINGTRANFORMER.equals(entry.getKey())) {
                         item = new String(entry.getValue().getContentBytes(), "UTF-8"); //$NON-NLS-1$                        
-                    }                    
+                    }
                 }
-                if (!hasOutputReport){
+                if (!hasOutputReport) {
                     throw new OutputReportMissingException("Output variable 'output_report' is missing"); //$NON-NLS-1$
                 }
                 return new OutputReport(message, item);
@@ -1506,11 +1554,11 @@ public class Util {
 
     /**
      * Executes a BeforeDeleting process if any
-     *
-     *
-     *
-     *
-     *
+     * 
+     * 
+     * 
+     * 
+     * 
      * @param clusterName A data cluster name
      * @param concept A concept/type name
      * @param ids Id of the document being deleted
@@ -1533,31 +1581,31 @@ public class Util {
                 // call before deleting transformer
                 // load the item
                 ItemPOJOPK itemPk = new ItemPOJOPK(new DataClusterPOJOPK(clusterName), concept, ids);
-                ItemPOJO pojo= ItemPOJO.load(itemPk);
-                String xml=null;
-                if(pojo==null){//load from recyclebin
-                	DroppedItemPOJOPK droppedItemPk=new DroppedItemPOJOPK(null,itemPk,"/");//$NON-NLS-1$
-                	DroppedItemPOJO dpPojo=Util.getDroppedItemCtrlLocal().loadDroppedItem(droppedItemPk);
-                	if(dpPojo!=null){
-                		xml=dpPojo.getProjection();             		
-                		Document doc = Util.parse(xml);
-    	                Node item = (Node) XPathFactory.newInstance().newXPath().evaluate("//ii/p", doc, XPathConstants.NODE); //$NON-NLS-1$
-    	                if (item != null && item instanceof Element) {
-    	                    NodeList list = item.getChildNodes();
-    	                    Node node = null;
-    	                    for (int i = 0; i < list.getLength(); i++) {
-    	                        if (list.item(i) instanceof Element) {
-    	                            node = list.item(i);
-    	                            break;
-    	                        }
-    	                    }
-    	                    if (node != null) {
-    	                        xml = Util.nodeToString(node);
-    	                    }
-    	                }
-                	}
-                }else{
-                	xml=pojo.getProjectionAsString();
+                ItemPOJO pojo = ItemPOJO.load(itemPk);
+                String xml = null;
+                if (pojo == null) {// load from recyclebin
+                    DroppedItemPOJOPK droppedItemPk = new DroppedItemPOJOPK(null, itemPk, "/");//$NON-NLS-1$
+                    DroppedItemPOJO dpPojo = Util.getDroppedItemCtrlLocal().loadDroppedItem(droppedItemPk);
+                    if (dpPojo != null) {
+                        xml = dpPojo.getProjection();
+                        Document doc = Util.parse(xml);
+                        Node item = (Node) XPathFactory.newInstance().newXPath().evaluate("//ii/p", doc, XPathConstants.NODE); //$NON-NLS-1$
+                        if (item != null && item instanceof Element) {
+                            NodeList list = item.getChildNodes();
+                            Node node = null;
+                            for (int i = 0; i < list.getLength(); i++) {
+                                if (list.item(i) instanceof Element) {
+                                    node = list.item(i);
+                                    break;
+                                }
+                            }
+                            if (node != null) {
+                                xml = Util.nodeToString(node);
+                            }
+                        }
+                    }
+                } else {
+                    xml = pojo.getProjectionAsString();
                 }
                 String resultUpdateReport = Util.createUpdateReport(ids, concept, "PHYSICAL_DELETE", null, //$NON-NLS-1$
                         "", clusterName); //$NON-NLS-1$
@@ -1566,16 +1614,17 @@ public class Util {
                 TransformerContext context = new TransformerContext(new TransformerV2POJOPK("beforeDeleting_" + concept));
                 context.put(RUNNING, Boolean.TRUE);
                 TransformerV2CtrlLocal ctrl = getTransformerV2CtrlLocal();
-                TypedContent wsTypedContent = new TypedContent(exchangeData.getBytes("UTF-8"),
-                        "text/xml; charset=utf-8");
+                TypedContent wsTypedContent = new TypedContent(exchangeData.getBytes("UTF-8"), "text/xml; charset=utf-8");
 
                 ctrl.execute(context, wsTypedContent, new TransformerCallBack() {
 
+                    @Override
                     public void contentIsReady(TransformerContext context) throws XtentisException {
                         org.apache.log4j.Logger.getLogger(this.getClass()).debug(
                                 "XtentisWSBean.executeTransformerV2.beforeDeleting.contentIsReady() ");
                     }
 
+                    @Override
                     public void done(TransformerContext context) throws XtentisException {
                         org.apache.log4j.Logger.getLogger(this.getClass()).debug(
                                 "XtentisWSBean.executeTransformerV2.beforeDeleting.done() ");
@@ -1615,6 +1664,7 @@ public class Util {
 
     static AbstractFactory factory = new AbstractFactory() {
 
+        @Override
         public boolean createObject(JXPathContext context, Pointer pointer, Object parent, String name, int index) {
             if (parent instanceof Node) {
                 try {
@@ -1640,10 +1690,12 @@ public class Util {
                 } catch (Exception e) {
                     return false;
                 }
-            } else
+            } else {
                 return false;
+            }
         }
 
+        @Override
         public boolean declareVariable(JXPathContext context, String name) {
             return false;
         }
@@ -1651,11 +1703,13 @@ public class Util {
 
     /**
      * update the element according to updated path
+     * 
      * @throws Exception
      */
     public static Node updateElement(Node old, Map<String, UpdateReportItem> updatedPath) throws Exception {
-        if (updatedPath.size() == 0)
+        if (updatedPath.size() == 0) {
             return old;
+        }
         // use JXPathContext to update the old element
         JXPathContext jxpContext = JXPathContext.newContext(old);
         jxpContext.registerNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
@@ -1718,8 +1772,9 @@ public class Util {
             for (UpdateReportItem item : list) {
                 String oldValue = item.getOldValue() == null ? "" : item.getOldValue();
                 String newValue = item.getNewValue() == null ? "" : item.getNewValue();
-                if (newValue.equals(oldValue))
+                if (newValue.equals(oldValue)) {
                     continue;
+                }
                 xml2 += "<Item>" + "   <path>" + StringEscapeUtils.escapeXml(item.getPath()) + "</path>" + "   <oldValue>"
                         + StringEscapeUtils.escapeXml(oldValue) + "</oldValue>" + "   <newValue>"
                         + StringEscapeUtils.escapeXml(newValue) + "</newValue>" + "</Item>";
@@ -1853,15 +1908,16 @@ public class Util {
         ItemPOJOPK itemPk = new ItemPOJOPK(new DataClusterPOJOPK("PROVISIONING"), "User", new String[] { LocalUser.getLocalUser()
                 .getUsername() });
         ItemPOJO item = ItemPOJO.load(itemPk);
-        if (item == null)
+        if (item == null) {
             return null;
+        }
         return (Element) Util.getNodeList(item.getProjection(), "//User").item(0);
     }
 
     public static String getUserDataModel() throws Exception {
         return getUserDataModel(getLoginProvisioningFromDB());
     }
-    
+
     public static String getUserDataModel(Element item) throws Exception {
         NodeList nodeList = Util.getNodeList(item, "//property");
         if (nodeList != null) {
@@ -1895,8 +1951,7 @@ public class Util {
         return null;
     }
 
-    public static Map<String, ArrayList<String>> getMetaDataTypes(IWhereItem whereItem)
-            throws Exception {
+    public static Map<String, ArrayList<String>> getMetaDataTypes(IWhereItem whereItem) throws Exception {
         return getMetaDataTypes(whereItem, null);
     }
 
@@ -1905,8 +1960,9 @@ public class Util {
             throws Exception {
         HashMap<String, ArrayList<String>> metaDataTypes = new HashMap<String, ArrayList<String>>();
 
-        if (whereItem == null)
+        if (whereItem == null) {
             return null;
+        }
 
         // Get concepts from where conditions
         Set<String> searchPaths = new HashSet<String>();
@@ -1919,32 +1975,35 @@ public class Util {
 
         // Travel concepts to parse metadata types
         for (String conceptName : concepts) {
-            if (schemaManager == null)
+            if (schemaManager == null) {
                 schemaManager = SchemaCoreAgent.getInstance();
-            BusinessConcept bizConcept=schemaManager.getBusinessConceptForCurrentUser(conceptName); 
-            if (bizConcept == null)
+            }
+            BusinessConcept bizConcept = schemaManager.getBusinessConceptForCurrentUser(conceptName);
+            if (bizConcept == null) {
                 break;
+            }
             bizConcept.load();
             Map<String, String> xpathTypeMap = bizConcept.getXpathTypeMap();
             for (String xpath : xpathTypeMap.keySet()) {
                 String elType = xpathTypeMap.get(xpath);
-                ArrayList<String> elTypeWrapper=new ArrayList<String>(){};
+                ArrayList<String> elTypeWrapper = new ArrayList<String>() {
+                };
                 elTypeWrapper.add(elType);
                 metaDataTypes.put(xpath, elTypeWrapper);
             }
-        }    
+        }
 
         return metaDataTypes;
     }
 
-
     /**
      * fix the web conditions.
-     *
+     * 
      */
     public static IWhereItem fixWebConditions(IWhereItem whereItem) throws XmlServerException {
-        if (whereItem == null)
+        if (whereItem == null) {
             return null;
+        }
         if (whereItem instanceof WhereLogicOperator) {
             List<IWhereItem> subItems = ((WhereLogicOperator) whereItem).getItems();
 
@@ -1977,7 +2036,7 @@ public class Util {
 
     /**
      * fix the conditions.
-     *
+     * 
      * @param conditions in workbench.
      */
 
@@ -2007,10 +2066,13 @@ public class Util {
             }
             deployDir = deployDir + File.separator + "server" + File.separator + "default" + File.separator + "deploy";
             Logger.getLogger(Util.class).info("deploy url:" + deployDir);
-            if (!new File(deployDir).exists())
+            if (!new File(deployDir).exists()) {
                 throw new FileNotFoundException();
+            }
             // TODO is it recursive
             FileFilter filter = new FileFilter() {
+
+                @Override
                 public boolean accept(File pathName) {
                     return pathName.isDirectory() || (pathName.isFile() && pathName.getName().toLowerCase().endsWith(".war"));
                 }
@@ -2019,6 +2081,7 @@ public class Util {
             // zip
             filter = new FileFilter() {
 
+                @Override
                 public boolean accept(File pathName) {
                     return pathName.isDirectory() || (pathName.isFile() && pathName.getName().toLowerCase().endsWith(".zip"));
                 }
@@ -2165,8 +2228,9 @@ public class Util {
                 if (aggregate == 0) {
                     result.add(rowData.substring(cordon + 1, i));
                 }
-            } else if (aggregate == 0)
+            } else if (aggregate == 0) {
                 result.add(ch + "");
+            }
         }
 
         return StringUtils.join(result.toArray(), ",");
@@ -2174,7 +2238,7 @@ public class Util {
 
     /**
      * Escape any single quote characters that are included in the specified message string.
-     *
+     * 
      * @param string The string to be escaped
      */
     protected static String escape(String string) {
@@ -2205,11 +2269,11 @@ public class Util {
         }
     }
 
-    public static <T> T getException(Throwable throwable, Class<T> cls){
-        if(cls.isInstance(throwable)) {
+    public static <T> T getException(Throwable throwable, Class<T> cls) {
+        if (cls.isInstance(throwable)) {
             return (T) throwable;
         }
-        if(throwable.getCause() != null) {
+        if (throwable.getCause() != null) {
             return getException(throwable.getCause(), cls);
         }
         return null;
@@ -2223,13 +2287,13 @@ public class Util {
         if (dataClusterPOJOPK != null && dataClusterPOJOPK.getUniqueId() != null) {
             String dcName = dataClusterPOJOPK.getUniqueId();
             Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
-            if (XSystemObjects.isXSystemObject(xDataClustersMap, dcName)
-                    || dcName.startsWith("amalto") //$NON-NLS-1$
+            if (XSystemObjects.isXSystemObject(xDataClustersMap, dcName) || dcName.startsWith("amalto") //$NON-NLS-1$
                     || "MDMDomainObjects".equals(dcName) //$NON-NLS-1$
                     || "FailedAutoCommitSvnMessage".equals(dcName)//$NON-NLS-1$
                     || "twitter".equals(dcName) //$NON-NLS-1$
-                    || "system".equals(dcName))
+                    || "system".equals(dcName)) {
                 return true;
+            }
         }
         return false;
     }
