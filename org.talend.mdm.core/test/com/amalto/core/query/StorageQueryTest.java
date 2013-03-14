@@ -26,16 +26,21 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.query.optimization.UpdateReportOptimizer;
 import com.amalto.core.query.user.Alias;
 import com.amalto.core.query.user.BinaryLogicOperator;
@@ -1071,9 +1076,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testFKOrderBy() throws Exception {
-        UserQueryBuilder qb = from(address)
-                .selectId(address)
-                .select(address.getField("country"))
+        UserQueryBuilder qb = from(address).selectId(address).select(address.getField("country"))
                 .orderBy(address.getField("country"), OrderBy.Direction.ASC);
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -1088,9 +1091,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
 
-        qb = from(address)
-                .selectId(address)
-                .select(address.getField("country"))
+        qb = from(address).selectId(address).select(address.getField("country"))
                 .orderBy(address.getField("country"), OrderBy.Direction.DESC);
         results = storage.fetch(qb.getSelect());
         try {
