@@ -15,7 +15,6 @@ import org.hibernate.dialect.H2Dialect;
 
 import java.sql.Types;
 
-// Dynamically called, don't remove
 public class H2CustomDialect extends H2Dialect {
     /**
      * Hibernate 3.5.6 forgot to map some JDBC types. This custom implementation adds them.
