@@ -109,6 +109,8 @@ public class StagingTask implements Task {
             synchronized (executionLock) {
                 executionLock.notifyAll();
             }
+            // Ensure cancel execution stats are stored to database.
+            recordExecutionEnd();
         }
     }
 
@@ -160,16 +162,7 @@ public class StagingTask implements Task {
                 throw new IllegalStateException("Can not find internal type information for execution logging.");
             }
             // Start recording the execution
-            DataRecord execution = new DataRecord(executionType, UnsupportedDataRecordMetadata.INSTANCE);
-            stagingStorage.begin();
-            {
-                execution.set(executionType.getField("id"), executionId); //$NON-NLS-1$
-                startTime = System.currentTimeMillis();
-                execution.set(executionType.getField("start_time"), startTime); //$NON-NLS-1$
-                stagingStorage.update(execution);
-            }
-            stagingStorage.commit();
-
+            recordExecutionStart();
             recordCount.set(0);
             for (MetadataRepositoryTask task : tasks) {
                 synchronized (currentTaskMonitor) {
@@ -182,17 +175,7 @@ public class StagingTask implements Task {
                 taskSubmitter.submitAndWait(currentTask);
                 LOGGER.info("<-- DONE " + task.toString());
             }
-
-            // Execution recording end.
-            stagingStorage.begin();
-            {
-                execution.set(executionType.getField("end_time"), System.currentTimeMillis()); //$NON-NLS-1$
-                execution.set(executionType.getField("error_count"), new BigDecimal(getErrorCount())); //$NON-NLS-1$
-                execution.set(executionType.getField("record_count"), new BigDecimal(getProcessedRecords())); //$NON-NLS-1$
-                execution.set(executionType.getField("completed"), Boolean.TRUE); //$NON-NLS-1$
-                stagingStorage.update(execution);
-            }
-            stagingStorage.commit();
+            recordExecutionEnd();
         } finally {
             synchronized (executionLock) {
                 executionLock.set(true);
@@ -203,5 +186,31 @@ public class StagingTask implements Task {
                 currentTask = null;
             }
         }
+    }
+
+    private void recordExecutionStart() {
+        DataRecord execution = new DataRecord(executionType, UnsupportedDataRecordMetadata.INSTANCE);
+        stagingStorage.begin();
+        {
+            execution.set(executionType.getField("id"), executionId); //$NON-NLS-1$
+            startTime = System.currentTimeMillis();
+            execution.set(executionType.getField("start_time"), startTime); //$NON-NLS-1$
+            stagingStorage.update(execution);
+        }
+        stagingStorage.commit();
+    }
+
+    private void recordExecutionEnd() {
+        DataRecord execution = new DataRecord(executionType, UnsupportedDataRecordMetadata.INSTANCE);
+        stagingStorage.begin();
+        {
+            execution.set(executionType.getField("id"), executionId); //$NON-NLS-1$
+            execution.set(executionType.getField("end_time"), System.currentTimeMillis()); //$NON-NLS-1$
+            execution.set(executionType.getField("error_count"), new BigDecimal(getErrorCount())); //$NON-NLS-1$
+            execution.set(executionType.getField("record_count"), new BigDecimal(getProcessedRecords())); //$NON-NLS-1$
+            execution.set(executionType.getField("completed"), Boolean.TRUE); //$NON-NLS-1$
+            stagingStorage.update(execution);
+        }
+        stagingStorage.commit();
     }
 }

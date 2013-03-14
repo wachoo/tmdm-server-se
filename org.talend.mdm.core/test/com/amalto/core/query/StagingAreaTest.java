@@ -244,6 +244,17 @@ public class StagingAreaTest extends TestCase {
 
         Thread.sleep(200);
         stagingTask.cancel();
+
+        UserQueryBuilder qb = UserQueryBuilder.from(stagingRepository.getComplexType("TALEND_TASK_EXECUTION"));
+        StorageResults results = origin.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get("end_time"));
+            }
+        } finally {
+            results.close();
+        }
     }
 
     public void testWithValidationErrors() throws Exception {
