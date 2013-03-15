@@ -31,7 +31,7 @@ class ConstantStringProjection extends SimpleProjection {
 
     @Override
     public String toSqlString(Criteria criteria, int position, CriteriaQuery criteriaQuery) throws HibernateException {
-        return "CONCAT('" + constantValue + "', '') as y" + position + "_"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        return "'" + constantValue + "' as y" + position + "_"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     @Override
