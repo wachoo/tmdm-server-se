@@ -190,10 +190,14 @@ public class HibernateStorage implements Storage {
         if (autoPrepare) {
             LOGGER.info("Preparing database before schema generation.");
             StorageInitializer initializer = new JDBCStorageInitializer();
-            if (!initializer.isInitialized(this)) {
-                initializer.initialize(this);
+            if (initializer.supportInitialization(this)) {
+                if (!initializer.isInitialized(this)) {
+                    initializer.initialize(this);
+                } else {
+                    LOGGER.info("Database is already prepared.");
+                }
             } else {
-                LOGGER.info("Database is already prepared.");
+                LOGGER.info("Datasource is not configured for automatic initialization.");
             }
         } else {
             LOGGER.info("*NOT* preparing database before schema generation.");
@@ -223,7 +227,7 @@ public class HibernateStorage implements Storage {
             for (FieldMetadata indexedField : indexedFields) {
                 // TMDM-5311: Don't index TEXT fields
                 TypeMetadata indexedFieldType = indexedField.getType();
-                if ("string".equals(indexedFieldType.getName())) { //$NON-NLS-1$
+                if (indexedFieldType.getData(MetadataRepository.DATA_MAX_LENGTH) != null) {
                     Object maxLength = indexedFieldType.getData(MetadataRepository.DATA_MAX_LENGTH);
                     if (maxLength != null && Integer.parseInt(String.valueOf(maxLength)) > MappingGenerator.MAX_VARCHAR_TEXT_LIMIT) {
                         if (LOGGER.isDebugEnabled()) {
@@ -232,7 +236,12 @@ public class HibernateStorage implements Storage {
                         continue; // Don't take into indexed fields long text fields
                     }
                 }
-                TypeMapping mapping = mappingRepository.getMappingFromUser(indexedField.getContainingType());
+                // Go up the containment tree in case containing type is anonymous.
+                ComplexTypeMetadata containingType = indexedField.getContainingType();
+                while (containingType instanceof ContainedComplexTypeMetadata) {
+                    containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
+                }
+                TypeMapping mapping = mappingRepository.getMappingFromUser(containingType);
                 databaseIndexedFields.add(mapping.getDatabase(indexedField));
             }
             // Set table/column name length limitation
@@ -778,7 +787,7 @@ public class HibernateStorage implements Storage {
 
     private static class MetadataChecker extends DefaultMetadataVisitor<Object> {
 
-        Set<TypeMetadata> processedTypes = new HashSet<TypeMetadata>();
+        final Set<TypeMetadata> processedTypes = new HashSet<TypeMetadata>();
 
         @Override
         public Object visit(SimpleTypeFieldMetadata simpleField) {
