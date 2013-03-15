@@ -246,8 +246,12 @@ public class HibernateStorage implements Storage {
                         continue; // Don't take into indexed fields long text fields
                     }
                 }
-                // TODO Go up the containment tree in case containing type is anonymous.
-                TypeMapping mapping = mappingRepository.getMappingFromUser(indexedField.getContainingType());
+                // Go up the containment tree in case containing type is anonymous.
+                ComplexTypeMetadata containingType = indexedField.getContainingType();
+                while (containingType instanceof ContainedComplexTypeMetadata) {
+                    containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
+                }
+                TypeMapping mapping = mappingRepository.getMappingFromUser(containingType);
                 databaseIndexedFields.add(mapping.getDatabase(indexedField));
             }
             // Set table/column name length limitation

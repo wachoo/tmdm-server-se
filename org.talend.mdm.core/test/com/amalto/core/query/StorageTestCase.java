@@ -112,8 +112,10 @@ public class StorageTestCase extends TestCase {
         employee = repository.getComplexType("Employee");
         manager = repository.getComplexType("Manager");
         storage.init(getDatasource(DATABASE + "-Default"));
-        List<FieldMetadata> indexedFields = Arrays.asList(person.getField("firstname"), person.getField("score"),
-                address.getField("score"));
+        List<FieldMetadata> indexedFields = Arrays.asList(person.getField("firstname"),
+                person.getField("score"),
+                address.getField("score"),
+                product.getField("Stores/Store"));
         storage.prepare(repository, new HashSet<FieldMetadata>(indexedFields), true, true);
         LOG.info("Storage prepared.");
     }
