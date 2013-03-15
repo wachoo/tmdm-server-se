@@ -11,11 +11,12 @@
 
 package com.amalto.core.storage.hibernate;
 
+import org.hibernate.dialect.SQLServer2008Dialect;
 import org.hibernate.dialect.SQLServerDialect;
 
 import java.sql.Types;
 
-public class SQLServerCustomDialect extends SQLServerDialect {
+public class SQLServerCustomDialect extends SQLServer2008Dialect {
     /**
      * CLOBs and VARCHAR in MDM usually expects value to be stored to UTF-8, this dialect
      * ensures they're stored in a UTF-8 friendly type.
