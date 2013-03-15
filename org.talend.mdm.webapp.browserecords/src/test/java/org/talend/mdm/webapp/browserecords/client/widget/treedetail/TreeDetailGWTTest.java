@@ -288,6 +288,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
             public void onSelect() {
                 // render FK
                 EntityModel entityModel = new EntityModel();
+                entityModel.setConceptName("ProductFamily");
                 entityModel.setKeys(new String[] { "ProductFamily" });
                 LinkedHashMap<String, TypeModel> metaDataTypes = new LinkedHashMap<String, TypeModel>();
                 metaDataTypes.put("ProductFamily", new ComplexTypeModel("ProductFamily", DataTypeConstants.STRING));
