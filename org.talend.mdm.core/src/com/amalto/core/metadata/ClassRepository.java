@@ -144,7 +144,7 @@ public class ClassRepository extends MetadataRepository {
                         isMany = true;
                     } else if (ArrayListHolder.class.isAssignableFrom(returnType)) {
                         listItemType = getListItemClass(declaredMethod, returnType);
-                        isMany = true;
+                        isMany = false;
                     } else if (Map.class.isAssignableFrom(returnType)) {
                         isMany = true;
                     } else if (returnType.isArray()) {
@@ -161,7 +161,12 @@ public class ClassRepository extends MetadataRepository {
                         if (fieldTypeName.startsWith(JAVA_LANG_PREFIX)) {
                             fieldTypeName = StringUtils.substringAfter(fieldTypeName, JAVA_LANG_PREFIX);
                         }
-                        TypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, fieldTypeName);
+                        TypeMetadata fieldType;
+                        if ("byte".equals(fieldTypeName) && isMany) { //$NON-NLS-1$
+                            fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "base64Binary"); //$NON-NLS-1$
+                        } else {
+                            fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, fieldTypeName);
+                        }
                         newField = new SimpleTypeFieldMetadata(typeStack.peek(),
                                 isKey,
                                 isMany,
