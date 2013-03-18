@@ -209,8 +209,10 @@ class FlatTypeMapping extends TypeMapping {
                         if (wrapper != null) {
                             TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
                             DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
-                            for (FieldMetadata keyField : mapping.getDatabase().getKeyFields()) {
-                                referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
+                            for (FieldMetadata fkField : mapping.getDatabase().getFields()) {
+                                if (mapping.getUser(fkField) != null) {
+                                    referencedRecord.set(mapping.getUser(fkField), wrapper.get(fkField.getName()));
+                                }
                             }
                             to.set(userField, referencedRecord);
                         }
@@ -220,8 +222,10 @@ class FlatTypeMapping extends TypeMapping {
                             for (Wrapper wrapper : wrapperList) {
                                 TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
                                 DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
-                                for (FieldMetadata keyField : mapping.getDatabase().getKeyFields()) {
-                                    referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
+                                for (FieldMetadata fkField : mapping.getDatabase().getFields()) {
+                                    if (mapping.getUser(fkField) != null) {
+                                        referencedRecord.set(mapping.getUser(fkField), wrapper.get(fkField.getName()));
+                                    }
                                 }
                                 to.set(userField, referencedRecord);
                             }

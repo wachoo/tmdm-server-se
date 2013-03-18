@@ -203,8 +203,10 @@ class ScatteredTypeMapping extends TypeMapping {
                         if (wrapper != null) {
                             TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
                             DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
-                            for (FieldMetadata keyField : ((ReferenceFieldMetadata) field).getReferencedType().getKeyFields()) {
-                                referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
+                            for (FieldMetadata fkField : ((ReferenceFieldMetadata) field).getReferencedType().getFields()) {
+                                if (mapping.getUser(fkField) != null) {
+                                    referencedRecord.set(mapping.getUser(fkField), wrapper.get(fkField.getName()));
+                                }
                             }
                             to.set(userField, referencedRecord);
                         }
@@ -214,8 +216,10 @@ class ScatteredTypeMapping extends TypeMapping {
                             for (Wrapper wrapper : wrapperList) {
                                 TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
                                 DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
-                                for (FieldMetadata keyField : ((ReferenceFieldMetadata) field).getReferencedType().getKeyFields()) {
-                                    referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
+                                for (FieldMetadata fkField : ((ReferenceFieldMetadata) field).getReferencedType().getFields()) {
+                                    if (mapping.getUser(fkField) != null) {
+                                        referencedRecord.set(mapping.getUser(fkField), wrapper.get(fkField.getName()));
+                                    }
                                 }
                                 to.set(userField, referencedRecord);
                             }

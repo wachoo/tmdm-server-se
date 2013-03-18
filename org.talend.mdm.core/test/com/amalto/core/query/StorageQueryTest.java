@@ -2068,7 +2068,37 @@ public class StorageQueryTest extends StorageTestCase {
         sb.append("\t<ProductFamily_Name/>\n");
         sb.append("</result>");
         assertEquals(sb.toString(), resultsAsString.get(1));
+        
+        // Test Fetch Product by whereCondition = (Product/Id Equals 1) and (Product/Family Joins ProductFamily/Id)
+        WhereCondition condition = new WhereCondition("Product/Id", "=", "1", "&", false);
+        fullWhere.add(condition);
+        qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
 
+        results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+
+        writer = new ViewSearchResultsWriter();
+        output = new ByteArrayOutputStream();
+        resultsAsString = new ArrayList<String>();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            String document = new String(output.toByteArray(), Charset.forName("UTF-8"));
+            resultsAsString.add(document);
+            output.reset();
+        }
+        assertEquals(1, resultsAsString.size());
+
+        sb = new StringBuilder();
+        sb.append("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
+        sb.append("\t<Id>1</Id>\n");
+        sb.append("\t<Name>Product name</Name>\n");
+        sb.append("\t<ProductFamily_Name>Product family #2</ProductFamily_Name>\n");
+        sb.append("</result>");
+        assertEquals(sb.toString(), resultsAsString.get(0));
     }
 
     public void testFetchAllE2WithViewSearchResultsWriter() throws Exception {

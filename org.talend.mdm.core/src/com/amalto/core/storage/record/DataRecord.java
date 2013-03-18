@@ -65,6 +65,9 @@ public class DataRecord {
     public Object get(FieldMetadata field) {
         ComplexTypeMetadata containingType = field.getContainingType();
         if (containingType != this.getType() && !this.getType().isAssignableFrom(containingType)) {
+            if (fieldToValue.containsKey(field)) {
+                return fieldToValue.get(field);
+            }
             Iterator<FieldMetadata> path = MetadataUtils.path(type, field).iterator();
             if (!path.hasNext()) {
                 Object value = get(field.getName());
