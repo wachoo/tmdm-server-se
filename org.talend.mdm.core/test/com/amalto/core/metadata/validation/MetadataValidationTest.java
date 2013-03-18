@@ -40,11 +40,9 @@ public class MetadataValidationTest extends TestCase {
             repository.load(resourceAsStream, handler);
             fail("Should fail validation.");
         } catch (Exception e) {
-            e.printStackTrace();
             // Expected
         }
-        assertEquals(1, handler.getMessages().size());
-
+        assertEquals(2, handler.getMessages().size());
     }
 
     public void testPK1() throws Exception {
@@ -94,7 +92,6 @@ public class MetadataValidationTest extends TestCase {
             repository.load(resourceAsStream, handler);
             fail("Should fail validation.");
         } catch (Exception e) {
-            e.printStackTrace();
             // Expected
         }
         assertEquals(3, handler.getMessages().size());
