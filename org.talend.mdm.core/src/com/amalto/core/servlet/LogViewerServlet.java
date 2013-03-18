@@ -49,7 +49,7 @@ public class LogViewerServlet extends HttpServlet {
         maxLinesRead = Integer.valueOf(maxLinesReadString);
         charset = config.getInitParameter("charset"); //$NON-NLS-1$
         if (charset == null) {
-            Charset.defaultCharset().name();
+            charset = Charset.defaultCharset().name();
         }
     }
 
