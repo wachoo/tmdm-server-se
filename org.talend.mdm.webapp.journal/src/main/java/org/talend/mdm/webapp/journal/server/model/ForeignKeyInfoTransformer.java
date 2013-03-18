@@ -52,7 +52,7 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
         for (Map.Entry<String, ReferenceFieldMetadata> entry : entries) {
             String path = entry.getKey();
             ReferenceFieldMetadata fieldMetadata = entry.getValue();
-            Accessor accessor = document.createAccessor("/ii/p/" + path); //$NON-NLS-1$
+            Accessor accessor = document.createAccessor(path);
 
             if (accessor.exist()) { // The field might not be set, so check if it exists.
                 String foreignKeyValue = accessor.get(); // Raw foreign key value (surrounded by "[")
@@ -67,11 +67,11 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
     }
 
     private String resolveForeignKeyValue(ReferenceFieldMetadata foreignKeyField, String foreignKeyValue) {
-
+        String referencedTypeName = foreignKeyField.getReferencedType().getName();
         ItemPOJO item;
         try {
             ItemPOJOPK pk = new ItemPOJOPK();
-            pk.setConceptName(foreignKeyField.getType().getName());
+            pk.setConceptName(referencedTypeName);
             pk.setDataClusterPOJOPK(new DataClusterPOJOPK(dataClusterName));
             // For composite keys, format is "[id0][id1]...[idN]"
             String[] allKeys = foreignKeyValue.split("]"); //$NON-NLS-1$
@@ -94,7 +94,7 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
         try {
             Element element = item.getProjection();
             NodeList nodeList = Util.getNodeList(element,
-                    "/" + foreignKeyField.getType() + "/" + foreignKeyField.getForeignKeyInfoField()); //$NON-NLS-1$ //$NON-NLS-2$
+                    "/" + referencedTypeName + "/" + foreignKeyField.getForeignKeyInfoField().getName()); //$NON-NLS-1$ //$NON-NLS-2$
             if (nodeList.getLength() == 1) {
                 return nodeList.item(0).getTextContent();
             } else {
@@ -121,12 +121,7 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
 
         @Override
         public Map<String, ReferenceFieldMetadata> visit(ComplexTypeMetadata metadata) {
-            currentPosition.push(metadata.getName());
-            {
-                super.visit(metadata);
-            }
-            currentPosition.pop();
-
+            super.visit(metadata);
             return pathToForeignKeyInfo;
         }
 
