@@ -88,3 +88,9 @@ function loadLog(logContent, spinner, url) {
         }
     });
 }
+
+function clearLog(logContent) {
+    while (logContent.hasChildNodes()) {
+        logContent.removeChild(logContent.lastChild);
+    }
+}

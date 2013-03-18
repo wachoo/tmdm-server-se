@@ -90,8 +90,9 @@ public class LogViewerServlet extends HttpServlet {
 
     private void downloadLogFile(HttpServletResponse response) throws IOException {
         String filename = file.getAbsolutePath();
-        response.setContentType("application/octet-stream"); //$NON-NLS-1$
-        response.setHeader("Content-Disposition ", "attachment; filename=\"" + FilenameUtils.getName(filename) + '"'); //$NON-NLS-1$ //$NON-NLS-2$
+        filename = FilenameUtils.getName(filename);
+        response.setContentType("text/x-log; name=\"" + filename + '"'); //$NON-NLS-1$
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + '"'); //$NON-NLS-1$ //$NON-NLS-2$
         FileInputStream fis = new FileInputStream(file);
         try {
             OutputStream responseOutputStream = response.getOutputStream();
