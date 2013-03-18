@@ -267,10 +267,22 @@ public class DroppedItemPOJO implements Serializable {
                 String[] uidValues = uid.split("\\."); //$NON-NLS-1$
                 ItemPOJOPK refItemPOJOPK;
                 if (MDMConfiguration.getDBType() != EDBType.QIZX) {
+                    if (uidValues.length < 3) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Could not read id '" + uid + "'. Skipping it.");
+                        }
+                        continue;
+                    }
                     refItemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(uidValues[0]), uidValues[1], Arrays.copyOfRange(
-                                                uidValues, 2, uidValues.length));
+                            uidValues, 2, uidValues.length));
                 } else {
                     // XML db format (deprecated)
+                    if (uidValues.length < 4) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Could not read id '" + uid + "'. Skipping it.");
+                        }
+                        continue;
+                    }
                     uidValues[uidValues.length - 1] = uidValues[uidValues.length - 1].replace("-", ""); //$NON-NLS-1$//$NON-NLS-2$
                     refItemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(uidValues[1]), uidValues[2], Arrays.copyOfRange(
                             uidValues, 3, uidValues.length));
