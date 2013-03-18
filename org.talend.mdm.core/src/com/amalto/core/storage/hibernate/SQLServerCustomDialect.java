@@ -22,7 +22,7 @@ public class SQLServerCustomDialect extends SQLServerDialect {
      */
     public SQLServerCustomDialect() {
         registerColumnType(Types.CLOB, "nvarchar(max)"); //$NON-NLS-1$
-        registerColumnType(Types.VARCHAR, 255, "nvarchar($1)"); //$NON-NLS-1$
+        registerColumnType(Types.VARCHAR, 255, "nvarchar($l)"); //$NON-NLS-1$
         registerColumnType(Types.CHAR, "nchar(1)"); //$NON-NLS-1$
     }
 }
