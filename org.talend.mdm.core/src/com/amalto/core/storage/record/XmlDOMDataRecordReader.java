@@ -13,6 +13,7 @@ package com.amalto.core.storage.record;
 
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.metadata.MetadataUtils;
+import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
@@ -25,7 +26,6 @@ import org.w3c.dom.*;
 import javax.xml.XMLConstants;
 import javax.xml.transform.TransformerException;
 import java.util.Collection;
-import java.util.List;
 
 public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
 
@@ -96,6 +96,10 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
                 if (field.getType() instanceof ContainedComplexTypeMetadata) {
                     ComplexTypeMetadata containedType = (ComplexTypeMetadata) field.getType();
                     String xsiType = child.getAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
+                    if (xsiType.startsWith("java:")) { //$NON-NLS-1$
+                        // Special format for 'java:' type names (used in Castor XML to indicate actual class name)
+                        xsiType = ClassRepository.format(StringUtils.substringAfterLast(StringUtils.substringAfter(xsiType, "java:"), ".")); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
                     if (!xsiType.isEmpty()) {
                         ComplexTypeMetadata actualType = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), xsiType);
                         if (actualType != null) {

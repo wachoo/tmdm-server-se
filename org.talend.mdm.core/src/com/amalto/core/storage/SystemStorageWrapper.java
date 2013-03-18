@@ -56,6 +56,7 @@ public class SystemStorageWrapper extends StorageWrapper {
     private static final Logger LOGGER = Logger.getLogger(SystemStorageWrapper.class);
 
     public SystemStorageWrapper() {
+        DOCUMENT_BUILDER_FACTORY.setNamespaceAware(true);
         // Create "system" storage
         Server server = ServerContext.INSTANCE.get();
         StorageAdmin admin = server.getStorageAdmin();

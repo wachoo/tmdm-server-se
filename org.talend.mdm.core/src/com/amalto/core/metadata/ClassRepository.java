@@ -19,10 +19,7 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
 
 import javax.xml.XMLConstants;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.*;
 
 public class ClassRepository extends MetadataRepository {
@@ -52,6 +49,8 @@ public class ClassRepository extends MetadataRepository {
     private final Map<Class, Iterable<Class>> registeredSubClasses = new HashMap<Class, Iterable<Class>>();
 
     private int listCounter = 0;
+
+    private Class<?> listItemType;
 
     public ClassRepository() {
         // Create a type for MAPs
@@ -140,19 +139,12 @@ public class ClassRepository extends MetadataRepository {
                     boolean isMany = false;
                     boolean isKey = keyFieldName.equals(fieldName);
                     if (Iterable.class.isAssignableFrom(returnType)) {
-                        Type genericReturnType = declaredMethod.getGenericReturnType();
-                        if (genericReturnType instanceof ParameterizedType) {
-                            Type type = ((ParameterizedType) genericReturnType).getActualTypeArguments()[0];
-                            if (type instanceof Class<?>) {
-                                returnType = ((Class) type);
-                            } else {
-                                if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.debug("List returned by " + declaredMethod.getName() + " isn't using generic types.");
-                                }
-                                returnType = String.class;
-                            }
-                            isMany = true;
-                        }
+                        returnType = listItemType != null ? listItemType : getListItemClass(declaredMethod, returnType);
+                        listItemType = null;
+                        isMany = true;
+                    } else if (ArrayListHolder.class.isAssignableFrom(returnType)) {
+                        listItemType = getListItemClass(declaredMethod, returnType);
+                        isMany = true;
                     } else if (Map.class.isAssignableFrom(returnType)) {
                         isMany = true;
                     } else if (returnType.isArray()) {
@@ -221,6 +213,22 @@ public class ClassRepository extends MetadataRepository {
             }
         }
         return typeStack.pop();
+    }
+
+    private static Class<?> getListItemClass(Method declaredMethod, Class<?> returnType) {
+        Type genericReturnType = declaredMethod.getGenericReturnType();
+        if (genericReturnType instanceof ParameterizedType) {
+            Type type = ((ParameterizedType) genericReturnType).getActualTypeArguments()[0];
+            if (type instanceof Class<?>) {
+                returnType = ((Class) type);
+            } else {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("List returned by " + declaredMethod.getName() + " isn't using generic types.");
+                }
+                returnType = String.class;
+            }
+        }
+        return returnType;
     }
 
     private Iterable<Class> getSubclasses(Class clazz) {
