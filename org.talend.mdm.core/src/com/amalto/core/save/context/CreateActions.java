@@ -184,6 +184,9 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
 
     @Override
     public List<Action> visit(SimpleTypeFieldMetadata simpleField) {
+        if (simpleField.isKey() && simpleField.isMany()) {
+            throw new IllegalArgumentException("Key field cannot be a repeatable element");
+        }
         realPath.push(new FieldItem(simpleField, null));
         String xpath = getRealPath();
         int size = document.createAccessor(xpath).size();
