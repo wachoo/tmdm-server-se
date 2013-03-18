@@ -408,10 +408,10 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             }
         });
         
-        if(fkTypeModel.isReadOnly()){
+        createFkButton.setEnabled(!entityModel.getTypeModel(entityModel.getConceptName()).isDenyCreatable());
+        if (fkTypeModel.isReadOnly()) {
             addFkButton.setEnabled(false);
             removeFkButton.setEnabled(false);
-            createFkButton.setEnabled(false);
         }
     }
 
