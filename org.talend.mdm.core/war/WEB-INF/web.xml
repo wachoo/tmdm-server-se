@@ -81,9 +81,22 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
 
+    <servlet>
+        <servlet-name>LogViewerServlet</servlet-name>
+        <servlet-class>com.amalto.core.servlet.LogViewerServlet</servlet-class>
+        <init-param>
+            <param-name>logFile</param-name>
+            <param-value>${jboss.server.log.dir}/server.log</param-value>
+        </init-param>
+        <init-param>
+            <param-name>maxLinesRead</param-name>
+            <param-value>10000</param-value>
+        </init-param>
+    </servlet>
+    
     <servlet-mapping>
         <servlet-name>runServlet</servlet-name>
-        <url-pattern>/</url-pattern>
+        <url-pattern>/run</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>uploadFile</servlet-name>
@@ -100,6 +113,10 @@
     <servlet-mapping>
         <servlet-name>CXFServlet</servlet-name>
         <url-pattern>/services/*</url-pattern>
+    </servlet-mapping>
+        <servlet-mapping>
+        <servlet-name>LogViewerServlet</servlet-name>
+        <url-pattern>/logviewer/log</url-pattern>
     </servlet-mapping>
 
     <security-constraint>
@@ -144,6 +161,16 @@
         </auth-constraint>
     </security-constraint>
 
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Log viewer service</web-resource-name>
+            <url-pattern>/logviewer/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>administration</role-name>
+        </auth-constraint>
+    </security-constraint>
+    
     <login-config>
         <auth-method>BASIC</auth-method>
         <realm-name>xtentisSecurity</realm-name>

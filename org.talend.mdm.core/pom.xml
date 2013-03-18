@@ -113,7 +113,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
                     <webXml>${basedir}/war/WEB-INF/web.xml</webXml>
-                    <packagingIncludes>META-INF/**,WEB-INF/*,WEB-INF/classes/**/servlet/*.class,WEB-INF/classes/${version.properties}</packagingIncludes>
+                    <packagingIncludes>logviewer/**,META-INF/**,WEB-INF/*,WEB-INF/classes/**/servlet/*.class,WEB-INF/classes/${version.properties}</packagingIncludes>
                 </configuration>
             </plugin>
 

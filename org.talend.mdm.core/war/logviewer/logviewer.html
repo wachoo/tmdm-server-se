@@ -1,0 +1,41 @@
+<html>
+<head>
+<title>MDM Log Viewer</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" language="javascript" src="/core/secure/ext-2.0/adapter/prototype/prototype.js"></script>
+<script type="text/javascript" language="javascript" src="logviewer.js"></script>
+<style>
+#logScroller {
+    height: 93%;
+    background: black;
+    color: white;
+    overflow: auto;
+}
+pre {
+    white-space: pre-wrap; /* css-3 */
+    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
+    margin: 1;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 11px;
+}
+</style>
+</head>
+<body>
+    <div id="logScroller">
+        <pre id="logContent"></pre>
+    </div>
+    <div id="footer">
+        <input type="button" id="toggleLoad" value="Stop Loading" onclick="toggleLoading($('toggleLoad'),$('spinner'),$('logContent'));">
+        <img id="spinner" alt="" src="/core/secure/ext-2.2/resources/images/default/shared/loading-balls.gif" />
+    </div>
+    <script>
+        var scroller = new AutoScroller($("logScroller"));
+        $("logContent").position = 0;
+        $("logContent").stopLoading = "false";
+        loadLog($("logContent"), $("spinner"), "log");
+    </script>
+</body>
+</html>
