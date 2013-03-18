@@ -17,20 +17,18 @@ import static com.amalto.core.integrity.FKIntegrityCheckResult.ALLOWED;
 import static com.amalto.core.integrity.FKIntegrityCheckResult.FORBIDDEN;
 import static com.amalto.core.integrity.FKIntegrityCheckResult.FORBIDDEN_OVERRIDE_ALLOWED;
 
-import java.io.ByteArrayInputStream;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.amalto.core.server.ServerContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
@@ -96,14 +94,7 @@ class DefaultCheckDataSource implements FKIntegrityCheckDataSource {
 
     public Set<ReferenceFieldMetadata> getForeignKeyList(String concept, String dataModel) throws XtentisException {
         // Get FK(s) to check
-        MetadataRepository mr = new MetadataRepository();
-        try {
-            DataModelPOJO dataModelObject = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(dataModel));
-            mr.load(new ByteArrayInputStream(dataModelObject.getSchema().getBytes("utf-8"))); //$NON-NLS-1$
-        } catch (Exception e) {
-            throw new XtentisException(e);
-        }
-
+        MetadataRepository mr = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(dataModel);
         TypeMetadata type = mr.getType(concept);
         if (type != null) {
             return mr.accept(new ForeignKeyIntegrity(type));

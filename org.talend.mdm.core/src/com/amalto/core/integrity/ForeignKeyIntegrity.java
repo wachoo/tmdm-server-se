@@ -42,17 +42,15 @@ public class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFie
     private String getCurrentPath() {
         StringBuilder path = new StringBuilder();
         for (String pathElement : currentPosition) {
-            if (path.length() == 0)
+            if (path.length() == 0) {
                 rootTypeName = pathElement;
-
-            if (path.length() > 0)
+            }
+            if (path.length() > 0) {
                 path.append("/"); //$NON-NLS-1$
-
+            }
             path.append(pathElement);
-
         }
         return path.toString();
-
     }
 
     /**

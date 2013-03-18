@@ -20,10 +20,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.amalto.core.server.ServerContext;
 import com.amalto.core.util.XtentisException;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
-import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.*;
 
 /**
  * <p>
@@ -136,9 +135,15 @@ public class FKIntegrityChecker {
         // Sort all fields by FK integrity policy
         Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields = new HashMap<FKIntegrityCheckResult, Set<FieldMetadata>>();
         for (ReferenceFieldMetadata incomingReference : fieldToCheck) {
+            // TMDM-5434: Checks if containing type is an actual entity type
+            String referencingTypeName = getFromTypeNameThroughIncomingReference(incomingReference);
+            MetadataRepository repository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(dataModel);
+            ComplexTypeMetadata containingType = repository.getComplexType(referencingTypeName);
+            if (containingType == null || !containingType.isInstantiable()) {
+                continue; // Discard checks from reusable types.
+            }
             if (incomingReference.isFKIntegrity()) { // Don't execute a count if we don't care about FK integrity for the field.
                 boolean allowOverride = incomingReference.allowFKIntegrityOverride();
-                String referencingTypeName = getFromTypeNameThroughIncomingReference(incomingReference);
                 long count = dataSource.countInboundReferences(clusterName, ids, referencingTypeName, incomingReference);
                 if (count > 0) {
                     if (allowOverride) {

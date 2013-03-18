@@ -400,7 +400,11 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
         Storage storage = getStorage(clusterName, revisionId);
         MetadataRepository repository = storage.getMetadataRepository();
-        UserQueryBuilder qb = from(repository.getComplexType(conceptName));
+        ComplexTypeMetadata complexType = repository.getComplexType(conceptName);
+        if (complexType == null) {
+            throw new IllegalArgumentException("Type '" + conceptName + "' does not exist.");
+        }
+        UserQueryBuilder qb = from(complexType);
         qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
