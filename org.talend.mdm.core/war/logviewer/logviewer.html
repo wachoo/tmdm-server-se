@@ -2,7 +2,7 @@
 <head>
 <title>MDM Log Viewer</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<script type="text/javascript" language="javascript" src="/core/secure/ext-2.0/adapter/prototype/prototype.js"></script>
+<script type="text/javascript" language="javascript" src="/core/secure/ext-2.2/adapter/prototype/prototype.js"></script>
 <script type="text/javascript" language="javascript" src="logviewer.js"></script>
 <style>
 #logScroller {
@@ -28,7 +28,9 @@ pre {
         <pre id="logContent"></pre>
     </div>
     <div id="footer">
-        <input type="button" id="toggleLoad" value="Stop Loading" onclick="toggleLoading($('toggleLoad'),$('spinner'),$('logContent'));">
+        <input type="button" value="Reload" onclick="window.location.reload();">
+        <input type="button" value="Download" onclick="window.open('log?position=-1','_self');">
+        <input type="button" id="toggleLoad" value="Pause" onclick="toggleLoading($('toggleLoad'),$('spinner'),$('logContent'));">
         <img id="spinner" alt="" src="/core/secure/ext-2.2/resources/images/default/shared/loading-balls.gif" />
     </div>
     <script>

@@ -45,11 +45,11 @@ function AutoScroller(scroller) {
 function toggleLoading(button, spinner, logContent) {
     if (logContent.stopLoading == "true") {
         logContent.stopLoading = "false";
-        button.value = "Stop Loading";
+        button.value = "Pause";
         loadLog(logContent, spinner, "log");
     } else {
         logContent.stopLoading = "true";
-        button.value = "Load";
+        button.value = "Resume";
     }
 }
 

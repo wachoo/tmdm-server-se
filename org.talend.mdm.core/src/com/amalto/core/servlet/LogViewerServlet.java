@@ -14,6 +14,7 @@ package com.amalto.core.servlet;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
@@ -24,6 +25,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
 public class LogViewerServlet extends HttpServlet {
@@ -44,7 +47,10 @@ public class LogViewerServlet extends HttpServlet {
 
         String maxLinesReadString = config.getInitParameter("maxLinesRead"); //$NON-NLS-1$
         maxLinesRead = Integer.valueOf(maxLinesReadString);
-        charset = Charset.defaultCharset().name();
+        charset = config.getInitParameter("charset"); //$NON-NLS-1$
+        if (charset == null) {
+            Charset.defaultCharset().name();
+        }
     }
 
     @Override
@@ -57,6 +63,14 @@ public class LogViewerServlet extends HttpServlet {
             position = 0;
         }
 
+        if (position < 0) {
+            downloadLogFile(response);
+        } else {
+            writeLogFileChunk(position, response);
+        }
+    }
+
+    private void writeLogFileChunk(long position, HttpServletResponse response) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
 
@@ -72,6 +86,24 @@ public class LogViewerServlet extends HttpServlet {
         OutputStream responseOutputStream = response.getOutputStream();
         outputStream.writeTo(responseOutputStream);
         responseOutputStream.close();
+    }
+
+    private void downloadLogFile(HttpServletResponse response) throws IOException {
+        String filename = file.getAbsolutePath();
+        response.setContentType("application/octet-stream"); //$NON-NLS-1$
+        response.setHeader("Content-Disposition ", "attachment; filename=\"" + FilenameUtils.getName(filename) + '"'); //$NON-NLS-1$ //$NON-NLS-2$
+        FileInputStream fis = new FileInputStream(file);
+        try {
+            OutputStream responseOutputStream = response.getOutputStream();
+            IOUtils.copyLarge(fis, responseOutputStream);
+            responseOutputStream.close();
+        } finally {
+            try {
+                fis.close();
+            } catch (Exception e) {
+                // ignore it
+            }
+        }
     }
 
     private File getLogFile(String filepath) throws ServletException {
