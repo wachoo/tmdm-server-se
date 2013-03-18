@@ -110,6 +110,15 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
         @Override
         public Void visit(ContainedTypeFieldMetadata containedField) {
             try {
+                if (containedField.getType().getName().startsWith("array-list-holder")) {
+                    DataRecord containedRecord = (DataRecord) record.get(containedField);
+                    if (containedRecord != null) {
+                        List list = (List) containedRecord.get("list");
+                        if (list != null && list.isEmpty()) {
+                            return null;
+                        }
+                    }
+                }
                 if (!containedField.isMany()) {
                     DataRecord containedRecord = (DataRecord) record.get(containedField);
                     if (containedRecord != null) {
@@ -117,7 +126,7 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
                     }
                 } else {
                     List<DataRecord> recordList = (List<DataRecord>) record.get(containedField);
-                    if (recordList != null) {
+                    if (recordList != null && !recordList.isEmpty()) {
                         for (DataRecord dataRecord : recordList) {
                             handleContainedField(containedField, dataRecord);
                         }
