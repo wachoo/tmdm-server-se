@@ -236,6 +236,25 @@ class IdQueryHandler extends AbstractQueryHandler {
         }
 
         @Override
+        public Void visit(Type type) {
+            if (currentAliasName == null) {
+                throw new IllegalArgumentException("Expected an alias for field type selection.");
+            }
+            DataRecord o = (DataRecord) next.get(type.getField().getFieldMetadata());
+            SimpleTypeFieldMetadata fieldType = new SimpleTypeFieldMetadata(explicitProjectionType,
+                    false,
+                    false,
+                    false,
+                    currentAliasName,
+                    new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"),
+                    Collections.<String>emptyList(),
+                    Collections.<String>emptyList());
+            explicitProjectionType.addField(fieldType);
+            nextRecord.set(fieldType, o.getType().getName());
+            return null;
+        }
+
+        @Override
         public Void visit(Alias alias) {
             currentAliasName = alias.getAliasName();
             alias.getTypedExpression().accept(this);

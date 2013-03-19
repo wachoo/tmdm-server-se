@@ -771,10 +771,10 @@ public class HibernateStorage implements Storage {
     }
 
     private StorageResults internalFetch(Session session, Expression userQuery, Set<EndOfResultsCallback> callbacks) {
-        SelectAnalyzer selectAnalysis = new SelectAnalyzer(mappingRepository, storageClassLoader, session, callbacks, this, tableResolver);
-        AbstractQueryHandler queryHandler = userQuery.accept(selectAnalysis);
         // Always normalize the query to ensure query has expected format.
         Expression expression = userQuery.normalize();
+        SelectAnalyzer selectAnalysis = new SelectAnalyzer(mappingRepository, storageClassLoader, session, callbacks, this, tableResolver);
+        AbstractQueryHandler queryHandler = userQuery.accept(selectAnalysis);
         if (expression instanceof Select) {
             Select select = (Select) expression;
             for (Optimizer optimizer : OPTIMIZERS) {

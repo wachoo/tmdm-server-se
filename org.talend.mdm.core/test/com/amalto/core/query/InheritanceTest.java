@@ -328,6 +328,37 @@ public class InheritanceTest extends StorageTestCase {
         }
     }
 
+    public void testXsiTypeProjectionWithIdFilter() throws Exception {
+        ComplexTypeMetadata subNested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "SubNested");
+        assertNotNull(subNested);
+        ComplexTypeMetadata nested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "Nested");
+        assertNotNull(nested);
+        // Test 1
+        UserQueryBuilder qb = UserQueryBuilder.from(a).select(alias(type(a.getField("nestedB")), "type"))
+                .where(and(isa(a.getField("nestedB"), nested), eq(a.getField("id"), "1")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertEquals(nested.getName(), result.get("type"));
+            }
+        } finally {
+            results.close();
+        }
+        // Test 2
+        qb = UserQueryBuilder.from(a).select(alias(type(a.getField("nestedB")), "type"))
+                .where(eq(a.getField("id"), "1"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertEquals(nested.getName(), result.get("type"));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
     public void testIsaFromWhereItem() throws Exception {
         UserQueryBuilder qb = UserQueryBuilder.from(a);
         IWhereItem item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition("A/nestedB/xsi:type", WhereCondition.EQUALS,
