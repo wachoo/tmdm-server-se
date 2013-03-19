@@ -15,6 +15,8 @@ import java.util.Map;
 
 public class RDBMSDataSource implements DataSource {
 
+    private final Boolean caseSensitiveSearch;
+
     public static enum DataSourceDialect {
         H2, ORACLE_10G, MYSQL, POSTGRES, SQL_SERVER
     }
@@ -64,6 +66,7 @@ public class RDBMSDataSource implements DataSource {
                            int connectionPoolMaxSize,
                            String indexDirectory,
                            String cacheDirectory,
+                           Boolean caseSensitiveSearch,
                            String schemaGeneration,
                            Map<String, String> advancedProperties,
                            String connectionURL,
@@ -106,9 +109,14 @@ public class RDBMSDataSource implements DataSource {
         this.connectionPoolMaxSize = connectionPoolMaxSize;
         this.indexDirectory = indexDirectory;
         this.cacheDirectory = cacheDirectory;
+        this.caseSensitiveSearch = caseSensitiveSearch;
         this.connectionURL = connectionURL;
         this.databaseName = databaseName;
         this.advancedProperties = advancedProperties;
+    }
+
+    public boolean isCaseSensitiveSearch() {
+        return caseSensitiveSearch;
     }
 
     public DataSourceDialect getDialectName() {

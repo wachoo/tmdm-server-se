@@ -221,6 +221,7 @@ public class DataSourceFactory {
             int connectionPoolMaxSize = ((Double) evaluate(dataSource, "rdbms-configuration/connection-pool-maxsize", XPathConstants.NUMBER)).intValue(); //$NON-NLS-1$
             String indexDirectory = (String) evaluate(dataSource, "rdbms-configuration/fulltext-index-directory", XPathConstants.STRING); //$NON-NLS-1$
             String cacheDirectory = (String) evaluate(dataSource, "rdbms-configuration/cache-directory", XPathConstants.STRING); //$NON-NLS-1$
+            Boolean caseSensitiveSearch = Boolean.parseBoolean((String) evaluate(dataSource, "rdbms-configuration/case-sensitive-search", XPathConstants.STRING)); //$NON-NLS-1$
             String schemaGeneration = (String) evaluate(dataSource, "rdbms-configuration/schema-generation", XPathConstants.STRING); //$NON-NLS-1$
             if (schemaGeneration == null || schemaGeneration.isEmpty()) {
                 // Default value is "update".
@@ -248,6 +249,7 @@ public class DataSourceFactory {
                     connectionPoolMaxSize,
                     indexDirectory,
                     cacheDirectory,
+                    caseSensitiveSearch,
                     schemaGeneration,
                     advancedProperties,
                     connectionURL,

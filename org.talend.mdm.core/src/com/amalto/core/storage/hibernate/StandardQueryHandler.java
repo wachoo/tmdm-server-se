@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -25,13 +27,7 @@ import org.hibernate.Criteria;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
-import org.hibernate.criterion.CriteriaSpecification;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projection;
-import org.hibernate.criterion.ProjectionList;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.*;
 import org.hibernate.impl.CriteriaImpl;
 import org.hibernate.sql.JoinFragment;
 import org.hibernate.transform.DistinctRootEntityResultTransformer;
@@ -91,7 +87,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private static final StringConstant EMPTY_STRING_CONSTANT = new StringConstant(StringUtils.EMPTY);
 
-    private final CriterionAdapter CRITERION_VISITOR = new CriterionAdapter();
+    private final CriterionAdapter criterionVisitor;
 
     private final StandardQueryHandler.CriterionFieldCondition criterionFieldCondition;
 
@@ -109,12 +105,22 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private String currentAliasName;
 
-    public StandardQueryHandler(Storage storage, MappingRepository mappingMetadataRepository, TableResolver resolver,
-            StorageClassLoader storageClassLoader, Session session, Select select, List<TypedExpression> selectedFields,
-            Set<EndOfResultsCallback> callbacks) {
+    public StandardQueryHandler(Storage storage,
+                                MappingRepository mappingMetadataRepository,
+                                TableResolver resolver,
+                                StorageClassLoader storageClassLoader,
+                                Session session,
+                                Select select,
+                                List<TypedExpression> selectedFields,
+                                Set<EndOfResultsCallback> callbacks) {
         super(storage, mappingMetadataRepository, storageClassLoader, session, select, selectedFields, callbacks);
         this.resolver = resolver;
         criterionFieldCondition = new CriterionFieldCondition();
+        DataSource dataSource = storage.getDataSource();
+        if (!(dataSource instanceof RDBMSDataSource)) {
+            throw new IllegalArgumentException("Storage '" + storage.getName() + "' is not using a RDBMS datasource.");
+        }
+        criterionVisitor = new CriterionAdapter((RDBMSDataSource) dataSource);
     }
 
     private StorageResults createResults(List list, boolean isProjection) {
@@ -518,60 +524,60 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(BinaryLogicOperator condition) {
-        criteria.add(condition.accept(CRITERION_VISITOR));
+        criteria.add(condition.accept(criterionVisitor));
         return null;
     }
 
     @Override
     public StorageResults visit(UnaryLogicOperator condition) {
-        criteria.add(condition.accept(CRITERION_VISITOR));
+        criteria.add(condition.accept(criterionVisitor));
         return null;
     }
 
     @Override
     public StorageResults visit(Isa isa) {
-        criteria.add(isa.accept(CRITERION_VISITOR));
+        criteria.add(isa.accept(criterionVisitor));
         return null;
     }
 
     @Override
     public StorageResults visit(Compare condition) {
-        Criterion criterion = condition.accept(CRITERION_VISITOR);
+        Criterion criterion = condition.accept(criterionVisitor);
         criteria.add(criterion);
         return null;
     }
 
     @Override
     public StorageResults visit(IsNull isNull) {
-        Criterion criterion = isNull.accept(CRITERION_VISITOR);
+        Criterion criterion = isNull.accept(criterionVisitor);
         criteria.add(criterion);
         return null;
     }
 
     @Override
     public StorageResults visit(IsEmpty isEmpty) {
-        Criterion criterion = isEmpty.accept(CRITERION_VISITOR);
+        Criterion criterion = isEmpty.accept(criterionVisitor);
         criteria.add(criterion);
         return null;
     }
 
     @Override
     public StorageResults visit(NotIsEmpty notIsEmpty) {
-        Criterion criterion = notIsEmpty.accept(CRITERION_VISITOR);
+        Criterion criterion = notIsEmpty.accept(criterionVisitor);
         criteria.add(criterion);
         return null;
     }
 
     @Override
     public StorageResults visit(NotIsNull notIsNull) {
-        Criterion criterion = notIsNull.accept(CRITERION_VISITOR);
+        Criterion criterion = notIsNull.accept(criterionVisitor);
         criteria.add(criterion);
         return null;
     }
 
     @Override
     public StorageResults visit(Range range) {
-        Criterion criterion = range.accept(CRITERION_VISITOR);
+        Criterion criterion = range.accept(criterionVisitor);
         if (criterion != null) {
             criteria.add(criterion);
         }
@@ -581,6 +587,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
     private class CriterionAdapter extends VisitorAdapter<Criterion> {
 
         private final CriterionFieldCondition visitor = new CriterionFieldCondition();
+
+        private final RDBMSDataSource datasource;
+
+        private CriterionAdapter(RDBMSDataSource datasource) {
+            this.datasource = datasource;
+        }
 
         @Override
         public Criterion visit(Condition condition) {
@@ -851,7 +863,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     } else {
                         value = "%"; //$NON-NLS-1$
                     }
-                    return like(leftFieldCondition.criterionFieldName, value);
+                    if (datasource.isCaseSensitiveSearch()) {
+                        return like(leftFieldCondition.criterionFieldName, value);
+                    } else {
+                        return ilike(leftFieldCondition.criterionFieldName, value, MatchMode.ANYWHERE);
+                    }
                 } else if (predicate == Predicate.GREATER_THAN) {
                     return gt(leftFieldCondition.criterionFieldName, compareValue);
                 } else if (predicate == Predicate.LOWER_THAN) {
