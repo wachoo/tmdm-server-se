@@ -109,4 +109,7 @@ public interface Visitor<T> {
     T visit(Isa isa);
 
     T visit(ComplexTypeExpression expression);
+
+    T visit(IndexedField indexedField);
+
 }

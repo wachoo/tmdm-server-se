@@ -195,4 +195,9 @@ public class VisitorAdapter<T> implements Visitor<T> {
     public T visit(ComplexTypeExpression expression) {
         throw new NotImplementedException();
     }
+
+    @Override
+    public T visit(IndexedField indexedField) {
+        throw new NotImplementedException();
+    }
 }

@@ -190,6 +190,11 @@ public class QizxQueryModelConverter implements Visitor<Expression> {
         throw new NotImplementedException("Support for typed expressions to be implemented");
     }
 
+    @Override
+    public Expression visit(IndexedField indexedField) {
+        throw new NotImplementedException("No support for indexed field expressions.'");
+    }
+
     public Expression visit(Predicate.Contains contains) {
         throw new NotImplementedException("No support for '" + contains + "'");
     }

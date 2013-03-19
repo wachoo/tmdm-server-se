@@ -79,6 +79,10 @@ public class UserQueryBuilder {
         return new BinaryLogicOperator(left, Predicate.OR, right);
     }
 
+    public static TypedExpression index(FieldMetadata field, int index) {
+        return new IndexedField(field, index);
+    }
+
     public static Condition startsWith(FieldMetadata field, String constant) {
         assertValueConditionArguments(field, constant);
         Field userField = new Field(field);

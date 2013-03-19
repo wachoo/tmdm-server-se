@@ -249,5 +249,7 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         String criterionFieldName;
 
         boolean isProperty;
+
+        int position = -1;
     }
 }

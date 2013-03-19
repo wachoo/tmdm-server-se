@@ -168,6 +168,12 @@ public class UserQueryHelper {
         if(fieldName.startsWith("@")) { //$NON-NLS-1$
             fieldName = fieldName.substring(1);
         }
+        int position = -1;
+        if (fieldName.indexOf('[') > 0) {
+            // TODO Check if there's multiple [] in path (unsupported).
+            position = Integer.parseInt(fieldName.substring(fieldName.indexOf('[') + 1, fieldName.indexOf(']'))) - 1;
+            fieldName = fieldName.substring(0, fieldName.indexOf('['));
+        }
         // Additional trim() (in case XPath is like "Entity/FieldName  ").
         fieldName = fieldName.trim();
         ComplexTypeMetadata type = repository.getComplexType(typeName);
@@ -209,7 +215,11 @@ public class UserQueryHelper {
             // Field does not contain a value, expected behavior is to return empty string.
             return new Alias(new StringConstant(StringUtils.EMPTY), field.getName());
         } else {
-            return new Field(field);
+            if (position > -1) {
+                return new IndexedField(field, position);
+            } else {
+                return new Field(field);
+            }
         }
     }
 

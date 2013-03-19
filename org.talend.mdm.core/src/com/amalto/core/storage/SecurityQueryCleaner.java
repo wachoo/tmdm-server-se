@@ -87,6 +87,15 @@ class SecurityQueryCleaner extends VisitorAdapter<Expression> {
     }
 
     @Override
+    public Expression visit(IndexedField indexedField) {
+        if (delegator.hide(indexedField.getFieldMetadata())) {
+            return UserQueryHelper.NO_OP_CONDITION;
+        } else {
+            return indexedField;
+        }
+    }
+
+    @Override
     public Expression visit(Isa isa) {
         if(!isa.getExpression().accept(checker)) {
             return UserQueryHelper.NO_OP_CONDITION;

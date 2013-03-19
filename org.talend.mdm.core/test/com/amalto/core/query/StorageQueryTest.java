@@ -2220,7 +2220,6 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testManyFieldSelect() throws Exception {
         UserQueryBuilder qb = from(product).select(product.getField("Features/Sizes/Size"));
-        // UserQueryBuilder qb = from(product);
         StorageResults results = storage.fetch(qb.getSelect());
         assertTrue("There should be at least 2 records", results.getCount() >= 2);
         Set<String> expectedResults = new HashSet<String>();
@@ -2230,6 +2229,30 @@ public class StorageQueryTest extends StorageTestCase {
             expectedResults.remove(result.get("Size"));
         }
         assertTrue(expectedResults.isEmpty());
+    }
+
+    public void testManyFieldIndexCondition() throws Exception {
+        UserQueryBuilder qb = from(product).where(eq(index(product.getField("Features/Sizes/Size"), 1), "Medium"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+
+        qb = from(product).where(eq(index(product.getField("Features/Sizes/Size"), 0), "Medium"));
+        results = storage.fetch(qb.getSelect());
+        assertEquals(0, results.getCount());
+
+        qb = from(product);
+        qb.where(UserQueryHelper.buildCondition(qb,
+                new WhereCondition("Product/Features/Sizes/Size[2]", WhereCondition.EQUALS, "Medium", WhereCondition.PRE_NONE),
+                repository));
+        results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+
+        qb = from(product);
+        qb.where(UserQueryHelper.buildCondition(qb,
+                new WhereCondition("Product/Features/Sizes/Size[1]", WhereCondition.EQUALS, "Medium", WhereCondition.PRE_NONE),
+                repository));
+        results = storage.fetch(qb.getSelect());
+        assertEquals(0, results.getCount());
     }
 
     public void testCaseSensitivity() throws Exception {

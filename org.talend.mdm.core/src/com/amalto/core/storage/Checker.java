@@ -33,6 +33,11 @@ class Checker extends VisitorAdapter<Boolean> {
     }
 
     @Override
+    public Boolean visit(IndexedField indexedField) {
+        return !delegator.hide(indexedField.getFieldMetadata());
+    }
+
+    @Override
     public Boolean visit(Id id) {
         return !delegator.hide(id.getType());
     }

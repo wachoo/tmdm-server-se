@@ -574,6 +574,18 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(IndexedField indexedField) {
+        print("[INDEXED FIELD]");
+        increaseIndent();
+        {
+            print("Field: " + indexedField.getFieldMetadata().getName());
+            print("Index: " + indexedField.getPosition());
+        }
+        decreaseIndent();
+        return null;
+    }
+
     public Void visit(OrderBy orderBy) {
         print("[ORDER BY]");
         increaseIndent();

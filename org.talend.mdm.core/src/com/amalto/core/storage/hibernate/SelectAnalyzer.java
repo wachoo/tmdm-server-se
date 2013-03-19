@@ -277,6 +277,11 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
         }
 
         @Override
+        public Boolean visit(IndexedField indexedField) {
+            return false;
+        }
+
+        @Override
         public Boolean visit(Compare condition) {
             return condition.getLeft().accept(this) && condition.getPredicate() == Predicate.EQUALS;
         }

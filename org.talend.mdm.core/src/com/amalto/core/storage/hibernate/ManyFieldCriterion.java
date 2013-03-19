@@ -27,14 +27,21 @@ class ManyFieldCriterion extends SQLCriterion {
 
     private final Object value;
 
+    private final int position;
+
     private final TableResolver resolver;
 
     ManyFieldCriterion(Criteria typeSelectionCriteria, TableResolver resolver, FieldMetadata field, Object value) {
+        this(typeSelectionCriteria, resolver, field, value, -1);
+    }
+
+    ManyFieldCriterion(Criteria typeSelectionCriteria, TableResolver resolver, FieldMetadata field, Object value, int position) {
         super(StringUtils.EMPTY, new Object[0], new Type[0]);
         this.typeCriteria = typeSelectionCriteria;
         this.resolver = resolver;
         this.field = field;
         this.value = value;
+        this.position = position;
     }
 
     @Override
@@ -72,7 +79,14 @@ class ManyFieldCriterion extends SQLCriterion {
                     .append(joinedTableName)
                     .append(".value = '") //$NON-NLS-1$
                     .append(value)
-                    .append("' AND ") //$NON-NLS-1$
+                    .append("'");
+            if (position >= 0) {
+                builder.append(" AND ")
+                        .append(joinedTableName)
+                        .append(".pos = ")
+                        .append(position);
+            }
+            builder.append(" AND ") //$NON-NLS-1$
                     .append(containingType)
                     .append(".") //$NON-NLS-1$
                     .append(containingTypeKey)

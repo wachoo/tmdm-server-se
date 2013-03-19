@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.NotImplementedException;
@@ -33,49 +35,6 @@ import org.hibernate.sql.JoinFragment;
 import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import com.amalto.core.metadata.MetadataUtils;
-import com.amalto.core.query.user.Alias;
-import com.amalto.core.query.user.BigDecimalConstant;
-import com.amalto.core.query.user.BinaryLogicOperator;
-import com.amalto.core.query.user.BooleanConstant;
-import com.amalto.core.query.user.ByteConstant;
-import com.amalto.core.query.user.Compare;
-import com.amalto.core.query.user.ComplexTypeExpression;
-import com.amalto.core.query.user.Condition;
-import com.amalto.core.query.user.Count;
-import com.amalto.core.query.user.DateConstant;
-import com.amalto.core.query.user.DateTimeConstant;
-import com.amalto.core.query.user.DoubleConstant;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.Field;
-import com.amalto.core.query.user.FloatConstant;
-import com.amalto.core.query.user.FullText;
-import com.amalto.core.query.user.Id;
-import com.amalto.core.query.user.IntegerConstant;
-import com.amalto.core.query.user.IsEmpty;
-import com.amalto.core.query.user.IsNull;
-import com.amalto.core.query.user.Isa;
-import com.amalto.core.query.user.Join;
-import com.amalto.core.query.user.LongConstant;
-import com.amalto.core.query.user.NotIsEmpty;
-import com.amalto.core.query.user.NotIsNull;
-import com.amalto.core.query.user.OrderBy;
-import com.amalto.core.query.user.Paging;
-import com.amalto.core.query.user.Predicate;
-import com.amalto.core.query.user.Range;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.query.user.ShortConstant;
-import com.amalto.core.query.user.StagingError;
-import com.amalto.core.query.user.StagingSource;
-import com.amalto.core.query.user.StagingStatus;
-import com.amalto.core.query.user.StringConstant;
-import com.amalto.core.query.user.TaskId;
-import com.amalto.core.query.user.TimeConstant;
-import com.amalto.core.query.user.Timestamp;
-import com.amalto.core.query.user.Type;
-import com.amalto.core.query.user.TypedExpression;
-import com.amalto.core.query.user.UnaryLogicOperator;
-import com.amalto.core.query.user.UserQueryHelper;
-import com.amalto.core.query.user.VisitorAdapter;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
@@ -802,8 +761,13 @@ class StandardQueryHandler extends AbstractQueryHandler {
                                 break;
                             }
                         }
-                        return new ManyFieldCriterion(typeCheckCriteria, resolver, left, condition.getRight().accept(
-                                VALUE_ADAPTER));
+                        if (leftFieldCondition.position >= 0) {
+                            return new ManyFieldCriterion(typeCheckCriteria, resolver, left, condition.getRight().accept(
+                                    VALUE_ADAPTER), leftFieldCondition.position);
+                        } else {
+                            return new ManyFieldCriterion(typeCheckCriteria, resolver, left, condition.getRight().accept(
+                                    VALUE_ADAPTER));
+                        }
                     } else {
                         throw new IllegalStateException("Expected a criteria instance of " + CriteriaImpl.class.getName() + ".");
                     }
@@ -993,6 +957,19 @@ class StandardQueryHandler extends AbstractQueryHandler {
             // StandardQueryHandler.this.mappingMetadataRepository);
             condition.criterionFieldName = getFieldName(field, StandardQueryHandler.this.mappingMetadataRepository);
             condition.isProperty = true;
+            return condition;
+        }
+
+        @Override
+        public FieldCondition visit(IndexedField indexedField) {
+            FieldCondition condition = new FieldCondition();
+            condition.isMany = indexedField.getFieldMetadata().isMany();
+            // Use line below to allow searches on collection fields (but Hibernate 4 should be used).
+            // condition.criterionFieldName = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field,
+            // StandardQueryHandler.this.mappingMetadataRepository);
+            condition.criterionFieldName = getFieldName(indexedField, StandardQueryHandler.this.mappingMetadataRepository);
+            condition.isProperty = true;
+            condition.position = indexedField.getPosition();
             return condition;
         }
 
