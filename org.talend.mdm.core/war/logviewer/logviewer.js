@@ -42,54 +42,96 @@ function AutoScroller(scroller) {
     };
 }
 
-function toggleLoading(button, spinner, logContent) {
+var logToggle;
+var logSpinner;
+var logContent;
+var logScroller;
+var logUrl;
+
+function initLog(url, content, scroller, spinner, toggle) {
+    logUrl = url;
+    logContent = content;
+    logScroller = new AutoScroller(scroller);
+    logSpinner = spinner;
+    logToggle = toggle;
+    logContent.position = 0;
+    startLoading();
+}
+
+function toggleLoading() {
     if (logContent.stopLoading == "true") {
-        logContent.stopLoading = "false";
-        button.value = "Pause";
-        loadLog(logContent, spinner, "log");
+        startLoading();
     } else {
-        logContent.stopLoading = "true";
-        button.value = "Resume";
+        stopLoading();
     }
 }
 
-function loadLog(logContent, spinner, url) {
-    var headers = {};
-    spinner.style.display = "";
-    new Ajax.Request(url, {
+function startLoading() {
+    logContent.stopLoading = "false";
+    logToggle.value = "Pause";
+    logSpinner.style.display = "";
+    loadLog();
+}
+
+function stopLoading() {
+    logContent.stopLoading = "true";
+    logToggle.disable();
+}
+
+function onStopLoading() {
+    logToggle.value = "Resume";
+    logToggle.enable();
+    logSpinner.style.display = "none";
+    logContent.stopLoading = "true";
+}
+
+function loadLog() {
+    new Ajax.Request(logUrl, {
         method : "get",
         parameters : {
             "position" : logContent.position
         },
-        requestHeaders : headers,
+        requestHeaders : {},
         onComplete : function(rsp, _) {
+            var rspStatus = rsp.getStatus();
+            if (rspStatus == 200) {
+                var rspPosition = rsp.getHeader("X-Log-Position");
+                if (rspPosition != null) { // just in case??
+                    logContent.position = rspPosition;
+                    var stickToBottom = logScroller.isSticking();
+                    var text = rsp.responseText;
+                    if (text != "") {
+                        var p = document.createElement("DIV");
+                        logContent.appendChild(p);
+                        if (p.outerHTML) {
+                            p.outerHTML = '<pre>' + text.escapeHTML()
+                                    + '</pre>';
+                            p = logContent.lastChild;
+                        } else
+                            p.innerHTML = text.escapeHTML();
+                        if (stickToBottom)
+                            logScroller.scrollToBottom();
+                    }
+                }
 
-            var stickToBottom = scroller.isSticking();
-            var text = rsp.responseText;
-            if (text != "") {
-                var p = document.createElement("DIV");
-                logContent.appendChild(p);
-                if (p.outerHTML) {
-                    p.outerHTML = '<pre>' + text.escapeHTML() + '</pre>';
-                    p = logContent.lastChild;
-                } else
-                    p.innerHTML = text.escapeHTML();
-                if (stickToBottom)
-                    scroller.scrollToBottom();
+                if (rsp.getHeader("X-Log-Load") == "true"
+                        && logContent.stopLoading != "true")
+                    setTimeout(function() {
+                        loadLog();
+                    }, 1000);
+                else {
+                    onStopLoading();
+                }
+            } else {
+                // Stop when encountering a failure
+                onStopLoading();
+                alert("An error occured while retrieving log!");
             }
-            logContent.position = rsp.getResponseHeader("X-Log-Position");
-            if (rsp.getResponseHeader("X-Log-Load") == "true"
-                    && logContent.stopLoading != "true")
-                setTimeout(function() {
-                    loadLog(logContent, spinner, url);
-                }, 1000);
-            else
-                spinner.style.display = "none";
         }
     });
 }
 
-function clearLog(logContent) {
+function clearLog() {
     while (logContent.hasChildNodes()) {
         logContent.removeChild(logContent.lastChild);
     }

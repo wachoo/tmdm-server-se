@@ -29,16 +29,13 @@ pre {
     </div>
     <div id="footer">
         <input type="button" value="Reload" onclick="window.location.reload();">
-        <input type="button" value="Clear" onclick="clearLog($('logContent'));">
+        <input type="button" value="Clear" onclick="clearLog();">
         <input type="button" value="Download" onclick="window.open('log?position=-1','_self');">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="button" id="toggleLoad" value="Pause" onclick="toggleLoading($('toggleLoad'),$('spinner'),$('logContent'));">
+        <input type="button" id="toggleLoad" onclick="toggleLoading();">
         <img id="spinner" alt="" src="/core/secure/ext-2.2/resources/images/default/shared/loading-balls.gif" />
     </div>
     <script>
-        var scroller = new AutoScroller($("logScroller"));
-        $("logContent").position = 0;
-        $("logContent").stopLoading = "false";
-        loadLog($("logContent"), $("spinner"), "log");
+        initLog("log", $("logContent"), $("logScroller"), $("spinner"), $("toggleLoad"));
     </script>
 </body>
 </html>
