@@ -35,12 +35,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.hibernate.HibernateStorage;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.metadata.*;
+
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
-
 import com.amalto.core.query.optimization.UpdateReportOptimizer;
 import com.amalto.core.query.user.Alias;
 import com.amalto.core.query.user.BinaryLogicOperator;
@@ -975,6 +980,23 @@ public class StorageQueryTest extends StorageTestCase {
             assertEquals(1, results.getSize());
             assertEquals(3, results.getCount());
             assertFalse(results.iterator().hasNext());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void __testPagingWithOuterJoin() throws Exception {
+        UserQueryBuilder qb = from(product).limit(2);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+            int iteratorCount = 0;
+            for (DataRecord result : results) {
+                assertNotNull(result.get("Id"));
+                iteratorCount++;
+            }
+            assertEquals(results.getSize(), iteratorCount);
         } finally {
             results.close();
         }
@@ -2208,5 +2230,51 @@ public class StorageQueryTest extends StorageTestCase {
             expectedResults.remove(result.get("Size"));
         }
         assertTrue(expectedResults.isEmpty());
+    }
+
+    public void testCaseSensitivity() throws Exception {
+        Storage s1 = new HibernateStorage("MDM1", StorageType.MASTER);
+        s1.init(ServerContext.INSTANCE.get().getDataSource(StorageTestCase.DATABASE + "-DS1", "MDM", StorageType.MASTER));
+        s1.prepare(repository, true);
+        Storage s2 = new HibernateStorage("MDM2", StorageType.MASTER);
+        s2.init(ServerContext.INSTANCE.get().getDataSource(StorageTestCase.DATABASE + "-DS2", "MDM", StorageType.MASTER));
+        s2.prepare(repository, true);
+        // Create country instance on both storages.
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                country,
+                                "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
+        try {
+            s1.begin();
+            s1.update(allRecords);
+            s1.commit();
+        } finally {
+            s1.end();
+        }
+        try {
+            s2.begin();
+            s2.update(allRecords);
+            s2.commit();
+        } finally {
+            s1.end();
+        }
+        // DS1 is case sensitive, DS2 isn't
+        UserQueryBuilder qb = from(country).where(contains(country.getField("name"), "FRANCE"));
+        StorageResults results = s1.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        results = s2.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
     }
 }
