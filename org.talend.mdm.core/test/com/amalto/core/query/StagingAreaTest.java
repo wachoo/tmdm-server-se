@@ -45,6 +45,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
@@ -362,6 +363,46 @@ public class StagingAreaTest extends TestCase {
         for (DataRecord result : results) {
             assertTrue(result.getType().hasField(UserQueryBuilder.STAGING_STATUS_ALIAS));
             assertNull(result.get(UserQueryBuilder.STAGING_STATUS_ALIAS));
+        }
+    }
+    
+    public void testValidationWithEmptyData() throws Exception {
+        Select select = UserQueryBuilder.from(person).getSelect();
+        Select selectEmptyTaskId = UserQueryBuilder.from(person).where(isEmpty(taskId())).getSelect();
+        assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
+        assertEquals(0, destination.fetch(select).getCount());
+        assertEquals(0, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
+        assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
+
+        SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
+        SaverSession.Committer committer = new TestCommitter(storages);
+        TaskSubmitter submitter = TaskSubmitterFactory.getSubmitter();
+        Task stagingTask = new StagingTask(submitter, origin, stagingRepository, repository, source, committer, destination);
+        submitter.submitAndWait(stagingTask);
+
+        assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
+        assertEquals(0, destination.fetch(select).getCount());
+        assertEquals(0, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
+        assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
+        assertEquals(0, origin.fetch(UserQueryBuilder.from(person).getSelect()).getCount());
+        assertEquals(0,
+                origin.fetch(UserQueryBuilder.from(person).where(eq(status(), StagingConstants.SUCCESS_VALIDATE)).getSelect())
+                        .getCount());
+
+        UserQueryBuilder qb = UserQueryBuilder.from(stagingRepository.getComplexType("TALEND_TASK_EXECUTION"));
+        StorageResults results = origin.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get("start_time"));
+                assertNotNull(result.get("end_time"));
+                assertNotNull(result.get("error_count"));
+                assertNotNull(result.get("record_count"));
+                assertEquals(0, new BigDecimal(result.get("error_count").toString()).intValue());
+                assertEquals(0, new BigDecimal(result.get("record_count").toString()).intValue());
+            }
+        } finally {
+            results.close();
         }
     }
 

@@ -205,6 +205,7 @@ public class StagingTask implements Task {
         stagingStorage.begin();
         {
             execution.set(executionType.getField("id"), executionId); //$NON-NLS-1$
+            execution.set(executionType.getField("start_time"), startTime); //$NON-NLS-1$
             execution.set(executionType.getField("end_time"), System.currentTimeMillis()); //$NON-NLS-1$
             execution.set(executionType.getField("error_count"), new BigDecimal(getErrorCount())); //$NON-NLS-1$
             execution.set(executionType.getField("record_count"), new BigDecimal(getProcessedRecords())); //$NON-NLS-1$
