@@ -45,6 +45,7 @@
                     <include>**/**.zip</include>
                     <include>**/**.xsd</include>
                     <include>**/**.dtd</include>
+                    <include>**/**.log</include>
                 </includes>
                 <filtering>false</filtering>
             </testResource>
