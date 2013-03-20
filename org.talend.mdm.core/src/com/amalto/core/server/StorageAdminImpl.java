@@ -16,6 +16,7 @@ package com.amalto.core.server;
 import com.amalto.core.ejb.DroppedItemPOJO;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.metadata.ClassRepository;
+import org.apache.commons.io.IOUtils;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
@@ -48,6 +49,8 @@ public class StorageAdminImpl implements StorageAdmin {
 
     // Default value is "false" (meaning the storage will not remove existing data).
     private static final boolean autoClean = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("db.autoClean", "false")); //$NON-NLS-1$ //$NON-NLS-2$
+
+    private static final String LICENSE_POJO_CLASS = "com.amalto.core.util.license.LicensePOJO"; //$NON-NLS-1$
 
     private final Map<String, Map<String, Storage>> storages = new StorageMap();
 
@@ -110,9 +113,6 @@ public class StorageAdminImpl implements StorageAdmin {
     }
 
     private Storage internalCreateSystemStorage(String dataSourceName) {
-        Storage storage = new HibernateStorage(SYSTEM_STORAGE, StorageType.SYSTEM);
-        ServerContext instance = ServerContext.INSTANCE;
-        DataSource dataSource = instance.get().getDataSource(dataSourceName, SYSTEM_STORAGE, StorageType.SYSTEM);
         ClassRepository repository = new ClassRepository();
         // Parses ObjectPOJO classes
         Class[] objectsToParse = new Class[ObjectPOJO.OBJECT_TYPES.length];
@@ -137,30 +137,39 @@ public class StorageAdminImpl implements StorageAdmin {
                 "/com/amalto/core/initdb/data/datamodel/SearchTemplate" //$NON-NLS-1$
         };
         for (String model : models) {
+            InputStream builtInStream = this.getClass().getResourceAsStream(model);
+            if (builtInStream == null) {
+                throw new RuntimeException("Built in model '" + model + "' cannot be found.");
+            }
             try {
-                InputStream builtInStream = this.getClass().getResourceAsStream(model);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(builtInStream));
-                StringBuilder content = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    content.append(line);
-                }
-                DataModelPOJO modelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, content.toString());
+                DataModelPOJO modelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, IOUtils.toString(builtInStream, "UTF-8")); //$NON-NLS-1$
                 repository.load(new ByteArrayInputStream(modelPOJO.getSchema().getBytes("UTF-8"))); //$NON-NLS-1$
             } catch (Exception e) {
                 throw new RuntimeException("Could not parse builtin data model '" + model + "'.", e);
+            } finally {
+                try {
+                    builtInStream.close();
+                } catch (IOException e) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Error on internal model stream close().", e);
+                    }
+                }
             }
         }
         // License POJO handling
         try {
-            Class<?> clazz = Class.forName("com.amalto.core.util.license.LicensePOJO"); //$NON-NLS-1$
+            // Keep the Class.forName() call (LicensePOJO might not be present).
+            Class<?> clazz = Class.forName(LICENSE_POJO_CLASS);
             repository.load(clazz);
         } catch (ClassNotFoundException e) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Ignore LicencePOJO parsing. Not running enterprise edition.");
+                LOGGER.debug("Ignore LicencePOJO parsing. Not running enterprise edition.", e);
             }
         }
         // Init system storage
+        Storage storage = new HibernateStorage(SYSTEM_STORAGE, StorageType.SYSTEM);
+        ServerContext instance = ServerContext.INSTANCE;
+        DataSource dataSource = instance.get().getDataSource(dataSourceName, SYSTEM_STORAGE, StorageType.SYSTEM);
         storage.init(dataSource);
         storage.prepare(repository, Collections.<FieldMetadata>emptySet(), false, false);
         registerStorage(SYSTEM_STORAGE, null, storage);
