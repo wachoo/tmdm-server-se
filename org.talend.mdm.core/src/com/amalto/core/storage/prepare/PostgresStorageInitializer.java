@@ -26,6 +26,11 @@ class PostgresStorageInitializer implements StorageInitializer {
 
     private static final Logger LOGGER = Logger.getLogger(PostgresStorageInitializer.class);
 
+    @Override
+    public boolean supportInitialization(Storage storage) {
+        return true;
+    }
+
     public boolean isInitialized(Storage storage) {
         try {
             RDBMSDataSource dataSource = getDataSource(storage);

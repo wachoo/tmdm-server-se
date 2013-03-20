@@ -15,8 +15,25 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.log4j.Logger;
 
 public class JDBCStorageInitializer implements StorageInitializer {
+
+    private static Logger LOGGER = Logger.getLogger(JDBCStorageInitializer.class);
+
+    @Override
+    public boolean supportInitialization(Storage storage) {
+        try {
+            StorageInitializer initializer = getInitializer(storage);
+            initializer.isInitialized(storage);
+            return true;
+        } catch (Exception e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Exception occurred during supportInitialization().", e);
+            }
+            return false;
+        }
+    }
 
     public boolean isInitialized(Storage storage) {
         try {
@@ -34,7 +51,6 @@ public class JDBCStorageInitializer implements StorageInitializer {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 
     private StorageInitializer getInitializer(Storage storage) {

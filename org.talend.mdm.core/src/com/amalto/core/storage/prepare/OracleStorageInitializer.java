@@ -25,6 +25,11 @@ class OracleStorageInitializer implements StorageInitializer {
 
     private static final Logger LOGGER = Logger.getLogger(OracleStorageInitializer.class);
 
+    @Override
+    public boolean supportInitialization(Storage storage) {
+        return true;
+    }
+
     public boolean isInitialized(Storage storage) {
         try {
             RDBMSDataSource dataSource = getDataSource(storage);
