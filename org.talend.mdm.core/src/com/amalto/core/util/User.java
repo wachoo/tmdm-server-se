@@ -192,17 +192,17 @@ public class User implements Cloneable{
 			user.setRealEmail(Util.getFirstTextNode(result, "//realemail"));
 			user.setFakeEmail(Util.getFirstTextNode(result, "//fakeemail"));
 			user.setViewRealEmail("yes".equals(Util.getFirstTextNode(result, "//viewrealemail")));
-			user.setRegistrationDate(new Date(
-					Long.parseLong(
-							Util.getFirstTextNode(result, "//registrationdate")
-					)
-				)
-			);
-			String val = Util.getFirstTextNode(result, "//lastvisitdate");
-			if ((val==null) || "0".equals(val)) {
-				user.setLastVisitDate(null);
-			} else {
-				user.setLastVisitDate(new Date(Long.parseLong(val)));
+			
+			try {
+			    user.setRegistrationDate(new Date(Long.parseLong(Util.getFirstTextNode(result, "//registrationdate")))); //$NON-NLS-1$
+			} catch (Exception nfe){
+			    user.setRegistrationDate(null);
+			}
+
+			try {
+			    user.setLastVisitDate(new Date(Long.parseLong(Util.getFirstTextNode(result, "//lastvisitdate")))); //$NON-NLS-1$
+			} catch (Exception nfe){
+			    user.setLastVisitDate(null);
 			}
 			user.setEnabled("yes".equals(Util.getFirstTextNode(result, "//enabled")));
 			user.setHomePage(Util.getFirstTextNode(result, "//homepage"));
@@ -458,7 +458,7 @@ public class User implements Cloneable{
 
 
 	public void setRegistrationDate(Date registrationDate) {
-		this.registrationDateAsLong = registrationDate.getTime();
+		this.registrationDateAsLong = (registrationDate == null ? 0 : registrationDate.getTime());
 	}
 
 
