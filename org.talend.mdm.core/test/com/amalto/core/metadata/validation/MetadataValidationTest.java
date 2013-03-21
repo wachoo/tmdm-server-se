@@ -32,6 +32,19 @@ public class MetadataValidationTest extends TestCase {
         assertEquals(2, handler.getMessages().size());
     }
 
+    public void testFK2() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("FK2_0.1.xsd");
+        DefaultValidationHandler handler = new DefaultValidationHandler();
+        try {
+            repository.load(resourceAsStream, handler);
+            fail("Should fail validation.");
+        } catch (Exception e) {
+            // Expected
+        }
+        assertEquals(1, handler.getMessages().size());
+    }
+
     public void testPKINFO_manyType() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         InputStream resourceAsStream = this.getClass().getResourceAsStream("PKINFO_manyType_0.1.xsd");
