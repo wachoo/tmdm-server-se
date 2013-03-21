@@ -442,7 +442,14 @@ public class TreeDetail extends ContentPanel {
         beginRender();
         renderCompleteCallBackList.add(new RenderCompleteCallBack() {
             public void onSuccess() {
-                multiManager.addMultiOccurrenceNode((DynamicTreeItem) root);
+                if (columnTrees.size() > 0) {
+                    for (TreeEx columnTree : columnTrees) {
+                        DynamicTreeItem rootItem = (DynamicTreeItem) columnTree.getItem(0);
+                        multiManager.addMultiOccurrenceNode(rootItem);
+                    }
+                } else {
+                    multiManager.addMultiOccurrenceNode(root);
+                }
                 multiManager.warningAllItems();
                 multiManager.handleOptIcons();
             }

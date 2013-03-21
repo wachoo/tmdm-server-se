@@ -27,7 +27,7 @@ public class MultiOccurrenceManagerGWTTest extends GWTTestCase {
     
     Map<String, TypeModel> metaDataTypes = new HashMap<String, TypeModel>();
     TreeDetail treeDetail = null;
-    Map<String, List<DynamicTreeItem>> multiOccurrence = null;
+
     List<DynamicTreeItem> multiNodes = null;
     
     public void testAddMultiOccurrenceNode(){
@@ -54,19 +54,19 @@ public class MultiOccurrenceManagerGWTTest extends GWTTestCase {
         
         MultiOccurrenceManager manager = new MultiOccurrenceManager(metaDataTypes,treeDetail);
         manager.addMultiOccurrenceNode(item);
-        multiOccurrence = _getMultiOccurrence(manager);
-        multiNodes = multiOccurrence.get("optionalDetails/optionalUbounded3"); //$NON-NLS-1$
+
+        multiNodes = _getMultiOccurrence(manager, "optionalDetails/optionalUbounded3"); //$NON-NLS-1$
         assertEquals(1, multiNodes.size());
         assertEquals("optionalUbounded3", multiNodes.get(0).getItemNodeModel().getName()); //$NON-NLS-1$
         manager.addMultiOccurrenceNode(item);
-        multiOccurrence = _getMultiOccurrence(manager);
-        multiNodes = multiOccurrence.get("optionalDetails/optionalUbounded3"); //$NON-NLS-1$
+
+        multiNodes = _getMultiOccurrence(manager, "optionalDetails/optionalUbounded3"); //$NON-NLS-1$
         assertEquals(2, multiNodes.size());
         assertEquals("optionalUbounded3", multiNodes.get(1).getItemNodeModel().getName()); //$NON-NLS-1$
     }
-    
-    private native Map<String, List<DynamicTreeItem>> _getMultiOccurrence(MultiOccurrenceManager manager)/*-{
-        return manager.@org.talend.mdm.webapp.browserecords.client.util.MultiOccurrenceManager::multiOccurrence;
+
+    private native List<DynamicTreeItem> _getMultiOccurrence(MultiOccurrenceManager manager, String xpath)/*-{
+		return manager.@org.talend.mdm.webapp.browserecords.client.util.MultiOccurrenceManager::getBrothersGroup(Ljava/lang/String;)(xpath);
     }-*/;
     
     @Override
