@@ -47,8 +47,8 @@ var logSpinner;
 var logContent;
 var logScroller;
 var logUrl;
-var REFRESH_FREQUENCY = 1000;
-var MAX_LINES = 10000;
+var FETCH_PERIOD = 1000;
+var MAX_LINES = 5000;
 
 function initLog(url, content, scroller, spinner, toggle) {
     logUrl = url;
@@ -127,7 +127,7 @@ function loadLog() {
                 if (logContent.stopLoading != "true")
                     setTimeout(function() {
                         loadLog();
-                    }, REFRESH_FREQUENCY);
+                    }, FETCH_PERIOD);
                 else
                     onStopLoading();
             } else {
