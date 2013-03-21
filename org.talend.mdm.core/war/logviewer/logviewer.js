@@ -47,6 +47,8 @@ var logSpinner;
 var logContent;
 var logScroller;
 var logUrl;
+var REFRESH_FREQUENCY = 1000;
+var MAX_LINES = 10000;
 
 function initLog(url, content, scroller, spinner, toggle) {
     logUrl = url;
@@ -55,6 +57,7 @@ function initLog(url, content, scroller, spinner, toggle) {
     logSpinner = spinner;
     logToggle = toggle;
     logContent.position = 0;
+    logContent.lines = 0;
     startLoading();
 }
 
@@ -89,7 +92,8 @@ function loadLog() {
     new Ajax.Request(logUrl, {
         method : "get",
         parameters : {
-            "position" : logContent.position
+            "position" : logContent.position,
+            "maxLines" : MAX_LINES
         },
         requestHeaders : {},
         onComplete : function(rsp, _) {
@@ -99,6 +103,12 @@ function loadLog() {
                 if (rspPosition != null) { // just in case??
                     logContent.position = rspPosition;
                     var stickToBottom = logScroller.isSticking();
+
+                    var lines = parseInt(rsp.getHeader("X-Log-Lines"));
+                    if (logContent.lines + lines > MAX_LINES)
+                        clearLog();
+                    logContent.lines = logContent.lines + lines;
+
                     var text = rsp.responseText;
                     if (text != "") {
                         var p = document.createElement("DIV");
@@ -114,14 +124,12 @@ function loadLog() {
                     }
                 }
 
-                if (rsp.getHeader("X-Log-Load") == "true"
-                        && logContent.stopLoading != "true")
+                if (logContent.stopLoading != "true")
                     setTimeout(function() {
                         loadLog();
-                    }, 1000);
-                else {
+                    }, REFRESH_FREQUENCY);
+                else
                     onStopLoading();
-                }
             } else {
                 // Stop when encountering a failure
                 onStopLoading();
@@ -135,4 +143,5 @@ function clearLog() {
     while (logContent.hasChildNodes()) {
         logContent.removeChild(logContent.lastChild);
     }
+    logContent.lines = 0;
 }

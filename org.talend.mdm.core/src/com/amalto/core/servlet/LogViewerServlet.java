@@ -29,13 +29,15 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
+import com.amalto.core.servlet.FileChunkLoader.FileChunkInfo;
+
 public class LogViewerServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
     private File file;
 
-    private int maxLinesRead;
+    private int defaultMaxLines;
 
     private String charset;
 
@@ -45,8 +47,8 @@ public class LogViewerServlet extends HttpServlet {
         String filename = config.getInitParameter("logFile"); //$NON-NLS-1$
         file = getLogFile(filename);
 
-        String maxLinesReadString = config.getInitParameter("maxLinesRead"); //$NON-NLS-1$
-        maxLinesRead = Integer.valueOf(maxLinesReadString);
+        String defaultMaxLinesString = config.getInitParameter("maxLinesByChunk"); //$NON-NLS-1$
+        defaultMaxLines = Integer.parseInt(defaultMaxLinesString);
         charset = config.getInitParameter("charset"); //$NON-NLS-1$
         if (charset == null) {
             charset = Charset.defaultCharset().name();
@@ -60,28 +62,35 @@ public class LogViewerServlet extends HttpServlet {
         if (positionString != null) {
             position = Long.parseLong(positionString);
         } else {
-            position = 0;
+            position = -1;
         }
 
         if (position < 0) {
             downloadLogFile(response);
         } else {
-            writeLogFileChunk(position, response);
+            int maxLines;
+            String maxLinesString = request.getParameter("maxLines"); //$NON-NLS-1$
+            if (maxLinesString != null) {
+                maxLines = Integer.parseInt(maxLinesString);
+            } else {
+                maxLines = defaultMaxLines;
+            }
+            writeLogFileChunk(position, maxLines, response);
         }
     }
 
-    private void writeLogFileChunk(long position, HttpServletResponse response) throws IOException {
+    private void writeLogFileChunk(long position, int maxLines, HttpServletResponse response) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
 
         FileChunkLoader loader = new FileChunkLoader(file);
-        position = loader.loadChunkTo(bufferedOutputStream, position, maxLinesRead);
+        FileChunkInfo chunkInfo = loader.loadChunkTo(bufferedOutputStream, position, maxLines);
         bufferedOutputStream.close();
 
         response.setContentType("text/plain;charset=" + charset); //$NON-NLS-1$
         response.setCharacterEncoding(charset);
-        response.setHeader("X-Log-Position", String.valueOf(position)); //$NON-NLS-1$
-        response.setHeader("X-Log-Load", Boolean.toString(true)); //$NON-NLS-1$
+        response.setHeader("X-Log-Position", String.valueOf(chunkInfo.nextPosition)); //$NON-NLS-1$
+        response.setHeader("X-Log-Lines", String.valueOf(chunkInfo.lines)); //$NON-NLS-1$
 
         OutputStream responseOutputStream = response.getOutputStream();
         outputStream.writeTo(responseOutputStream);

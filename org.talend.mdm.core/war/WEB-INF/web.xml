@@ -89,7 +89,7 @@
             <param-value>${jboss.server.log.dir}/server.log</param-value>
         </init-param>
         <init-param>
-            <param-name>maxLinesRead</param-name>
+            <param-name>maxLinesByChunk</param-name>
             <param-value>10000</param-value>
         </init-param>
     </servlet>

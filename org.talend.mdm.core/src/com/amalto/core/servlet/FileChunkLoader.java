@@ -26,38 +26,49 @@ public class FileChunkLoader {
 
     private final File file;
 
+    public static class FileChunkInfo {
+
+        public long nextPosition = 0L;
+
+        public int lines = 0;
+    }
+
     private static class FileChunkCopier extends RandomAccessFile {
 
         public FileChunkCopier(File file, String mode) throws FileNotFoundException {
             super(file, mode);
         }
 
-        public long copyChunkTo(OutputStream os, int maxLines) throws IOException {
-            int readLines = 0;
+        public FileChunkInfo copyChunkTo(OutputStream os, int maxLines) throws IOException {
+            FileChunkInfo chunkInfo = new FileChunkInfo();
             boolean eof = false;
-            while (!eof && readLines < maxLines) {
-                eof = copyLineTo(os);
+            while (!eof && chunkInfo.lines < maxLines) {
+                eof = copyLineTo(os, chunkInfo);
                 if (!eof) {
                     os.write(CR);
                     os.write(LF);
                 }
-                readLines++;
             }
-            return getFilePointer();
+            chunkInfo.nextPosition = getFilePointer();
+            return chunkInfo;
         }
 
-        private boolean copyLineTo(OutputStream os) throws IOException {
+        private boolean copyLineTo(OutputStream os, FileChunkInfo chunkInfo) throws IOException {
             int c = -1;
             boolean eol = false;
 
             while (!eol) {
                 switch (c = read()) {
                 case -1:
+                    eol = true;
+                    break;
                 case '\n':
                     eol = true;
+                    chunkInfo.lines++;
                     break;
                 case '\r':
                     eol = true;
+                    chunkInfo.lines++;
                     long cur = getFilePointer();
                     if ((read()) != '\n') {
                         seek(cur);
@@ -76,10 +87,10 @@ public class FileChunkLoader {
         this.file = file;
     }
 
-    public long loadChunkTo(OutputStream os, long position, int maxLines) throws IOException {
+    public FileChunkInfo loadChunkTo(OutputStream os, long position, int maxLines) throws IOException {
         if (!file.exists()) {
             // file doesn't exist yet ?
-            return 0;
+            return new FileChunkInfo();
         }
         if (file.length() < position) {
             position = 0; // content rolled over
