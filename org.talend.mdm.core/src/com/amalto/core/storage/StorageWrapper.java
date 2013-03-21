@@ -27,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.*;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -619,11 +620,30 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 }
             } else {
                 Collection<FieldMetadata> keyFields = type.getKeyFields();
-                if (keyFields.size() > 1) {
-                    throw new IllegalArgumentException("Expected type '" + type.getName() + "' to contain only 1 key field.");
+                if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && criteria.getConceptName().equals("Update")) { //$NON-NLS-1$
+                    // UpdateReport: Source.TimeInMillis is the key
+                    String[] keys = keysKeywords.split("\\."); //$NON-NLS-1$
+                    if (keys.length == 1 || keys.length > 2) {
+                        throw new IllegalArgumentException("The key format is 'Source.TimeInMillis' for type " + type.getName()); //$NON-NLS-1$
+                    } else if (keys.length == 2) {
+                        if (keys[1] == null || keys[1].trim().isEmpty() || !MetadataUtils.isValueAssignable(keys[1], Timestamp.INSTANCE.getTypeName())) {
+                            throw new IllegalArgumentException("The key format is 'Source.TimeInMillis' for type '" + type.getName() + "'" +  //$NON-NLS-1$//$NON-NLS-2$
+                            		" and the TimeInMillis key value must be a long type."); //$NON-NLS-1$
+                        }
+                        int i = 0;
+                        for (FieldMetadata keyField : keyFields) {
+                            qb.where(eq(keyField, keys[i]));
+                            i++;
+                        }
+                    }
+                } else {
+                    if (keyFields.size() > 1) {
+                        throw new IllegalArgumentException("Expected type '" + type.getName() + "' to contain only 1 key field."); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
+                    String uniqueKeyFieldName = keyFields.iterator().next().getName();
+                    qb.where(eq(type.getField(uniqueKeyFieldName), keysKeywords));    
                 }
-                String uniqueKeyFieldName = keyFields.iterator().next().getName();
-                qb.where(eq(type.getField(uniqueKeyFieldName), keysKeywords));
+                
             }
         }
         // Filter by timestamp
@@ -641,7 +661,16 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             } else {
                 Condition condition = null;
                 for (FieldMetadata field : type.getFields()) {
+                    // isValueAssignable(contentKeyWords, typeName); this typeName should use the database column type
                     if (MetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
+                        // UpdateReport Repository: the TimeInMillis field is a long type on SQL Storage
+                        // So it need to check again, another workaround: change the field type to long type in the
+                        // UpdateReport.xsd(but it may affect other places)
+                        if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && criteria.getConceptName().equals("Update")) { //$NON-NLS-1$
+                            if (field.getName().equals("TimeInMillis") && !MetadataUtils.isValueAssignable(contentKeywords, Timestamp.INSTANCE.getTypeName())) { //$NON-NLS-1$
+                                continue;
+                            }
+                        }
                         if (!(field instanceof ContainedTypeFieldMetadata)) {
                             if (condition == null) {
                                 condition = contains(field, contentKeywords);

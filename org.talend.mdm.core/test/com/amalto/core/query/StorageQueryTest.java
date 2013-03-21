@@ -45,7 +45,11 @@ import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.*;
 
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.optimization.UpdateReportOptimizer;
 import com.amalto.core.query.user.Alias;
 import com.amalto.core.query.user.BinaryLogicOperator;
@@ -61,6 +65,7 @@ import com.amalto.core.query.user.StringConstant;
 import com.amalto.core.query.user.Timestamp;
 import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryDumpConsole;
 import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
@@ -71,6 +76,7 @@ import com.amalto.core.storage.record.ViewSearchResultsWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.XmlServerException;
@@ -1539,6 +1545,108 @@ public class StorageQueryTest extends StorageTestCase {
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();
+    }
+    
+    public void testUpdateReportContentKeyWordsQuery() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord report = dataRecordReader.read("1", repository, updateReport, builder.toString());
+        try {
+            storage.begin();
+            storage.update(report);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        // build query condition
+        ItemPKCriteria criteria = new ItemPKCriteria();
+        criteria.setClusterName("UpdateReport");
+        criteria.setConceptName("Update");
+        criteria.setContentKeywords("Product");
+        String contentKeywords = criteria.getContentKeywords();
+        // build Storage whereCondition, the codes come from com.amalto.core.storage.StorageWrapper.buildQueryBuilder(UserQueryBuilder, ItemPKCriteria, ComplexTypeMetadata)
+        Condition condition = null;
+        UserQueryBuilder qb = from(updateReport);
+        for (FieldMetadata field : updateReport.getFields()) {
+            // isValueAssignable(contentKeyWords, typeName); this typeName should use the database column type
+            if (MetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
+                // UpdateReport Repository: the TimeInMillis field is a long type on SQL Storage
+                // So it need to check again, another workaround: change the field type to long type in the
+                // UpdateReport.xsd(but it may affect other places)
+                if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && criteria.getConceptName().equals("Update")) { //$NON-NLS-1$
+                    if (field.getName().equals("TimeInMillis") && !MetadataUtils.isValueAssignable(contentKeywords, Timestamp.INSTANCE.getTypeName())) { //$NON-NLS-1$
+                        continue;
+                    }
+                }
+                if (!(field instanceof ContainedTypeFieldMetadata)) {
+                    if (condition == null) {
+                        condition = contains(field, contentKeywords);
+                    } else {
+                        condition = or(condition, contains(field, contentKeywords));
+                    }
+                }
+            }
+        }
+        qb.where(condition);
+        assertEquals(condition, qb.getSelect().getCondition());
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();        
+    }
+    
+    public void testUpdateReportQueryByKeys() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord report = dataRecordReader.read("1", repository, updateReport, builder.toString());
+
+        try {
+            storage.begin();
+            storage.update(report);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        UserQueryBuilder qb = from(updateReport).where(
+                and(eq(updateReport.getField("Source"), "genericUI"), eq(updateReport.getField("TimeInMillis"), String.valueOf(1307525701796L))));
+        StorageResults results = storage.fetch(qb.getSelect());
+        StringWriter storedDocument = new StringWriter();
+        try {
+            assertEquals(1, results.getCount());
+            DataRecordXmlWriter writer = new DataRecordXmlWriter();
+            for (DataRecord result : results) {
+                writer.write(result, storedDocument);
+            }
+            assertEquals(builder.toString(), storedDocument.toString());
         } finally {
             results.close();
         }
