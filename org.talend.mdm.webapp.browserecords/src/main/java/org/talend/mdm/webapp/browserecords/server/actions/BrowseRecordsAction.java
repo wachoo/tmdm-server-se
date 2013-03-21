@@ -293,7 +293,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value, String language) throws ServiceException {
         try {
-            return ForeignKeyHelper.getForeignKeyList(config, model,getEntityModel(model.getXpath(), language), dataClusterPK, ifFKFilter, value);
+            String foreignKeyConcept = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
+            return ForeignKeyHelper.getForeignKeyList(config, model,getEntityModel(foreignKeyConcept, language), dataClusterPK, ifFKFilter, value);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
