@@ -13,6 +13,7 @@ package com.amalto.core.integrity;
 
 import org.talend.mdm.commmon.metadata.*;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
@@ -102,7 +103,10 @@ public class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFie
 
     @Override
     public Set<ReferenceFieldMetadata> visit(MetadataRepository repository) {
-        super.visit(repository);
+        Collection<ComplexTypeMetadata> types = repository.getUserComplexTypes();
+        for (TypeMetadata type : types) {
+            type.accept(this);
+        }
         return fieldToCheck;
     }
 

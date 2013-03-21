@@ -15,6 +15,8 @@ import static com.amalto.core.integrity.FKIntegrityCheckResult.ALLOWED;
 import static com.amalto.core.integrity.FKIntegrityCheckResult.FORBIDDEN;
 import static com.amalto.core.integrity.FKIntegrityCheckResult.FORBIDDEN_OVERRIDE_ALLOWED;
 
+import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -135,13 +137,7 @@ public class FKIntegrityChecker {
         // Sort all fields by FK integrity policy
         Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields = new HashMap<FKIntegrityCheckResult, Set<FieldMetadata>>();
         for (ReferenceFieldMetadata incomingReference : fieldToCheck) {
-            // TMDM-5434: Checks if containing type is an actual entity type
             String referencingTypeName = getFromTypeNameThroughIncomingReference(incomingReference);
-            MetadataRepository repository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(dataModel);
-            ComplexTypeMetadata containingType = repository.getComplexType(referencingTypeName);
-            if (containingType == null || !containingType.isInstantiable()) {
-                continue; // Discard checks from reusable types.
-            }
             if (incomingReference.isFKIntegrity()) { // Don't execute a count if we don't care about FK integrity for the field.
                 boolean allowOverride = incomingReference.allowFKIntegrityOverride();
                 long count = dataSource.countInboundReferences(clusterName, ids, referencingTypeName, incomingReference);
