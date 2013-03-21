@@ -12,6 +12,8 @@
 package com.amalto.core.integrity;
 
 import com.amalto.core.metadata.*;
+import com.amalto.core.server.MockServerLifecycle;
+import com.amalto.core.server.ServerContext;
 import junit.framework.TestCase;
 
 import java.util.Collections;
@@ -22,6 +24,11 @@ import java.util.Set;
  */
 @SuppressWarnings({"HardCodedStringLiteral", "nls"})
 public class ForeignKeyIntegrityTest extends TestCase {
+
+    @Override
+    public void setUp() throws Exception {
+        ServerContext.INSTANCE.get(new MockServerLifecycle());
+    }
 
     private Set<ReferenceFieldMetadata> getReferencedFields(MetadataRepository repository, String typeName) {
         TypeMetadata type = repository.getType(typeName);
@@ -445,7 +452,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
 
         // Check FK integrity checks following TMDM-3739
         Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "Contrat");
-        assertEquals(14, references.size());
+        assertEquals(9, references.size());
 
         String dataCluster = "DataCluster";
         String typeName = "Contrat";
@@ -490,7 +497,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
 
         MetadataRepository repository = getMetadataRepository("model17.xsd");
         Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "Contrat");
-        assertEquals(14, references.size());
+        assertEquals(9, references.size());
         ReferenceFieldMetadata referencedField = references.iterator().next();
 
         String dataCluster = "DataCluster";
