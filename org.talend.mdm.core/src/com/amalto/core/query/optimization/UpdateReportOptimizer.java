@@ -44,7 +44,11 @@ public class UpdateReportOptimizer extends Optimizer {
                 if (dataModelName != null) {
                     Server server = ServerContext.INSTANCE.get();
                     MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataModelName);
-                    select.setCondition(select.accept(new UpdateReportTransformer(repository)));
+                    // Query SuperType
+                    if (repository != null) {
+                        select.setCondition(select.accept(new UpdateReportTransformer(repository)));    
+                    }
+                    
                 } else if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Can't optimize update report query: no data model information in query.");
                 }
