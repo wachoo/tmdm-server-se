@@ -12,6 +12,8 @@
 package com.amalto.core.history.accessor;
 
 import com.amalto.core.history.MutableDocument;
+import com.amalto.core.history.action.FieldUpdateAction;
+
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.*;
 
@@ -170,12 +172,25 @@ class ManyFieldAccessor implements DOMAccessor {
         return parent.exist() && getCollectionItemNode() != null;
     }
 
-    public void markModified() {
+
+    public void markModified(Marker marker) {
         Document domDocument = document.asDOM();
         Node collectionItemNode = getCollectionItemNode();
         if (collectionItemNode != null) {
             Attr newAttribute = domDocument.createAttribute(MODIFIED_MARKER_ATTRIBUTE);
-            newAttribute.setValue(MODIFIED_MARKER_VALUE);
+            switch(marker) {
+                case ADD:
+                    newAttribute.setValue(FieldUpdateAction.MODIFY_ADD_MARKER_VALUE);
+                    break;
+                case UPDATE:
+                    newAttribute.setValue(FieldUpdateAction.MODIFY_UPDATE_MARKER_VALUE);
+                    break;
+                case REMOVE:
+                    newAttribute.setValue(FieldUpdateAction.MODIFY_REMOVE_MARKER_VALUE);
+                    break;
+                default:
+                    throw new IllegalArgumentException("No support for marker " + marker); //$NON-NLS-1$
+            }            
             collectionItemNode.getAttributes().setNamedItem(newAttribute);
         }
     }

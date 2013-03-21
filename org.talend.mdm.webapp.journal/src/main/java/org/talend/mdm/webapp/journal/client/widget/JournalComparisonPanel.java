@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -37,8 +38,11 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanelView.TreeViewRenderMode;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanel.TreeNode;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanelView;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.Accessibility;
 
 /**
  * DOC Administrator  class global comment. Detailled comment
@@ -51,17 +55,73 @@ public class JournalComparisonPanel extends ContentPanel {
     
     private TreePanel<JournalTreeModel> tree;
     
+    private TreePanelView<JournalTreeModel> view;
+    
     private JournalTreeModel root;
     
     private JournalComparisonPanel otherPanel;
-    
+
     private Map<String, JournalTreeModel> modelMap = new HashMap<String, JournalTreeModel>();
 
-    public JournalComparisonPanel(String title, final JournalParameters parameter) {
+    private List<String> changeNodeList;
+
+    private Button previousChangeButton;
+
+    private Button nextChangeButton;
+
+   public JournalComparisonPanel(String title, final JournalParameters parameter,final List<String> changeNodeList,boolean isBeforePanel) {
         this.setFrame(false);
         this.setHeading(title);
         this.setLayout(new FitLayout());
         this.setBodyBorder(false);
+        
+        this.changeNodeList = changeNodeList;
+        
+        final int count[] = new int[1];
+        count[0] = 0;
+        
+        toolbar = new ToolBar();        
+        
+        if (isBeforePanel) {
+
+            previousChangeButton = new Button(MessagesFactory.getMessages().previous_change_button());
+            previousChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));            
+            previousChangeButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+                public void componentSelected(ButtonEvent ce) {
+                    if (count[0] > 0){
+                        count[0] = count[0] - 1;
+                    }                    
+                    buttonStatus(count[0]);
+                    selectTreeNodeByPath(changeNodeList.get(count[0]));
+                    otherPanel.selectTreeNodeByPath(changeNodeList.get(count[0]));
+                }           
+            });
+            toolbar.add(previousChangeButton);
+                                 
+            nextChangeButton = new Button(MessagesFactory.getMessages().next_change_button());
+            nextChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));
+            nextChangeButton.addSelectionListener(new SelectionListener<ButtonEvent>() {                
+                public void componentSelected(ButtonEvent ce) {
+                    if (count[0] < changeNodeList.size()-1){
+                        count[0] = count[0] + 1;
+                    }                   
+                    buttonStatus(count[0]);
+                    selectTreeNodeByPath(changeNodeList.get(count[0]));
+                    otherPanel.selectTreeNodeByPath(changeNodeList.get(count[0]));
+                }
+            });            
+            
+            toolbar.add(nextChangeButton);
+            
+            if (count[0] == 0) {
+                previousChangeButton.setEnabled(false);
+            } 
+            if (count[0] == changeNodeList.size()-1) {
+                nextChangeButton.setEnabled(false);
+            }
+        }
+        
+        toolbar.add(new FillToolItem());
         
         service.isAdmin(new SessionAwareAsyncCallback<Boolean>() {
 
@@ -88,9 +148,7 @@ public class JournalComparisonPanel extends ContentPanel {
                 }
             }
         });
-        
-        toolbar = new ToolBar();
-        toolbar.add(new FillToolItem());
+
         this.setTopComponent(toolbar);
                
         service.getComparisionTree(parameter, new SessionAwareAsyncCallback<JournalTreeModel>() {
@@ -99,34 +157,44 @@ public class JournalComparisonPanel extends ContentPanel {
                 JournalComparisonPanel.this.root = root;
                 TreeStore<JournalTreeModel> store = new TreeStore<JournalTreeModel>();
                 store.add(root, true);
-                tree = new TreePanel<JournalTreeModel>(store){
 
-                    @Override
-                    protected String renderChild(JournalTreeModel parent, JournalTreeModel child, int depth,
-                            TreeViewRenderMode renderMode) {
-                        String nodeStr = super.renderChild(parent, child, depth, renderMode);
-                        if(child.get("cls") != null){ //$NON-NLS-1$
-                            nodeStr = nodeStr.replaceFirst("x-tree3-node", "x-tree3-node " + child.get("cls")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                        }
-                        return nodeStr;
+                view = new TreePanelView<JournalTreeModel>() {
+                    public void onSelectChange(JournalTreeModel model, boolean select) {
+                        if (select) {
+                            tree.setExpanded(treeStore.getParent(model), true);
+                          }
+                          TreeNode node = findNode(model);
+                          if (node != null) {
+                            Element e = getElementContainer(node);
+                            if (e != null) {
+                              El.fly(e).setStyleName("x-tree3-node " + model.getCls(), select); //$NON-NLS-1$
+                              if (select) {
+                                String tid = tree.getId();
+                                Accessibility.setState(tree.getElement(), "aria-activedescendant", tid + "__" + node.getElement().getId()); //$NON-NLS-1$ //$NON-NLS-2$
+                              }
+                            }
+                          }
                     }
-                    
                 };
+                
+                tree = new TreePanel<JournalTreeModel>(store);
+                tree.setView(view);
 
                 tree.setDisplayProperty("name"); //$NON-NLS-1$
                 tree.getStyle().setLeafIcon(AbstractImagePrototype.create(Icons.INSTANCE.leaf()));
 
                 if (modelMap.size() == 0) {
                     List<JournalTreeModel> list = store.getAllItems();
-                    for(JournalTreeModel model : list)
-                        modelMap.put(model.getId(), model);
+                    for(JournalTreeModel model : list) {
+                        modelMap.put(model.getPath(), model);
+                    }
                 }
 
                 tree.addListener(Events.Expand, new Listener<TreePanelEvent<JournalTreeModel>>() {
 
                     public void handleEvent(TreePanelEvent<JournalTreeModel> be) {
                         if(otherPanel.getModelMap().size() > 0){
-                            JournalTreeModel model = otherPanel.getModelMap().get(be.getItem().getId());
+                            JournalTreeModel model = otherPanel.getModelMap().get(be.getItem().getPath());
                             otherPanel.getTree().setExpanded(model, true);
                         }                       
                     }
@@ -141,18 +209,40 @@ public class JournalComparisonPanel extends ContentPanel {
                         } 
                     }
                 });
-                
+       
                 JournalComparisonPanel.this.add(tree);
                 JournalComparisonPanel.this.layout(true);
                 JournalComparisonPanel.this.expandRoot();
+                selectTreeNodeByPath(changeNodeList.get(count[0]));              
             }
         });        
     }
+   
+   private void buttonStatus(int index) {
+       if (index == 0) {
+           previousChangeButton.setEnabled(false);
+       } else {
+           previousChangeButton.setEnabled(true);
+       } 
+       if (index == changeNodeList.size()-1) {
+           nextChangeButton.setEnabled(false);
+       } else {
+           nextChangeButton.setEnabled(true);
+       }  
+   }
 
     public void expandRoot() {
         JournalTreeModel model = (JournalTreeModel) root.getChildren().get(0);
         tree.setExpanded(root, true);
         tree.setExpanded(model, true);
+    }
+    
+    public void selectTreeNodeByPath(String path) {
+        JournalTreeModel model = modelMap.get(path);
+        if (path.endsWith("[1]") && model == null) { //$NON-NLS-1$
+            model = modelMap.get(path.replace("[1]", "")); //$NON-NLS-1$ //$NON-NLS-2$
+        }        
+        tree.getSelectionModel().select(false, model);            
     }
 
     public TreePanel<JournalTreeModel> getTree() {

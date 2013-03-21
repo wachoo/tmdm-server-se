@@ -15,6 +15,12 @@ package com.amalto.core.history.accessor;
  *
  */
 public interface Accessor extends Comparable<Accessor> {
+    
+    enum Marker {
+        ADD,
+        REMOVE,
+        UPDATE
+    }
 
     /**
      * Set a value in the document. The full path of elements <b>must</b> exist (this can be ensured via a call
@@ -90,10 +96,10 @@ public interface Accessor extends Comparable<Accessor> {
      * <p>
      * This method is also a <i>no op</i> if {@link #exist()} returns <code>false</code>.
      * </p>
-     *
+     * @param marker The Marker to be set by the accessor,it show three kind of modify(Add,Update,Remove). 
      * @see #markUnmodified()
      */
-    void markModified();
+    void markModified(Marker marker);
 
     /**
      * <p>

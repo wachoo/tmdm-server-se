@@ -23,6 +23,12 @@ import java.util.Set;
  * Action performed on a field with maxOccurs = 1.
  */
 public class FieldUpdateAction extends AbstractAction {
+    
+    public static final String MODIFY_ADD_MARKER_VALUE = "tree-node-add"; //$NON-NLS-1$
+    
+    public static final String MODIFY_UPDATE_MARKER_VALUE = "tree-node-update"; //$NON-NLS-1$
+    
+    public static final String MODIFY_REMOVE_MARKER_VALUE = "tree-node-remove"; //$NON-NLS-1$
 
     private final String field;
 
@@ -74,7 +80,17 @@ public class FieldUpdateAction extends AbstractAction {
 
     public MutableDocument addModificationMark(MutableDocument document) {
         Accessor accessor = document.createAccessor(field);
-        accessor.markModified();
+        if (oldValue != null) {
+            if (newValue == null) {
+                accessor.markModified(Accessor.Marker.REMOVE);
+            } else {
+                accessor.markModified(Accessor.Marker.UPDATE);
+            }
+        } else {
+            if (newValue != null) {
+                accessor.markModified(Accessor.Marker.ADD);
+            }
+        }
         return document;
     }
 

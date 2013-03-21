@@ -195,7 +195,7 @@ class UpdateReportDocument extends DOMDocument {
             return true;
         }
 
-        public void markModified() {
+        public void markModified(Marker marker) {
             throw new UnsupportedOperationException();
         }
 
@@ -244,7 +244,7 @@ class UpdateReportDocument extends DOMDocument {
             return true;
         }
 
-        public void markModified() {
+        public void markModified(Marker marker) {
         }
 
         public void markUnmodified() {

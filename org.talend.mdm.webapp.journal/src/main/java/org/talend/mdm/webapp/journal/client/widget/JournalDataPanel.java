@@ -190,6 +190,10 @@ public class JournalDataPanel extends FormPanel {
         return tree;
     }
     
+    public JournalGridModel getJournalGridModel() {
+        return this.journalGridModel;
+    }
+
     public String getHeadingString() {
         return MessagesFactory.getMessages().data_change_viewer();
     }

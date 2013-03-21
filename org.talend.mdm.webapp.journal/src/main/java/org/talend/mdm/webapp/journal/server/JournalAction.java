@@ -105,7 +105,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
                 String xmlStr = JournalHistoryService.getInstance().getComparisionTreeString(parameter);
                 root = service.getComparisionTreeModel(xmlStr);
             } else {
-                root = new JournalTreeModel("root", "Document"); //$NON-NLS-1$ //$NON-NLS-2$
+                root = new JournalTreeModel("root", "Document","root"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
             return root;
         } catch (ServiceException e) {

@@ -36,3 +36,15 @@ h1 {
 .tree-node-different{
     background-color: red;
 }
+
+.tree-node-add{
+    background-color: green;
+}
+
+.tree-node-update{
+    background-color: yellow;
+}
+
+.tree-node-remove{
+    background-color: red;
+}

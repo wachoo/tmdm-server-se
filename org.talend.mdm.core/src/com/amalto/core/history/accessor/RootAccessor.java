@@ -58,7 +58,7 @@ class RootAccessor implements DOMAccessor {
         return getNode() != null;
     }
 
-    public void markModified() {
+    public void markModified(Marker marker) {
         throw new IllegalStateException("Cannot mark this as modified. No value to be set in this accessor");
     }
 

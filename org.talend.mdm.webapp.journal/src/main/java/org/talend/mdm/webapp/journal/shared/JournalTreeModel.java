@@ -35,14 +35,16 @@ public class JournalTreeModel extends BaseTreeModel implements Serializable, IsS
         this.set("name", name); //$NON-NLS-1$
     }
 
-    public JournalTreeModel(String id, String name) {
+    public JournalTreeModel(String id, String name,String path) {
         this(name);
         this.set("id", id); //$NON-NLS-1$
+        this.set("path", path); //$NON-NLS-1$
     }
-    
-    public JournalTreeModel(String id, String name, String cls) {
-        this(id, name);
+
+    public JournalTreeModel(String id, String name, String path,String cls) {
+        this(id, name,path);
         this.set("cls", cls); //$NON-NLS-1$
+        this.set("path", path); //$NON-NLS-1$
     }
 
     public JournalTreeModel(String name, List<JournalTreeModel> list) {
@@ -54,6 +56,14 @@ public class JournalTreeModel extends BaseTreeModel implements Serializable, IsS
 
     public String getName() {
         return (String) get("name"); //$NON-NLS-1$
+    }
+    
+    public String getPath() {
+        return (String) get("path"); //$NON-NLS-1$
+    }
+    
+    public String getCls() {
+        return (String) get("cls"); //$NON-NLS-1$
     }
     
     public void addChild(JournalTreeModel model) {

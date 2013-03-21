@@ -12,6 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.shared;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -43,9 +46,11 @@ public class JournalGridModel extends BaseModel implements IsSerializable {
     private String userName;
 
     private String operationDate;
+    
+    private List<String> changeNodeList;
 
     public JournalGridModel() {
-
+        changeNodeList = new ArrayList<String>();
     }
 
     public String getIds() {
@@ -144,6 +149,10 @@ public class JournalGridModel extends BaseModel implements IsSerializable {
     public void setOperationDate(String operationDate) {
         set("operationTime", operationDate); //$NON-NLS-1$
         this.operationDate = operationDate;
+    }
+
+    public List<String> getChangeNodeList() {
+        return this.changeNodeList;
     }
 
     @Override

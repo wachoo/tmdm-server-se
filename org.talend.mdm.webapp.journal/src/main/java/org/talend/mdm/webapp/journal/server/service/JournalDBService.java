@@ -176,7 +176,7 @@ public class JournalDBService {
     }
 
     public JournalTreeModel getComparisionTreeModel(String xmlStr) {
-        JournalTreeModel root = new JournalTreeModel("root", "Document"); //$NON-NLS-1$ //$NON-NLS-2$
+        JournalTreeModel root = new JournalTreeModel("root", "Document","root"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         if (xmlStr == null) {
             return root;
         }
@@ -226,11 +226,11 @@ public class JournalDBService {
         if (!value.equalsIgnoreCase("")) { //$NON-NLS-1$
             value = ":" + value; //$NON-NLS-1$
         }
-
+        
         if (cls == null) {
-            model = new JournalTreeModel(id, element.getName() + value);
+            model = new JournalTreeModel(id, element.getName() + value,element.getUniquePath());
         } else {
-            model = new JournalTreeModel(id, element.getName() + value, cls);
+            model = new JournalTreeModel(id, element.getName() + value,element.getUniquePath(), cls);
         }
         return model;
     }
@@ -281,6 +281,13 @@ public class JournalDBService {
         model.setUserName(checkNull(Util.getFirstTextNode(doc, "result/Update/UserName"))); //$NON-NLS-1$
         model.setIds(Util.joinStrings(new String[] { source, timeInMillis }, ".")); //$NON-NLS-1$
 
+        String[] pathArray = Util.getTextNodes(doc, "result/Update/Item/path"); //$NON-NLS-1$        
+        if (pathArray.length > 0) {
+            for (int i = 0; i < pathArray.length; i++) {
+                model.getChangeNodeList().add("/" + model.getEntity() + "/" + pathArray[i]); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+        }
+        
         return model;
     }
 

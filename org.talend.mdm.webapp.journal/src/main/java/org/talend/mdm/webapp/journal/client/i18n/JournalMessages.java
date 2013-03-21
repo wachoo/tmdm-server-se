@@ -78,4 +78,8 @@ public interface JournalMessages extends Messages {
     public String updatereport_label();
     
     public String change_properties();
+    
+    public String previous_change_button();
+    
+    public String next_change_button();
 }
