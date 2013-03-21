@@ -32,7 +32,9 @@ public class FileChunkLoaderTest {
         FileChunkLoader loader = new FileChunkLoader(test);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         long position = 0;
-        FileChunkInfo chunkInfo;
+        FileChunkInfo chunkInfo = null;
+
+        //
         for (int i = 0; i < 11; i++) {
             chunkInfo = loader.loadChunkTo(baos, position, 2);
             if (position == 0) {
@@ -42,9 +44,35 @@ public class FileChunkLoaderTest {
             }
             position = chunkInfo.nextPosition;
         }
-        assertEquals(2406, position);
+        assertEquals(2406, chunkInfo.nextPosition);
+        assertEquals(1, chunkInfo.lines); // last line does not contains '\n'
         String result = baos.toString();
         assertTrue(result.endsWith("startup in 34 ms"));
+
+        //
+        baos.reset();
+        chunkInfo = loader.loadChunkTo(baos, 0, 0);
+        assertEquals(0, chunkInfo.nextPosition);
+        assertEquals(0, chunkInfo.lines);
+
+        //
+        baos.reset();
+        chunkInfo = loader.loadChunkTo(baos, 0, 100);
+        assertEquals(2406, chunkInfo.nextPosition);
+        assertEquals(21, chunkInfo.lines);
+
+        // tail
+        baos.reset();
+        chunkInfo = loader.loadChunkTo(baos, -1, 10);
+        assertEquals(2406, chunkInfo.nextPosition);
+        assertEquals(6, chunkInfo.lines);
+        assertTrue(result.endsWith("startup in 34 ms"));
+
+        // tail
+        baos.reset();
+        chunkInfo = loader.loadChunkTo(baos, -1, 100);
+        assertEquals(2406, chunkInfo.nextPosition);
+        assertEquals(21, chunkInfo.lines);
     }
 
     private File getFile(String filename) {

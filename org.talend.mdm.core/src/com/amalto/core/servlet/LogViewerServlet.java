@@ -55,19 +55,26 @@ public class LogViewerServlet extends HttpServlet {
         }
     }
 
+    /**
+     * The expected calls are
+     * <ul>
+     * <li>GET /log HTTP/1.1<br/>
+     * => Request to download the whole file</li>
+     * <li>GET /log?position=x HTTP/1.1<br/>
+     * => Request to get file chunk at position x with default max of lines</li>
+     * <li>GET /log?position=x&maxLines=y HTTP/1.1<br/>
+     * => Request to get file chunk at position x with specified max of lines</li>
+     * </ul>
+     * <p>
+     * If position parameter is negative, it will start from end of file ('tail -maxLines' like)
+     * </p>
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         long position;
         String positionString = request.getParameter("position"); //$NON-NLS-1$
         if (positionString != null) {
             position = Long.parseLong(positionString);
-        } else {
-            position = -1;
-        }
-
-        if (position < 0) {
-            downloadLogFile(response);
-        } else {
             int maxLines;
             String maxLinesString = request.getParameter("maxLines"); //$NON-NLS-1$
             if (maxLinesString != null) {
@@ -76,6 +83,8 @@ public class LogViewerServlet extends HttpServlet {
                 maxLines = defaultMaxLines;
             }
             writeLogFileChunk(position, maxLines, response);
+        } else {
+            downloadLogFile(response);
         }
     }
 

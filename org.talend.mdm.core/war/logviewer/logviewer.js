@@ -56,7 +56,7 @@ function initLog(url, content, scroller, spinner, toggle) {
     logScroller = new AutoScroller(scroller);
     logSpinner = spinner;
     logToggle = toggle;
-    logContent.position = 0;
+    logContent.position = -1; //tail by default
     logContent.lines = 0;
     startLoading();
 }

@@ -92,7 +92,12 @@ public class FileChunkLoader {
             // file doesn't exist yet ?
             return new FileChunkInfo();
         }
-        if (file.length() < position) {
+        long length = file.length();
+        if (position < 0) {
+            // tail, consider around 80 bytes per line (doesn't really matter if first line is shrinked)
+            position = length - (maxLines * 80);
+        }
+        if (length < position || position < 0) {
             position = 0; // content rolled over
         }
         FileChunkCopier copier = null;
