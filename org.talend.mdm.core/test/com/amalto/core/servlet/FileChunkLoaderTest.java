@@ -20,6 +20,8 @@ import java.net.URL;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.Test;
 
+import com.amalto.core.servlet.FileChunkLoader.FileChunkInfo;
+
 @SuppressWarnings("nls")
 public class FileChunkLoaderTest {
 
@@ -30,14 +32,15 @@ public class FileChunkLoaderTest {
         FileChunkLoader loader = new FileChunkLoader(test);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         long position = 0;
+        FileChunkInfo chunkInfo;
         for (int i = 0; i < 11; i++) {
-            long newPosition = loader.loadChunkTo(baos, position, 2);
+            chunkInfo = loader.loadChunkTo(baos, position, 2);
             if (position == 0) {
                 String result = baos.toString();
                 assertTrue(result.endsWith("Service (JTA version) - JBoss Inc.\r\n"));
-                assertEquals(238, newPosition);
+                assertEquals(238, chunkInfo.nextPosition);
             }
-            position = newPosition;
+            position = chunkInfo.nextPosition;
         }
         assertEquals(2406, position);
         String result = baos.toString();
