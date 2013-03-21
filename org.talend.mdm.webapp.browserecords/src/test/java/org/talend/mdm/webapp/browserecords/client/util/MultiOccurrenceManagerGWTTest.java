@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 package org.talend.mdm.webapp.browserecords.client.util;
 
@@ -22,53 +21,53 @@ import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.D
 
 import com.google.gwt.junit.client.GWTTestCase;
 
-
 public class MultiOccurrenceManagerGWTTest extends GWTTestCase {
-    
+
     Map<String, TypeModel> metaDataTypes = new HashMap<String, TypeModel>();
+
     TreeDetail treeDetail = null;
-    Map<String, List<DynamicTreeItem>> multiOccurrence = null;
+
     List<DynamicTreeItem> multiNodes = null;
-    
-    public void testAddMultiOccurrenceNode(){
+
+    public void testAddMultiOccurrenceNode() {
         SimpleTypeModel simpleTypeModel = new SimpleTypeModel();
         simpleTypeModel.setAutoExpand(false);
-        simpleTypeModel.setMaxOccurs(5);     
+        simpleTypeModel.setMaxOccurs(5);
         metaDataTypes.put("ThirdEntity/optionalDetails/optionalUbounded3", simpleTypeModel); //$NON-NLS-1$
-        
+
         ItemNodeModel itemNodeModel = new ItemNodeModel();
         itemNodeModel.setName("optionalUbounded3"); //$NON-NLS-1$
         itemNodeModel.setTypePath("ThirdEntity/optionalDetails/optionalUbounded3"); //$NON-NLS-1$
-        
+
         ItemNodeModel parent = new ItemNodeModel();
         parent.setName("optionalDetails"); //$NON-NLS-1$
         parent.setTypePath("ThirdEntity/optionalDetails"); //$NON-NLS-1$
         parent.add(itemNodeModel);
-        itemNodeModel.setParent(parent); 
-        
+        itemNodeModel.setParent(parent);
+
         DynamicTreeItem item = new DynamicTreeItem();
         item.setItemNodeModel(itemNodeModel);
-        
+
         DynamicTreeItem parentItem = new DynamicTreeItem();
         parentItem.addItem(item);
-        
-        MultiOccurrenceManager manager = new MultiOccurrenceManager(metaDataTypes,treeDetail);
+
+        MultiOccurrenceManager manager = new MultiOccurrenceManager(metaDataTypes, treeDetail);
         manager.addMultiOccurrenceNode(item);
-        multiOccurrence = _getMultiOccurrence(manager);
-        multiNodes = multiOccurrence.get("optionalDetails/optionalUbounded3"); //$NON-NLS-1$
+
+        multiNodes = _getMultiOccurrence(manager, "optionalDetails/optionalUbounded3"); //$NON-NLS-1$
         assertEquals(1, multiNodes.size());
         assertEquals("optionalUbounded3", multiNodes.get(0).getItemNodeModel().getName()); //$NON-NLS-1$
         manager.addMultiOccurrenceNode(item);
-        multiOccurrence = _getMultiOccurrence(manager);
-        multiNodes = multiOccurrence.get("optionalDetails/optionalUbounded3"); //$NON-NLS-1$
+
+        multiNodes = _getMultiOccurrence(manager, "optionalDetails/optionalUbounded3"); //$NON-NLS-1$
         assertEquals(2, multiNodes.size());
         assertEquals("optionalUbounded3", multiNodes.get(1).getItemNodeModel().getName()); //$NON-NLS-1$
     }
-    
-    private native Map<String, List<DynamicTreeItem>> _getMultiOccurrence(MultiOccurrenceManager manager)/*-{
-        return manager.@org.talend.mdm.webapp.browserecords.client.util.MultiOccurrenceManager::multiOccurrence;
+
+    private native List<DynamicTreeItem> _getMultiOccurrence(MultiOccurrenceManager manager, String xpath)/*-{
+		return manager.@org.talend.mdm.webapp.browserecords.client.util.MultiOccurrenceManager::getBrothersGroup(Ljava/lang/String;)(xpath);
     }-*/;
-    
+
     @Override
     public String getModuleName() {
         // GWTTestCase Required

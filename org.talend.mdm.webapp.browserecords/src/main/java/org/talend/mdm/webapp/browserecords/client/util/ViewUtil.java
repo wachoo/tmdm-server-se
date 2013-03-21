@@ -100,8 +100,9 @@ public class ViewUtil {
         }
         setValidFlags((DynamicTreeItem) originalRoot, customLayoutDisplayedElements);
 
-        if (treeRootNode.getElement().getFirstChildElement() != null)
+        if (treeRootNode.getElement().getFirstChildElement() != null) {
             treeRootNode.getElement().getFirstChildElement().setClassName("rootNode"); //$NON-NLS-1$
+        }
         treeRootNode.setState(true);
         return tree;
     }
@@ -110,8 +111,9 @@ public class ViewUtil {
             Set<TreeItemEx> customLayoutDisplayedElements, ViewBean viewBean) {
         customLayoutDisplayedElements.add(item);
         applyStyleTreeItem(item, columnEl.getLabelStyle(), convertCSS4ValueStyle(columnEl.getValueStyle()), columnEl.getStyle());
-        if (columnEl.getChildren() == null)
+        if (columnEl.getChildren() == null) {
             return;
+        }
         for (ColumnElement ce : columnEl.getChildren()) {
 
             for (int i = 0; i < item.getChildCount(); i++) {
@@ -128,7 +130,7 @@ public class ViewUtil {
                     }
                 }
             }
-            if (ce.getHtmlSnippet() != null) {
+            if (ce.getHtmlSnippet() != null && ce.getHtmlSnippet().trim().length() > 0) {
                 item.addItem(new HTML(ce.getHtmlSnippet()));
             }
         }
@@ -202,7 +204,7 @@ public class ViewUtil {
      * where the valid flag is normally set for fields that are displayed.
      */
     private static void setValidFlags(DynamicTreeItem dynamicTreeItem, Set<TreeItemEx> customLayoutDisplayedElements) {
-        ItemNodeModel nodeModel = dynamicTreeItem.getItemNodeModel();        
+        ItemNodeModel nodeModel = dynamicTreeItem.getItemNodeModel();
         if (nodeModel != null) {
             nodeModel.setValid(true);
         }
@@ -226,10 +228,12 @@ public class ViewUtil {
     }-*/;
     
     public static String convertCSS4ValueStyle(String css) {
-        if (css == null)
+        if (css == null) {
             return null;
-        if (css.contains("background-color")) //$NON-NLS-1$
+        }
+        if (css.contains("background-color")) {//$NON-NLS-1$
             css = css.replaceAll("background-color", "background-image:none; background-color"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
         return css;
     }
     
