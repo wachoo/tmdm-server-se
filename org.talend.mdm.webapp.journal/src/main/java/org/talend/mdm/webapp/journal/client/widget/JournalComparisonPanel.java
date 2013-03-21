@@ -24,8 +24,10 @@ import org.talend.mdm.webapp.journal.client.resources.icon.Icons;
 import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.core.El;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -38,6 +40,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanel.Joint;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel.TreeNode;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelView;
 import com.google.gwt.user.client.Element;
@@ -69,7 +72,7 @@ public class JournalComparisonPanel extends ContentPanel {
 
     private Button nextChangeButton;
 
-   public JournalComparisonPanel(String title, final JournalParameters parameter,final List<String> changeNodeList,boolean isBeforePanel) {
+   public JournalComparisonPanel(String title, final JournalParameters parameter,final List<String> changeNodeList,final boolean isBeforePanel) {
         this.setFrame(false);
         this.setHeading(title);
         this.setLayout(new FitLayout());
@@ -96,6 +99,7 @@ public class JournalComparisonPanel extends ContentPanel {
                     otherPanel.selectTreeNodeByPath(changeNodeList.get(count[0]));
                 }           
             });
+            previousChangeButton.setEnabled(false);
             toolbar.add(previousChangeButton);
                                  
             nextChangeButton = new Button(MessagesFactory.getMessages().next_change_button());
@@ -110,15 +114,8 @@ public class JournalComparisonPanel extends ContentPanel {
                     otherPanel.selectTreeNodeByPath(changeNodeList.get(count[0]));
                 }
             });            
-            
+            nextChangeButton.setEnabled(false);
             toolbar.add(nextChangeButton);
-            
-            if (count[0] == 0) {
-                previousChangeButton.setEnabled(false);
-            } 
-            if (count[0] == changeNodeList.size()-1) {
-                nextChangeButton.setEnabled(false);
-            }
         }
         
         toolbar.add(new FillToolItem());
@@ -159,22 +156,35 @@ public class JournalComparisonPanel extends ContentPanel {
                 store.add(root, true);
 
                 view = new TreePanelView<JournalTreeModel>() {
+                    
+                    @Override
                     public void onSelectChange(JournalTreeModel model, boolean select) {
                         if (select) {
                             tree.setExpanded(treeStore.getParent(model), true);
-                          }
-                          TreeNode node = findNode(model);
-                          if (node != null) {
+                        }
+                        TreeNode node = findNode(model);
+                        if (node != null) {
                             Element e = getElementContainer(node);
                             if (e != null) {
-                              El.fly(e).setStyleName("x-tree3-node " + model.getCls(), select); //$NON-NLS-1$
-                              if (select) {
-                                String tid = tree.getId();
-                                Accessibility.setState(tree.getElement(), "aria-activedescendant", tid + "__" + node.getElement().getId()); //$NON-NLS-1$ //$NON-NLS-2$
-                              }
+                                El.fly(e).setStyleName("x-tree3-node " + model.getCls(), select); //$NON-NLS-1$
+                                if (select) {
+                                    String tid = tree.getId();
+                                    Accessibility.setState(tree.getElement(), "aria-activedescendant", tid + "__" + node.getElement().getId()); //$NON-NLS-1$ //$NON-NLS-2$
+                                }
                             }
-                          }
+                        }
                     }
+                    
+                    @Override
+                    public String getTemplate(ModelData m, String id, String text, AbstractImagePrototype icon, boolean checkable,
+                            boolean checked, Joint joint, int level, TreeViewRenderMode renderMode) {
+                        // see TMDM-5438
+                        if ("Document".equals(text) && level == 0 && ((JournalTreeModel)m).getChildCount() == 0) { //$NON-NLS-1$
+                            return super.getTemplate(m, id, text, GXT.IMAGES.tree_folder(), checkable, checked, joint, level, renderMode);
+                        } else {
+                            return super.getTemplate(m, id, text, icon, checkable, checked, joint, level, renderMode);
+                        }                        
+                    }                                      
                 };
                 
                 tree = new TreePanel<JournalTreeModel>(store);
@@ -213,7 +223,12 @@ public class JournalComparisonPanel extends ContentPanel {
                 JournalComparisonPanel.this.add(tree);
                 JournalComparisonPanel.this.layout(true);
                 JournalComparisonPanel.this.expandRoot();
-                selectTreeNodeByPath(changeNodeList.get(count[0]));              
+                if (changeNodeList != null && changeNodeList.size() > 0) {
+                    if (isBeforePanel) {
+                        buttonStatus(count[0]);
+                    }                    
+                    selectTreeNodeByPath(changeNodeList.get(count[0]));
+                }
             }
         });        
     }
@@ -232,9 +247,11 @@ public class JournalComparisonPanel extends ContentPanel {
    }
 
     public void expandRoot() {
-        JournalTreeModel model = (JournalTreeModel) root.getChildren().get(0);
-        tree.setExpanded(root, true);
-        tree.setExpanded(model, true);
+        if (root.getChildren().size() > 0) {
+            JournalTreeModel model = (JournalTreeModel) root.getChildren().get(0);
+            tree.setExpanded(root, true);
+            tree.setExpanded(model, true);
+        }
     }
     
     public void selectTreeNodeByPath(String path) {
