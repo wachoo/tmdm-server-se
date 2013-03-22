@@ -128,7 +128,9 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
                         routingOrderPOJO.getBindingUserToken()
                 );
                 //delete the existing one
-                if (cleanUpRoutingOrder) removeRoutingOrder(routingOrderPOJO.getAbstractRoutingOrderPOJOPK());
+                if (cleanUpRoutingOrder) {
+                    removeRoutingOrder(routingOrderPOJO.getAbstractRoutingOrderPOJOPK());
+                }
                 //switch variables
                 routingOrderPOJO = activeRO;
                 break;
@@ -740,7 +742,7 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
         } catch (Exception e) {
             //an error occurred  - free the executor
             LOGGER.info(
-                    "ejbTimeout() ERROR SYSTRACE:Unable to retirve the Routing Order Ctrl for " + routingOrderData.routingOrderV2POJO.getPK().getUniqueId() + ". "
+                    "ejbTimeout() ERROR SYSTRACE:Unable to retrieve the Routing Order Ctrl for " + routingOrderData.routingOrderV2POJO.getPK().getUniqueId() + ". "
                             + e.getMessage()
             );
             return;
