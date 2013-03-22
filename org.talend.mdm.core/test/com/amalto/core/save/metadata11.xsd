@@ -4240,7 +4240,6 @@
                     <xsd:appinfo source="X_Write">RAP_Admin</xsd:appinfo>
                     <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                     <xsd:appinfo source="X_Write">RAP_SRC</xsd:appinfo>
-                    <xsd:appinfo source="X_ForeignKeyInfo">Contrat/detailContrat/codeDecompte</xsd:appinfo>
                     <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKey_Filter">Contrat/detailContrat/@xsi:type$$=$$&amp;quot;AP-RE&amp;quot;$$#</xsd:appinfo>
                     <xsd:appinfo source="X_Deny_Create">RAP_ReadOnly</xsd:appinfo>

@@ -45,6 +45,14 @@ public class MetadataValidationTest extends TestCase {
         assertEquals(1, handler.getMessages().size());
     }
 
+    public void testFK3() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("FK3_0.1.xsd");
+        DefaultValidationHandler handler = new DefaultValidationHandler();
+        repository.load(resourceAsStream, handler);
+        assertEquals(0, handler.getMessages().size());
+    }
+
     public void testPKINFO_manyType() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         InputStream resourceAsStream = this.getClass().getResourceAsStream("PKINFO_manyType_0.1.xsd");
