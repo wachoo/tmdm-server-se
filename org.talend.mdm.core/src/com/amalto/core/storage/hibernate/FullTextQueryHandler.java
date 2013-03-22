@@ -74,15 +74,14 @@ class FullTextQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Select select) {        
-    
+        // TMDM-4654: Checks if entity has a composite PK.
         Set<ComplexTypeMetadata> compositeKeyTypes = new HashSet<ComplexTypeMetadata>();
         for (ComplexTypeMetadata type : select.getTypes()) {
             if (type.getKeyFields().size() > 1) {
                 compositeKeyTypes.add(type);
             }
         }        
-        
-        if (!compositeKeyTypes.isEmpty()) {        
+        if (!compositeKeyTypes.isEmpty()) {
             StringBuilder message = new StringBuilder();
             Iterator it = compositeKeyTypes.iterator();
             while (it.hasNext()) {
@@ -93,8 +92,8 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 }
             }          
             throw new FullTextQueryCompositeKeyException(message.toString());
-        } 
-      
+        }
+        // TODO Removes Join
         List<Join> joins = select.getJoins();
         if (!joins.isEmpty()) {
             throw new IllegalArgumentException("Cannot perform join clause(s) when doing full text search.");
@@ -311,36 +310,43 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         // TODO Test me on conditions where many types share same field names.
         FullTextSession fullTextSession = Search.getFullTextSession(session);
         try {
-            List<Class> classes = new LinkedList<Class>();
-            List<String> fields = new LinkedList<String>();
-            for (ComplexTypeMetadata type : types) {
-                try {
-                    fields.addAll(type.accept(new DefaultMetadataVisitor<List<String>>() {
-                        final List<String> fields = new LinkedList<String>();
+            final Set<Class> classes = new HashSet<Class>();
+            final Set<String> fields = new HashSet<String>();
+            for (final ComplexTypeMetadata type : types) {
+                final TypeMapping typeMapping = mappingMetadataRepository.getMappingFromUser(type);
+                type.accept(new DefaultMetadataVisitor<Void>() {
 
-                        @Override
-                        public List<String> visit(ComplexTypeMetadata complexType) {
-                            super.visit(complexType);
-                            return fields;
+                    private void addClass(ComplexTypeMetadata complexType) {
+                        String className = ClassCreator.PACKAGE_PREFIX + complexType.getName();
+                        try {
+                            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+                            classes.add(contextClassLoader.loadClass(className));
+                        } catch (ClassNotFoundException e) {
+                            throw new RuntimeException("Could not find class '" + className + "'.", e);
                         }
+                    }
 
-                        @Override
-                        public List<String> visit(SimpleTypeFieldMetadata simpleField) {
-                            fields.add(getFieldName(simpleField, mappingMetadataRepository, false, false));
-                            return fields;
-                        }
+                    @Override
+                    public Void visit(ComplexTypeMetadata complexType) {
+                        addClass(complexType);
+                        super.visit(complexType);
+                        return null;
+                    }
 
-                        @Override
-                        public List<String> visit(EnumerationFieldMetadata enumField) {
-                            fields.add(getFieldName(enumField, mappingMetadataRepository, false, false));
-                            return fields;
-                        }
-                    }));
-                    Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(ClassCreator.PACKAGE_PREFIX + type.getName());
-                    classes.add(clazz);
-                } catch (ClassNotFoundException e) {
-                    throw new IllegalArgumentException("Type '" + type.getName() + "' has no generated class in current class loader.");
-                }
+                    @Override
+                    public Void visit(SimpleTypeFieldMetadata simpleField) {
+                        addClass(typeMapping.getDatabase(simpleField).getContainingType());
+                        fields.add(getFieldName(simpleField, mappingMetadataRepository, false, false));
+                        return null;
+                    }
+
+                    @Override
+                    public Void visit(EnumerationFieldMetadata enumField) {
+                        addClass(typeMapping.getDatabase(enumField).getContainingType());
+                        fields.add(getFieldName(enumField, mappingMetadataRepository, false, false));
+                        return null;
+                    }
+                });
             }
 
             String[] fieldsAsArray = fields.toArray(new String[fields.size()]);
@@ -360,7 +366,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
             // Very important to leave this null (would disable ability to search across different types)
             fullTextQuery.setCriteriaQuery(null);
             fullTextQuery.setSort(Sort.RELEVANCE);
-            this.query = fullTextQuery;
+            this.query = EntityFinder.wrap(fullTextQuery, storage, session);
 
             return null;
         } catch (ParseException e) {

@@ -12,16 +12,7 @@
 // ============================================================================
 package com.amalto.core.storage.exception;
 
-
-/**
- * DOC talend2  class global comment. Detailled comment
- */
 public class FullTextQueryCompositeKeyException extends RuntimeException {
-    
-    public FullTextQueryCompositeKeyException() {
-        super();
-    }
-
     public FullTextQueryCompositeKeyException(String message) {
         super(message);
     }

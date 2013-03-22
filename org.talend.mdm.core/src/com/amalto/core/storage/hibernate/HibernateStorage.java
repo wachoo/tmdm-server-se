@@ -413,7 +413,7 @@ public class HibernateStorage implements Storage {
         }
     }
 
-    private InternalRepository getTypeEnhancer() {
+    public InternalRepository getTypeEnhancer() {
         if (typeMappingRepository == null) {
             switch (storageType) {
                 case MASTER:

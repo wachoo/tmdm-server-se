@@ -256,13 +256,17 @@ class ScatteredTypeMapping extends TypeMapping {
     // Returns actual contained type (in case in reference to hold contained record can have sub types).
     // Not expected to be use for foreign keys, and also very specific to this mapping implementation.
     private ComplexTypeMetadata getActualContainedType(FieldMetadata userField, Wrapper value) {
-        ComplexTypeMetadata typeFromClass = ((StorageClassLoader) Thread.currentThread().getContextClassLoader()).getTypeFromClass(value.getClass());
+        Class<? extends Wrapper> clazz = value.getClass();
+        if (clazz.getName().contains("javassist")) {
+            clazz = (Class<? extends Wrapper>) clazz.getSuperclass();
+        }
+        ComplexTypeMetadata typeFromClass = ((StorageClassLoader) Thread.currentThread().getContextClassLoader()).getTypeFromClass(clazz);
         TypeMapping mappingFromDatabase = mappings.getMappingFromDatabase(typeFromClass);
         String actualValueType;
         if (mappingFromDatabase != null) {
             actualValueType = mappingFromDatabase.getUser().getName();
         } else {
-            actualValueType = value.getClass().getSimpleName();
+            actualValueType = clazz.getSimpleName();
         }
         if (actualValueType.equalsIgnoreCase(userField.getType().getName())) {
             return (ComplexTypeMetadata) userField.getType();

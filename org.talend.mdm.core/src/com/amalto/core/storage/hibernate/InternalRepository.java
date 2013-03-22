@@ -36,6 +36,10 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
         return mappings;
     }
 
+    public MetadataRepository getInternalRepository() {
+        return internalRepository;
+    }
+
     public MetadataRepository visit(MetadataRepository repository) {
         userRepository = repository;
         mappings = new MappingRepository();
