@@ -31,11 +31,11 @@ public interface JournalServiceAsync {
 
     void getDetailTreeModel(String ids, AsyncCallback<JournalTreeModel> callback);
 
-    void getComparisionTree(JournalParameters parameter, AsyncCallback<JournalTreeModel> callback);
+    void getComparisionTree(JournalParameters parameter,String language, AsyncCallback<JournalTreeModel> callback);
 
     void isEnterpriseVersion(AsyncCallback<Boolean> callback);
 
-    void restoreRecord(JournalParameters parameter, AsyncCallback<Boolean> callback);
+    void restoreRecord(JournalParameters parameter,String language, AsyncCallback<Boolean> callback);
 
     void checkDCAndDM(String dataContainer, String dataModel, AsyncCallback<Boolean> callback);
 

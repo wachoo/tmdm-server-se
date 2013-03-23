@@ -40,6 +40,8 @@ public class JournalTabPanel extends TabPanel {
     private JournalGridPanel journalGridPanel;
 
     private JournalTimelinePanel journalTimelinePanel;
+    
+    private boolean status;
 
     public static JournalTabPanel getInstance() {
         if (tabPanel == null) {
@@ -84,9 +86,10 @@ public class JournalTabPanel extends TabPanel {
 
         timeLineTabItem.addListener(Events.Resize, new Listener<ComponentEvent>(){
             public void handleEvent(ComponentEvent be) {
-                if (journalTimelinePanel.isRendered()) { 
+                if (journalTimelinePanel.isRendered() && status != JournalSearchPanel.getInstance().isExpanded()) { 
                     timeLineTabItem.fireEvent(Events.Select);
                 }
+                status = JournalSearchPanel.getInstance().isExpanded();    
             }            
         });
 

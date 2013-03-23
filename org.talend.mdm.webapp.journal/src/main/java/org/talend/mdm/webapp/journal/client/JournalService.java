@@ -34,11 +34,11 @@ public interface JournalService extends RemoteService {
 
     JournalTreeModel getDetailTreeModel(String ids) throws ServiceException;
 
-    JournalTreeModel getComparisionTree(JournalParameters parameter) throws ServiceException;
+    JournalTreeModel getComparisionTree(JournalParameters parameter,String language) throws ServiceException;
 
     boolean isEnterpriseVersion();
 
-    boolean restoreRecord(JournalParameters parameter) throws ServiceException;
+    boolean restoreRecord(JournalParameters parameter,String language) throws ServiceException;
 
     boolean checkDCAndDM(String dataContainer, String dataModel);
 

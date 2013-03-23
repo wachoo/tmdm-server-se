@@ -110,7 +110,13 @@ public class JournalDBServiceTest extends TestCase{
         journalTreeModel = (JournalTreeModel) journalTreeModelList.get(9);
         journalTreeModelList = journalTreeModel.getChildren();
         assertEquals("oldValue:23456",journalTreeModelList.get(1).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("newValue:34567",journalTreeModelList.get(2).get("name")); //$NON-NLS-1$ //$NON-NLS-2$  
+        assertEquals("newValue:34567",journalTreeModelList.get(2).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
+        
+        returnValue = journalDBService.getComparisionTreeModel(""); //$NON-NLS-1$
+        assertEquals("root", returnValue.getId()); //$NON-NLS-1$
+        assertEquals("Document", returnValue.getName()); //$NON-NLS-1$
+        assertEquals("root", returnValue.getPath()); //$NON-NLS-1$
+        assertEquals(0, returnValue.getChildCount()); //$NON-NLS-1$
     }
     
     public void testGetModelByElement() throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {

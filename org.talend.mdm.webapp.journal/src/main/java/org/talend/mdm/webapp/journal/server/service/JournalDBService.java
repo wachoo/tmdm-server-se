@@ -177,7 +177,7 @@ public class JournalDBService {
 
     public JournalTreeModel getComparisionTreeModel(String xmlStr) {
         JournalTreeModel root = new JournalTreeModel("root", "Document","root"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-        if (xmlStr == null) {
+        if (xmlStr == null || "".equals(xmlStr)) { //$NON-NLS-1$
             return root;
         }
 
@@ -346,5 +346,4 @@ public class JournalDBService {
         }
         return str;
     }
-
 }

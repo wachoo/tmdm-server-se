@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.journal.client.Journal;
 import org.talend.mdm.webapp.journal.client.JournalServiceAsync;
 import org.talend.mdm.webapp.journal.client.i18n.MessagesFactory;
@@ -130,7 +131,7 @@ public class JournalComparisonPanel extends ContentPanel {
                         
                         @Override
                         public void componentSelected(ButtonEvent ce) {
-                            service.restoreRecord(parameter, new SessionAwareAsyncCallback<Boolean>() {
+                            service.restoreRecord(parameter,UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
                                 
                                 public void onSuccess(Boolean success) {
                                     if(success) {
@@ -148,7 +149,7 @@ public class JournalComparisonPanel extends ContentPanel {
 
         this.setTopComponent(toolbar);
                
-        service.getComparisionTree(parameter, new SessionAwareAsyncCallback<JournalTreeModel>() {
+        service.getComparisionTree(parameter,UrlUtil.getLanguage(), new SessionAwareAsyncCallback<JournalTreeModel>() {
             
             public void onSuccess(JournalTreeModel root) {
                 JournalComparisonPanel.this.root = root;

@@ -31,6 +31,7 @@ import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
+import com.amalto.core.history.exception.UnsupportedUndoPhysicalDeleteException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -97,7 +98,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     }
 
     @Override
-    public JournalTreeModel getComparisionTree(JournalParameters parameter) throws ServiceException {
+    public JournalTreeModel getComparisionTree(JournalParameters parameter,String language) throws ServiceException {
 
         try {
             JournalTreeModel root;
@@ -111,6 +112,8 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;
+        } catch (UnsupportedUndoPhysicalDeleteException unsupportedUndoPhysicalDeleteException) {
+            throw new ServiceException(MESSAGES.getMessage(new Locale(language), "unsupport_undo_message")); //$NON-NLS-1$
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getMessage());
@@ -128,13 +131,15 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     }
 
     @Override
-    public boolean restoreRecord(JournalParameters parameter) throws ServiceException {
+    public boolean restoreRecord(JournalParameters parameter,String language) throws ServiceException {
         try {
             boolean result = JournalHistoryService.getInstance().restoreRecord(parameter);
             return result;
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;
+        } catch (UnsupportedUndoPhysicalDeleteException unsupportedUndoPhysicalDeleteException) {
+            throw new ServiceException(MESSAGES.getMessage(new Locale(language), "unsupport_undo_message")); //$NON-NLS-1$            
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getMessage());
