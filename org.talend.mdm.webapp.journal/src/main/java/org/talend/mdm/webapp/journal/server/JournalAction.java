@@ -31,7 +31,7 @@ import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
-import com.amalto.core.history.exception.UnsupportedUndoPhysicalDeleteException;
+import com.amalto.core.history.exception.UnsupportedUndoException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -98,7 +98,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     }
 
     @Override
-    public JournalTreeModel getComparisionTree(JournalParameters parameter,String language) throws ServiceException {
+    public JournalTreeModel getComparisionTree(JournalParameters parameter, String language) throws ServiceException {
 
         try {
             JournalTreeModel root;
@@ -106,13 +106,14 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
                 String xmlStr = JournalHistoryService.getInstance().getComparisionTreeString(parameter);
                 root = service.getComparisionTreeModel(xmlStr);
             } else {
-                root = new JournalTreeModel("root", "Document","root"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                root = new JournalTreeModel("root", "Document", "root"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
             return root;
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;
-        } catch (UnsupportedUndoPhysicalDeleteException unsupportedUndoPhysicalDeleteException) {
+        } catch (UnsupportedUndoException unsupportedUndoException) {
+            // FIXME
             throw new ServiceException(MESSAGES.getMessage(new Locale(language), "unsupport_undo_message")); //$NON-NLS-1$
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -131,14 +132,15 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     }
 
     @Override
-    public boolean restoreRecord(JournalParameters parameter,String language) throws ServiceException {
+    public boolean restoreRecord(JournalParameters parameter, String language) throws ServiceException {
         try {
             boolean result = JournalHistoryService.getInstance().restoreRecord(parameter);
             return result;
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;
-        } catch (UnsupportedUndoPhysicalDeleteException unsupportedUndoPhysicalDeleteException) {
+        } catch (UnsupportedUndoException unsupportedUndoException) {
+            // FIXME
             throw new ServiceException(MESSAGES.getMessage(new Locale(language), "unsupport_undo_message")); //$NON-NLS-1$            
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
