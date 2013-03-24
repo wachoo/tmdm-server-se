@@ -35,10 +35,18 @@ import java.util.*;
 
 public class EntityFinder {
 
-    public static Wrapper findEntity(Wrapper wrapper, Storage storage, Session session) {
-        if (!(storage instanceof HibernateStorage)) {
-            throw new IllegalArgumentException("Storage is not a Hibernate based storage.");
-        }
+    private EntityFinder() {
+    }
+
+    /**
+     * Starting from <code>wrapper</code>, goes up the containment tree using references introspection in metadata.
+     * @param wrapper A {@link Wrapper} instance (so an object managed by {@link HibernateStorage}.
+     * @param storage A {@link HibernateStorage} instance. It will be used to compute references from the internal
+     *                data model.
+     * @param session A Hibernate {@link Session}.
+     * @return The top level (aka the Wrapper instance that represent a MDM entity).
+     */
+    public static Wrapper findEntity(Wrapper wrapper, HibernateStorage storage, Session session) {
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         if (!(contextClassLoader instanceof StorageClassLoader)) {
             throw new IllegalStateException("Expects method to be called in the context of a storage operation.");
@@ -52,37 +60,57 @@ public class EntityFinder {
             return wrapper;
         }
         ForeignKeyIntegrity incomingReferences = new ForeignKeyIntegrity(wrapperType);
-        InternalRepository internalRepository = ((HibernateStorage) storage).getTypeEnhancer();
+        InternalRepository internalRepository = storage.getTypeEnhancer();
         Set<ReferenceFieldMetadata> references = internalRepository.getInternalRepository().accept(incomingReferences);
         String keyFieldName = wrapperType.getKeyFields().iterator().next().getName();
         Object id = wrapper.get(keyFieldName);
         for (ReferenceFieldMetadata reference : references) {
             ComplexTypeMetadata containingType = reference.getContainingType();
             Class<? extends Wrapper> clazz = classLoader.getClassFromType(containingType);
-            Criteria criteria = session.createCriteria(clazz, "a0");
-            criteria.createAlias("a0." + reference.getName(), "a1", CriteriaSpecification.INNER_JOIN);
-            criteria.add(Restrictions.eq("a1." + keyFieldName, id));
+            Criteria criteria = session.createCriteria(clazz, "a0"); //$NON-NLS-1$
+            criteria.createAlias("a0." + reference.getName(), "a1", CriteriaSpecification.INNER_JOIN); //$NON-NLS-1$
+            criteria.add(Restrictions.eq("a1." + keyFieldName, id)); //$NON-NLS-1$
             List list = criteria.list();
             if (!list.isEmpty()) {
                 Wrapper container = (Wrapper) list.get(0);
+                if (list.size() > 1) {
+                    Object previousItem = list.get(0);
+                    for(int i = 1; i < list.size(); i++) {
+                        Object currentItem = list.get(i);
+                        if(!previousItem.equals(currentItem)) {
+                            throw new IllegalStateException("Expected contained instance to have only one owner.");
+                        }
+                        previousItem = currentItem;
+                    }
+                }
                 return findEntity(container, storage, session);
             }
         }
         return null;
     }
 
-    public static FullTextQuery wrap(FullTextQuery query, Storage storage, Session session) {
+    /**
+     * Wraps a {@link FullTextQuery} so it returns only "top level" Hibernate objects (iso. of possible technical objects).
+     * This method ensures all methods that returns results will return expected results.
+     *
+     * @see org.hibernate.Query#scroll()
+     * @param query The full text query to wrap.
+     * @param storage The {@link HibernateStorage} implementation used to perform the query.
+     * @param session A open, read for immediate usage Hibernate {@link Session}.
+     * @return A wrapper that implements and supports all methods of {@link FullTextQuery}.
+     */
+    public static FullTextQuery wrap(FullTextQuery query, HibernateStorage storage, Session session) {
         return new QueryWrapper(query, storage, session);
     }
 
     private static class ScrollableResultsWrapper implements ScrollableResults {
         private final ScrollableResults scrollableResults;
 
-        private final Storage storage;
+        private final HibernateStorage storage;
 
         private final Session session;
 
-        public ScrollableResultsWrapper(ScrollableResults scrollableResults, Storage storage, Session session) {
+        public ScrollableResultsWrapper(ScrollableResults scrollableResults, HibernateStorage storage, Session session) {
             this.scrollableResults = scrollableResults;
             this.storage = storage;
             this.session = session;
@@ -234,11 +262,11 @@ public class EntityFinder {
     private static class IteratorWrapper implements Iterator {
         private final Iterator iterator;
 
-        private final Storage storage;
+        private final HibernateStorage storage;
 
         private final Session session;
 
-        public IteratorWrapper(Iterator iterator, Storage storage, Session session) {
+        public IteratorWrapper(Iterator iterator, HibernateStorage storage, Session session) {
             this.iterator = iterator;
             this.storage = storage;
             this.session = session;
@@ -261,11 +289,11 @@ public class EntityFinder {
 
         private final FullTextQuery query;
 
-        private final Storage storage;
+        private final HibernateStorage storage;
 
         private final Session session;
 
-        public QueryWrapper(FullTextQuery query, Storage storage, Session session) {
+        public QueryWrapper(FullTextQuery query, HibernateStorage storage, Session session) {
             this.query = query;
             this.storage = storage;
             this.session = session;

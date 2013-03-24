@@ -119,7 +119,7 @@ public class StorageQueryTest extends StorageTestCase {
                         .read("1",
                                 repository,
                                 country,
-                                "<Country><id>2</id><creationDate>2011-10-10</creationDate><creationTime>2011-10-10T01:01:01</creationTime><name>USA</name><notes><note>Country note</note></notes></Country>"));
+                                "<Country><id>2</id><creationDate>2011-10-10</creationDate><creationTime>2011-10-10T01:01:01</creationTime><name>USA</name><notes><note>Country note</note><comment>repeatable comment 1</comment><comment>Repeatable comment 2</comment></notes></Country>"));
         allRecords
                 .add(factory
                         .read("1",
@@ -2411,6 +2411,15 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testFullText() throws Exception {
         UserQueryBuilder qb = UserQueryBuilder.from(country).where(fullText("note"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        for (DataRecord result : results) {
+            assertEquals("Country", result.getType().getName());
+            assertEquals(2, result.get("id"));
+        }
+    }
+
+    public void testFullTextOnRepeatable() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(country).where(fullText("repeatable"));
         StorageResults results = storage.fetch(qb.getSelect());
         for (DataRecord result : results) {
             assertEquals("Country", result.getType().getName());

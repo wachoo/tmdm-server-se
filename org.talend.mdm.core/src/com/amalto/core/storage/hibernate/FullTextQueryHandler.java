@@ -366,7 +366,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
             // Very important to leave this null (would disable ability to search across different types)
             fullTextQuery.setCriteriaQuery(null);
             fullTextQuery.setSort(Sort.RELEVANCE);
-            this.query = EntityFinder.wrap(fullTextQuery, storage, session);
+            this.query = EntityFinder.wrap(fullTextQuery, (HibernateStorage) storage, session);
 
             return null;
         } catch (ParseException e) {
