@@ -17,10 +17,6 @@ import junit.framework.TestCase;
 
 public class DataSourceParsingTest extends TestCase {
 
-    public void testInvalidDocument() throws Exception {
-
-    }
-
     public void testInvalidParameters() {
         try {
             DataSourceFactory.getInstance().getDataSource(null, null, null);
@@ -126,5 +122,25 @@ public class DataSourceParsingTest extends TestCase {
         assertEquals("value1", advancedProperties.get("property1"));
         assertEquals("value2", advancedProperties.get("property2"));
         assertEquals("value3", advancedProperties.get("property3"));
+    }
+
+    public void testCaseSensitiveConfiguration() throws Exception {
+        InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-3", "MDM", null);
+        DataSource dataSource = dataSourceDefinition.getMaster();
+        assertNotNull(dataSource);
+        assertTrue(dataSource instanceof RDBMSDataSource);
+
+        RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) dataSource;
+        assertTrue(rdbmsDataSource.isCaseSensitiveSearch()); // Default is case sensitive search
+
+        stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
+        dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-4", "MDM", null);
+        dataSource = dataSourceDefinition.getMaster();
+        assertNotNull(dataSource);
+        assertTrue(dataSource instanceof RDBMSDataSource);
+
+        rdbmsDataSource = (RDBMSDataSource) dataSource;
+        assertFalse(rdbmsDataSource.isCaseSensitiveSearch());
     }
 }
