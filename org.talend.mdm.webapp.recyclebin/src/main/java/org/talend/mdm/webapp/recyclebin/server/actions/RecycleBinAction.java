@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.recyclebin.server.actions;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,11 +22,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
@@ -84,6 +88,7 @@ public class RecycleBinAction implements RecycleBinService {
 
             WSDroppedItemPKArray pks = Util.getPort().findAllDroppedItemsPKs(new WSFindAllDroppedItemsPKs(regex));
             WSDroppedItemPK[] items = pks.getWsDroppedItemPK();
+            Map<String, MetadataRepository> repositoryMap = new HashMap<String, MetadataRepository>();
 
             for (WSDroppedItemPK pk : items) {
                 WSDroppedItem wsitem = Util.getPort().loadDroppedItem(new WSLoadDroppedItem(pk));
@@ -106,13 +111,21 @@ public class RecycleBinAction implements RecycleBinService {
 
                     if (model != null) {
                         modelXSD = model.getXsdSchema();
+                        if (modelXSD != null && modelXSD.trim().length() > 0) {
+                            if (!repositoryMap.containsKey(modelName)) {
+                                MetadataRepository repository = new MetadataRepository();
+                                InputStream is = new ByteArrayInputStream(modelXSD.getBytes("UTF-8")); //$NON-NLS-1$
+                                repository.load(is);
+                                repositoryMap.put(modelName, repository);
+                            }
+                        }
                     }
 
                     if (!Webapp.INSTANCE.isEnterpriseVersion()
                             || (modelXSD != null && org.talend.mdm.webapp.recyclebin.server.actions.Util.checkReadAccess(
                                     modelXSD, conceptName))) {
                         ItemsTrashItem item = new ItemsTrashItem();
-                        item = WS2POJO(wsitem);
+                        item = WS2POJO(wsitem, repositoryMap.get(modelName), (String) load.get("language")); //$NON-NLS-1$
                         li.add(item);
 
                     }
@@ -160,23 +173,16 @@ public class RecycleBinAction implements RecycleBinService {
         return result;
     }
 
-    private ItemsTrashItem WS2POJO(WSDroppedItem item) throws Exception {
+    private ItemsTrashItem WS2POJO(WSDroppedItem item, MetadataRepository repository, String language) throws Exception {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");//$NON-NLS-1$
         String projection = item.getProjection();
-        String[] values = getItemNameByProjection(item.getConceptName(), projection);
+        String[] values = org.talend.mdm.webapp.recyclebin.server.actions.Util.getItemNameByProjection(item.getConceptName(),
+                projection, repository, language);
         ItemsTrashItem pojo = new ItemsTrashItem(item.getConceptName(), values[1],
                 Util.joinStrings(item.getIds(), "."), values[0] != null ? values[0] : "", df.format(new Date(//$NON-NLS-1$ //$NON-NLS-2$
                         item.getInsertionTime())), item.getInsertionUserName(), item.getWsDataClusterPK().getPk(),
                 item.getPartPath(), item.getProjection(), item.getRevisionID(), item.getUniqueId());
         return pojo;
-    }
-
-    private String[] getItemNameByProjection(String conceptName, String projection) throws Exception {
-        String[] values = new String[2];
-        Document doc = Util.parse(projection);
-        values[0] = Util.getFirstTextNode(doc, "ii/p/" + conceptName + "/Name"); //$NON-NLS-1$ //$NON-NLS-2$
-        values[1] = Util.getFirstTextNode(doc, "ii/dmn"); //$NON-NLS-1$
-        return values;
     }
 
     public boolean isEntityPhysicalDeletable(String conceptName) throws ServiceException {

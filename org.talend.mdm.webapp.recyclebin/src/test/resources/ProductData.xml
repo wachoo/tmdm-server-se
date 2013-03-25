@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ii>
+	<c>Product</c>
+	<n>Product</n>
+	<dmn>Product</dmn>
+	<dmr />
+	<sp />
+	<t>1363926501351</t>
+	<taskId>null</taskId>
+	<i>231035935</i>
+	<p>
+		<Product>
+					<Id>231035935</Id>
+					<Name>Talend Golf Shirt</Name>
+					<Description>[EN:Talend Shirt][FR:Talend]</Description>
+					<Features>
+							<Colors>
+									<Color>White</Color>
+							</Colors>
+							<Sizes>
+									<Size>Medium</Size>
+							</Sizes>
+					</Features>
+					<Availability>true</Availability>
+					<Price>16.99</Price>
+					<Family>[1]</Family>
+					<Picture>/imageserver/upload/TalendShop/golf_shirt.jpg
+					</Picture>
+					<OnlineStore>Talend Shop@@http://www.cafepress.com/Talend.231035935
+					</OnlineStore>
+		</Product>
+	</p>
+</ii>

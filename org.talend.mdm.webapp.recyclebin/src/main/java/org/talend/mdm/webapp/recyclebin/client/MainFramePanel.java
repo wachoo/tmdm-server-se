@@ -326,6 +326,7 @@ public class MainFramePanel extends ContentPanel {
             @Override
             protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<ItemsTrashItem>> callback) {
                 BasePagingLoadConfigImpl baseConfig = BasePagingLoadConfigImpl.copyPagingLoad((PagingLoadConfig) loadConfig);
+                baseConfig.set("language", UrlUtil.getLanguage()); //$NON-NLS-1$
                 service.getTrashItems(text.getValue() == null ? "*" : text.getValue(), baseConfig,//$NON-NLS-1$
                         new SessionAwareAsyncCallback<ItemBasePageLoadResult<ItemsTrashItem>>() {
 
