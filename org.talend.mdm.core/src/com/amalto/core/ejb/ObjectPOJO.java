@@ -64,7 +64,10 @@ public abstract class ObjectPOJO implements Serializable {
 
     private static final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 
-    /* cached the Object pojos to improve performance*/
+    /**
+     * Cache the records to improve performance: this is a <b>READ</b> cache only -> only records read from
+     * underlying storage should be cached (don't cache what user provide to {@link #store()} for instance).
+     */
     private static Map cachedPojo;
 
     private static int MAX_CACHE_SIZE = 5000;
@@ -495,9 +498,9 @@ public abstract class ObjectPOJO implements Serializable {
             server.commit(dataClusterName);
 
             setLastError(""); //$NON-NLS-1$ 
-            //update the cache
+            // invalidate the cache for entry
             ItemCacheKey key = new ItemCacheKey(revisionID, getPK().getUniqueId(), dataClusterName);
-            cachedPojo.put(key, sw.toString());
+            cachedPojo.remove(key);
             return getPK();
         } catch (XtentisException e) {
             throw (e);
