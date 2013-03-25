@@ -26,8 +26,14 @@ public class BrowseRecordsGWTTest extends GWTTestCase {
 
     public void testOnModuleLoad() {
         // test the entry method without any exception
+        prepareEnv();
         browseRecords.onModuleLoad();
     }
+
+    private native void prepareEnv()/*-{
+		$wnd.amalto = {};
+		$wnd.amalto.browserecords = {};
+    }-*/;
 
     public void testGetSessionNotNull() {
         assertNotNull(BrowseRecords.getSession());
