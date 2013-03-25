@@ -670,30 +670,22 @@ public class ItemPOJO implements Serializable {
 
             try {
                 if (partPath.equals("/")) { //$NON-NLS-1$
-
                     server.deleteDocument(revisionID, dataClusterName, uniqueID);
-                    // update the cache
-                    ItemCacheKey key = new ItemCacheKey(revisionID, uniqueID, dataClusterName);
-                    cachedPojo.remove(key);
                 } else {
                     String xmlstring = Util.nodeToString(sourceDoc);
                     server.start(dataClusterName);
                     server.putDocumentFromString(xmlstring, uniqueID, dataClusterName, revisionID);
                     server.commit(dataClusterName);
-                    // update the cache
-                    ItemCacheKey key = new ItemCacheKey(revisionID, uniqueID, dataClusterName);
-                    cachedPojo.put(key, xmlstring);
                 }
             } catch (Exception e) {
                 server.deleteDocument(null, "MDMItemsTrash", droppedItemPOJO.obtainDroppedItemPK().getUniquePK());
                 throw new XtentisException(e);
+            } finally {
+                // update the cache
+                ItemCacheKey key = new ItemCacheKey(revisionID, uniqueID, dataClusterName);
+                cachedPojo.remove(key);
             }
-
-            //It need to remove it from cache, because it still be load on cache after it has be drop
-            cachedPojo.remove(new ItemCacheKey(revisionID,itemPOJOPK.getUniqueID(), itemPOJOPK.getDataClusterPOJOPK().getUniqueId()));
-            
             return droppedItemPOJO.obtainDroppedItemPK();
-
         } catch (SAXException e) {
             String err = "The remaining item did not obey the rules of data model.\nYou can modify the data model, and try it again.\n\n"
                     + e.getLocalizedMessage();
@@ -778,7 +770,7 @@ public class ItemPOJO implements Serializable {
             // update the cache
             if(putInCache) {
                 ItemCacheKey key = new ItemCacheKey(revisionID, uniqueId, clusterId);
-                cachedPojo.put(key, xml);
+                cachedPojo.remove(key);
             }
             return itemPK;
         } catch (Exception e) {

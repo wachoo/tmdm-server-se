@@ -334,7 +334,6 @@ public abstract class ObjectPOJO implements Serializable{
             		}
             	}
             	//end
-            	if(item!=null)
             	cachedPojo.put(key, item);
             }
                                     
@@ -544,9 +543,9 @@ public abstract class ObjectPOJO implements Serializable{
             server.commit(dataClusterName);
             	
             setLastError(""); //$NON-NLS-1$ 
-            //update the cache
+            //invalidate the cache
             ItemCacheKey key =new ItemCacheKey(revisionID,getPK().getUniqueId(), dataClusterName);
-            cachedPojo.put(key, sw.toString());
+            cachedPojo.remove(key);
             return getPK();
     	} catch (XtentisException e) {
     		throw(e);
@@ -805,7 +804,7 @@ public abstract class ObjectPOJO implements Serializable{
 			);
             server.commit(cluster);
             ItemCacheKey key =new ItemCacheKey(revisionID,uniqueID, cluster);            
-            cachedPojo.put(key, xml);
+            cachedPojo.remove(key);
     	} catch (XtentisException e) {
     		throw(e);
 	    } catch (Exception e) {
