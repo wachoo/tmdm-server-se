@@ -193,7 +193,6 @@
         <xsd:annotation>
             <xsd:appinfo source="X_Label_FR">Produit</xsd:appinfo>
             <xsd:appinfo source="X_Label_EN">Product</xsd:appinfo>
-            <xsd:appinfo source="X_Lookup_Field">Product/Availability</xsd:appinfo>
             <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
             <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
         </xsd:annotation>

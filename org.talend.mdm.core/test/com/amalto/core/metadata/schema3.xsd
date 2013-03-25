@@ -175,7 +175,6 @@
             <xsd:appinfo source="X_Write">Demo_User</xsd:appinfo>
             <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
             <xsd:appinfo source="X_Label_EN">Supplier</xsd:appinfo>
-            <xsd:appinfo source="X_Lookup_Field">Supplier/Id</xsd:appinfo>
         </xsd:annotation>
         <xsd:complexType>
             <xsd:all maxOccurs="1" minOccurs="1">
@@ -208,7 +207,6 @@
             <xsd:appinfo source="X_Write">Demo_User</xsd:appinfo>
             <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
             <xsd:appinfo source="X_Label_EN">ProductFamily</xsd:appinfo>
-            <xsd:appinfo source="X_Lookup_Field">ProductFamily/Id</xsd:appinfo>
         </xsd:annotation>
         <xsd:complexType>
             <xsd:all maxOccurs="1" minOccurs="1">
