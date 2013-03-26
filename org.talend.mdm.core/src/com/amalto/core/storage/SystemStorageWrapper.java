@@ -333,7 +333,9 @@ public class SystemStorageWrapper extends StorageWrapper {
             // TODO Filter by revision
             // String revisionId = StringUtils.substringBefore(uniqueID, ".");
             uniqueID = StringUtils.substringAfter(uniqueID, "."); //$NON-NLS-1$
-        } else {
+        } else if (!COMPLETED_ROUTING_ORDER.equals(type.getName())
+                && !FAILED_ROUTING_ORDER.equals(type.getName())
+                && !ACTIVE_ROUTING_ORDER.equals(type.getName())) {
             if (uniqueID.startsWith(PROVISIONING_PREFIX_INFO)) {
                 uniqueID = StringUtils.substringAfter(uniqueID, PROVISIONING_PREFIX_INFO);
             } else if (uniqueID.contains(".")) { //$NON-NLS-1$
