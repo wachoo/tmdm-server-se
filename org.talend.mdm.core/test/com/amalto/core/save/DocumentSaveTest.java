@@ -223,6 +223,41 @@ public class DocumentSaveTest extends TestCase {
 
     }
 
+    public void testCreateWithMultiOccurrenceUUID() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("MultiOccurrenceUUID.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, false, "", "MultiOccurrenceUUID.xsd");
+        source.setUserName("System_Admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("NewMultiOccurrenceUUID.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "MultiOccurrenceUUID", "Source", recordXml,
+                true, true, true, true);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+
+        Element committedElement = committer.getCommittedElement();
+
+        assertEquals("111", evaluate(committedElement, "/EntityA/Id"));
+
+        assertEquals("lab1", evaluate(committedElement, "/EntityA/nodes/node[1]/label"));
+        assertNotNull(evaluate(committedElement, "/EntityA/nodes/node[1]/uuid"));
+        assertTrue(evaluate(committedElement, "/EntityA/nodes/node[1]/uuid").toString().length() > 0);
+
+        assertEquals("lab2", evaluate(committedElement, "/EntityA/nodes/node[2]/label"));
+        assertNotNull(evaluate(committedElement, "/EntityA/nodes/node[2]/uuid"));
+        assertTrue(evaluate(committedElement, "/EntityA/nodes/node[2]/uuid").toString().length() > 0);
+
+        assertEquals("lab3", evaluate(committedElement, "/EntityA/nodes/node[3]/label"));
+        assertNotNull(evaluate(committedElement, "/EntityA/nodes/node[3]/uuid"));
+        assertTrue(evaluate(committedElement, "/EntityA/nodes/node[3]/uuid").toString().length() > 0);
+    }
+    
     public void testReplaceWithUUIDOverwrite() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
