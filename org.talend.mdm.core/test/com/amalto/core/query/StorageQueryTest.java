@@ -35,15 +35,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.hibernate.HibernateStorage;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.talend.mdm.commmon.metadata.*;
-
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
@@ -58,6 +52,7 @@ import com.amalto.core.query.user.Condition;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.Field;
 import com.amalto.core.query.user.IntegerConstant;
+import com.amalto.core.query.user.LongConstant;
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.Predicate;
 import com.amalto.core.query.user.Select;
@@ -65,9 +60,12 @@ import com.amalto.core.query.user.StringConstant;
 import com.amalto.core.query.user.Timestamp;
 import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.query.user.UserQueryDumpConsole;
 import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.DataRecordWriter;
@@ -2101,6 +2099,29 @@ public class StorageQueryTest extends StorageTestCase {
         assertTrue(expectedResults.isEmpty());
     }
 
+    public void testBuildCondition() {
+        UserQueryBuilder qb = from(product);
+        List<IWhereItem> conditions = new ArrayList<IWhereItem>();
+        conditions.add(new WhereCondition("Product/Family", "JOINS", "ProductFamily/Id", "&"));
+        IWhereItem fullWhere = new WhereAnd(conditions);
+        BinaryLogicOperator condition = (BinaryLogicOperator) UserQueryHelper.buildCondition(qb, fullWhere, repository);
+        assertNotNull(condition);
+
+        conditions.clear();
+        conditions.add(new WhereCondition("../../t", ">=", "1364227200000", "&"));
+        fullWhere = new WhereAnd(conditions);
+        condition = (BinaryLogicOperator) UserQueryHelper.buildCondition(qb, fullWhere, repository);
+        assertNotNull(condition);
+        assertTrue(Predicate.AND.equals(condition.getPredicate()));
+        assertTrue(condition.getRight() instanceof Compare);
+        Compare compare = (Compare) condition.getRight();
+        assertTrue(compare.getLeft() instanceof Timestamp);
+        assertTrue(Predicate.GREATER_THAN_OR_EQUALS.equals(compare.getPredicate()));
+        assertTrue(compare.getRight() instanceof LongConstant);
+        LongConstant value = (LongConstant) compare.getRight();
+        assertEquals(Long.valueOf(1364227200000L), value.getValue());
+    }
+    
     public void testDuplicateFieldNames() {
         UserQueryBuilder qb = from(product);
 

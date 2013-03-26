@@ -79,7 +79,10 @@ public class UserQueryHelper {
                 }
                 return condition;
             }
-            TypedExpression field = getField(repository, leftTypeName, leftFieldName);
+            TypedExpression field = getInnerField(leftPath);
+            if (field == null) {
+                field = getField(repository, leftTypeName, leftFieldName);
+            }
             // Field comparisons
             if (!whereCondition.isRightValueXPath()) { // Value based comparison
                 if (isPerformingTypeCheck) {
@@ -160,6 +163,15 @@ public class UserQueryHelper {
         } else {
             throw new NotImplementedException("No support for where item of type " + whereItem.getClass().getName());
         }
+    }
+
+    public static TypedExpression getInnerField(String fieldName) {
+        if (UserQueryBuilder.TIMESTAMP_FIELD.equals(fieldName)) {
+            return timestamp();
+        } else if (UserQueryBuilder.TASK_ID_FIELD.equals(fieldName)) {
+            return taskId();
+        }
+        return null;
     }
 
     public static TypedExpression getField(MetadataRepository repository, String typeName, String fieldName) {
