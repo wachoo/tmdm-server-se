@@ -86,10 +86,8 @@ public class PreviousExecutionView extends AbstractView {
         searchButton = new Button(messages.search());
         bar = new ToolBar();
         taskPagingBar = new PagingToolBar(PAGE_SIZE);
-        taskGrid = new Grid<StagingAreaExecutionModel>(PreviousExecutionController.getClearStore(),
-                taskColumnModel);
-        taskGrid.setHeight(200);
-        mainPanel.setAutoHeight(true);
+        taskGrid = new Grid<StagingAreaExecutionModel>(PreviousExecutionController.getClearStore(), taskColumnModel);
+        taskGrid.setAutoHeight(true);
     }
 
     @Override
@@ -108,8 +106,6 @@ public class PreviousExecutionView extends AbstractView {
         mainPanel.setTopComponent(bar);
         mainPanel.add(taskGrid);
         mainPanel.setBottomComponent(taskPagingBar);
-
-        mainPanel.setHeight(-1);
     }
 
     public Date getBeforeDate() {

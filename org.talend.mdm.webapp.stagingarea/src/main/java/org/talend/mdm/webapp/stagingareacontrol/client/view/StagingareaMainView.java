@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.stagingareacontrol.client.view;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.resources.icon.Icons;
 
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -97,7 +98,7 @@ public class StagingareaMainView extends AbstractView {
         mainPanel.setLayout(layout);
         mainPanel.add(wrapFieldSet(summaryView, messages.status()), new RowData(1, -1, new Margins(0, 10, 0, 10)));
         mainPanel.add(wrapFieldSet(currentValidationView, messages.current_validation()), new RowData(1, -1, new Margins(0, 10, 0, 10)));
-        mainPanel.add(wrapFieldSet(previousExecutionValidationView, messages.previous_validation()), new RowData(1, -1, new Margins(0, 10, 0, 10)));
+        mainPanel.add(wrapFieldSet(previousExecutionValidationView, messages.previous_validation()), new RowData(1, 1, new Margins(0, 10, 0, 10)));
     }
 
     public void doLayout() {

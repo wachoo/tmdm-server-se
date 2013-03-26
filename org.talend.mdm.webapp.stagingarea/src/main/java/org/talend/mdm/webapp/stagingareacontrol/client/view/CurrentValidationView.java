@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
+import org.talend.mdm.webapp.stagingareacontrol.client.GenerateContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaValidationModel;
 
@@ -177,9 +178,10 @@ public class CurrentValidationView extends AbstractView {
             mainPanel.setHeight(30);
             cardLayout.setActiveItem(defaultMessagePanel);
         } else {
-            mainPanel.setHeight(150);
+            mainPanel.setHeight(120);
             cardLayout.setActiveItem(contentPanel);
         }
+        GenerateContainer.getContentPanel().layout(true);
         this.status = status;
     }
 
