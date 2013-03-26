@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.rmi.RemoteException;
 import java.util.Set;
 
+import org.talend.mdm.webapp.base.server.util.Constants;
 import org.talend.mdm.webapp.journal.server.service.WebService;
 
 import com.amalto.webapp.core.util.XtentisWebappException;
@@ -63,7 +64,7 @@ public class WebServiceMock implements WebService {
     }
     
     public WSStringArray getItemsBySort(WSGetItemsSort wsGetItemsSort) throws RemoteException, XtentisWebappException {
-        if ("Update".equals(wsGetItemsSort.getConceptName()) && "UpdateReport".equals(wsGetItemsSort.getWsDataClusterPK().getPk()) && "ASC".equals(wsGetItemsSort.getSort()) && "Update/Key".equals(wsGetItemsSort.getDir())) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        if ("Update".equals(wsGetItemsSort.getConceptName()) && "UpdateReport".equals(wsGetItemsSort.getWsDataClusterPK().getPk()) && Constants.SEARCH_DIRECTION_ASC.equals(wsGetItemsSort.getSort()) && "Update/Key".equals(wsGetItemsSort.getDir())) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             String[] result = {"<totalCount>1</totalCount>","<result><Update><UserName>administrator</UserName><Source>genericUI</Source><TimeInMillis>1360140140037</TimeInMillis><OperationType>UPDATE</OperationType><RevisionID>null</RevisionID><DataCluster>Product</DataCluster><DataModel>Product</DataModel><Concept>Product</Concept><Key>1</Key></Update></result>"}; //$NON-NLS-1$ //$NON-NLS-2$
             return new WSStringArray(result);
         } else {

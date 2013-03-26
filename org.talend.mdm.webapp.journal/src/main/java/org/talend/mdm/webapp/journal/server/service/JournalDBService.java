@@ -24,6 +24,7 @@ import org.dom4j.Attribute;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import org.talend.mdm.webapp.base.server.util.Constants;
 import org.talend.mdm.webapp.journal.shared.FKInstance;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
@@ -44,6 +45,7 @@ import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSWhereOperator;
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSContentType;
@@ -89,8 +91,14 @@ public class JournalDBService {
 
         int totalSize = 0;
         List<JournalGridModel> list = new ArrayList<JournalGridModel>();
+        String sortDir = null;
+        if (SortDir.ASC.equals(SortDir.findDir(sort))) {
+            sortDir = Constants.SEARCH_DIRECTION_ASC;
+        } else if (SortDir.DESC.equals(SortDir.findDir(sort))) {
+            sortDir = Constants.SEARCH_DIRECTION_DESC;
+        }
         WSStringArray resultsArray = webService.getItemsBySort(
-                org.talend.mdm.webapp.journal.server.util.Util.buildGetItemsSort(conditions, start, limit,sort,field));
+                org.talend.mdm.webapp.journal.server.util.Util.buildGetItemsSort(conditions, start, limit, sortDir, field));
         String[] results = resultsArray == null ? new String[0] : resultsArray.getStrings();
         Document document = Util.parse(results[0]);
         totalSize = Integer.parseInt(document.getDocumentElement().getTextContent());

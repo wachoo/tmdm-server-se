@@ -19,6 +19,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.talend.mdm.webapp.base.server.util.Constants;
 import org.talend.mdm.webapp.journal.server.util.Util;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 
@@ -27,6 +28,7 @@ import com.amalto.webapp.util.webservices.WSGetItemsSort;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSWhereOperator;
+import com.extjs.gxt.ui.client.Style.SortDir;
 
 /**
  * created by talend2 on 2013-1-29 Detailled comment
@@ -83,12 +85,19 @@ public class UtilTest extends TestCase {
     
     public void testBuildGetItemsSort() {
         List<WSWhereItem> conditions = Util.buildWhereItems(criteria, true);
-        WSGetItemsSort itemSort = Util.buildGetItemsSort(conditions, 0, 20, "ASC", "key");
+        String sort = "ASC";
+        if (SortDir.ASC.equals(SortDir.findDir(sort))) {
+            sort = Constants.SEARCH_DIRECTION_ASC;
+        } else if (SortDir.DESC.equals(SortDir.findDir(sort))) {
+            sort = Constants.SEARCH_DIRECTION_DESC;
+        }
+        assertEquals(Constants.SEARCH_DIRECTION_ASC, sort);
+        WSGetItemsSort itemSort = Util.buildGetItemsSort(conditions, 0, 20, sort, "key");
         assertNotNull(itemSort.getConceptName());
         assertEquals(true, itemSort.getTotalCountOnFirstResult().booleanValue());
         assertEquals(0, itemSort.getSkip());
         assertEquals(20, itemSort.getMaxItems());
-        assertEquals("ASC",itemSort.getSort());
+        assertEquals(Constants.SEARCH_DIRECTION_ASC,itemSort.getSort());
         assertEquals("Update/Key",itemSort.getDir());
     }
     
