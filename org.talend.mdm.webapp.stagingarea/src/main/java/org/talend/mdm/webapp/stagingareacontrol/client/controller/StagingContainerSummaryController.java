@@ -49,7 +49,7 @@ public class StagingContainerSummaryController extends AbstractController {
         });
     }
 
-    public native void openInvalidRecordToBrowseRecord(Integer state)/*-{
+    public native void openInvalidRecordToBrowseRecord(int state)/*-{
 		if ($wnd.amalto.stagingareabrowse
 				&& $wnd.amalto.stagingareabrowse.StagingareaBrowse) {
 			$wnd.amalto.stagingareabrowse.StagingareaBrowse.init(state);

@@ -124,14 +124,14 @@ public class StagingContainerSummaryView extends AbstractView {
         }
     }
 
-    private native void addClickForRecord(Integer state, Element el)/*-{
+    private native void addClickForRecord(int state, Element el)/*-{
 		var instance = this;
 		el.onclick = function() {
-			instance.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::onOpenRecord(Ljava/lang/Integer;)(state);
+			instance.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::onOpenRecord(I)(state);
 		};
     }-*/;
 
-    void onOpenRecord(Integer state) {
+    void onOpenRecord(int state) {
         ControllerContainer.get().getSummaryController().openInvalidRecordToBrowseRecord(state);
     }
 

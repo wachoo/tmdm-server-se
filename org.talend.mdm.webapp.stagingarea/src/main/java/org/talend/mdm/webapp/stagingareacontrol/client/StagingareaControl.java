@@ -13,7 +13,6 @@
 package org.talend.mdm.webapp.stagingareacontrol.client;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaConfiguration;
 import org.talend.mdm.webapp.stagingareacontrol.client.view.StagingareaMainView;
 
@@ -23,14 +22,15 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class StagingareaControl implements EntryPoint {
-
 
     public static final String STAGINGAREA_ID = "Stagingarea"; //$NON-NLS-1$
 
@@ -42,101 +42,104 @@ public class StagingareaControl implements EntryPoint {
         return stagingAreaConfig;
     }
 
+    @Override
     public void onModuleLoad() {
         service = GWT.create(StagingAreaService.class);
-        if (GWT.isScript()) {
-            XDOM.setAutoIdPrefix(GWT.getModuleName() + "-" + XDOM.getAutoIdPrefix()); //$NON-NLS-1$
-            registerPubService();
-            Log.setUncaughtExceptionHandler();
-        } else {
-            service.getStagingAreaConfig(new SessionAwareAsyncCallback<StagingAreaConfiguration>() {
+        XDOM.setAutoIdPrefix(GWT.getModuleName() + "-" + XDOM.getAutoIdPrefix()); //$NON-NLS-1$
+        registerPubService();
+        Log.setUncaughtExceptionHandler();
+        service.getStagingAreaConfig(new SessionAwareAsyncCallback<StagingAreaConfiguration>() {
 
-                public void onSuccess(StagingAreaConfiguration stagingAreaConfig) {
-                    StagingareaControl.stagingAreaConfig = stagingAreaConfig;
-                    UserContextUtil.setDataContainer("Product"); //$NON-NLS-1$
-                    UserContextUtil.setDataModel("Product"); //$NON-NLS-1$
-                    GenerateContainer.generateContentPanel();
-                    ContentPanel contentPanel = GenerateContainer.getContentPanel();
-                    contentPanel.setSize(Window.getClientWidth(), Window.getClientHeight());
-                    onModuleRender();
-                    RootPanel.get().add(contentPanel);
-                }
-            });
-        }
+            @Override
+            public void onSuccess(StagingAreaConfiguration stagingAreaConfig) {
+                StagingareaControl.stagingAreaConfig = stagingAreaConfig;
+            }
+        });
     }
 
     private native void registerPubService()/*-{
-        var instance = this;
-        $wnd.amalto.stagingarea = {};
-        $wnd.amalto.stagingarea.Stagingarea = function() {
+		var instance = this;
+		$wnd.amalto.stagingarea = {};
+		$wnd.amalto.stagingarea.Stagingarea = function() {
 
-        	function initUI() {
-        		instance.@org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl::initUI()();
-        	}
+			function initUI() {
+				instance.@org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl::initUI()();
+			}
 
-        	return {
-        		init : function() {
-        			initUI();
-        		}
-        	}
-        }();
+			return {
+				init : function() {
+					initUI();
+				}
+			}
+		}();
     }-*/;
 
     private native void _initUI()/*-{
-        var tabPanel = $wnd.amalto.core.getTabPanel();
-        var panel = tabPanel.getItem("Stagingarea");
-        if (panel == undefined) {
-        	@org.talend.mdm.webapp.stagingareacontrol.client.GenerateContainer::generateContentPanel()();
-        	panel = this.@org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl::createPanel()();
-        	tabPanel.add(panel);
-        }
-        tabPanel.setSelection(panel.getItemId());
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		var panel = tabPanel.getItem("Stagingarea");
+		if (panel == undefined) {
+			@org.talend.mdm.webapp.stagingareacontrol.client.GenerateContainer::generateContentPanel()();
+			panel = this.@org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl::createPanel()();
+			tabPanel.add(panel);
+		}
+		tabPanel.setSelection(panel.getItemId());
     }-*/;
 
     native JavaScriptObject createPanel()/*-{
-        var instance = this;
-        var panel = {
-        	render : function(el) {
-        		instance.@org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl::renderContent(Ljava/lang/String;)(el.id);
-        	},
-        	setSize : function(width, height) {
-        		var cp = @org.talend.mdm.webapp.stagingareacontrol.client.GenerateContainer::getContentPanel()();
-        		cp.@com.extjs.gxt.ui.client.widget.ContentPanel::setSize(II)(width, height);
-        	},
-        	getItemId : function() {
-        		var cp = @org.talend.mdm.webapp.stagingareacontrol.client.GenerateContainer::getContentPanel()();
-        		return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getItemId()();
-        	},
-        	getEl : function() {
-        		var cp = @org.talend.mdm.webapp.stagingareacontrol.client.GenerateContainer::getContentPanel()();
-        		var el = cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getElement()();
-        		return {
-        			dom : el
-        		};
-        	},
-        	doLayout : function() {
-        		var cp = @org.talend.mdm.webapp.stagingareacontrol.client.GenerateContainer::getContentPanel()();
-        		return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::doLayout()();
-        	},
-        	title : function() {
-        		var cp = @org.talend.mdm.webapp.stagingareacontrol.client.GenerateContainer::getContentPanel()();
-        		return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getHeading()();
-        	}
-        };
-        return panel;
+		var instance = this;
+		var panel = {
+			render : function(el) {
+				instance.@org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl::renderContent(Ljava/lang/String;)(el.id);
+			},
+			setSize : function(width, height) {
+				var cp = @org.talend.mdm.webapp.stagingareacontrol.client.GenerateContainer::getContentPanel()();
+				cp.@com.extjs.gxt.ui.client.widget.ContentPanel::setSize(II)(width, height);
+			},
+			getItemId : function() {
+				var cp = @org.talend.mdm.webapp.stagingareacontrol.client.GenerateContainer::getContentPanel()();
+				return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getItemId()();
+			},
+			getEl : function() {
+				var cp = @org.talend.mdm.webapp.stagingareacontrol.client.GenerateContainer::getContentPanel()();
+				var el = cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getElement()();
+				return {
+					dom : el
+				};
+			},
+			doLayout : function() {
+				var cp = @org.talend.mdm.webapp.stagingareacontrol.client.GenerateContainer::getContentPanel()();
+				return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::doLayout()();
+			},
+			title : function() {
+				var cp = @org.talend.mdm.webapp.stagingareacontrol.client.GenerateContainer::getContentPanel()();
+				return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getHeading()();
+			}
+		};
+		return panel;
     }-*/;
 
     public void renderContent(final String contentId) {
-        service.getStagingAreaConfig(new SessionAwareAsyncCallback<StagingAreaConfiguration>() {
+        onModuleRender();
+        ContentPanel content = GenerateContainer.getContentPanel();
 
-            public void onSuccess(StagingAreaConfiguration stagingAreaConfig) {
-                StagingareaControl.stagingAreaConfig = stagingAreaConfig;
-                onModuleRender();
-                RootPanel panel = RootPanel.get(contentId);
-                GenerateContainer.getContentPanel().setSize(panel.getOffsetWidth(), panel.getOffsetHeight());
-                panel.add(GenerateContainer.getContentPanel());
-            }
-        });
+        if (GWT.isScript()) {
+            RootPanel panel = RootPanel.get(contentId);
+            panel.add(content);
+        } else {
+            final Element element = DOM.getElementById(contentId);
+            SimplePanel panel = new SimplePanel() {
+
+                @Override
+                protected void setElement(Element elem) {
+                    super.setElement(element);
+                }
+            };
+            RootPanel rootPanel = RootPanel.get();
+            rootPanel.clear();
+            rootPanel.add(panel);
+            panel.add(content);
+        }
+
     }
 
     public void initUI() {

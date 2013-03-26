@@ -38,8 +38,7 @@ public class RestServiceHandler {
 
     private static final String SEPARATE = "/"; //$NON-NLS-1$
 
-    public static final String BASE_URL = (GWT.isScript() ? GWT.getHostPageBaseURL().replaceAll("/general/secure", "") : //$NON-NLS-1$ //$NON-NLS-2$
-            GWT.getHostPageBaseURL().replaceAll(GWT.getModuleName() + SEPARATE, "")) //$NON-NLS-1$
+    public static final String BASE_URL = GWT.getHostPageBaseURL().replaceAll("/general/secure", "") //$NON-NLS-1$ //$NON-NLS-2$
             + "core/services/tasks/staging"; //$NON-NLS-1$
 
     public static final DateTimeFormat DEFAULT_DATE_FORMAT = DateTimeFormat.getFormat("yyyy-MM-dd'T'HH:mm:ss");//$NON-NLS-1$

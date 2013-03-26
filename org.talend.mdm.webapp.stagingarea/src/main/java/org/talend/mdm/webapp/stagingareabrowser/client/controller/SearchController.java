@@ -59,10 +59,7 @@ public class SearchController extends AbstractController {
         return store;
     }
 
-    public void defaultDoSearch(Integer defaultState) {
-        if (defaultState != null) {
-            view.defaultDoSearch(defaultState);
-            defaultState = null;
-        }
+    public void defaultDoSearch(int defaultState) {
+        view.defaultDoSearch(defaultState);
     }
 }
