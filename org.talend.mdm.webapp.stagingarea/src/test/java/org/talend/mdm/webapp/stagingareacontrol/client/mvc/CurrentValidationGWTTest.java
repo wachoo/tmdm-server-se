@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.mvc;
 
+import org.talend.mdm.webapp.stagingareacontrol.client.GenerateContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.TestUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.rest.RestServiceHandler;
@@ -37,7 +38,7 @@ public class CurrentValidationGWTTest extends GWTTestCase {
         TestUtil.initRestServices(new ResourceMockWrapper());
         TestUtil.initUserContext("TestDataContainer", "TestDataModel");
         TestUtil.initContainer();
-
+        GenerateContainer.generateContentPanel();
         summaryView = (StagingContainerSummaryView) ControllerContainer.get().getSummaryController().getBindingView();
         validationView = (CurrentValidationView) ControllerContainer.get().getCurrentValidationController().getBindingView();
         RootPanel.get().add(summaryView);
