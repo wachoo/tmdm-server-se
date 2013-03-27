@@ -115,7 +115,7 @@ public class MetadataValidationTest extends TestCase {
         } catch (Exception e) {
             // Expected
         }
-        assertEquals(3, handler.getMessages().size());
+        assertEquals(4, handler.getMessages().size());
     }
 
     public void testPK4() throws Exception {

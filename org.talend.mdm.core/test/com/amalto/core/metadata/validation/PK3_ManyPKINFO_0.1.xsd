@@ -45,7 +45,7 @@
     <xsd:element name="Root2" type="EType">
         <xsd:annotation>
             <xsd:appinfo source="X_PrimaryKeyInfo">Root2/name1</xsd:appinfo>
-            <xsd:appinfo source="X_PrimaryKeyInfo">Root2/NameType/name2</xsd:appinfo>
+            <xsd:appinfo source="X_PrimaryKeyInfo">Root2/NameType/name3</xsd:appinfo>
         </xsd:annotation>
         <xsd:unique name="Root2">
             <xsd:selector xpath="."/>
