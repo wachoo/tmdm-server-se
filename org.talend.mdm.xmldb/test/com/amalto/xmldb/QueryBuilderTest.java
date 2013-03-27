@@ -383,6 +383,36 @@ public class QueryBuilderTest extends TestCase {
         String actual = queryBuilder.buildWhereCondition(whereCond, pivots, metaDataTypes);
         assertEquals(expected, actual);
     }
+    
+    public void testQueryCompletedRoutingOrder() throws Exception {
+        boolean isItemQuery = true;
+        LinkedHashMap<String, String> objectRootElementNamesToRevisionID = new LinkedHashMap<String, String>();
+        LinkedHashMap<String, String> objectRootElementNamesToClusterName = new LinkedHashMap<String, String>();
+        objectRootElementNamesToClusterName.put(".*", "amaltoOBJECTSCompletedRoutingOrderV2");
+        String forceMainPivot = null;
+        ArrayList<String> viewableFullPaths = new ArrayList<String>();
+        viewableFullPaths.add("completed-routing-order-v2-pOJO/name");
+        viewableFullPaths.add("completed-routing-order-v2-pOJO/@status");
+        IWhereItem whereItem = new WhereCondition("completed-routing-order-v2-pOJO/@time-last-run-started", WhereCondition.GREATER_THAN_OR_EQUAL, "-1",
+                WhereCondition.PRE_NONE, false);
+        String orderBy = null;
+        String direction = null;
+        int start = 0;
+        long limit = 20;
+        boolean withTotalCountOnFirstRow = true;
+        Map<String, ArrayList<String>> metaDataTypes = Collections.emptyMap();
+
+        String expected = "let $_leres0_ := collection(\"/amaltoOBJECTSCompletedRoutingOrderV2\")/completed-routing-order-v2-pOJO [ @time-last-run-started >= -1 ]  \n";
+        expected += "let $_page_ :=\n";
+        expected += "for $pivot0 in subsequence($_leres0_,1,20)\n";
+        expected += "return <result>{let $element := $pivot0/name return if (not(empty($element))) then $element else <name/>}{<status>{string($pivot0/@status)}</status>}</result>\n";
+        expected += "return (<totalCount>{count($_leres0_)}</totalCount>, $_page_)";
+
+        String actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID,
+                objectRootElementNamesToClusterName, forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start,
+                limit, withTotalCountOnFirstRow, metaDataTypes);
+        assertEquals(expected, actual);
+    }
 
     private static class TestQueryBuilder extends QueryBuilder {
 

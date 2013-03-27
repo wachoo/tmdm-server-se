@@ -57,6 +57,12 @@ public abstract class QueryBuilder {
 
     private static final Logger LOG = Logger.getLogger(QueryBuilder.class);
 
+    private static final String COMPLETED_ROUTING_ORDER = "completed-routing-order-v2-pOJO"; //$NON-NLS-1$
+
+    private static final String FAILED_ROUTING_ORDER = "failed-routing-order-v2-pOJO"; //$NON-NLS-1$
+
+    private static final String ACTIVE_ROUTING_ORDER = "active-routing-order-v2-pOJO"; //$NON-NLS-1$
+
     /**
      * Builds the xQuery Return statement
      * 
@@ -201,6 +207,10 @@ public abstract class QueryBuilder {
                 // object name, not a pattern --> direct match
                 clusterName = rootElementNamesToClusterName.get(rootElementName);
             }
+            if (ACTIVE_ROUTING_ORDER.equals(rootElementName) || COMPLETED_ROUTING_ORDER.equals(rootElementName)
+                    || FAILED_ROUTING_ORDER.equals(rootElementName)) {
+                clusterName = StringUtils.substringBefore(clusterName, "/"); //$NON-NLS-1$
+            }
             if (xqFor.length() == 0) {
                 xqFor.append("for "); //$NON-NLS-1$
             } else {
@@ -227,7 +237,9 @@ public abstract class QueryBuilder {
             StringBuilder xQueryCollectionName = new StringBuilder();
             xQueryCollectionName.append(getXQueryCollectionName(revisionID, clusterName));
             xQueryCollectionName.append("/"); //$NON-NLS-1$
-            if (isItemQuery) {
+
+            if (isItemQuery && !ACTIVE_ROUTING_ORDER.equals(rootElementName) && !COMPLETED_ROUTING_ORDER.equals(rootElementName)
+                    && !FAILED_ROUTING_ORDER.equals(rootElementName)) {
                 xQueryCollectionName.append("/p/"); //$NON-NLS-1$
             }
             xQueryCollectionName.append(path);
