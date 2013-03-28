@@ -832,6 +832,13 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     } else {
                         return ilike(leftFieldCondition.criterionFieldName, value, MatchMode.ANYWHERE);
                     }
+                } else if (predicate == Predicate.STARTS_WITH) {
+                    String value = compareValue + "%";
+                    if (datasource.isCaseSensitiveSearch()) {
+                        return like(leftFieldCondition.criterionFieldName, value);
+                    } else {
+                        return ilike(leftFieldCondition.criterionFieldName, String.valueOf(value), MatchMode.START);
+                    }
                 } else if (predicate == Predicate.GREATER_THAN) {
                     return gt(leftFieldCondition.criterionFieldName, compareValue);
                 } else if (predicate == Predicate.LOWER_THAN) {
@@ -840,8 +847,6 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     return ge(leftFieldCondition.criterionFieldName, compareValue);
                 } else if (predicate == Predicate.LOWER_THAN_OR_EQUALS) {
                     return le(leftFieldCondition.criterionFieldName, compareValue);
-                } else if (predicate == Predicate.STARTS_WITH) {
-                    return like(leftFieldCondition.criterionFieldName, compareValue + "%"); //$NON-NLS-1$
                 } else {
                     throw new NotImplementedException("No support for predicate '" + predicate.getClass() + "'");
                 }

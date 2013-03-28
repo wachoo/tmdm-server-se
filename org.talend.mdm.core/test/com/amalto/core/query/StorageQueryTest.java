@@ -2384,7 +2384,7 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(0, results.getCount());
     }
 
-    public void testCaseSensitivity() throws Exception {
+    public void testContainsCaseSensitivity() throws Exception {
         Storage s1 = new HibernateStorage("MDM1", StorageType.MASTER);
         s1.init(ServerContext.INSTANCE.get().getDataSource(StorageTestCase.DATABASE + "-DS1", "MDM", StorageType.MASTER));
         s1.prepare(repository, true);
@@ -2416,6 +2416,52 @@ public class StorageQueryTest extends StorageTestCase {
         }
         // DS1 is case sensitive, DS2 isn't
         UserQueryBuilder qb = from(country).where(contains(country.getField("name"), "FRANCE"));
+        StorageResults results = s1.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        results = s2.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testStartsWithCaseSensitivity() throws Exception {
+        Storage s1 = new HibernateStorage("MDM1", StorageType.MASTER);
+        s1.init(ServerContext.INSTANCE.get().getDataSource(StorageTestCase.DATABASE + "-DS1", "MDM", StorageType.MASTER));
+        s1.prepare(repository, true);
+        Storage s2 = new HibernateStorage("MDM2", StorageType.MASTER);
+        s2.init(ServerContext.INSTANCE.get().getDataSource(StorageTestCase.DATABASE + "-DS2", "MDM", StorageType.MASTER));
+        s2.prepare(repository, true);
+        // Create country instance on both storages.
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                country,
+                                "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
+        try {
+            s1.begin();
+            s1.update(allRecords);
+            s1.commit();
+        } finally {
+            s1.end();
+        }
+        try {
+            s2.begin();
+            s2.update(allRecords);
+            s2.commit();
+        } finally {
+            s1.end();
+        }
+        // DS1 is case sensitive, DS2 isn't
+        UserQueryBuilder qb = from(country).where(startsWith(country.getField("name"), "FRA"));
         StorageResults results = s1.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getCount());
