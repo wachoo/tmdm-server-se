@@ -278,7 +278,14 @@ public class SystemStorageWrapper extends StorageWrapper {
             isUserFormat = false;
             qb = from(type).where(eq(type.getKeyFields().iterator().next(), uniqueID));
         } else {
-            isUserFormat = uniqueID.indexOf('.') > 0;
+            // TMDM-5513 custom form layout pk contains double dot .. to split, but it's a system definition object
+            // like this Product..Product..product_layout
+            // FIXME
+            if (uniqueID.indexOf("..") == -1) { //$NON-NLS-1$
+                isUserFormat = uniqueID.indexOf('.') > 0;
+            } else {
+                isUserFormat = false;
+            }
             String documentUniqueId = uniqueID;
             if (uniqueID.startsWith(PROVISIONING_PREFIX_INFO)) {
                 documentUniqueId = StringUtils.substringAfter(uniqueID, PROVISIONING_PREFIX_INFO);
