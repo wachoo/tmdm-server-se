@@ -34,6 +34,8 @@ public class ClassRepository extends MetadataRepository {
 
     private static final String GETTER_PREFIX = "get"; //$NON-NLS-1$
 
+    private static final String BOOLEAN_PREFIX = "is"; //$NON-NLS-1$
+
     private static final String JAVA_LANG_PREFIX = "java.lang."; //$NON-NLS-1$
 
     private static final int MAJ_DIFF = 'A' - 'a';
@@ -132,7 +134,7 @@ public class ClassRepository extends MetadataRepository {
         Method[] declaredMethods = clazz.getMethods();
         for (Method declaredMethod : declaredMethods) {
             if (!Object.class.equals(declaredMethod.getDeclaringClass()) && !Modifier.isStatic(declaredMethod.getModifiers())) {
-                if (declaredMethod.getName().startsWith(GETTER_PREFIX) && declaredMethod.getName().length() > GETTER_PREFIX.length()) {
+                if (isBeanMethod(declaredMethod)) {
                     String fieldName = getName(declaredMethod);
                     Class<?> returnType = declaredMethod.getReturnType();
                     FieldMetadata newField;
@@ -220,6 +222,20 @@ public class ClassRepository extends MetadataRepository {
         return typeStack.pop();
     }
 
+    private static boolean isBeanMethod(Method declaredMethod) {
+        return isGetter(declaredMethod) || isBooleanGetter(declaredMethod);
+    }
+
+    private static boolean isBooleanGetter(Method declaredMethod) {
+        return declaredMethod.getName().startsWith(BOOLEAN_PREFIX)
+                && declaredMethod.getName().length() > BOOLEAN_PREFIX.length();
+    }
+
+    private static boolean isGetter(Method declaredMethod) {
+        return declaredMethod.getName().startsWith(GETTER_PREFIX)
+                && declaredMethod.getName().length() > GETTER_PREFIX.length();
+    }
+
     private static Class<?> getListItemClass(Method declaredMethod, Class<?> returnType) {
         Type genericReturnType = declaredMethod.getGenericReturnType();
         if (genericReturnType instanceof ParameterizedType) {
@@ -246,7 +262,13 @@ public class ClassRepository extends MetadataRepository {
     }
 
     private static String getName(Method declaredMethod) {
-        return format(declaredMethod.getName().substring(GETTER_PREFIX.length()));
+        if (isGetter(declaredMethod)) {
+            return format(declaredMethod.getName().substring(GETTER_PREFIX.length()));
+        } else if (isBooleanGetter(declaredMethod)) {
+            return format(declaredMethod.getName().substring(BOOLEAN_PREFIX.length()));
+        } else {
+            throw new IllegalArgumentException("Cannot infer field name from method '" + declaredMethod.getName() + "'.");
+        }
     }
 
     // DataModelPOJO -> data-model-pOJO (serialization convention by castor xml).
