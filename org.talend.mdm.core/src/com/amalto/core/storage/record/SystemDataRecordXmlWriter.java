@@ -174,6 +174,10 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
                         } else {
                             if (ClassRepository.EMBEDDED_XML.equals(simpleField.getType().getName())) {
                                 out.write("<" + simpleField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
+                            } else if ("base64Binary".equals(simpleField.getType().getName())) { //$NON-NLS-1$
+                                out.write("<" + simpleField.getName() //$NON-NLS-1$
+                                        + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" //$NON-NLS-1$
+                                        + " xsi:type=\"[B\">"); //$NON-NLS-1$
                             } else {
                                 out.write("<" + simpleField.getName() //$NON-NLS-1$
                                         + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" //$NON-NLS-1$
@@ -193,6 +197,10 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
                             if (currentValue != null) {
                                 if (ClassRepository.EMBEDDED_XML.equals(simpleField.getType().getName())) {
                                     out.write("<" + simpleField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
+                                } else if ("base64Binary".equals(simpleField.getType().getName())) { //$NON-NLS-1$
+                                    out.write("<" + simpleField.getName() //$NON-NLS-1$
+                                            + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" //$NON-NLS-1$
+                                            + " xsi:type=\"[B\">"); //$NON-NLS-1$
                                 } else {
                                     out.write("<" + simpleField.getName() //$NON-NLS-1$
                                             + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" //$NON-NLS-1$
