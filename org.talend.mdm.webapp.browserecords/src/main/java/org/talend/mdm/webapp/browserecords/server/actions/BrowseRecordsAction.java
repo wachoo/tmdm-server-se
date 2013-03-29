@@ -761,9 +761,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
             Object[] result = getItemBeans(config.getDataClusterPK(), config.getView(), config.getModel(), config.getCriteria(),
                     pagingLoad.getOffset(), pagingLoad.getLimit(), sortDir, pagingLoad.getSortField(), config.getLanguage());
+            int totalSize = (Integer) result[1];
+            // if total < offset, total is exact value and navigate to real last page , recalculate offset value
+            if (totalSize < pagingLoad.getOffset()) {
+                int remainder = totalSize % pagingLoad.getLimit();
+                pagingLoad.setOffset(remainder == 0 ? totalSize - pagingLoad.getLimit() : totalSize - remainder);
+                result = getItemBeans(config.getDataClusterPK(), config.getView(), config.getModel(), config.getCriteria(),
+                        pagingLoad.getOffset(), pagingLoad.getLimit(), sortDir, pagingLoad.getSortField(), config.getLanguage());
+            }
             @SuppressWarnings("unchecked")
             List<ItemBean> itemBeans = (List<ItemBean>) result[0];
-            int totalSize = (Integer) result[1];
             boolean isPagingAccurate = CommonUtil.getPort().isPagingAccurate(new WSInt(totalSize)).is_true();
             return new ItemBasePageLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize, isPagingAccurate);
         } catch (Exception e) {
