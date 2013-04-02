@@ -11,6 +11,10 @@
 
 package com.amalto.core.storage.hibernate;
 
+import org.hibernate.collection.PersistentList;
+import org.hibernate.engine.CollectionEntry;
+import org.hibernate.engine.SessionImplementor;
+import org.hibernate.persister.collection.CollectionPersister;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
@@ -192,8 +196,11 @@ class ScatteredTypeMapping extends TypeMapping {
                     } else {
                         List<Wrapper> wrapperList = (List<Wrapper>) value;
                         if (wrapperList != null) {
-                            for (Wrapper wrapper : wrapperList) {
-                                to.set(userField, setValues(wrapper, new DataRecord(getActualContainedType(userField, wrapper), UnsupportedDataRecordMetadata.INSTANCE)));
+                            List<Wrapper> fullList = getFullList((PersistentList) value);
+                            for (Wrapper wrapper : fullList) {
+                                if (wrapper != null) {
+                                    to.set(userField, setValues(wrapper, new DataRecord(getActualContainedType(userField, wrapper), UnsupportedDataRecordMetadata.INSTANCE)));
+                                }
                             }
                         }
                     }
@@ -213,7 +220,8 @@ class ScatteredTypeMapping extends TypeMapping {
                     } else {
                         List<Wrapper> wrapperList = (List<Wrapper>) value;
                         if (wrapperList != null) {
-                            for (Wrapper wrapper : wrapperList) {
+                            List<Wrapper> fullList = getFullList((PersistentList) value);
+                            for (Wrapper wrapper : fullList) {
                                 TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
                                 DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
                                 for (FieldMetadata fkField : ((ReferenceFieldMetadata) field).getReferencedType().getFields()) {
@@ -243,6 +251,35 @@ class ScatteredTypeMapping extends TypeMapping {
         return to;
     }
 
+    /*
+     * See TMDM-5524: Hibernate sometimes "hides" values of a collection when condition is on contained value. This piece
+     * of code forces load.
+     */
+    private static <T> List<T> getFullList(PersistentList list) {
+        if (list == null) {
+            return null;
+        }
+        List<T> fullList = new LinkedList<T>();
+        SessionImplementor session = list.getSession();
+        if (!session.isConnected()) {
+            throw new IllegalStateException("Session is not connected: impossible to read values from database.");
+        }
+        CollectionEntry entry = session.getPersistenceContext().getCollectionEntry(list);
+        CollectionPersister persister = entry.getLoadedPersister();
+        int databaseSize = persister.getSize(entry.getKey(), session);
+        if (list.size() == databaseSize && !list.contains(null)) {
+            // No need to reload a list (no omission in list and size() corresponds to size read from database).
+            return (List<T>) list;
+        }
+        for (int i = 0; i < databaseSize; i++) {
+            T wrapper = (T) persister.getElementByIndex(entry.getLoadedKey(), i, session, list.getOwner());
+            fullList.add(wrapper);
+        }
+        // Returns a unmodifiable list -> returned list is *not* a persistent list so change tracking is not possible,
+        // returning a unmodifiable list is a safety for code using returned list.
+        return Collections.unmodifiableList(fullList);
+    }
+
     @Override
     public String getDatabaseTimestamp() {
         return Storage.METADATA_TIMESTAMP;
@@ -257,7 +294,7 @@ class ScatteredTypeMapping extends TypeMapping {
     // Not expected to be use for foreign keys, and also very specific to this mapping implementation.
     private ComplexTypeMetadata getActualContainedType(FieldMetadata userField, Wrapper value) {
         Class<? extends Wrapper> clazz = value.getClass();
-        if (clazz.getName().contains("javassist")) {
+        if (clazz.getName().contains("javassist")) { //$NON-NLS-1$
             clazz = (Class<? extends Wrapper>) clazz.getSuperclass();
         }
         ComplexTypeMetadata typeFromClass = ((StorageClassLoader) Thread.currentThread().getContextClassLoader()).getTypeFromClass(clazz);
