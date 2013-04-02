@@ -70,7 +70,7 @@ class IdQueryHandler extends AbstractQueryHandler {
         }
         ComplexTypeMetadata mainType = select.getTypes().get(0);
         ComplexTypeMetadata database = mappingMetadataRepository.getMappingFromUser(mainType).getDatabase();
-        String className = ClassCreator.PACKAGE_PREFIX + database.getName();
+        String className = ClassCreator.getClassName(database.getName());
         if (!session.getTransaction().isActive()) {
             session.getTransaction().begin();
         }

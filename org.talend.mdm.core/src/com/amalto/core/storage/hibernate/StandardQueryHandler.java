@@ -335,7 +335,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         }
         mainType = selectedTypes.get(0);
         ComplexTypeMetadata database = mappingMetadataRepository.getMappingFromUser(mainType).getDatabase();
-        String mainClassName = ClassCreator.PACKAGE_PREFIX + database.getName();
+        String mainClassName = ClassCreator.getClassName(database.getName());
         criteria = session.createCriteria(mainClassName, database.getName());
         criteria.setReadOnly(true); // We are reading data, turns on ready only mode.
         // Handle JOIN (if any)

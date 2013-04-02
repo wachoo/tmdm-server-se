@@ -86,7 +86,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             processedTypes.add(typeName);
         }
         try {
-            CtClass newClass = classPool.makeClass(PACKAGE_PREFIX + typeName);
+            CtClass newClass = classPool.makeClass(getClassName(typeName));
             CtClass hibernateClassWrapper = classPool.get(Wrapper.class.getName());
             CtClass serializable = classPool.get(Serializable.class.getName());
             newClass.setInterfaces(new CtClass[]{hibernateClassWrapper, serializable});
@@ -102,7 +102,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             if (superTypesIterator.hasNext()) {
                 TypeMetadata superType = superTypesIterator.next();
                 if (superType instanceof ComplexTypeMetadata) {
-                    newClass.setSuperclass(classPool.get(PACKAGE_PREFIX + superType.getName()));
+                    newClass.setSuperclass(classPool.get(getClassName(superType.getName())));
                 }
             }
 
@@ -116,7 +116,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             Collection<FieldMetadata> keyFields = complexType.getKeyFields();
             // Composite id class.
             if (keyFields.size() > 1) {
-                String idClassName = PACKAGE_PREFIX + typeName + "_ID"; //$NON-NLS-1$
+                String idClassName = getClassName(typeName) + "_ID"; //$NON-NLS-1$
                 CtClass newIdClass = classPool.makeClass(idClassName);
                 newIdClass.setInterfaces(new CtClass[]{serializable});
 
@@ -211,7 +211,12 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                 }
             }
             setFieldsMethodBody.append("}"); //$NON-NLS-1$
-            CtMethod setFieldsMethod = CtNewMethod.make(setFieldsMethodBody.toString(), newClass);
+            CtMethod setFieldsMethod = null;
+            try {
+                setFieldsMethod = CtNewMethod.make(setFieldsMethodBody.toString(), newClass);
+            } catch (CannotCompileException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
             newClass.addMethod(setFieldsMethod);
 
             if (complexType.hasField(Storage.METADATA_TIMESTAMP)) {
@@ -292,6 +297,13 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         return null;
     }
 
+    public static String getClassName(String typeName) {
+        if (typeName.charAt(0) >= 'a') {
+            typeName = (char)( typeName.charAt(0) + ('A' - 'a')) + typeName.substring(1);
+        }
+        return PACKAGE_PREFIX + typeName;
+    }
+
     private CtMethod createFixedSetter(CtClass newClass, String fieldName, String methodName) throws CannotCompileException {
         StringBuilder setTimeStampMethodBody = new StringBuilder();
         setTimeStampMethodBody.append("public void ").append(methodName).append("(long value) {"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -329,7 +341,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         try {
             CtClass currentClass = classCreationStack.peek();
             referenceField.getReferencedType().accept(this); // Visit referenced type in case it hasn't been created.
-            CtClass fieldType = classPool.get(PACKAGE_PREFIX + referenceField.getReferencedType().getName());
+            CtClass fieldType = classPool.get(getClassName(referenceField.getReferencedType().getName()));
             addNewField(referenceField.getName(), referenceField.isMany(), fieldType, currentClass);
             return super.visit(referenceField);
         } catch (Exception e) {

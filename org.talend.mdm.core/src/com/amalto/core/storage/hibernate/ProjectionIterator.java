@@ -220,7 +220,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                     throw new IllegalStateException("Expected a instance of " + StorageClassLoader.class.getName() + " as current class loader.");
                 }
                 try {
-                    Class<?> aClass = contextClassLoader.loadClass(ClassCreator.PACKAGE_PREFIX + typeName);
+                    Class<?> aClass = contextClassLoader.loadClass(ClassCreator.getClassName(typeName));
                     ComplexTypeMetadata typeFromClass = ((StorageClassLoader) contextClassLoader).getTypeFromClass(aClass);
                     value = mappingMetadataRepository.getMappingFromDatabase(typeFromClass).getUser().getName();
                 } catch (ClassNotFoundException e) {

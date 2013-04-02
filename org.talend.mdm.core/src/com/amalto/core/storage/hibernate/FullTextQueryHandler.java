@@ -317,7 +317,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 type.accept(new DefaultMetadataVisitor<Void>() {
 
                     private void addClass(ComplexTypeMetadata complexType) {
-                        String className = ClassCreator.PACKAGE_PREFIX + complexType.getName();
+                        String className = ClassCreator.getClassName(complexType.getName());
                         try {
                             ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
                             classes.add(contextClassLoader.loadClass(className));

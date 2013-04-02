@@ -171,7 +171,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         }
 
         String table = resolver.get(complexType);
-        String generatedClassName = ClassCreator.PACKAGE_PREFIX + complexType.getName();
+        String generatedClassName = ClassCreator.getClassName(complexType.getName());
 
         Element classElement = document.createElement("class"); //$NON-NLS-1$
         Attr className = document.createAttribute("name");  //$NON-NLS-1$
@@ -258,7 +258,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 for (ComplexTypeMetadata subType : complexType.getSubTypes()) {
                     Element unionSubclass = document.createElement("union-subclass"); //$NON-NLS-1$
                     Attr name = document.createAttribute("name"); //$NON-NLS-1$
-                    name.setValue(ClassCreator.PACKAGE_PREFIX + subType.getName());
+                    name.setValue(ClassCreator.getClassName(subType.getName()));
                     unionSubclass.setAttributeNode(name);
 
                     Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
@@ -286,7 +286,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     for (ComplexTypeMetadata subType : complexType.getSubTypes()) {
                         Element subclass = document.createElement("subclass"); //$NON-NLS-1$
                         Attr name = document.createAttribute("name"); //$NON-NLS-1$
-                        name.setValue(ClassCreator.PACKAGE_PREFIX + subType.getName());
+                        name.setValue(ClassCreator.getClassName(subType.getName()));
                         subclass.setAttributeNode(name);
                         Attr discriminator = document.createAttribute("discriminator-value"); //$NON-NLS-1$
                         discriminator.setValue(ClassCreator.PACKAGE_PREFIX + subType.getName());
@@ -394,7 +394,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         Attr propertyName = document.createAttribute("name"); //$NON-NLS-1$
         propertyName.setValue(fieldName);
         Attr className = document.createAttribute("class"); //$NON-NLS-1$
-        className.setValue(ClassCreator.PACKAGE_PREFIX + referencedField.getReferencedType().getName());
+        className.setValue(ClassCreator.getClassName(referencedField.getReferencedType().getName()));
         // fetch="join" lazy="false"
         Attr lazy = document.createAttribute("lazy"); //$NON-NLS-1$
         lazy.setValue("proxy"); //$NON-NLS-1$
@@ -477,7 +477,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             manyToMany.getAttributes().setNamedItem(notFound);
         }
         Attr className = document.createAttribute("class"); //$NON-NLS-1$
-        className.setValue(ClassCreator.PACKAGE_PREFIX + referencedField.getReferencedType().getName());
+        className.setValue(ClassCreator.getClassName(referencedField.getReferencedType().getName()));
         manyToMany.getAttributes().setNamedItem(className);
         isDoingColumns = true;
         this.parentElement = manyToMany;
