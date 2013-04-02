@@ -578,61 +578,71 @@ public class MetadataUtils {
             }
         }
         // Check for cycles
-        lineNumber = 0;
-        List<List<ComplexTypeMetadata>> cycles = new LinkedList<List<ComplexTypeMetadata>>();
-        // use dependency graph matrix to get cyclic dependencies (if any).
-        for (byte[] line : dependencyGraph) {
-            for (int column : line) {
-                if (column != 0) { // unresolved dependency (means this is a cycle start).
+        if (sortedTypes.size() < dependencyGraph.length) {
+            lineNumber = 0;
+            List<List<ComplexTypeMetadata>> cycles = new LinkedList<List<ComplexTypeMetadata>>();
+            // use dependency graph matrix to get cyclic dependencies (if any).
+            for (byte[] line : dependencyGraph) {
+                if (hasIncomingEdges(line)) { // unresolved dependency (means this is a cycle start).
                     List<ComplexTypeMetadata> dependencyPath = new LinkedList<ComplexTypeMetadata>();
                     int currentLineNumber = lineNumber;
                     do {
                         ComplexTypeMetadata type = getType(types, currentLineNumber);
                         dependencyPath.add(type);
-                        byte[] typeDependencies = dependencyGraph[getId(type, types)];
-                        for (int currentDependency = 0; currentDependency < typeDependencies.length; currentDependency++) {
-                            if (typeDependencies[currentDependency] > 0) { // This gets the first unresolved dependency (but there might be more of them).
+                        ForeignKeyIntegrity incomingReferences = new ForeignKeyIntegrity(type);
+                        Set<ReferenceFieldMetadata> incomingFields = repository.accept(incomingReferences);
+                        boolean hasMetDependency = false;
+                        for (ReferenceFieldMetadata incomingField : incomingFields) {
+                            ComplexTypeMetadata containingType = repository.getComplexType(incomingField.<String>getData(ForeignKeyIntegrity.ATTRIBUTE_ROOTTYPE));
+                            int currentDependency = getId(containingType, types);
+                            if (hasIncomingEdges(dependencyGraph[currentDependency])) {
                                 dependencyGraph[currentLineNumber][currentDependency]--;
                                 currentLineNumber = currentDependency;
+                                hasMetDependency = true;
                                 break;
                             }
                         }
-                    } while (currentLineNumber != lineNumber);
-                    dependencyPath.add(getType(types, lineNumber)); // Include cycle start to get a better exception message.
-                    cycles.add(dependencyPath);
-                }
-            }
-            lineNumber++;
-        }
-        if (!cycles.isEmpty()) { // Found cycle(s): report it/them as exception
-            StringBuilder cyclesAsString = new StringBuilder();
-            int i = 1;
-            Iterator<List<ComplexTypeMetadata>> cyclesIterator = cycles.iterator();
-            while (cyclesIterator.hasNext()) {
-                cyclesAsString.append(i++).append(") ");
-                Iterator<ComplexTypeMetadata> dependencyPathIterator = cyclesIterator.next().iterator();
-                ComplexTypeMetadata previous = null;
-                while (dependencyPathIterator.hasNext()) {
-                    ComplexTypeMetadata currentType = dependencyPathIterator.next();
-                    cyclesAsString.append(currentType.getName());
-                    if (dependencyPathIterator.hasNext()) {
-                        cyclesAsString.append(" -> ");
-                    } else if (previous != null) {
-                        Set<ReferenceFieldMetadata> inboundReferences = repository.accept(new ForeignKeyIntegrity(currentType));
-                        cyclesAsString.append(" ( possible fields: ");
-                        for (ReferenceFieldMetadata inboundReference : inboundReferences) {
-                            String xPath = inboundReference.getData(ForeignKeyIntegrity.ATTRIBUTE_XPATH);
-                            cyclesAsString.append(xPath).append(' ');
+                        if (!hasMetDependency) {
+                            break;
                         }
-                        cyclesAsString.append(')');
+                    } while (currentLineNumber != lineNumber);
+                    if (dependencyPath.size() > 1) {
+                        dependencyPath.add(getType(types, lineNumber)); // Include cycle start to get a better exception message.
+                        cycles.add(dependencyPath);
                     }
-                    previous = currentType;
                 }
-                if (cyclesIterator.hasNext()) {
-                    cyclesAsString.append('\n');
-                }
+                lineNumber++;
             }
-            throw new IllegalArgumentException("Data model has circular dependencies:\n" + cyclesAsString);
+            if (!cycles.isEmpty()) { // Found cycle(s): report it/them as exception
+                StringBuilder cyclesAsString = new StringBuilder();
+                int i = 1;
+                Iterator<List<ComplexTypeMetadata>> cyclesIterator = cycles.iterator();
+                while (cyclesIterator.hasNext()) {
+                    cyclesAsString.append(i++).append(") ");
+                    Iterator<ComplexTypeMetadata> dependencyPathIterator = cyclesIterator.next().iterator();
+                    ComplexTypeMetadata previous = null;
+                    while (dependencyPathIterator.hasNext()) {
+                        ComplexTypeMetadata currentType = dependencyPathIterator.next();
+                        cyclesAsString.append(currentType.getName());
+                        if (dependencyPathIterator.hasNext()) {
+                            cyclesAsString.append(" -> ");
+                        } else if (previous != null) {
+                            Set<ReferenceFieldMetadata> inboundReferences = repository.accept(new ForeignKeyIntegrity(currentType));
+                            cyclesAsString.append(" ( possible fields: ");
+                            for (ReferenceFieldMetadata inboundReference : inboundReferences) {
+                                String xPath = inboundReference.getData(ForeignKeyIntegrity.ATTRIBUTE_XPATH);
+                                cyclesAsString.append(xPath).append(' ');
+                            }
+                            cyclesAsString.append(')');
+                        }
+                        previous = currentType;
+                    }
+                    if (cyclesIterator.hasNext()) {
+                        cyclesAsString.append('\n');
+                    }
+                }
+                throw new IllegalArgumentException("Data model has circular dependencies:\n" + cyclesAsString);
+            }
         }
         return sortedTypes;
     }
@@ -643,14 +653,12 @@ public class MetadataUtils {
 
     // internal method for sortTypes
     private static boolean hasIncomingEdges(byte[] line) {
-        boolean hasIncomingEdge = false;
         for (byte column : line) {
             if (column > 0) {
-                hasIncomingEdge = true;
-                break;
+                return true;
             }
         }
-        return hasIncomingEdge;
+        return false;
     }
 
     // internal method for sortTypes
