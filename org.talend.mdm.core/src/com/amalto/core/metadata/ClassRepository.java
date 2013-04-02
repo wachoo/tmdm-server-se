@@ -132,6 +132,13 @@ public class ClassRepository extends MetadataRepository {
         }
         // Analyze methods
         Method[] declaredMethods = clazz.getMethods();
+        // TMDM-5483: getMethods() does not always return methods in same order: sort them to ensure fixed order.
+        Arrays.sort(declaredMethods, new Comparator<Method>() {
+            @Override
+            public int compare(Method method1, Method method2) {
+                return method1.getName().compareTo(method2.getName());
+            }
+        });
         for (Method declaredMethod : declaredMethods) {
             if (!Object.class.equals(declaredMethod.getDeclaringClass()) && !Modifier.isStatic(declaredMethod.getModifiers())) {
                 if (isBeanMethod(declaredMethod)) {
