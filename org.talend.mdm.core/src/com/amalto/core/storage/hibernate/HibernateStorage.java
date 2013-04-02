@@ -168,6 +168,18 @@ public class HibernateStorage implements Storage {
             close();
             internalInit();
         }
+        if (dataSource == null) {
+            throw new IllegalArgumentException("Datasource is not set.");
+        }
+        // No support for data models including inheritance AND for g* XSD simple types AND fields that start with
+        // X_TALEND_
+        try {
+            MetadataUtils.sortTypes(repository); // Do a "sort" to ensure there's no cyclic dependency.
+            repository.accept(METADATA_CHECKER);
+            userMetadataRepository = repository;
+        } catch (Exception e) {
+            throw new RuntimeException("Exception occurred during unsupported features check.", e);
+        }
         // Create class loader for storage's dynamically created classes.
         ClassLoader contextClassLoader = HibernateStorage.class.getClassLoader();
         Class<? extends StorageClassLoader> clazz;
@@ -211,15 +223,6 @@ public class HibernateStorage implements Storage {
             }
         } else {
             LOGGER.info("*NOT* preparing database before schema generation.");
-        }
-        // No support for data models including inheritance AND for g* XSD simple types AND fields that start with
-        // X_TALEND_
-        try {
-            MetadataUtils.sortTypes(repository); // Do a "sort" to ensure there's no cyclic dependency.
-            repository.accept(METADATA_CHECKER);
-            userMetadataRepository = repository;
-        } catch (Exception e) {
-            throw new RuntimeException("Exception occurred during unsupported features check.", e);
         }
         try {
             Thread.currentThread().setContextClassLoader(storageClassLoader);
@@ -355,7 +358,7 @@ public class HibernateStorage implements Storage {
                                 sb.append('\n');
                                 currentSQLException = currentSQLException.getNextException();
                             }
-                        } else if(exception != null) {
+                        } else if (exception != null) {
                             sb.append(exception.getMessage());
                         }
                         if (iterator.hasNext()) {
