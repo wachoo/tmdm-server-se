@@ -83,12 +83,6 @@ public class ViewUtil {
                     TreeItem child = iter.next();
                     ItemNodeModel node = (ItemNodeModel) child.getUserObject();
                     String xpath = node.getBindingPath();
-
-                    String typePath = node.getTypePath();
-                    TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath);
-                    if (typeModel.getForeignkey() != null) {
-                        continue;
-                    }
                     if (("/" + xpath).equals(ce.getxPath())) { //$NON-NLS-1$
                         iter.remove();
                         treeRootNode.addItem(child);
@@ -204,7 +198,9 @@ public class ViewUtil {
      * where the valid flag is normally set for fields that are displayed.
      */
     private static void setValidFlags(DynamicTreeItem dynamicTreeItem, Set<TreeItem> customLayoutDisplayedElements) {
-        dynamicTreeItem.getItemNodeModel().setValid(true);
+        if (dynamicTreeItem.getItemNodeModel() != null){
+            dynamicTreeItem.getItemNodeModel().setValid(true);
+        }
         int childCount = dynamicTreeItem.getChildCount();
         for (int i = 0; i < childCount; ++i) {
             TreeItem child = dynamicTreeItem.getChild(i);
