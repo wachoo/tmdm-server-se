@@ -11,6 +11,10 @@
 
 package com.amalto.core.storage.hibernate;
 
+import org.hibernate.collection.PersistentList;
+import org.hibernate.engine.CollectionEntry;
+import org.hibernate.engine.SessionImplementor;
+import org.hibernate.persister.collection.CollectionPersister;
 import com.amalto.core.metadata.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
@@ -42,13 +46,23 @@ class ScatteredTypeMapping extends TypeMapping {
 
     Object _setValues(Session session, DataRecord from, Wrapper to) {
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        List<FieldMetadata> fields = from.getType().getFields();
+        TypeMapping mapping = mappings.getMappingFromUser(from.getType());
+        Collection<FieldMetadata> fields;
+        if (mapping != null) {
+            fields = mapping.getUser().getFields();
+        } else {
+            fields = from.getType().getFields();
+        }
         for (FieldMetadata field : fields) {
-            FieldMetadata mappedDatabaseField = getDatabase(field);
+            FieldMetadata mappedDatabaseField;
+            if (mapping != null) {
+                mappedDatabaseField = mapping.getDatabase(field);
+            } else {
+                mappedDatabaseField = getDatabase(field);
+            }
             if (mappedDatabaseField == null) {
                 throw new IllegalStateException("Field '" + field.getName() + "' was expected to have a database mapping");
             }
-
             if (field instanceof ContainedTypeFieldMetadata) {
                 if (!(mappedDatabaseField instanceof ReferenceFieldMetadata)) {
                     throw new IllegalStateException("Contained elements are expected to be mapped to reference.");
@@ -75,7 +89,12 @@ class ScatteredTypeMapping extends TypeMapping {
                     }
                 } else {
                     List<DataRecord> dataRecords = (List<DataRecord>) from.get(field);
-                    Object value = to.get(getDatabase(field).getName());
+                    Object value;
+                    if (mapping != null) {
+                        value = to.get(mapping.getDatabase(field).getName());
+                    } else {
+                        value = to.get(getDatabase(field).getName());
+                    }
                     if (dataRecords != null) {
                         List<Wrapper> existingValue = (List<Wrapper>) value;
                         List<Wrapper> objects = existingValue == null ? new ArrayList<Wrapper>(dataRecords.size()) : existingValue;
@@ -143,7 +162,17 @@ class ScatteredTypeMapping extends TypeMapping {
                     }
                 }
             } else {
-                to.set(mappedDatabaseField.getName(), from.get(field));
+                if (mappedDatabaseField.isMany()) {
+                    List<Object> oldValues = (List<Object>) to.get(mappedDatabaseField.getName());
+                    List<Object> newValues = (List<Object>) from.get(field);
+                    if (oldValues != null) {
+                        resetList(oldValues, newValues);
+                    } else {
+                        to.set(mappedDatabaseField.getName(), newValues);
+                    }
+                } else {
+                    to.set(mappedDatabaseField.getName(), from.get(field));
+                }
             }
         }
         return to;
@@ -167,8 +196,11 @@ class ScatteredTypeMapping extends TypeMapping {
                     } else {
                         List<Wrapper> wrapperList = (List<Wrapper>) value;
                         if (wrapperList != null) {
-                            for (Wrapper wrapper : wrapperList) {
-                                to.set(userField, setValues(wrapper, new DataRecord(getActualContainedType(userField, wrapper), UnsupportedDataRecordMetadata.INSTANCE)));
+                            List<Wrapper> fullList = getFullList((PersistentList) value);
+                            for (Wrapper wrapper : fullList) {
+                                if (wrapper != null) {
+                                    to.set(userField, setValues(wrapper, new DataRecord(getActualContainedType(userField, wrapper), UnsupportedDataRecordMetadata.INSTANCE)));
+                                }
                             }
                         }
                     }
@@ -178,19 +210,24 @@ class ScatteredTypeMapping extends TypeMapping {
                         if (wrapper != null) {
                             TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
                             DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
-                            for (FieldMetadata keyField : ((ReferenceFieldMetadata) field).getReferencedType().getKeyFields()) {
-                                referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
+                            for (FieldMetadata fkField : ((ReferenceFieldMetadata) field).getReferencedType().getFields()) {
+                                if (mapping.getUser(fkField) != null) {
+                                    referencedRecord.set(mapping.getUser(fkField), wrapper.get(fkField.getName()));
+                                }
                             }
                             to.set(userField, referencedRecord);
                         }
                     } else {
                         List<Wrapper> wrapperList = (List<Wrapper>) value;
                         if (wrapperList != null) {
-                            for (Wrapper wrapper : wrapperList) {
+                            List<Wrapper> fullList = getFullList((PersistentList) value);
+                            for (Wrapper wrapper : fullList) {
                                 TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
                                 DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
-                                for (FieldMetadata keyField : ((ReferenceFieldMetadata) field).getReferencedType().getKeyFields()) {
-                                    referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
+                                for (FieldMetadata fkField : ((ReferenceFieldMetadata) field).getReferencedType().getFields()) {
+                                    if (mapping.getUser(fkField) != null) {
+                                        referencedRecord.set(mapping.getUser(fkField), wrapper.get(fkField.getName()));
+                                    }
                                 }
                                 to.set(userField, referencedRecord);
                             }
@@ -203,11 +240,44 @@ class ScatteredTypeMapping extends TypeMapping {
                 DataRecordMetadata recordMetadata = to.getRecordMetadata();
                 Map<String,String> recordProperties = recordMetadata.getRecordProperties();
                 if (!ScatteredMappingCreator.GENERATED_ID.equals(fieldName) && value != null) {
-                    recordProperties.put(fieldName, String.valueOf(value));
+                    try {
+                        recordProperties.put(fieldName, String.valueOf(value));
+                    } catch (Exception e) {
+                        throw new RuntimeException("Unexpected set error.", e);
+                    }
                 }
             }
         }
         return to;
+    }
+
+    /*
+     * See TMDM-5524: Hibernate sometimes "hides" values of a collection when condition is on contained value. This piece
+     * of code forces load.
+     */
+    private static <T> List<T> getFullList(PersistentList list) {
+        if (list == null) {
+            return null;
+        }
+        List<T> fullList = new LinkedList<T>();
+        SessionImplementor session = list.getSession();
+        if (!session.isConnected()) {
+            throw new IllegalStateException("Session is not connected: impossible to read values from database.");
+        }
+        CollectionEntry entry = session.getPersistenceContext().getCollectionEntry(list);
+        CollectionPersister persister = entry.getLoadedPersister();
+        int databaseSize = persister.getSize(entry.getKey(), session);
+        if (list.size() == databaseSize && !list.contains(null)) {
+            // No need to reload a list (no omission in list and size() corresponds to size read from database).
+            return (List<T>) list;
+        }
+        for (int i = 0; i < databaseSize; i++) {
+            T wrapper = (T) persister.getElementByIndex(entry.getLoadedKey(), i, session, list.getOwner());
+            fullList.add(wrapper);
+        }
+        // Returns a unmodifiable list -> returned list is *not* a persistent list so change tracking is not possible,
+        // returning a unmodifiable list is a safety for code using returned list.
+        return Collections.unmodifiableList(fullList);
     }
 
     @Override
@@ -223,13 +293,17 @@ class ScatteredTypeMapping extends TypeMapping {
     // Returns actual contained type (in case in reference to hold contained record can have sub types).
     // Not expected to be use for foreign keys, and also very specific to this mapping implementation.
     private ComplexTypeMetadata getActualContainedType(FieldMetadata userField, Wrapper value) {
-        ComplexTypeMetadata typeFromClass = ((StorageClassLoader) Thread.currentThread().getContextClassLoader()).getTypeFromClass(value.getClass());
+        Class<? extends Wrapper> clazz = value.getClass();
+        if (clazz.getName().contains("javassist")) { //$NON-NLS-1$
+            clazz = (Class<? extends Wrapper>) clazz.getSuperclass();
+        }
+        ComplexTypeMetadata typeFromClass = ((StorageClassLoader) Thread.currentThread().getContextClassLoader()).getTypeFromClass(clazz);
         TypeMapping mappingFromDatabase = mappings.getMappingFromDatabase(typeFromClass);
         String actualValueType;
         if (mappingFromDatabase != null) {
             actualValueType = mappingFromDatabase.getUser().getName();
         } else {
-            actualValueType = value.getClass().getSimpleName();
+            actualValueType = clazz.getSimpleName();
         }
         if (actualValueType.equalsIgnoreCase(userField.getType().getName())) {
             return (ComplexTypeMetadata) userField.getType();
@@ -373,7 +447,6 @@ class ScatteredTypeMapping extends TypeMapping {
                 frozen.put(entry.getKey(), entry.getValue().freeze(handler));
             }
             databaseToUser = frozen;
-
             isFrozen = true;
         }
     }
