@@ -98,7 +98,11 @@ public class ItemPOJO implements Serializable {
         if (max_cache_size != null) {
             MAX_CACHE_SIZE = Integer.valueOf(max_cache_size);
         }
-        cachedPojo = Collections.synchronizedMap(new LRUMap(MAX_CACHE_SIZE));
+        if (MAX_CACHE_SIZE == 0) {
+            cachedPojo = new EmptyMap(); // Disables MDM cache (useful when 2 MDM instance share same database).
+        } else {
+            cachedPojo = Collections.synchronizedMap(new LRUMap(MAX_CACHE_SIZE));
+        }
     }
 
     public ItemPOJO() {
