@@ -47,7 +47,7 @@ public class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFie
                 rootTypeName = pathElement;
             }
             if (path.length() > 0) {
-                path.append("/"); //$NON-NLS-1$
+                path.append('/');
             }
             path.append(pathElement);
         }
@@ -103,7 +103,7 @@ public class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFie
 
     @Override
     public Set<ReferenceFieldMetadata> visit(MetadataRepository repository) {
-        Collection<ComplexTypeMetadata> types = repository.getUserComplexTypes();
+        Collection<TypeMetadata> types = repository.getTypes();
         for (TypeMetadata type : types) {
             type.accept(this);
         }

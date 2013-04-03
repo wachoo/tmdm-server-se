@@ -193,13 +193,16 @@ public class FKIntegrityChecker {
      */
     private String getFromTypeNameThroughIncomingReference(ReferenceFieldMetadata incomingReference) {
         if (incomingReference == null) {
-            throw new IllegalArgumentException("The input reference field metadata should is null! "); //$NON-NLS-1$
+            throw new IllegalArgumentException("The input reference field metadata cannot be null."); //$NON-NLS-1$
         }
         String rootTypeName = incomingReference.getData(ForeignKeyIntegrity.ATTRIBUTE_ROOTTYPE);
         if (rootTypeName != null && rootTypeName.trim().length() > 0) {
             return rootTypeName;
         } else {
             TypeMetadata referencingType = incomingReference.getContainingType();
+            while (referencingType instanceof ContainedComplexTypeMetadata) {
+                referencingType = ((ContainedComplexTypeMetadata) referencingType).getContainerType();
+            }
             return referencingType.getName();
         }
     }

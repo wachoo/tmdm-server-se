@@ -452,7 +452,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
 
         // Check FK integrity checks following TMDM-3739
         Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "Contrat");
-        assertEquals(9, references.size());
+        assertEquals(14, references.size());
 
         String dataCluster = "DataCluster";
         String typeName = "Contrat";
@@ -497,7 +497,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
 
         MetadataRepository repository = getMetadataRepository("model17.xsd");
         Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "Contrat");
-        assertEquals(9, references.size());
+        assertEquals(14, references.size());
         ReferenceFieldMetadata referencedField = references.iterator().next();
 
         String dataCluster = "DataCluster";

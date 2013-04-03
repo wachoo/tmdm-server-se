@@ -201,6 +201,14 @@ class FullTextQueryHandler extends AbstractQueryHandler {
 
                         @Override
                         public Void visit(StringConstant constant) {
+                            if (aliasName != null) {
+                                SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
+                                FieldMetadata fieldMetadata = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, aliasName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList());
+                                explicitProjectionType.addField(fieldMetadata);
+                                nextRecord.set(fieldMetadata, constant.getValue());
+                            } else {
+                                throw new IllegalStateException("Expected an alias for a constant expression.");
+                            }
                             return null;
                         }
 
@@ -503,7 +511,11 @@ class FullTextQueryHandler extends AbstractQueryHandler {
             type.accept(new DefaultMetadataVisitor<Void>() {
 
                 private void addClass(ComplexTypeMetadata complexType) {
-                    String className = ClassCreator.getClassName(complexType.getName());
+                    String name = complexType.getName();
+                    if(!complexType.isInstantiable() && !complexType.getName().startsWith("X_")) { //$NON-NLS-1$
+                        name = "X_" + complexType.getName(); //$NON-NLS-1$
+                    }
+                    String className = ClassCreator.getClassName(name);
                     try {
                         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
                         classes.add(contextClassLoader.loadClass(className));

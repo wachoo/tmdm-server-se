@@ -283,6 +283,23 @@ public class StorageFullTextTest extends StorageTestCase {
         } finally {
             results.close();
         }
+
+        qb = from(product).and(productFamily)
+                .selectId(product)
+                .select(productFamily.getField("Name"))
+                .where(fullText("Renault"))
+                .join(product.getField("Family"))
+                .limit(20);
+
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertEquals("", result.get("Name"));
+            }
+        } finally {
+            results.close();
+        }
     }
 
     public void testSimpleSearchWithProjection() throws Exception {

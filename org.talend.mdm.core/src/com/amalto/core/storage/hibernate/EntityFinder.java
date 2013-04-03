@@ -62,6 +62,9 @@ public class EntityFinder {
         ForeignKeyIntegrity incomingReferences = new ForeignKeyIntegrity(wrapperType);
         InternalRepository internalRepository = storage.getTypeEnhancer();
         Set<ReferenceFieldMetadata> references = internalRepository.getInternalRepository().accept(incomingReferences);
+        if (references.isEmpty()) {
+            throw new IllegalStateException("Cannot find container type for '" + wrapperType.getName() + "'.");
+        }
         String keyFieldName = wrapperType.getKeyFields().iterator().next().getName();
         Object id = wrapper.get(keyFieldName);
         for (ReferenceFieldMetadata reference : references) {
