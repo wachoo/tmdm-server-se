@@ -40,6 +40,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
+import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.ColumnData;
@@ -138,6 +139,7 @@ public class JournalSearchPanel extends FormPanel {
 
         startDateField = new DateField();
         startDateField.setFieldLabel(MessagesFactory.getMessages().start_date_label());
+        startDateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss")); //$NON-NLS-1$
         startDateField.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
             public void handleEvent(FieldEvent be) {
@@ -205,6 +207,7 @@ public class JournalSearchPanel extends FormPanel {
 
         endDateField = new DateField();
         endDateField.setFieldLabel(MessagesFactory.getMessages().end_date_label());
+        endDateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss")); //$NON-NLS-1$
         endDateField.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
             public void handleEvent(FieldEvent be) {
@@ -241,9 +244,11 @@ public class JournalSearchPanel extends FormPanel {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                bundleCriteria();
-                Dispatcher dispatcher = Dispatcher.get();
-                dispatcher.dispatch(JournalEvents.DoSearch);
+                if (entityField.isValid() && sourceCombo.isValid() && startDateField.isValid() && keyField.isValid() && operationTypeCombo.isValid() && endDateField.isValid()) {
+                    bundleCriteria();
+                    Dispatcher dispatcher = Dispatcher.get();
+                    dispatcher.dispatch(JournalEvents.DoSearch);
+                }
             }
         });
         this.addButton(searchButton);

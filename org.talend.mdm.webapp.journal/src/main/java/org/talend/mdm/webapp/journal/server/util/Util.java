@@ -34,9 +34,9 @@ import com.amalto.webapp.util.webservices.WSWhereOperator;
  *
  */
 public class Util {
-    
-    public static final int TIME_OF_ONE_DAY = 24 * 3600 * 1000;
-    
+
+    public static final int TIME_OF_ONE_SECOND = 1000;
+
     public static final String concept = "Update"; //$NON-NLS-1$
     
     public static List<WSWhereItem> buildWhereItems(JournalSearchCriteria criteria,boolean isBrowseRecord) {         
@@ -79,7 +79,7 @@ public class Util {
 
         if (criteria.getEndDate() != null) {
             WSWhereCondition wc = new WSWhereCondition(
-                    "TimeInMillis", WSWhereOperator.LOWER_THAN, (criteria.getEndDate().getTime() + TIME_OF_ONE_DAY) + "", WSStringPredicate.NONE, false); //$NON-NLS-1$ //$NON-NLS-2$
+                    "TimeInMillis", WSWhereOperator.LOWER_THAN, (criteria.getEndDate().getTime() + TIME_OF_ONE_SECOND) + "", WSStringPredicate.NONE, false); //$NON-NLS-1$ //$NON-NLS-2$
             WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
             whereItemList.add(wsWhereItem);
         }
