@@ -109,6 +109,10 @@ class ScatteredTypeMapping extends TypeMapping {
                             }
                             i++;
                         }
+                        // TMDM-5257: Remove the deleted items
+                        while (objects.size() > dataRecords.size()) {
+                            objects.remove(objects.size() - 1);
+                        }
                         to.set(referenceFieldMetadata.getName(), objects);
                     } else {
                         if (value != null && value instanceof List) {
