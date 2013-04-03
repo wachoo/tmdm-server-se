@@ -12,6 +12,7 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.MetadataUtils;
+import org.apache.lucene.document.NumericField;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.Storage;
 import javassist.*;
@@ -432,7 +433,12 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                 || "byte".equals(metadata.getType().getName()) //$NON-NLS-1$
                 || "unsignedByte".equals(metadata.getType().getName()));//$NON-NLS-1$
         if (!metadata.isMany() && validType) {
-            return new BasicSearchIndexHandler();
+            if ("integer".equals(metadata.getType().getName())
+                    || "double".equals(metadata.getType().getName())) {
+                return new NumericSearchIndexHandler();
+            } else {
+                return new BasicSearchIndexHandler();
+            }
         } else if (!validType) {
             return new ToStringIndexHandler();
         } else { // metadata.isMany() returned true
@@ -442,6 +448,13 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
 
     private interface SearchIndexHandler {
         void handle(AnnotationsAttribute annotations, ConstPool pool);
+    }
+
+    private static class NumericSearchIndexHandler implements SearchIndexHandler {
+        public void handle(AnnotationsAttribute annotations, ConstPool pool) {
+            Annotation fieldAnnotation = new Annotation(NumericField.class.getName(), pool);
+            annotations.addAnnotation(fieldAnnotation);
+        }
     }
 
     private static class BasicSearchIndexHandler implements SearchIndexHandler {

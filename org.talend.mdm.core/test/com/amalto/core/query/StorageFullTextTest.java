@@ -181,13 +181,107 @@ public class StorageFullTextTest extends StorageTestCase {
     public void testSimpleSearchWithCondition() throws Exception {
         UserQueryBuilder qb = from(supplier).where(fullText("Renault")).where(
                 eq(supplier.getField("Contact/Name"), "Jean Voiture"));
-
-        // TODO Cannot filter full text search results.
+        StorageResults results = storage.fetch(qb.getSelect());
         try {
-            storage.fetch(qb.getSelect());
-            fail("Expected an exception: not implemented when test was written.");
-        } catch (Exception e) {
-            // Expected
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(supplier).where(fullText("Renault")).where(
+                eq(supplier.getField("Id"), "2"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(supplier).where(fullText("Renault")).where(
+                eq(supplier.getField("Id"), "1"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testSimpleSearchWithContainsCondition() throws Exception {
+        UserQueryBuilder qb = from(supplier).where(fullText("Renault")).where(
+                contains(supplier.getField("Contact/Name"), "Jean"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testSimpleSearchWithGreaterThanCondition() throws Exception {
+        UserQueryBuilder qb = from(supplier).where(fullText("Renault")).where(
+                gt(supplier.getField("Id"), "1"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(supplier).where(fullText("Renault")).where(
+                gte(supplier.getField("Id"), "1"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount()); // Should be 1, but there's some limitation in Lucene.
+        } finally {
+            results.close();
+        }
+
+        qb = from(supplier).where(fullText("Jean")).where(
+                gte(supplier.getField("Id"), "2"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount()); // Should be 2, but there's some limitation in Lucene.
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testSimpleSearchWithLessThanCondition() throws Exception {
+        UserQueryBuilder qb = from(supplier).where(fullText("Renault")).where(
+                lt(supplier.getField("Id"), "1"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(supplier).where(fullText("Renault")).where(
+                lte(supplier.getField("Id"), "1"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount()); // Should be 1, but there's some limitation in Lucene.
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testSimpleSearchWithJoin() throws Exception {
+        UserQueryBuilder qb = from(product).and(productFamily)
+                .selectId(product)
+                .select(productFamily.getField("Name"))
+                .where(fullText("Renault"))
+                .join(product.getField("Family"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertEquals("", result.get("Name"));
+            }
+        } finally {
+            results.close();
         }
     }
 
@@ -225,14 +319,14 @@ public class StorageFullTextTest extends StorageTestCase {
     }
 
     public void testMultipleTypesSearchWithCondition() throws Exception {
-        UserQueryBuilder qb = from(supplier).and(product).where(fullText("Renault"))
+        UserQueryBuilder qb = from(supplier).where(fullText("Renault"))
                 .where(eq(supplier.getField("Contact/Name"), "Jean Voiture"));
 
+        StorageResults results = storage.fetch(qb.getSelect());
         try {
-            storage.fetch(qb.getSelect());
-            fail("Expected an exception: can not add a where condition when searching 1+ types.");
-        } catch (Exception e) {
-            // Expected
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
         }
     }
 
