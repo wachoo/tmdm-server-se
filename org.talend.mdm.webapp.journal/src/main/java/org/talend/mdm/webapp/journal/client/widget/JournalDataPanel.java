@@ -135,6 +135,7 @@ public class JournalDataPanel extends FormPanel {
         left.setStyleAttribute("paddingRight", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
         FormLayout layout = new FormLayout();
         layout.setLabelAlign(LabelAlign.LEFT);
+        layout.setLabelWidth(150);
         left.setWidth(350);
         left.setLayout(layout);
         
@@ -157,9 +158,10 @@ public class JournalDataPanel extends FormPanel {
 
         LayoutContainer right = new LayoutContainer();
         right.setStyleAttribute("paddingLeft", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
-        right.setWidth(350);
         layout = new FormLayout();    
         layout.setLabelAlign(LabelAlign.LEFT);
+        layout.setLabelWidth(150);
+        right.setWidth(350);
         right.setLayout(layout);
         
         LabelField keyField = new LabelField();
