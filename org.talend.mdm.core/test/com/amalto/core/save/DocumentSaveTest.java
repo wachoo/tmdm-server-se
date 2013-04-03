@@ -1996,6 +1996,31 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("Lemon", evaluate(committedElement, "/Product/Features/Colors/Color[1]"));
         assertEquals("", evaluate(committedElement, "/Product/Features/Colors/Color[2]"));
     }
+    
+    public void testRemoveComplexTypeNodeWithOccurrence() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata13.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test55_original.xml", "metadata13.xsd");
+        ((TestSaverSource) source).setUserName("System_Admin");
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test55.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, false, false, true,
+                false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("Doggie t-shirt from American Apparel", evaluate(committedElement, "/Product/Description"));
+        assertEquals("16.99", evaluate(committedElement, "/Product/Price"));
+        assertEquals("Small", evaluate(committedElement, "/Product/Features/Sizes/Size[1]"));
+        assertEquals("1", evaluate(committedElement, "/Product/yu[1]/subelement"));
+        assertEquals("2", evaluate(committedElement, "/Product/yu[2]/subelement"));
+        assertEquals("", evaluate(committedElement, "/Product/yu[3]/subelement"));
+    }
 
     public void testProductFamilyUpdate() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
