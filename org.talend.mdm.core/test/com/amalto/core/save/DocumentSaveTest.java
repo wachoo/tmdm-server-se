@@ -803,7 +803,7 @@ public class DocumentSaveTest extends TestCase {
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test3.xml");
         DocumentSaverContext context = session.getContextFactory().create("UpdateReport", "UpdateReport", "Source", recordXml,
-                false, true, false, false);
+                true, true, false, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -2042,6 +2042,29 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("Description", evaluate(committedElement, "/Product/Description"));
         assertEquals("60", evaluate(committedElement, "/Product/Price"));
         assertEquals("[2]", evaluate(committedElement, "/Product/Family"));
+    }
+    
+    public void testUserPartialUpdate() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("PROVISIONING.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test56_original.xml", "PROVISIONING.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream partialUpdateContent = new ByteArrayInputStream(("<User>\n" + "    <username>user</username>\n"
+                + "        <roles>" + "           <role>System_Interactive</role>\n" + " <role>Demo_User</role>\n" +     "</roles>\n"
+                + "</User>\n").getBytes("UTF-8"));
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("PROVISIONING", "PROVISIONING", "Source",
+                partialUpdateContent, true, false, "/User/roles/role", "", true);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        assertEquals("System_Interactive", evaluate(committer.getCommittedElement(), "/User/roles/role[1]"));
+        assertEquals("Demo_User", evaluate(committer.getCommittedElement(), "/User/roles/role[2]"));
     }
 
     private static class MockCommitter implements SaverSession.Committer {

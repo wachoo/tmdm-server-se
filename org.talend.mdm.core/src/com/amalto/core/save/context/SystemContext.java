@@ -14,10 +14,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import com.amalto.core.save.AbstractDocumentSaverContext;
 import com.amalto.core.save.UserAction;
 
@@ -41,16 +41,19 @@ class SystemContext extends AbstractDocumentSaverContext {
 
     private ComplexTypeMetadata type;
 
-    public SystemContext(String dataCluster, String dataModelName, MutableDocument document) {
+    private UserAction userAction;
+
+    public SystemContext(String dataCluster, String dataModelName, MutableDocument document, UserAction userAction) {
         this.dataCluster = dataCluster;
         this.dataModelName = dataModelName;
         this.userDocument = document;
+        this.userAction = userAction;
     }
 
     @Override
     public DocumentSaver createSaver() {
         DocumentSaver saver = SaverContextFactory.invokeSaverExtension(new Save());
-        return new Init(new ID(new SystemActions(new ApplyActions(saver))));
+        return new Init(new ID(new GenerateActions(new ApplyActions(saver))));
     }
 
     @Override
@@ -160,12 +163,12 @@ class SystemContext extends AbstractDocumentSaverContext {
 
     @Override
     public UserAction getUserAction() {
-        return UserAction.REPLACE; // System documents are always replaced.
+        return userAction;
     }
 
     @Override
     public void setUserAction(UserAction userAction) {
-        // Only REPLACE for this context.
+        this.userAction = userAction;
     }
 
     @Override
