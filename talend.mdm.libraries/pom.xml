@@ -73,8 +73,6 @@
 
                                 <!-- var substitution... -->
                                 <echo>ear name = ${ear.name}</echo>
-                                <taskdef resource="net/sf/antcontrib/antcontrib.properties"
-                                    classpathref="maven.plugin.classpath" />
                                 <if>
                                     <equals arg1="${ear.name}" arg2="" />
                                     <then>
