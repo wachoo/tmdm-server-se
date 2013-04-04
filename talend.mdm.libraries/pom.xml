@@ -70,6 +70,35 @@
                                 <copy todir="${jboss.deploy.dir}">
                                     <fileset dir="eXist" includes="${exist.version}.war/**" />
                                 </copy>
+
+                                <!-- var substitution... -->
+                                <echo>ear name = ${ear.name}</echo>
+                                <taskdef resource="net/sf/antcontrib/antcontrib.properties"
+                                    classpathref="maven.plugin.classpath" />
+                                <if>
+                                    <equals arg1="${ear.name}" arg2="" />
+                                    <then>
+                                        <replace
+                                            file="${jboss.deploy.dir}/h2console.war/WEB-INF/jboss-web.xml"
+                                            summary="yes">
+                                            <replacefilter token="@@BEGIN_COMMENT@@"
+                                                value="&lt;!--" />
+                                            <replacefilter token="@@END_COMMENT@@"
+                                                value="--&gt;" />
+                                        </replace>
+                                    </then>
+                                    <else>
+                                        <replace
+                                            file="${jboss.deploy.dir}/h2console.war/WEB-INF/jboss-web.xml"
+                                            summary="yes">
+                                            <replacefilter token="@@EAR_NAME@@" value="${ear.name}" />
+                                            <replacefilter token="@@BEGIN_COMMENT@@"
+                                                value="" />
+                                            <replacefilter token="@@END_COMMENT@@"
+                                                value="" />
+                                        </replace>
+                                    </else>
+                                </if>
                             </tasks>
                         </configuration>
                     </execution>
