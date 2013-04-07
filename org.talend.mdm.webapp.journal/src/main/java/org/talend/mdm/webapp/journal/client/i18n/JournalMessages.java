@@ -82,6 +82,4 @@ public interface JournalMessages extends Messages {
     public String previous_change_button();
     
     public String next_change_button();
-    
-    public String unsupport_undo_message();
 }
