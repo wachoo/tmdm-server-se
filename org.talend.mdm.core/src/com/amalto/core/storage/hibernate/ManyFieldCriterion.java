@@ -19,6 +19,8 @@ import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.SQLCriterion;
 import org.hibernate.type.Type;
 
+import com.amalto.core.query.user.Predicate;
+
 class ManyFieldCriterion extends SQLCriterion {
 
     private final Criteria typeCriteria;
@@ -30,15 +32,18 @@ class ManyFieldCriterion extends SQLCriterion {
     private final int position;
 
     private final TableResolver resolver;
+    
+    private final Predicate predicate;
 
-    ManyFieldCriterion(Criteria typeSelectionCriteria, TableResolver resolver, FieldMetadata field, Object value) {
-        this(typeSelectionCriteria, resolver, field, value, -1);
+    ManyFieldCriterion(Criteria typeSelectionCriteria, TableResolver resolver, Predicate predicate, FieldMetadata field, Object value) {
+        this(typeSelectionCriteria, resolver, predicate, field, value, -1);
     }
 
-    ManyFieldCriterion(Criteria typeSelectionCriteria, TableResolver resolver, FieldMetadata field, Object value, int position) {
+    ManyFieldCriterion(Criteria typeSelectionCriteria, TableResolver resolver, Predicate predicate, FieldMetadata field, Object value, int position) {
         super(StringUtils.EMPTY, new Object[0], new Type[0]);
         this.typeCriteria = typeSelectionCriteria;
         this.resolver = resolver;
+        this.predicate = predicate;
         this.field = field;
         this.value = value;
         this.position = position;
@@ -63,6 +68,24 @@ class ManyFieldCriterion extends SQLCriterion {
             StringBuilder builder = new StringBuilder();
             String joinedTableName = MappingGenerator.formatSQLName(containingType + '_' + fieldName,
                     resolver.getNameMaxLength());
+            String phrase;
+            if (Predicate.CONTAINS.equals(predicate)) {
+                phrase = "like '%" + value + "%'"; //$NON-NLS-1$//$NON-NLS-2$
+            } else if (Predicate.STARTS_WITH.equals(predicate)) {
+                phrase = "like '" + value + "%'"; //$NON-NLS-1$//$NON-NLS-2$
+            } else if (Predicate.GREATER_THAN.equals(predicate)) {
+                phrase = "> " + value; //$NON-NLS-1$
+            } else if (Predicate.GREATER_THAN_OR_EQUALS.equals(predicate)) {
+                phrase = ">= " + value; //$NON-NLS-1$
+            } else if (Predicate.LOWER_THAN.equals(predicate)) {
+                phrase = "< " + value; //$NON-NLS-1$
+            } else if (Predicate.LOWER_THAN_OR_EQUALS.equals(predicate)) {
+                phrase = "<= " + value; //$NON-NLS-1$
+            } else if (Predicate.EQUALS.equals(predicate)) {
+                phrase = "= '" + value + "'"; //$NON-NLS-1$ //$NON-NLS-2$
+            } else {
+                phrase = "like '%" + value + "%'"; //$NON-NLS-1$ //$NON-NLS-2$
+            }
             builder.append("(SELECT COUNT(1) FROM ") //$NON-NLS-1$
                     .append(containingType)
                     .append(" INNER JOIN ") //$NON-NLS-1$
@@ -77,9 +100,7 @@ class ManyFieldCriterion extends SQLCriterion {
                     .append(containingTypeKey)
                     .append(" WHERE ") //$NON-NLS-1$
                     .append(joinedTableName)
-                    .append(".value = '") //$NON-NLS-1$
-                    .append(value)
-                    .append("'");
+                    .append(".value ").append(phrase); //$NON-NLS-1$
             if (position >= 0) {
                 builder.append(" AND ")
                         .append(joinedTableName)

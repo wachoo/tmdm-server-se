@@ -761,11 +761,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
                                 break;
                             }
                         }
+                        Predicate predicate = condition.getPredicate();
                         if (leftFieldCondition.position >= 0) {
-                            return new ManyFieldCriterion(typeCheckCriteria, resolver, left, condition.getRight().accept(
+                            return new ManyFieldCriterion(typeCheckCriteria, resolver, predicate, left, condition.getRight().accept(
                                     VALUE_ADAPTER), leftFieldCondition.position);
                         } else {
-                            return new ManyFieldCriterion(typeCheckCriteria, resolver, left, condition.getRight().accept(
+                            return new ManyFieldCriterion(typeCheckCriteria, resolver, predicate, left, condition.getRight().accept(
                                     VALUE_ADAPTER));
                         }
                     } else {
