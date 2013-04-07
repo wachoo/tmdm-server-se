@@ -113,7 +113,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
             LOG.error(e.getMessage(), e);
             throw e;
         } catch (UnsupportedUndoPhysicalDeleteException unsupportedUndoException) {
-            throw new ServiceException(MESSAGES.getMessage(new Locale(language), "unsupport_undo_message")); //$NON-NLS-1$
+            throw new ServiceException(MESSAGES.getMessage(new Locale(language), "unsupport_restore_message")); //$NON-NLS-1$
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getMessage());
