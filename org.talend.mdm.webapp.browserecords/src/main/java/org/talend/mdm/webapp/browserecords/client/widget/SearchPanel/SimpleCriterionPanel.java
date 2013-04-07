@@ -205,6 +205,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
                 public void handleEvent(FieldEvent be) {
                     if (be.getKeyCode() == KeyCodes.KEY_ENTER) {
                         if (searchBut != null) {
+                            field.setValue(field.getValue());
                             searchBut.fireEvent(Events.Select);
                         }
                     }
