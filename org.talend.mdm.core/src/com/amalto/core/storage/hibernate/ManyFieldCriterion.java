@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.metadata.MetadataUtils;
 import org.talend.mdm.commmon.metadata.*;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
@@ -147,11 +148,12 @@ class ManyFieldCriterion extends SQLCriterion {
                     .append(".") //$NON-NLS-1$
                     .append(simpleField.getName())
                     .append(" = "); //$NON-NLS-1$
-            if ("string".equals(simpleField.getType().getName())) { //$NON-NLS-1$
+            boolean isStringType = "string".equals(MetadataUtils.getSuperConcreteType(simpleField.getType()).getName()); //$NON-NLS-1$
+            if (isStringType) { //$NON-NLS-1$
                 query.append("'"); //$NON-NLS-1$
             }
             query.append(String.valueOf(getValue()));
-            if ("string".equals(simpleField.getType().getName())) { //$NON-NLS-1$
+            if (isStringType) { //$NON-NLS-1$
                 query.append("'");
             }
             query.append(")");

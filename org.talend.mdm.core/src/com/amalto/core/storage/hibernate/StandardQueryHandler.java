@@ -52,6 +52,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private final Map<FieldMetadata, String> joinFieldsToAlias = new HashMap<FieldMetadata, String>();
 
+    private final MappingRepository mappings;
+
     private final TableResolver resolver;
 
     private Criteria criteria;
@@ -65,14 +67,15 @@ class StandardQueryHandler extends AbstractQueryHandler {
     private String currentAliasName;
 
     public StandardQueryHandler(Storage storage,
-                                MappingRepository mappingMetadataRepository,
+                                MappingRepository mappings,
                                 TableResolver resolver,
                                 StorageClassLoader storageClassLoader,
                                 Session session,
                                 Select select,
                                 List<TypedExpression> selectedFields,
                                 Set<EndOfResultsCallback> callbacks) {
-        super(storage, mappingMetadataRepository, storageClassLoader, session, select, selectedFields, callbacks);
+        super(storage, storageClassLoader, session, select, selectedFields, callbacks);
+        this.mappings = mappings;
         this.resolver = resolver;
         criterionFieldCondition = new CriterionFieldCondition();
         DataSource dataSource = storage.getDataSource();
@@ -86,9 +89,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
         CloseableIterator<DataRecord> iterator;
         Iterator listIterator = list.iterator();
         if (isProjection) {
-            iterator = new ProjectionIterator(listIterator, selectedFields, callbacks, mappingMetadataRepository);
+            iterator = new ProjectionIterator(mappings, listIterator, selectedFields, callbacks);
         } else {
-            iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, listIterator, callbacks);
+            iterator = new ListIterator(mappings, storageClassLoader, listIterator, callbacks);
         }
 
         return new HibernateStorageResults(storage, select, iterator);
@@ -97,9 +100,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
     private StorageResults createResults(ScrollableResults scrollableResults, boolean isProjection) {
         CloseableIterator<DataRecord> iterator;
         if (isProjection) {
-            iterator = new ProjectionIterator(scrollableResults, selectedFields, callbacks, mappingMetadataRepository);
+            iterator = new ProjectionIterator(mappings, scrollableResults, selectedFields, callbacks);
         } else {
-            iterator = new ScrollableIterator(mappingMetadataRepository, storageClassLoader, scrollableResults, callbacks);
+            iterator = new ScrollableIterator(mappings, storageClassLoader, scrollableResults, callbacks);
         }
         return new HibernateStorageResults(storage, select, iterator);
     }
@@ -124,16 +127,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
         default:
             throw new NotImplementedException("No support for join type " + join.getJoinType());
         }
-
         // Select a path from mainType to the selected field (properties are '.' separated).
-        TypeMapping mainTypeMapping = mappingMetadataRepository.getMappingFromUser(mainType);
-        ComplexTypeMetadata containingType = join.getLeftField().getFieldMetadata().getContainingType();
-        while (containingType instanceof ContainedComplexTypeMetadata) {
-            containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
-        }
-        TypeMapping leftTypeMapping = mappingMetadataRepository.getMappingFromUser(containingType);
-        List<FieldMetadata> path = MetadataUtils.path(mainTypeMapping.getDatabase(),
-                leftTypeMapping.getDatabase(join.getLeftField().getFieldMetadata()));
+        List<FieldMetadata> path = MetadataUtils.path(mainType, join.getLeftField().getFieldMetadata());
         // Empty path means no path then this is an error (all joined entities should be reachable from main type).
         if (path.isEmpty()) {
             String destinationFieldName;
@@ -193,8 +188,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
     @Override
     public StorageResults visit(Type type) {
         if (currentAliasName != null) {
-            type.getField().accept(this);
             projectionList.add(new ClassNameProjection(currentAliasName), currentAliasName);
+            ProjectionList previousList = projectionList;
+            try {
+                projectionList = ReadOnlyProjectionList.makeReadOnly(projectionList);
+                type.getField().accept(this);
+            } finally {
+                projectionList = previousList;
+            }
         } else {
             throw new IllegalStateException("Expected an alias for a type expression.");
         }
@@ -214,7 +215,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Timestamp timestamp) {
-        String timeStamp = mappingMetadataRepository.getMappingFromUser(mainType).getDatabaseTimestamp();
+        String timeStamp = mappings.getMappingFromDatabase(mainType).getDatabaseTimestamp();
         if (timeStamp != null) {
             projectionList.add(Projections.property(timeStamp));
         } else {
@@ -225,7 +226,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(TaskId taskId) {
-        String taskIdField = mappingMetadataRepository.getMappingFromUser(mainType).getDatabaseTaskId();
+        String taskIdField = mappings.getMappingFromDatabase(mainType).getDatabaseTaskId();
         if (taskIdField != null) {
             projectionList.add(Projections.property(taskIdField));
         } else {
@@ -255,14 +256,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
     @Override
     public StorageResults visit(final Field field) {
         final FieldMetadata userFieldMetadata = field.getFieldMetadata();
-        ComplexTypeMetadata containingType = field.getFieldMetadata().getContainingType();
+        ComplexTypeMetadata containingType = userFieldMetadata.getContainingType();
         if (!containingType.isInstantiable()) {
             containingType = mainType;
         }
-        TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(containingType);
-        final FieldMetadata database = mapping.getDatabase(userFieldMetadata);
-        final String alias = getAlias(mapping, database);
-        database.accept(new DefaultMetadataVisitor<Void>() {
+        final String alias = getAlias(containingType, userFieldMetadata);
+        userFieldMetadata.accept(new DefaultMetadataVisitor<Void>() {
 
             @Override
             public Void visit(ReferenceFieldMetadata referenceField) {
@@ -296,11 +295,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
         return null;
     }
 
-    private String getAlias(TypeMapping mapping, FieldMetadata databaseField) {
-        ComplexTypeMetadata mainType = mapping.getDatabase();
-        String previousAlias = mapping.getDatabase().getName();
+    private String getAlias(ComplexTypeMetadata type, FieldMetadata databaseField) {
+        String previousAlias = type.getName();
         String alias;
-        for (FieldMetadata next : MetadataUtils.path(mainType, databaseField)) {
+        for (FieldMetadata next : MetadataUtils.path(type, databaseField)) {
             if (next instanceof ReferenceFieldMetadata) {
                 alias = joinFieldsToAlias.get(next);
                 if (alias == null) {
@@ -334,9 +332,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
             throw new IllegalArgumentException("Select clause is expected to select at least one entity type.");
         }
         mainType = selectedTypes.get(0);
-        ComplexTypeMetadata database = mappingMetadataRepository.getMappingFromUser(mainType).getDatabase();
-        String mainClassName = ClassCreator.getClassName(database.getName());
-        criteria = session.createCriteria(mainClassName, database.getName());
+        String mainClassName = ClassCreator.getClassName(mainType.getName());
+        criteria = session.createCriteria(mainClassName, mainType.getName());
         criteria.setReadOnly(true); // We are reading data, turns on ready only mode.
         // Handle JOIN (if any)
         List<Join> joins = select.getJoins();
@@ -363,78 +360,19 @@ class StandardQueryHandler extends AbstractQueryHandler {
         // Handle condition (if there's any condition to handle).
         Condition condition = select.getCondition();
         if (condition != null) {
-            boolean hasActualCondition = condition.accept(new VisitorAdapter<Boolean>() {
-
-                @Override
-                public Boolean visit(Isa isa) {
-                    return true;
-                }
-
-                @Override
-                public Boolean visit(Condition condition) {
-                    return condition != UserQueryHelper.NO_OP_CONDITION;
-                }
-
-                @Override
-                public Boolean visit(BinaryLogicOperator condition) {
-                    return condition.getLeft().accept(this) || condition.getRight().accept(this);
-                }
-
-                @Override
-                public Boolean visit(UnaryLogicOperator condition) {
-                    return condition.getCondition().accept(this);
-                }
-
-                @Override
-                public Boolean visit(NotIsEmpty notIsEmpty) {
-                    return true;
-                }
-
-                @Override
-                public Boolean visit(NotIsNull notIsNull) {
-                    return true;
-                }
-
-                @Override
-                public Boolean visit(IsEmpty isEmpty) {
-                    return true;
-                }
-
-                @Override
-                public Boolean visit(IsNull isNull) {
-                    return true;
-                }
-
-                @Override
-                public Boolean visit(Compare condition) {
-                    return true; // Consider all "compare" as hibernate-worthy conditions.
-                }
-
-                @Override
-                public Boolean visit(FullText fullText) {
-                    return true; // Consider all "full text" as hibernate-worthy conditions.
-                }
-
-                @Override
-                public Boolean visit(Range range) {
-                    return true; // Consider all "range" as hibernate-worthy conditions.
-                }
-            });
-            if (hasActualCondition) {
-                condition.accept(this);
-            }
+            condition.accept(this);
         }
-
+        // Order by
         OrderBy orderBy = select.getOrderBy();
         if (orderBy != null) {
             orderBy.accept(this);
         }
-
+        // Paging
         Paging paging = select.getPaging();
         paging.accept(this);
-
         int pageSize = paging.getLimit();
         boolean hasPaging = pageSize < Integer.MAX_VALUE;
+        // Results
         if (!hasPaging) {
             return createResults(criteria.scroll(ScrollMode.FORWARD_ONLY), select.isProjection());
         } else {
@@ -460,10 +398,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (orderByExpression instanceof Field) {
             Field field = (Field) orderByExpression;
             FieldMetadata userFieldMetadata = field.getFieldMetadata();
-            TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(field.getFieldMetadata().getContainingType());
-            FieldMetadata database = mapping.getDatabase(userFieldMetadata);
-            String alias = getAlias(mapping, database);
-            condition.criterionFieldName = alias + '.' + database.getName();
+            String alias = getAlias(userFieldMetadata.getContainingType(), userFieldMetadata);
+            condition.criterionFieldName = alias + '.' + userFieldMetadata.getName();
         }
         if (condition != null) {
             String fieldName = condition.criterionFieldName;
@@ -585,17 +521,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
             } else {
                 // Case #2: doing a instance type check on a field reachable from main selected type.
                 // First, need to join with all tables to get to the table that stores the type
-                TypeMapping typeMapping = mappingMetadataRepository.getMappingFromUser(mainType);
-                ComplexTypeMetadata database = typeMapping.getDatabase();
-                FieldMetadata field = database.getField(StringUtils.substringAfter(
-                        fieldCondition.criterionFieldName.replace('.', '/'), "/")); //$NON-NLS-1$
-                List<FieldMetadata> path = MetadataUtils.path(database, field);
+                List<FieldMetadata> path = MetadataUtils.path(mainType, fieldCondition.fieldMetadata);
                 if (path.isEmpty()) {
-                    throw new IllegalStateException("Expected field '" + field.getName() + "' to be reachable from '"
-                            + database.getName() + "'.");
+                    throw new IllegalStateException("Expected field '" + fieldCondition.fieldMetadata.getName()
+                            + "' to be reachable from '"
+                            + mainType.getName() + "'.");
                 }
                 // Generate the joins
-                String alias = getAlias(typeMapping, field);
+                String alias = getAlias(mainType, fieldCondition.fieldMetadata);
                 generateJoinPath(alias, JoinFragment.INNER_JOIN, path);
                 // Find the criteria that does the join to the table to check (only way to get the SQL alias for table).
                 if (criteria instanceof CriteriaImpl) {
@@ -611,8 +544,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     if (typeCheckCriteria == null) {
                         throw new IllegalStateException("Could not find criteria for type check.");
                     }
-                    TypeMapping isaType = mappingMetadataRepository.getMappingFromUser(isa.getType());
-                    String name = storageClassLoader.getClassFromType(isaType.getDatabase()).getName();
+                    String name = storageClassLoader.getClassFromType(isa.getType()).getName();
                     return new FieldTypeCriterion(typeCheckCriteria, name);
                 } else {
                     throw new IllegalStateException("Expected a criteria instance of " + CriteriaImpl.class.getName() + ".");
@@ -694,12 +626,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
             String startValue = String.valueOf(range.getStart().accept(VALUE_ADAPTER));
             String endValue = String.valueOf(range.getEnd().accept(VALUE_ADAPTER));
             if (expression instanceof Field) {
-                TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(mainType);
                 Field field = (Field) expression;
                 FieldMetadata fieldMetadata = field.getFieldMetadata();
-                FieldMetadata databaseField = mapping.getDatabase(fieldMetadata);
-                start = MetadataUtils.convert(startValue, databaseField);
-                end = MetadataUtils.convert(endValue, databaseField);
+                start = MetadataUtils.convert(startValue, fieldMetadata);
+                end = MetadataUtils.convert(endValue, fieldMetadata);
             } else {
                 start = MetadataUtils.convert(startValue, expression.getTypeName());
                 end = MetadataUtils.convert(endValue, expression.getTypeName());
@@ -721,29 +651,23 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 }
                 return NO_OP_CRITERION;
             }
-            TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(mainType);
             if (condition.getLeft() instanceof Field) {
                 Field leftField = (Field) condition.getLeft();
                 FieldMetadata fieldMetadata = leftField.getFieldMetadata();
-                String alias = mapping.getDatabase().getName();
-                FieldMetadata left = mapping.getDatabase(fieldMetadata);
+                String alias = fieldMetadata.getContainingType().getName();
                 // TODO Ugly code path to fix once test coverage is ok.
                 if (!mainType.equals(fieldMetadata.getContainingType()) || fieldMetadata instanceof ReferenceFieldMetadata) {
                     (new Field(fieldMetadata)).accept(StandardQueryHandler.this);
-                    if (left == null) {
-                        mapping = mappingMetadataRepository.getMappingFromUser(fieldMetadata.getContainingType());
-                        left = mapping.getDatabase(fieldMetadata);
-                    }
-                    alias = getAlias(mapping, left);
+                    alias = getAlias(mainType, fieldMetadata);
                     if (!fieldMetadata.isMany()) {
                         if (fieldMetadata instanceof ReferenceFieldMetadata) {
                             // ignored CompoundFieldMetadata
-                            if (!(((ReferenceFieldMetadata) left).getReferencedField() instanceof CompoundFieldMetadata)) {
+                            if (!(((ReferenceFieldMetadata) fieldMetadata).getReferencedField() instanceof CompoundFieldMetadata)) {
                                 leftFieldCondition.criterionFieldName = alias + '.'
-                                        + ((ReferenceFieldMetadata) left).getReferencedField().getName();
+                                        + ((ReferenceFieldMetadata) fieldMetadata).getReferencedField().getName();
                             }
                         } else {
-                            leftFieldCondition.criterionFieldName = alias + '.' + left.getName();
+                            leftFieldCondition.criterionFieldName = alias + '.' + fieldMetadata.getName();
                         }
                     }
                 }
@@ -762,10 +686,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
                             }
                         }
                         if (leftFieldCondition.position >= 0) {
-                            return new ManyFieldCriterion(typeCheckCriteria, resolver, left, condition.getRight().accept(
+                            return new ManyFieldCriterion(typeCheckCriteria, resolver, fieldMetadata, condition.getRight().accept(
                                     VALUE_ADAPTER), leftFieldCondition.position);
                         } else {
-                            return new ManyFieldCriterion(typeCheckCriteria, resolver, left, condition.getRight().accept(
+                            return new ManyFieldCriterion(typeCheckCriteria, resolver, fieldMetadata, condition.getRight().accept(
                                     VALUE_ADAPTER));
                         }
                     } else {
@@ -778,9 +702,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 if (condition.getLeft() instanceof Field) {
                     Field leftField = (Field) condition.getLeft();
                     FieldMetadata fieldMetadata = leftField.getFieldMetadata();
-                    FieldMetadata left = mapping.getDatabase(fieldMetadata);
-                    if (!left.getType().equals(fieldMetadata.getType())) {
-                        compareValue = MetadataUtils.convert(String.valueOf(compareValue), left);
+                    if (!fieldMetadata.getType().equals(fieldMetadata.getType())) {
+                        compareValue = MetadataUtils.convert(String.valueOf(compareValue), fieldMetadata);
                     }
                 }
                 Predicate predicate = condition.getPredicate();
@@ -796,12 +719,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     if (compareValue instanceof Object[]) {
                         Field leftField = (Field) condition.getLeft();
                         FieldMetadata fieldMetadata = leftField.getFieldMetadata();
-                        FieldMetadata left = mapping.getDatabase(fieldMetadata);
-                        FieldMetadata referencedField = ((ReferenceFieldMetadata) left).getReferencedField();
+                        FieldMetadata referencedField = ((ReferenceFieldMetadata) fieldMetadata).getReferencedField();
                         if (!(referencedField instanceof CompoundFieldMetadata)) {
                             throw new IllegalArgumentException("Expected field '" + referencedField + "' to be a composite key.");
                         }
-                        String alias = getAlias(mapping, left);
+                        String alias = getAlias(fieldMetadata.getContainingType(), fieldMetadata);
                         FieldMetadata[] fields = ((CompoundFieldMetadata) referencedField).getFields();
                         Object[] keyValues = (Object[]) compareValue;
                         Criterion[] keyValueCriteria = new Criterion[keyValues.length];
@@ -906,7 +828,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         @Override
         public FieldCondition visit(Timestamp timestamp) {
-            String databaseTimestamp = mappingMetadataRepository.getMappingFromUser(mainType).getDatabaseTimestamp();
+            String databaseTimestamp = mappings.getMappingFromDatabase(mainType).getDatabaseTimestamp();
             if (databaseTimestamp != null) {
                 return createInternalCondition(databaseTimestamp);
             } else {
@@ -916,7 +838,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         @Override
         public FieldCondition visit(TaskId taskId) {
-            String taskIdField = mappingMetadataRepository.getMappingFromUser(mainType).getDatabaseTaskId();
+            String taskIdField = mappings.getMappingFromDatabase(mainType).getDatabaseTaskId();
             if (taskIdField != null) {
                 return createInternalCondition(Storage.METADATA_TASK_ID);
             } else {
@@ -960,7 +882,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
             // Use line below to allow searches on collection fields (but Hibernate 4 should be used).
             // condition.criterionFieldName = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field,
             // StandardQueryHandler.this.mappingMetadataRepository);
-            condition.criterionFieldName = getFieldName(field, StandardQueryHandler.this.mappingMetadataRepository);
+            condition.criterionFieldName = getFieldName(field);
+            condition.fieldMetadata = field.getFieldMetadata();
             condition.isProperty = true;
             return condition;
         }
@@ -972,7 +895,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             // Use line below to allow searches on collection fields (but Hibernate 4 should be used).
             // condition.criterionFieldName = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field,
             // StandardQueryHandler.this.mappingMetadataRepository);
-            condition.criterionFieldName = getFieldName(indexedField, StandardQueryHandler.this.mappingMetadataRepository);
+            condition.criterionFieldName = getFieldName(indexedField);
             condition.isProperty = true;
             condition.position = indexedField.getPosition();
             return condition;

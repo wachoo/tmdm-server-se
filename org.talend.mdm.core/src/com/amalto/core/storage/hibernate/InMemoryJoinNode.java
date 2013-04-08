@@ -1,0 +1,59 @@
+/*
+ * Copyright (C) 2006-2013 Talend Inc. - www.talend.com
+ *
+ * This source code is available under agreement available at
+ * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+ *
+ * You should have received a copy of the agreement
+ * along with this program; if not, write to Talend SA
+ * 9 rue Pages 92150 Suresnes, France
+ */
+
+package com.amalto.core.storage.hibernate;
+
+import com.amalto.core.query.user.Expression;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+
+import java.util.*;
+
+class InMemoryJoinNode {
+
+    static enum Merge {
+        UNION,
+        INTERSECTION,
+        NONE
+    }
+
+    String name;
+
+    Merge merge = Merge.NONE;
+
+    Set<Object> ids = Collections.emptySet();
+
+    Set<Expression> expression = new HashSet<Expression>();
+
+    // TODO not very classy use of a Map
+    Map<InMemoryJoinNode, InMemoryJoinNode> children = new HashMap<InMemoryJoinNode, InMemoryJoinNode>();
+
+    ComplexTypeMetadata type;
+
+    FieldMetadata childProperty;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        InMemoryJoinNode that = (InMemoryJoinNode) o;
+        return !(name != null ? !name.equals(that.name) : that.name != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
+}

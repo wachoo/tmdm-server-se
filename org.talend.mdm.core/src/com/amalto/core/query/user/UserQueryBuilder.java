@@ -207,7 +207,7 @@ public class UserQueryBuilder {
         }
     }
 
-    private static Expression createConstant(TypedExpression expression, String constant) {
+    public static Expression createConstant(TypedExpression expression, String constant) {
         String fieldTypeName = expression.getTypeName();
         if ("integer".equals(fieldTypeName)  //$NON-NLS-1$
                 || "positiveInteger".equals(fieldTypeName) //$NON-NLS-1$
@@ -216,7 +216,11 @@ public class UserQueryBuilder {
                 || "nonNegativeInteger".equals(fieldTypeName) //$NON-NLS-1$
                 || "unsignedInt".equals(fieldTypeName) //$NON-NLS-1$
                 || "int".equals(fieldTypeName)) { //$NON-NLS-1$
-            return new IntegerConstant(Integer.parseInt(constant));
+            if (constant.isEmpty()) {
+                return new IntegerConstant(0);
+            } else {
+                return new IntegerConstant(Integer.parseInt(constant));
+            }
         } else if ("string".equals(fieldTypeName) //$NON-NLS-1$
                 || "hexBinary".equals(fieldTypeName) //$NON-NLS-1$
                 || "base64Binary".equals(fieldTypeName) //$NON-NLS-1$
@@ -616,6 +620,9 @@ public class UserQueryBuilder {
 
     public UserQueryBuilder selectId(ComplexTypeMetadata typeMetadata) {
         Collection<FieldMetadata> keyFields = typeMetadata.getKeyFields();
+        if (keyFields.isEmpty()) {
+            LOGGER.warn("Cannot select key field(s) for '" + typeMetadata + "' (no key defined in type).");
+        }
         for (FieldMetadata keyField : keyFields) {
             select(keyField);
         }

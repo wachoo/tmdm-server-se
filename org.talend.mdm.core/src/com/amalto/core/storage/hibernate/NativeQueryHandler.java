@@ -41,8 +41,8 @@ class NativeQueryHandler extends AbstractQueryHandler {
 
     private static final Logger LOGGER = Logger.getLogger(NativeQueryHandler.class);
 
-    NativeQueryHandler(Storage storage, MappingRepository mappingMetadataRepository, StorageClassLoader storageClassLoader, Session session, Set<EndOfResultsCallback> callbacks) {
-        super(storage, mappingMetadataRepository, storageClassLoader, session, null, null, callbacks);
+    NativeQueryHandler(Storage storage, StorageClassLoader storageClassLoader, Session session, Set<EndOfResultsCallback> callbacks) {
+        super(storage, storageClassLoader, session, null, null, callbacks);
     }
 
     @Override

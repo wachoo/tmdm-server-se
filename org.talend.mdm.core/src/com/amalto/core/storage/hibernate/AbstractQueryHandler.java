@@ -45,8 +45,6 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
 
     final Session session;
 
-    final MappingRepository mappingMetadataRepository;
-
     final Storage storage;
 
     final StorageClassLoader storageClassLoader;
@@ -58,7 +56,6 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
     final List<TypedExpression> selectedFields;
 
     AbstractQueryHandler(Storage storage,
-                         MappingRepository mappingMetadataRepository,
                          StorageClassLoader storageClassLoader,
                          Session session,
                          Select select,
@@ -66,18 +63,17 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
                          Set<EndOfResultsCallback> callbacks) {
         this.storageClassLoader = storageClassLoader;
         this.session = session;
-        this.mappingMetadataRepository = mappingMetadataRepository;
         this.storage = storage;
         this.select = select;
         this.callbacks = callbacks;
         this.selectedFields = selectedFields;
     }
 
-    String getFieldName(Field field, MappingRepository repository) {
-        return getFieldName(field.getFieldMetadata(), repository, true, true);
+    String getFieldName(Field field) {
+        return getFieldName(field.getFieldMetadata(), true, true);
     }
 
-    String getFieldName(FieldMetadata fieldMetadata, MappingRepository repository, boolean includeTypeName, boolean resolveReferencedField) {
+    String getFieldName(FieldMetadata fieldMetadata, boolean includeTypeName, boolean resolveReferencedField) {
         // Move up to the first complex type (contained type do not have any mapping).
         TypeMetadata containingType = fieldMetadata.getContainingType();
         while (containingType != null && containingType instanceof ContainedComplexTypeMetadata) {
@@ -86,31 +82,22 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         if (containingType == null) {
             throw new IllegalStateException("Could not find containing type mapping for field '" + fieldMetadata.getName() + "'.");
         }
-        TypeMapping mapping = repository.getMappingFromUser(containingType);
-        if (mapping == null) {
-            throw new IllegalArgumentException("Type '" + containingType.getName() + "' does not have a mapping.");
-        }
         String fieldName;
-        FieldMetadata flattenField = mapping.getDatabase(fieldMetadata);
-        if (flattenField == null) {
-            // This is an error case, every field should have their flatten field.
-            throw new IllegalStateException("Could not find mapping for field '" + fieldMetadata.getName() + "' in type '" + mapping.getName() + "'");
-        }
         if (fieldMetadata instanceof ReferenceFieldMetadata) { // Handle query on FK field
             FieldMetadata referencedField = ((ReferenceFieldMetadata) fieldMetadata).getReferencedField();
             if (!(referencedField instanceof CompoundFieldMetadata) && resolveReferencedField) {
                 // If asked to resolve referenced field (to return "country.id" instead of "country" -> useful for
                 // conditions on FKs).
-                fieldName = flattenField.getName() + '.' + getFieldName(referencedField, mappingMetadataRepository, false, true);
+                fieldName = fieldMetadata.getName() + '.' + getFieldName(referencedField, false, true);
             } else {
-                fieldName = flattenField.getName();
+                fieldName = fieldMetadata.getName();
             }
         } else { // Simple field
-            fieldName = flattenField.getName();
+            fieldName = fieldMetadata.getName();
         }
 
         if (includeTypeName) {
-            return mapping.getDatabase().getName() + '.' + fieldName;
+            return fieldMetadata.getContainingType().getName() + '.' + fieldName;
         } else {
             return fieldName;
         }
@@ -247,6 +234,8 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         boolean isMany;
 
         String criterionFieldName;
+
+        FieldMetadata fieldMetadata;
 
         boolean isProperty;
 

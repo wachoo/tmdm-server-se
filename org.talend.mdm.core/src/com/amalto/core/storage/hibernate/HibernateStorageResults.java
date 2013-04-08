@@ -59,10 +59,10 @@ class HibernateStorageResults implements StorageResults {
             StorageResults countResult = storage.fetch(countSelect);
             Iterator<DataRecord> resultIterator = countResult.iterator();
             DataRecord count = resultIterator.next();
-            String countAsString = String.valueOf(count.get("count")); //$NON-NLS-1$
-            if (countAsString == null) {
+            if (count.get("count") == null) { //$NON-NLS-1$
                 throw new RuntimeException("Count returned no result");
             }
+            String countAsString = String.valueOf(count.get("count")); //$NON-NLS-1$
             return Integer.parseInt(countAsString);
         } catch (Exception e) {
             throw new RuntimeException(e);

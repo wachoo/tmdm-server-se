@@ -49,14 +49,17 @@ class IdQueryHandler extends AbstractQueryHandler {
 
     private Object idValue;
 
+    private final MappingRepository mappings;
+
     public IdQueryHandler(Storage storage,
-                          MappingRepository mappingMetadataRepository,
+                          MappingRepository mappings,
                           StorageClassLoader storageClassLoader,
                           Session session,
                           Select select,
                           List<TypedExpression> selectedFields,
                           Set<EndOfResultsCallback> callbacks) {
-        super(storage, mappingMetadataRepository, storageClassLoader, session, select, selectedFields, callbacks);
+        super(storage, storageClassLoader, session, select, selectedFields, callbacks);
+        this.mappings = mappings;
     }
 
     @Override
@@ -69,8 +72,7 @@ class IdQueryHandler extends AbstractQueryHandler {
             return noResult(select);
         }
         ComplexTypeMetadata mainType = select.getTypes().get(0);
-        ComplexTypeMetadata database = mappingMetadataRepository.getMappingFromUser(mainType).getDatabase();
-        String className = ClassCreator.getClassName(database.getName());
+        String className = ClassCreator.getClassName(mainType.getName());
         if (!session.getTransaction().isActive()) {
             session.getTransaction().begin();
         }
@@ -81,9 +83,9 @@ class IdQueryHandler extends AbstractQueryHandler {
             Iterator objectIterator = Collections.singleton(loadedObject).iterator();
             CloseableIterator<DataRecord> iterator;
             if (!select.isProjection()) {
-                iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, objectIterator, callbacks);
+                iterator = new ListIterator(mappings, storageClassLoader, objectIterator, callbacks);
             } else {
-                iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, objectIterator, callbacks) {
+                iterator = new ListIterator(mappings, storageClassLoader, objectIterator, callbacks) {
                     @Override
                     public DataRecord next() {
                         DataRecord next = super.next();

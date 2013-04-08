@@ -58,14 +58,17 @@ class FullTextQueryHandler extends AbstractQueryHandler {
 
     private Object currentValue;
 
+    private final MappingRepository mappings;
+
     public FullTextQueryHandler(Storage storage,
-                                MappingRepository repository,
+                                MappingRepository mappings,
                                 StorageClassLoader storageClassLoader,
                                 Session session,
                                 Select select,
                                 List<TypedExpression> selectedFields,
                                 Set<EndOfResultsCallback> callbacks) {
-        super(storage, repository, storageClassLoader, session, select, selectedFields, callbacks);
+        super(storage, storageClassLoader, session, select, selectedFields, callbacks);
+        this.mappings = mappings;
     }
 
     @Override
@@ -105,7 +108,8 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 if (expression instanceof Field) {
                     FieldMetadata fieldMetadata = ((Field) expression).getFieldMetadata();
                     if (joinedTypes.contains(fieldMetadata.getContainingType())) {
-                        filteredFields.add(new Alias(new StringConstant(StringUtils.EMPTY), fieldMetadata.getName()));
+                        TypeMapping mapping = mappings.getMappingFromDatabase(fieldMetadata.getContainingType());
+                        filteredFields.add(new Alias(new StringConstant(StringUtils.EMPTY), mapping.getUser(fieldMetadata).getName()));
                     } else {
                         filteredFields.add(expression);
                     }
@@ -166,9 +170,9 @@ class FullTextQueryHandler extends AbstractQueryHandler {
     private StorageResults createResults(List list) {
         CloseableIterator<DataRecord> iterator;
         if (selectedFields.isEmpty()) {
-            iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, list.iterator(), callbacks);
+            iterator = new ListIterator(mappings, storageClassLoader, list.iterator(), callbacks);
         } else {
-            iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, list.iterator(), callbacks) {
+            iterator = new ListIterator(mappings, storageClassLoader, list.iterator(), callbacks) {
                 @Override
                 public DataRecord next() {
                     final DataRecord next = super.next();
@@ -255,12 +259,12 @@ class FullTextQueryHandler extends AbstractQueryHandler {
     private StorageResults createResults(ScrollableResults scrollableResults) {
         CloseableIterator<DataRecord> iterator;
         if (selectedFields.isEmpty()) {
-            iterator = new ScrollableIterator(mappingMetadataRepository,
+            iterator = new ScrollableIterator(mappings,
                     storageClassLoader,
                     scrollableResults,
                     callbacks);
         } else {
-            iterator = new ScrollableIterator(mappingMetadataRepository,
+            iterator = new ScrollableIterator(mappings,
                     storageClassLoader,
                     scrollableResults,
                     callbacks) {
@@ -338,16 +342,12 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 || condition.getPredicate() == Predicate.CONTAINS
                 || condition.getPredicate() == Predicate.STARTS_WITH) {
             StringTokenizer tokenizer = new StringTokenizer(String.valueOf(currentValue));
-            Query termQuery = null;
+            BooleanQuery termQuery = new BooleanQuery();
             while (tokenizer.hasMoreTokens()) {
                 TermQuery newTermQuery = new TermQuery(new Term(currentFieldName, tokenizer.nextToken().toLowerCase()));
-                if (termQuery == null) {
-                    termQuery = newTermQuery;
-                    if (condition.getPredicate() == Predicate.STARTS_WITH) {
-                        break;
-                    }
-                } else {
-                    termQuery = termQuery.combine(new Query[]{newTermQuery});
+                termQuery.add(newTermQuery, BooleanClause.Occur.MUST);
+                if (condition.getPredicate() == Predicate.STARTS_WITH) {
+                    break;
                 }
             }
             subQueries.addLast(termQuery);
@@ -403,12 +403,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Field field) {
-        ComplexTypeMetadata containingType = field.getFieldMetadata().getContainingType();
-        while (containingType instanceof ContainedComplexTypeMetadata) {
-            containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
-        }
-        TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(containingType);
-        currentFieldName = mapping.getDatabase(field.getFieldMetadata()).getName();
+        currentFieldName = field.getFieldMetadata().getName();
         return null;
     }
 
@@ -507,7 +502,6 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         // TODO Test me on conditions where many types share same field names.
         final Set<String> fields = new HashSet<String>();
         for (final ComplexTypeMetadata type : types) {
-            final TypeMapping typeMapping = mappingMetadataRepository.getMappingFromUser(type);
             type.accept(new DefaultMetadataVisitor<Void>() {
 
                 private void addClass(ComplexTypeMetadata complexType) {
@@ -543,8 +537,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 @Override
                 public Void visit(ReferenceFieldMetadata referenceField) {
                     ComplexTypeMetadata referencedType = referenceField.getReferencedType();
-                    ComplexTypeMetadata user = mappingMetadataRepository.getMappingFromDatabase(referencedType).getUser();
-                    if (referencedType.isInstantiable() != user.isInstantiable()) {
+                    if (!referencedType.isInstantiable()) {
                         referencedType.accept(this);
                     }
                     return null;
@@ -552,15 +545,15 @@ class FullTextQueryHandler extends AbstractQueryHandler {
 
                 @Override
                 public Void visit(SimpleTypeFieldMetadata simpleField) {
-                    addClass(typeMapping.getDatabase(simpleField).getContainingType());
-                    fields.add(getFieldName(simpleField, mappingMetadataRepository, false, false));
+                    addClass(simpleField.getContainingType());
+                    fields.add(getFieldName(simpleField, false, false));
                     return null;
                 }
 
                 @Override
                 public Void visit(EnumerationFieldMetadata enumField) {
-                    addClass(typeMapping.getDatabase(enumField).getContainingType());
-                    fields.add(getFieldName(enumField, mappingMetadataRepository, false, false));
+                    addClass(enumField.getContainingType());
+                    fields.add(getFieldName(enumField, false, false));
                     return null;
                 }
             });
@@ -572,7 +565,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         String fullTextValue = fullText.getValue().toLowerCase();
         while (fieldsIterator.hasNext()) {
             String next = fieldsIterator.next();
-            queryBuffer.append(next).append(':').append(fullTextValue).append("*"); //$NON-NLS-1$
+            queryBuffer.append(next).append(':').append(fullTextValue).append('*');
             if (fieldsIterator.hasNext()) {
                 queryBuffer.append(" OR "); //$NON-NLS-1$
             }

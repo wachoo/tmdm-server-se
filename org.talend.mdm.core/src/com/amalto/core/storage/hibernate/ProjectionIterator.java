@@ -36,21 +36,21 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
 
     private final MappingRepository mappingMetadataRepository;
 
-    public ProjectionIterator(Iterator<Object> iterator,
+    public ProjectionIterator(MappingRepository mappingMetadataRepository,
+                              Iterator<Object> iterator,
                               List<TypedExpression> selectedFields,
-                              Set<EndOfResultsCallback> callbacks,
-                              MappingRepository mappingMetadataRepository) {
+                              Set<EndOfResultsCallback> callbacks) {
         this.iterator = iterator;
         this.selectedFields = selectedFields;
         this.callbacks = callbacks;
         this.mappingMetadataRepository = mappingMetadataRepository;
     }
 
-    public ProjectionIterator(final ScrollableResults results,
+    public ProjectionIterator(MappingRepository mappingMetadataRepository,
+                              final ScrollableResults results,
                               List<TypedExpression> selectedFields,
-                              Set<EndOfResultsCallback> callbacks,
-                              MappingRepository mappingMetadataRepository) {
-        this(new Iterator<Object>() {
+                              Set<EndOfResultsCallback> callbacks) {
+        this(mappingMetadataRepository, new Iterator<Object>() {
             public boolean hasNext() {
                 return results.next();
             }
@@ -61,7 +61,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
 
             public void remove() {
             }
-        }, selectedFields, callbacks, mappingMetadataRepository);
+        }, selectedFields, callbacks);
     }
 
     public boolean hasNext() {

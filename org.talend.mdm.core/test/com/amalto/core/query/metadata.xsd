@@ -74,6 +74,13 @@
             <xsd:element name="Street" type="xsd:string"/>
             <xsd:element name="City" type="xsd:string"/>
             <xsd:element name="Phone" type="xsd:string"/>
+            <xsd:element name="Notes" minOccurs="0">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="Note" minOccurs="0" maxOccurs="unbounded" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
         </xsd:sequence>
     </xsd:complexType>
 

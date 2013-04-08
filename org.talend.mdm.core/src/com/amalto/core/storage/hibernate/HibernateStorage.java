@@ -11,14 +11,12 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.query.user.*;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.query.optimization.ContainsOptimizer;
 import com.amalto.core.query.optimization.Optimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.optimization.UpdateReportOptimizer;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.query.user.UserQueryDumpConsole;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
@@ -291,7 +289,7 @@ public class HibernateStorage implements Storage {
                     break;
             }
             storageClassLoader.setTableResolver(tableResolver);
-            // Master and Staging share same class creator.
+            // Master, Staging and System share same class creator.
             switch (storageType) {
                 case MASTER:
                 case STAGING:
@@ -776,8 +774,6 @@ public class HibernateStorage implements Storage {
     private StorageResults internalFetch(Session session, Expression userQuery, Set<EndOfResultsCallback> callbacks) {
         // Always normalize the query to ensure query has expected format.
         Expression expression = userQuery.normalize();
-        SelectAnalyzer selectAnalysis = new SelectAnalyzer(mappingRepository, storageClassLoader, session, callbacks, this, tableResolver);
-        AbstractQueryHandler queryHandler = userQuery.accept(selectAnalysis);
         if (expression instanceof Select) {
             Select select = (Select) expression;
             for (Optimizer optimizer : OPTIMIZERS) {
@@ -788,7 +784,29 @@ public class HibernateStorage implements Storage {
             LOGGER.debug("Query after optimizations:");
             userQuery.accept(new UserQueryDumpConsole(LOGGER));
         }
-        return expression.accept(queryHandler);
+        // Analyze query
+        SelectAnalyzer selectAnalysis = new SelectAnalyzer(mappingRepository, storageClassLoader, session, callbacks, this, tableResolver);
+        Visitor<StorageResults> queryHandler = userQuery.accept(selectAnalysis);
+        // Transform query using mappings
+        Expression internalExpression = expression;
+        if (expression instanceof Select) {
+            List<ComplexTypeMetadata> types = ((Select) expression).getTypes();
+            boolean isInternal = true;
+            for (ComplexTypeMetadata type : types) {
+                TypeMapping mapping = mappingRepository.getMappingFromUser(type);
+                isInternal &= mapping == null || mapping.getUser() != type;
+            }
+            if (!isInternal) {
+                MappingExpressionTransformer transformer = new MappingExpressionTransformer(mappingRepository);
+                internalExpression = expression.accept(transformer);
+            }
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.debug("Internal query after mappings:");
+                userQuery.accept(new UserQueryDumpConsole(LOGGER));
+            }
+        }
+        // Evaluate query
+        return internalExpression.accept(queryHandler);
     }
 
     private void assertPrepared() {
@@ -881,4 +899,5 @@ public class HibernateStorage implements Storage {
         SCATTERED,
         AUTO
     }
+
 }

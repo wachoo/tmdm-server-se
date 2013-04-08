@@ -4147,7 +4147,6 @@
                     <xsd:appinfo source="X_Write">RAP_Admin</xsd:appinfo>
                     <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                     <xsd:appinfo source="X_Write">RAP_SRC</xsd:appinfo>
-                    <xsd:appinfo source="X_ForeignKeyInfo">Contrat/detailContrat/codeDecompte</xsd:appinfo>
                     <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKey_Filter">Contrat/detailContrat/@xsi:type$$=$$&amp;quot;AP-RE&amp;quot;$$#</xsd:appinfo>
                     <xsd:appinfo source="X_Deny_Create">RAP_ReadOnly</xsd:appinfo>
@@ -4196,7 +4195,6 @@
                     <xsd:appinfo source="X_Deny_Create">RAP_ReadOnly</xsd:appinfo>
                     <xsd:appinfo source="X_Deny_Create">RAP_DCO</xsd:appinfo>
                     <xsd:appinfo source="X_Deny_Create">RAP_SRC</xsd:appinfo>
-                    <xsd:appinfo source="X_ForeignKeyInfo">Contrat/detailContrat/codeDecompte</xsd:appinfo>
                     <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
@@ -4434,7 +4432,6 @@
 
 
                     <xsd:appinfo source="X_Label_FR">Responsable d'équilibre</xsd:appinfo>
-                    <xsd:appinfo source="X_ForeignKeyInfo">Contrat/detailContrat/codeDecompte</xsd:appinfo>
                     <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>

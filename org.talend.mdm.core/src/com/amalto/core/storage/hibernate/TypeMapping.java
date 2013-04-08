@@ -38,7 +38,7 @@ public abstract class TypeMapping {
         database.setName(database.getName().replace('-', '_'));
     }
 
-    private TypeMapping(ComplexTypeMetadata user, ComplexTypeMetadata database, MappingRepository mappings) {
+    TypeMapping(ComplexTypeMetadata user, ComplexTypeMetadata database, MappingRepository mappings) {
         this.user = user;
         this.database = database;
         this.mappings = mappings;

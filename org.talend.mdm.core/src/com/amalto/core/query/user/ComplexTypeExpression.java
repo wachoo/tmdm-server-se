@@ -21,6 +21,10 @@ public class ComplexTypeExpression implements TypedExpression {
         this.type = type;
     }
 
+    public ComplexTypeMetadata getType() {
+        return type;
+    }
+
     public String getTypeName() {
         return type.getName();
     }
