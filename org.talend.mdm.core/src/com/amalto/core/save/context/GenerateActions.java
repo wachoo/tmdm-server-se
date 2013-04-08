@@ -60,7 +60,7 @@ class GenerateActions implements DocumentSaver {
             // strict sequence.
             if(lastUpdateTime.get() >= mdmUpdateTime) {
                 long backup = mdmUpdateTime;
-                mdmUpdateTime += lastUpdateTime.incrementAndGet();
+                mdmUpdateTime = lastUpdateTime.incrementAndGet();
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Changed time from " + backup + " to " + mdmUpdateTime + " (diff: " + (mdmUpdateTime - backup) + " ms)");
                 }
