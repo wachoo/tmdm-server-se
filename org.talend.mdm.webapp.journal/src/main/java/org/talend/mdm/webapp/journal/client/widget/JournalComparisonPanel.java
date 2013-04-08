@@ -167,7 +167,11 @@ public class JournalComparisonPanel extends ContentPanel {
                         if (node != null) {
                             Element e = getElementContainer(node);
                             if (e != null) {
-                                El.fly(e).setStyleName("x-tree3-node " + model.getCls(), select); //$NON-NLS-1$
+                                if (model.getCls() != null && !"".equals(model.getCls())) { //$NON-NLS-1$
+                                    El.fly(e).setStyleName("x-tree3-node " + model.getCls(), select); //$NON-NLS-1$
+                                } else {
+                                    El.fly(e).setStyleName("x-ftree2-selected", select); //$NON-NLS-1$
+                                }
                                 if (select) {
                                     String tid = tree.getId();
                                     Accessibility.setState(tree.getElement(), "aria-activedescendant", tid + "__" + node.getElement().getId()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -215,7 +219,7 @@ public class JournalComparisonPanel extends ContentPanel {
 
                     public void handleEvent(TreePanelEvent<JournalTreeModel> be) {
                         if(otherPanel.getModelMap().size() > 0){
-                            JournalTreeModel model = otherPanel.getModelMap().get(be.getItem().getId());
+                            JournalTreeModel model = otherPanel.getModelMap().get(be.getItem().getPath());
                             otherPanel.getTree().setExpanded(model, false);
                         } 
                     }
@@ -231,7 +235,7 @@ public class JournalComparisonPanel extends ContentPanel {
                     selectTreeNodeByPath(changeNodeList.get(count[0]));
                 }
             }
-        });        
+        });
     }
    
    private void buttonStatus(int index) {
