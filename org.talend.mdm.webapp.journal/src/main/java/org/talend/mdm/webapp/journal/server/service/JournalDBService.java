@@ -16,9 +16,13 @@ import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import java.util.LinkedHashMap;
 import org.apache.log4j.Logger;
 import org.dom4j.Attribute;
 import org.dom4j.DocumentException;
@@ -288,14 +292,32 @@ public class JournalDBService {
         model.setSource(source);
         model.setUserName(checkNull(Util.getFirstTextNode(doc, "result/Update/UserName"))); //$NON-NLS-1$
         model.setIds(Util.joinStrings(new String[] { source, timeInMillis }, ".")); //$NON-NLS-1$
+        
+        Map<String,List<String>> changeNodeMap = new LinkedHashMap<String,List<String>>();        
+        String changeNodePath = ""; //$NON-NLS-1$
+        String[] pathArray = Util.getTextNodes(doc, "result/Update/Item/path"); //$NON-NLS-1$
 
-        String[] pathArray = Util.getTextNodes(doc, "result/Update/Item/path"); //$NON-NLS-1$        
         if (pathArray.length > 0) {
             for (int i = 0; i < pathArray.length; i++) {
-                model.getChangeNodeList().add("/" + model.getEntity() + "/" + pathArray[i]); //$NON-NLS-1$ //$NON-NLS-2$
+                changeNodePath = "/" + model.getEntity() + "/" + pathArray[i]; //$NON-NLS-1$ //$NON-NLS-2$
+                if (changeNodePath.contains("[") && changeNodePath.contains("]")) { //$NON-NLS-1$ //$NON-NLS-2$
+                    changeNodePath = changeNodePath.substring(0,changeNodePath.lastIndexOf("[")); //$NON-NLS-1$
+                }  
+
+                if (changeNodeMap.get(changeNodePath) == null) {
+                    changeNodeMap.put(changeNodePath, new LinkedList());
+                }
+                changeNodeMap.get(changeNodePath).add("/" + model.getEntity() + "/" + pathArray[i]); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
         
+        Iterator it = changeNodeMap.values().iterator();
+        while (it.hasNext()) {
+            List<String> pathList = (List<String>)it.next();
+            for (int i=pathList.size()-1;i>=0;i--) {
+                model.getChangeNodeList().add(pathList.get(i));
+            }
+        }
         return model;
     }
 

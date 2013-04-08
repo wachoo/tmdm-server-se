@@ -146,7 +146,7 @@ public class JournalDBServiceTest extends TestCase{
     }
     
     public void testParseString2Model() throws NoSuchMethodException,InvocationTargetException,IllegalArgumentException,IllegalAccessException {
-        String xmlString = "<result><Update><UserName>Jennifer</UserName><Source>genericUI</Source><TimeInMillis>1360032633336</TimeInMillis><OperationType>UPDATE</OperationType><RevisionID>null</RevisionID><DataCluster>DStar</DataCluster><DataModel>DStar</DataModel><Concept>Agency</Concept><Key>2</Key><Item><path>Name</path><oldValue>23456</oldValue><newValue>34567</newValue><path>Feautres/Sizes/Size[1]</path><oldValue>111</oldValue><newValue>333</newValue></Item></Update></result>"; //$NON-NLS-1$        
+        String xmlString = "<result><Update><UserName>Jennifer</UserName><Source>genericUI</Source><TimeInMillis>1360032633336</TimeInMillis><OperationType>UPDATE</OperationType><RevisionID>null</RevisionID><DataCluster>DStar</DataCluster><DataModel>DStar</DataModel><Concept>Agency</Concept><Key>2</Key><Item><path>Name</path><oldValue>23456</oldValue><newValue>34567</newValue><path>Feautres/Sizes/Size[3]</path><oldValue>ccc</oldValue><newValue>333</newValue><path>Feautres/Sizes/Size[2]</path><oldValue>bbb</oldValue><newValue>222</newValue><path>Feautres/Sizes/Size[1]</path><oldValue>aaa</oldValue><newValue>111</newValue></Item></Update></result>"; //$NON-NLS-1$        
         Method method = journalDBService.getClass().getDeclaredMethod("parseString2Model", String.class); //$NON-NLS-1$
         method.setAccessible(true);
         JournalGridModel returnValue = (JournalGridModel)method.invoke(journalDBService, new Object[] { xmlString });
@@ -162,7 +162,9 @@ public class JournalDBServiceTest extends TestCase{
         assertEquals("1360032633336", returnValue.getOperationTime()); //$NON-NLS-1$
         assertEquals("Jennifer", returnValue.getUserName()); //$NON-NLS-1$
         assertEquals("/Agency/Name", returnValue.getChangeNodeList().get(0)); //$NON-NLS-1$
-        assertEquals("/Agency/Feautres/Sizes/Size[1]", returnValue.getChangeNodeList().get(1)); //$NON-NLS-1$    
+        assertEquals("/Agency/Feautres/Sizes/Size[1]", returnValue.getChangeNodeList().get(1)); //$NON-NLS-1$
+        assertEquals("/Agency/Feautres/Sizes/Size[2]", returnValue.getChangeNodeList().get(2)); //$NON-NLS-1$    
+        assertEquals("/Agency/Feautres/Sizes/Size[3]", returnValue.getChangeNodeList().get(3)); //$NON-NLS-1$    
     }
             
     public void testCheckNull() throws NoSuchMethodException,InvocationTargetException,IllegalArgumentException,IllegalAccessException {        
