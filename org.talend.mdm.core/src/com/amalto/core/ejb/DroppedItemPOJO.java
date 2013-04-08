@@ -283,7 +283,7 @@ public class DroppedItemPOJO implements Serializable {
                         }
                         continue;
                     }
-                    uidValues[uidValues.length - 1] = uidValues[uidValues.length - 1].replace("-", ""); //$NON-NLS-1$//$NON-NLS-2$
+                    uidValues[uidValues.length - 1] = uidValues[uidValues.length - 1].replaceAll("\\-$", ""); //$NON-NLS-1$//$NON-NLS-2$
                     refItemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(uidValues[1]), uidValues[2], Arrays.copyOfRange(
                             uidValues, 3, uidValues.length));
                 }
