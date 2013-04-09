@@ -22,13 +22,14 @@ import org.talend.mdm.webapp.journal.client.Journal;
 import org.talend.mdm.webapp.journal.client.JournalServiceAsync;
 import org.talend.mdm.webapp.journal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.journal.client.resources.icon.Icons;
+import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.IconAlign;
-import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -43,11 +44,9 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel.Joint;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanel.TreeNode;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelView;
-import com.google.gwt.user.client.Element;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanelView.TreeViewRenderMode;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.Accessibility;
 
 /**
  * DOC Administrator  class global comment. Detailled comment
@@ -74,16 +73,16 @@ public class JournalComparisonPanel extends ContentPanel {
 
     private Button nextChangeButton;
 
-   public JournalComparisonPanel(String title, final JournalParameters parameter,final List<String> changeNodeList,final boolean isBeforePanel) {
+   public JournalComparisonPanel(String title, final JournalParameters parameter,final JournalGridModel journalGridModel,final boolean isBeforePanel) {
         this.setFrame(false);
         this.setHeading(title);
         this.setLayout(new FitLayout());
         this.setBodyBorder(false);
         
-        this.changeNodeList = changeNodeList;
+        this.changeNodeList = journalGridModel.getChangeNodeList();
         
         final int count[] = new int[1];
-        count[0] = 0;
+        count[0] = -1;
         
         toolbar = new ToolBar();        
         
@@ -123,31 +122,33 @@ public class JournalComparisonPanel extends ContentPanel {
         
         toolbar.add(new FillToolItem());
         
-        service.isAdmin(new SessionAwareAsyncCallback<Boolean>() {
+        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(journalGridModel.getOperationType())) {
+            service.isAdmin(new SessionAwareAsyncCallback<Boolean>() {
 
-            public void onSuccess(Boolean isAdmin) {
-                if (isAdmin){
-                    Button restoreButton = new Button(MessagesFactory.getMessages().restore_button());
-                    restoreButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));
-                    restoreButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-                        
-                        @Override
-                        public void componentSelected(ButtonEvent ce) {
-                            service.restoreRecord(parameter,UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
-                                
-                                public void onSuccess(Boolean success) {
-                                    if(success) {
-                                        JournalComparisonPanel.this.closeTabPanel();
+                public void onSuccess(Boolean isAdmin) {
+                    if (isAdmin){
+                        Button restoreButton = new Button(MessagesFactory.getMessages().restore_button());
+                        restoreButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));
+                        restoreButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+                            
+                            @Override
+                            public void componentSelected(ButtonEvent ce) {
+                                service.restoreRecord(parameter,UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
+                                    
+                                    public void onSuccess(Boolean success) {
+                                        if(success) {
+                                            JournalComparisonPanel.this.closeTabPanel();
+                                        }
                                     }
-                                }
-                            });
-                        };
-                    });
-                    restoreButton.setEnabled(parameter.isAuth());                            
-                    toolbar.add(restoreButton);
+                                });
+                            };
+                        });
+                        restoreButton.setEnabled(parameter.isAuth());                            
+                        toolbar.add(restoreButton);
+                    }
                 }
-            }
-        });
+            });
+        }
 
         this.setTopComponent(toolbar);
                
@@ -161,28 +162,6 @@ public class JournalComparisonPanel extends ContentPanel {
                 view = new TreePanelView<JournalTreeModel>() {
                     
                     @Override
-                    public void onSelectChange(JournalTreeModel model, boolean select) {
-                        if (select) {
-                            tree.setExpanded(treeStore.getParent(model), true);
-                        }
-                        TreeNode node = findNode(model);
-                        if (node != null) {
-                            Element e = getElementContainer(node);
-                            if (e != null) {
-                                if (model.getCls() != null && !"".equals(model.getCls())) { //$NON-NLS-1$
-                                    El.fly(e).setStyleName("x-tree3-node " + model.getCls(), select); //$NON-NLS-1$
-                                } else {
-                                    El.fly(e).setStyleName("x-ftree2-selected", select); //$NON-NLS-1$
-                                }
-                                if (select) {
-                                    String tid = tree.getId();
-                                    Accessibility.setState(tree.getElement(), "aria-activedescendant", tid + "__" + node.getElement().getId()); //$NON-NLS-1$ //$NON-NLS-2$
-                                }
-                            }
-                        }
-                    }
-                    
-                    @Override
                     public String getTemplate(ModelData m, String id, String text, AbstractImagePrototype icon, boolean checkable,
                             boolean checked, Joint joint, int level, TreeViewRenderMode renderMode) {
                         // see TMDM-5438
@@ -194,8 +173,20 @@ public class JournalComparisonPanel extends ContentPanel {
                     }                                      
                 };
                 
-                tree = new TreePanel<JournalTreeModel>(store);
-                tree.setView(view);
+                
+                tree = new TreePanel<JournalTreeModel>(store){
+
+                    @Override
+                    protected String renderChild(JournalTreeModel parent, JournalTreeModel child, int depth,
+                            TreeViewRenderMode renderMode) {
+                        String nodeStr = super.renderChild(parent, child, depth, renderMode);
+                        if(child.get("cls") != null){ //$NON-NLS-1$
+                            nodeStr = nodeStr.replaceFirst("x-tree3-node", "x-tree3-node " + child.get("cls")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        }
+                        return nodeStr;
+                    }
+                    
+                };
 
                 tree.setDisplayProperty("name"); //$NON-NLS-1$
                 tree.getStyle().setLeafIcon(AbstractImagePrototype.create(Icons.INSTANCE.leaf()));
@@ -232,9 +223,9 @@ public class JournalComparisonPanel extends ContentPanel {
                 JournalComparisonPanel.this.expandRoot();
                 if (changeNodeList != null && changeNodeList.size() > 0) {
                     if (isBeforePanel) {
-                        buttonStatus(count[0]);
-                    }                    
-                    selectTreeNodeByPath(changeNodeList.get(count[0]));
+                        nextChangeButton.setEnabled(true);
+                    }
+                    tree.expandAll();
                 }
             }
         });

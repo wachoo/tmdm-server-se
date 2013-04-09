@@ -55,7 +55,7 @@ public class JournalHistoryPanel extends ContentPanel {
         westData.setMargins(new Margins(5, 5, 0, 0));
         
         beforePanel = new JournalComparisonPanel(MessagesFactory.getMessages().before_label(),
-                this.buildParameter(gridModel, "before", isAuth),journalDataPanel.getJournalGridModel().getChangeNodeList(),true); //$NON-NLS-1$
+                this.buildParameter(gridModel, "before", isAuth),journalDataPanel.getJournalGridModel(),true); //$NON-NLS-1$
         this.add(beforePanel, westData);
         
         BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
@@ -64,7 +64,7 @@ public class JournalHistoryPanel extends ContentPanel {
         centerData.setSplit(true);
         
         afterPanel = new JournalComparisonPanel(MessagesFactory.getMessages().after_label(),
-                this.buildParameter(gridModel, "current", isAuth),journalDataPanel.getJournalGridModel().getChangeNodeList(),false); //$NON-NLS-1$
+                this.buildParameter(gridModel, "current", isAuth),journalDataPanel.getJournalGridModel(),false); //$NON-NLS-1$
         this.add(afterPanel, centerData);
         
         beforePanel.setOtherPanel(afterPanel);
