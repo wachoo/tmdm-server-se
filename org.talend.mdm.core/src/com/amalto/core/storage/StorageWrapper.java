@@ -620,7 +620,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 }
             } else {
                 Collection<FieldMetadata> keyFields = type.getKeyFields();
-                if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && criteria.getConceptName().equals("Update")) { //$NON-NLS-1$
+                if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && type.getName().equals("Update")) { //$NON-NLS-1$
                     // UpdateReport: Source.TimeInMillis is the key
                     String[] keys = keysKeywords.split("\\."); //$NON-NLS-1$
                     if (keys.length == 1 || keys.length > 2) {
@@ -666,7 +666,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                         // UpdateReport Repository: the TimeInMillis field is a long type on SQL Storage
                         // So it need to check again, another workaround: change the field type to long type in the
                         // UpdateReport.xsd(but it may affect other places)
-                        if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && criteria.getConceptName().equals("Update")) { //$NON-NLS-1$
+                        if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && type.getName().equals("Update")) { //$NON-NLS-1$
                             if (field.getName().equals("TimeInMillis") && !MetadataUtils.isValueAssignable(contentKeywords, Timestamp.INSTANCE.getTypeName())) { //$NON-NLS-1$
                                 continue;
                             }

@@ -1574,7 +1574,6 @@ public class StorageQueryTest extends StorageTestCase {
         // build query condition
         ItemPKCriteria criteria = new ItemPKCriteria();
         criteria.setClusterName("UpdateReport");
-        criteria.setConceptName("Update");
         criteria.setContentKeywords("Product");
         String contentKeywords = criteria.getContentKeywords();
         // build Storage whereCondition, the codes come from com.amalto.core.storage.StorageWrapper.buildQueryBuilder(UserQueryBuilder, ItemPKCriteria, ComplexTypeMetadata)
@@ -1586,7 +1585,7 @@ public class StorageQueryTest extends StorageTestCase {
                 // UpdateReport Repository: the TimeInMillis field is a long type on SQL Storage
                 // So it need to check again, another workaround: change the field type to long type in the
                 // UpdateReport.xsd(but it may affect other places)
-                if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && criteria.getConceptName().equals("Update")) { //$NON-NLS-1$
+                if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && updateReport.getName().equals("Update")) { //$NON-NLS-1$
                     if (field.getName().equals("TimeInMillis") && !MetadataUtils.isValueAssignable(contentKeywords, Timestamp.INSTANCE.getTypeName())) { //$NON-NLS-1$
                         continue;
                     }
