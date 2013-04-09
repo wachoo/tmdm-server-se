@@ -27,6 +27,7 @@ import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.Style.IconAlign;
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -89,7 +90,7 @@ public class JournalComparisonPanel extends ContentPanel {
         if (isBeforePanel) {
 
             previousChangeButton = new Button(MessagesFactory.getMessages().previous_change_button());
-            previousChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));            
+            previousChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.prev()));            
             previousChangeButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
                 public void componentSelected(ButtonEvent ce) {
                     if (count[0] > 0){
@@ -104,7 +105,8 @@ public class JournalComparisonPanel extends ContentPanel {
             toolbar.add(previousChangeButton);
                                  
             nextChangeButton = new Button(MessagesFactory.getMessages().next_change_button());
-            nextChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));
+            nextChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.next()));
+            nextChangeButton.setIconAlign(IconAlign.RIGHT);
             nextChangeButton.addSelectionListener(new SelectionListener<ButtonEvent>() {                
                 public void componentSelected(ButtonEvent ce) {
                     if (count[0] < changeNodeList.size()-1){

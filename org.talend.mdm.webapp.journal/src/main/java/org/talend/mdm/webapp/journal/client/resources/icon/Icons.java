@@ -37,4 +37,13 @@ public interface Icons extends ClientBundle {
     
     @Source("restore.png")
     ImageResource restore();
+    
+    @Source("view.png")
+    ImageResource view();
+    
+    @Source("prev.gif")
+    ImageResource prev();
+    
+    @Source("next.gif")
+    ImageResource next();
 }

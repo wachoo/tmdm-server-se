@@ -92,7 +92,7 @@ public class JournalDataPanel extends FormPanel {
         });
         
         viewUpdateReportButton = new Button(MessagesFactory.getMessages().view_updatereport_button());
-        viewUpdateReportButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.browse()));
+        viewUpdateReportButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.view()));
         viewUpdateReportButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
             
             @Override
