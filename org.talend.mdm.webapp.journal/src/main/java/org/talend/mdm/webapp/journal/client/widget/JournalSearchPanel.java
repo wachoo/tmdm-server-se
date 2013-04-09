@@ -36,6 +36,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
@@ -245,9 +246,13 @@ public class JournalSearchPanel extends FormPanel {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 if (entityField.isValid() && sourceCombo.isValid() && startDateField.isValid() && keyField.isValid() && operationTypeCombo.isValid() && endDateField.isValid()) {
-                    bundleCriteria();
-                    Dispatcher dispatcher = Dispatcher.get();
-                    dispatcher.dispatch(JournalEvents.DoSearch);
+                    if (startDateField.getValue() != null && endDateField.getValue() != null &&  startDateField.getValue().after(endDateField.getValue())) {
+                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages().search_date_error_message(),null);
+                    } else {
+                        bundleCriteria();
+                        Dispatcher dispatcher = Dispatcher.get();
+                        dispatcher.dispatch(JournalEvents.DoSearch);
+                    }
                 }
             }
         });

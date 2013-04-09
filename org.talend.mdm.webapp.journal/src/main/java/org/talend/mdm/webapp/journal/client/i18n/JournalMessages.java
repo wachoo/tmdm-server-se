@@ -82,4 +82,8 @@ public interface JournalMessages extends Messages {
     public String previous_change_button();
     
     public String next_change_button();
+    
+    public String warning_title();
+    
+    public String search_date_error_message();
 }
