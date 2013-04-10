@@ -17,6 +17,7 @@ pushd %DIRNAME%..
 set JBOSS_HOME=%CD%
 popd
 
+set PATH=%PATH%;
 REM Add bin/native to the PATH if present
 if exist "%JBOSS_HOME%\bin\native" set PATH=%JBOSS_HOME%\bin\native;%PATH%
 if exist "%JBOSS_HOME%\bin\native" set JAVA_OPTS=%JAVA_OPTS% -Djava.library.path="%PATH%"
