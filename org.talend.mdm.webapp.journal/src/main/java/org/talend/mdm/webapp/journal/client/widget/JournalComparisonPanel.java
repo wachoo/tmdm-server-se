@@ -79,79 +79,6 @@ public class JournalComparisonPanel extends ContentPanel {
         this.setLayout(new FitLayout());
         this.setBodyBorder(false);
         
-        this.changeNodeList = journalGridModel.getChangeNodeList();
-        
-        final int count[] = new int[1];
-        count[0] = -1;
-        
-        toolbar = new ToolBar();        
-        
-        if (isBeforePanel) {
-
-            previousChangeButton = new Button(MessagesFactory.getMessages().previous_change_button());
-            previousChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.prev()));            
-            previousChangeButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-                public void componentSelected(ButtonEvent ce) {
-                    if (count[0] > 0){
-                        count[0] = count[0] - 1;
-                    }                    
-                    buttonStatus(count[0]);
-                    selectTreeNodeByPath(changeNodeList.get(count[0]));
-                    otherPanel.selectTreeNodeByPath(changeNodeList.get(count[0]));
-                }           
-            });
-            previousChangeButton.setEnabled(false);
-            toolbar.add(previousChangeButton);
-                                 
-            nextChangeButton = new Button(MessagesFactory.getMessages().next_change_button());
-            nextChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.next()));
-            nextChangeButton.setIconAlign(IconAlign.RIGHT);
-            nextChangeButton.addSelectionListener(new SelectionListener<ButtonEvent>() {                
-                public void componentSelected(ButtonEvent ce) {
-                    if (count[0] < changeNodeList.size()-1){
-                        count[0] = count[0] + 1;
-                    }                   
-                    buttonStatus(count[0]);
-                    selectTreeNodeByPath(changeNodeList.get(count[0]));
-                    otherPanel.selectTreeNodeByPath(changeNodeList.get(count[0]));
-                }
-            });            
-            nextChangeButton.setEnabled(false);
-            toolbar.add(nextChangeButton);
-        }
-        
-        toolbar.add(new FillToolItem());
-        
-        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(journalGridModel.getOperationType())) {
-            service.isAdmin(new SessionAwareAsyncCallback<Boolean>() {
-
-                public void onSuccess(Boolean isAdmin) {
-                    if (isAdmin){
-                        Button restoreButton = new Button(MessagesFactory.getMessages().restore_button());
-                        restoreButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));
-                        restoreButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-                            
-                            @Override
-                            public void componentSelected(ButtonEvent ce) {
-                                service.restoreRecord(parameter,UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
-                                    
-                                    public void onSuccess(Boolean success) {
-                                        if(success) {
-                                            JournalComparisonPanel.this.closeTabPanel();
-                                        }
-                                    }
-                                });
-                            };
-                        });
-                        restoreButton.setEnabled(parameter.isAuth());                            
-                        toolbar.add(restoreButton);
-                    }
-                }
-            });
-        }
-
-        this.setTopComponent(toolbar);
-               
         service.getComparisionTree(parameter,UrlUtil.getLanguage(), new SessionAwareAsyncCallback<JournalTreeModel>() {
             
             public void onSuccess(JournalTreeModel root) {
@@ -185,7 +112,6 @@ public class JournalComparisonPanel extends ContentPanel {
                         }
                         return nodeStr;
                     }
-                    
                 };
 
                 tree.setDisplayProperty("name"); //$NON-NLS-1$
@@ -222,13 +148,88 @@ public class JournalComparisonPanel extends ContentPanel {
                 JournalComparisonPanel.this.layout(true);
                 JournalComparisonPanel.this.expandRoot();
                 if (changeNodeList != null && changeNodeList.size() > 0) {
-                    if (isBeforePanel) {
-                        nextChangeButton.setEnabled(true);
-                    }
                     tree.expandAll();
                 }
             }
         });
+
+        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(journalGridModel.getOperationType())) {
+            
+            this.changeNodeList = journalGridModel.getChangeNodeList();
+            
+            final int count[] = new int[1];
+            count[0] = -1;
+            
+            toolbar = new ToolBar();
+            
+            if (isBeforePanel) {
+                previousChangeButton = new Button(MessagesFactory.getMessages().previous_change_button());
+                previousChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.prev()));            
+                previousChangeButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+                    public void componentSelected(ButtonEvent ce) {
+                        if (count[0] > 0){
+                            count[0] = count[0] - 1;
+                        }                    
+                        buttonStatus(count[0]);
+                        selectTreeNodeByPath(changeNodeList.get(count[0]));
+                        otherPanel.selectTreeNodeByPath(changeNodeList.get(count[0]));
+                    }           
+                });
+                previousChangeButton.setEnabled(false);                
+                                     
+                nextChangeButton = new Button(MessagesFactory.getMessages().next_change_button());
+                nextChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.next()));
+                nextChangeButton.setIconAlign(IconAlign.RIGHT);
+                nextChangeButton.addSelectionListener(new SelectionListener<ButtonEvent>() {                
+                    public void componentSelected(ButtonEvent ce) {
+                        if (count[0] < changeNodeList.size()-1){
+                            count[0] = count[0] + 1;
+                        }                   
+                        buttonStatus(count[0]);
+                        selectTreeNodeByPath(changeNodeList.get(count[0]));
+                        otherPanel.selectTreeNodeByPath(changeNodeList.get(count[0]));
+                    }
+                });            
+                nextChangeButton.setEnabled(true);                
+            } else {
+                previousChangeButton = new Button();
+                previousChangeButton.setEnabled(false);
+                nextChangeButton = new Button();
+                nextChangeButton.setEnabled(false);
+            }
+            
+            toolbar.add(previousChangeButton);
+            toolbar.add(nextChangeButton);
+            toolbar.add(new FillToolItem());
+            
+            service.isAdmin(new SessionAwareAsyncCallback<Boolean>() {
+
+                public void onSuccess(Boolean isAdmin) {
+                    if (isAdmin){
+                        Button restoreButton = new Button(MessagesFactory.getMessages().restore_button());
+                        restoreButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));
+                        restoreButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+                            
+                            @Override
+                            public void componentSelected(ButtonEvent ce) {
+                                service.restoreRecord(parameter,UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
+                                    
+                                    public void onSuccess(Boolean success) {
+                                        if(success) {
+                                            JournalComparisonPanel.this.closeTabPanel();
+                                        }
+                                    }
+                                });
+                            };
+                        });
+                        restoreButton.setEnabled(parameter.isAuth());                            
+                        toolbar.add(restoreButton);
+                    }
+                }
+            });
+            
+            this.setTopComponent(toolbar);
+        }                     
     }
    
    private void buttonStatus(int index) {
