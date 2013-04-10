@@ -57,12 +57,12 @@ public class SmartViewUtil {
 
                 String description = provider.getDescription(wstpks[i]);
                 // Try to extract the Smart View display information from its description first
-                if (defaultIsoLang != null && defaultIsoLang.length() != 0) {
+                if (description != null && defaultIsoLang != null && defaultIsoLang.length() != 0) {
                     Pattern p = Pattern.compile(".*\\[" + defaultIsoLang.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);//$NON-NLS-1$//$NON-NLS-2$
                     smDesc.setDisplayName(p.matcher(description).replaceAll("$1"));//$NON-NLS-1$
                 }
                 if (smDesc.getDisplayName() == null || smDesc.getDisplayName().length() == 0) {
-                    if (description.length() != 0)
+                    if (description != null && description.length() != 0)
                         smDesc.setDisplayName(description);
                     else if (smDesc.getOptName() == null)
                         smDesc.setDisplayName(MESSAGES.getMessage("smartview_defaultoption")); //$NON-NLS-1$
