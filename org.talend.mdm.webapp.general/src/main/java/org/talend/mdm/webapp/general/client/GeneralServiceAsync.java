@@ -17,6 +17,7 @@ import java.util.List;
 import org.talend.mdm.webapp.general.model.ActionBean;
 import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuGroup;
+import org.talend.mdm.webapp.general.model.ProductInfo;
 import org.talend.mdm.webapp.general.model.UserBean;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -25,6 +26,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * The async counterpart of <code>GreetingService</code>.
  */
 public interface GeneralServiceAsync {
+
+    void getProductInfo(AsyncCallback<ProductInfo> callback);
 
     void getMenus(String language, AsyncCallback<MenuGroup> callback);
 

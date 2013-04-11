@@ -1,6 +1,7 @@
 package org.talend.mdm.webapp.general.server.actions;
 
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import org.talend.mdm.webapp.general.model.ComboBoxModel;
 import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
 import org.talend.mdm.webapp.general.model.MenuGroup;
+import org.talend.mdm.webapp.general.model.ProductInfo;
 import org.talend.mdm.webapp.general.model.UserBean;
 import org.talend.mdm.webapp.general.server.util.Utils;
 import org.w3c.dom.Document;
@@ -56,6 +58,39 @@ public class GeneralAction implements GeneralService {
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.general.client.i18n.GeneralMessages", GeneralAction.class.getClassLoader()); //$NON-NLS-1$
 
+    @Override
+    public ProductInfo getProductInfo() throws ServiceException {
+        ProductInfo info = new ProductInfo();
+        if (com.amalto.core.util.Util.isEnterprise()) {
+            try {
+                Class<?> utilClass = Class.forName("com.amalto.core.enterpriseutil.EnterpriseUtil"); //$NON-NLS-1$
+                Method getLicenseCtrlLocal = utilClass.getDeclaredMethod("getLicenseCtrlLocal"); //$NON-NLS-1$
+                Object licenseCtrlLocal = getLicenseCtrlLocal.invoke(null);
+                Class<?> licenseCtrlClass = licenseCtrlLocal.getClass();
+                Method getLicenseData = licenseCtrlClass.getDeclaredMethod("getLicenseData", boolean.class); //$NON-NLS-1$
+                Object licenseUtil = getLicenseData.invoke(licenseCtrlLocal, true);
+                Class<?> licenseUtilClass = licenseUtil.getClass();
+
+                Method getProductKey = licenseUtilClass.getDeclaredMethod("getProductKey"); //$NON-NLS-1$
+                Method getProductName = licenseUtilClass.getDeclaredMethod("getProductName"); //$NON-NLS-1$
+                Method getProductEdition = licenseUtilClass.getDeclaredMethod("getProductEdition"); //$NON-NLS-1$
+
+                info.setProductKey((String) getProductKey.invoke(licenseUtil));
+                info.setProductName((String) getProductName.invoke(licenseUtil));
+                info.setProductEdition((String) getProductEdition.invoke(licenseUtil));
+
+                info.setEnterprise(true);
+
+            } catch (Exception e) {
+                LOG.error(e.getMessage());
+            }
+        } else {
+            info.setEnterprise(false);
+        }
+        return info;
+    }
+
+    @Override
     public MenuGroup getMenus(String language) throws ServiceException {
         MenuGroup result = new MenuGroup();
         try {
@@ -103,6 +138,7 @@ public class GeneralAction implements GeneralService {
         return models;
     }
 
+    @Override
     public ActionBean getAction() throws ServiceException {
         try {
             ActionBean action = new ActionBean();
@@ -116,15 +152,17 @@ public class GeneralAction implements GeneralService {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             String err = e.getLocalizedMessage();
-            if (e.getMessage().equals("nocontainer")) //$NON-NLS-1$
+            if (e.getMessage().equals("nocontainer")) {
                 err = MESSAGES.getMessage("nocontainer"); //$NON-NLS-1$
-            else if (e.getMessage().equals("nomodel")) //$NON-NLS-1$
+            } else if (e.getMessage().equals("nomodel")) {
                 err = MESSAGES.getMessage("nomodel"); //$NON-NLS-1$
+            }
             throw new ServiceException(err);
         }
 
     }
 
+    @Override
     public void setClusterAndModel(String cluster, String model) throws ServiceException {
         try {
             Configuration.initialize(cluster, model, configurationContext);
@@ -134,6 +172,7 @@ public class GeneralAction implements GeneralService {
         }
     }
 
+    @Override
     public UserBean getUsernameAndUniverse() throws ServiceException {
         try {
             UserBean userBean = new UserBean();
@@ -166,6 +205,7 @@ public class GeneralAction implements GeneralService {
         }
     }
 
+    @Override
     public List<LanguageBean> getLanguages(String language) throws ServiceException {
 
         try {
@@ -196,8 +236,9 @@ public class GeneralAction implements GeneralService {
 
                                     Node dateTimeNode = node.getAttributes().getNamedItem("dateTime");//$NON-NLS-1$
 
-                                    if (dateTimeNode != null && dateTimeNode.getNodeValue() != null)
+                                    if (dateTimeNode != null && dateTimeNode.getNodeValue() != null) {
                                         locale.setDateTimeFormat(dateTimeNode.getNodeValue());
+                                    }
 
                                 }
 
@@ -216,6 +257,7 @@ public class GeneralAction implements GeneralService {
         }
     }
 
+    @Override
     public void logout() throws ServiceException {
         try {
             String username = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
@@ -228,6 +270,7 @@ public class GeneralAction implements GeneralService {
         }
     }
 
+    @Override
     public boolean isExpired(String language) throws ServiceException {
         try {
             return Webapp.INSTANCE.isExpired(language);
@@ -237,6 +280,7 @@ public class GeneralAction implements GeneralService {
         }
     }
 
+    @Override
     public boolean supportStaging(String dataCluster) throws ServiceException {
         try {
             return Util.getPort().supportStaging().is_true();

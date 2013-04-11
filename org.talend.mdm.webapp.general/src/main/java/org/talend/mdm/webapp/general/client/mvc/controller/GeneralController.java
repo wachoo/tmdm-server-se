@@ -30,6 +30,7 @@ import org.talend.mdm.webapp.general.client.mvc.view.GeneralView;
 import org.talend.mdm.webapp.general.model.ActionBean;
 import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuGroup;
+import org.talend.mdm.webapp.general.model.ProductInfo;
 import org.talend.mdm.webapp.general.model.UserBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -46,6 +47,7 @@ public class GeneralController extends Controller {
     private GeneralView view;
 
     public GeneralController() {
+        registerEventTypes(GeneralEvent.LoadProductInfo);
         registerEventTypes(GeneralEvent.LoadUser);
         registerEventTypes(GeneralEvent.InitFrame);
         registerEventTypes(GeneralEvent.LoadMenus);
@@ -66,7 +68,9 @@ public class GeneralController extends Controller {
     public void handleEvent(final AppEvent event) {
         EventType type = event.getType();
 
-        if (type == GeneralEvent.LoadUser) {
+        if (type == GeneralEvent.LoadProductInfo) {
+            loadProductInfo();
+        } else if (type == GeneralEvent.LoadUser) {
             loadUser(event);
         } else if (type == GeneralEvent.InitFrame) {
             forwardToView(view, event);
@@ -84,7 +88,18 @@ public class GeneralController extends Controller {
             supportStaging(event);
         }
     }
- 
+
+    private void loadProductInfo() {
+        service.getProductInfo(new SessionAwareAsyncCallback<ProductInfo>() {
+
+            public void onSuccess(ProductInfo info) {
+                BrandingBar.getInstance().setProductInfo(info);
+                Dispatcher dispatcher = Dispatcher.get();
+                dispatcher.dispatch(GeneralEvent.LoadLanguages);
+            }
+        });
+    }
+
     private void loadLanguages(AppEvent event) {
         service.getLanguages(UrlUtil.getLocaleProperty(), new SessionAwareAsyncCallback<List<LanguageBean>>() {
 
@@ -112,7 +127,7 @@ public class GeneralController extends Controller {
             public void onSuccess(UserBean userBean) {
                 Registry.register(General.USER_BEAN, userBean);
                 Dispatcher dispatcher = Dispatcher.get();
-                dispatcher.dispatch(GeneralEvent.LoadLanguages);
+                dispatcher.dispatch(GeneralEvent.LoadProductInfo);
             }
         });
     }

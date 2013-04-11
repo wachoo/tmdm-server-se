@@ -18,6 +18,7 @@ import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.general.model.ActionBean;
 import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuGroup;
+import org.talend.mdm.webapp.general.model.ProductInfo;
 import org.talend.mdm.webapp.general.model.UserBean;
 
 import com.google.gwt.user.client.rpc.RemoteService;
@@ -29,14 +30,16 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("GeneralService")
 public interface GeneralService extends RemoteService {
 
+    public ProductInfo getProductInfo() throws ServiceException;
+
     MenuGroup getMenus(String language) throws ServiceException;
-    
+
     ActionBean getAction() throws ServiceException;
 
     void setClusterAndModel(String cluster, String model) throws ServiceException;
-    
+
     public UserBean getUsernameAndUniverse() throws ServiceException;
-    
+
     public List<LanguageBean> getLanguages(String language) throws ServiceException;
 
     public void logout() throws ServiceException;

@@ -21,6 +21,7 @@ import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
 import org.talend.mdm.webapp.general.model.LanguageBean;
+import org.talend.mdm.webapp.general.model.ProductInfo;
 import org.talend.mdm.webapp.general.model.UserBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -48,6 +49,10 @@ public class BrandingBar extends ContentPanel {
 
     private HorizontalPanel hp = new HorizontalPanel();
 
+    private HTML versionLabel = new HTML();
+
+    private Image logoMdm = new Image("/talendmdm/secure/img/logo-mdm.png"); //$NON-NLS-1$
+
     private ListBox languageBox = new ListBox();
 
     Button logout = new Button(MessageFactory.getMessages().logout());
@@ -70,6 +75,7 @@ public class BrandingBar extends ContentPanel {
     private void initEvent() {
         languageBox.addChangeHandler(new ChangeHandler() {
 
+            @Override
             public void onChange(ChangeEvent event) {
 
                 String path = Location.getPath();
@@ -104,6 +110,7 @@ public class BrandingBar extends ContentPanel {
                 GeneralServiceAsync service = (GeneralServiceAsync) Registry.get(General.OVERALL_SERVICE);
                 service.logout(new SessionAwareAsyncCallback<Void>() {
 
+                    @Override
                     public void onSuccess(Void result) {
                         Cookies.removeCookie("JSESSIONID"); //$NON-NLS-1$
                         Cookies.removeCookie("JSESSIONIDSSO"); //$NON-NLS-1$
@@ -118,6 +125,18 @@ public class BrandingBar extends ContentPanel {
     private native void setHref(String href)/*-{
 		$wnd.location.href = href;
     }-*/;
+
+    public void setProductInfo(ProductInfo info) {
+        if (info != null && info.isEnterprise()) {
+            logoMdm.setUrl("/general/secure/img/branding/" + info.getProductKey() + "_header.png"); //$NON-NLS-1$//$NON-NLS-2$
+            versionLabel.setHTML(""); //$NON-NLS-1$
+        } else {
+            logoMdm.setUrl("/talendmdm/secure/img/logo-mdm.png"); //$NON-NLS-1$
+            UserBean userBean = Registry.get(General.USER_BEAN);
+            versionLabel.setHTML(userBean.isEnterprise() ? MessageFactory.getMessages().enterprise() : MessageFactory
+                    .getMessages().community() + "<br>" + MessageFactory.getMessages().edition()); //$NON-NLS-1$
+        }
+    }
 
     private void buildBar() {
         UserBean userBean = Registry.get(General.USER_BEAN);
@@ -138,13 +157,10 @@ public class BrandingBar extends ContentPanel {
         hp.getElement().getStyle().setProperty("top", "-2px"); //$NON-NLS-1$ //$NON-NLS-2$
         hp.getElement().getStyle().setProperty("right", "1px"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        Image logoMdm = new Image("/talendmdm/secure/img/logo-mdm.png"); //$NON-NLS-1$
         logoMdm.getElement().getStyle().setMarginTop(2D, Unit.PX);
         hp.add(logoMdm);
         hp.setCellVerticalAlignment(logoMdm, HasVerticalAlignment.ALIGN_BOTTOM);
 
-        HTML versionLabel = new HTML(userBean.isEnterprise() ? MessageFactory.getMessages().enterprise() : MessageFactory
-                .getMessages().community() + "<br>" + MessageFactory.getMessages().edition()); //$NON-NLS-1$
         versionLabel.setStyleName("version-label"); //$NON-NLS-1$
         hp.add(versionLabel);
         hp.setCellVerticalAlignment(versionLabel, HasVerticalAlignment.ALIGN_MIDDLE);

@@ -124,5 +124,6 @@ public class General implements EntryPoint {
 
     private void registerPubServices() {
         PubService.registerLanguageService();
+        PubService.registerUpdateProductInfo();
     }
 }
