@@ -15,49 +15,41 @@ import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
+import org.apache.commons.lang.NotImplementedException;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
 import java.util.*;
 
-public class InMemoryJoinStrategy implements Visitor<StorageResults> {
-
-    private final List<FieldMetadata> fields = new LinkedList<FieldMetadata>();
+public class InMemoryJoinStrategy extends VisitorAdapter<StorageResults> {
 
     private final Storage storage;
-
-    private final Map<FieldMetadata ,Compare> groupedCompare = new HashMap<FieldMetadata, Compare>();
 
     public InMemoryJoinStrategy(Storage storage) {
         this.storage = storage;
     }
 
-    private InMemoryJoinNode buildExecutionTree(ComplexTypeMetadata type, List<FieldMetadata> fields) {
-        InMemoryJoinNode root = new InMemoryJoinNode();
-        root.name = type.getName();
-        root.type = type;
+    private static InMemoryJoinNode buildExecutionTree(InMemoryJoinNode root, FieldMetadata field, Condition condition) {
         // Build nodes (based on path)
-        for (FieldMetadata field : fields) {
-            InMemoryJoinNode current = root;
-            List<FieldMetadata> path = MetadataUtils.path(type, field);
-            for (FieldMetadata fieldMetadata : path) {
-                // TODO intersection / union / ?
-                InMemoryJoinNode node = new InMemoryJoinNode();
-                node.name = fieldMetadata.getName();
-                node.type = fieldMetadata.getContainingType();
-                node.childProperty = fieldMetadata;
-                if (!current.children.containsKey(node)) {
-                    current.children.put(node, node);
-                    current = node;
-                } else {
-                    current = current.children.get(node);
-                }
+        InMemoryJoinNode current = root;
+        List<FieldMetadata> path = MetadataUtils.path(root.type, field);
+        for (FieldMetadata fieldMetadata : path) {
+            // TODO intersection / union / ?
+            InMemoryJoinNode node = new InMemoryJoinNode();
+            node.name = fieldMetadata.getName();
+            node.type = fieldMetadata.getContainingType();
+            node.childProperty = fieldMetadata;
+            if (!current.children.containsKey(node)) {
+                current.children.put(node, node);
+                current = node;
+            } else {
+                current = current.children.get(node);
             }
-            current.expression.add(UserQueryBuilder.from(current.type)
-                    .selectId(current.type)
-                    .where(groupedCompare.get(current.childProperty))
-                    .getExpression());
         }
+        current.expression = UserQueryBuilder.from(current.type)
+                .selectId(current.type)
+                .where(condition)
+                .getExpression();
         return root;
     }
 
@@ -71,265 +63,127 @@ public class InMemoryJoinStrategy implements Visitor<StorageResults> {
         if (types.size() > 1) {
             throw new IllegalArgumentException("Select clause must select only one type (was " + types.size() + ").");
         }
+        // Create root (selected type)
         ComplexTypeMetadata type = types.get(0);
+        InMemoryJoinNode root = new InMemoryJoinNode();
+        root.name = type.getName();
+        root.type = type;
         // Get conditions paths
         if (select.getCondition() != null) {
-            select.getCondition().accept(this);
+            InMemoryJoinNodeCreation inMemoryJoinNodeCreation = new InMemoryJoinNodeCreation(root);
+            select.getCondition().accept(inMemoryJoinNodeCreation);
         }
-        // Build tree
-        InMemoryJoinNode node = buildExecutionTree(type, fields);
         // Return Storage Results
-        return new InMemoryJoinResults(storage, node);
+        return new InMemoryJoinResults(storage, root);
     }
 
-    @Override
-    public StorageResults visit(NativeQuery nativeQuery) {
-        return null;
-    }
+    private class InMemoryJoinNodeCreation extends VisitorAdapter<Void> {
 
-    @Override
-    public StorageResults visit(Condition condition) {
-        return null;
-    }
+        private final InMemoryJoinNode root;
+        private FieldMetadata fieldMetadata;
 
-    @Override
-    public StorageResults visit(Compare condition) {
-        condition.getLeft().accept(this);
-        if (condition.getLeft() instanceof Field) {
-            FieldMetadata fieldMetadata = ((Field) condition.getLeft()).getFieldMetadata();
-            groupedCompare.put(fieldMetadata, condition);
+        public InMemoryJoinNodeCreation(InMemoryJoinNode root) {
+            this.root = root;
         }
-        return null;
-    }
 
-    @Override
-    public StorageResults visit(BinaryLogicOperator condition) {
-        condition.getLeft().accept(this);
-        condition.getRight().accept(this);
-        return null;
-    }
+        @Override
+        public Void visit(Compare condition) {
+            FieldMetadata previous = fieldMetadata;
+            condition.getLeft().accept(this);
+            if (fieldMetadata != previous) {
+                buildExecutionTree(root, fieldMetadata, condition);
+            }
+            return null;
+        }
 
-    @Override
-    public StorageResults visit(UnaryLogicOperator condition) {
-        condition.getCondition().accept(this);
-        return null;
-    }
+        @Override
+        public Void visit(BinaryLogicOperator condition) {
+            condition.getLeft().accept(this);
+            FieldMetadata leftField = fieldMetadata;
+            condition.getRight().accept(this);
+            FieldMetadata rightField = fieldMetadata;
+            // Union and Intersection
+            List<FieldMetadata> leftPath = MetadataUtils.path(root.type, leftField);
+            List<FieldMetadata> rightPath = MetadataUtils.path(root.type, rightField);
+            InMemoryJoinNode lastCommonNode = root;
+            for (int i = 0; i < leftPath.size(); i++) {
+                if (!rightPath.get(i).equals(leftPath.get(i))) {
+                    break;
+                }
+                InMemoryJoinNode node = new InMemoryJoinNode();
+                node.name = leftPath.get(i).getName();
+                lastCommonNode = root.children.get(node);
+            }
+            if (condition.getPredicate() == Predicate.AND) {
+                lastCommonNode.merge = InMemoryJoinNode.Merge.INTERSECTION;
+            } else if (condition.getPredicate() == Predicate.OR) {
+                lastCommonNode.merge = InMemoryJoinNode.Merge.UNION;
+            } else {
+                throw new NotImplementedException("Not implemented: " + condition.getPredicate());
+            }
+            return null;
+        }
 
-    @Override
-    public StorageResults visit(Range range) {
-        return null;
-    }
+        @Override
+        public Void visit(Field field) {
+            fieldMetadata = field.getFieldMetadata();
+            return null;
+        }
 
-    @Override
-    public StorageResults visit(Timestamp timestamp) {
-        return null;
-    }
+        @Override
+        public Void visit(UnaryLogicOperator condition) {
+            FieldMetadata previous = fieldMetadata;
+            condition.getCondition().accept(this);
+            if (fieldMetadata != previous) {
+                buildExecutionTree(root, fieldMetadata, condition);
+            }
+            return null;
+        }
 
-    @Override
-    public StorageResults visit(TaskId taskId) {
-        return null;
-    }
+        @Override
+        public Void visit(IsEmpty isEmpty) {
+            FieldMetadata previous = fieldMetadata;
+            isEmpty.getField().accept(this);
+            if (fieldMetadata != previous) {
+                buildExecutionTree(root, fieldMetadata, isEmpty);
+            }
+            return null;
+        }
 
-    @Override
-    public StorageResults visit(Type type) {
-        fields.add(type.getField().getFieldMetadata());
-        return null;
-    }
+        @Override
+        public Void visit(NotIsEmpty notIsEmpty) {
+            FieldMetadata previous = fieldMetadata;
+            notIsEmpty.getField().accept(this);
+            if (fieldMetadata != previous) {
+                buildExecutionTree(root, fieldMetadata, notIsEmpty);
+            }
+            return null;
+        }
 
-    @Override
-    public StorageResults visit(StagingStatus stagingStatus) {
-        return null;
-    }
+        @Override
+        public Void visit(IsNull isNull) {
+            FieldMetadata previous = fieldMetadata;
+            isNull.getField().accept(this);
+            if (fieldMetadata != previous) {
+                buildExecutionTree(root, fieldMetadata, isNull);
+            }
+            return null;
+        }
 
-    @Override
-    public StorageResults visit(StagingError stagingError) {
-        return null;
-    }
+        @Override
+        public Void visit(NotIsNull notIsNull) {
+            FieldMetadata previous = fieldMetadata;
+            notIsNull.getField().accept(this);
+            if (fieldMetadata != previous) {
+                buildExecutionTree(root, fieldMetadata, notIsNull);
+            }
+            return null;
+        }
 
-    @Override
-    public StorageResults visit(StagingSource stagingSource) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Join join) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Expression expression) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Predicate predicate) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Field field) {
-        fields.add(field.getFieldMetadata());
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Alias alias) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Id id) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(StringConstant constant) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(IntegerConstant constant) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(DateConstant constant) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(DateTimeConstant constant) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(BooleanConstant constant) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(BigDecimalConstant constant) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(TimeConstant constant) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(ShortConstant constant) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(ByteConstant constant) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(LongConstant constant) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(DoubleConstant constant) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(FloatConstant constant) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Predicate.And and) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Predicate.Or or) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Predicate.Equals equals) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Predicate.Contains contains) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(IsEmpty isEmpty) {
-        isEmpty.getField().accept(this);
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(NotIsEmpty notIsEmpty) {
-        notIsEmpty.getField().accept(this);
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(IsNull isNull) {
-        isNull.getField().accept(this);
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(NotIsNull notIsNull) {
-        notIsNull.getField().accept(this);
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(OrderBy orderBy) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Paging paging) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Count count) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Predicate.GreaterThan greaterThan) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Predicate.LowerThan lowerThan) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(FullText fullText) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Isa isa) {
-        // TODO to do ?
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(ComplexTypeExpression expression) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(IndexedField indexedField) {
-        fields.add(indexedField.getFieldMetadata());
-        return null;
+        @Override
+        public Void visit(IndexedField indexedField) {
+            fieldMetadata = indexedField.getFieldMetadata();
+            return null;
+        }
     }
 }

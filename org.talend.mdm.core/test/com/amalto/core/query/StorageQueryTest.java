@@ -2516,4 +2516,44 @@ public class StorageQueryTest extends StorageTestCase {
             assertEquals(5, result.get("id"));
         }
     }
+
+    public void testJoinOptimizationWithOr() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords.add(factory.read("1", repository, person,
+                "<Person><id>5</id><score>20000.00</score><lastname>Leblanc</lastname><middlename>John"
+                        + "</middlename><firstname>Juste</firstname><addresses><address>[3][false]"
+                        + "</address><address>[1][false]</address></addresses><age>30</age>"
+                        + "<knownAddresses><knownAddress><Street>Street 1</Street><City>City 1</City>"
+                        + "<Phone>012345</Phone></knownAddress>"
+                        + "<knownAddress><Street>Street 2</Street><City>City 2</City><Phone>567890"
+                        + "</Phone><Notes><Note>test note</Note></Notes></knownAddress></knownAddresses>" + "<Status>Friend</Status></Person>"));
+        allRecords.add(factory.read("1", repository, person,
+                "<Person><id>6</id><score>666.00</score><lastname>Leblanc</lastname><middlename>John"
+                        + "</middlename><firstname>Juste</firstname><addresses><address>[3][false]"
+                        + "</address><address>[1][false]</address></addresses><age>30</age>"
+                        + "<knownAddresses><knownAddress><Street>Street 1</Street><City>City 1</City>"
+                        + "<Phone>012345</Phone></knownAddress>"
+                        + "<knownAddress><Street>Street 2</Street><City>City 2</City><Phone>567890"
+                        + "</Phone><Notes><Note>test note</Note></Notes></knownAddress></knownAddresses>" + "<Status>Friend</Status></Person>"));
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+
+        UserQueryBuilder qb = UserQueryBuilder.from(person)
+                .where(or(eq(person.getField("knownAddresses/knownAddress/Notes/Note"), "test note"), eq(person.getField("score"), "666")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(2, results.getCount());
+        for (DataRecord result : results) {
+            assertTrue(result.get("id").equals(5) || result.get("id").equals(6));
+        }
+
+        /*
+        qb = UserQueryBuilder.from(person)
+                .where(and(eq(person.getField("knownAddresses/knownAddress/Notes/Note"), "test note"), eq(person.getField("score"), "777")));
+        results = storage.fetch(qb.getSelect());
+        assertEquals(0, results.getCount());
+        */
+    }
+
 }

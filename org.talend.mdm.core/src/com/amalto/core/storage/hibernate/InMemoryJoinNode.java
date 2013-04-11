@@ -25,13 +25,15 @@ class InMemoryJoinNode {
         NONE
     }
 
+    long execTime;
+
     String name;
 
     Merge merge = Merge.NONE;
 
     Set<Object> ids = Collections.emptySet();
 
-    Set<Expression> expression = new HashSet<Expression>();
+    Expression expression;
 
     // TODO not very classy use of a Map
     Map<InMemoryJoinNode, InMemoryJoinNode> children = new HashMap<InMemoryJoinNode, InMemoryJoinNode>();
@@ -55,5 +57,10 @@ class InMemoryJoinNode {
     @Override
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "InMemoryJoinNode {" + "name='" + name + '\'' + '}';
     }
 }
