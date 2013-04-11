@@ -28,7 +28,7 @@
          _LOGIN_= "Connexion";
          _ERROR = "Mauvais identifiant ou mot de passe";
     }
-    String editionTitle=DefaultCommonUtil.getEditionTitle();
+    String editionTitle=DefaultCommonUtil.getProductInfo();
     String version=Version.getSimpleVersionAsString(this.getClass());
 %>
 
