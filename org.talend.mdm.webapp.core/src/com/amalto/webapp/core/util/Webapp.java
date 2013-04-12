@@ -12,18 +12,22 @@
 // ============================================================================
 package com.amalto.webapp.core.util;
 
+import java.util.Map;
+
 import com.amalto.webapp.core.util.dwr.WebappInfo;
 
 public interface Webapp {
 
     public void getInfo(WebappInfo info, String language);
 
+    public Map<String, String> getProductInfo();
+
     public int getTaskMsg();
-    
+
     public boolean isExpired() throws Exception;
 
     public boolean isExpired(String language) throws Exception;
-    
+
     public boolean isShowMsg() throws Exception;
 
     public boolean isDataSteWardShip() throws Exception;
