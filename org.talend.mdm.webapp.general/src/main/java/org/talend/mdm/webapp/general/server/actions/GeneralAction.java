@@ -62,10 +62,12 @@ public class GeneralAction implements GeneralService {
         if (com.amalto.core.util.Util.isEnterprise()) {
             ProductInfo info = new ProductInfo();
             Map<String, String> map = com.amalto.webapp.core.util.Webapp.INSTANCE.getProductInfo();
-            info.setProductKey(map.get("productKey")); //$NON-NLS-1$
-            info.setProductName(map.get("productName")); //$NON-NLS-1$
-            info.setProductEdition(map.get("productEdition")); //$NON-NLS-1$
-            return info;
+            if (map != null) {
+                info.setProductKey(map.get("productKey")); //$NON-NLS-1$
+                info.setProductName(map.get("productName")); //$NON-NLS-1$
+                info.setProductEdition(map.get("productEdition")); //$NON-NLS-1$
+                return info;
+            }
         }
         return null;
     }
