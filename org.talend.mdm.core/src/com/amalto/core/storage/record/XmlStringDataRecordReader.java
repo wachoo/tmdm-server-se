@@ -72,19 +72,22 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
             boolean hasMetUserElement = false;
             boolean isReadingTimestamp = false;
             boolean isReadingTaskId = false;
+            boolean containsMetadata = false;
             while (!hasMetUserElement && xmlEventReader.hasNext()) {
                 XMLEvent event = xmlEventReader.nextEvent();
                 if (event.isStartElement()) {
                     StartElement startElement = event.asStartElement();
                     if (!hasMetUserElement) {
-                        if ("t".equals(startElement.getName().getLocalPart())) { //$NON-NLS-1$
+                        if (level == 0 && "ii".equals(startElement.getName().getLocalPart())) {
+                            containsMetadata = true;
+                        } else if ("t".equals(startElement.getName().getLocalPart())) { //$NON-NLS-1$
                             isReadingTimestamp = true;
                         } else if ("taskId".equals(startElement.getName().getLocalPart())) {  //$NON-NLS-1$
                             isReadingTaskId = true;
                         }
                     }
-
-                    if (startElement.getName().getLocalPart().equals(type.getName())) {
+                    if ((containsMetadata && level > 1) || (!containsMetadata && level == 0)
+                            && startElement.getName().getLocalPart().equals(type.getName())) {
                         hasMetUserElement = true;
                     }
                     level++;

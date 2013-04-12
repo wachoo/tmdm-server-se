@@ -18,8 +18,6 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import junit.framework.TestCase;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -36,7 +34,7 @@ import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 
 @SuppressWarnings("nls")
-public class DataRecordCreationTest extends TestCase {
+public class DataRecordCreationTest extends StorageTestCase {
 
     public void testCreationFromXMLString() throws Exception {
         MetadataRepository repository = new MetadataRepository();
@@ -220,5 +218,102 @@ public class DataRecordCreationTest extends TestCase {
 
         assertEquals("Text", dataRecord.get("nestedB/text"));
         assertEquals("SubText", dataRecord.get("nestedB/subText"));
+    }
+
+    public void testUserXmlData() {
+            DataRecordReader<String> xmlReader = new XmlStringDataRecordReader();
+            DataRecord r1 = xmlReader.read("1", repository, b, "<B><id>1</id><textB>TextB</textB></B>");
+            DataRecord r2 = xmlReader.read("1", repository, d, "<D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D>");
+            DataRecord r3 = xmlReader.read("1", repository, persons, "<Persons><name>person</name><age>20</age></Persons>");
+            DataRecord r4 = xmlReader.read("1", repository, employee,
+                    "<Employee><name>employee</name><age>21</age><jobTitle>Test</jobTitle></Employee>");
+            DataRecord r5 = xmlReader.read("1", repository, manager,
+                    "<Manager><name>manager</name><age>25</age><jobTitle>Test</jobTitle><dept>manager</dept></Manager>");
+
+            assertNotNull(r1);
+            assertEquals("1", r1.get(b.getField("id")));
+            assertEquals("TextB", r1.get(b.getField("textB")));
+
+            assertNotNull(r2);
+            assertEquals("2", r2.get(d.getField("id")));
+            assertEquals("TextBD", r2.get(d.getField("textB")));
+            assertEquals("TextDD", r2.get(d.getField("textD")));
+
+            assertNotNull(r3);
+            assertEquals("person", r3.get(persons.getField("name")));
+            assertEquals(20, r3.get(persons.getField("age")));
+
+            assertNotNull(r4);
+            assertEquals("employee", r4.get(employee.getField("name")));
+            assertEquals(21, r4.get(employee.getField("age")));
+            assertEquals("Test", r4.get(employee.getField("jobTitle")));
+
+            assertNotNull(r5);
+            assertEquals("manager", r5.get(manager.getField("name")));
+            assertEquals(25, r5.get(manager.getField("age")));
+            assertEquals("Test", r5.get(manager.getField("jobTitle")));
+            assertEquals("manager", r5.get(manager.getField("dept")));
+
+        }
+
+    public void testUserXmlDataWithInnerProperties() {
+        DataRecordReader<String> xmlReader = new XmlStringDataRecordReader();
+        DataRecord r1 = xmlReader.read("1", repository, b,
+                "<ii><t>1365488764093</t><taskId>123456</taskId><p><B><id>1</id><textB>TextB</textB></B></p></ii>");
+        DataRecord r2 = xmlReader
+                .read("1", repository, d,
+                        "<ii><t>1365488764093</t><taskId>123456</taskId><p><D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D></p></ii>");
+        DataRecord r3 = xmlReader.read("1", repository, persons,
+                "<ii><t>1365488764093</t><taskId>123456</taskId><p><Persons><name>person</name><age>20</age></Persons></p></ii>");
+        DataRecord r4 = xmlReader
+                .read("1",
+                        repository,
+                        employee,
+                        "<ii><t>1365488764093</t><taskId>123456</taskId><p><Employee><name>employee</name><age>21</age><jobTitle>Test</jobTitle></Employee></p></ii>");
+        DataRecord r5 = xmlReader
+                .read("1",
+                        repository,
+                        manager,
+                        "<ii><t>1365488764093</t><taskId>123456</taskId><p><Manager><name>manager</name><age>25</age><jobTitle>Test</jobTitle><dept>manager</dept></Manager></p></ii>");
+
+        assertNotNull(r1);
+        assertEquals("1", r1.get(b.getField("id")));
+        assertEquals("TextB", r1.get(b.getField("textB")));
+        DataRecordMetadata metadata = r2.getRecordMetadata();
+        assertEquals(1365488764093L, metadata.getLastModificationTime());
+        assertEquals("123456", metadata.getTaskId());
+
+        assertNotNull(r2);
+        assertEquals("2", r2.get(d.getField("id")));
+        assertEquals("TextBD", r2.get(d.getField("textB")));
+        assertEquals("TextDD", r2.get(d.getField("textD")));
+        metadata = r2.getRecordMetadata();
+        assertEquals(1365488764093L, metadata.getLastModificationTime());
+        assertEquals("123456", metadata.getTaskId());
+
+        assertNotNull(r3);
+        assertEquals("person", r3.get(persons.getField("name")));
+        assertEquals(20, r3.get(persons.getField("age")));
+        metadata = r2.getRecordMetadata();
+        assertEquals(1365488764093L, metadata.getLastModificationTime());
+        assertEquals("123456", metadata.getTaskId());
+
+        assertNotNull(r4);
+        assertEquals("employee", r4.get(employee.getField("name")));
+        assertEquals(21, r4.get(employee.getField("age")));
+        assertEquals("Test", r4.get(employee.getField("jobTitle")));
+        metadata = r2.getRecordMetadata();
+        assertEquals(1365488764093L, metadata.getLastModificationTime());
+        assertEquals("123456", metadata.getTaskId());
+
+        assertNotNull(r5);
+        assertEquals("manager", r5.get(manager.getField("name")));
+        assertEquals(25, r5.get(manager.getField("age")));
+        assertEquals("Test", r5.get(manager.getField("jobTitle")));
+        assertEquals("manager", r5.get(manager.getField("dept")));
+        metadata = r2.getRecordMetadata();
+        assertEquals(1365488764093L, metadata.getLastModificationTime());
+        assertEquals("123456", metadata.getTaskId());
+
     }
 }
