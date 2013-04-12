@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
@@ -93,9 +94,26 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
 
     @Override
     public Expression visit(Compare condition) {
-        return new Compare(condition.getLeft().accept(this),
-                condition.getPredicate(),
-                condition.getRight().accept(this));
+        Expression previousLeft = condition.getLeft();
+        Expression left = previousLeft.accept(this);
+        Predicate predicate = condition.getPredicate();
+        if (previousLeft instanceof TypedExpression && left instanceof TypedExpression) {
+            TypedExpression previousTypedExpression = (TypedExpression) previousLeft;
+            TypedExpression typedExpression = (TypedExpression) left;
+            if ("string".equals(previousTypedExpression.getTypeName()) //$NON-NLS-1$
+                    && predicate == Predicate.CONTAINS
+                    && !previousTypedExpression.getTypeName().equals(typedExpression.getTypeName())) {
+                predicate = Predicate.EQUALS;
+            }
+        }
+        Expression constant = condition.getRight().accept(this);
+        if (constant != null) {
+            return new Compare(left,
+                    predicate,
+                    constant);
+        } else {
+            return UserQueryHelper.NO_OP_CONDITION;
+        }
     }
 
     @Override
@@ -307,6 +325,10 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
     }
 
     private Expression getConstant(Object data) {
-        return UserQueryBuilder.createConstant(currentField, String.valueOf(data));
+        if (MetadataUtils.isValueAssignable(String.valueOf(data), currentField.getTypeName())) {
+            return UserQueryBuilder.createConstant(currentField, String.valueOf(data));
+        } else {
+            return null;
+        }
     }
 }
