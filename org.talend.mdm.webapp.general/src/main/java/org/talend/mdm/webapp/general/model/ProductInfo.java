@@ -20,8 +20,6 @@ public class ProductInfo implements Serializable, IsSerializable {
 
     private static final long serialVersionUID = 3239025568482047616L;
 
-    private boolean isEnterprise;
-
     private String productKey;
 
     private String productName;
@@ -30,14 +28,6 @@ public class ProductInfo implements Serializable, IsSerializable {
 
     public ProductInfo() {
 
-    }
-
-    public boolean isEnterprise() {
-        return this.isEnterprise;
-    }
-
-    public void setEnterprise(boolean isEnterprise) {
-        this.isEnterprise = isEnterprise;
     }
 
     public String getProductKey() {

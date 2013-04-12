@@ -1,7 +1,6 @@
 package org.talend.mdm.webapp.general.server.actions;
 
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,34 +59,15 @@ public class GeneralAction implements GeneralService {
 
     @Override
     public ProductInfo getProductInfo() throws ServiceException {
-        ProductInfo info = new ProductInfo();
         if (com.amalto.core.util.Util.isEnterprise()) {
-            try {
-                Class<?> utilClass = Class.forName("com.amalto.core.enterpriseutil.EnterpriseUtil"); //$NON-NLS-1$
-                Method getLicenseCtrlLocal = utilClass.getDeclaredMethod("getLicenseCtrlLocal"); //$NON-NLS-1$
-                Object licenseCtrlLocal = getLicenseCtrlLocal.invoke(null);
-                Class<?> licenseCtrlClass = licenseCtrlLocal.getClass();
-                Method getLicenseData = licenseCtrlClass.getDeclaredMethod("getLicenseData", boolean.class); //$NON-NLS-1$
-                Object licenseUtil = getLicenseData.invoke(licenseCtrlLocal, true);
-                Class<?> licenseUtilClass = licenseUtil.getClass();
-
-                Method getProductKey = licenseUtilClass.getDeclaredMethod("getProductKey"); //$NON-NLS-1$
-                Method getProductName = licenseUtilClass.getDeclaredMethod("getProductName"); //$NON-NLS-1$
-                Method getProductEdition = licenseUtilClass.getDeclaredMethod("getProductEdition"); //$NON-NLS-1$
-
-                info.setProductKey((String) getProductKey.invoke(licenseUtil));
-                info.setProductName((String) getProductName.invoke(licenseUtil));
-                info.setProductEdition((String) getProductEdition.invoke(licenseUtil));
-
-                info.setEnterprise(true);
-
-            } catch (Exception e) {
-                LOG.error(e.getMessage());
-            }
-        } else {
-            info.setEnterprise(false);
+            ProductInfo info = new ProductInfo();
+            Map<String, String> map = com.amalto.webapp.core.util.Webapp.INSTANCE.getProductInfo();
+            info.setProductKey(map.get("productKey")); //$NON-NLS-1$
+            info.setProductName(map.get("productName")); //$NON-NLS-1$
+            info.setProductEdition(map.get("productEdition")); //$NON-NLS-1$
+            return info;
         }
-        return info;
+        return null;
     }
 
     @Override
