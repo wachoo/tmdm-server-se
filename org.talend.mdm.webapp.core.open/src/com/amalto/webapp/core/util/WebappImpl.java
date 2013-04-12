@@ -12,12 +12,18 @@
 // ============================================================================
 package com.amalto.webapp.core.util;
 
+import java.util.Map;
+
 import com.amalto.webapp.core.util.dwr.WebappInfo;
 
 public class WebappImpl implements Webapp {
 
     public void getInfo(WebappInfo info, String language) {
         return;
+    }
+    
+    public Map<String, String> getProductInfo() {
+        return null;
     }
 
     public int getTaskMsg() {
