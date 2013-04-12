@@ -26,7 +26,6 @@ import com.amalto.xmlserver.interfaces.XmlServerException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.talend.mdm.commmon.metadata.*;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Element;
@@ -662,26 +661,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             } else {
                 Condition condition = null;
                 for (FieldMetadata field : type.getFields()) {
-                    // isValueAssignable(contentKeyWords, typeName); this typeName should use the database column type
                     if (MetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
-                        // UpdateReport Repository: the TimeInMillis field is a long type on SQL Storage
-                        // So it need to check again, another workaround: change the field type to long type in the
-                        // UpdateReport.xsd(but it may affect other places)
-                        if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && type.getName().equals("Update")) { //$NON-NLS-1$
-                            if (field.getName().equals("TimeInMillis") && !MetadataUtils.isValueAssignable(contentKeywords, Timestamp.INSTANCE.getTypeName())) { //$NON-NLS-1$
-                                continue;
-                            }
-                            if (field.getName().equals("TimeInMillis") && NumberUtils.isNumber(contentKeywords)) { //$NON-NLS-1$
-                                // because TimeInMillis field is a String type on xsd, com.amalto.core.query.user.UserQueryBuilder.contains(TypedExpression, String)
-                                // can not change CONTAINS to EQUALS. so manually change contains to eq method.
-                                if (condition == null) {
-                                    condition = eq(field, contentKeywords);
-                                } else {
-                                    condition = or(condition, eq(field, contentKeywords));
-                                }
-                                continue;
-                            }
-                        }
                         if (!(field instanceof ContainedTypeFieldMetadata)) {
                             if (condition == null) {
                                 condition = contains(field, contentKeywords);
