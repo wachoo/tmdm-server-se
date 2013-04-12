@@ -80,15 +80,17 @@ public class FieldUpdateAction extends AbstractAction {
 
     public MutableDocument addModificationMark(MutableDocument document) {
         Accessor accessor = document.createAccessor(field);
-        if (oldValue != null) {
-            if (newValue == null) {
-                accessor.markModified(Accessor.Marker.REMOVE);
+        if (accessor.exist()) {
+            if (oldValue != null) {
+                if (newValue == null) {
+                    accessor.markModified(Accessor.Marker.REMOVE);
+                } else {
+                    accessor.markModified(Accessor.Marker.UPDATE);
+                }
             } else {
-                accessor.markModified(Accessor.Marker.UPDATE);
-            }
-        } else {
-            if (newValue != null) {
-                accessor.markModified(Accessor.Marker.ADD);
+                if (newValue != null) {
+                    accessor.markModified(Accessor.Marker.ADD);
+                }
             }
         }
         return document;
