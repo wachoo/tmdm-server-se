@@ -2484,6 +2484,7 @@
     </xsd:complexType>
     <xsd:complexType name="DataOrigin">
         <xsd:all maxOccurs="1" minOccurs="1">
+            <xsd:element maxOccurs="1" minOccurs="1" name="id" type="xsd:string"/>
             <xsd:element maxOccurs="1" minOccurs="1" name="dataOrigin" type="xsd:string">
                 <xsd:annotation>
                     <xsd:appinfo source="X_Label_EN">Data Origin</xsd:appinfo>
@@ -3862,7 +3863,7 @@
     <xsd:element name="controlCreditPrinicple" type="controlCreditPrinicpleType">
         <xsd:unique name="controlCreditPrinicple">
             <xsd:selector xpath="."/>
-            <xsd:field xpath="dataOrgin/dataOrigin"/>
+            <xsd:field xpath="dataOrgin/id"/>
         </xsd:unique>
     </xsd:element>
     <xsd:complexType name="controlCreditPrinicpleType">

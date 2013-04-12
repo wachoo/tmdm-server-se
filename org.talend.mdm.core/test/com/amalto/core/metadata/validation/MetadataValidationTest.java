@@ -130,4 +130,17 @@ public class MetadataValidationTest extends TestCase {
         }
         assertEquals(1, handler.getMessages().size());
     }
+
+    public void testPK5() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("PK5_0.1.xsd");
+        DefaultValidationHandler handler = new DefaultValidationHandler();
+        try {
+            repository.load(resourceAsStream, handler);
+            fail("Should fail validation.");
+        } catch (Exception e) {
+            // Expected
+        }
+        assertEquals(1, handler.getMessages().size());
+    }
 }
