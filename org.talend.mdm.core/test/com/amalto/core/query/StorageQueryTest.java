@@ -55,6 +55,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
@@ -1599,6 +1600,75 @@ public class StorageQueryTest extends StorageTestCase {
                 // UpdateReport.xsd(but it may affect other places)
                 if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && updateReport.getName().equals("Update")) { //$NON-NLS-1$
                     if (field.getName().equals("TimeInMillis") && !MetadataUtils.isValueAssignable(contentKeywords, Timestamp.INSTANCE.getTypeName())) { //$NON-NLS-1$
+                        continue;
+                    }
+                }
+                if (!(field instanceof ContainedTypeFieldMetadata)) {
+                    if (condition == null) {
+                        condition = contains(field, contentKeywords);
+                    } else {
+                        condition = or(condition, contains(field, contentKeywords));
+                    }
+                }
+            }
+        }
+        qb.where(condition);
+        assertEquals(condition, qb.getSelect().getCondition());
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();        
+    }
+    
+    public void testUpdateReportTimeInMillisQuery() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord report = dataRecordReader.read("1", repository, updateReport, builder.toString());
+        try {
+            storage.begin();
+            storage.update(report);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        // build query condition
+        ItemPKCriteria criteria = new ItemPKCriteria();
+        criteria.setClusterName("UpdateReport");
+        criteria.setContentKeywords("1307525701796");
+        String contentKeywords = criteria.getContentKeywords();
+        // build Storage whereCondition, the codes come from com.amalto.core.storage.StorageWrapper.buildQueryBuilder(UserQueryBuilder, ItemPKCriteria, ComplexTypeMetadata)
+        Condition condition = null;
+        UserQueryBuilder qb = from(updateReport);
+        for (FieldMetadata field : updateReport.getFields()) {
+            // isValueAssignable(contentKeyWords, typeName); this typeName should use the database column type
+            if (MetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
+
+                if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && updateReport.getName().equals("Update")) { //$NON-NLS-1$
+                    if (field.getName().equals("TimeInMillis") && !MetadataUtils.isValueAssignable(contentKeywords, Timestamp.INSTANCE.getTypeName())) { //$NON-NLS-1$
+                        continue;
+                    }
+                    if (field.getName().equals("TimeInMillis") && NumberUtils.isNumber(contentKeywords)) { //$NON-NLS-1$
+                        // because TimeInMillis field is a String type on xsd, com.amalto.core.query.user.UserQueryBuilder.contains(TypedExpression, String)
+                        // can not change CONTAINS to EQUALS. so manually change contains to eq method.
+                        if (condition == null) {
+                            condition = eq(field, contentKeywords);
+                        } else {
+                            condition = or(condition, eq(field, contentKeywords));
+                        }
                         continue;
                     }
                 }

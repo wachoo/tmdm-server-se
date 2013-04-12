@@ -32,6 +32,7 @@ import com.amalto.core.query.user.*;
 import com.amalto.core.storage.datasource.DataSource;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -614,6 +615,16 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                         // UpdateReport.xsd(but it may affect other places)
                         if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && type.getName().equals("Update")) { //$NON-NLS-1$
                             if (field.getName().equals("TimeInMillis") && !MetadataUtils.isValueAssignable(contentKeywords, Timestamp.INSTANCE.getTypeName())) { //$NON-NLS-1$
+                                continue;
+                            }
+                            if (field.getName().equals("TimeInMillis") && NumberUtils.isNumber(contentKeywords)) { //$NON-NLS-1$
+                                // because TimeInMillis field is a String type on xsd, com.amalto.core.query.user.UserQueryBuilder.contains(TypedExpression, String)
+                                // can not change CONTAINS to EQUALS. so manually change contains to eq method.
+                                if (condition == null) {
+                                    condition = eq(field, contentKeywords);
+                                } else {
+                                    condition = or(condition, eq(field, contentKeywords));
+                                }
                                 continue;
                             }
                         }
