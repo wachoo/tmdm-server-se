@@ -434,9 +434,9 @@ public class ForeignKeyIntegrityTest extends TestCase {
         String dataCluster = "DataCluster";
         String typeName = "BusinessFunction";
         String[] ids = {"1"};
-        assertFalse(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
+        assertTrue(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
         FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
-        assertEquals(FKIntegrityCheckResult.FORBIDDEN, policy);
+        assertEquals(FKIntegrityCheckResult.ALLOWED, policy);
     }
 
     /**
@@ -460,9 +460,9 @@ public class ForeignKeyIntegrityTest extends TestCase {
 
         FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
         IntegrityCheckDataSourceMock dataSource = new IntegrityCheckDataSourceMock(repository);
-        assertFalse(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
+        assertTrue(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
         FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
-        assertEquals(FKIntegrityCheckResult.FORBIDDEN, policy);
+        assertEquals(FKIntegrityCheckResult.ALLOWED, policy);
     }
 
     /**
