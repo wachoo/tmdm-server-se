@@ -351,22 +351,11 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 }
             }
             subQueries.addLast(termQuery);
-        } else if (condition.getPredicate() == Predicate.GREATER_THAN) {
-            IntegerConstant integerConstant = (IntegerConstant) right;
-            Range range = new Range((TypedExpression) condition.getLeft(), integerConstant.getValue() + 1, Integer.MAX_VALUE);
-            range.accept(this);
-        } else if (condition.getPredicate() == Predicate.GREATER_THAN_OR_EQUALS) {
-            IntegerConstant integerConstant = (IntegerConstant) right;
-            Range range = new Range((TypedExpression) condition.getLeft(), integerConstant.getValue(), Integer.MAX_VALUE);
-            range.accept(this);
-        } else if (condition.getPredicate() == Predicate.LOWER_THAN) {
-            IntegerConstant integerConstant = (IntegerConstant) right;
-            Range range = new Range((TypedExpression) condition.getLeft(), Integer.MIN_VALUE, integerConstant.getValue() - 1);
-            range.accept(this);
-        } else if (condition.getPredicate() == Predicate.LOWER_THAN_OR_EQUALS) {
-            IntegerConstant integerConstant = (IntegerConstant) right;
-            Range range = new Range((TypedExpression) condition.getLeft(), Integer.MIN_VALUE, integerConstant.getValue());
-            range.accept(this);
+        } else if (condition.getPredicate() == Predicate.GREATER_THAN
+                || condition.getPredicate() == Predicate.GREATER_THAN_OR_EQUALS
+                || condition.getPredicate() == Predicate.LOWER_THAN
+                || condition.getPredicate() == Predicate.LOWER_THAN_OR_EQUALS) {
+            throw new RuntimeException("Greater than, less than are not supported in full text searches.");
         } else {
             throw new NotImplementedException("No support for predicate '" + condition.getPredicate() + "'");
         }

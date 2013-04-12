@@ -221,49 +221,49 @@ public class StorageFullTextTest extends StorageTestCase {
     public void testSimpleSearchWithGreaterThanCondition() throws Exception {
         UserQueryBuilder qb = from(supplier).where(fullText("Renault")).where(
                 gt(supplier.getField("Id"), "1"));
-        StorageResults results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(0, results.getCount());
-        } finally {
-            results.close();
+            storage.fetch(qb.getSelect());
+            fail("Expected: not supported.");
+        } catch (Exception e) {
+            // Expected.
         }
 
         qb = from(supplier).where(fullText("Renault")).where(
                 gte(supplier.getField("Id"), "1"));
-        results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(0, results.getCount()); // Should be 1, but there's some limitation in Lucene.
-        } finally {
-            results.close();
+            storage.fetch(qb.getSelect());
+            fail("Expected: not supported.");
+        } catch (Exception e) {
+            // Expected.
         }
 
         qb = from(supplier).where(fullText("Jean")).where(
                 gte(supplier.getField("Id"), "2"));
-        results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(0, results.getCount()); // Should be 2, but there's some limitation in Lucene.
-        } finally {
-            results.close();
+            storage.fetch(qb.getSelect());
+            fail("Expected: not supported.");
+        } catch (Exception e) {
+            // Expected.
         }
     }
 
     public void testSimpleSearchWithLessThanCondition() throws Exception {
         UserQueryBuilder qb = from(supplier).where(fullText("Renault")).where(
                 lt(supplier.getField("Id"), "1"));
-        StorageResults results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(0, results.getCount());
-        } finally {
-            results.close();
+            storage.fetch(qb.getSelect());
+            fail("Expected: not supported.");
+        } catch (Exception e) {
+            // Expected.
         }
 
         qb = from(supplier).where(fullText("Renault")).where(
                 lte(supplier.getField("Id"), "1"));
-        results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(0, results.getCount()); // Should be 1, but there's some limitation in Lucene.
-        } finally {
-            results.close();
+            storage.fetch(qb.getSelect());
+            fail("Expected: not supported.");
+        } catch (Exception e) {
+            // Expected.
         }
     }
 
