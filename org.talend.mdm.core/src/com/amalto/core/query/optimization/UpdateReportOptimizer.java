@@ -266,12 +266,14 @@ public class UpdateReportOptimizer extends Optimizer {
                 condition.getRight().accept(this);
                 ComplexTypeMetadata type = repository.getComplexType(updateReportEntityTypeName);
                 Condition current = condition;
-                for (TypeMetadata superType : type.getSuperTypes()) {
-                    current =  new BinaryLogicOperator(current, Predicate.OR, new Compare(condition.getLeft(), predicate, new StringConstant(superType.getName())));
-                }
-                for (TypeMetadata subType : type.getSubTypes()) {
-                    current = new BinaryLogicOperator(current, Predicate.OR, new Compare(condition.getLeft(), predicate, new StringConstant(subType.getName())));
-                }
+                if (type != null) {
+                    for (TypeMetadata superType : type.getSuperTypes()) {
+                        current =  new BinaryLogicOperator(current, Predicate.OR, new Compare(condition.getLeft(), predicate, new StringConstant(superType.getName())));
+                    }
+                    for (TypeMetadata subType : type.getSubTypes()) {
+                        current = new BinaryLogicOperator(current, Predicate.OR, new Compare(condition.getLeft(), predicate, new StringConstant(subType.getName())));
+                    }    
+                }                
                 isUpdateReportEntityField = false;
                 updateReportEntityTypeName = null;
                 return current;
