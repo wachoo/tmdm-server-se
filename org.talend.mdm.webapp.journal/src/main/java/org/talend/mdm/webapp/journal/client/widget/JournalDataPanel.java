@@ -71,6 +71,10 @@ public class JournalDataPanel extends FormPanel {
         this.setLayout(new FitLayout());
         
         openRecordButton = new Button(MessagesFactory.getMessages().open_record_button());
+        if ("LOGIC_DELETE".equals(journalGridModel.getOperationType()) //$NON-NLS-1$
+                || "PHYSICAL_DELETE".equals(journalGridModel.getOperationType())) { //$NON-NLS-1$
+            openRecordButton.disable();
+        }
         openRecordButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.browse()));
         openRecordButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
             
