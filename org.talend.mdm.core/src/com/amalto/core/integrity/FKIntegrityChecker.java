@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.amalto.core.metadata.*;
+import com.amalto.core.server.ServerContext;
 import com.amalto.core.util.XtentisException;
 
 /**
