@@ -226,7 +226,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 if (orderBy != null) {
                     FieldMetadata field = type.getField(StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
                     OrderBy.Direction queryDirection;
-                    if ("ascending".equals(direction)) { //$NON-NLS-1$
+                    if ("ascending".equals(direction) || "NUMBER:ascending".equals(direction)) { //$NON-NLS-1$ //$NON-NLS-2$
                         queryDirection = OrderBy.Direction.ASC;
                     } else {
                         queryDirection = OrderBy.Direction.DESC;
