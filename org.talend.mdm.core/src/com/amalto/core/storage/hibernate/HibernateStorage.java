@@ -10,14 +10,13 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.query.user.*;
 import com.amalto.core.metadata.*;
 import com.amalto.core.query.optimization.ContainsOptimizer;
 import com.amalto.core.query.optimization.Optimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.optimization.UpdateReportOptimizer;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.query.user.UserQueryDumpConsole;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
@@ -158,6 +157,18 @@ public class HibernateStorage implements Storage {
             close();
             internalInit();
         }
+        if (dataSource == null) {
+            throw new IllegalArgumentException("Datasource is not set.");
+        }
+        // No support for data models including inheritance AND for g* XSD simple types AND fields that start with
+        // X_TALEND_
+        try {
+            MetadataUtils.sortTypes(repository); // Do a "sort" to ensure there's no cyclic dependency.
+            repository.accept(METADATA_CHECKER);
+            userMetadataRepository = repository;
+        } catch (Exception e) {
+            throw new RuntimeException("Exception occurred during unsupported features check.", e);
+        }
         // Create class loader for storage's dynamically created classes.
         ClassLoader contextClassLoader = HibernateStorage.class.getClassLoader();
         Class<? extends StorageClassLoader> clazz;
@@ -201,15 +212,6 @@ public class HibernateStorage implements Storage {
             }
         } else {
             LOGGER.info("*NOT* preparing database before schema generation.");
-        }
-        // No support for data models including inheritance AND for g* XSD simple types AND fields that start with
-        // X_TALEND_
-        try {
-            MetadataUtils.sortTypes(repository); // Do a "sort" to ensure there's no cyclic dependency.
-            repository.accept(METADATA_CHECKER);
-            userMetadataRepository = repository;
-        } catch (Exception e) {
-            throw new RuntimeException("Exception occurred during unsupported features check.", e);
         }
         try {
             Thread.currentThread().setContextClassLoader(storageClassLoader);
@@ -668,7 +670,6 @@ public class HibernateStorage implements Storage {
         try {
             Thread.currentThread().setContextClassLoader(storageClassLoader);
             Session session = factory.getCurrentSession();
-
             Iterable<DataRecord> records = internalFetch(session, userQuery, Collections.<EndOfResultsCallback>emptySet());
             for (DataRecord currentDataRecord : records) {
                 ComplexTypeMetadata currentType = currentDataRecord.getType();
@@ -866,4 +867,5 @@ public class HibernateStorage implements Storage {
         SCATTERED,
         AUTO
     }
+
 }

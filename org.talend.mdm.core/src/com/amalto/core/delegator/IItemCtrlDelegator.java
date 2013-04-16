@@ -25,6 +25,7 @@ import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.server.Server;
@@ -242,7 +243,8 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 for (String viewableBusinessElement : viewableBusinessElements.getList()) {
                     String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
                     String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
-                    qb.select(UserQueryHelper.getField(repository, viewableTypeName, viewablePath));
+                    TypedExpression typeExpression = UserQueryHelper.getField(repository, viewableTypeName, viewablePath);
+                    qb.select(typeExpression);
                 }
                 // Condition and paging
                 qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
@@ -250,9 +252,13 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 qb.limit(limit);
                 // Order by
                 if (orderBy != null) {
-                    FieldMetadata field = type.getField(StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
+                    TypedExpression field = UserQueryHelper.getField(repository,
+                            type.getName(),
+                            StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
                     OrderBy.Direction queryDirection;
-                    if ("ascending".equals(direction) || "NUMBER:ascending".equals(direction)) { //$NON-NLS-1$ //$NON-NLS-2$
+                    if ("ascending".equals(direction) //$NON-NLS-1$
+                            || "NUMBER:ascending".equals(direction) //$NON-NLS-1$
+                            || "ASC".equals(direction)) { //$NON-NLS-1$
                         queryDirection = OrderBy.Direction.ASC;
                     } else {
                         queryDirection = OrderBy.Direction.DESC;
@@ -470,12 +476,16 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 
             // Order by
             if (orderBy != null) {
-                FieldMetadata field = type.getField(StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
+                TypedExpression field = UserQueryHelper.getField(repository,
+                        type.getName(),
+                        StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
                 if (field == null) {
                     throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
                 }
                 OrderBy.Direction queryDirection;
-                if ("ascending".equals(direction)) { //$NON-NLS-1$
+                if ("ascending".equals(direction) //$NON-NLS-1$
+                        || "NUMBER:ascending".equals(direction) //$NON-NLS-1$
+                        || "ASC".equals(direction)) { //$NON-NLS-1$
                     queryDirection = OrderBy.Direction.ASC;
                 } else {
                     queryDirection = OrderBy.Direction.DESC;

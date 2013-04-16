@@ -86,16 +86,32 @@ public class StorageRecordCreationTest extends StorageTestCase {
             storage.begin();
             {
                 UserQueryBuilder qb = from(person);
-                storage.delete(qb.getSelect());
+                try {
+                    storage.delete(qb.getSelect());
+                } catch (Exception e) {
+                    // Ignored
+                }
 
                 qb = from(address);
-                storage.delete(qb.getSelect());
+                try {
+                    storage.delete(qb.getSelect());
+                } catch (Exception e) {
+                    // Ignored
+                }
 
                 qb = from(country);
-                storage.delete(qb.getSelect());
+                try {
+                    storage.delete(qb.getSelect());
+                } catch (Exception e) {
+                    // Ignored
+                }
 
                 qb = from(product);
-                storage.delete(qb.getSelect());
+                try {
+                    storage.delete(qb.getSelect());
+                } catch (Exception e) {
+                    // Ignored
+                }
             }
             storage.commit();
         } finally {
