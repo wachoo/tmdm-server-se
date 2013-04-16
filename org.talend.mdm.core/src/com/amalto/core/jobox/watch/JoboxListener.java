@@ -25,6 +25,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.*;
+import java.util.zip.ZipException;
 
 public class JoboxListener implements DirListener {
 
@@ -43,23 +44,25 @@ public class JoboxListener implements DirListener {
                 // deploy
                 try {
                     jobDeployer.deploy(jobPackageName);
+                    // add to classpath
+                    JobInfo jobInfo = jobAware.loadJobInfo(JoboxUtil.trimExtension(jobPackageName));
+                    if (jobInfo != null) {
+                        container.updateJobLoadersPool(jobInfo);
+                    } else {
+                        LOGGER.warn(warningMessage); 
+                    }
                 } catch (JoboxException e) {
                     if (e.getCause() instanceof FileNotFoundException) {
                         LOGGER.warn(warningMessage);
                     } else if (e.getCause() instanceof EOFException) {
+                        LOGGER.warn(modifiedWarningMessage);
+                    } else if (e.getCause() instanceof ZipException) {
                         LOGGER.warn(modifiedWarningMessage);
                     } else {
                         throw e;
                     }
                 }
                 
-                // add to classpath
-                JobInfo jobInfo = jobAware.loadJobInfo(JoboxUtil.trimExtension(jobPackageName));
-                if (jobInfo != null) {
-                    container.updateJobLoadersPool(jobInfo);
-                } else {
-                    LOGGER.warn(warningMessage); 
-                }
             }
         }
 
@@ -83,23 +86,25 @@ public class JoboxListener implements DirListener {
                 // deploy
                 try {
                     jobDeployer.deploy(jobPackageName);
+                    // add to classpath
+                    JobInfo jobInfo = jobAware.loadJobInfo(JoboxUtil.trimExtension(jobPackageName));
+                    if (jobInfo != null) {
+                        container.updateJobLoadersPool(jobInfo);
+                    } else {
+                        LOGGER.warn(deletedWarningMessage);
+                    }
                 } catch (JoboxException e) {
                     if (e.getCause() instanceof FileNotFoundException) {
                         LOGGER.warn(deletedWarningMessage);
                     } else if (e.getCause() instanceof EOFException) {
+                        LOGGER.warn(modifiedWarningMessage);
+                    } else if (e.getCause() instanceof ZipException) {
                         LOGGER.warn(modifiedWarningMessage);
                     } else {
                         throw e;
                     }
                 }
                 
-                // add to classpath
-                JobInfo jobInfo = jobAware.loadJobInfo(JoboxUtil.trimExtension(jobPackageName));
-                if (jobInfo != null) {
-                    container.updateJobLoadersPool(jobInfo);
-                } else {
-                    LOGGER.warn(deletedWarningMessage);
-                }
             }
         }
     }
