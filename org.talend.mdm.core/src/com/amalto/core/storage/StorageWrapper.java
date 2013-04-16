@@ -502,17 +502,20 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             for (ComplexTypeMetadata type : types) {
                 int count = getTypeItemCount(criteria, type, storage);
                 totalCount += count;
-                if(itemPKResults.size() <= maxCount) {
+                if(itemPKResults.size() < maxCount) {
                     if(count > criteria.getSkip()) {
                         currentInstanceResults = getTypeItems(criteria, type, storage);
-                        itemPKResults.addAll(currentInstanceResults);
+                        int n = maxCount - itemPKResults.size();
+                        if (n <= currentInstanceResults.size()){
+                            itemPKResults.addAll(currentInstanceResults.subList(0, n));
+                        } else {
+                            itemPKResults.addAll(currentInstanceResults);
+                        }
                         criteria.setMaxItems(criteria.getMaxItems() - currentInstanceResults.size());
                         criteria.setSkip(0);
                     } else {
                         criteria.setSkip(criteria.getSkip() - count);
                     }
-                } else {
-                    break;
                 }
             }
         }
