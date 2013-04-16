@@ -146,11 +146,17 @@ public interface Storage {
     void update(Iterable<DataRecord> records);
 
     /**
+     * <p>
      * Deletes all records that match the {@link Expression}. The <code>userQuery</code> should be a valid
      * {@link com.amalto.core.query.user.Select}.
-     * 
+     * </p>
+     * <p>
+     * Implementations are expected to throw {@link IllegalArgumentException} if <code>userQuery</code> does not match
+     * any record.
+     * </p>
      * @param userQuery A {@link com.amalto.core.query.user.Select} instance.
      * @see com.amalto.core.query.user.UserQueryBuilder
+     * @throws IllegalArgumentException If <code>userQuery</code> does not match any document in storage.
      */
     void delete(Expression userQuery);
 

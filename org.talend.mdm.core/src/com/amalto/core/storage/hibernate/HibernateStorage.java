@@ -683,8 +683,10 @@ public class HibernateStorage implements Storage {
         try {
             Thread.currentThread().setContextClassLoader(storageClassLoader);
             Session session = factory.getCurrentSession();
-
             Iterable<DataRecord> records = internalFetch(session, userQuery, Collections.<EndOfResultsCallback>emptySet());
+            if (!records.iterator().hasNext()) {
+                throw new IllegalArgumentException("Could not find document to delete.");
+            }
             for (DataRecord currentDataRecord : records) {
                 ComplexTypeMetadata currentType = currentDataRecord.getType();
                 TypeMapping mapping = mappingRepository.getMappingFromUser(currentType);
