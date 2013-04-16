@@ -597,8 +597,7 @@ public class ItemPOJO implements Serializable {
                     server.commit(dataClusterName);
                 }
             } catch (Exception e) {
-
-                server.deleteDocument(null, "MDMItemsTrash", droppedItemPOJO.obtainDroppedItemPK().getUniquePK());
+                server.deleteDocument(null, "MDMItemsTrash", droppedItemPOJO.obtainDroppedItemPK().getUniquePK()); //$NON-NLS-1$
                 throw new XtentisException(e);
             } finally {
                 // update the cache

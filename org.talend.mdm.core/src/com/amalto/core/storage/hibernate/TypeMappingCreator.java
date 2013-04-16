@@ -80,7 +80,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     null,
                     referenceField.isFKIntegrity(),
                     referenceField.allowFKIntegrityOverride(),
-                    new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"),
+                    new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"), //$NON-NLS-1$
                     referenceField.getWriteUsers(),
                     referenceField.getHideUsers());
             database.addField(newFlattenField);

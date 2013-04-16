@@ -212,11 +212,11 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                 }
             }
             setFieldsMethodBody.append("}"); //$NON-NLS-1$
-            CtMethod setFieldsMethod = null;
+            CtMethod setFieldsMethod;
             try {
                 setFieldsMethod = CtNewMethod.make(setFieldsMethodBody.toString(), newClass);
             } catch (CannotCompileException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                throw new RuntimeException(e);
             }
             newClass.addMethod(setFieldsMethod);
 
