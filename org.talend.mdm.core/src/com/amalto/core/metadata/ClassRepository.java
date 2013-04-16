@@ -143,6 +143,9 @@ public class ClassRepository extends MetadataRepository {
             if (!Object.class.equals(declaredMethod.getDeclaringClass()) && !Modifier.isStatic(declaredMethod.getModifiers())) {
                 if (isBeanMethod(declaredMethod)) {
                     String fieldName = getName(declaredMethod);
+                    if (typeStack.peek().hasField(fieldName)) {
+                        continue; // TODO Avoid override of fields (like PK)
+                    }
                     Class<?> returnType = declaredMethod.getReturnType();
                     FieldMetadata newField;
                     boolean isMany = false;
@@ -230,7 +233,8 @@ public class ClassRepository extends MetadataRepository {
     }
 
     private static boolean isBeanMethod(Method declaredMethod) {
-        return isGetter(declaredMethod) || isBooleanGetter(declaredMethod);
+        return !Modifier.isAbstract(declaredMethod.getModifiers())
+                && (isGetter(declaredMethod) || isBooleanGetter(declaredMethod));
     }
 
     private static boolean isBooleanGetter(Method declaredMethod) {

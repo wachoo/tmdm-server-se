@@ -203,6 +203,10 @@ public class SystemStorageWrapper extends StorageWrapper {
             if (type == null) {
                 return -1; // TODO
             }
+            if (DROPPED_ITEM_TYPE.equals(type.getName())) {
+                // head.Product.Product.0-
+                uniqueID = uniqueID.substring(0, uniqueID.length() - 1);
+            }
             MetadataRepository repository = storage.getMetadataRepository();
             DataRecord record = reader.read(revisionID, repository, type, root);
             for (FieldMetadata keyField : type.getKeyFields()) {
@@ -282,12 +286,7 @@ public class SystemStorageWrapper extends StorageWrapper {
         } else {
             // TMDM-5513 custom form layout pk contains double dot .. to split, but it's a system definition object
             // like this Product..Product..product_layout
-            // FIXME
-            if (uniqueID.indexOf("..") == -1) { //$NON-NLS-1$
-                isUserFormat = uniqueID.indexOf('.') > 0;
-            } else {
-                isUserFormat = false;
-            }
+            isUserFormat = !uniqueID.contains("..") && uniqueID.indexOf('.') > 0;
             String documentUniqueId = uniqueID;
             if (uniqueID.startsWith(PROVISIONING_PREFIX_INFO)) {
                 documentUniqueId = StringUtils.substringAfter(uniqueID, PROVISIONING_PREFIX_INFO);

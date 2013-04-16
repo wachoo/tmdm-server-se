@@ -417,8 +417,10 @@ public class HibernateStorage implements Storage {
     public InternalRepository getTypeEnhancer() {
         if (typeMappingRepository == null) {
             switch (storageType) {
-                case MASTER:
                 case SYSTEM:
+                    typeMappingRepository = new SystemTypeMappingRepository();
+                    break;
+                case MASTER:
                     typeMappingRepository = new UserTypeMappingRepository();
                     break;
                 case STAGING:

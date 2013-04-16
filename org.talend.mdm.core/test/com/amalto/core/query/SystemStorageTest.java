@@ -73,7 +73,7 @@ public class SystemStorageTest extends TestCase {
         LOG.info("MDM server environment set.");
 
         LOG.info("Preparing storage for tests...");
-        Storage storage = new SecuredStorage(new HibernateStorage("MDM"), new SecuredStorage.UserDelegator() {
+        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), new SecuredStorage.UserDelegator() {
             @Override
             public boolean hide(FieldMetadata field) {
                 return false;
@@ -204,7 +204,7 @@ public class SystemStorageTest extends TestCase {
         LOG.info("MDM server environment set.");
 
         LOG.info("Preparing storage for tests...");
-        Storage storage = new SecuredStorage(new HibernateStorage("MDM"), new SecuredStorage.UserDelegator() {
+        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), new SecuredStorage.UserDelegator() {
             @Override
             public boolean hide(FieldMetadata field) {
                 return false;
@@ -273,10 +273,10 @@ public class SystemStorageTest extends TestCase {
                     StringWriter stringWriter = new StringWriter();
                     if ("menu-pOJO".equals(presentType.getName())) {
                         writer.write(result, stringWriter);
-                        /*MenuPOJO menuPOJO = ObjectPOJO.unmarshal(MenuPOJO.class, stringWriter.toString());
+                        MenuPOJO menuPOJO = ObjectPOJO.unmarshal(MenuPOJO.class, stringWriter.toString());
                         for (Iterator iter = menuPOJO.getMenuEntries().iterator(); iter.hasNext(); ) {
                             MenuEntryPOJO menuEntry = (MenuEntryPOJO) iter.next();
-                        }*/
+                        }
                     }
                 }
             } finally {
