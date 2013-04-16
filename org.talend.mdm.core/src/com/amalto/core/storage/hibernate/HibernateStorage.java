@@ -798,7 +798,8 @@ public class HibernateStorage implements Storage {
             }
             if (!isInternal) {
                 MappingExpressionTransformer transformer = new MappingExpressionTransformer(mappingRepository);
-                internalExpression = expression.accept(transformer);
+                // TODO a call to normalize should not be needed
+                internalExpression = expression.accept(transformer).normalize();
             }
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.debug("Internal query after mappings:");
