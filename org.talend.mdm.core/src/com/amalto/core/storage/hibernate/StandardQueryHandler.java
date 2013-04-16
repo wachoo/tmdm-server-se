@@ -974,5 +974,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
             fieldCondition.isProperty = true;
             return fieldCondition;
         }
+
+        @Override
+        public FieldCondition visit(Type type) {
+            FieldCondition fieldCondition = new FieldCondition();
+            fieldCondition.criterionFieldName = type.getField().getFieldMetadata().getContainingType().getName() + ".class";
+            fieldCondition.isMany = false;
+            fieldCondition.isProperty = true;
+            return fieldCondition;
+        }
     }
 }

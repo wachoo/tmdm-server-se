@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.query.user.OrderBy;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
@@ -322,6 +323,55 @@ public class InheritanceTest extends StorageTestCase {
             assertEquals(1, results.getCount());
             for (DataRecord result : results) {
                 assertEquals(subNested.getName(), result.get("type"));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testXsiTypeProjectionWithOrderBy() throws Exception {
+        ComplexTypeMetadata subNested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "SubNested");
+        assertNotNull(subNested);
+        ComplexTypeMetadata nested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "Nested");
+        assertNotNull(nested);
+        // Test 1
+        UserQueryBuilder qb = UserQueryBuilder.from(a).select(alias(type(a.getField("nestedB")), "type"))
+                .orderBy(type(a.getField("nestedB")), OrderBy.Direction.ASC);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+            String[] expected = new String[]{"Nested", "SubNested"};
+            int i = 0;
+            for (DataRecord result : results) {
+                assertEquals(expected[i++], result.get("type"));
+            }
+        } finally {
+            results.close();
+        }
+        // Test 2
+        qb = UserQueryBuilder.from(a).select(alias(type(a.getField("nestedB")), "type"))
+                .orderBy(type(a.getField("nestedB")), OrderBy.Direction.DESC);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+            String[] expected = new String[]{"SubNested", "Nested"};
+            int i = 0;
+            for (DataRecord result : results) {
+                assertEquals(expected[i++], result.get("type"));
+            }
+        } finally {
+            results.close();
+        }
+        // Test 3
+        qb = UserQueryBuilder.from(a).select(alias(type(a.getField("nestedB")), "type"))
+                .orderBy(UserQueryHelper.getField(repository, "A", "nestedB/@xsi:type"), OrderBy.Direction.ASC);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+            String[] expected = new String[]{"Nested", "SubNested"};
+            int i = 0;
+            for (DataRecord result : results) {
+                assertEquals(expected[i++], result.get("type"));
             }
         } finally {
             results.close();

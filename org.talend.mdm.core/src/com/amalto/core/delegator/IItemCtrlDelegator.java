@@ -224,9 +224,13 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 qb.limit(limit);
                 // Order by
                 if (orderBy != null) {
-                    FieldMetadata field = type.getField(StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
+                    TypedExpression field = UserQueryHelper.getField(repository,
+                            type.getName(),
+                            StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
                     OrderBy.Direction queryDirection;
-                    if ("ascending".equals(direction) || "NUMBER:ascending".equals(direction)) { //$NON-NLS-1$ //$NON-NLS-2$
+                    if ("ascending".equals(direction) //$NON-NLS-1$
+                            || "NUMBER:ascending".equals(direction) //$NON-NLS-1$
+                            || "ASC".equals(direction)) { //$NON-NLS-1$
                         queryDirection = OrderBy.Direction.ASC;
                     } else {
                         queryDirection = OrderBy.Direction.DESC;
@@ -429,12 +433,16 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             qb.limit(limit);
             // Order by
             if (orderBy != null) {
-                FieldMetadata field = type.getField(StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
+                TypedExpression field = UserQueryHelper.getField(repository,
+                        type.getName(),
+                        StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
                 if (field == null) {
                     throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
                 }
                 OrderBy.Direction queryDirection;
-                if ("ascending".equals(direction) || "ASC".equals(direction)) { //$NON-NLS-1$ //$NON-NLS-2$
+                if ("ascending".equals(direction) //$NON-NLS-1$
+                        || "NUMBER:ascending".equals(direction) //$NON-NLS-1$
+                        || "ASC".equals(direction)) { //$NON-NLS-1$
                     queryDirection = OrderBy.Direction.ASC;
                 } else {
                     queryDirection = OrderBy.Direction.DESC;
