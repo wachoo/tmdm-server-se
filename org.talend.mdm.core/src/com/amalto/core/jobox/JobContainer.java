@@ -13,7 +13,6 @@
 
 package com.amalto.core.jobox;
 
-import java.io.EOFException;
 import java.io.File;
 import java.net.URL;
 import java.util.Collections;
@@ -310,17 +309,7 @@ public class JobContainer {
             JobContainer.getUniqueInstance().getJobDeployer().undeploy(entryName);
             // remove classpath
             JobContainer.getUniqueInstance().removeFromJobLoadersPool(entryName);
-            try {
-                jobDeploy.deploy(entryName);
-            } catch (JoboxException e) {
-                // better handle concurrent file system modifications
-                // see com.amalto.core.jobox.watch.JoboxListener.fileChanged(List<String>, List<String>, List<String>)
-                if (e.getCause() instanceof EOFException) {
-                    LOGGER.warn("Attempted to to update job '" + entryName + "' but is being modified by concurrent process."); //$NON-NLS-1$ //$NON-NLS-2$
-                } else {
-                    throw e;
-                }
-            }
+            jobDeploy.deploy(entryName);
 
             // add to classpath
             JobInfo jobInfo = JobContainer.getUniqueInstance().getJobAware().loadJobInfo(JoboxUtil.trimExtension(entryName));
