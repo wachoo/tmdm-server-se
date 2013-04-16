@@ -43,6 +43,8 @@ public class SystemStorageWrapper extends StorageWrapper {
 
     private static final String SYSTEM_PREFIX = "amaltoOBJECTS"; //$NON-NLS-1$
 
+    private static final String CUSTOM_FORM_TYPE = "custom-form-pOJO"; //$NON-NLS-1$
+
     private static final String DROPPED_ITEM_TYPE = "dropped-item-pOJO"; //$NON-NLS-1$
 
     private static final String COMPLETED_ROUTING_ORDER = "completed-routing-order-v2-pOJO"; //$NON-NLS-1$
@@ -342,7 +344,8 @@ public class SystemStorageWrapper extends StorageWrapper {
             uniqueID = StringUtils.substringAfter(uniqueID, "."); //$NON-NLS-1$
         } else if (!COMPLETED_ROUTING_ORDER.equals(type.getName())
                 && !FAILED_ROUTING_ORDER.equals(type.getName())
-                && !ACTIVE_ROUTING_ORDER.equals(type.getName())) {
+                && !ACTIVE_ROUTING_ORDER.equals(type.getName())
+                && !CUSTOM_FORM_TYPE.equals(type.getName())) {
             if (uniqueID.startsWith(PROVISIONING_PREFIX_INFO)) {
                 uniqueID = StringUtils.substringAfter(uniqueID, PROVISIONING_PREFIX_INFO);
             } else if (uniqueID.contains(".")) { //$NON-NLS-1$
