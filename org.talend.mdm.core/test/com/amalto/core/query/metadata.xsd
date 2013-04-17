@@ -17,6 +17,12 @@
         </xsd:restriction>
     </xsd:simpleType>
 
+    <xsd:simpleType name="limitedInt_10">
+        <xsd:restriction base="xsd:integer">
+            <xsd:maxInclusive value="10"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
     <xsd:simpleType name="limitedString_15">
         <xsd:restriction base="xsd:string">
             <xsd:maxLength value="15"/>
@@ -73,7 +79,7 @@
         <xsd:sequence>
             <xsd:element name="Street" type="xsd:string"/>
             <xsd:element name="City" type="xsd:string"/>
-            <xsd:element name="Phone" type="xsd:string"/>
+            <xsd:element name="Phone" type="limitedInt_10"/>
             <xsd:element name="Notes" minOccurs="0">
                 <xsd:complexType>
                     <xsd:sequence>

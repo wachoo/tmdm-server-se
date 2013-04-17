@@ -281,8 +281,9 @@ public class MetadataUtils {
             while (!type.getSuperTypes().isEmpty()) {
                 TypeMetadata superType = type.getSuperTypes().iterator().next();
                 if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(superType.getNamespace())
-                        && ("anyType".equals(superType.getName())
-                        || "anySimpleType".equals(superType.getName()))) {
+                        && ("anyType".equals(superType.getName()) //$NON-NLS-1$
+                        || "anySimpleType".equals(superType.getName()) //$NON-NLS-1$
+                        || "decimal".equals(superType.getName()))) { //$NON-NLS-1$
                     break;
                 }
                 type = superType;
