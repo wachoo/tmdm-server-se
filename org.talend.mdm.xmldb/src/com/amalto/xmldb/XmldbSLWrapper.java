@@ -716,12 +716,14 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
             }
             if (col.getResource(encodedID) != null) {
                 col.removeResource(res);
+            } else {
+                throw new XmlServerException("Could not find the document to delete.");
             }
         } catch (Exception e) {
-            String err = "Unable to delete the document " + uniqueID + "on " + getFullURL(revisionID, clusterName) + ": "
+            String err = "Unable to delete the document " + uniqueID + " on " + getFullURL(revisionID, clusterName) + ": "
                     + e.getLocalizedMessage();
-            LOG.info(err, e);
-            return -1;
+            LOG.error(err, e);
+            throw new XmlServerException(err, e);
         }
         long time = System.currentTimeMillis() - startT;
         return time;
