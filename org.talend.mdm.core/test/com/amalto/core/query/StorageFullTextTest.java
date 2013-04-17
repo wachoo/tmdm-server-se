@@ -273,11 +273,11 @@ public class StorageFullTextTest extends StorageTestCase {
                 .select(productFamily.getField("Name"))
                 .where(fullText("Renault"))
                 .join(product.getField("Family"));
-
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
             for (DataRecord result : results) {
+                assertNotNull(result.get("Id"));
                 assertEquals("", result.get("Name"));
             }
         } finally {
@@ -295,6 +295,7 @@ public class StorageFullTextTest extends StorageTestCase {
         try {
             assertEquals(1, results.getCount());
             for (DataRecord result : results) {
+                assertNotNull(result.get("Id"));
                 assertEquals("", result.get("Name"));
             }
         } finally {

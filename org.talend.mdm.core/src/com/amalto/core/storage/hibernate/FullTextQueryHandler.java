@@ -185,7 +185,9 @@ class FullTextQueryHandler extends AbstractQueryHandler {
 
                         @Override
                         public Void visit(Field field) {
-                            FieldMetadata fieldMetadata = field.getFieldMetadata();
+                            FieldMetadata databaseFieldMetadata = field.getFieldMetadata();
+                            TypeMapping mapping = mappings.getMappingFromDatabase(databaseFieldMetadata.getContainingType());
+                            FieldMetadata fieldMetadata = mapping.getUser(databaseFieldMetadata);
                             if (aliasName != null) {
                                 SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName == null ? fieldMetadata.getType().getName() : typeName);
                                 fieldMetadata = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, aliasName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList());
@@ -277,7 +279,8 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                     DataRecord nextRecord = new DataRecord(explicitProjectionType, UnsupportedDataRecordMetadata.INSTANCE);
                     for (TypedExpression selectedField : selectedFields) {
                         if (selectedField instanceof Field) {
-                            FieldMetadata field = ((Field) selectedField).getFieldMetadata();
+                            FieldMetadata databaseField = ((Field) selectedField).getFieldMetadata();
+                            FieldMetadata field = mappings.getMappingFromDatabase(databaseField.getContainingType()).getUser(databaseField);
                             explicitProjectionType.addField(field);
                             if (field instanceof ReferenceFieldMetadata) {
                                 nextRecord.set(field, getReferencedId(next, (ReferenceFieldMetadata) field));
