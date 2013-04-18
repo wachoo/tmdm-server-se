@@ -116,6 +116,8 @@ public class FormatNumberField extends NumberField {
                 return false;
             }
 
+            this.setOjbectValue(d);
+
             if (validator != null) {
                 String msg = validator.validate(this, value);
                 if (msg != null) {
@@ -123,8 +125,6 @@ public class FormatNumberField extends NumberField {
                     return false;
                 }
             }
-
-            this.setOjbectValue(d);
 
             if (formatPattern != null) {
                 FormatModel model = new FormatModel(formatPattern, d, Locale.getLanguage());
