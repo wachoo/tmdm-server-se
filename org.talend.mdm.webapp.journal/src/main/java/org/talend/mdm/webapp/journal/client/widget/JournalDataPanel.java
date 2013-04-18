@@ -22,6 +22,7 @@ import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -77,21 +78,23 @@ public class JournalDataPanel extends FormPanel {
         }
         openRecordButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.browse()));
         openRecordButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-            
-            @Override
+
             public void componentSelected(ButtonEvent ce) {
-                service.checkDCAndDM(journalGridModel.getDataContainer(), journalGridModel.getDataModel(), new SessionAwareAsyncCallback<Boolean>() {
-                    
-                    public void onSuccess(Boolean result) {
-                        if(result) {
-                            JournalDataPanel.this.openBrowseRecordPanel(MessagesFactory.getMessages().journal_label(),
-                                    journalGridModel.getKey(), journalGridModel.getEntity());
-                        } else {
-                            MessageBox.alert(MessagesFactory.getMessages().error_level(), MessagesFactory.getMessages()
-                                    .select_contain_model_msg(), null);
-                        }
-                    }
-                });
+                service.isExistId(journalGridModel.getEntity(), journalGridModel.getKey().split("\\."), UrlUtil.getLanguage(),
+                        new SessionAwareAsyncCallback<Boolean>() {
+
+                            @Override
+                            public void onSuccess(Boolean result) {
+                                if (result) {
+                                    JournalDataPanel.this.openBrowseRecordPanel(MessagesFactory.getMessages().journal_label(),
+                                            journalGridModel.getKey(), journalGridModel.getEntity());
+                                } else {
+                                    MessageBox.alert(MessagesFactory.getMessages().error_level(), MessagesFactory.getMessages()
+                                            .record_not_found_msg(), null);
+                                }
+                            }
+
+                        });
             }
         });
         

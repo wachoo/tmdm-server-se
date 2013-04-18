@@ -44,4 +44,6 @@ public interface JournalServiceAsync {
             AsyncCallback<String> callback);
     
     void isAdmin(AsyncCallback<Boolean> callback);
+
+    void isExistId(String concept, String[] ids, String language, AsyncCallback<Boolean> callback);    
 }

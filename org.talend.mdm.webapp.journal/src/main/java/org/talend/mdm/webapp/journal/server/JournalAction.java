@@ -22,6 +22,7 @@ import java.util.Locale;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.journal.client.JournalService;
 import org.talend.mdm.webapp.journal.server.service.JournalDBService;
 import org.talend.mdm.webapp.journal.server.service.JournalHistoryService;
@@ -35,8 +36,13 @@ import com.amalto.core.history.exception.UnsupportedUndoPhysicalDeleteException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
+import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
+import com.amalto.webapp.util.webservices.WSBoolean;
+import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSExistsItem;
+import com.amalto.webapp.util.webservices.WSItemPK;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -271,5 +277,27 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd yyyy HH:mm:ss", Locale.ENGLISH); //$NON-NLS-1$
         String timeStr = sdf.format(date);
         return timeStr + " GMT"; //$NON-NLS-1$
+    }
+
+    @Override
+    public boolean isExistId(String concept, String[] ids, String language) throws ServiceException {
+        try {
+            WSBoolean wsBoolean = CommonUtil.getPort().existsItem(
+                    new WSExistsItem(new WSItemPK(new WSDataClusterPK(this.getCurrentDataCluster()), concept, ids)));
+            return wsBoolean.is_true();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
+    }
+
+    private String getCurrentDataCluster() throws ServiceException {
+        try {
+            Configuration config = Configuration.getConfiguration();
+            return config.getCluster();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
     }
 }
