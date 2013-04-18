@@ -266,7 +266,7 @@ public class DroppedItemPOJO implements Serializable {
             for (String uid : ids) {
                 String[] uidValues = uid.split("\\."); //$NON-NLS-1$
                 ItemPOJOPK refItemPOJOPK;
-                if (MDMConfiguration.getDBType() != EDBType.QIZX) {
+                if (MDMConfiguration.isSqlDataBase()) {
                     if (uidValues.length < 3) {
                         if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("Could not read id '" + uid + "'. Skipping it.");
