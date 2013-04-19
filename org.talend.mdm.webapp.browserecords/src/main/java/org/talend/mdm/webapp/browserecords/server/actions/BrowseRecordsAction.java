@@ -2419,11 +2419,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             Locale locale = new Locale(language);
-            if (e.getCause().getCause() instanceof EntityNotFoundException) {
-                throw new ServiceException(MESSAGES.getMessage(locale, "record_not_found_msg")); //$NON-NLS-1$
-            } else {
-                throw new ServiceException(MESSAGES.getMessage(locale, "parse_model_error")); //$NON-NLS-1$
+            Throwable cause = e.getCause();
+            if (cause != null && cause instanceof WebCoreException) {
+                cause = cause.getCause();
+                if (cause != null && cause instanceof EntityNotFoundException) {
+                    throw new ServiceException(MESSAGES.getMessage(locale, "record_not_found_msg")); //$NON-NLS-1$
+                }
             }
+            throw new ServiceException(MESSAGES.getMessage(locale, "parse_model_error")); //$NON-NLS-1$ 
         }
     }
 

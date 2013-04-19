@@ -47,6 +47,4 @@ public interface JournalService extends RemoteService {
             throws ServiceException;
 
     boolean isAdmin();
-    
-        boolean isExistId(String concept, String[] ids, String language) throws ServiceException;
 }
