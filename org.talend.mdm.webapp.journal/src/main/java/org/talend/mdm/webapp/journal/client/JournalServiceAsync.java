@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -31,18 +31,17 @@ public interface JournalServiceAsync {
 
     void getDetailTreeModel(String ids, AsyncCallback<JournalTreeModel> callback);
 
-    void getComparisionTree(JournalParameters parameter,String language, AsyncCallback<JournalTreeModel> callback);
+    void getComparisionTree(JournalParameters parameter, String language, AsyncCallback<JournalTreeModel> callback);
 
     void isEnterpriseVersion(AsyncCallback<Boolean> callback);
 
-    void restoreRecord(JournalParameters parameter,String language, AsyncCallback<Boolean> callback);
+    void restoreRecord(JournalParameters parameter, String language, AsyncCallback<Boolean> callback);
 
     void checkDCAndDM(String dataContainer, String dataModel, AsyncCallback<Boolean> callback);
 
     void getReportString(int start, int limit, String sort, String field, String language, String entity, String key,
             String source, String operationType, String startDate, String endDate, boolean isBrowseRecord,
             AsyncCallback<String> callback);
-    
+
     void isAdmin(AsyncCallback<Boolean> callback);
- 
 }

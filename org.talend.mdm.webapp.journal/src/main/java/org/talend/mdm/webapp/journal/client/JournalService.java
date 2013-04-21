@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -34,11 +34,11 @@ public interface JournalService extends RemoteService {
 
     JournalTreeModel getDetailTreeModel(String ids) throws ServiceException;
 
-    JournalTreeModel getComparisionTree(JournalParameters parameter,String language) throws ServiceException;
+    JournalTreeModel getComparisionTree(JournalParameters parameter, String language) throws ServiceException;
 
     boolean isEnterpriseVersion();
 
-    boolean restoreRecord(JournalParameters parameter,String language) throws ServiceException;
+    boolean restoreRecord(JournalParameters parameter, String language) throws ServiceException;
 
     boolean checkDCAndDM(String dataContainer, String dataModel);
 
