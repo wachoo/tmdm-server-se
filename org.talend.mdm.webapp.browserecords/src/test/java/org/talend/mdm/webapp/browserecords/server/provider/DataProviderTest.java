@@ -33,6 +33,8 @@ public class DataProviderTest extends TestCase {
 
     public void testGetDataResult() throws Exception {
 
+        String result = "<results><result><test>resutTest</test></result></results>";
+
         String[] mockResult = { "totalCount", "DataInDB1", "DataInDB2", "DataInDB3" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
         PowerMockito.mockStatic(org.talend.mdm.webapp.base.server.util.CommonUtil.class);
@@ -43,7 +45,7 @@ public class DataProviderTest extends TestCase {
                         Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(),
                         Mockito.anyString())).thenReturn(mockResult);
         assertEquals(
-                "1", new DataProvider("dataCluster", "viewPk", "criteria", 0, "sortDir", "sortField", "language", "1@2@3").getDataResult()[1]); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
+                "<result><test>resutTest</test></result>", new DataProvider("dataCluster", "viewPk", "criteria", 0, "sortDir", "sortField", "language", result).getDataResult()[1].replace("\r", "").replace("\n", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
 
         assertEquals(
                 "DataInDB1", new DataProvider("dataCluster", "viewPk", "criteria", 0, "sortDir", "sortField", "language", "").getDataResult()[1]); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$

@@ -49,8 +49,8 @@ public class DownloadData extends HttpServlet {
         String header = new String(request.getParameter("header").getBytes("iso-8859-1"), "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$        
         String xpath = request.getParameter("xpath"); //$NON-NLS-1$
 
-        String[] fieldNames = header.split("@"); //$NON-NLS-1$
-        String[] xpathArr = xpath.split("@"); //$NON-NLS-1$
+        String[] fieldNames = header.split(DownloadUtil.SPLIT_CHARACTER);
+        String[] xpathArr = xpath.split(DownloadUtil.SPLIT_CHARACTER);
 
         String concept = ViewHelper.getConceptFromDefaultViewName(tableName);
 

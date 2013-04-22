@@ -17,40 +17,40 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.TestCase;
+
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.talend.mdm.webapp.base.server.util.XmlUtil;
 
-import junit.framework.TestCase;
-
 @SuppressWarnings("nls")
 public class DownloadUtilTest extends TestCase {
-    
+
     private static final Logger LOG = Logger.getLogger(DownloadUtilTest.class);
-    
-    public void testAssembleFkMap(){
+
+    public void testAssembleFkMap() {
         Map<String, String> colFkMap = new HashMap<String, String>();
         Map<String, List<String>> fkMap = new HashMap<String, List<String>>();
-        String fkColXPath = "Person/Shop,Store/Id"; 
+        String fkColXPath = "Person/Shop,Store/Id";
         String fkInfo = "Store/Name";
         DownloadUtil.assembleFkMap(colFkMap, fkMap, fkColXPath, fkInfo);
-        
+
         assertEquals(1, colFkMap.size());
         assertEquals(1, fkMap.size());
         assertEquals("Person/Shop", colFkMap.keySet().iterator().next());
         assertEquals("Person/Shop", fkMap.keySet().iterator().next());
         assertEquals("Store/Id", colFkMap.get(colFkMap.keySet().iterator().next()));
         assertEquals("Store/Name", fkMap.get(fkMap.keySet().iterator().next()).get(0));
-        
+
         colFkMap.clear();
         fkMap.clear();
         String fk1 = "Person/Shop";
         String fk2 = "Product/Famliy";
-        fkColXPath = fk1 + ",Store/Id@" + fk2 + ",ProductFamliy/Id"; 
-        fkInfo = "Store/Name@ProductFamliy/name,ProductFamliy/Code";
+        fkColXPath = fk1 + ",Store/Id@@" + fk2 + ",ProductFamliy/Id";
+        fkInfo = "Store/Name@@ProductFamliy/name,ProductFamliy/Code";
         DownloadUtil.assembleFkMap(colFkMap, fkMap, fkColXPath, fkInfo);
-        
+
         assertEquals(2, colFkMap.size());
         assertEquals(2, fkMap.size());
         assertEquals("Store/Id", colFkMap.get(fk1));
@@ -60,8 +60,8 @@ public class DownloadUtilTest extends TestCase {
         assertEquals("ProductFamliy/name", fkMap.get(fk2).get(0));
         assertEquals("ProductFamliy/Code", fkMap.get(fk2).get(1));
     }
-    
-    public void testIsJoinField(){
+
+    public void testIsJoinField() {
         String xPath = "Product/Id";
         String concept = "Product";
         boolean result = DownloadUtil.isJoinField(xPath, concept);
@@ -71,14 +71,14 @@ public class DownloadUtilTest extends TestCase {
         concept = "ProductFamily";
         result = DownloadUtil.isJoinField(xPath, concept);
         assertFalse(result);
-        
+
         xPath = "ProductFamily/Name";
         concept = "productfamily";
         result = DownloadUtil.isJoinField(xPath, concept);
         assertTrue(result);
     }
-    
-    public void testGetJoinFieldValue(){
+
+    public void testGetJoinFieldValue() {
         InputStream is = DownloadUtilTest.class.getResourceAsStream("result.xml");
         Document doc = null;
         try {
@@ -86,7 +86,7 @@ public class DownloadUtilTest extends TestCase {
         } catch (DocumentException e) {
             LOG.error(e);
         }
-        
+
         String value = DownloadUtil.getJoinFieldValue(doc, "ProductFamily/Name", 5);
         assertEquals("Mugs", value);
     }

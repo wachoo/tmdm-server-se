@@ -12,9 +12,17 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.provider;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.amalto.commons.core.utils.XMLUtils;
+import com.amalto.webapp.core.util.Util;
 
 /**
  * DOC talend2 class global comment. Detailled comment
@@ -51,7 +59,16 @@ public class DataProvider {
 
     public String[] getDataResult() throws Exception {
         if (!"".equals(sourceXmlString)) { //$NON-NLS-1$
-            return ("@" + sourceXmlString).split("@"); //$NON-NLS-1$ //$NON-NLS-2$
+            List<String> resultList = new ArrayList<String>();
+            // This blank reacord for excel file header
+            resultList.add(""); //$NON-NLS-1$
+            Document doc = Util.parse(sourceXmlString);
+            NodeList ls = Util.getNodeList(doc, "/results/result"); //$NON-NLS-1$
+            for (int i = 0; i < ls.getLength(); i++) {
+                Node node = ls.item(i);
+                resultList.add(XMLUtils.nodeToString(node));
+            }
+            return resultList.toArray(new String[resultList.size()]);
         } else {
             Properties mdmConfig = MDMConfiguration.getConfiguration();
             Object value = mdmConfig.get("max.export.browserecord"); //$NON-NLS-1$
