@@ -52,6 +52,8 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
  * DOC Administrator class global comment. Detailled comment
  */
 public class DownloadFilePanel extends FormPanel {
+    
+    private final String SPLIT_CHARACTER = "@@"; //$NON-NLS-1$
 
     private TextField<String> fileName;
 
@@ -190,11 +192,11 @@ public class DownloadFilePanel extends FormPanel {
         param.put("fkResovled", fkResovled.getValue().toString()); //$NON-NLS-1$
         param.put("fkDisplay", fkDisplayCombo.getValue().get("key").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         param.put("tableName", viewBean.getViewPK()); //$NON-NLS-1$
-        param.put("header", LabelUtil.convertList2String(headerList, "@")); //$NON-NLS-1$ //$NON-NLS-2$
-        param.put("xpath", LabelUtil.convertList2String(xPathList, "@")); //$NON-NLS-1$ //$NON-NLS-2$
-        param.put("fkColXPath", LabelUtil.convertList2String(fkColXPathList, "@")); //$NON-NLS-1$ //$NON-NLS-2$
-        param.put("fkInfo", LabelUtil.convertList2String(fkInfoList, "@")); //$NON-NLS-1$ //$NON-NLS-2$
-        param.put("itemXmlString", selectItemXmlList.size() > 0 ? LabelUtil.convertList2String(selectItemXmlList, "@") : ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        param.put("header", LabelUtil.convertList2String(headerList, SPLIT_CHARACTER)); //$NON-NLS-1$
+        param.put("xpath", LabelUtil.convertList2String(xPathList, SPLIT_CHARACTER)); //$NON-NLS-1$
+        param.put("fkColXPath", LabelUtil.convertList2String(fkColXPathList, SPLIT_CHARACTER)); //$NON-NLS-1$
+        param.put("fkInfo", LabelUtil.convertList2String(fkInfoList, SPLIT_CHARACTER)); //$NON-NLS-1$
+        param.put("itemXmlString", selectItemXmlList.size() > 0 ? "<results>" + LabelUtil.convertList2String(selectItemXmlList, "") + "</results>" : ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
         param.put("dataCluster", queryModel.getDataClusterPK()); //$NON-NLS-1$
         param.put("viewPk", queryModel.getView().getViewPK()); //$NON-NLS-1$
