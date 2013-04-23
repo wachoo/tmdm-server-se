@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.exception.LicenseUserNumberValidationException;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
@@ -208,6 +209,24 @@ public class AccordionMenus extends ContentPanel {
                     public void onSuccess(Boolean result) {
                         if (!result) {
                             clickMenu(menuBean, item);
+                        }
+                    }
+                    
+                    @Override
+                    protected void doOnFailure(final Throwable caught) {
+                        if (menuBean.getContext().toLowerCase().equals("usermanager") &&  //$NON-NLS-1$
+                                caught != null && caught instanceof LicenseUserNumberValidationException) {
+                            service.isAdminLogin(new SessionAwareAsyncCallback<Boolean>() {
+                                public void onSuccess(Boolean result) {
+                                    if (result) {
+                                        clickMenu(menuBean, item);
+                                    } else {
+                                        super.doOnFailure(caught);
+                                    }
+                                } 
+                            });
+                        } else {
+                            super.doOnFailure(caught);    
                         }
                     }
 

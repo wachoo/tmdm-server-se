@@ -2,6 +2,7 @@ package org.talend.mdm.webapp.general.server.actions;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.amalto.core.util.LicenseUserNumberValidationException;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.bean.Configuration;
@@ -258,7 +260,12 @@ public class GeneralAction implements GeneralService {
             return Webapp.INSTANCE.isExpired(language);
         } catch (Exception e) {
             LOG.error(e.getMessage());
-            throw new ServiceException(e.getLocalizedMessage());
+            if (e instanceof LicenseUserNumberValidationException) {
+                throw new org.talend.mdm.webapp.base.client.exception.LicenseUserNumberValidationException(e.getLocalizedMessage());    
+            } else {
+                throw new ServiceException(e.getLocalizedMessage());
+            }
+            
         }
     }
 
@@ -267,6 +274,23 @@ public class GeneralAction implements GeneralService {
         try {
             return Util.getPort().supportStaging().is_true();
         } catch (Exception e) {
+            throw new ServiceException(e.getMessage());
+        }
+    }
+
+    public boolean isAdminLogin() throws ServiceException {
+        List<String> userRoles = new ArrayList<String>();
+        try {
+            String thisRolesTokens = Util.getLoginRoles();
+            if (thisRolesTokens != null && thisRolesTokens.length() > 0) {
+                userRoles = Arrays.asList(thisRolesTokens.split(",")); //$NON-NLS-1$
+            }
+            if (userRoles.contains("administration")) { //$NON-NLS-1$
+                return true;
+            }
+            return false;    
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getMessage());
         }
     }

@@ -44,4 +44,6 @@ public interface GeneralServiceAsync {
     void isExpired(String language, AsyncCallback<Boolean> callback);
 
     void supportStaging(String dataCluster, AsyncCallback<Boolean> callback);
+
+    void isAdminLogin(AsyncCallback<Boolean> callback);
 }

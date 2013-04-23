@@ -47,4 +47,6 @@ public interface GeneralService extends RemoteService {
     public boolean isExpired(String language) throws ServiceException;
 
     public boolean supportStaging(String dataCluster) throws ServiceException;
+
+    public boolean isAdminLogin() throws ServiceException;
 }
