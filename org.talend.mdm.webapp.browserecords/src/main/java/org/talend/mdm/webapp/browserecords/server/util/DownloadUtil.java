@@ -20,11 +20,13 @@ import org.dom4j.Document;
 import org.dom4j.Node;
 
 public class DownloadUtil {
+    
+    public static final String SPLIT_CHARACTER = "@@"; //$NON-NLS-1$
 
     public static void assembleFkMap(Map<String, String> colFkMap, Map<String, List<String>> fkMap, String fkColXPath, String fkInfo) {
         if (!fkColXPath.equalsIgnoreCase("")) { //$NON-NLS-1$
-            String[] fkColXPathArr = fkColXPath.split("@"); //$NON-NLS-1$
-            String[] fkInfoArr = fkInfo.split("@"); //$NON-NLS-1$
+            String[] fkColXPathArr = fkColXPath.split(SPLIT_CHARACTER);
+            String[] fkInfoArr = fkInfo.split(SPLIT_CHARACTER);
             for (int i = 0; i < fkColXPathArr.length; i++) {
                 String[] fkStr = fkInfoArr[i].split(","); //$NON-NLS-1$
                 List<String> fkList = new ArrayList<String>();

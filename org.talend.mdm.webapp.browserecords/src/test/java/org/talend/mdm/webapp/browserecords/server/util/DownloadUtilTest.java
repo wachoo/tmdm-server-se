@@ -47,8 +47,8 @@ public class DownloadUtilTest extends TestCase {
         fkMap.clear();
         String fk1 = "Person/Shop";
         String fk2 = "Product/Famliy";
-        fkColXPath = fk1 + ",Store/Id@" + fk2 + ",ProductFamliy/Id"; 
-        fkInfo = "Store/Name@ProductFamliy/name,ProductFamliy/Code";
+        fkColXPath = fk1 + ",Store/Id@@" + fk2 + ",ProductFamliy/Id"; 
+        fkInfo = "Store/Name@@ProductFamliy/name,ProductFamliy/Code";
         DownloadUtil.assembleFkMap(colFkMap, fkMap, fkColXPath, fkInfo);
         
         assertEquals(2, colFkMap.size());
