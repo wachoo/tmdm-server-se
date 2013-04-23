@@ -78,13 +78,6 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
                                 indexedFields.add(userType.getField(fieldName));
                             }
                         }
-                        ArrayList<String> viewableElements = view.getViewableBusinessElements().getList();
-                        for (String viewableElement : viewableElements) {
-                            String fieldName = StringUtils.substringAfter(viewableElement, "/"); //$NON-NLS-1$
-                            if (userType.hasField(fieldName)) {
-                                indexedFields.add(userType.getField(fieldName));
-                            }
-                        }
                     }
                 }
                 return indexedFields;
