@@ -307,7 +307,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
                     return;
                 }
 
-                if (!Constants.FileType_Imported.contains(type.toLowerCase())) {
+                if (("".equalsIgnoreCase(type)) || !Constants.FileType_Imported.contains(type.toLowerCase())) { //$NON-NLS-1$
                     MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
                             .error_incompatible_file_type(), null);
                     return;
