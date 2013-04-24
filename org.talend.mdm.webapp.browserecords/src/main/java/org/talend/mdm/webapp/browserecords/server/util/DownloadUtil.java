@@ -19,14 +19,15 @@ import java.util.Map;
 import org.dom4j.Document;
 import org.dom4j.Node;
 
-public class DownloadUtil {
-    
-    public static final String SPLIT_CHARACTER = "@@"; //$NON-NLS-1$
+import com.amalto.commons.core.utils.XMLUtils;
+import com.amalto.webapp.core.util.Util;
 
-    public static void assembleFkMap(Map<String, String> colFkMap, Map<String, List<String>> fkMap, String fkColXPath, String fkInfo) {
+public class DownloadUtil {
+
+    public static void assembleFkMap(Map<String, String> colFkMap, Map<String, List<String>> fkMap, String fkColXPath, String fkInfo) throws Exception {
         if (!fkColXPath.equalsIgnoreCase("")) { //$NON-NLS-1$
-            String[] fkColXPathArr = fkColXPath.split(SPLIT_CHARACTER);
-            String[] fkInfoArr = fkInfo.split(SPLIT_CHARACTER);
+            String[] fkColXPathArr = convertXml2Array(fkColXPath,"fkColXPath"); //$NON-NLS-1$
+            String[] fkInfoArr = convertXml2Array(fkInfo,"fkInfo"); //$NON-NLS-1$
             for (int i = 0; i < fkColXPathArr.length; i++) {
                 String[] fkStr = fkInfoArr[i].split(","); //$NON-NLS-1$
                 List<String> fkList = new ArrayList<String>();
@@ -38,6 +39,17 @@ public class DownloadUtil {
                 colFkMap.put(arr[0], arr[1]);
             }
         }
+    }
+    
+    public static String[] convertXml2Array(String xml,String rootName) throws Exception {
+        List<String> resultList = new ArrayList<String>();
+        org.w3c.dom.Document doc = Util.parse(xml);
+        org.w3c.dom.NodeList nodeList = Util.getNodeList(doc, "/" + rootName + "/item"); //$NON-NLS-1$ //$NON-NLS-2$
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            org.w3c.dom.Node node = nodeList.item(i).getFirstChild();
+            resultList.add(XMLUtils.nodeToString(node));
+        }
+        return resultList.toArray(new String[resultList.size()]);
     }
     
     public static boolean isJoinField(String xPath, String concept){

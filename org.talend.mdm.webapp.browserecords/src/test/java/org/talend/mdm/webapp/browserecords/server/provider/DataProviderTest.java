@@ -35,7 +35,21 @@ public class DataProviderTest extends TestCase {
 
     public void testGetDataResult() throws Exception {
         
-        String result = "<results><result><test>resutTest</test></result></results>";
+        String result = "<result><item/><item><result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" + 
+        		"    <Id>1</Id>" + 
+        		"    <Name>z@@zz@Z</Name>" + 
+        		"    <Family>[1]</Family>" + 
+        		"    <Price>111.00</Price>" + 
+        		"    <Availability/>" + 
+        		"</result>" + 
+        		"</item><item><result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" + 
+        		"    <Id>q</Id>" + 
+        		"    <Name>x@@xx</Name>" + 
+        		"    <Family>[2]</Family>" + 
+        		"    <Price>1.00</Price>" + 
+        		"    <Availability>true</Availability>" + 
+        		"</result>" + 
+        		"</item></result>";
 
         String[] mockResult = { "totalCount", "DataInDB1", "DataInDB2", "DataInDB3" };
 
@@ -47,7 +61,13 @@ public class DataProviderTest extends TestCase {
                         Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(),
                         Mockito.anyString())).thenReturn(mockResult);
         assertEquals(
-                "<result><test>resutTest</test></result>", new DataProvider("dataCluster", "Product", "viewPk", "criteria", 0, "sortDir", "sortField", "language", result).getDataResult()[1].replace("\r", "").replace("\n", ""));
+                "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" + 
+                "    <Id>1</Id>" + 
+                "    <Name>z@@zz@Z</Name>" + 
+                "    <Family>[1]</Family>" + 
+                "    <Price>111.00</Price>" + 
+                "    <Availability/>" + 
+                "</result>", new DataProvider("dataCluster", "Product", "viewPk", "criteria", 0, "sortDir", "sortField", "language", result).getDataResult()[1].replace("\r", "").replace("\n", ""));
 
         assertEquals(
                 "DataInDB1", new DataProvider("dataCluster", "Product", "viewPk", "criteria", 0, "sortDir", "sortField", "language", "").getDataResult()[1]);

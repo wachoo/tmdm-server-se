@@ -434,4 +434,6 @@ public interface BrowseRecordsMessages extends Messages {
     String date_format_error();
     
     String output_report_null();
+    
+    String export_error();
 }
