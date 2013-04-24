@@ -15,19 +15,10 @@ package com.amalto.core.save;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * DOC talend2 class global comment. Detailled comment
- */
 public abstract class AbstractDocumentSaverContext implements DocumentSaverContext {
 
-    private Map<String, String> autoIncrementFieldMap = new HashMap<String, String>();
+    private final Map<String, String> autoIncrementFieldMap = new HashMap<String, String>();
 
-    /**
-     * Getter for hasAutoIncrementField.
-     * 
-     * @return the hasAutoIncrementField
-     */
-    @Override
     public Map<String, String> getAutoIncrementFieldMap() {
         return autoIncrementFieldMap;
     }

@@ -104,6 +104,9 @@ class ID implements DocumentSaver {
             throw new RuntimeException("Could not acquire a document builder for validation.", e);
         }
         if (xmlDocumentId.length > 0 && database.exist(dataCluster, typeName, revisionID, xmlDocumentId)) {
+            if (context.getUserAction() == UserAction.AUTO) {
+                context.setUserAction(UserAction.UPDATE);
+            }
             context.setId(xmlDocumentId);
             NonCloseableInputStream nonCloseableInputStream = new NonCloseableInputStream(database.get(dataCluster, typeName, revisionID, xmlDocumentId));
             try {
@@ -132,14 +135,19 @@ class ID implements DocumentSaver {
             }
         } else {
             // Throw an exception if trying to update a document that does not exist.
-            if (context.getUserAction() == UserAction.UPDATE || context.getUserAction() == UserAction.PARTIAL_UPDATE) {
-                StringBuilder builder = new StringBuilder();
-                for (String idElement : xmlDocumentId) {
-                    builder.append('[').append(idElement).append(']');
-                }
-                throw new IllegalStateException("Can not update document '" + type.getName() + "' with id '" + builder.toString() + "' because it does not exist.");
+            switch (context.getUserAction()) {
+                case AUTO:
+                case CREATE:
+                case REPLACE:
+                    break;
+                case UPDATE:
+                case PARTIAL_UPDATE:
+                    StringBuilder builder = new StringBuilder();
+                    for (String idElement : xmlDocumentId) {
+                        builder.append('[').append(idElement).append(']');
+                    }
+                    throw new IllegalStateException("Can not update document '" + type.getName() + "' with id '" + builder.toString() + "' because it does not exist.");
             }
-
             // Creation... so mark context
             context.setUserAction(UserAction.CREATE);
             context.setDatabaseDocument(new DOMDocument(documentBuilder.newDocument()));

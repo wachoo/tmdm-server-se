@@ -147,7 +147,15 @@ public class SaverContextFactory {
         } catch (Exception e) {
             throw new RuntimeException("Unable to parse document to save.", e);
         }
-
+        // Choose right user action
+        UserAction userAction = UserAction.UPDATE;
+        if (isReplace) {
+            userAction = UserAction.REPLACE;
+        }
+        // TMDM-5587: workflow uses 'update' for both 'update' and 'create' (so choose 'auto').
+        if ("workflow".equalsIgnoreCase(changeSource)) { //$NON-NLS-1$
+            userAction = UserAction.AUTO;
+        }
         // Choose right context implementation
         DocumentSaverContext context;
         if (dataCluster.startsWith(SYSTEM_CONTAINER_PREFIX) || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, XObjectType.DATA_CLUSTER, dataCluster)) {

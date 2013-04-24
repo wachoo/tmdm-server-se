@@ -13,6 +13,10 @@ package com.amalto.core.save;
 
 public enum UserAction {
     /**
+     * MDM will decide whether user is doing a {@link #CREATE} or {@link #UPDATE}.
+     */
+    AUTO,
+    /**
      * User is creating a new record (record is not expected to be already stored in database).
      */
     CREATE,
