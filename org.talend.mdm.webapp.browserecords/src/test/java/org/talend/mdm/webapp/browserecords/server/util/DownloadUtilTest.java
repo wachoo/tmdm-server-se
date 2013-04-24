@@ -29,11 +29,11 @@ public class DownloadUtilTest extends TestCase {
     
     private static final Logger LOG = Logger.getLogger(DownloadUtilTest.class);
     
-    public void testAssembleFkMap(){
+    public void testAssembleFkMap() throws Exception{
         Map<String, String> colFkMap = new HashMap<String, String>();
         Map<String, List<String>> fkMap = new HashMap<String, List<String>>();
-        String fkColXPath = "Person/Shop,Store/Id"; 
-        String fkInfo = "Store/Name";
+        String fkColXPath = "<fkColXPath><item>Person/Shop,Store/Id</item></fkColXPath>";
+        String fkInfo = "<fkInfo><item>Store/Name</item></fkInfo>";
         DownloadUtil.assembleFkMap(colFkMap, fkMap, fkColXPath, fkInfo);
         
         assertEquals(1, colFkMap.size());
@@ -47,8 +47,8 @@ public class DownloadUtilTest extends TestCase {
         fkMap.clear();
         String fk1 = "Person/Shop";
         String fk2 = "Product/Famliy";
-        fkColXPath = fk1 + ",Store/Id@@" + fk2 + ",ProductFamliy/Id"; 
-        fkInfo = "Store/Name@@ProductFamliy/name,ProductFamliy/Code";
+        fkColXPath = "<fkColXPath><item>" + fk1 + ",Store/Id</item><item>" + fk2 + ",ProductFamliy/Id</item></fkColXPath>"; 
+        fkInfo = "<fkInfo><item>Store/Name</item><item>ProductFamliy/name,ProductFamliy/Code</item></fkInfo>";
         DownloadUtil.assembleFkMap(colFkMap, fkMap, fkColXPath, fkInfo);
         
         assertEquals(2, colFkMap.size());
@@ -59,6 +59,13 @@ public class DownloadUtilTest extends TestCase {
         assertEquals(2, fkMap.get(fk2).size());
         assertEquals("ProductFamliy/name", fkMap.get(fk2).get(0));
         assertEquals("ProductFamliy/Code", fkMap.get(fk2).get(1));
+    }
+    
+    public void testConvertXml2Array() throws Exception {
+        String xml = "<header><item>Id</item><item>Name</item><item>Family</item><item>Price</item><item>Availability</item></header>";
+        String[] resultArray = DownloadUtil.convertXml2Array(xml, "header");
+        assertEquals(5,resultArray.length);
+        assertEquals("Family",resultArray[2]);
     }
     
     public void testIsJoinField(){

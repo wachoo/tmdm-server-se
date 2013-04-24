@@ -12,20 +12,15 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.provider;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.webapp.base.server.util.XmlUtil;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import com.amalto.commons.core.utils.XMLUtils;
-import com.amalto.webapp.core.util.Util;
+import org.talend.mdm.webapp.browserecords.server.util.DownloadUtil;
 
 /**
  * DOC talend2 class global comment. Detailled comment
@@ -67,16 +62,7 @@ public class DataProvider {
 
     public String[] getDataResult() throws Exception {
         if (!"".equals(sourceXmlString)) { //$NON-NLS-1$
-            List<String> resultList = new ArrayList<String>();
-            // This blank item for excel file header
-            resultList.add(""); //$NON-NLS-1$
-            org.w3c.dom.Document doc = Util.parse(sourceXmlString);
-            NodeList ls = Util.getNodeList(doc, "/results/result"); //$NON-NLS-1$
-            for (int i = 0; i < ls.getLength(); i++) {
-                Node node = ls.item(i);
-                resultList.add(XMLUtils.nodeToString(node));
-            }
-            return resultList.toArray(new String[resultList.size()]);
+            return DownloadUtil.convertXml2Array(StringEscapeUtils.unescapeXml(sourceXmlString), rootElementName);
         } else {
             Properties mdmConfig = MDMConfiguration.getConfiguration();
             Object value = mdmConfig.get("max.export.browserecord"); //$NON-NLS-1$

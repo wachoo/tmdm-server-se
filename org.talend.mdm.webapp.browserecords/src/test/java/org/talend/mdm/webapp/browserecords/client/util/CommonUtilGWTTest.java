@@ -1,5 +1,6 @@
 package org.talend.mdm.webapp.browserecords.client.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -220,7 +221,17 @@ public class CommonUtilGWTTest extends GWTTestCase {
         for (ModelData modelData : oemNodeModel.getChildren()) {
             ItemNodeModel itemNodeModel = (ItemNodeModel) modelData;
             assertTrue(itemNodeModel.getObjectValue() == null);
-        }
-        
+        }        
+    }
+
+    public void testConvertList2Xml() {
+        List<String> list = new ArrayList<String>();
+        list.add("Id"); //$NON-NLS-1$
+        list.add("Name"); //$NON-NLS-1$
+        list.add("Family"); //$NON-NLS-1$
+        list.add("Price"); //$NON-NLS-1$
+        list.add("Availability"); //$NON-NLS-1$
+        String xml = "<header><item>Id</item><item>Name</item><item>Family</item><item>Price</item><item>Availability</item></header>"; //$NON-NLS-1$        
+        assertEquals(xml,CommonUtil.convertList2Xml(list, "header")); //$NON-NLS-1$
     }
 }
