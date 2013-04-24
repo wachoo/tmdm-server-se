@@ -216,15 +216,7 @@ public class AccordionMenus extends ContentPanel {
                     protected void doOnFailure(final Throwable caught) {
                         if (menuBean.getContext().toLowerCase().equals("usermanager") &&  //$NON-NLS-1$
                                 caught != null && caught instanceof LicenseUserNumberValidationException) {
-                            service.isAdminLogin(new SessionAwareAsyncCallback<Boolean>() {
-                                public void onSuccess(Boolean result) {
-                                    if (result) {
-                                        clickMenu(menuBean, item);
-                                    } else {
-                                        super.doOnFailure(caught);
-                                    }
-                                } 
-                            });
+                            clickMenu(menuBean, item);
                         } else {
                             super.doOnFailure(caught);    
                         }

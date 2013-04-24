@@ -278,21 +278,4 @@ public class GeneralAction implements GeneralService {
         }
     }
 
-    public boolean isAdminLogin() throws ServiceException {
-        List<String> userRoles = new ArrayList<String>();
-        try {
-            String thisRolesTokens = Util.getLoginRoles();
-            if (thisRolesTokens != null && thisRolesTokens.length() > 0) {
-                userRoles = Arrays.asList(thisRolesTokens.split(",")); //$NON-NLS-1$
-            }
-            if (userRoles.contains("administration")) { //$NON-NLS-1$
-                return true;
-            }
-            return false;    
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getMessage());
-        }
-    }
-
 }

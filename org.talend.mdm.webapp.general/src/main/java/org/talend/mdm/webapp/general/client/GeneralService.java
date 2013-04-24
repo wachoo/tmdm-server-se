@@ -48,5 +48,4 @@ public interface GeneralService extends RemoteService {
 
     public boolean supportStaging(String dataCluster) throws ServiceException;
 
-    public boolean isAdminLogin() throws ServiceException;
 }

@@ -45,5 +45,4 @@ public interface GeneralServiceAsync {
 
     void supportStaging(String dataCluster, AsyncCallback<Boolean> callback);
 
-    void isAdminLogin(AsyncCallback<Boolean> callback);
 }
