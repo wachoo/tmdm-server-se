@@ -38,6 +38,7 @@ import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 
 /**
@@ -311,7 +312,8 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
             }
             // there is one case where everything is run now
             if (routingRule.isSynchronous()) {
-                if (RoutingEngineV2POJO.getInstance().getStatus() == RoutingEngineV2POJO.RUNNING) {
+                if (RoutingEngineV2POJO.getInstance().getStatus() == RoutingEngineV2POJO.RUNNING
+                        || Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("routing.engine.rules.runsynconpause", "true"))) { //$NON-NLS-1$ //$NON-NLS-2$
                     routingOrderCtrl.executeSynchronously(routingOrderPOJO);
                     continue;
                 }
