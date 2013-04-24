@@ -474,6 +474,10 @@
             <groupId>jboss</groupId>
             <artifactId>jboss-jmx</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

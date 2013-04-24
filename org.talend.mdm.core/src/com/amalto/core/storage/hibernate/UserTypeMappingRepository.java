@@ -20,12 +20,11 @@ import java.util.Collections;
 class UserTypeMappingRepository extends InternalRepository {
 
     public UserTypeMappingRepository() {
-        super(HibernateStorage.TypeMappingStrategy.AUTO);
+        super(TypeMappingStrategy.AUTO);
     }
 
     public MetadataRepository visit(ComplexTypeMetadata complexType) {
         TypeMapping typeMapping = complexType.accept(getTypeMappingCreator(complexType, strategy));
-
         // Add MDM specific record specific metadata
         ComplexTypeMetadata database = typeMapping.getDatabase();
         if (database.isInstantiable() && !database.isFrozen()) {
@@ -34,7 +33,6 @@ class UserTypeMappingRepository extends InternalRepository {
             database.addField(new SimpleTypeFieldMetadata(database, false, false, true, Storage.METADATA_TIMESTAMP, longType, Collections.<String>emptyList(), Collections.<String>emptyList()));
             database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_TASK_ID, stringType, Collections.<String>emptyList(), Collections.<String>emptyList()));
         }
-
         // Register mapping
         internalRepository.addTypeMetadata(typeMapping.getDatabase());
         mappings.addMapping(complexType, typeMapping);

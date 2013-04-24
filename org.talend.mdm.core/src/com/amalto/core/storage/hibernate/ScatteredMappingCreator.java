@@ -28,6 +28,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private final MappingRepository mappings;
 
+    private final boolean shouldCompressLongStrings;
+
     private final Stack<ComplexTypeMetadata> currentType = new Stack<ComplexTypeMetadata>();
 
     private final Stack<TypeMapping> currentMapping = new Stack<TypeMapping>();
@@ -36,9 +38,12 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private TypeMapping entityMapping;
 
-    public ScatteredMappingCreator(MetadataRepository repository, MappingRepository mappings) {
+    public ScatteredMappingCreator(MetadataRepository repository,
+                                   MappingRepository mappings,
+                                   boolean shouldCompressLongStrings) {
         internalRepository = repository;
         this.mappings = mappings;
+        this.shouldCompressLongStrings = shouldCompressLongStrings;
     }
 
     private TypeMapping handleField(FieldMetadata field) {
@@ -58,6 +63,13 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     declaringType.getName(),
                     true);
             newFlattenField.setDeclaringType(type);
+        }
+        String data = field.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
+        if (data != null && shouldCompressLongStrings) {
+            Integer maxLength = Integer.parseInt(data);
+            if (maxLength == Integer.MAX_VALUE) {
+                newFlattenField.setData(MetadataRepository.DATA_ZIPPED, Boolean.TRUE);
+            }
         }
         currentType.peek().addField(newFlattenField);
         entityMapping.map(field, newFlattenField);

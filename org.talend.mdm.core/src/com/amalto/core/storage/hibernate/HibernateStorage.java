@@ -418,7 +418,14 @@ public class HibernateStorage implements Storage {
         if (typeMappingRepository == null) {
             switch (storageType) {
                 case SYSTEM:
-                    typeMappingRepository = new SystemTypeMappingRepository();
+                    switch (dataSource.getDialectName()) {
+                        case ORACLE_10G: // Oracle needs to compress long string values
+                            typeMappingRepository = new SystemTypeMappingRepository(TypeMappingStrategy.SCATTERED_COMPRESSED);
+                            break;
+                        default:
+                            typeMappingRepository = new SystemTypeMappingRepository(TypeMappingStrategy.SCATTERED);
+                            break;
+                    }
                     break;
                 case MASTER:
                     typeMappingRepository = new UserTypeMappingRepository();
@@ -900,11 +907,4 @@ public class HibernateStorage implements Storage {
     public String toString() {
         return storageName + '(' + storageType + ')';
     }
-
-    public static enum TypeMappingStrategy {
-        FLAT,
-        SCATTERED,
-        AUTO
-    }
-
 }

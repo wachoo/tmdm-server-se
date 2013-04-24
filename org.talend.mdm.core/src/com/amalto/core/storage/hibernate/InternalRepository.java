@@ -22,13 +22,13 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
 
     private MetadataRepository userRepository;
 
-    final HibernateStorage.TypeMappingStrategy strategy;
+    final TypeMappingStrategy strategy;
 
     MappingRepository mappings;
 
     MetadataRepository internalRepository;
 
-    InternalRepository(HibernateStorage.TypeMappingStrategy strategy) {
+    InternalRepository(TypeMappingStrategy strategy) {
         this.strategy = strategy;
     }
 
@@ -56,7 +56,7 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
         return internalRepository;
     }
 
-    MetadataVisitor<TypeMapping> getTypeMappingCreator(TypeMetadata type, HibernateStorage.TypeMappingStrategy strategy) {
+    MetadataVisitor<TypeMapping> getTypeMappingCreator(TypeMetadata type, TypeMappingStrategy strategy) {
         if ("Update".equals(type.getName())) { //$NON-NLS-1$
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Mapping strategy: " + type.getName() + " -> fixed update report mapping.");
@@ -65,7 +65,7 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
         }
         switch (strategy) {
             case AUTO:
-                HibernateStorage.TypeMappingStrategy actualStrategy = type.accept(new MappingStrategySelector(20));
+                TypeMappingStrategy actualStrategy = type.accept(new MappingStrategySelector(20));
                 return getTypeMappingCreator(type, actualStrategy);
             case FLAT:
                 if (LOGGER.isDebugEnabled()) {
@@ -73,10 +73,15 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
                 }
                 return new TypeMappingCreator(internalRepository, mappings);
             case SCATTERED:
+            case SCATTERED_COMPRESSED:
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Mapping strategy: " + type.getName() + " -> SCATTERED");
+                    if (strategy.compressLongStrings()) {
+                        LOGGER.debug("Mapping strategy: " + type.getName() + " -> SCATTERED (COMPRESSED)");
+                    } else {
+                        LOGGER.debug("Mapping strategy: " + type.getName() + " -> SCATTERED");
+                    }
                 }
-                return new ScatteredMappingCreator(internalRepository, mappings);
+                return new ScatteredMappingCreator(internalRepository, mappings, strategy.compressLongStrings());
             default:
                 throw new IllegalArgumentException("Strategy '" + this.strategy + "' is not supported.");
         }
@@ -117,7 +122,7 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
         return internalRepository;
     }
 
-    private static class MappingStrategySelector extends DefaultMetadataVisitor<HibernateStorage.TypeMappingStrategy> {
+    private static class MappingStrategySelector extends DefaultMetadataVisitor<TypeMappingStrategy> {
 
         private final int fieldThreshold;
 
@@ -128,48 +133,48 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
         }
 
         @Override
-        public HibernateStorage.TypeMappingStrategy visit(ComplexTypeMetadata complexType) {
+        public TypeMappingStrategy visit(ComplexTypeMetadata complexType) {
             if (!complexType.getSubTypes().isEmpty()) {
-                return HibernateStorage.TypeMappingStrategy.SCATTERED;
+                return TypeMappingStrategy.SCATTERED;
             }
             if (!complexType.isInstantiable()) {
-                return HibernateStorage.TypeMappingStrategy.SCATTERED;
+                return TypeMappingStrategy.SCATTERED;
             }
             Collection<FieldMetadata> fields = complexType.getFields();
             for (FieldMetadata field : fields) {
-                HibernateStorage.TypeMappingStrategy result = field.accept(this);
-                if (fieldCount > fieldThreshold || result == HibernateStorage.TypeMappingStrategy.SCATTERED) {
-                    return HibernateStorage.TypeMappingStrategy.SCATTERED;
+                TypeMappingStrategy result = field.accept(this);
+                if (fieldCount > fieldThreshold || result == TypeMappingStrategy.SCATTERED) {
+                    return TypeMappingStrategy.SCATTERED;
                 }
             }
-            return HibernateStorage.TypeMappingStrategy.FLAT;
+            return TypeMappingStrategy.FLAT;
         }
 
         @Override
-        public HibernateStorage.TypeMappingStrategy visit(ContainedComplexTypeMetadata containedType) {
+        public TypeMappingStrategy visit(ContainedComplexTypeMetadata containedType) {
             fieldCount += containedType.getFields().size();
             Collection<FieldMetadata> fields = containedType.getFields();
             for (FieldMetadata field : fields) {
-                HibernateStorage.TypeMappingStrategy result = field.accept(this);
-                if (result == HibernateStorage.TypeMappingStrategy.SCATTERED) {
+                TypeMappingStrategy result = field.accept(this);
+                if (result == TypeMappingStrategy.SCATTERED) {
                     return result;
                 }
             }
-            return HibernateStorage.TypeMappingStrategy.FLAT;
+            return TypeMappingStrategy.FLAT;
         }
 
         @Override
-        public HibernateStorage.TypeMappingStrategy visit(ContainedTypeFieldMetadata containedField) {
+        public TypeMappingStrategy visit(ContainedTypeFieldMetadata containedField) {
             if (containedField.isMany() || !containedField.getContainedType().getSubTypes().isEmpty()) {
-                return HibernateStorage.TypeMappingStrategy.SCATTERED;
+                return TypeMappingStrategy.SCATTERED;
             }
             return super.visit(containedField);
         }
 
         @Override
-        public HibernateStorage.TypeMappingStrategy visit(SimpleTypeFieldMetadata simpleField) {
+        public TypeMappingStrategy visit(SimpleTypeFieldMetadata simpleField) {
             fieldCount++;
-            return HibernateStorage.TypeMappingStrategy.AUTO;
+            return TypeMappingStrategy.AUTO;
         }
     }
 }

@@ -43,6 +43,9 @@ import com.amalto.core.util.RoleWhereCondition;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
+import javax.ejb.CreateException;
+import javax.naming.NamingException;
+
 public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDelegatorService {
 
     private static final Logger LOGGER = Logger.getLogger(IItemCtrlDelegator.class);

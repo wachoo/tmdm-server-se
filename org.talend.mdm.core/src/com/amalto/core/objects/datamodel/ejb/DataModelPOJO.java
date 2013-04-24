@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.amalto.commons.core.datamodel.synchronization.DataModelChangeNotifier;
+import com.amalto.core.metadata.LongString;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -77,9 +78,9 @@ public class DataModelPOJO extends ObjectPOJO{
 	}
 	
 	/**
-	 * 
 	 * @return the xsd Schema
 	 */
+    @LongString
 	public String getSchema() {
 		return schema;		
 	}

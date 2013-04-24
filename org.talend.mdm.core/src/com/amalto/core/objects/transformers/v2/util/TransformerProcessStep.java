@@ -1,5 +1,7 @@
 package com.amalto.core.objects.transformers.v2.util;
 
+import com.amalto.core.metadata.LongString;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -83,7 +85,7 @@ public class TransformerProcessStep implements Serializable{
 		this.disabled = disabled;
 	}
 	
-
+    @LongString
 	public String getCompiledParameters() {
 		return compiledParameters;
 	}

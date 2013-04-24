@@ -15,12 +15,13 @@ import org.talend.mdm.commmon.metadata.*;
 
 class SystemTypeMappingRepository extends InternalRepository {
 
-    public SystemTypeMappingRepository() {
-        super(HibernateStorage.TypeMappingStrategy.SCATTERED);
+    public SystemTypeMappingRepository(TypeMappingStrategy strategy) {
+        super(strategy);
     }
 
     public MetadataRepository visit(ComplexTypeMetadata complexType) {
-        TypeMapping typeMapping = complexType.accept(getTypeMappingCreator(complexType, HibernateStorage.TypeMappingStrategy.SCATTERED));
+        MetadataVisitor<TypeMapping> creator = getTypeMappingCreator(complexType, strategy);
+        TypeMapping typeMapping = complexType.accept(creator);
         // Register mapping
         internalRepository.addTypeMetadata(typeMapping.getDatabase());
         mappings.addMapping(complexType, typeMapping);

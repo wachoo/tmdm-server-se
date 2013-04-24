@@ -12,12 +12,22 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.storage.record.DataRecord;
+import org.apache.commons.codec.binary.Base64InputStream;
+import org.apache.commons.codec.binary.Base64OutputStream;
 import org.hibernate.Session;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Represents type mapping between data model as specified by the user and data model as used by hibernate storage.
@@ -28,7 +38,7 @@ public abstract class TypeMapping {
 
     protected final ComplexTypeMetadata database;
 
-    final MappingRepository mappings;
+    protected final MappingRepository mappings;
 
     protected boolean isFrozen;
 
@@ -65,6 +75,59 @@ public abstract class TypeMapping {
         while (oldValues.size() > newValues.size()) {
             oldValues.remove(oldValues.size() - 1);
         }
+    }
+
+    protected static Object readValue(DataRecord from, FieldMetadata sourceField, FieldMetadata targetField) {
+        Object value = from.get(sourceField);
+        return _readValue(value, sourceField, targetField);
+    }
+
+    protected static Object readValue(Wrapper from, FieldMetadata sourceField, FieldMetadata targetField) {
+        Object value = from.get(sourceField.getName());
+        return _readValue(value, sourceField, targetField);
+    }
+
+    private static Object _readValue(Object value, FieldMetadata sourceField, FieldMetadata targetField) {
+        if (targetField == null) {
+            return value;
+        }
+        Boolean targetZipped = targetField.getData(MetadataRepository.DATA_ZIPPED);
+        Boolean sourceZipped = sourceField.getData(MetadataRepository.DATA_ZIPPED);
+        if (!targetField.isMany()) {
+            if (sourceZipped == null && Boolean.TRUE.equals(targetZipped)) {
+                try {
+                    ByteArrayOutputStream characters = new ByteArrayOutputStream();
+                    OutputStream bos = new Base64OutputStream(characters);
+                    ZipOutputStream zos = new ZipOutputStream(bos);
+                    ZipEntry zipEntry = new ZipEntry("content"); //$NON-NLS-1$
+                    zos.putNextEntry(zipEntry);
+                    zos.write(String.valueOf(value).getBytes("UTF-8")); //$NON-NLS-1$
+                    zos.closeEntry();
+                    zos.flush();
+                    zos.close();
+                    return new String(characters.toByteArray());
+                } catch (IOException e) {
+                    throw new RuntimeException("Unexpected compression exception", e);
+                }
+            } else if (Boolean.TRUE.equals(sourceZipped) && targetZipped == null) {
+                try {
+                    ByteArrayInputStream bis = new ByteArrayInputStream(String.valueOf(value).getBytes("UTF-8")); //$NON-NLS-1$
+                    ZipInputStream zis = new ZipInputStream(new Base64InputStream(bis));
+                    byte[] buffer = new byte[1024];
+                    int read;
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    while (zis.getNextEntry() != null) {
+                        while ((read = zis.read(buffer, 0, buffer.length)) > -1) {
+                            bos.write(buffer, 0, read);
+                        }
+                    }
+                    return new String(bos.toByteArray(), "UTF-8"); //$NON-NLS-1$
+                } catch (IOException e) {
+                    throw new RuntimeException("Unexpected deflate exception", e);
+                }
+            }
+        }
+        return value;
     }
 
     public ComplexTypeMetadata getDatabase() {

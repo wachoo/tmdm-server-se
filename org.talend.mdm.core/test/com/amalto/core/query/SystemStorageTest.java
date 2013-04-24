@@ -14,6 +14,7 @@ package com.amalto.core.query;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.initdb.InitDBUtil;
 import com.amalto.core.metadata.ClassRepository;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import com.amalto.core.objects.menu.ejb.MenuEntryPOJO;
@@ -274,9 +275,15 @@ public class SystemStorageTest extends TestCase {
                     if ("menu-pOJO".equals(presentType.getName())) {
                         writer.write(result, stringWriter);
                         MenuPOJO menuPOJO = ObjectPOJO.unmarshal(MenuPOJO.class, stringWriter.toString());
-                        for (Iterator iter = menuPOJO.getMenuEntries().iterator(); iter.hasNext(); ) {
-                            MenuEntryPOJO menuEntry = (MenuEntryPOJO) iter.next();
+                        assertNotNull(menuPOJO);
+                        for (MenuEntryPOJO menuEntry : menuPOJO.getMenuEntries()) {
+                            assertNotNull(menuEntry.getApplication());
                         }
+                    }
+                    if ("data-model-pOJO".equals(presentType.getName())) {
+                        writer.write(result, stringWriter);
+                        DataModelPOJO dataModelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, stringWriter.toString());
+                        assertNotNull(dataModelPOJO.getSchema());
                     }
                 }
             } finally {

@@ -14,13 +14,11 @@ package com.amalto.core.objects.customform.ejb;
 
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.metadata.LongString;
 
-/**
- * DOC achen  class global comment. Detailled comment
- */
 public class CustomFormPOJO extends ObjectPOJO {
 
-    private String datamodel;
+    private String dataModel;
 
     private String entity;
 
@@ -34,11 +32,10 @@ public class CustomFormPOJO extends ObjectPOJO {
         super();
     }
 
-    public CustomFormPOJO(String datamodel, String entity, String xml) {
-        this.datamodel = datamodel;
+    public CustomFormPOJO(String dataModel, String entity, String xml) {
+        this.dataModel = dataModel;
         this.entity = entity;
-        this.xml = xml.replaceFirst("<\\?xml.*\\?>", ""); //$NON-NLS-1$//$NON-NLS-2$
-
+        this.xml = xml.replaceFirst("<\\?xml.*\\?>", ""); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public String getRole() {
@@ -50,11 +47,11 @@ public class CustomFormPOJO extends ObjectPOJO {
     }
 
     public String getDatamodel() {
-        return datamodel;
+        return dataModel;
     }
 
     public void setDatamodel(String datamodel) {
-        this.datamodel = datamodel;
+        this.dataModel = datamodel;
     }
 
     public String getEntity() {
@@ -65,13 +62,13 @@ public class CustomFormPOJO extends ObjectPOJO {
         this.entity = entity;
     }
 
-
+    @LongString
     public String getXml() {
         return xml;
     }
 
     public void setXml(String xml) {
-        this.xml = xml.replaceFirst("<\\?xml.*\\?>", ""); //$NON-NLS-1$//$NON-NLS-2$
+        this.xml = xml.replaceFirst("<\\?xml.*\\?>", ""); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public String getName() {
@@ -82,13 +79,8 @@ public class CustomFormPOJO extends ObjectPOJO {
         this.name = name;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.amalto.core.ejb.ObjectPOJO#getPK()
-     */
     @Override
     public ObjectPOJOPK getPK() {
-        return new CustomFormPOJOPK(datamodel, entity, name);
+        return new CustomFormPOJOPK(dataModel, entity, name);
     }
 }

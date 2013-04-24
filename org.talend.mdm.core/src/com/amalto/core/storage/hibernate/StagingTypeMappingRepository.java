@@ -19,7 +19,7 @@ import java.util.Collections;
 
 class StagingTypeMappingRepository extends InternalRepository {
     public StagingTypeMappingRepository() {
-        super(HibernateStorage.TypeMappingStrategy.AUTO);
+        super(TypeMappingStrategy.AUTO);
     }
 
     public MetadataRepository visit(ComplexTypeMetadata complexType) {

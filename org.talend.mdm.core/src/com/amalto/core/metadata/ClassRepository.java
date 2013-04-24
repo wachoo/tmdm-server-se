@@ -60,8 +60,8 @@ public class ClassRepository extends MetadataRepository {
         SimpleTypeMetadata embeddedXml = new SimpleTypeMetadata(StringUtils.EMPTY, EMBEDDED_XML);
         embeddedXml.addSuperType(STRING, this);
         embeddedXml.setData(MetadataRepository.DATA_MAX_LENGTH, String.valueOf(Integer.MAX_VALUE));
-        internalMapType.addField(new SimpleTypeFieldMetadata(internalMapType, false, false, false, "key", STRING, Collections.<String>emptyList(), Collections.<String>emptyList()));
-        internalMapType.addField(new SimpleTypeFieldMetadata(internalMapType, false, false, false, "value", embeddedXml, Collections.<String>emptyList(), Collections.<String>emptyList()));
+        internalMapType.addField(new SimpleTypeFieldMetadata(internalMapType, false, false, false, "key", STRING, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
+        internalMapType.addField(new SimpleTypeFieldMetadata(internalMapType, false, false, false, "value", embeddedXml, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         MAP_TYPE = (ComplexTypeMetadata) internalMapType.freeze(new DefaultValidationHandler());
         addTypeMetadata(MAP_TYPE);
         // Register known subclasses
@@ -107,7 +107,7 @@ public class ClassRepository extends MetadataRepository {
         ComplexTypeMetadata classType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, typeName, isEntity);
         addTypeMetadata(classType);
         typeStack.push(classType);
-        String keyFieldName = "";
+        String keyFieldName = ""; //$NON-NLS-1$
         if (isEntity && ObjectPOJO.class.isAssignableFrom(clazz)) {
             SimpleTypeFieldMetadata keyField = new SimpleTypeFieldMetadata(typeStack.peek(),
                     true,
@@ -120,7 +120,7 @@ public class ClassRepository extends MetadataRepository {
             keyField.setData(LINK, "PK/unique-id"); //$NON-NLS-1$
             classType.addField(keyField);
         } else if (isEntity) {
-            keyFieldName = "unique-id";
+            keyFieldName = "unique-id"; //$NON-NLS-1$
         }
         // Class is abstract / interface: load sub classes
         if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
@@ -167,6 +167,8 @@ public class ClassRepository extends MetadataRepository {
                         continue;
                     } else if (Class.class.equals(returnType)) {
                         continue;
+                    } else if (returnType.getPackage() != null && returnType.getPackage().getName().startsWith("java.io")) {
+                        continue;
                     }
                     if (returnType.isPrimitive() || returnType.getName().startsWith(JAVA_LANG_PREFIX)) {
                         String fieldTypeName = returnType.getName().toLowerCase();
@@ -187,7 +189,7 @@ public class ClassRepository extends MetadataRepository {
                                 fieldType,
                                 Collections.<String>emptyList(),
                                 Collections.<String>emptyList());
-                        if ("string".equals(fieldTypeName)) {
+                        if ("string".equals(fieldTypeName) && declaredMethod.getAnnotation(LongString.class) != null) {
                             fieldType.setData(MetadataRepository.DATA_MAX_LENGTH, String.valueOf(Integer.MAX_VALUE));
                         }
                     } else {

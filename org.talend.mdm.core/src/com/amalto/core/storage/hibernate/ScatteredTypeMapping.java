@@ -11,19 +11,19 @@
 
 package com.amalto.core.storage.hibernate;
 
-import org.hibernate.collection.PersistentList;
-import org.hibernate.engine.CollectionEntry;
-import org.hibernate.engine.SessionImplementor;
-import org.hibernate.persister.collection.CollectionPersister;
-import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.Session;
+import org.hibernate.collection.PersistentList;
+import org.hibernate.engine.CollectionEntry;
+import org.hibernate.engine.SessionImplementor;
+import org.hibernate.persister.collection.CollectionPersister;
+import org.talend.mdm.commmon.metadata.*;
 
-import java.io.Serializable;
+import java.io.*;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
@@ -69,7 +69,7 @@ class ScatteredTypeMapping extends TypeMapping {
                 }
                 ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) mappedDatabaseField;
                 if (!field.isMany()) {
-                    DataRecord containedRecord = (DataRecord) from.get(field);
+                    DataRecord containedRecord = (DataRecord) readValue(from, field, mappedDatabaseField);
                     if (containedRecord != null) {
                         TypeMapping mappingFromUser = mappings.getMappingFromUser(containedRecord.getType());
                         ComplexTypeMetadata referencedType = mappingFromUser != null ? mappingFromUser.getDatabase() : containedRecord.getType();
@@ -88,7 +88,7 @@ class ScatteredTypeMapping extends TypeMapping {
                         to.set(referenceFieldMetadata.getName(), null);
                     }
                 } else {
-                    List<DataRecord> dataRecords = (List<DataRecord>) from.get(field);
+                    List<DataRecord> dataRecords = (List<DataRecord>) readValue(from, field, mappedDatabaseField);
                     Object value;
                     if (mapping != null) {
                         value = to.get(mapping.getDatabase(field).getName());
@@ -122,25 +122,25 @@ class ScatteredTypeMapping extends TypeMapping {
                 }
             } else if (field instanceof ReferenceFieldMetadata) {
                 if (!field.isMany()) {
-                    DataRecord referencedObject = (DataRecord) from.get(field);
+                    DataRecord referencedObject = (DataRecord) readValue(from, field, mappedDatabaseField);
                     if (referencedObject != null) {
                         Collection<FieldMetadata> keyFields = referencedObject.getType().getKeyFields();
                         Object referenceId;
                         if (keyFields.size() > 1) {
                             List<Object> referenceIdList = new LinkedList<Object>();
                             for (FieldMetadata keyField : keyFields) {
-                                referenceIdList.add(referencedObject.get(keyField));
+                                referenceIdList.add(readValue(referencedObject, keyField, mappedDatabaseField));
                             }
                             referenceId = referenceIdList;
                         } else {
-                            referenceId = referencedObject.get(keyFields.iterator().next());
+                            referenceId = readValue(referencedObject, keyFields.iterator().next(), mappedDatabaseField);
                         }
                         to.set(mappedDatabaseField.getName(), getReferencedObject(contextClassLoader, session, mappings.getMappingFromUser(referencedObject.getType()).getDatabase(), referenceId));
                     } else {
                         to.set(mappedDatabaseField.getName(), null);
                     }
                 } else {
-                    List<DataRecord> referencedObjectList = (List<DataRecord>) from.get(field);
+                    List<DataRecord> referencedObjectList = (List<DataRecord>) readValue(from, field, mappedDatabaseField);
                     if (referencedObjectList != null) {
                         List<Object> wrappers = new LinkedList<Object>();
                         for (DataRecord dataRecord : referencedObjectList) {
@@ -149,11 +149,11 @@ class ScatteredTypeMapping extends TypeMapping {
                             if (keyFields.size() > 1) {
                                 List<Object> referenceIdList = new LinkedList<Object>();
                                 for (FieldMetadata keyField : keyFields) {
-                                    referenceIdList.add(dataRecord.get(keyField));
+                                    referenceIdList.add(readValue(dataRecord, keyField, mappedDatabaseField));
                                 }
                                 referenceId = referenceIdList;
                             } else {
-                                referenceId = dataRecord.get(keyFields.iterator().next());
+                                referenceId = readValue(dataRecord, keyFields.iterator().next(), mappedDatabaseField);
                             }
                             wrappers.add(getReferencedObject(contextClassLoader, session, dataRecord.getType(), referenceId));
                         }
@@ -168,14 +168,14 @@ class ScatteredTypeMapping extends TypeMapping {
             } else {
                 if (mappedDatabaseField.isMany()) {
                     List<Object> oldValues = (List<Object>) to.get(mappedDatabaseField.getName());
-                    List<Object> newValues = (List<Object>) from.get(field);
+                    List<Object> newValues = (List<Object>) readValue(from, field, mappedDatabaseField);
                     if (oldValues != null) {
                         resetList(oldValues, newValues);
                     } else {
                         to.set(mappedDatabaseField.getName(), newValues);
                     }
                 } else {
-                    to.set(mappedDatabaseField.getName(), from.get(field));
+                    to.set(mappedDatabaseField.getName(), readValue(from, field, mappedDatabaseField));
                 }
             }
         }
@@ -188,7 +188,7 @@ class ScatteredTypeMapping extends TypeMapping {
         for (FieldMetadata field : typeFromClass.getFields()) {
             FieldMetadata userField = getUser(field);
             String fieldName = field.getName();
-            Object value = from.get(fieldName);
+            Object value = readValue(from, field, userField);
             if (userField != null) {
                 if (userField instanceof ContainedTypeFieldMetadata) {
                     if (!userField.isMany()) {
@@ -423,23 +423,15 @@ class ScatteredTypeMapping extends TypeMapping {
 
     /**
      * "Freeze" both database and internal types.
+     *
      * @see TypeMetadata#freeze(ValidationHandler)
      */
     public void freeze() {
         if (!isFrozen) {
             ValidationHandler handler = new DefaultValidationHandler();
             // Ensure mapped type are frozen.
-            try {
-                database.freeze(handler);
-            } catch (Exception e) {
-                throw new RuntimeException("Could not process internal type '" + database.getName() + "'.", e);
-            }
-            try {
-                user.freeze(handler);
-            } catch (Exception e) {
-                throw new RuntimeException("Could not process user type '" + user.getName() + "'.", e);
-            }
-
+            database.freeze(handler);
+            user.freeze(handler);
             // Freeze field mappings.
             Map<String, FieldMetadata> frozen = new HashMap<String, FieldMetadata>();
             for (Map.Entry<String, FieldMetadata> entry : userToDatabase.entrySet()) {
