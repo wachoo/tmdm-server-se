@@ -26,7 +26,6 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
-import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -38,6 +37,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -52,8 +52,6 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
  * DOC Administrator class global comment. Detailled comment
  */
 public class DownloadFilePanel extends FormPanel {
-
-    private final String SPLIT_CHARACTER = "@@"; //$NON-NLS-1$
 
     private TextField<String> fileName;
 
@@ -133,8 +131,13 @@ public class DownloadFilePanel extends FormPanel {
                 if (!DownloadFilePanel.this.isValid()) {
                     return;
                 }
-                Map<String, String> param = buildExportParameter();
-                PostDataUtil.postData("/browserecords/download", param); //$NON-NLS-1$
+                try {
+                    Map<String, String> param = buildExportParameter();
+                    PostDataUtil.postData("/browserecords/download", param); //$NON-NLS-1$ 
+                } catch (Exception e) {
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().export_error(),
+                            null);
+                }
                 DownloadFilePanel.this.window.hide();
             }
         });
@@ -192,12 +195,16 @@ public class DownloadFilePanel extends FormPanel {
         param.put("fkResovled", fkResovled.getValue().toString()); //$NON-NLS-1$
         param.put("fkDisplay", fkDisplayCombo.getValue().get("key").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         param.put("tableName", viewBean.getViewPK()); //$NON-NLS-1$
-        param.put("header", LabelUtil.convertList2String(headerList, SPLIT_CHARACTER)); //$NON-NLS-1$ 
-        param.put("xpath", LabelUtil.convertList2String(xPathList, SPLIT_CHARACTER)); //$NON-NLS-1$ 
-        param.put("fkColXPath", LabelUtil.convertList2String(fkColXPathList, SPLIT_CHARACTER)); //$NON-NLS-1$ 
-        param.put("fkInfo", LabelUtil.convertList2String(fkInfoList, SPLIT_CHARACTER)); //$NON-NLS-1$ 
-        param.put("itemXmlString", selectItemXmlList.size() > 0 ? "<results>" + LabelUtil.convertList2String(selectItemXmlList, "") + "</results>" : ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-
+        param.put("header", CommonUtil.convertList2Xml(headerList, "header")); //$NON-NLS-1$ //$NON-NLS-2$ 
+        param.put("xpath", CommonUtil.convertList2Xml(xPathList, "xpath")); //$NON-NLS-1$ //$NON-NLS-2$ 
+        param.put("fkColXPath", CommonUtil.convertList2Xml(fkColXPathList, "fkColXPath")); //$NON-NLS-1$ //$NON-NLS-2$ 
+        param.put("fkInfo", CommonUtil.convertList2Xml(fkInfoList, "fkInfo")); //$NON-NLS-1$ //$NON-NLS-2$ 
+        if (selectItemXmlList.size() > 0) {
+            selectItemXmlList.add(0, ""); //$NON-NLS-1$ 
+            param.put("itemXmlString", CommonUtil.convertList2Xml(selectItemXmlList, "result")); //$NON-NLS-1$//$NON-NLS-2$ 
+        } else {
+            param.put("itemXmlString", ""); //$NON-NLS-1$//$NON-NLS-2$ 
+        }
         param.put("dataCluster", queryModel.getDataClusterPK()); //$NON-NLS-1$
         param.put("viewPk", queryModel.getView().getViewPK()); //$NON-NLS-1$
         param.put("criteria", queryModel.getCriteria()); //$NON-NLS-1$

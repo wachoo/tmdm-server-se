@@ -12,17 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.provider;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import com.amalto.commons.core.utils.XMLUtils;
-import com.amalto.webapp.core.util.Util;
+import org.talend.mdm.webapp.browserecords.server.util.DownloadUtil;
 
 /**
  * DOC talend2 class global comment. Detailled comment
@@ -45,6 +39,8 @@ public class DataProvider {
 
     private String sourceXmlString;
 
+    private String rootElementName = "result"; //$NON-NLS-1$
+
     public DataProvider(String dataCluster, String viewPk, String criteria, Integer skip, String sortDir, String sortField,
             String language, String sourceXmlString) {
         this.dataCluster = dataCluster;
@@ -59,16 +55,7 @@ public class DataProvider {
 
     public String[] getDataResult() throws Exception {
         if (!"".equals(sourceXmlString)) { //$NON-NLS-1$
-            List<String> resultList = new ArrayList<String>();
-            // This blank reacord for excel file header
-            resultList.add(""); //$NON-NLS-1$
-            Document doc = Util.parse(sourceXmlString);
-            NodeList ls = Util.getNodeList(doc, "/results/result"); //$NON-NLS-1$
-            for (int i = 0; i < ls.getLength(); i++) {
-                Node node = ls.item(i);
-                resultList.add(XMLUtils.nodeToString(node));
-            }
-            return resultList.toArray(new String[resultList.size()]);
+            return DownloadUtil.convertXml2Array(StringEscapeUtils.unescapeXml(sourceXmlString), rootElementName);
         } else {
             Properties mdmConfig = MDMConfiguration.getConfiguration();
             Object value = mdmConfig.get("max.export.browserecord"); //$NON-NLS-1$

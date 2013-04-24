@@ -24,7 +24,7 @@ public interface BrowseRecordsMessages extends Messages {
     String error_title();
 
     String confirm_title();
-    
+
     String confirm_delete_img();
 
     String warning_title();
@@ -222,13 +222,13 @@ public interface BrowseRecordsMessages extends Messages {
     String multiOccurrence_maximize(int value);
 
     String multiOccurrence_minimize_title(int minOccurs, String nodeName);
-    
+
     String clone_title();
 
     String deepclone_title();
 
     String remove_title();
-    
+
     String reset_value_title();
 
     String picture_field_title();
@@ -260,7 +260,7 @@ public interface BrowseRecordsMessages extends Messages {
     String save_close_tip();
 
     String upload_title();
-    
+
     String export_title();
 
     String label_combo_filetype_select();
@@ -382,36 +382,38 @@ public interface BrowseRecordsMessages extends Messages {
     String hierarchy_title();
 
     String search_result();
-    
+
     String search_field_error_title();
-    
+
     String search_field_error_info(String value);
-    
+
     String msg_confirm_close_tab(String entityName);
-    
+
     String fkinfo_display_label();
-    
+
     String fkinfo_display_type_label();
-    
-    String error_column_header(String columnName,String concept);
+
+    String error_column_header(String columnName, String concept);
 
     String entity_no_access();
-    
+
     String rendering_title();
-    
+
     String render_message();
-    
+
     String rendering_progress();
-      
+
     String load_title();
-    
+
     String load_message();
-    
+
     String load_progress();
-    
+
     String invalid_data(String name);
 
     String of_word();
 
     String display_items();
+
+    String export_error();
 }

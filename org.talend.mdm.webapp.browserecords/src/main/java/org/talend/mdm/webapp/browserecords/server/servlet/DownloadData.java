@@ -48,10 +48,6 @@ public class DownloadData extends HttpServlet {
         String fileName = new String(request.getParameter("fileName").getBytes("iso-8859-1"), "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$                
         String header = new String(request.getParameter("header").getBytes("iso-8859-1"), "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$        
         String xpath = request.getParameter("xpath"); //$NON-NLS-1$
-
-        String[] fieldNames = header.split(DownloadUtil.SPLIT_CHARACTER);
-        String[] xpathArr = xpath.split(DownloadUtil.SPLIT_CHARACTER);
-
         String concept = ViewHelper.getConceptFromDefaultViewName(tableName);
 
         response.reset();
@@ -67,15 +63,15 @@ public class DownloadData extends HttpServlet {
         f.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
         cs.setFont(f);
         HSSFRow row = sheet.createRow((short) 0);
-        for (int i = 0; i < fieldNames.length; i++) {
-            row.createCell((short) i).setCellValue(fieldNames[i]);
-        }
-
-        for (int i = 0; i < fieldNames.length; i++) {
-            row.getCell((short) i).setCellStyle(cs);
-        }
-
         try {
+            String[] fieldNames = DownloadUtil.convertXml2Array(header, "header"); //$NON-NLS-1$ 
+            String[] xpathArr = DownloadUtil.convertXml2Array(xpath, "xpath"); //$NON-NLS-1$ 
+            for (int i = 0; i < fieldNames.length; i++) {
+                row.createCell((short) i).setCellValue(fieldNames[i]);
+            }
+            for (int i = 0; i < fieldNames.length; i++) {
+                row.getCell((short) i).setCellStyle(cs);
+            }
             this.getTableContent(xpathArr, concept, sheet, request);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

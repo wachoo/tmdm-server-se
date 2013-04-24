@@ -34,7 +34,7 @@ public class CommonUtil {
     public static String getElementFromXpath(String xpath) {
         String[] arr = xpath.split("/");//$NON-NLS-1$
         for (int i = arr.length - 1; i > -1; i--) {
-            if (arr[i] != "") {
+            if (arr[i] != "") { //$NON-NLS-1$
                 return arr[i];
             }
         }
@@ -356,25 +356,25 @@ public class CommonUtil {
         }
     }
 
-    public static String typePathToXpath(String typePath){
+    public static String typePathToXpath(String typePath) {
         String[] paths = typePath.split("/"); //$NON-NLS-1$
         StringBuffer result = new StringBuffer();
         boolean isFirst = true;
-        for (String path : paths){
+        for (String path : paths) {
             String[] part = path.split(":"); //$NON-NLS-1$
             String xpart;
-            if (part.length == 1){
+            if (part.length == 1) {
                 xpart = part[0];
             } else {
                 xpart = part[0] + "[@xsi:type='" + part[1] + "']"; //$NON-NLS-1$ //$NON-NLS-2$
             }
-            if (isFirst){
+            if (isFirst) {
                 result.append(xpart);
                 isFirst = false;
             } else {
                 result.append("/" + xpart); //$NON-NLS-1$
             }
-            
+
         }
         return result.toString();
     }
@@ -382,12 +382,25 @@ public class CommonUtil {
     public static String getDownloadFileHeadName(TypeModel typeModel) {
         return typeModel.getName();
     }
-    
+
     public static void setCurrentCachedEntity(String key, ItemPanel itemPanel) {
-        HashMap<String, ItemPanel> map = (HashMap<String, ItemPanel>) BrowseRecords.getSession().getCurrentCachedEntity();
-        if (map == null)
+        HashMap<String, ItemPanel> map = BrowseRecords.getSession().getCurrentCachedEntity();
+        if (map == null) {
             map = new HashMap<String, ItemPanel>();
+        }
         map.put(key, itemPanel);
         BrowseRecords.getSession().put(UserSession.CURRENT_CACHED_ENTITY, map);
+    }
+
+    public static String convertList2Xml(List<String> list, String rootName) {
+        Document doc = XMLParser.createDocument();
+        Element rootElement = doc.createElement(rootName);
+        doc.appendChild(rootElement);
+        for (int i = 0; i < list.size(); i++) {
+            Element item = doc.createElement("item"); //$NON-NLS-1$  
+            item.appendChild(doc.createTextNode(list.get(i)));
+            rootElement.appendChild(item);
+        }
+        return doc.toString();
     }
 }
