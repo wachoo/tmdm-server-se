@@ -13,6 +13,7 @@
 
 package com.amalto.core.server;
 
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -32,6 +33,7 @@ import java.util.*;
 
 class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
 
+    public static final Logger LOGGER = Logger.getLogger(MetadataRepositoryAdminImpl.class);
     private final Map<String, MetadataRepository> metadataRepository = new HashMap<String, MetadataRepository>();
 
     private final DataModel dataModelControl;
@@ -67,16 +69,22 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
                 MetadataRepository repository = get(dataModelName);
                 ViewCtrlLocal viewCtrlLocal = Util.getViewCtrlLocal();
                 Set<FieldMetadata> indexedFields = new HashSet<FieldMetadata>();
-                for (ComplexTypeMetadata userType : repository.getUserComplexTypes()) {
-                    ViewPOJOPK pk = new ViewPOJOPK("Browse_items_" + userType.getName()); //$NON-NLS-1$
-                    ViewPOJO view = viewCtrlLocal.existsView(pk);
-                    if (view != null) {
-                        ArrayList<String> searchableElements = view.getSearchableBusinessElements().getList();
-                        for (String searchableElement : searchableElements) {
+                for (Object viewAsObject : viewCtrlLocal.getAllViews(".*")) { //$NON-NLS-1$
+                    ViewPOJO view = (ViewPOJO) viewAsObject;
+                    ArrayList<String> searchableElements = view.getSearchableBusinessElements().getList();
+                    for (String searchableElement : searchableElements) {
+                        String typeName = StringUtils.substringBefore(searchableElement, "/"); //$NON-NLS-1$
+                        ComplexTypeMetadata userType = repository.getComplexType(typeName);
+                        if (userType != null) {
                             String fieldName = StringUtils.substringAfter(searchableElement, "/"); //$NON-NLS-1$
                             if (userType.hasField(fieldName)) {
                                 indexedFields.add(userType.getField(fieldName));
                             }
+                        } else {
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("View '" + view.getPK().getUniqueId() + "' does not apply to data model '" + dataModelName + "'.");
+                            }
+                            break; // View does not apply to model
                         }
                     }
                 }
