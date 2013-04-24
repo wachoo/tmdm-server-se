@@ -24,6 +24,9 @@ import org.talend.mdm.webapp.browserecords.shared.ReusableType;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.XMLParser;
 
 public class CommonUtil {
 
@@ -530,5 +533,17 @@ public class CommonUtil {
             return targetEntity + xpath.substring(xpath.indexOf("/"));//$NON-NLS-1$
         }
         return targetEntity;
+    }
+    
+    public static String convertList2Xml(List<String> list,String rootName) { 
+        Document doc = XMLParser.createDocument();
+        Element rootElement = doc.createElement(rootName);
+        doc.appendChild(rootElement);
+        for (int i=0;i<list.size();i++) {
+            Element item = doc.createElement("item"); //$NON-NLS-1$  
+            item.appendChild(doc.createTextNode(list.get(i)));
+            rootElement.appendChild(item);
+        }        
+        return doc.toString();
     }
 }
