@@ -73,20 +73,26 @@ public class Utils {
         for (Iterator<String> iter = menu.getSubMenus().keySet().iterator(); iter.hasNext();) {
             String key = iter.next();
             Menu subMenu = menu.getSubMenus().get(key);
-            if (gxtFactory.isExcluded(subMenu.getContext(), subMenu.getApplication())) {
+            String context = subMenu.getContext();
+            String application = subMenu.getApplication();
+            if ("updatereport".equals(context) && "UpdateReport".equals(application)){  //$NON-NLS-1$//$NON-NLS-2$
+                context = "journal"; //$NON-NLS-1$
+                application = "Journal"; //$NON-NLS-1$
+            }
+            if (gxtFactory.isExcluded(context, application)) {
                 continue;
             }
             MenuBean item = new MenuBean();
             item.setId(i);
             item.setLevel(level);
-            item.setContext(subMenu.getContext());
+            item.setContext(context);
             item.setIcon(subMenu.getIcon());
             String name = subMenu.getLabels().get(language);
             if (name == null) {
                 name = subMenu.getLabels().get(DEFAULT_LANG); // fallback to default
             }
             item.setName(name);
-            item.setApplication(subMenu.getApplication() == null ? "" : subMenu.getApplication()); //$NON-NLS-1$
+            item.setApplication(application == null ? "" : application); //$NON-NLS-1$
             disabledMenuItemIf(subMenu, item, language);
             rows.add(item);
             i++;
@@ -165,37 +171,43 @@ public class Utils {
             Menu subMenu = menu.getSubMenus().get(key);
 
             if (subMenu.getContext() != null) {
-                if (gxtFactory.isExcluded(subMenu.getContext(), subMenu.getApplication())) {
+                String context = subMenu.getContext();
+                String application = subMenu.getApplication();
+                if ("updatereport".equals(context) && "UpdateReport".equals(application)){  //$NON-NLS-1$//$NON-NLS-2$
+                    context = "journal"; //$NON-NLS-1$
+                    application = "Journal"; //$NON-NLS-1$
+                }
+                if (gxtFactory.isExcluded(context, application)) {
                     continue;
                 }
-                String gxtEntryModule = gxtFactory.getGxtEntryModule(subMenu.getContext(), subMenu.getApplication());
+                String gxtEntryModule = gxtFactory.getGxtEntryModule(context, application);
 
-                if (gxtEntryModule == null || subMenu.getContext().equals("itemsbrowser2")) { //$NON-NLS-1$
-                    String tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/dwr/interface/" //$NON-NLS-1$ //$NON-NLS-2$
-                            + subMenu.getApplication() + "Interface.js\"></script>\n"; //$NON-NLS-1$
+                if (gxtEntryModule == null || context.equals("itemsbrowser2")) { //$NON-NLS-1$
+                    String tmp = "<script type=\"text/javascript\" src=\"/" + context + "/secure/dwr/interface/" //$NON-NLS-1$ //$NON-NLS-2$
+                            + application + "Interface.js\"></script>\n"; //$NON-NLS-1$
                     if (!imports.contains(tmp))
                         imports.add(tmp);
-                    tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/js/" //$NON-NLS-1$ //$NON-NLS-2$
-                            + subMenu.getApplication() + ".js\"></script>\n"; //$NON-NLS-1$
+                    tmp = "<script type=\"text/javascript\" src=\"/" + context + "/secure/js/" //$NON-NLS-1$ //$NON-NLS-2$
+                            + application + ".js\"></script>\n"; //$NON-NLS-1$
                     if (!imports.contains(tmp))
                         imports.add(tmp);
-                    if (subMenu.getContext().equals("itemsbrowser2")) { //$NON-NLS-1$
-                        tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/" + gxtEntryModule + "/" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    if (context.equals("itemsbrowser2")) { //$NON-NLS-1$
+                        tmp = "<script type=\"text/javascript\" src=\"/" + context + "/" + gxtEntryModule + "/" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                                 + gxtEntryModule + ".nocache.js\"></script>\n"; //$NON-NLS-1$
                         imports.add(tmp);
                     }
                 } else {
-                    String tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/" + gxtEntryModule + "/" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    String tmp = "<script type=\"text/javascript\" src=\"/" + context + "/" + gxtEntryModule + "/" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                             + gxtEntryModule + ".nocache.js\"></script>\n"; //$NON-NLS-1$
-                    if ("browserecords".equals(subMenu.getContext()) && "browserecords".equals(gxtEntryModule)) { //$NON-NLS-1$ //$NON-NLS-2$
-                        imports.add("<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/dwr/interface/ItemsBrowserInterface.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
-                        imports.add("<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/js/ImprovedDWRProxy.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
-                        imports.add("<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/js/SearchEntityPanel.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
+                    if ("browserecords".equals(context) && "browserecords".equals(gxtEntryModule)) { //$NON-NLS-1$ //$NON-NLS-2$
+                        imports.add("<script type=\"text/javascript\" src=\"/" + context + "/secure/dwr/interface/ItemsBrowserInterface.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
+                        imports.add("<script type=\"text/javascript\" src=\"/" + context + "/secure/js/ImprovedDWRProxy.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
+                        imports.add("<script type=\"text/javascript\" src=\"/" + context + "/secure/js/SearchEntityPanel.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
                     }
                     if (!imports.contains(tmp))
                         imports.add(tmp);
                 }
-                if (subMenu.getContext().equals("stagingarea")) { //$NON-NLS-1$
+                if (context.equals("stagingarea")) { //$NON-NLS-1$
                     String tmp = "<script type=\"text/javascript\" src=\"/stagingarea/stagingareabrowse/stagingareabrowse.nocache.js\"></script>"; //$NON-NLS-1$
                     imports.add(tmp);
                 }
