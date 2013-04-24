@@ -72,36 +72,26 @@ public class RangeOptimizer extends Optimizer {
 
         @Override
         public Condition visit(BinaryLogicOperator condition) {
+            // TODO OR is a (not(range())) is start and end does not intersect
+            condition.setLeft(condition.getLeft().accept(this));
+            condition.setRight(condition.getRight().accept(this));
             if (condition.getPredicate() == Predicate.AND) {
-                return processCondition(condition);
-            } else if (condition.getPredicate() == Predicate.OR) {
-                // TODO OR is a (not(range())) is start and end does not intersect
-                condition.setLeft(condition.getLeft().accept(this));
-                condition.setRight(condition.getRight().accept(this));
-            } else {
-                condition.setLeft(condition.getLeft().accept(this));
-                condition.setRight(condition.getRight().accept(this));
-            }
-
-            return condition;
-        }
-
-        private Condition processCondition(BinaryLogicOperator condition) {
-            condition.getLeft().accept(this);
-            condition.getRight().accept(this);
-
-            if (isRange) {
-                isRange = false;
-                return new Range(rangeExpression, rangeStart, rangeEnd);
-            }
-
-            // TODO This is a bit ugly but works
-            // Try the other way in case lower than is declared before greater than
-            condition.getRight().accept(this);
-            condition.getLeft().accept(this);
-            if (isRange) {
-                isRange = false;
-                return new Range(rangeExpression, rangeStart, rangeEnd);
+                condition.getLeft().accept(this);
+                condition.getRight().accept(this);
+                if (isRange) {
+                    isRange = false;
+                    return new Range(rangeExpression, rangeStart, rangeEnd);
+                } else {
+                    // TODO This is a bit ugly but works
+                    // Try the other way in case lower than is declared before greater than
+                    condition.getRight().accept(this);
+                    condition.getLeft().accept(this);
+                    if (isRange) {
+                        isRange = false;
+                        return new Range(rangeExpression, rangeStart, rangeEnd);
+                    }
+                }
+                return condition;
             }
             return condition;
         }
@@ -117,7 +107,6 @@ public class RangeOptimizer extends Optimizer {
                 isRange = rangeExpression != null && rangeExpression.equals(condition.getLeft());
                 rangeEnd = condition.getRight();
             }
-
             return condition;
         }
 

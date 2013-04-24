@@ -1326,6 +1326,28 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testRangeOnTimestampWithCondition() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(person).where(or(
+                and(gte(timestamp(), "0"), lte(timestamp(), String.valueOf(System.currentTimeMillis()))),
+                eq(person.getField("id"), "1")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = UserQueryBuilder.from(person).where(and(
+                and(gte(timestamp(), "0"), lte(timestamp(), String.valueOf(System.currentTimeMillis()))),
+                eq(person.getField("id"), "1")));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
     public void testCollectionClean() throws Exception {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         DataRecord productInstance = factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
