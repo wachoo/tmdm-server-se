@@ -313,7 +313,7 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
             // there is one case where everything is run now
             if (routingRule.isSynchronous()) {
                 if (RoutingEngineV2POJO.getInstance().getStatus() == RoutingEngineV2POJO.RUNNING
-                        || Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("routing.engine.rules.runsynconpause", "true"))) { //$NON-NLS-1$ //$NON-NLS-2$
+                        || Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("routing.engine.rules.runsynconpause", "false"))) { //$NON-NLS-1$ //$NON-NLS-2$
                     routingOrderCtrl.executeSynchronously(routingOrderPOJO);
                     continue;
                 }
