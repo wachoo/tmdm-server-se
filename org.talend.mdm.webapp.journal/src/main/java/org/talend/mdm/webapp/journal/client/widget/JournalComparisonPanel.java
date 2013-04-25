@@ -41,7 +41,6 @@ import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel.Joint;
@@ -79,12 +78,35 @@ public class JournalComparisonPanel extends ContentPanel {
 
     private Button nextChangeButton;
 
+    private Button restoreButton;
+
     public JournalComparisonPanel(String title, final JournalParameters parameter, final JournalGridModel journalGridModel,
             final boolean isBeforePanel) {
         this.setFrame(false);
         this.setHeading(title);
         this.setLayout(new FitLayout());
         this.setBodyBorder(false);
+
+        toolbar = new ToolBar();
+        restoreButton = new Button(MessagesFactory.getMessages().restore_button());
+        restoreButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));
+        restoreButton.setEnabled(false);
+        toolbar.add(restoreButton);
+
+        previousChangeButton = new Button(MessagesFactory.getMessages().previous_change_button());
+        previousChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.up()));
+        previousChangeButton.setEnabled(false);
+
+        nextChangeButton = new Button(MessagesFactory.getMessages().next_change_button());
+        nextChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.down()));
+        nextChangeButton.setIconAlign(IconAlign.RIGHT);
+        nextChangeButton.setEnabled(false);
+        
+        if (isBeforePanel) {
+            toolbar.add(previousChangeButton);
+            toolbar.add(nextChangeButton);
+        }
+        
 
         service.getComparisionTree(parameter, UrlUtil.getLanguage(), new SessionAwareAsyncCallback<JournalTreeModel>() {
 
@@ -95,43 +117,45 @@ public class JournalComparisonPanel extends ContentPanel {
                 store.add(root, true);
 
                 view = new TreePanelView<JournalTreeModel>() {
-                    
-                    @Override 
-                    public void onSelectChange(JournalTreeModel model, boolean select) { 
-                        if (select) { 
-                            tree.setExpanded(treeStore.getParent(model), true); 
-                        } 
+
+                    @Override
+                    public void onSelectChange(JournalTreeModel model, boolean select) {
+                        if (select) {
+                            tree.setExpanded(treeStore.getParent(model), true);
+                        }
                         TreeNode node = findNode(model);
-                        if (node != null) { 
-                            Element e = getElementContainer(node);                            
-                            if (e != null) {                     
+                        if (node != null) {
+                            Element e = getElementContainer(node);
+                            if (e != null) {
                                 if (model.getCls() != null && !"".equals(model.getCls())) { //$NON-NLS-1$                               
                                     El.fly(e).setStyleName("x-ftree2-selected", select); //$NON-NLS-1$
                                     Document doc = e.getOwnerDocument();
-                                    com.google.gwt.dom.client.Element textElement = doc.getElementById(model.getId() + "-" + isBeforePanel + "-journal-tree-node-text"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    com.google.gwt.dom.client.Element textElement = doc.getElementById(model.getId()
+                                            + "-" + isBeforePanel + "-journal-tree-node-text"); //$NON-NLS-1$ //$NON-NLS-2$
                                     if (textElement != null) {
-                                        El.fly(textElement).setStyleName( "x-tree3-node " + model.get("cls"),select); //$NON-NLS-1$ //$NON-NLS-2$
-                                    }                                    
+                                        El.fly(textElement).setStyleName("x-tree3-node " + model.get("cls"), select); //$NON-NLS-1$ //$NON-NLS-2$
+                                    }
                                 } else {
                                     El.fly(e).setStyleName("x-ftree2-selected", select); //$NON-NLS-1$
                                 }
                                 if (select) {
                                     String tid = tree.getId();
-                                    Accessibility.setState(tree.getElement(), "aria-activedescendant", tid + "__" + node.getElement().getId()); //$NON-NLS-1$ //$NON-NLS-2$ 
-                                }                               
-                            } 
-                        } 
+                                    Accessibility.setState(tree.getElement(),
+                                            "aria-activedescendant", tid + "__" + node.getElement().getId()); //$NON-NLS-1$ //$NON-NLS-2$ 
+                                }
+                            }
+                        }
                     }
 
                     @Override
                     public String getTemplate(ModelData m, String id, String text, AbstractImagePrototype icon,
                             boolean checkable, boolean checked, Joint joint, int level, TreeViewRenderMode renderMode) {
-                        
+
                         if (renderMode == TreeViewRenderMode.CONTAINER) {
                             return "<div unselectable=on class=\"x-tree3-node-ct\" role=\"group\"></div>"; //$NON-NLS-1$
-                          }
-                          StringBuilder sb = new StringBuilder();
-                          if (renderMode == TreeViewRenderMode.ALL || renderMode == TreeViewRenderMode.MAIN) {
+                        }
+                        StringBuilder sb = new StringBuilder();
+                        if (renderMode == TreeViewRenderMode.ALL || renderMode == TreeViewRenderMode.MAIN) {
                             sb.append("<div unselectable=on id=\""); //$NON-NLS-1$
                             sb.append(id);
                             sb.append("\""); //$NON-NLS-1$
@@ -140,28 +164,28 @@ public class JournalComparisonPanel extends ContentPanel {
 
                             String cls = "x-tree3-el"; //$NON-NLS-1$
                             if (GXT.isHighContrastMode) {
-                              switch (joint) {
+                                switch (joint) {
                                 case COLLAPSED:
-                                  cls += " x-tree3-node-joint-collapse"; //$NON-NLS-1$
-                                  break;
+                                    cls += " x-tree3-node-joint-collapse"; //$NON-NLS-1$
+                                    break;
                                 case EXPANDED:
-                                  cls += " x-tree3-node-joint-expand"; //$NON-NLS-1$
-                                  break;
-                            case NONE:
-                                break;
-                              }
+                                    cls += " x-tree3-node-joint-expand"; //$NON-NLS-1$
+                                    break;
+                                case NONE:
+                                    break;
+                                }
                             }
 
                             sb.append("<div unselectable=on class=\"" + cls + "\" id=\"" + tree.getId() + "__" + id + "\" role=\"treeitem\" "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                             sb.append(" aria-level=\"" + (level + 1) + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
-                          }
-                          if (renderMode == TreeViewRenderMode.ALL || renderMode == TreeViewRenderMode.BODY) {
+                        }
+                        if (renderMode == TreeViewRenderMode.ALL || renderMode == TreeViewRenderMode.BODY) {
                             Element jointElement = null;
                             switch (joint) {
-                              case COLLAPSED:
+                            case COLLAPSED:
                                 jointElement = (Element) tree.getStyle().getJointCollapsedIcon().createElement().cast();
                                 break;
-                              case EXPANDED:
+                            case EXPANDED:
                                 jointElement = (Element) tree.getStyle().getJointExpandedIcon().createElement().cast();
                                 break;
                             case NONE:
@@ -169,47 +193,47 @@ public class JournalComparisonPanel extends ContentPanel {
                             }
 
                             if (jointElement != null) {
-                              El.fly(jointElement).addStyleName("x-tree3-node-joint"); //$NON-NLS-1$
+                                El.fly(jointElement).addStyleName("x-tree3-node-joint"); //$NON-NLS-1$
                             }
-                            
+
                             sb.append("<img src=\""); //$NON-NLS-1$
                             sb.append(GXT.BLANK_IMAGE_URL);
                             sb.append("\" style=\"height: 18px; width: "); //$NON-NLS-1$
                             sb.append(level * getIndenting(findNode((JournalTreeModel) m)));
                             sb.append("px;\" />"); //$NON-NLS-1$
                             sb.append(jointElement == null ? "<img src=\"" + GXT.BLANK_IMAGE_URL //$NON-NLS-1$
-                                + "\" style=\"width: 16px\" class=\"x-tree3-node-joint\" />" : DOM.toString(jointElement)); //$NON-NLS-1$
+                                    + "\" style=\"width: 16px\" class=\"x-tree3-node-joint\" />" : DOM.toString(jointElement)); //$NON-NLS-1$
                             if (checkable) {
-                              Element e = (Element) (checked ? GXT.IMAGES.checked().createElement().cast()
-                                  : GXT.IMAGES.unchecked().createElement().cast());
-                              El.fly(e).addStyleName("x-tree3-node-check"); //$NON-NLS-1$
-                              sb.append(DOM.toString(e));
+                                Element e = (Element) (checked ? GXT.IMAGES.checked().createElement().cast() : GXT.IMAGES
+                                        .unchecked().createElement().cast());
+                                El.fly(e).addStyleName("x-tree3-node-check"); //$NON-NLS-1$
+                                sb.append(DOM.toString(e));
                             } else {
-                              sb.append("<span class=\"x-tree3-node-check\"></span>"); //$NON-NLS-1$
+                                sb.append("<span class=\"x-tree3-node-check\"></span>"); //$NON-NLS-1$
                             }
-                            
+
                             // see TMDM-5438
                             if ("Document".equals(text) && level == 0 && ((JournalTreeModel) m).getChildCount() == 0) { //$NON-NLS-1$
                                 icon = GXT.IMAGES.tree_folder();
                             }
                             if (icon != null) {
-                              Element e = icon.createElement().cast();
-                              El.fly(e).addStyleName("x-tree3-node-icon"); //$NON-NLS-1$
-                              sb.append(DOM.toString(e));
+                                Element e = icon.createElement().cast();
+                                El.fly(e).addStyleName("x-tree3-node-icon"); //$NON-NLS-1$
+                                sb.append(DOM.toString(e));
                             } else {
                                 sb.append("<span class=\"x-tree3-node-icon\"></span>"); //$NON-NLS-1$
                             }
-                            sb.append("<span id='" + ((JournalTreeModel) m).getId() + "-" + isBeforePanel + "-journal-tree-node-text'  unselectable=on class=\"x-tree3-node-text\">");  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+                            sb.append("<span id='" + ((JournalTreeModel) m).getId() + "-" + isBeforePanel + "-journal-tree-node-text'  unselectable=on class=\"x-tree3-node-text\">"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
                             sb.append(text);
                             sb.append("</span>"); //$NON-NLS-1$
-                          }
+                        }
 
-                          if (renderMode == TreeViewRenderMode.ALL || renderMode == TreeViewRenderMode.MAIN) {
+                        if (renderMode == TreeViewRenderMode.ALL || renderMode == TreeViewRenderMode.MAIN) {
                             sb.append("</div>"); //$NON-NLS-1$
                             sb.append("</div>"); //$NON-NLS-1$
-                          }
-                          return sb.toString();
-                        
+                        }
+                        return sb.toString();
+
                     }
                 };
 
@@ -275,11 +299,7 @@ public class JournalComparisonPanel extends ContentPanel {
             final int count[] = new int[1];
             count[0] = -1;
 
-            toolbar = new ToolBar();
-
             if (isBeforePanel) {
-                previousChangeButton = new Button(MessagesFactory.getMessages().previous_change_button());
-                previousChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.up()));
                 previousChangeButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                     @Override
@@ -292,11 +312,7 @@ public class JournalComparisonPanel extends ContentPanel {
                         otherPanel.selectTreeNodeByPath(changeNodeList.get(count[0]));
                     }
                 });
-                previousChangeButton.setEnabled(false);
 
-                nextChangeButton = new Button(MessagesFactory.getMessages().next_change_button());
-                nextChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.down()));
-                nextChangeButton.setIconAlign(IconAlign.RIGHT);
                 nextChangeButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                     @Override
@@ -310,24 +326,13 @@ public class JournalComparisonPanel extends ContentPanel {
                     }
                 });
                 nextChangeButton.setEnabled(true);
-            } else {
-                previousChangeButton = new Button();
-                previousChangeButton.setEnabled(false);
-                nextChangeButton = new Button();
-                nextChangeButton.setEnabled(false);
             }
-
-            toolbar.add(previousChangeButton);
-            toolbar.add(nextChangeButton);
-            toolbar.add(new FillToolItem());
 
             service.isAdmin(new SessionAwareAsyncCallback<Boolean>() {
 
                 @Override
                 public void onSuccess(Boolean isAdmin) {
                     if (isAdmin) {
-                        Button restoreButton = new Button(MessagesFactory.getMessages().restore_button());
-                        restoreButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));
                         restoreButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                             @Override
@@ -344,13 +349,11 @@ public class JournalComparisonPanel extends ContentPanel {
                             };
                         });
                         restoreButton.setEnabled(parameter.isAuth());
-                        toolbar.add(restoreButton);
                     }
                 }
             });
-
-            this.setTopComponent(toolbar);
         }
+        this.setTopComponent(toolbar);
     }
 
     private void buttonStatus(int index) {
@@ -380,7 +383,7 @@ public class JournalComparisonPanel extends ContentPanel {
             model = modelMap.get(path.replace("[1]", "")); //$NON-NLS-1$ //$NON-NLS-2$
         }
         tree.getSelectionModel().select(false, model);
-        tree.scrollIntoView(model);        
+        tree.scrollIntoView(model);
     }
 
     public TreePanel<JournalTreeModel> getTree() {
@@ -396,7 +399,7 @@ public class JournalComparisonPanel extends ContentPanel {
     }
 
     private native void closeTabPanel()/*-{
-        var tabPanel = $wnd.amalto.core.getTabPanel();
-        tabPanel.closeCurrentTab();
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		tabPanel.closeCurrentTab();
     }-*/;
 }
