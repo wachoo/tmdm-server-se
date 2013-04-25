@@ -14,7 +14,8 @@ package org.talend.mdm.bulkload.client;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,20 +26,60 @@ public class InputStreamMerger extends InputStream {
 
     private static final Logger log = Logger.getLogger(InputStreamMerger.class.getName());
 
-    private final Queue<InputStream> inputStreamBuffer = new ConcurrentLinkedQueue<InputStream>();
+    private static final int DEFAULT_CAPACITY = 1000;
 
-    private final Object readLock = new Object();
+    private final Queue<InputStream> inputStreamBuffer;
+
+    private final Object consumerMonitor = new Object();
+
+    private final Object producerMonitor = new Object();
 
     private final Object exhaustLock = new Object();
+
+    private final AtomicBoolean hasFinishedRead = new AtomicBoolean();
+
+    private WarmUpStrategy warmUpStrategy;
 
     private boolean isClosed;
 
     private InputStream currentStream;
 
-    private boolean hasFinishedRead;
-
     private Throwable lastFailure;
 
+    public InputStreamMerger() {
+        this(DEFAULT_CAPACITY, NoWarmUpStrategy.INSTANCE);
+    }
+
+    public InputStreamMerger(int capacity) {
+        this(capacity, NoWarmUpStrategy.INSTANCE);
+    }
+
+    /**
+     * Create a input stream merger with custom values.
+     *
+     * @param capacity Input stream buffer will never exceed <code>capacity</code>. {@link Integer#MAX_VALUE} is equivalent
+     *                 to infinite capacity.
+     * @param strategy Allow customization of "warm up" time. Can allow initial buffering before consumers can actually
+     *                 consume data.
+     * @see NoWarmUpStrategy
+     * @see ThresholdWarmUpStrategy
+     */
+    public InputStreamMerger(int capacity, WarmUpStrategy strategy) {
+        if (capacity <= 0) {
+            throw new IllegalArgumentException("Capacity " + capacity + " is invalid.");
+        }
+        inputStreamBuffer = new LinkedBlockingQueue<InputStream>(capacity);
+        warmUpStrategy = strategy;
+    }
+
+    /**
+     * "Push" new content to consumers: publish to this input stream readers new content to be read from <code>inputStream</code>
+     * parameter. This
+     * @param inputStream New content for producers
+     * @throws IOException If this input stream was closed.
+     * @throws IllegalArgumentException If <code>inputStream</code> is <code>null</code>.
+     * @see #close()
+     */
     public void push(InputStream inputStream) throws IOException {
         if (inputStream == null) {
             throw new IllegalArgumentException("Input stream can not be null.");
@@ -46,8 +87,23 @@ public class InputStreamMerger extends InputStream {
         if (isClosed) {
             throw new IOException("Stream is closed");
         }
-        inputStreamBuffer.add(inputStream);
-        debug("Added a new input stream (buffer now has " + inputStreamBuffer.size() + " streams)");
+        while (!inputStreamBuffer.offer(inputStream)) {
+            debug("[P] Waiting for a read to complete (" + inputStreamBuffer.size() + ")");
+            synchronized (consumerMonitor) {
+                consumerMonitor.notifyAll();
+            }
+            if (!inputStreamBuffer.offer(inputStream)) {
+                synchronized (producerMonitor) {
+                    try {
+                        producerMonitor.wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+            debug("[P] End of wait");
+        }
+        debug("[P] Added a new input stream (buffer now has " + inputStreamBuffer.size() + " streams)");
     }
 
     public void reportFailure(Throwable e) {
@@ -60,6 +116,13 @@ public class InputStreamMerger extends InputStream {
 
     @Override
     public int available() throws IOException {
+        if (currentStream != null) {
+            return currentStream.available();
+        }
+        moveToNextInputStream();
+        if (currentStream != null) {
+            return currentStream.available();
+        }
         return 4096;
     }
 
@@ -96,7 +159,7 @@ public class InputStreamMerger extends InputStream {
         }
         if (read < 0) {
             synchronized (exhaustLock) {
-                debug("Notify exhaust lock");
+                debug("[C] Notify exhaust lock");
                 exhaustLock.notifyAll();
             }
         }
@@ -107,23 +170,29 @@ public class InputStreamMerger extends InputStream {
 
     private void throwLastFailure() throws IOException {
         if (lastFailure != null) {
-            debug("Report last failure exception to producer.");
+            debug("[P] Report last failure exception to producer.");
             throw new IOException("An exception occurred while processing last record.", lastFailure);
         }
     }
 
     private void moveToNextInputStream() throws IOException {
+        if (hasFinishedRead.get() && isClosed) {
+            return;
+        }
         // Throw any exception that might have occurred during previous records
         throwLastFailure();
         // Check the isClosed flag in case we've got waken up by a close()
-        while (inputStreamBuffer.isEmpty() && !isClosed) {
-            synchronized (readLock) {
+        while (!warmUpStrategy.isReady(this) || (inputStreamBuffer.isEmpty() && !isClosed)) {
+            synchronized (consumerMonitor) {
                 try {
-                    debug("Wait for more input...");
-                    readLock.wait();
-                    debug("Wait for more input done.");
+                    debug("[C] Wait for more input (is warm up ready: " + warmUpStrategy.isReady(this) + ")");
+                    consumerMonitor.wait(1000);
+                    debug("[C] Wait for more input done.");
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
+                }
+                if (isClosed) {
+                    break;
                 }
             }
         }
@@ -134,9 +203,12 @@ public class InputStreamMerger extends InputStream {
             currentStream = inputStreamBuffer.poll();
         } else {
             currentStream = null;
-            hasFinishedRead = true;
+            hasFinishedRead.set(true);
         }
-        debug("Remaining buffers : " + inputStreamBuffer.size());
+        synchronized (producerMonitor) {
+            producerMonitor.notifyAll();
+        }
+        debug("[C] Remaining buffers : " + inputStreamBuffer.size());
     }
 
     /**
@@ -154,28 +226,28 @@ public class InputStreamMerger extends InputStream {
     public void close() throws IOException {
         super.close();
         isClosed = true;
-        synchronized (readLock) {
-            readLock.notifyAll();
+        warmUpStrategy = NoWarmUpStrategy.INSTANCE; // In case close() is called before end of warm up.
+        synchronized (consumerMonitor) {
+            consumerMonitor.notifyAll();
         }
-        debug("Input stream buffer size: " + +inputStreamBuffer.size());
-        debug("Has finished read: " + hasFinishedRead);
-        debug("Stop condition: " + (!inputStreamBuffer.isEmpty() && !hasFinishedRead));
-        while (!inputStreamBuffer.isEmpty() && !hasFinishedRead) {
+        debug("[P] Input stream buffer size: " + inputStreamBuffer.size());
+        debug("[P] Has finished read: " + hasFinishedRead);
+        while (!inputStreamBuffer.isEmpty() && !hasFinishedRead.get()) {
             try {
-                debug("Waiting for exhaust... (" + inputStreamBuffer.size() + " remaining)");
+                debug("[P] Waiting for exhaust... (" + inputStreamBuffer.size() + " remaining)");
                 synchronized (exhaustLock) {
-                    exhaustLock.wait();
+                    exhaustLock.wait(1000);
                 }
                 // In case we got woken up due to a failure
                 throwLastFailure();
-                debug("Waiting for exhaust done.");
+                debug("[P] Waiting for exhaust done.");
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
         // In case failure happened on very last read.
         throwLastFailure();
-        debug("Close completed.");
+        debug("[P] Close completed.");
     }
 
     private static void debug(String message) {
@@ -187,5 +259,54 @@ public class InputStreamMerger extends InputStream {
 
     public Throwable getLastReportedFailure() {
         return lastFailure;
+    }
+
+    public int getBufferSize() {
+        return inputStreamBuffer.size();
+    }
+
+    interface WarmUpStrategy {
+        /**
+         * @param inputStreamMerger The input stream to be checked.
+         * @return <code>true</code> if the <code>inputStreamMerger</code> is ready to be used by consumers.
+         * @see org.talend.mdm.bulkload.client.InputStreamMerger#getBufferSize()
+         */
+        boolean isReady(InputStreamMerger inputStreamMerger);
+    }
+
+    /**
+     * A "no warm up" warm up strategy: always returns <code>true</code> (<code>inputStreamMerger</code> is always
+     * ready).
+     */
+    public static class NoWarmUpStrategy implements WarmUpStrategy {
+        static WarmUpStrategy INSTANCE = new NoWarmUpStrategy();
+
+        @Override
+        public boolean isReady(InputStreamMerger inputStreamMerger) {
+            return true;
+        }
+    }
+
+    /**
+     * A threshold based strategy: indicate input stream merger isn't ready till {@link org.talend.mdm.bulkload.client.InputStreamMerger#getBufferSize()}
+     * is greater or equals to <code>threshold</code>. Once buffer size satisfies this condition, input stream is always
+     * considered as ready.
+     */
+    public static class ThresholdWarmUpStrategy implements WarmUpStrategy {
+        private final int threshold;
+
+        private boolean isReady = false;
+
+        public ThresholdWarmUpStrategy(int threshold) {
+            this.threshold = threshold;
+        }
+
+        @Override
+        public boolean isReady(InputStreamMerger inputStreamMerger) {
+            if (!isReady) {
+                isReady = inputStreamMerger.getBufferSize() >= threshold;
+            }
+            return isReady;
+        }
     }
 }

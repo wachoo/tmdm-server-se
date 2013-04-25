@@ -104,6 +104,105 @@ public class InputStreamMergerTest extends TestCase {
         assertEquals(testString, reader.getRebuiltString());
     }
 
+    public void testSimpleReadPusherFirstWithInvalidCapacity() {
+        try {
+            _testSimpleReadPusherFirstWithLimitedCapacity(-1, 50);
+            fail("Capacity -1 is invalid");
+        } catch (Exception e) {
+            // Expected (capacity must be greater or equals to 1).
+        }
+        try {
+            _testSimpleReadPusherFirstWithLimitedCapacity(0, 50);
+            fail("Capacity 0 is invalid");
+        } catch (Exception e) {
+            // Expected (capacity must be greater or equals to 1).
+        }
+    }
+
+    public void testSimpleReadPusherFirstWithLimitedCapacity() {
+        _testSimpleReadPusherFirstWithLimitedCapacity(1, 50);
+        _testSimpleReadPusherFirstWithLimitedCapacity(20, 50);
+        _testSimpleReadPusherFirstWithLimitedCapacity(50, 50);
+        _testSimpleReadPusherFirstWithLimitedCapacity(100, 50);
+        _testSimpleReadPusherFirstWithLimitedCapacity(50, 100);
+    }
+
+    private void _testSimpleReadPusherFirstWithLimitedCapacity(int capacity, int count) {
+        InputStreamMerger bis = new InputStreamMerger(capacity);
+        String testString = "test";
+
+        // Create a reader for the stream
+        ReaderRunnable reader = new ReaderRunnable(bis);
+        // Create a "pusher", a thread that will put a new stream
+        Runnable pusher = new PusherRunnable(bis, testString, count);
+
+        // Start the test (but now the pusher starts first)
+        Thread readerThread = new Thread(reader, "Consumer");
+        Thread pusherThread = new Thread(pusher, "Producer");
+        pusherThread.start();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        readerThread.start();
+
+        // Wait for test end
+        try {
+            pusherThread.join();
+            readerThread.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            builder.append(testString);
+        }
+        assertEquals(builder.toString(), reader.getRebuiltString());
+    }
+
+    public void testSimpleReadPusherFirstWithLimitedCapacityAndWarmUp() {
+        _testSimpleReadPusherFirstWithLimitedCapacityAndWarmUp(1, 50, 1);
+        _testSimpleReadPusherFirstWithLimitedCapacityAndWarmUp(20, 50, 0);
+        _testSimpleReadPusherFirstWithLimitedCapacityAndWarmUp(100, 50, 100);
+    }
+
+    private void _testSimpleReadPusherFirstWithLimitedCapacityAndWarmUp(int capacity, int count, final int warmUp) {
+        InputStreamMerger bis = new InputStreamMerger(capacity, new InputStreamMerger.ThresholdWarmUpStrategy(warmUp));
+        String testString = "test";
+
+        // Create a reader for the stream
+        ReaderRunnable reader = new ReaderRunnable(bis);
+        // Create a "pusher", a thread that will put a new stream
+        Runnable pusher = new PusherRunnable(bis, testString, count);
+
+        // Start the test (but now the pusher starts first)
+        Thread readerThread = new Thread(reader);
+        Thread pusherThread = new Thread(pusher);
+        pusherThread.start();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        readerThread.start();
+
+        // Wait for test end
+        try {
+            pusherThread.join();
+            readerThread.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            builder.append(testString);
+        }
+        assertEquals(builder.toString(), reader.getRebuiltString());
+    }
+
     public void testSimpleReadPusherFirstWithError() {
         InputStreamMerger bis = new InputStreamMerger();
         String testString = "test";
@@ -182,17 +281,6 @@ public class InputStreamMergerTest extends TestCase {
         int batchSize = 10;
         int inputSize = 15000;
 
-        //
-        String expectedTestString = "";
-        for (int i = 0; i < batchSize; i++) {
-            expectedTestString += testString;
-        }
-
-        String remainingExpectedTestString = "";
-        for (int i = 0; i < (inputSize % batchSize); i++) {
-            remainingExpectedTestString += testString;
-        }
-
         // Start the test
         InputStreamMerger inputStreamMerger = doSimulateBulkload();
         for (int i = 0; i < inputSize; i++) {
@@ -208,8 +296,6 @@ public class InputStreamMergerTest extends TestCase {
 
         // Wait for remaining ones (in case (count % batchSize != 0))
         inputStreamMerger.close();
-        if (inputSize % batchSize != 0) {
-        }
     }
 
     private static InputStreamMerger doSimulateBulkload() {
@@ -283,8 +369,7 @@ public class InputStreamMergerTest extends TestCase {
         private final String testString;
         private final int count;
 
-        public PusherRunnable(InputStreamMerger bis, String testString,
-                              int count) {
+        public PusherRunnable(InputStreamMerger bis, String testString, int count) {
             this.bis = bis;
             this.testString = testString;
             this.count = count;
