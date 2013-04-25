@@ -20,6 +20,8 @@ import com.google.gwt.i18n.client.Messages;
 public interface JournalMessages extends Messages {
 
     public String journal_title();
+    
+    public String info_title();
 
     public String search_panel_title();
 
@@ -86,4 +88,8 @@ public interface JournalMessages extends Messages {
     public String warning_title();
 
     public String search_date_error_message();
+    
+    public String restore_success();
+    
+    public String restore_confirm();
 }

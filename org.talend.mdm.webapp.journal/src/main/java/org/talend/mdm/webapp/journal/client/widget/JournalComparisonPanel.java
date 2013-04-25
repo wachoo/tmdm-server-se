@@ -35,12 +35,16 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.TreePanelEvent;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel.Joint;
@@ -88,24 +92,25 @@ public class JournalComparisonPanel extends ContentPanel {
         this.setBodyBorder(false);
 
         toolbar = new ToolBar();
+        
+        if (isBeforePanel) {
+            previousChangeButton = new Button(MessagesFactory.getMessages().previous_change_button());
+            previousChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.up()));
+            previousChangeButton.setEnabled(false);            
+            toolbar.add(previousChangeButton);
+            
+            nextChangeButton = new Button(MessagesFactory.getMessages().next_change_button());
+            nextChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.down()));
+            nextChangeButton.setIconAlign(IconAlign.RIGHT);
+            nextChangeButton.setEnabled(false);
+            toolbar.add(nextChangeButton);
+        }
+        
+        toolbar.add(new FillToolItem());
         restoreButton = new Button(MessagesFactory.getMessages().restore_button());
         restoreButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));
         restoreButton.setEnabled(false);
         toolbar.add(restoreButton);
-
-        previousChangeButton = new Button(MessagesFactory.getMessages().previous_change_button());
-        previousChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.up()));
-        previousChangeButton.setEnabled(false);
-
-        nextChangeButton = new Button(MessagesFactory.getMessages().next_change_button());
-        nextChangeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.down()));
-        nextChangeButton.setIconAlign(IconAlign.RIGHT);
-        nextChangeButton.setEnabled(false);
-        
-        if (isBeforePanel) {
-            toolbar.add(previousChangeButton);
-            toolbar.add(nextChangeButton);
-        }
         
 
         service.getComparisionTree(parameter, UrlUtil.getLanguage(), new SessionAwareAsyncCallback<JournalTreeModel>() {
@@ -299,7 +304,7 @@ public class JournalComparisonPanel extends ContentPanel {
             final int count[] = new int[1];
             count[0] = -1;
 
-            if (isBeforePanel) {
+            if (isBeforePanel && previousChangeButton != null && nextChangeButton != null) {
                 previousChangeButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                     @Override
@@ -337,12 +342,21 @@ public class JournalComparisonPanel extends ContentPanel {
 
                             @Override
                             public void componentSelected(ButtonEvent ce) {
-                                service.restoreRecord(parameter, UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
+                                MessageBox.confirm(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().restore_confirm(), new Listener<MessageBoxEvent>() {
 
                                     @Override
-                                    public void onSuccess(Boolean success) {
-                                        if (success) {
-                                            JournalComparisonPanel.this.closeTabPanel();
+                                    public void handleEvent(MessageBoxEvent be) {
+                                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                            service.restoreRecord(parameter, UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
+
+                                                @Override
+                                                public void onSuccess(Boolean success) {
+                                                    if (success) {
+                                                        MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().restore_success(), null);
+                                                        JournalComparisonPanel.this.closeTabPanel();
+                                                    }
+                                                }
+                                            });
                                         }
                                     }
                                 });
