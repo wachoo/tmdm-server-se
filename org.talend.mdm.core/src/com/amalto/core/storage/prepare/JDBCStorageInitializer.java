@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
 
 public class JDBCStorageInitializer implements StorageInitializer {
 
-    private static Logger LOGGER = Logger.getLogger(JDBCStorageInitializer.class);
+    private static final Logger LOGGER = Logger.getLogger(JDBCStorageInitializer.class);
 
     @Override
     public boolean supportInitialization(Storage storage) {

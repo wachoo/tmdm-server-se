@@ -106,7 +106,7 @@ public class DataRecord {
     }
 
     public Object get(String fieldName) {
-        StringTokenizer tokenizer = new StringTokenizer(fieldName, "/");
+        StringTokenizer tokenizer = new StringTokenizer(fieldName, "/"); //$NON-NLS-1$
         DataRecord current = this;
         Object currentValue = null;
         while (tokenizer.hasMoreTokens()) {
@@ -128,7 +128,6 @@ public class DataRecord {
         if (field == null) {
             throw new IllegalArgumentException("Field can not be null.");
         }
-
         if (!field.isMany()) {
             fieldToValue.put(field, o);
         } else {

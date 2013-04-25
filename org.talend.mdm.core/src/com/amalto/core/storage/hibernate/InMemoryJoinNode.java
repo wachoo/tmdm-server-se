@@ -36,7 +36,7 @@ class InMemoryJoinNode {
     Expression expression;
 
     // TODO not very classy use of a Map
-    Map<InMemoryJoinNode, InMemoryJoinNode> children = new HashMap<InMemoryJoinNode, InMemoryJoinNode>();
+    final Map<InMemoryJoinNode, InMemoryJoinNode> children = new HashMap<InMemoryJoinNode, InMemoryJoinNode>();
 
     ComplexTypeMetadata type;
 

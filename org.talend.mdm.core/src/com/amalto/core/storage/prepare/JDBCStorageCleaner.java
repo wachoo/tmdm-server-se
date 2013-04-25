@@ -19,7 +19,8 @@ import org.apache.log4j.Logger;
 
 public class JDBCStorageCleaner implements StorageCleaner {
 
-    public static final Logger LOGGER = Logger.getLogger(JDBCStorageCleaner.class);
+    private static final Logger LOGGER = Logger.getLogger(JDBCStorageCleaner.class);
+
     private StorageCleaner next;
 
     public JDBCStorageCleaner(StorageCleaner next) {

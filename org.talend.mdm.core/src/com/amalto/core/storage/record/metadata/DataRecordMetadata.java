@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  * Additional metadata record specific. Information provided by this interface vary from one {@link com.amalto.core.storage.record.DataRecord} to another
- * in results (where it's less likely for type metadata such as {@link com.amalto.core.metadata.ComplexTypeMetadata}).
+ * in results (where it's less likely for type metadata such as {@link org.talend.mdm.commmon.metadata.ComplexTypeMetadata}).
  */
 public interface DataRecordMetadata {
 

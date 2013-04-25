@@ -1566,7 +1566,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             try {
                 saver = SaverHelper.saveItemWithReport(wsPutItem, session, dataClusterName, dataModelName,
                         wsPutItemWithReport.getSource(), wsPutItemWithReport.getInvokeBeforeSaving());
-                // Expected (legacy) behavior: set  the before saving message as source.
+                // Expected (legacy) behavior: set the before saving message as source.
                 wsPutItemWithReport.setSource(saver.getBeforeSavingMessage());
                 // Cause items being saved to be committed to database.
                 session.end();

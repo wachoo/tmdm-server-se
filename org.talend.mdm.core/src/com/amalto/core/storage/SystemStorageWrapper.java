@@ -142,7 +142,7 @@ public class SystemStorageWrapper extends StorageWrapper {
         }
     }
 
-    public static Collection<ComplexTypeMetadata> filter(MetadataRepository repository, String... typeNames) {
+    private static Collection<ComplexTypeMetadata> filter(MetadataRepository repository, String... typeNames) {
         final Set<ComplexTypeMetadata> filteredTypes = new HashSet<ComplexTypeMetadata>();
         MetadataVisitor<Void> transitiveTypeClosure = new DefaultMetadataVisitor<Void>() {
             @Override
