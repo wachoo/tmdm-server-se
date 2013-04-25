@@ -2,6 +2,7 @@ package com.amalto.core.objects.datacluster.ejb;
 
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.metadata.LongString;
 
 /**
  * @author Bruno Grieder
@@ -63,6 +64,7 @@ public class DataClusterPOJO extends ObjectPOJO{
 	 * 
 	 * @return the xsd Vocabulary
 	 */
+    @LongString
 	public String getVocabulary() {
 		return vocabulary;
 	}
