@@ -161,10 +161,6 @@ public class SaverContextFactory {
         if (dataCluster.startsWith(SYSTEM_CONTAINER_PREFIX) || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, XObjectType.DATA_CLUSTER, dataCluster)) {
             context = new SystemContext(dataCluster, dataModelName, userDocument);
         } else {
-            UserAction userAction = UserAction.UPDATE;
-            if (isReplace) {
-                userAction = UserAction.REPLACE;
-            }
             context = new UserContext(dataCluster, dataModelName, userDocument, userAction, validate, updateReport, invokeBeforeSaving);
         }
 
