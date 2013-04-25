@@ -39,6 +39,9 @@ class Init implements DocumentSaver {
 
         // Get type name
         String typeName = context.getUserDocument().asDOM().getDocumentElement().getNodeName();
+        if (saverSource.getMetadataRepository(dataModelName) == null) {
+            throw new IllegalArgumentException("Could not find the Data Model '" + dataModelName + "'"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
         ComplexTypeMetadata type = saverSource.getMetadataRepository(dataModelName).getComplexType(typeName);
         if (type == null) {
             throw new IllegalArgumentException("Type '" + typeName + "' is unknown in data model '" + dataModelName + "'.");
