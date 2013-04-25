@@ -423,6 +423,13 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             LOGGER.error(err);
             throw new XtentisException(err);
         }
+        try {
+            if (Util.getDataClusterCtrlLocal().existsDataCluster(dataClusterPOJOPK) == null) {
+                throw new IllegalArgumentException("Data Cluster '" + dataClusterPOJOPK.getUniqueId() + "' does not exist.");  //$NON-NLS-1$//$NON-NLS-2$
+            }
+        } catch (Exception e) {
+            throw new XtentisException("Unable to get the Data Cluster '" + dataClusterPOJOPK.getUniqueId() + "'", e); //$NON-NLS-1$ //$NON-NLS-2$
+        }
         Server server = ServerContext.INSTANCE.get();
         String revisionId = universe.getConceptRevisionID(conceptName);
         Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), revisionId);

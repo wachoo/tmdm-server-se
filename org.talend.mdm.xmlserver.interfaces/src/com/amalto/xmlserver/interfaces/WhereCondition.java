@@ -136,17 +136,19 @@ public class WhereCondition implements IWhereItem, Serializable {
     public void setRightValueOrPath(String rightValueOrPath) {
         // Quoted values (either simple or double) are considered as literal values
         // TODO To be refactored to support true literal/Xpath differentiation
-        if (rightValueOrPath.length() > 1 && ((rightValueOrPath.startsWith("\"") && rightValueOrPath.endsWith("\"")) //$NON-NLS-1$ //$NON-NLS-2$
-                || (rightValueOrPath.startsWith("'") && rightValueOrPath.endsWith("'")))) { //$NON-NLS-1$ //$NON-NLS-2$
-            isRightValueXPath = false;
-            rightValueOrPath = rightValueOrPath.substring(1, rightValueOrPath.length() - 1);
-            // Escape any potential '\' character
-            rightValueOrPath = rightValueOrPath.replaceAll("\\\\", "\\\\\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
-        } else if(rightValueOrPath.contains("/")) { //$NON-NLS-1$
-            isRightValueXPath = true;
+        if (rightValueOrPath != null) {
+            if (rightValueOrPath.length() > 1 && ((rightValueOrPath.startsWith("\"") && rightValueOrPath.endsWith("\"")) //$NON-NLS-1$ //$NON-NLS-2$
+                    || (rightValueOrPath.startsWith("'") && rightValueOrPath.endsWith("'")))) { //$NON-NLS-1$ //$NON-NLS-2$
+                isRightValueXPath = false;
+                rightValueOrPath = rightValueOrPath.substring(1, rightValueOrPath.length() - 1);
+                // Escape any potential '\' character
+                rightValueOrPath = rightValueOrPath.replaceAll("\\\\", "\\\\\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
+            } else if(rightValueOrPath.contains("/")) { //$NON-NLS-1$
+                isRightValueXPath = true;
+            }    
         }
-
-        if (!rightValueOrPath.startsWith("^") && (null != this.operator && this.operator.equals(WhereCondition.STARTSWITH))) { //$NON-NLS-1$
+        
+        if (rightValueOrPath != null && !rightValueOrPath.startsWith("^") && (null != this.operator && this.operator.equals(WhereCondition.STARTSWITH))) { //$NON-NLS-1$
             this.rightValueOrPath = "^" + rightValueOrPath; //$NON-NLS-1$
         } else {
             this.rightValueOrPath = rightValueOrPath;
