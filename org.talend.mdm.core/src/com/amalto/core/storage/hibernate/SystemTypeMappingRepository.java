@@ -11,7 +11,11 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.storage.Storage;
 import org.talend.mdm.commmon.metadata.*;
+
+import javax.xml.XMLConstants;
+import java.util.Collections;
 
 class SystemTypeMappingRepository extends InternalRepository {
 
@@ -22,6 +26,15 @@ class SystemTypeMappingRepository extends InternalRepository {
     public MetadataRepository visit(ComplexTypeMetadata complexType) {
         MetadataVisitor<TypeMapping> creator = getTypeMappingCreator(complexType, strategy);
         TypeMapping typeMapping = complexType.accept(creator);
+        // Add MDM specific record specific metadata: keep this additional fields for system objects too: MDM studio
+        // may query these fields (see TMDM-5666).
+        ComplexTypeMetadata database = typeMapping.getDatabase();
+        if (database.isInstantiable() && !database.isFrozen()) {
+            TypeMetadata longType = new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, "long", false); //$NON-NLS-1$
+            TypeMetadata stringType = new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, "string", false); //$NON-NLS-1$
+            database.addField(new SimpleTypeFieldMetadata(database, false, false, true, Storage.METADATA_TIMESTAMP, longType, Collections.<String>emptyList(), Collections.<String>emptyList()));
+            database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_TASK_ID, stringType, Collections.<String>emptyList(), Collections.<String>emptyList()));
+        }
         // Register mapping
         internalRepository.addTypeMetadata(typeMapping.getDatabase());
         mappings.addMapping(complexType, typeMapping);
