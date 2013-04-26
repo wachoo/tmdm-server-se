@@ -332,7 +332,9 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
             LOGGER.trace("removeRoutingOrder() " + pk.getUniqueId());
         }
         try {
-            ObjectPOJO.remove(pk.getRoutingOrderClass(), pk);
+            if (ObjectPOJO.load(pk.getRoutingOrderClass(), pk) != null) {
+                ObjectPOJO.remove(pk.getRoutingOrderClass(), pk);
+            }
             return pk;
         } catch (XtentisException e) {
             throw (e);
