@@ -92,4 +92,6 @@ public interface JournalMessages extends Messages {
     public String restore_success();
     
     public String restore_confirm();
+    
+    public String menu_item_viewchages();
 }

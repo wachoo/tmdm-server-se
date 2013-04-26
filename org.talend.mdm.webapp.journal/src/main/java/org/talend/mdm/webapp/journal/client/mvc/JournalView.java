@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.journal.client.mvc;
 
 import org.talend.mdm.webapp.journal.client.GenerateContainer;
 import org.talend.mdm.webapp.journal.client.JournalEvents;
+import org.talend.mdm.webapp.journal.client.widget.JournalGridPanel;
 import org.talend.mdm.webapp.journal.client.widget.JournalSearchPanel;
 import org.talend.mdm.webapp.journal.client.widget.JournalTabPanel;
 
@@ -67,13 +68,13 @@ public class JournalView extends View {
     }
     
     private void onDoSearch(AppEvent event) {
-        JournalTabPanel.getInstance().getJournalGridPanel().refreshGrid();
+        JournalGridPanel.getInstance().refreshGrid();
         if (JournalTabPanel.getInstance().getJournalTimelinePanel().isActive()) {
             JournalTabPanel
                     .getInstance()
                     .getJournalTimelinePanel()
-                    .initTimeline(JournalTabPanel.getInstance().getJournalGridPanel().getOffset(),
-                            JournalTabPanel.getInstance().getJournalGridPanel().getLoaderConfigStr());
+                    .initTimeline(JournalGridPanel.getInstance().getOffset(),
+                            JournalGridPanel.getInstance().getLoaderConfigStr());
         }
 
     }

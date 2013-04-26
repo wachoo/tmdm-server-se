@@ -35,13 +35,10 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.TreePanelEvent;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
@@ -342,24 +339,7 @@ public class JournalComparisonPanel extends ContentPanel {
 
                             @Override
                             public void componentSelected(ButtonEvent ce) {
-                                MessageBox.confirm(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().restore_confirm(), new Listener<MessageBoxEvent>() {
-
-                                    @Override
-                                    public void handleEvent(MessageBoxEvent be) {
-                                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                            service.restoreRecord(parameter, UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
-
-                                                @Override
-                                                public void onSuccess(Boolean success) {
-                                                    if (success) {
-                                                        MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().restore_success(), null);
-                                                        JournalComparisonPanel.this.closeTabPanel();
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    }
-                                });
+                                JournalGridPanel.getInstance().restore(parameter,true);
                             };
                         });
                         restoreButton.setEnabled(parameter.isAuth());
@@ -411,9 +391,4 @@ public class JournalComparisonPanel extends ContentPanel {
     public Map<String, JournalTreeModel> getModelMap() {
         return modelMap;
     }
-
-    private native void closeTabPanel()/*-{
-		var tabPanel = $wnd.amalto.core.getTabPanel();
-		tabPanel.closeCurrentTab();
-    }-*/;
 }

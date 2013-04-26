@@ -37,8 +37,6 @@ public class JournalTabPanel extends TabPanel {
 
     private TabItem timeLineTabItem;
 
-    private JournalGridPanel journalGridPanel;
-
     private JournalTimelinePanel journalTimelinePanel;
     
     private boolean status;
@@ -59,8 +57,7 @@ public class JournalTabPanel extends TabPanel {
         resultTabItem.setId("resultTabItem"); //$NON-NLS-1$
         resultTabItem.setLayout(new FitLayout());
         resultTabItem.setClosable(false);
-        journalGridPanel = new JournalGridPanel();
-        resultTabItem.add(journalGridPanel);
+        resultTabItem.add(JournalGridPanel.getInstance());
         resultTabItem.addListener(Events.Select, new Listener<ComponentEvent>() {
 
             public void handleEvent(ComponentEvent be) {
@@ -99,7 +96,7 @@ public class JournalTabPanel extends TabPanel {
                 journalTimelinePanel.setActive(true);
                 journalTimelinePanel.setTimeLinePanelHeight(timeLineTabItem.getHeight());
                 journalTimelinePanel.getElement().getStyle().setPropertyPx("height", timeLineTabItem.getHeight()); //$NON-NLS-1$
-                journalTimelinePanel.initTimeline(journalGridPanel.getOffset(), journalGridPanel.getLoaderConfigStr());
+                journalTimelinePanel.initTimeline(JournalGridPanel.getInstance().getOffset(), JournalGridPanel.getInstance().getLoaderConfigStr());
             }
         });
         this.add(timeLineTabItem);
@@ -112,10 +109,6 @@ public class JournalTabPanel extends TabPanel {
 
     public TabItem getTimeLineTabItem() {
         return timeLineTabItem;
-    }
-
-    public JournalGridPanel getJournalGridPanel() {
-        return journalGridPanel;
     }
 
     public JournalTimelinePanel getJournalTimelinePanel() {

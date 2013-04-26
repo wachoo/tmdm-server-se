@@ -22,8 +22,10 @@ import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.journal.client.Journal;
 import org.talend.mdm.webapp.journal.client.JournalServiceAsync;
 import org.talend.mdm.webapp.journal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.journal.client.resources.icon.Icons;
 import org.talend.mdm.webapp.journal.client.util.JournalSearchUtil;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
+import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
@@ -39,23 +41,33 @@ import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 /**
  * DOC Administrator class global comment. Detailled comment
  */
 public class JournalGridPanel extends ContentPanel {
+    
+    private static JournalGridPanel instance;
 
     private JournalServiceAsync service = Registry.get(Journal.JOURNAL_SERVICE);
 
@@ -70,8 +82,15 @@ public class JournalGridPanel extends ContentPanel {
     private final static int PAGE_SIZE = 20;
     
     private PagingLoadConfig pagingLoadConfig;
+    
+    public static JournalGridPanel getInstance() {
+        if (instance == null) {
+            instance = new JournalGridPanel();
+        }
+        return instance;
+    }
 
-    public JournalGridPanel() {
+    private JournalGridPanel() {
         this.setLayout(new FitLayout());
         this.setBodyBorder(false);
         this.setFrame(false);
@@ -203,7 +222,8 @@ public class JournalGridPanel extends ContentPanel {
                 });
             }
         });
-
+                
+        addContextMenu();     
         this.add(grid);
         this.setBottomComponent(pagetoolBar);
     }
@@ -352,6 +372,66 @@ public class JournalGridPanel extends ContentPanel {
             journalDataPanel.getTree().setExpanded(root, true);
         }
     }
+    
+    private void addContextMenu() {
+        Menu contextMenu = new Menu();
+        final MenuItem viewChagesMenuItem = new MenuItem();
+        viewChagesMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.view()));
+        viewChagesMenuItem.setText(MessagesFactory.getMessages().menu_item_viewchages());
+        viewChagesMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+            @Override
+            public void componentSelected(MenuEvent ce) {
+                JournalGridPanel.this.openTabPanel(grid.getSelectionModel().getSelectedItem());                
+            }            
+        });
+        final MenuItem restoreMenuItem = new MenuItem();
+        restoreMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));
+        restoreMenuItem.setText(MessagesFactory.getMessages().restore_button());
+        restoreMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+            @Override
+            public void componentSelected(MenuEvent ce) {
+                JournalGridPanel.this.restore(JournalSearchUtil.buildParameter(grid.getSelectionModel().getSelectedItem(), "current", true),false);  //$NON-NLS-1$
+            }            
+        });
+        contextMenu.add(viewChagesMenuItem);
+        contextMenu.add(restoreMenuItem);
+        grid.setContextMenu(contextMenu);
+        
+        grid.addListener(Events.ContextMenu, new Listener<GridEvent<JournalGridModel>>(){
+
+            @Override
+            public void handleEvent(GridEvent<JournalGridModel> be) {
+                final JournalGridModel gridModel = be.getModel();                
+                
+                service.isAdmin(new SessionAwareAsyncCallback<Boolean>() {
+
+                    @Override
+                    public void onSuccess(Boolean isAdmin) {
+                        if (isAdmin) {
+                            restoreMenuItem.setEnabled(true);
+                        } else {
+                            restoreMenuItem.setEnabled(false);
+                        }
+                        
+                        service.isJournalHistoryExist(JournalSearchUtil.buildParameter(gridModel, "current", true), new SessionAwareAsyncCallback<Boolean>() { //$NON-NLS-1$
+
+                            @Override
+                            public void onSuccess(Boolean result) {
+                                if (result) {
+                                    viewChagesMenuItem.setEnabled(true);
+                                } else {
+                                    viewChagesMenuItem.setEnabled(false);
+                                    restoreMenuItem.setEnabled(false);
+                                }
+                            }
+                        });
+                     }
+                });
+            }            
+        });
+    }
 
     public String getLoaderConfigStr() {
         StringBuilder sb = new StringBuilder();
@@ -370,4 +450,39 @@ public class JournalGridPanel extends ContentPanel {
     public int getLimit() {
         return loader.getLimit();
     }
+    
+    public void restore(final JournalParameters parameter,final boolean isCloseTabPanel) {
+        MessageBox.confirm(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().restore_confirm(), new Listener<MessageBoxEvent>() {
+
+            @Override
+            public void handleEvent(MessageBoxEvent be) {
+                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                    service.restoreRecord(parameter, UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
+
+                        @Override
+                        public void onSuccess(Boolean success) {
+                            if (success) {
+                                MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().restore_success(), new Listener<MessageBoxEvent>(){
+
+                                    @Override
+                                    public void handleEvent(MessageBoxEvent be) {
+                                        if (be.getButtonClicked().getItemId().equals(Dialog.OK) && isCloseTabPanel) {
+                                            closeTabPanel();
+                                        }                                        
+                                    }
+                                    
+                                });
+                                
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+    
+    private native void closeTabPanel()/*-{
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        tabPanel.closeCurrentTab();
+    }-*/;
 }

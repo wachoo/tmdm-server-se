@@ -62,9 +62,7 @@ public class TimelineUtil {
         model.setOperationTime(configArr[7]);
         model.setSource(configArr[8]);
         model.setUserName(configArr[9]);
-        
-        JournalGridPanel journalGridPanel = JournalTabPanel.getInstance().getJournalGridPanel();
-        journalGridPanel.openTabPanel(model);
+        JournalGridPanel.getInstance().openTabPanel(model);
     }
         
     public static void loadTimeline(String type) {
