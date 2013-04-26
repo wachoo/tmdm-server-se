@@ -44,4 +44,6 @@ public interface JournalServiceAsync {
             AsyncCallback<String> callback);
 
     void isAdmin(AsyncCallback<Boolean> callback);
+    
+    void isJournalHistoryExist(JournalParameters parameter,AsyncCallback<Boolean> callback);
 }

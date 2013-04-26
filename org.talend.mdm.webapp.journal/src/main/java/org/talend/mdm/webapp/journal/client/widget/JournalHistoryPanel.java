@@ -13,8 +13,8 @@
 package org.talend.mdm.webapp.journal.client.widget;
 
 import org.talend.mdm.webapp.journal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.journal.client.util.JournalSearchUtil;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
-import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -55,7 +55,7 @@ public class JournalHistoryPanel extends ContentPanel {
         westData.setMargins(new Margins(5, 5, 0, 0));
         
         beforePanel = new JournalComparisonPanel(MessagesFactory.getMessages().before_label(),
-                this.buildParameter(gridModel, "before", isAuth),journalDataPanel.getJournalGridModel(),true); //$NON-NLS-1$
+                JournalSearchUtil.buildParameter(gridModel, "before", isAuth),journalDataPanel.getJournalGridModel(),true); //$NON-NLS-1$
         this.add(beforePanel, westData);
         
         BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
@@ -64,27 +64,11 @@ public class JournalHistoryPanel extends ContentPanel {
         centerData.setSplit(true);
         
         afterPanel = new JournalComparisonPanel(MessagesFactory.getMessages().after_label(),
-                this.buildParameter(gridModel, "current", isAuth),journalDataPanel.getJournalGridModel(),false); //$NON-NLS-1$
+                JournalSearchUtil.buildParameter(gridModel, "current", isAuth),journalDataPanel.getJournalGridModel(),false); //$NON-NLS-1$
         this.add(afterPanel, centerData);
         
         beforePanel.setOtherPanel(afterPanel);
         afterPanel.setOtherPanel(beforePanel);
-    }
-    
-    private JournalParameters buildParameter(JournalGridModel gridModel, String action, boolean isAuth){
-        JournalParameters parameter = new JournalParameters();
-        parameter.setDataClusterName(gridModel.getDataContainer());
-        parameter.setDataModelName(gridModel.getDataModel());
-        parameter.setConceptName(gridModel.getEntity());
-        parameter.setDate(Long.parseLong(gridModel.getOperationTime()));
-        parameter.setRevisionId(gridModel.getRevisionId());
-        parameter.setIds(gridModel.getIds());
-        parameter.setAction(action);
-        String[] id = gridModel.getKey().split("\\."); //$NON-NLS-1$
-        parameter.setId(id);
-        parameter.setAuth(isAuth);
-        
-        return parameter;
     }
  
     public JournalComparisonPanel getBeforePanel() {

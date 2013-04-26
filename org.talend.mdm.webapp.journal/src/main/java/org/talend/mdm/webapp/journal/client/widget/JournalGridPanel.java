@@ -22,6 +22,7 @@ import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.journal.client.Journal;
 import org.talend.mdm.webapp.journal.client.JournalServiceAsync;
 import org.talend.mdm.webapp.journal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.journal.client.util.JournalSearchUtil;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
@@ -191,7 +192,15 @@ public class JournalGridPanel extends ContentPanel {
 
             public void handleEvent(GridEvent<JournalGridModel> be) {
                 final JournalGridModel gridModel = be.getModel();
-                JournalGridPanel.this.openTabPanel(gridModel);
+                service.isJournalHistoryExist(JournalSearchUtil.buildParameter(gridModel, "current", true), new SessionAwareAsyncCallback<Boolean>() { //$NON-NLS-1$
+
+                    @Override
+                    public void onSuccess(Boolean result) {
+                        if (result) {
+                            JournalGridPanel.this.openTabPanel(gridModel);
+                        }
+                    }
+                });
             }
         });
 

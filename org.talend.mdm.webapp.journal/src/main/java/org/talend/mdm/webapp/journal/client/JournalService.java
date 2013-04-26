@@ -47,4 +47,6 @@ public interface JournalService extends RemoteService {
             throws ServiceException;
 
     boolean isAdmin();
+    
+    boolean isJournalHistoryExist(JournalParameters parameter) throws ServiceException;
 }
