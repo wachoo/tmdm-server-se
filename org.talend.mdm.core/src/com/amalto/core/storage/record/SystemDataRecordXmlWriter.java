@@ -210,7 +210,10 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
                             }
                         }
                     }
-                }
+                } else {
+                    // TMDM-5572: Prints empty elements for null values
+                    out.write("<" + simpleField.getName() + "/>"); //$NON-NLS-1$ //$NON-NLS-2$
+             }                
                 return null;
             } catch (IOException e) {
                 throw new RuntimeException("Could not serialize XML for simple field '" + simpleField.getName() + "' of type '" + simpleField.getContainingType().getName() + "'.", e);
