@@ -49,7 +49,8 @@ public class TransformerProcessStep implements Serializable{
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
+
+    @LongString
 	public String getParameters() {
 		return parameters;
 	}
