@@ -16,12 +16,14 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
+import com.amalto.core.storage.inmemory.InMemoryJoinStrategy;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
 import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +33,7 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
 
     private static final Logger LOGGER = Logger.getLogger(SelectAnalyzer.class);
 
-    private static final boolean ALLOW_IN_MEMORY_JOINS = false;
+    private static final boolean ALLOW_IN_MEMORY_JOINS = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("db.allow.memory.join", "false")); //$NON-NLS-1$ //$NON-NLS-2$
 
     private final List<TypedExpression> selectedFields = new LinkedList<TypedExpression>();
 

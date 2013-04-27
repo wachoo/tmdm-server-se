@@ -9,13 +9,14 @@
  * 9 rue Pages 92150 Suresnes, France
  */
 
-package com.amalto.core.storage.hibernate;
+package com.amalto.core.storage.inmemory;
 
 import com.amalto.core.query.user.Condition;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryDumpConsole;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.hibernate.CloseableIterator;
 import com.amalto.core.storage.record.DataRecord;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.lang.NotImplementedException;
@@ -25,12 +26,15 @@ import org.talend.mdm.commmon.metadata.FieldMetadata;
 import java.io.IOException;
 import java.util.*;
 
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
 import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 class InMemoryJoinResults implements StorageResults {
 
     private static final Logger LOGGER = Logger.getLogger(InMemoryJoinResults.class);
+
+    private static final int MEMORY_COST_LIMIT = 10 * 1024 * 1024;
+
+    private static final int UUID_SIZE = 64;
 
     private final InMemoryJoinNode node;
 
@@ -91,28 +95,55 @@ class InMemoryJoinResults implements StorageResults {
         }
     }
 
-    private static CloseableIterator<DataRecord> evaluateResults(Storage storage, InMemoryJoinNode node) {
-        Set<Object> childIds = new HashSet<Object>();
-        for (InMemoryJoinNode child : node.children.keySet()) {
-            childIds.addAll(_evaluateConditions(storage, child));
+    private static int computeTreeSize(InMemoryJoinNode node) {
+        int size = node.expression == null ? 1 : 0;
+        for (InMemoryJoinNode inMemoryJoinNode : node.children.keySet()) {
+            size += computeTreeSize(inMemoryJoinNode);
         }
-        if (LOGGER.isDebugEnabled()) {
-            debug(node);
-        }
-        if (LOGGER.isTraceEnabled()) {
-            trace(node);
-        }
-        if (childIds.isEmpty()) {
-            return new EmptyIterator();
-        } else {
-            FieldMetadata field = node.type.getKeyFields().iterator().next(); // TODO Support compound keys.
-            Condition condition = buildConditionFromValues(field, childIds);
-            UserQueryBuilder qb = from(node.type).where(condition);
-            return (CloseableIterator<DataRecord>) storage.fetch(qb.getSelect()).iterator();
-        }
+        return size;
     }
 
-    private static Set<Object> _evaluateConditions(Storage storage, InMemoryJoinNode node) {
+    private static int computeConditionCost(Storage storage, InMemoryJoinNode node) {
+        int size = 0;
+        if(node.expression != null) {
+            StorageResults results = storage.fetch(node.expression);
+            try {
+                size += results.getCount();
+            } finally {
+                results.close();
+            }
+        }
+        for (InMemoryJoinNode inMemoryJoinNode : node.children.keySet()) {
+            size += computeConditionCost(storage, inMemoryJoinNode);
+        }
+        return size;
+    }
+
+    private static CloseableIterator<DataRecord> evaluateResults(Storage storage, InMemoryJoinNode node) {
+        // Computes memory cost for check.
+        // {
+        //   a = sum of all path length from node
+        //   b = sum of all count based on condition in tree.
+        //   UUID_SIZE = size in memory (bytes) required to store a UUID.
+        // }
+        // memoryCost = (((a * b) * (additionalProjectionNodes + 1) * UUID_SIZE)
+        int conditionCost = computeTreeSize(node) * computeConditionCost(storage, node);
+        int additionalNodes = 1;
+        int memoryCost = (conditionCost * (additionalNodes + 1)) * UUID_SIZE;
+        if(memoryCost > MEMORY_COST_LIMIT) {
+            throw new IllegalStateException("Query execution requires too much memory (" + memoryCost + " > " + MEMORY_COST_LIMIT + ")");
+        }
+        // Actual evaluation
+        State state;
+        if (node.type.isInstantiable()) {
+            state = new EntityState();
+        } else {
+            state = new ProjectionState(); // TODO this is not always correct
+        }
+        return state.process(storage, node);
+    }
+
+    static Set<Object> _evaluateConditions(Storage storage, InMemoryJoinNode node) {
         if (node.expression != null) {
             Set<Object> expressionIds = new HashSet<Object>();
             StorageResults results = storage.fetch(node.expression);
@@ -148,13 +179,9 @@ class InMemoryJoinResults implements StorageResults {
                 default:
                     throw new NotImplementedException("No support for '" + node.merge + "'.");
             }
-            node.ids = ids;
             //
             Set<Object> returnIds = new HashSet<Object>();
             if (node.childProperty != null) {
-                if (ids.size() > 1000) {
-                    throw new RuntimeException("Should disable optimization: " + ids.size() + " matches returned for step " + node);
-                }
                 if (ids.isEmpty()) {
                     return Collections.emptySet();
                 }
@@ -162,7 +189,7 @@ class InMemoryJoinResults implements StorageResults {
                 {
                     UserQueryBuilder qb = from(node.type)
                             .selectId(node.type)
-                            .where(buildConditionFromValues(node.childProperty, ids));
+                            .where(buildConditionFromValues(null, node.childProperty, ids));
                     node.expression = qb.getSelect();
                     StorageResults results = storage.fetch(qb.getSelect());
                     try {
@@ -181,7 +208,7 @@ class InMemoryJoinResults implements StorageResults {
         }
     }
 
-    private static Condition buildConditionFromValues(FieldMetadata field, Set<Object> values) {
+    static Condition buildConditionFromValues(Condition existingCondition, FieldMetadata field, Set<Object> values) {
         Condition condition = null;
         for (Object id : values) {
             Condition newCondition = UserQueryBuilder.eq(field, String.valueOf(id));
@@ -190,6 +217,9 @@ class InMemoryJoinResults implements StorageResults {
             } else {
                 condition = UserQueryBuilder.or(condition, newCondition);
             }
+        }
+        if(existingCondition != null) {
+            return UserQueryBuilder.and(existingCondition, condition);
         }
         return condition;
     }
@@ -212,7 +242,14 @@ class InMemoryJoinResults implements StorageResults {
         }
     }
 
-    private static void debug(InMemoryJoinNode node) {
+    private static void listNodes(InMemoryJoinNode node, List<InMemoryJoinNode> nodes) {
+        nodes.add(node);
+        for (InMemoryJoinNode child : node.children.keySet()) {
+            listNodes(child, nodes);
+        }
+    }
+
+    static void debug(InMemoryJoinNode node) {
         List<InMemoryJoinNode> orderedNodesByTime = new LinkedList<InMemoryJoinNode>();
         listNodes(node, orderedNodesByTime);
         Collections.sort(orderedNodesByTime, new Comparator<InMemoryJoinNode>() {
@@ -227,14 +264,7 @@ class InMemoryJoinResults implements StorageResults {
         }
     }
 
-    private static void listNodes(InMemoryJoinNode node, List<InMemoryJoinNode> nodes) {
-        nodes.add(node);
-        for (InMemoryJoinNode child : node.children.keySet()) {
-            listNodes(child, nodes);
-        }
-    }
-
-    private static void trace(InMemoryJoinNode node) {
+    static void trace(InMemoryJoinNode node) {
         LOGGER.trace("====");
         LOGGER.trace("Node " + node);
         LOGGER.trace("Execution time: " + node.execTime + " ms");
@@ -248,23 +278,4 @@ class InMemoryJoinResults implements StorageResults {
         }
     }
 
-    private static class EmptyIterator extends CloseableIterator<DataRecord> {
-        @Override
-        public void close() throws IOException {
-        }
-
-        @Override
-        public boolean hasNext() {
-            return false;
-        }
-
-        @Override
-        public DataRecord next() {
-            return null;
-        }
-
-        @Override
-        public void remove() {
-        }
-    }
 }

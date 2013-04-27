@@ -9,9 +9,9 @@
  * 9 rue Pages 92150 Suresnes, France
  */
 
-package com.amalto.core.storage.hibernate;
+package com.amalto.core.storage.inmemory;
 
-import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.Select;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
@@ -31,9 +31,7 @@ class InMemoryJoinNode {
 
     Merge merge = Merge.NONE;
 
-    Set<Object> ids = Collections.emptySet();
-
-    Expression expression;
+    Select expression;
 
     // TODO not very classy use of a Map
     final Map<InMemoryJoinNode, InMemoryJoinNode> children = new HashMap<InMemoryJoinNode, InMemoryJoinNode>();
