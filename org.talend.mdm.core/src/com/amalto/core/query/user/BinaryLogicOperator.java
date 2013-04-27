@@ -30,7 +30,9 @@ public class BinaryLogicOperator extends Condition {
         left = (Condition) left.normalize();
         right = (Condition) right.normalize();
         // If right or left is a no op condition, simplify a bit the query.
-        if (right == UserQueryHelper.NO_OP_CONDITION) {
+        if (right == UserQueryHelper.NO_OP_CONDITION && left == UserQueryHelper.NO_OP_CONDITION) {
+            return UserQueryHelper.NO_OP_CONDITION;
+        } else if (right == UserQueryHelper.NO_OP_CONDITION) {
             return left;
         } else if (left == UserQueryHelper.NO_OP_CONDITION) {
             return right;

@@ -44,10 +44,6 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     private boolean isFullText = false;
 
-    private boolean isOnlyId = false;
-
-    private FieldMetadata keyField = null;
-
     private boolean isCheckingProjection;
 
     SelectAnalyzer(MappingRepository storageRepository, StorageClassLoader storageClassLoader, Session session, Set<EndOfResultsCallback> callbacks, Storage storage, TableResolver resolver) {
@@ -78,14 +74,7 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
         if (condition != null) {
             condition.accept(this);
         }
-        if (condition != null) {
-            if (isOnlyId) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Using \"get by id\" strategy");
-                }
-                return new IdQueryHandler(storage, storageRepository, storageClassLoader, session, select, this.selectedFields, callbacks);
-            }
-        }
+
         if (isFullText) {
             DataSource dataSource = storage.getDataSource();
             RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) dataSource;
@@ -98,6 +87,15 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
                 throw new IllegalArgumentException("Storage '" + storage.getName() + "' is not configured to support full text queries.");
             }
         }
+        if (condition != null) {
+            boolean isId = condition.accept(new IdCheck());
+            if (isId) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Using \"get by id\" strategy");
+                }
+                return new IdQueryHandler(storage, storageRepository, storageClassLoader, session, select, this.selectedFields, callbacks);
+            }
+        }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Using \"standard query\" strategy");
         }
@@ -106,7 +104,6 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     @Override
     public AbstractQueryHandler visit(Isa isa) {
-        isOnlyId = false;
         return null;
     }
 
@@ -169,28 +166,16 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     @Override
     public AbstractQueryHandler visit(BinaryLogicOperator condition) {
-        condition.getLeft().accept(this);
-        condition.getRight().accept(this);
         return null;
     }
 
     @Override
     public AbstractQueryHandler visit(UnaryLogicOperator condition) {
-        // TMDM-5319: Using a 'not' predicate, don't do a get by id.
-        if (condition.getPredicate() == Predicate.NOT) {
-            isOnlyId = false;
-        } else {
-            condition.getCondition().accept(this);
-        }
         return null;
     }
 
     @Override
     public AbstractQueryHandler visit(Compare condition) {
-        condition.getLeft().accept(this);
-        if (isOnlyId) {
-            isOnlyId = condition.getPredicate() == Predicate.EQUALS;
-        }
         return null;
     }
 
@@ -224,36 +209,125 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     @Override
     public AbstractQueryHandler visit(FullText fullText) {
-        isOnlyId = false;
         isFullText = true;
         return null;
     }
 
     @Override
     public AbstractQueryHandler visit(Range range) {
-        isOnlyId = false;
         return null;
     }
 
     @Override
     public AbstractQueryHandler visit(Field field) {
-        if (!isCheckingProjection) {
+        selectedFields.add(field);
+        return null;
+    }
+    
+    private static class IdCheck extends VisitorAdapter<Boolean> {
+        private FieldMetadata keyField;
+
+        @Override
+        public Boolean visit(Isa isa) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(IsEmpty isEmpty) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(NotIsEmpty notIsEmpty) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(UnaryLogicOperator condition) {
+            // TMDM-5319: Using a 'not' predicate, don't do a get by id.
+            if (condition.getPredicate() == Predicate.NOT) {
+                return false;
+            } else {
+                return condition.getCondition().accept(this);
+            }
+        }
+
+        @Override
+        public Boolean visit(Condition condition) {
+            return condition != UserQueryHelper.NO_OP_CONDITION;
+        }
+
+        @Override
+        public Boolean visit(BinaryLogicOperator condition) {
+            return condition.getLeft().accept(this) && condition.getRight().accept(this);
+        }
+
+        @Override
+        public Boolean visit(StagingStatus stagingStatus) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(StagingError stagingError) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(StagingSource stagingSource) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(Compare condition) {
+            return condition.getLeft().accept(this) && condition.getPredicate() == Predicate.EQUALS;
+        }
+
+        @Override
+        public Boolean visit(Id id) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(Timestamp timestamp) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(IsNull isNull) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(NotIsNull notIsNull) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(FullText fullText) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(Range range) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(Field field) {
             FieldMetadata fieldMetadata = field.getFieldMetadata();
-            if(fieldMetadata.getContainingType().getKeyFields().size() == 1) {
+            if (fieldMetadata.getContainingType().getKeyFields().size() == 1) {
                 if (fieldMetadata.isKey() && !(fieldMetadata instanceof CompoundFieldMetadata)) {
                     if (keyField != null) {
                         // At least twice an Id field means different Id values
                         // TODO Support for "entity/id = n AND entity/id = n" (could simplified to "entity/id = n").
-                        isOnlyId = false;
+                        return false;
                     } else {
                         keyField = fieldMetadata;
-                        isOnlyId = true;
+                        return true;
                     }
                 }
             } // TODO Support compound key field.
-        } else {
-            selectedFields.add(field);
+            return false;
         }
-        return null;
     }
 }
