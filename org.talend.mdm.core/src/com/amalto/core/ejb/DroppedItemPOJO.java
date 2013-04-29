@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.amalto.core.metadata.LongString;
 import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Marshaller;
@@ -137,6 +138,7 @@ public class DroppedItemPOJO implements Serializable {
         this.insertionTime = insertionTime;
     }
 
+    @LongString
     public String getProjection() {
         return projection;
     }
