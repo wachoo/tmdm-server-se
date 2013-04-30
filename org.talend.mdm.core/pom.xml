@@ -123,10 +123,10 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>deploy-jboss-other-libs</id>
+                        <id>deploy-jboss-dev-libs</id>
                         <phase>install</phase>
                         <configuration>
-                            <includeArtifactIds>mysql-connector-java,ojdbc6,sqljdbc4</includeArtifactIds>
+                            <includeArtifactIds>postgresql,mysql-connector-java,ojdbc6,sqljdbc4</includeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
@@ -367,7 +367,6 @@
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
