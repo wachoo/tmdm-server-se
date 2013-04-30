@@ -11,8 +11,8 @@
 package com.amalto.core.save.context;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 
+import com.amalto.core.util.SynchronizedNow;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 
@@ -33,7 +33,7 @@ class GenerateActions implements DocumentSaver {
 
     private final DocumentSaver next;
 
-    private final static AtomicLong lastUpdateTime = new AtomicLong();
+    private final static SynchronizedNow now = new SynchronizedNow();
 
     GenerateActions(DocumentSaver next) {
         this.next = next;
@@ -53,21 +53,7 @@ class GenerateActions implements DocumentSaver {
         } else {
             source = StringUtils.EMPTY;
         }
-        long mdmUpdateTime;
-        synchronized (lastUpdateTime) {
-            mdmUpdateTime = System.currentTimeMillis();
-            // System.currentTimeMillis() is not precise enough when MDM is stressed, this code ensures time follow a
-            // strict sequence.
-            if(lastUpdateTime.get() >= mdmUpdateTime) {
-                long backup = mdmUpdateTime;
-                mdmUpdateTime = lastUpdateTime.incrementAndGet();
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Changed time from " + backup + " to " + mdmUpdateTime + " (diff: " + (mdmUpdateTime - backup) + " ms)");
-                }
-            } else {
-                lastUpdateTime.set(mdmUpdateTime);
-            }
-        }
+        long mdmUpdateTime = now.getTime();
         Date date = new Date(mdmUpdateTime);
         SaverSource saverSource = session.getSaverSource();
         String userName = saverSource.getUserName();

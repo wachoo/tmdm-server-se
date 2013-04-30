@@ -34,6 +34,7 @@ import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocal;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.server.RoutingEngine;
 import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.SynchronizedNow;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.commons.codec.binary.Base64;
@@ -68,6 +69,8 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
     private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss'm'SSS"); //$NON-NLS-1$
 
     private final static Logger LOGGER = Logger.getLogger(RoutingEngineV2CtrlBean.class);
+
+    private final static SynchronizedNow synchronizedNow = new SynchronizedNow();
 
     private SessionContext context;
 
@@ -277,7 +280,7 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
             // increment matching routing rules counter
             routingRulesThatMatched.add(routingRulePOJOPK);
             // create the routing Order
-            Date now = new Date();
+            Date now = new Date(synchronizedNow.getTime());
             String name = itemPOJOPK.getUniqueID() + "-" + sdf.format(now);
             // bind a universe to a Routing Order
             String bindingUniverseName = null;
