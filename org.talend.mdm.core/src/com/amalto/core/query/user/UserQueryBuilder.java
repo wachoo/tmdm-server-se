@@ -436,15 +436,20 @@ public class UserQueryBuilder {
             return join(field)
                     .orderBy(new Field(((ReferenceFieldMetadata) field).getReferencedField()), direction);
         } else {
-            return orderBy(new Field(field), direction);
+            expressionAsSelect().setOrderBy(new OrderBy(new Field(field), direction));
         }
+        return this;
     }
 
     public UserQueryBuilder orderBy(TypedExpression field, OrderBy.Direction direction) {
         if (field == null) {
             throw new IllegalArgumentException("Field cannot be null");
         }
-        expressionAsSelect().setOrderBy(new OrderBy(field, direction));
+        if (field instanceof Field) {
+            orderBy(((Field) field).getFieldMetadata(), direction);
+        } else {
+            expressionAsSelect().setOrderBy(new OrderBy(field, direction));
+        }
         return this;
     }
 
