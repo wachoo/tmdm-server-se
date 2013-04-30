@@ -41,7 +41,6 @@ public class BulkloadClient {
         try {
             synchronized (startedBulkloadCount) {
                 while (startedBulkloadCount.get() > 0) {
-                    System.out.println(startedBulkloadCount.get() + " remaining.");
                     startedBulkloadCount.wait();
                 }
             }
