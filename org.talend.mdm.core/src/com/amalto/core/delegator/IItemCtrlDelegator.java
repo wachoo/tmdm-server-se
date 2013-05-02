@@ -461,13 +461,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             logger.error(err);
             throw new XtentisException(err);
         }
-        try {
-            if (Util.getDataClusterCtrlLocal().existsDataCluster(dataClusterPOJOPK) == null) {
-                throw new IllegalArgumentException("Data Cluster '" + dataClusterPOJOPK.getUniqueId() + "' does not exist.");  //$NON-NLS-1$//$NON-NLS-2$
-            }
-        } catch (Exception e) {
-            throw new XtentisException("Unable to get the Data Cluster '" + dataClusterPOJOPK.getUniqueId() + "'", e); //$NON-NLS-1$ //$NON-NLS-2$
-        }
+        isExistDataCluster(dataClusterPOJOPK);
         Server server = ServerContext.INSTANCE.get();
         String revisionId = universe.getConceptRevisionID(conceptName);
         Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), revisionId);
@@ -653,6 +647,16 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 whereItem, pivotDirections, indexDirections, start, limit);
         logger.debug(query);
         return server.runQuery(null, null, query, null, start, limit, false);
+    }
+    
+    public void isExistDataCluster(DataClusterPOJOPK dataClusterPOJOPK) throws XtentisException {
+        try {
+            if (Util.getDataClusterCtrlLocal().existsDataCluster(dataClusterPOJOPK) == null) {
+                throw new IllegalArgumentException("Data Cluster '" + dataClusterPOJOPK.getUniqueId() + "' does not exist.");  //$NON-NLS-1$//$NON-NLS-2$
+            }
+        } catch (Exception e) {
+            throw new XtentisException("Unable to get the Data Cluster '" + dataClusterPOJOPK.getUniqueId() + "'", e); //$NON-NLS-1$ //$NON-NLS-2$
+        }
     }
 
 }
