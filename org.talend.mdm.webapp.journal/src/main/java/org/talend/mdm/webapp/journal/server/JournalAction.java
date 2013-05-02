@@ -179,20 +179,19 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
             return false;
         }
     }
-    
+
+    @Override
     public boolean isJournalHistoryExist(JournalParameters parameter) throws ServiceException {
-        String xmlStr;
         try {
-            xmlStr = JournalHistoryService.getInstance().getComparisionTreeString(parameter);
+            JournalHistoryService.getInstance().getComparisionTreeString(parameter);
+            return true;
         } catch (UnsupportedUndoPhysicalDeleteException exception) {
-            xmlStr = ""; //$NON-NLS-1$
-            LOG.equals("Restore function for current operation is not supported."); //$NON-NLS-1$
+            LOG.info("Restore function for current operation is not supported."); //$NON-NLS-1$
+            return false;
         } catch (Exception exception) {
-            xmlStr = ""; //$NON-NLS-1$
             LOG.error(exception.getMessage(), exception);
             throw new ServiceException(exception.getMessage());
         }
-        return !"".equals(xmlStr); //$NON-NLS-1$       
     }
 
     private JournalSearchCriteria buildCriteria(String entity, String key, String source, String operationType, String startDate,
