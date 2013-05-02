@@ -17,6 +17,8 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.inmemory.InMemoryJoinStrategy;
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -52,6 +54,8 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
     private boolean isFullText = false;
 
     private boolean isCheckingProjection;
+
+    private FullText fullTextExpression;
 
     SelectAnalyzer(MappingRepository mappings,
                    StorageClassLoader storageClassLoader,
@@ -89,6 +93,20 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
         if (isFullText) {
             DataSource dataSource = storage.getDataSource();
             RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) dataSource;
+            String fullTextValue = fullTextExpression.getValue().trim();
+            if (fullTextValue.isEmpty() || StringUtils.containsOnly(fullTextValue, new char[]{'*'})) {
+                if (select.getTypes().size() == 1) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Using \"standard query\" strategy (full text query on '*' or ' ')");
+                    }
+                    return new StandardQueryHandler(storage, mappings, resolver, storageClassLoader, session, select, this.selectedFields, callbacks);
+                } else {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Using \"multi type\" strategy (full text query on '*' or ' ')");
+                    }
+                    return new MultiTypeStrategy(storage);
+                }
+            }
             if (rdbmsDataSource.supportFullText()) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Using \"full text query\" strategy");
@@ -230,6 +248,7 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
 
     @Override
     public VisitorAdapter<StorageResults> visit(FullText fullText) {
+        fullTextExpression = fullText;
         isFullText = true;
         return null;
     }

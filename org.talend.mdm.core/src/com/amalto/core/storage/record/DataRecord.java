@@ -160,4 +160,31 @@ public class DataRecord {
         return fieldToValue.keySet();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DataRecord)) return false;
+
+        DataRecord that = (DataRecord) o;
+        for (FieldMetadata key : fieldToValue.keySet()) {
+            if (key.isKey()) {
+                if (!fieldToValue.get(key).equals(that.fieldToValue.get(key))) {
+                    return false;
+                }
+            }
+        }
+        if (!type.equals(that.type)) return false;
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type.hashCode();
+        for (FieldMetadata key : fieldToValue.keySet()) {
+            if (key.isKey()) {
+                result += fieldToValue.get(key).hashCode();
+            }
+        }
+        return result;
+    }
 }

@@ -382,6 +382,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
     }
 
     @Override
+    public StorageResults visit(FullText fullText) {
+        // Ignore full text queries (if any).
+        return null;
+    }
+
+    @Override
     public StorageResults visit(Paging paging) {
         if (paging.getLimit() < Integer.MAX_VALUE) {
             criteria.setFirstResult(paging.getStart());
