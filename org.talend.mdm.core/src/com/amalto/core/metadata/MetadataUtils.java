@@ -16,6 +16,7 @@ import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.hibernate.TypeMapping;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
@@ -383,6 +384,12 @@ public class MetadataUtils {
      *         a {@link Class#forName(String)} call.
      */
     public static String getJavaType(TypeMetadata metadata) {
+        String sqlType = metadata.getData(TypeMapping.SQL_TYPE);
+        if (sqlType != null) {
+            if ("clob".equals(sqlType)) { //$NON-NLS-1$
+                return "java.sql.Clob"; //$NON-NLS-1$
+            }
+        }
         String type = getSuperConcreteType(metadata).getName();
         if ("string".equals(type)) { //$NON-NLS-1$
             return "java.lang.String"; //$NON-NLS-1$

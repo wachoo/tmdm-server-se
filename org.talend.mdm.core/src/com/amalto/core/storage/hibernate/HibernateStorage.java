@@ -419,8 +419,8 @@ public class HibernateStorage implements Storage {
             switch (storageType) {
                 case SYSTEM:
                     switch (dataSource.getDialectName()) {
-                        case ORACLE_10G: // Oracle needs to compress long string values
-                            typeMappingRepository = new SystemTypeMappingRepository(TypeMappingStrategy.SCATTERED_COMPRESSED);
+                        case ORACLE_10G: // Oracle needs to store long string values to CLOBs.
+                            typeMappingRepository = new SystemTypeMappingRepository(TypeMappingStrategy.SCATTERED_CLOB);
                             break;
                         default:
                             typeMappingRepository = new SystemTypeMappingRepository(TypeMappingStrategy.SCATTERED);

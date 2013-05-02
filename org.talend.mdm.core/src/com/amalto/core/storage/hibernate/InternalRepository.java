@@ -73,15 +73,15 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
                 }
                 return new TypeMappingCreator(internalRepository, mappings);
             case SCATTERED:
-            case SCATTERED_COMPRESSED:
+            case SCATTERED_CLOB:
                 if (LOGGER.isDebugEnabled()) {
-                    if (strategy.compressLongStrings()) {
-                        LOGGER.debug("Mapping strategy: " + type.getName() + " -> SCATTERED (COMPRESSED)");
+                    if (strategy.preferClobUse()) {
+                        LOGGER.debug("Mapping strategy: " + type.getName() + " -> SCATTERED (CLOBs)");
                     } else {
                         LOGGER.debug("Mapping strategy: " + type.getName() + " -> SCATTERED");
                     }
                 }
-                return new ScatteredMappingCreator(internalRepository, mappings, strategy.compressLongStrings());
+                return new ScatteredMappingCreator(internalRepository, mappings, strategy.preferClobUse());
             default:
                 throw new IllegalArgumentException("Strategy '" + this.strategy + "' is not supported.");
         }

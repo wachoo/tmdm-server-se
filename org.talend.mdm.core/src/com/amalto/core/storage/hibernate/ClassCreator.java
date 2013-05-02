@@ -426,6 +426,10 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
     }
 
     private SearchIndexHandler getHandler(FieldMetadata metadata) {
+        if (metadata.getType().getData(TypeMapping.SQL_TYPE) != null) {
+            // Don't index fields where SQL type was forced.
+            return new NotIndexedHandler();
+        }
         boolean validType = !("date".equals(metadata.getType().getName()) //$NON-NLS-1$
                 || "dateTime".equals(metadata.getType().getName()) //$NON-NLS-1$
                 || "time".equals(metadata.getType().getName()) //$NON-NLS-1$
@@ -479,6 +483,17 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             Annotation fieldAnnotation = new Annotation(Field.class.getName(), pool);
             Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), pool);
             fieldBridge.addMemberValue("impl", new ClassMemberValue(ListBridge.class.getName(), pool)); //$NON-NLS-1$
+            annotations.addAnnotation(fieldAnnotation);
+            annotations.addAnnotation(fieldBridge);
+        }
+    }
+
+    private static class NotIndexedHandler implements SearchIndexHandler {
+        @Override
+        public void handle(AnnotationsAttribute annotations, ConstPool pool) {
+            Annotation fieldAnnotation = new Annotation(Field.class.getName(), pool);
+            Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), pool);
+            fieldBridge.addMemberValue("impl", new ClassMemberValue(NotIndexedBridge.class.getName(), pool)); //$NON-NLS-1$
             annotations.addAnnotation(fieldAnnotation);
             annotations.addAnnotation(fieldBridge);
         }

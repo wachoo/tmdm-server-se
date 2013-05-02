@@ -28,6 +28,7 @@ class UpdateReportMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         this.mappings = mappings;
         ComplexTypeMetadata databaseUpdateReportType = new ComplexTypeMetadataImpl("", "X_UPDATE_REPORT", true); //$NON-NLS-1$ //$NON-NLS-2$
         TypeMetadata stringType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"); //$NON-NLS-1$
+        TypeMetadata longStringType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"); //$NON-NLS-1$
         TypeMetadata longType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "long"); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_user_name", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, true, false, true, "x_source", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
@@ -38,8 +39,8 @@ class UpdateReportMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_data_model", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_concept", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_key", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
-        SimpleTypeFieldMetadata items_xml = new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_items_xml", stringType, Collections.<String>emptyList(), Collections.<String>emptyList()); //$NON-NLS-1$
-        items_xml.setData("SQL_TYPE", "text"); //$NON-NLS-1$ //$NON-NLS-2$
+        SimpleTypeFieldMetadata items_xml = new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_items_xml", longStringType, Collections.<String>emptyList(), Collections.<String>emptyList()); //$NON-NLS-1$
+        items_xml.getType().setData(TypeMapping.SQL_TYPE, "text"); //$NON-NLS-1$
         databaseUpdateReportType.addField(items_xml);
         DefaultValidationHandler handler = new DefaultValidationHandler();
         DATABASE_UPDATE_REPORT_TYPE = (ComplexTypeMetadata) databaseUpdateReportType.freeze(handler);

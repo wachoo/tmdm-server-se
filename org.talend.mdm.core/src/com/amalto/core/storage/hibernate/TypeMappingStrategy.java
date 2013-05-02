@@ -23,26 +23,24 @@ public enum TypeMappingStrategy {
      */
     SCATTERED(false),
     /**
-     * Same as {@link #SCATTERED} strategy with one change: all long string values will be compressed using a ZIP
-     * compression (and a base64 encoding). This strategy is useful when underlying storage does not allow storage
-     * of multiple long string columns.
+     * Same as {@link #SCATTERED} strategy with one change: all long string values will be stored using CLOB in database.
      */
-    SCATTERED_COMPRESSED(true),
+    SCATTERED_CLOB(true),
     /**
      * "Best guess" strategy: MDM will choose best strategy based on metadata analysis.
      */
     AUTO(false);
 
-    private final boolean shouldCompressLongStrings;
+    private final boolean preferClobUse;
 
-    private TypeMappingStrategy(boolean shouldCompressLongStrings) {
-        this.shouldCompressLongStrings = shouldCompressLongStrings;
+    private TypeMappingStrategy(boolean preferClobUse) {
+        this.preferClobUse = preferClobUse;
     }
 
     /**
      * @return <code>true</code> if strategy implies compression of long string values, <code>false</code> otherwise.
      */
-    public boolean compressLongStrings() {
-        return shouldCompressLongStrings;
+    public boolean preferClobUse() {
+        return preferClobUse;
     }
 }

@@ -69,7 +69,7 @@ class ScatteredTypeMapping extends TypeMapping {
                 }
                 ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) mappedDatabaseField;
                 if (!field.isMany()) {
-                    DataRecord containedRecord = (DataRecord) readValue(from, field, mappedDatabaseField);
+                    DataRecord containedRecord = (DataRecord) readValue(from, field, mappedDatabaseField, session);
                     if (containedRecord != null) {
                         TypeMapping mappingFromUser = mappings.getMappingFromUser(containedRecord.getType());
                         ComplexTypeMetadata referencedType = mappingFromUser != null ? mappingFromUser.getDatabase() : containedRecord.getType();
@@ -88,7 +88,7 @@ class ScatteredTypeMapping extends TypeMapping {
                         to.set(referenceFieldMetadata.getName(), null);
                     }
                 } else {
-                    List<DataRecord> dataRecords = (List<DataRecord>) readValue(from, field, mappedDatabaseField);
+                    List<DataRecord> dataRecords = (List<DataRecord>) readValue(from, field, mappedDatabaseField, session);
                     Object value;
                     if (mapping != null) {
                         value = to.get(mapping.getDatabase(field).getName());
@@ -122,25 +122,25 @@ class ScatteredTypeMapping extends TypeMapping {
                 }
             } else if (field instanceof ReferenceFieldMetadata) {
                 if (!field.isMany()) {
-                    DataRecord referencedObject = (DataRecord) readValue(from, field, mappedDatabaseField);
+                    DataRecord referencedObject = (DataRecord) readValue(from, field, mappedDatabaseField, session);
                     if (referencedObject != null) {
                         Collection<FieldMetadata> keyFields = referencedObject.getType().getKeyFields();
                         Object referenceId;
                         if (keyFields.size() > 1) {
                             List<Object> referenceIdList = new LinkedList<Object>();
                             for (FieldMetadata keyField : keyFields) {
-                                referenceIdList.add(readValue(referencedObject, keyField, mappedDatabaseField));
+                                referenceIdList.add(readValue(referencedObject, keyField, mappedDatabaseField, session));
                             }
                             referenceId = referenceIdList;
                         } else {
-                            referenceId = readValue(referencedObject, keyFields.iterator().next(), mappedDatabaseField);
+                            referenceId = readValue(referencedObject, keyFields.iterator().next(), mappedDatabaseField, session);
                         }
                         to.set(mappedDatabaseField.getName(), getReferencedObject(contextClassLoader, session, mappings.getMappingFromUser(referencedObject.getType()).getDatabase(), referenceId));
                     } else {
                         to.set(mappedDatabaseField.getName(), null);
                     }
                 } else {
-                    List<DataRecord> referencedObjectList = (List<DataRecord>) readValue(from, field, mappedDatabaseField);
+                    List<DataRecord> referencedObjectList = (List<DataRecord>) readValue(from, field, mappedDatabaseField, session);
                     if (referencedObjectList != null) {
                         List<Object> wrappers = new LinkedList<Object>();
                         for (DataRecord dataRecord : referencedObjectList) {
@@ -149,11 +149,11 @@ class ScatteredTypeMapping extends TypeMapping {
                             if (keyFields.size() > 1) {
                                 List<Object> referenceIdList = new LinkedList<Object>();
                                 for (FieldMetadata keyField : keyFields) {
-                                    referenceIdList.add(readValue(dataRecord, keyField, mappedDatabaseField));
+                                    referenceIdList.add(readValue(dataRecord, keyField, mappedDatabaseField, session));
                                 }
                                 referenceId = referenceIdList;
                             } else {
-                                referenceId = readValue(dataRecord, keyFields.iterator().next(), mappedDatabaseField);
+                                referenceId = readValue(dataRecord, keyFields.iterator().next(), mappedDatabaseField, session);
                             }
                             wrappers.add(getReferencedObject(contextClassLoader, session, dataRecord.getType(), referenceId));
                         }
@@ -168,14 +168,14 @@ class ScatteredTypeMapping extends TypeMapping {
             } else {
                 if (mappedDatabaseField.isMany()) {
                     List<Object> oldValues = (List<Object>) to.get(mappedDatabaseField.getName());
-                    List<Object> newValues = (List<Object>) readValue(from, field, mappedDatabaseField);
+                    List<Object> newValues = (List<Object>) readValue(from, field, mappedDatabaseField, session);
                     if (oldValues != null) {
                         resetList(oldValues, newValues);
                     } else {
                         to.set(mappedDatabaseField.getName(), newValues);
                     }
                 } else {
-                    to.set(mappedDatabaseField.getName(), readValue(from, field, mappedDatabaseField));
+                    to.set(mappedDatabaseField.getName(), readValue(from, field, mappedDatabaseField, session));
                 }
             }
         }
@@ -297,9 +297,9 @@ class ScatteredTypeMapping extends TypeMapping {
     // Returns actual contained type (in case in reference to hold contained record can have sub types).
     // Not expected to be use for foreign keys, and also very specific to this mapping implementation.
     private ComplexTypeMetadata getActualContainedType(FieldMetadata userField, Wrapper value) {
-        Class<? extends Wrapper> clazz = value.getClass();
+        Class<?> clazz = value.getClass();
         if (clazz.getName().contains("javassist")) { //$NON-NLS-1$
-            clazz = (Class<? extends Wrapper>) clazz.getSuperclass();
+            clazz = clazz.getSuperclass();
         }
         ComplexTypeMetadata typeFromClass = ((StorageClassLoader) Thread.currentThread().getContextClassLoader()).getTypeFromClass(clazz);
         TypeMapping mappingFromDatabase = mappings.getMappingFromDatabase(typeFromClass);

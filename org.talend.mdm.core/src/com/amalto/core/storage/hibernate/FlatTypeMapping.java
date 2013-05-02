@@ -97,7 +97,7 @@ class FlatTypeMapping extends TypeMapping {
                 if (databaseField == null) {
                     continue;
                 }
-                Object value = readValue(from, field, databaseField);
+                Object value = readValue(from, field, databaseField, session);
                 // "instance of" could be replaced by visitor on field... but is a bit too much for this simple step.
                 if (field instanceof SimpleTypeFieldMetadata || field instanceof EnumerationFieldMetadata) {
                     if (!field.isMany()) {

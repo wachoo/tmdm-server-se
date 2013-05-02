@@ -189,7 +189,8 @@ public class ClassRepository extends MetadataRepository {
                                 fieldType,
                                 Collections.<String>emptyList(),
                                 Collections.<String>emptyList());
-                        if ("string".equals(fieldTypeName) && declaredMethod.getAnnotation(LongString.class) != null) {
+                        LongString annotation = declaredMethod.getAnnotation(LongString.class);
+                        if ("string".equals(fieldTypeName) && annotation != null) { //$NON-NLS-1$
                             fieldType.setData(MetadataRepository.DATA_MAX_LENGTH, String.valueOf(Integer.MAX_VALUE));
                         }
                     } else {

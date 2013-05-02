@@ -14,6 +14,8 @@ package com.amalto.core.storage.hibernate;
 import com.amalto.core.storage.record.DataRecord;
 import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.codec.binary.Base64OutputStream;
+import org.apache.commons.io.IOUtils;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
@@ -23,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.sql.Clob;
 import java.util.Iterator;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -33,6 +36,8 @@ import java.util.zip.ZipOutputStream;
  * Represents type mapping between data model as specified by the user and data model as used by hibernate storage.
  */
 public abstract class TypeMapping {
+
+    public static final String SQL_TYPE = "SQL_TYPE"; //$NON-NLS-1$
 
     protected final ComplexTypeMetadata user;
 
@@ -77,39 +82,55 @@ public abstract class TypeMapping {
         }
     }
 
-    protected static Object readValue(DataRecord from, FieldMetadata sourceField, FieldMetadata targetField) {
+    protected static Object readValue(DataRecord from, FieldMetadata sourceField, FieldMetadata targetField, Session session) {
         Object value = from.get(sourceField);
-        return _readValue(value, sourceField, targetField);
+        return _serializeValue(value, sourceField, targetField, session);
     }
 
     protected static Object readValue(Wrapper from, FieldMetadata sourceField, FieldMetadata targetField) {
         Object value = from.get(sourceField.getName());
-        return _readValue(value, sourceField, targetField);
+        return _deserializeValue(value, sourceField, targetField);
     }
 
-    private static Object _readValue(Object value, FieldMetadata sourceField, FieldMetadata targetField) {
+    private static Object _serializeValue(Object value, FieldMetadata sourceField, FieldMetadata targetField, Session session) {
+            if (targetField == null) {
+                return value;
+            }
+            if (!targetField.isMany()) {
+                Boolean targetZipped = targetField.getData(MetadataRepository.DATA_ZIPPED);
+                Boolean sourceZipped = sourceField.getData(MetadataRepository.DATA_ZIPPED);
+                if (sourceZipped == null && Boolean.TRUE.equals(targetZipped)) {
+                    try {
+                        ByteArrayOutputStream characters = new ByteArrayOutputStream();
+                        OutputStream bos = new Base64OutputStream(characters);
+                        ZipOutputStream zos = new ZipOutputStream(bos);
+                        ZipEntry zipEntry = new ZipEntry("content"); //$NON-NLS-1$
+                        zos.putNextEntry(zipEntry);
+                        zos.write(String.valueOf(value).getBytes("UTF-8")); //$NON-NLS-1$
+                        zos.closeEntry();
+                        zos.flush();
+                        zos.close();
+                        return new String(characters.toByteArray());
+                    } catch (IOException e) {
+                        throw new RuntimeException("Unexpected compression exception", e);
+                    }
+                }
+                String targetSQLType = targetField.getType().getData(TypeMapping.SQL_TYPE);
+                if (targetSQLType != null && "clob".equalsIgnoreCase(targetSQLType)) { //$NON-NLS-1$
+                    return Hibernate.createClob(String.valueOf(value), session);
+                }
+            }
+            return value;
+        }
+
+    private static Object _deserializeValue(Object value, FieldMetadata sourceField, FieldMetadata targetField) {
         if (targetField == null) {
             return value;
         }
-        Boolean targetZipped = targetField.getData(MetadataRepository.DATA_ZIPPED);
-        Boolean sourceZipped = sourceField.getData(MetadataRepository.DATA_ZIPPED);
         if (!targetField.isMany()) {
-            if (sourceZipped == null && Boolean.TRUE.equals(targetZipped)) {
-                try {
-                    ByteArrayOutputStream characters = new ByteArrayOutputStream();
-                    OutputStream bos = new Base64OutputStream(characters);
-                    ZipOutputStream zos = new ZipOutputStream(bos);
-                    ZipEntry zipEntry = new ZipEntry("content"); //$NON-NLS-1$
-                    zos.putNextEntry(zipEntry);
-                    zos.write(String.valueOf(value).getBytes("UTF-8")); //$NON-NLS-1$
-                    zos.closeEntry();
-                    zos.flush();
-                    zos.close();
-                    return new String(characters.toByteArray());
-                } catch (IOException e) {
-                    throw new RuntimeException("Unexpected compression exception", e);
-                }
-            } else if (Boolean.TRUE.equals(sourceZipped) && targetZipped == null) {
+            Boolean targetZipped = targetField.getData(MetadataRepository.DATA_ZIPPED);
+            Boolean sourceZipped = sourceField.getData(MetadataRepository.DATA_ZIPPED);
+            if (Boolean.TRUE.equals(sourceZipped) && targetZipped == null) {
                 try {
                     ByteArrayInputStream bis = new ByteArrayInputStream(String.valueOf(value).getBytes("UTF-8")); //$NON-NLS-1$
                     ZipInputStream zis = new ZipInputStream(new Base64InputStream(bis));
@@ -124,6 +145,14 @@ public abstract class TypeMapping {
                     return new String(bos.toByteArray(), "UTF-8"); //$NON-NLS-1$
                 } catch (IOException e) {
                     throw new RuntimeException("Unexpected deflate exception", e);
+                }
+            }
+            String targetSQLType = sourceField.getType().getData(TypeMapping.SQL_TYPE);
+            if (targetSQLType != null && "clob".equalsIgnoreCase(targetSQLType)) { //$NON-NLS-1$
+                try {
+                    return new String(IOUtils.toCharArray(((Clob) value).getCharacterStream()));
+                } catch (Exception e) {
+                    throw new RuntimeException("Unexpected read from clob exception", e);
                 }
             }
         }

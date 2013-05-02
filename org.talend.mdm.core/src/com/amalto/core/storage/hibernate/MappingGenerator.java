@@ -661,8 +661,8 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         if ("base64Binary".equals(fieldType.getName())) { //$NON-NLS-1$
             elementTypeName = TEXT_TYPE_NAME;
         } else if (field instanceof SimpleTypeFieldMetadata) {
-            Object sqlType = field.getData("SQL_TYPE"); //$NON-NLS-1$
-            if (sqlType != null) {
+            Object sqlType = field.getType().getData(TypeMapping.SQL_TYPE);
+            if (sqlType != null) { // SQL Type may enforce use of "CLOB" iso. "LONG VARCHAR"
                 elementTypeName = String.valueOf(sqlType);
             } else if("MULTI_LINGUAL".equalsIgnoreCase(fieldType.getName())) { //$NON-NLS-1$
                 elementTypeName = TEXT_TYPE_NAME;
@@ -681,10 +681,10 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             }
         }
         // TMDM-4975: Oracle doesn't like when there's too much text columns.
-        if (TEXT_TYPE_NAME.equals(elementTypeName) && dialect == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
+        if (dialect == RDBMSDataSource.DataSourceDialect.ORACLE_10G && TEXT_TYPE_NAME.equals(elementTypeName)) {
             elementTypeName = "string"; //$NON-NLS-1$
             Attr length = document.createAttribute("length"); //$NON-NLS-1$
-            length.setValue(String.valueOf(4000));
+            length.setValue("4000"); //$NON-NLS-1$
             propertyElement.getAttributes().setNamedItem(length);
         }
         elementType.setValue(elementTypeName);

@@ -22,13 +22,13 @@ import java.util.Stack;
 
 class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
-    public static final String GENERATED_ID = "x_talend_id";  //$NON-NLS-1$
+    public static final String GENERATED_ID = "x_talend_id"; //$NON-NLS-1$
 
     private final MetadataRepository internalRepository;
 
     private final MappingRepository mappings;
 
-    private final boolean shouldCompressLongStrings;
+    private final boolean preferClobUse;
 
     private final Stack<ComplexTypeMetadata> currentType = new Stack<ComplexTypeMetadata>();
 
@@ -43,7 +43,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                                    boolean shouldCompressLongStrings) {
         internalRepository = repository;
         this.mappings = mappings;
-        this.shouldCompressLongStrings = shouldCompressLongStrings;
+        this.preferClobUse = shouldCompressLongStrings;
     }
 
     private TypeMapping handleField(FieldMetadata field) {
@@ -65,11 +65,9 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             newFlattenField.setDeclaringType(type);
         }
         String data = field.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
-        if (data != null && shouldCompressLongStrings) {
-            Integer maxLength = Integer.parseInt(data);
-            if (maxLength == Integer.MAX_VALUE) {
-                newFlattenField.setData(MetadataRepository.DATA_ZIPPED, Boolean.TRUE);
-            }
+        if (data != null && preferClobUse) {
+            newFlattenField.getType().setData(TypeMapping.SQL_TYPE, "clob"); //$NON-NLS-1$
+            newFlattenField.setData(MetadataRepository.DATA_ZIPPED, Boolean.FALSE);
         }
         currentType.peek().addField(newFlattenField);
         entityMapping.map(field, newFlattenField);
@@ -126,7 +124,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 null,
                 fkIntegrity,
                 referenceField.allowFKIntegrityOverride(),
-                new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"),
+                new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"), //$NON-NLS-1$
                 referenceField.getWriteUsers(),
                 referenceField.getHideUsers());
         database.addField(newFlattenField);
@@ -210,7 +208,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 null,
                 false,  // No need to enforce FK in references to these technical objects.
                 false,
-                new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"),
+                new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"), //$NON-NLS-1$
                 containedField.getWriteUsers(),
                 containedField.getHideUsers());
         newFlattenField.setData("SQL_DELETE_CASCADE", "true"); //$NON-NLS-1$ //$NON-NLS-2$
