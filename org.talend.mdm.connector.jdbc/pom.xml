@@ -65,13 +65,6 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>deploy-jboss-other-libs</id>
-                        <phase>install</phase>
-                        <configuration>
-                            <includeArtifactIds>jtds</includeArtifactIds>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>deploy-jboss-dev-libs</id>
                         <phase>install</phase>
                         <configuration>
