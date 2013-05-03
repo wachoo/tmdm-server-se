@@ -45,7 +45,7 @@ public class ActiveRoutingOrderV2POJO extends AbstractRoutingOrderV2POJO impleme
      * Sorts the Routing Orders in Scheduled Time Order
      */
     public int compareTo(ActiveRoutingOrderV2POJO o) {
-    	return new Long(this.getTimeScheduled()).compareTo(new Long(o.getTimeScheduled()));
+    	return new Long(this.getTimeScheduled()).compareTo(o.getTimeScheduled());
  	}    
 	
 }

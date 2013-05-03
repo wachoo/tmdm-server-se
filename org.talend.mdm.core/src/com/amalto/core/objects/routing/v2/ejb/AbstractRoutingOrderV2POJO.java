@@ -7,7 +7,7 @@ import java.util.Date;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
-
+import com.amalto.core.metadata.LongString;
 
 
 /**
@@ -181,6 +181,7 @@ public abstract class AbstractRoutingOrderV2POJO extends ObjectPOJO{
 		this.serviceJNDI = serviceJNDI;
 	}
 
+    @LongString
 	public String getServiceParameters() {
 		return serviceParameters;
 	}
@@ -190,6 +191,7 @@ public abstract class AbstractRoutingOrderV2POJO extends ObjectPOJO{
 		this.serviceParameters = serviceParameters;
 	}
 
+    @LongString
 	public String getMessage() {
 		return message;
 	}
