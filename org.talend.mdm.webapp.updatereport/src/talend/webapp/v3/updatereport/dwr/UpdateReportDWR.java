@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -15,6 +16,8 @@ import org.w3c.dom.Document;
 
 import talend.webapp.v3.updatereport.bean.DataChangeLog;
 
+import com.amalto.core.history.DocumentHistoryFactory;
+import com.amalto.core.history.DocumentHistoryNavigator;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -238,6 +241,26 @@ public class UpdateReportDWR {
     	Object[] data = listRange.getData();
 
         return generateEventString(data, language);
+    }
+    
+    public boolean isJournalHistoryExist(String dataClusterName,String dataModelName,String concept,String key,String historyDate) {
+        com.amalto.core.history.Document document;
+        DocumentHistoryNavigator navigator = DocumentHistoryFactory.getInstance().create().getHistory(dataClusterName,
+                dataModelName,
+                concept,
+                key.split("\\."), //$NON-NLS-1$
+                ""); //$NON-NLS-1$        
+        try {
+            navigator.goTo(new Date(Long.parseLong(historyDate)));
+            document = navigator.previous();
+        } catch (NotImplementedException exception) {
+            logger.error(exception);
+            document = null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            document = null;
+        }
+        return !(document == null);
     }
     
     private static String upperCaseFirstLetter(String str){

@@ -259,35 +259,48 @@ Ext
 																		{
 																			'ids' : ids,
 																			'key' : record.data.key,
+																			'operationType' : record.data.operationType,
 																			'concept' : record.data.concept,
 																			'dataCluster' : record.data.dataCluster,
 																			'dataModel' : record.data.dataModel
 																		});
+																tabPanel
+																.add(dataLogViewer);
+														dataLogViewer
+																.show();
+														dataLogViewer
+																.doLayout();
+														amalto.core
+																.doLayout();
 															} else {
 																// Note: this
 																// feature is
 																// only enabled
 																// in enterprise
 																// version
-																dataLogViewer = new amalto.updatereport.HistoryViewer(
+																UpdateReportInterface.isJournalHistoryExist(record.data.dataCluster,record.data.dataModel,record.data.concept,record.data.key,record.data.epochTime,function(data) {
+																	if (data) {
+																		dataLogViewer = new amalto.updatereport.HistoryViewer(
 																		{
 																			'ids' : ids,
 																			'date' : record.data.epochTime,
 																			'key' : record.data.key,
+																			'operationType' : record.data.operationType,
 																			'concept' : record.data.concept,
 																			'dataCluster' : record.data.dataCluster,
 																			'dataModel' : record.data.dataModel
 																		});
-															}
-
-															tabPanel
-																	.add(dataLogViewer);
-															dataLogViewer
-																	.show();
-															dataLogViewer
-																	.doLayout();
-															amalto.core
-																	.doLayout();
+																		tabPanel
+																		.add(dataLogViewer);
+																dataLogViewer
+																		.show();
+																dataLogViewer
+																		.doLayout();
+																amalto.core
+																		.doLayout();
+																	}																	
+																});
+															}															
 														});
 											} else {
 												dataLogViewer.show();

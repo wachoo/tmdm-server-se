@@ -20,6 +20,7 @@ Ext.extend(amalto.updatereport.DocumentHistoryPanel, Ext.Panel, {
 			        text: amalto.updatereport.bundle.getMsg('RESTORE'),
                     date:this.date,
                     key:this.key,
+                    operationType:this.operationType,
                     concept:this.concept,
                     dataCluster:this.dataCluster,
                     dataModel:this.dataModel,
@@ -30,23 +31,60 @@ Ext.extend(amalto.updatereport.DocumentHistoryPanel, Ext.Panel, {
                                 if(!data) {
                                     button.disable(true);
                                 }
+                                if (('LOGIC_DELETE' == button.operationType && "current" == button.action) || 'CREATE' == button.operationType) {
+                                	button.disable(false);
+                                }
 		                    });
                         }
                     },
-                    handler: function() {
-                        Ext.Ajax.request({
-                            failure: function(response, opts) {
-                                alert("Failed to restore document");
-                            },
-                            url: "/updatereport/secure/documentRestore?date="+this.date+"&dataCluster="+this.dataCluster+"&dataModel="+this.dataModel+"&concept="+this.concept+"&revision=&action="+this.action+"&key="+this.key
-                        });
-
-                        // auto close panel that contains this document history panel
-                        var tabPanel = amalto.core.getTabPanel();
-                        var parentPanel=tabPanel.getItem(this.parentPanelId);
-                        if(parentPanel) {
-                            tabPanel.remove(parentPanel);
-                        }
+                    handler: function(button) {
+                    	Ext.MessageBox.show({
+                    		title:amalto.updatereport.bundle.getMsg('info_title'),
+                    		msg:amalto.updatereport.bundle.getMsg('restore_confirm'),
+                    	    icon:Ext.MessageBox.INFO,
+                    	    buttons:Ext.Msg.YESNO,
+                    		fn:function(btn) {
+                        		if (btn == "yes") {
+                                    Ext.Ajax.request({
+                                        url: "/updatereport/secure/documentRestore?date="+button.date+"&dataCluster="+button.dataCluster+"&dataModel="+button.dataModel+"&concept="+button.concept+"&revision=&action="+button.action+"&key="+button.key,
+                                        failure: function(response, opts) {
+                                            Ext.MessageBox.show({
+                                            	title:amalto.updatereport.bundle.getMsg('error_title'),
+                                        		msg:amalto.updatereport.bundle.getMsg('restore_failure'),                                        	
+                                        	    icon:Ext.MessageBox.ERROR,
+                                        	    buttons:Ext.Msg.OK,
+                                            	fn:function(btn) {
+                                            		if (btn == "ok") {
+                                            			 var tabPanel = amalto.core.getTabPanel();
+                                                         var parentPanel=tabPanel.getItem(this.parentPanelId);
+                                                         if(parentPanel) {
+                                                             tabPanel.remove(parentPanel);
+                                                         }
+                                            		}
+                                            	}
+                                            });                                           
+                                        },
+                                        success: function(resp,opts) {
+                                        	Ext.MessageBox.show({
+                                            	title:amalto.updatereport.bundle.getMsg('info_title'),
+                                        		msg:amalto.updatereport.bundle.getMsg('restore_success'),                                        	
+                                        	    icon:Ext.MessageBox.INFO,
+                                        	    buttons:Ext.Msg.OK,
+                                            	fn:function(btn) {
+                                            		if (btn == "ok") {
+                                            			 var tabPanel = amalto.core.getTabPanel();
+                                                         var parentPanel=tabPanel.getItem(this.parentPanelId);
+                                                         if(parentPanel) {
+                                                             tabPanel.remove(parentPanel);
+                                                         }
+                                            		}
+                                            	}
+                                        	});
+                                        }
+                                    });
+                        		}
+                    		}
+                    	});         	
                     }
 			    },{
 			    	id: "treepanel" + this.id,
