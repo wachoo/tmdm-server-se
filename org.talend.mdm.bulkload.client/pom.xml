@@ -83,8 +83,9 @@
                         </goals>
                         <configuration>
                             <tasks>
+                                <mkdir dir="${mdm.extras.dir}" />
                                 <zip
-                                    destfile="${project.build.directory}/${project.artifactId}-${mdm.build.version}.zip">
+                                    destfile="${mdm.extras.dir}/${project.artifactId}-${mdm.build.version}.zip">
                                     <fileset dir="${project.build.directory}"
                                         includes="${project.artifactId}-${mdm.build.version}.jar" />
                                     <fileset dir="${project.build.directory}/lib" />
