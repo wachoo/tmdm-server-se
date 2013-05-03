@@ -329,7 +329,9 @@ public class JournalComparisonPanel extends ContentPanel {
                 });
                 nextChangeButton.setEnabled(true);
             }
-
+        }
+        
+        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(journalGridModel.getOperationType()) || (UpdateReportPOJO.OPERATION_TYPE_LOGIC_DELETE.equals(journalGridModel.getOperationType()) && isBeforePanel)) {
             service.isAdmin(new SessionAwareAsyncCallback<Boolean>() {
 
                 @Override
