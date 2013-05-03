@@ -28,6 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import java.io.*;
 import java.util.Map;
@@ -146,6 +147,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                     true,
                     true,
                     GENERATE_UPDATE_REPORT,
+                    false,
                     false);
             context.setTaskId(stagingRecord.getRecordMetadata().getTaskId());
             DocumentSaver saver = context.createSaver();

@@ -15,6 +15,7 @@ import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.webservice.WSPartialPutItem;
 import com.amalto.core.webservice.WSPutItem;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
@@ -66,7 +67,7 @@ public class SaverHelper {
                 isReplace,
                 true, // Always validate
                 true, // Always generate an update report
-                beforeSaving);
+                beforeSaving, XSystemObjects.DC_PROVISIONING.getName().equals(dataClusterName));
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         return saver;

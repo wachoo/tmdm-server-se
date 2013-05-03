@@ -9,6 +9,7 @@ import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocal;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.save.AutoCommitSaverContext;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.DocumentSaver;
@@ -18,6 +19,7 @@ import com.amalto.core.util.XSDKey;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 
 import javax.servlet.ServletConfig;
@@ -146,10 +148,9 @@ public class LoadServlet extends HttpServlet {
         Object dbType = MDMConfiguration.getConfiguration().get("xmldb.type"); //$NON-NLS-1$
         boolean isUsingQizx = dbType != null && EDBType.QIZX.getName().equals(dbType.toString());
         // Activate optimizations if SQL is used.
-        Object userWrapper = MDMConfiguration.getConfiguration().get("user.wrapper"); //$NON-NLS-1$
-        boolean isUsingSQL = userWrapper != null && "com.amalto.core.storage.StorageWrapper".equals(userWrapper.toString()); //$NON-NLS-1$
+        boolean isUsingSQL = MDMConfiguration.isSqlDataBase();
         LoadAction loadAction;
-        if (needValidate || (!isUsingQizx && !isUsingSQL)) {
+        if (needValidate || (!isUsingQizx && !isUsingSQL) || XSystemObjects.DC_PROVISIONING.getName().equals(dataClusterName)) {
             loadAction = new DefaultLoadAction(dataClusterName, dataModelName, needValidate);
         } else {
             loadAction = new OptimizedLoadAction(dataClusterName, typeName, dataModelName, needAutoGenPK);
