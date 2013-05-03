@@ -29,6 +29,7 @@ import com.amalto.core.util.RoutingException;
 import com.amalto.core.util.ValidateException;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItemWithReport;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 /**
  * DOC talend2 class global comment. Detailled comment
@@ -100,7 +101,8 @@ public class WebSaver {
                 new ByteArrayInputStream(xmlString.getBytes("UTF-8")), //$NON-NLS-1$
                 isReplace, true, // Always validate
                 true, // Always generate an update report
-                beforeSaving);
+                beforeSaving,
+                XSystemObjects.DC_PROVISIONING.getName().equals(dataClusterName));
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         return saver;

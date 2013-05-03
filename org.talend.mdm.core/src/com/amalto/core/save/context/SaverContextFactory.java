@@ -109,7 +109,15 @@ public class SaverContextFactory {
                                        String dataModelName,
                                        boolean isReplace,
                                        InputStream documentStream) {
-        return create(dataCluster, dataModelName, StringUtils.EMPTY, documentStream, isReplace, true, false, false);
+        return create(dataCluster,
+                dataModelName,
+                StringUtils.EMPTY,
+                documentStream,
+                isReplace,
+                true,
+                false,
+                false,
+                XSystemObjects.DC_PROVISIONING.getName().equals(dataCluster));
     }
 
     /**
@@ -124,6 +132,7 @@ public class SaverContextFactory {
      * @param validate           <code>true</code> to validate XML document before saving it, <code>false</code> otherwise.
      * @param updateReport       <code>true</code> to generate an update report, <code>false</code> otherwise.
      * @param invokeBeforeSaving <code>true</code> to invoke any existing before saving process, <code>false</code> otherwise.
+     * @param autoCommit         <code>true</code> to perform a call to {@link SaverSession#end()} when a record is ready for save.
      * @return A context configured to save a record in MDM.
      */
     public DocumentSaverContext create(String dataCluster,
@@ -133,11 +142,11 @@ public class SaverContextFactory {
                                        boolean isReplace,
                                        boolean validate,
                                        boolean updateReport,
-                                       boolean invokeBeforeSaving) {
+                                       boolean invokeBeforeSaving,
+                                       boolean autoCommit) {
         if (invokeBeforeSaving && !updateReport) {
             throw new IllegalArgumentException("Must generate update report to invoke before saving.");
         }
-
         // Parsing
         MutableDocument userDocument;
         try {
@@ -166,12 +175,14 @@ public class SaverContextFactory {
         } else {
             context = new UserContext(dataCluster, dataModelName, userDocument, userAction, validate, updateReport, invokeBeforeSaving);
         }
-
+        // Additional options (update report, auto commit).
         if (updateReport) {
-            return ReportDocumentSaverContext.decorate(context, changeSource);
-        } else {
-            return context;
+            context = ReportDocumentSaverContext.decorate(context, changeSource);
         }
+        if (autoCommit) {
+            context = AutoCommitSaverContext.decorate(context);
+        }
+        return context;
     }
 
     /**
@@ -206,7 +217,7 @@ public class SaverContextFactory {
                 false, // Never do a "replace" when doing a partial update.
                 validate,
                 updateReport,
-                false); // Before saving is not supported
+                false, XSystemObjects.DC_PROVISIONING.getName().equals(dataCluster)); // Before saving is not supported
         return PartialUpdateSaverContext.decorate(context, pivot, key, overwrite);
     }
 }

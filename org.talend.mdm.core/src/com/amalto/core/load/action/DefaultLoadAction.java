@@ -19,6 +19,7 @@ import com.amalto.core.server.XmlServer;
 import com.amalto.core.util.XSDKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -69,7 +70,8 @@ public class DefaultLoadAction implements LoadAction {
                             true, // Always replace in this case (bulk load).
                             needValidate,
                             false,
-                            false);
+                            false,
+                            XSystemObjects.DC_PROVISIONING.getName().equals(dataClusterName)); // Enforce auto commit for users (for license checks).
                     context.createSaver().save(session, context);
                 }
             }
