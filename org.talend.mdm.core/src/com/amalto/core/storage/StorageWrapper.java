@@ -401,18 +401,28 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
         Storage storage = getStorage(clusterName, revisionId);
         MetadataRepository repository = storage.getMetadataRepository();
-        ComplexTypeMetadata complexType = repository.getComplexType(conceptName);
-        if (complexType == null) {
-            throw new IllegalArgumentException("Type '" + conceptName + "' does not exist.");
+        Collection<ComplexTypeMetadata> types;
+        if ("*".equals(conceptName)) { //$NON-NLS-1$
+            types = repository.getUserComplexTypes();
+        } else {
+            ComplexTypeMetadata type = repository.getComplexType(conceptName);
+            if (type == null) {
+                throw new IllegalArgumentException("Type '" + conceptName + "' does not exist.");
+            }
+            types = Collections.singletonList(type);
         }
-        UserQueryBuilder qb = from(complexType);
-        qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
-        StorageResults results = storage.fetch(qb.getSelect());
-        try {
-            return results.getCount();
-        } finally {
-            results.close();
+        int count = 0;
+        for (ComplexTypeMetadata type : types) {
+            UserQueryBuilder qb = from(type);
+            qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
+            StorageResults results = storage.fetch(qb.getSelect());
+            try {
+                count += results.getCount();
+            } finally {
+                results.close();
+            }
         }
+        return count;
     }
 
     public long countXtentisObjects(HashMap<String, String> objectRootElementNameToRevisionID, HashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, IWhereItem whereItem) throws XmlServerException {
