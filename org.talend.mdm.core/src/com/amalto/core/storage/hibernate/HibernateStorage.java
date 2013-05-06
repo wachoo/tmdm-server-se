@@ -238,14 +238,11 @@ public class HibernateStorage implements Storage {
             for (FieldMetadata indexedField : indexedFields) {
                 // TMDM-5311: Don't index TEXT fields
                 TypeMetadata indexedFieldType = indexedField.getType();
-                if (indexedFieldType.getData(MetadataRepository.DATA_MAX_LENGTH) != null) {
-                    Object maxLength = indexedFieldType.getData(MetadataRepository.DATA_MAX_LENGTH);
-                    if (maxLength != null && Integer.parseInt(String.valueOf(maxLength)) > MappingGenerator.MAX_VARCHAR_TEXT_LIMIT) {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Ignore index on field '" + indexedField.getName() + "' because value is stored in TEXT.");
-                        }
-                        continue; // Don't take into indexed fields long text fields
+                if (!isIndexable(indexedFieldType)) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Ignore index on field '" + indexedField.getName() + "' because value is stored in TEXT.");
                     }
+                    continue;
                 }
                 // Go up the containment tree in case containing type is anonymous.
                 ComplexTypeMetadata containingType = indexedField.getContainingType();
@@ -253,7 +250,14 @@ public class HibernateStorage implements Storage {
                     containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
                 }
                 TypeMapping mapping = mappingRepository.getMappingFromUser(containingType);
-                databaseIndexedFields.add(mapping.getDatabase(indexedField));
+                FieldMetadata database = mapping.getDatabase(indexedField);
+                if (!isIndexable(database.getType())) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Ignore index on field '" + indexedField.getName() + "' because value (in database mapping) is stored in TEXT.");
+                    }
+                    continue; // Don't take into indexed fields long text fields
+                }
+                databaseIndexedFields.add(database);
             }
             // Set table/column name length limitation
             switch (dataSource.getDialectName()) {
@@ -388,6 +392,19 @@ public class HibernateStorage implements Storage {
         } finally {
             Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
+    }
+
+    private static boolean isIndexable(TypeMetadata fieldType) {
+        if ("MULTI_LINGUAL".equals(fieldType.getName())) { //$NON-NLS-1$
+            return false;
+        }
+        if (fieldType.getData(MetadataRepository.DATA_MAX_LENGTH) != null) {
+            Object maxLength = fieldType.getData(MetadataRepository.DATA_MAX_LENGTH);
+            if (maxLength != null && Integer.parseInt(String.valueOf(maxLength)) > MappingGenerator.MAX_VARCHAR_TEXT_LIMIT) {
+                return false; // Don't take into indexed fields long text fields
+            }
+        }
+        return true;
     }
 
     private void traceDDL() {
