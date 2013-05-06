@@ -160,12 +160,19 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
                     return result;
                 }
             }
-            return TypeMappingStrategy.FLAT;
+            if(containedType.getName().startsWith(MetadataRepository.ANONYMOUS_PREFIX)) {
+                return TypeMappingStrategy.FLAT;
+            } else {
+                return TypeMappingStrategy.SCATTERED;
+            }
         }
 
         @Override
         public TypeMappingStrategy visit(ContainedTypeFieldMetadata containedField) {
-            if (containedField.isMany() || !containedField.getContainedType().getSubTypes().isEmpty()) {
+            ContainedComplexTypeMetadata containedType = containedField.getContainedType();
+            if (containedField.isMany()
+                    || !containedType.getSubTypes().isEmpty()
+                    || !containedType.getName().startsWith(MetadataRepository.ANONYMOUS_PREFIX)) {
                 return TypeMappingStrategy.SCATTERED;
             }
             return super.visit(containedField);
