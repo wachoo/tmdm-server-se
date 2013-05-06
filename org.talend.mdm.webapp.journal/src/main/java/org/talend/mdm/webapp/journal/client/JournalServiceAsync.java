@@ -12,13 +12,13 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.client;
 
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
+import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -26,8 +26,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public interface JournalServiceAsync {
 
-    void getJournalList(JournalSearchCriteria criteria, PagingLoadConfig load,
-            AsyncCallback<PagingLoadResult<JournalGridModel>> callback);
+    void getJournalList(JournalSearchCriteria criteria, BasePagingLoadConfigImpl load,
+            AsyncCallback<ItemBasePageLoadResult<JournalGridModel>> callback);
 
     void getDetailTreeModel(String ids, AsyncCallback<JournalTreeModel> callback);
 
@@ -35,7 +35,7 @@ public interface JournalServiceAsync {
 
     void isEnterpriseVersion(AsyncCallback<Boolean> callback);
 
-    void restoreRecord(JournalParameters parameter, String language, AsyncCallback<Boolean> callback);
+    void restoreRecord(JournalParameters parameter, String language, AsyncCallback<Void> callback);
 
     void checkDCAndDM(String dataContainer, String dataModel, AsyncCallback<Boolean> callback);
 

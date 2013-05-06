@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
+import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.journal.client.Journal;
@@ -158,10 +160,10 @@ public class JournalGridPanel extends ContentPanel {
             protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<JournalGridModel>> callback) {
                 pagingLoadConfig = (PagingLoadConfig)loadConfig;
                 pagingLoadConfig.setLimit(pagetoolBar.getPageSize());
-                service.getJournalList(criteria, pagingLoadConfig,
-                        new SessionAwareAsyncCallback<PagingLoadResult<JournalGridModel>>() {
+                service.getJournalList(criteria, BasePagingLoadConfigImpl.copyPagingLoad(pagingLoadConfig),
+                        new SessionAwareAsyncCallback<ItemBasePageLoadResult<JournalGridModel>>() {
 
-                            public void onSuccess(PagingLoadResult<JournalGridModel> result) {
+                            public void onSuccess(ItemBasePageLoadResult<JournalGridModel> result) {
                                 callback.onSuccess(new BasePagingLoadResult<JournalGridModel>(result.getData(), result
                                         .getOffset(), result.getTotalLength()));
                             }
@@ -457,23 +459,33 @@ public class JournalGridPanel extends ContentPanel {
             @Override
             public void handleEvent(MessageBoxEvent be) {
                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                    service.restoreRecord(parameter, UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
+                    service.restoreRecord(parameter, UrlUtil.getLanguage(), new AsyncCallback<Void>() {
 
                         @Override
-                        public void onSuccess(Boolean success) {
-                            if (success) {
-                                MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().restore_success(), new Listener<MessageBoxEvent>(){
+                        public void onSuccess(Void result) {
+                            MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().restore_success(), new Listener<MessageBoxEvent>(){
 
-                                    @Override
-                                    public void handleEvent(MessageBoxEvent be) {
-                                        if (be.getButtonClicked().getItemId().equals(Dialog.OK) && isCloseTabPanel) {
-                                            closeTabPanel();
-                                        }                                        
+                                @Override
+                                public void handleEvent(MessageBoxEvent be) {
+                                    if (be.getButtonClicked().getItemId().equals(Dialog.OK) && isCloseTabPanel) {
+                                        closeTabPanel();
                                     }
-                                    
-                                });
+                                }
                                 
-                            }
+                            });
+                        }
+                        
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            MessageBox.alert(MessagesFactory.getMessages().error_level(), MessagesFactory.getMessages().restore_fail(), new Listener<MessageBoxEvent>(){
+
+                                @Override
+                                public void handleEvent(MessageBoxEvent be) {
+                                    if (be.getButtonClicked().getItemId().equals(Dialog.OK) && isCloseTabPanel) {
+                                        closeTabPanel();
+                                    }
+                                }
+                            });
                         }
                     });
                 }

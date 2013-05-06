@@ -22,6 +22,8 @@ import java.util.Locale;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
+import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.journal.client.JournalService;
 import org.talend.mdm.webapp.journal.server.service.JournalDBService;
 import org.talend.mdm.webapp.journal.server.service.JournalHistoryService;
@@ -37,9 +39,6 @@ import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
-import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
@@ -56,7 +55,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
             "org.talend.mdm.webapp.journal.client.i18n.JournalMessages", JournalAction.class.getClassLoader()); //$NON-NLS-1$
 
     @Override
-    public PagingLoadResult<JournalGridModel> getJournalList(JournalSearchCriteria criteria, PagingLoadConfig load)
+    public ItemBasePageLoadResult<JournalGridModel> getJournalList(JournalSearchCriteria criteria, BasePagingLoadConfigImpl load)
             throws ServiceException {
 
         int start = load.getOffset();
@@ -71,7 +70,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
             int totalSize = Integer.parseInt(result[0].toString());
             List<JournalGridModel> resultList = (List<JournalGridModel>) result[1];
 
-            return new BasePagingLoadResult<JournalGridModel>(resultList, load.getOffset(), totalSize);
+            return new ItemBasePageLoadResult<JournalGridModel>(resultList, load.getOffset(), totalSize);
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;
@@ -131,10 +130,9 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     }
 
     @Override
-    public boolean restoreRecord(JournalParameters parameter, String language) throws ServiceException {
+    public void restoreRecord(JournalParameters parameter, String language) throws ServiceException {
         try {
-            boolean result = JournalHistoryService.getInstance().restoreRecord(parameter);
-            return result;
+            JournalHistoryService.getInstance().restoreRecord(parameter);
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;

@@ -13,13 +13,13 @@
 package org.talend.mdm.webapp.journal.client;
 
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
+import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
@@ -29,7 +29,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("JournalService")
 public interface JournalService extends RemoteService {
 
-    PagingLoadResult<JournalGridModel> getJournalList(JournalSearchCriteria criteria, PagingLoadConfig load)
+    ItemBasePageLoadResult<JournalGridModel> getJournalList(JournalSearchCriteria criteria, BasePagingLoadConfigImpl load)
             throws ServiceException;
 
     JournalTreeModel getDetailTreeModel(String ids) throws ServiceException;
@@ -38,7 +38,7 @@ public interface JournalService extends RemoteService {
 
     boolean isEnterpriseVersion();
 
-    boolean restoreRecord(JournalParameters parameter, String language) throws ServiceException;
+    void restoreRecord(JournalParameters parameter, String language) throws ServiceException;
 
     boolean checkDCAndDM(String dataContainer, String dataModel);
 
