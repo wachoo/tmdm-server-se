@@ -21,10 +21,7 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.sql.Clob;
 import java.util.Iterator;
 import java.util.List;
@@ -117,7 +114,11 @@ public abstract class TypeMapping {
                 }
                 String targetSQLType = targetField.getType().getData(TypeMapping.SQL_TYPE);
                 if (targetSQLType != null && "clob".equalsIgnoreCase(targetSQLType)) { //$NON-NLS-1$
-                    return Hibernate.createClob(String.valueOf(value), session);
+                    if (value != null) {
+                        return Hibernate.createClob(String.valueOf(value), session);
+                    } else {
+                        return null;
+                    }
                 }
             }
             return value;
@@ -150,7 +151,12 @@ public abstract class TypeMapping {
             String targetSQLType = sourceField.getType().getData(TypeMapping.SQL_TYPE);
             if (targetSQLType != null && "clob".equalsIgnoreCase(targetSQLType)) { //$NON-NLS-1$
                 try {
-                    return new String(IOUtils.toCharArray(((Clob) value).getCharacterStream()));
+                    Reader characterStream = ((Clob) value).getCharacterStream();
+                    try {
+                        return new String(IOUtils.toCharArray(characterStream));
+                    } finally {
+                        characterStream.close();
+                    }
                 } catch (Exception e) {
                     throw new RuntimeException("Unexpected read from clob exception", e);
                 }
