@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -382,12 +383,79 @@ public class Util {
         }
 
         if (condition.size() > 0) {
-            WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
-            WSWhereItem whand = new WSWhereItem(null, and, null);
-            return whand;
+            WSWhereItem whereItem;
+            if (MDMConfiguration.isSqlDataBase()){
+                whereItem = makeWhereItem(condition);
+            } else {
+                WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
+                whereItem = new WSWhereItem(null, and, null);
+            }
+            return whereItem;
         } else {
             return null;
         }
+    }
+
+    public static WSWhereItem makeWhereItem(List<WSWhereItem> conditions) {
+
+        List<Object> conds = new ArrayList<Object>();
+        for (int i = 0; i < conditions.size(); i++) {
+            WSWhereItem item = conditions.get(i);
+            conds.add(item);
+            if (i < conditions.size() - 1) {
+                String predicate = item.getWhereCondition().getStringPredicate().getValue();
+
+                if (WSStringPredicate.NOT.getValue().equals(predicate)) {
+                    predicate = WSStringPredicate.AND.getValue();
+                } else if (WSStringPredicate.EXACTLY.getValue().equals(predicate)) {
+                    predicate = WSStringPredicate.AND.getValue();
+                } else if (WSStringPredicate.STRICTAND.getValue().equals(predicate)) {
+                    predicate = WSStringPredicate.AND.getValue();
+                } else if (WSStringPredicate.NONE.getValue().equals(predicate)) {
+                    predicate = WSStringPredicate.AND.getValue();
+                }
+                conds.add(predicate);
+            }
+        }
+
+        Stack<String> stackOp = new Stack<String>();
+
+        List<Object> rpn = new ArrayList<Object>();
+        for (int i = 0; i < conds.size(); i++) {
+            Object item = conds.get(i);
+            if (item instanceof WSWhereItem) {
+                rpn.add(item);
+            } else {
+                String predicate = (String) item;
+                while (!stackOp.isEmpty()) {
+                    rpn.add(stackOp.pop());
+                }
+                stackOp.push(predicate);
+            }
+        }
+        while (!stackOp.isEmpty()){
+            rpn.add(stackOp.pop());
+        }
+
+        Stack<WSWhereItem> whereStack = new Stack<WSWhereItem>();
+        for (Object o : rpn) {
+            if (o instanceof WSWhereItem) {
+                whereStack.push((WSWhereItem) o);
+            } else if (o instanceof String) {
+                if (WSStringPredicate.OR.getValue().equals(o)) {
+                    WSWhereItem item1 = whereStack.pop();
+                    WSWhereItem item2 = whereStack.pop();
+                    WSWhereOr or = new WSWhereOr(new WSWhereItem[] { item2, item1 });
+                    whereStack.push(new WSWhereItem(null, null, or));
+                } else if (WSStringPredicate.AND.getValue().equals(o)) {
+                    WSWhereItem item1 = whereStack.pop();
+                    WSWhereItem item2 = whereStack.pop();
+                    WSWhereAnd and = new WSWhereAnd(new WSWhereItem[] { item2, item1 });
+                    whereStack.push(new WSWhereItem(null, and, null));
+                }
+            }
+        }
+        return whereStack.pop();
     }
 
     public static WSWhereCondition convertLine(String[] values) {
