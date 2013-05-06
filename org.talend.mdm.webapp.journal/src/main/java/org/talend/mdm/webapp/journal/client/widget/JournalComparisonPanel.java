@@ -58,6 +58,8 @@ import com.google.gwt.user.client.ui.Accessibility;
  * DOC Administrator class global comment. Detailled comment
  */
 public class JournalComparisonPanel extends ContentPanel {
+    
+    private final String OPERATION_TYPE_LOGIC_DELETE = "LOGIC_DELETE";  //$NON-NLS-1$
 
     private JournalServiceAsync service = Registry.get(Journal.JOURNAL_SERVICE);
 
@@ -331,7 +333,7 @@ public class JournalComparisonPanel extends ContentPanel {
             }
         }
         
-        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(journalGridModel.getOperationType()) || (UpdateReportPOJO.OPERATION_TYPE_LOGIC_DELETE.equals(journalGridModel.getOperationType()) && isBeforePanel)) {
+        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(journalGridModel.getOperationType()) || (OPERATION_TYPE_LOGIC_DELETE.equals(journalGridModel.getOperationType()) && isBeforePanel)) {
             service.isAdmin(new SessionAwareAsyncCallback<Boolean>() {
 
                 @Override
