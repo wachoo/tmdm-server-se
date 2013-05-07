@@ -5,6 +5,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.connector.core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
 	<classpathentry kind="lib" path="lib-drivers/z.jtds-1.2.2.jar"/>
-	<classpathentry kind="lib" path="lib-drivers/z.mysql-connector-java-5.1.5-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
