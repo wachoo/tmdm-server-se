@@ -459,7 +459,7 @@ public class JournalGridPanel extends ContentPanel {
             @Override
             public void handleEvent(MessageBoxEvent be) {
                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                    service.restoreRecord(parameter, UrlUtil.getLanguage(), new AsyncCallback<Void>() {
+                    service.restoreRecord(parameter, UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Void>() {
 
                         @Override
                         public void onSuccess(Void result) {
@@ -476,8 +476,8 @@ public class JournalGridPanel extends ContentPanel {
                         }
                         
                         @Override
-                        public void onFailure(Throwable caught) {
-                            MessageBox.alert(MessagesFactory.getMessages().error_level(), MessagesFactory.getMessages().restore_fail(), new Listener<MessageBoxEvent>(){
+                        protected void doOnFailure(Throwable caught) {
+                            MessageBox.alert(MessagesFactory.getMessages().error_level(), caught.getMessage(), new Listener<MessageBoxEvent>(){
 
                                 @Override
                                 public void handleEvent(MessageBoxEvent be) {

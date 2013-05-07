@@ -140,7 +140,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
             throw new ServiceException(MESSAGES.getMessage(new Locale(language), "unsupport_restore_message")); //$NON-NLS-1$            
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getMessage());
+            throw new ServiceException(MESSAGES.getMessage(new Locale(language), "restore_fail")); //$NON-NLS-1$
         }
     }
 
@@ -151,7 +151,6 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
 
         try {
             JournalSearchCriteria criteria = this.buildCriteria(entity, key, source, operationType, startDate, endDate);
-
             Object[] result = service.getResultListByCriteria(criteria, start, limit, sort, field, isBrowseRecord);
             List<JournalGridModel> resultList = (List<JournalGridModel>) result[1];
             String reportString = this.generateEventString(resultList, language, criteria.getStartDate());
@@ -184,7 +183,6 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
             JournalHistoryService.getInstance().getComparisionTreeString(parameter);
             return true;
         } catch (UnsupportedUndoPhysicalDeleteException exception) {
-            LOG.info("Restore function for current operation is not supported."); //$NON-NLS-1$
             return false;
         } catch (Exception exception) {
             LOG.error(exception.getMessage(), exception);
