@@ -306,7 +306,11 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                         throw new IllegalArgumentException("Type '" + field.getType().getName()
                                 + "' is not assignable from type '" + newTypeMetadata.getName() + "'");
                     }
-                    actions.add(new ChangeTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata));
+                    if (!newTypeMetadata.getSuperTypes().isEmpty() || !newTypeMetadata.getSubTypes().isEmpty()) {
+                        actions.add(new ChangeTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata));
+                    } else if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Ignore type change on '" + getLeftPath() + "': type '" + newTypeMetadata.getName() + "' does not belong to an inheritance tree.");
+                    }
                     type = newTypeMetadata;
                 }
             }
@@ -364,9 +368,12 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                             newTypeMetadata = (ComplexTypeMetadata) repository.getType(newType);
                             previousTypeMetadata = (ComplexTypeMetadata) repository.getType(previousType);
                         }
-                        
-                        // TODO Perform some checks about the tmdm:type value (valid or not?).
-                        actions.add(new ChangeReferenceTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata));
+                        // Record the type change information (if applicable).
+                        if (!newTypeMetadata.getSuperTypes().isEmpty() || !newTypeMetadata.getSubTypes().isEmpty()) {
+                            actions.add(new ChangeReferenceTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata));
+                        } else if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Ignore reference type change on '" + getLeftPath() + "': type '" + newTypeMetadata.getName() + "' does not belong to an inheritance tree.");
+                        }
                     }
                 }
                 Action before = actions.getLast();

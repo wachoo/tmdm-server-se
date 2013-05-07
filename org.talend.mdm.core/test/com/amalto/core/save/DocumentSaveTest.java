@@ -2016,6 +2016,28 @@ public class DocumentSaveTest extends TestCase {
         assertNotNull(committer.getCommittedElement());
     }
 
+    public void test58() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata14.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test58_original.xml", "metadata14.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test58.xml");
+        DocumentSaverContext context = session.getContextFactory().create("Product", "Test58", "Source", recordXml, false, true,
+                true, false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertNotNull(committedElement);
+        assertEquals("", evaluate(committedElement, "/Territory/countries/country_relation[2]/country_id/@tmdm:type"));
+    }
+
     public void testRemoveSimpleTypeNodeWithOccurrence() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
