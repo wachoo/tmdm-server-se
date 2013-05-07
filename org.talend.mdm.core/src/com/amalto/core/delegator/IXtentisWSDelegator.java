@@ -1410,7 +1410,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             return new WSItemPK(dataClusterPK, savedConceptName, savedId);
         } catch (Exception e) {
             LOG.error("Error during save.", e);
-            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+            //TMDM-5594: Original cause was somehow lost during serialization,implementing a workaround here
+            Throwable cause = e.getCause();
+            if(cause == null) {
+                throw new RemoteException( e.getLocalizedMessage(), e);
+            } else {
+                throw new RemoteException((cause.getCause() == null ? cause.getLocalizedMessage() : cause.getCause()
+                    .getLocalizedMessage()), e);
+            }
         }
     }
 

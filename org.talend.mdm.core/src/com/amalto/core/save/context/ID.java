@@ -84,8 +84,10 @@ class ID implements DocumentSaver {
                 currentIdValue = userAccessor.get();
             }
 
-            if (currentIdValue != null) {
+            if (currentIdValue != null && !"".equals(currentIdValue)) {
                 ids.add(currentIdValue);
+            } else {
+                throw new IllegalArgumentException("Expected id '" + keyField.getName() + "' to be set.");
             }
         }
 
