@@ -16,24 +16,16 @@ import javax.servlet.http.HttpSession;
 
 import com.amalto.webapp.core.bean.Configuration.ConfigurationContext;
 
-
 public class GWTConfigurationContext implements ConfigurationContext {
-    
+
     public HttpSession getSession() {
         HttpSession session;
         GwtWebContext ctx = GwtWebContextFactory.get();
-        if (ctx != null)
+        if (ctx != null) {
             session = ctx.getSession();
-        else
+        } else {
             session = null;
+        }
         return session;
     }
-
-    public HttpSession getDefaultConfigurationSession() {
-        GwtWebContext ctx = GwtWebContextFactory.get();
-        if (ctx != null)
-            return ctx.getDefaultConfigurationSession();
-        return null;
-    }
-
 }
