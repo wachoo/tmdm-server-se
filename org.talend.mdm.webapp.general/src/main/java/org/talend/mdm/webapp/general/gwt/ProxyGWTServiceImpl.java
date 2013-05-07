@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.talend.mdm.webapp.base.server.AbstractService;
 
@@ -141,10 +140,6 @@ public class ProxyGWTServiceImpl extends AbstractService {
                         "Blocked attempt to access interface '" + gwtRpc.getServiceIntfName()
                                 + "', which is not implemented by '" + GWTRPC.printTypeName(type)
                                 + "'; this is either misconfiguration or a hack attempt");
-            }
-            if (("org.talend.mdm.webapp.general.client.GeneralService").equals(gwtRpc.getServiceIntfName())) { //$NON-NLS-1$
-                HttpSession session = this.getThreadLocalRequest().getSession();
-                this.getServletContext().setAttribute(GwtWebContext.GENERALCONTEXT + session.getId(), session);
             }
             GwtWebContextFactory.set(new GwtWebContext(this.getThreadLocalRequest(), this.getThreadLocalResponse(), this));
             return GWTRPC.invokeAndEncodeResponse(action, rpcRequest.getMethod(), rpcRequest.getParameters(), rpcRequest
