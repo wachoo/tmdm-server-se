@@ -1758,17 +1758,21 @@ public class Util {
      * @throws TransformerException
      */
     public static String nodeToString(Node n, boolean omitXMLDeclaration) throws TransformerException {
+        return nodeToString(n, omitXMLDeclaration, LOG.isDebugEnabled());
+    }
+
+    public static String nodeToString(Node n, boolean omitXMLDeclaration, boolean indent) throws TransformerException {
         StringWriter sw = new StringWriter();
         Transformer transformer = transformerFactory.newTransformer();
-        if (omitXMLDeclaration)
+        if (omitXMLDeclaration) {
             transformer.setOutputProperty("omit-xml-declaration", "yes");
-        else
+        } else {
             transformer.setOutputProperty("omit-xml-declaration", "no");
-        if (LOG.isDebugEnabled())
+        }
+        if (indent) {
             transformer.setOutputProperty("indent", "yes");
+        }
         transformer.transform(new DOMSource(n), new StreamResult(sw));
-        if (sw == null)
-            return null;
         String s = sw.toString().replaceAll("\r\n", "\n");
         return s;
     }
