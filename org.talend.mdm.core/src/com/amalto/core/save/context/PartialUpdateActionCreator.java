@@ -17,15 +17,14 @@ import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.metadata.MetadataUtils;
 import org.apache.commons.lang.StringUtils;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.*;
 
 import java.util.*;
 
 class PartialUpdateActionCreator extends UpdateActionCreator {
 
+    public static final Logger LOGGER = Logger.getLogger(PartialUpdateActionCreator.class);
     private final String partialUpdatePivot;
 
     private final String partialUpdateKey;
@@ -88,8 +87,8 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
             String keyValue = keyAccessor.get();
             if (keyValue != null) {
                 keyValueToPath.put(keyValue, path);
-            } else {
-                // TODO Warning?
+            } else if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Key value at '" + path + "' has no value (was '" + keyValue + "'). Ignoring it.");
             }
         }
     }
@@ -283,9 +282,7 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
         Accessor originalAccessor = originalDocument.createAccessor(leftPath);
         Accessor newAccessor = newDocument.createAccessor(rightPath);
         if (!originalAccessor.exist()) {
-            if (!newAccessor.exist()) {
-                // No op
-            } else { // new accessor exist
+            if (newAccessor.exist()) { // new accessor exist (no op if it does not).
                 String newValue = newAccessor.get();
                 if (newValue != null && !newValue.isEmpty()) {
                     generateNoOp(lastMatchPath);
@@ -310,7 +307,7 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                                 newValue, comparedField));
                         originalFieldToLastIndex.put(comparedField, newIndex + 1);
                     } else if (oldValue != null && !oldValue.equals(newValue)) {
-                        if (!"string".equals(comparedField.getType().getName()) && !(comparedField instanceof ReferenceFieldMetadata)) { // TODO Type constant
+                        if (!Types.STRING.equals(comparedField.getType().getName()) && !(comparedField instanceof ReferenceFieldMetadata)) {
                             // Field is not string. To ensure false positive difference detection, creates a typed value.
                             Object oldObject = MetadataUtils.convert(oldValue, comparedField);
                             Object newObject = MetadataUtils.convert(newValue, comparedField);
