@@ -12,6 +12,8 @@
 // ============================================================================
 package com.amalto.webapp.core.bean;
 
+import java.util.Date;
+
 import javax.security.jacc.PolicyContextException;
 import javax.servlet.http.HttpSession;
 
@@ -51,8 +53,6 @@ public class Configuration {
     public interface ConfigurationContext {
 
         public HttpSession getSession();
-
-        public HttpSession getDefaultConfigurationSession();
     }
 
     private static class DWRConfigurationContext implements ConfigurationContext {
@@ -62,15 +62,19 @@ public class Configuration {
             // Here, we do use a DWR call to store the information into the session, therefore we must use its
             // session only. But when run a GWT application, we must use GWTConfigurationContext to get session
             WebContext ctx = WebContextFactory.get();
-            if (ctx != null)
+            if (ctx != null) {
                 session = ctx.getSession();
-            else if (gwtConfigurationContext != null)
-                session = gwtConfigurationContext.getDefaultConfigurationSession();
+            } else if (gwtConfigurationContext != null) {
+                session = gwtConfigurationContext.getSession();
+            }
+            if (LOG.isTraceEnabled()) {
+                if (session == null) {
+                    LOG.info("Called with null session"); //$NON-NLS-1$
+                } else {
+                    LOG.info("Session creation: " + new Date(session.getCreationTime()) + " ;Session last access: " + new Date(session.getLastAccessedTime())); //$NON-NLS-1$ //$NON-NLS-2$
+                }
+            }
             return session;
-        }
-
-        public HttpSession getDefaultConfigurationSession() {
-            return null;
         }
     }
 
