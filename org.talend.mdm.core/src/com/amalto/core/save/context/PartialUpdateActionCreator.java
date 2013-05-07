@@ -34,7 +34,7 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
 
     private final Map<String, String> keyValueToPath = new HashMap<String, String>();
 
-    private final Set<String> usedPaths = new HashSet<String>();
+    private final LinkedList<String> usedPaths = new LinkedList<String>();
 
     private final Closure closure;
 
@@ -234,7 +234,8 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
 
     private void doCompare(FieldMetadata field, Closure closure, int i) {
         if (inPivot) {
-            Accessor originalKeyAccessor = originalDocument.createAccessor(getLeftPath() + '/' + partialUpdateKey);
+            String left = getLeftPath();
+            Accessor originalKeyAccessor = originalDocument.createAccessor(left + '/' + partialUpdateKey);
             String newDocumentPath;
             if (originalKeyAccessor.exist()) {
                 newDocumentPath = keyValueToPath.get(originalKeyAccessor.get());
@@ -244,6 +245,8 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
             }
             if (newDocumentPath == null) {
                 if (preserveCollectionOldValues) {
+                    enterRight(field, i);
+                } else if(usedPaths.getLast() != null && left.startsWith(usedPaths.getLast())) { // Implicit !preserveCollectionOldValues
                     enterRight(field, i);
                 } else {
                     return;
@@ -303,7 +306,7 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                                 newValue, comparedField));
                         originalFieldToLastIndex.put(comparedField, newIndex + 1);
                     } else if (oldValue != null && !oldValue.equals(newValue)) {
-                        if (!"string".equals(comparedField.getType().getName()) && !(comparedField instanceof ReferenceFieldMetadata)) {
+                        if (!"string".equals(comparedField.getType().getName()) && !(comparedField instanceof ReferenceFieldMetadata)) { // TODO Type constant
                             // Field is not string. To ensure false positive difference detection, creates a typed value.
                             Object oldObject = MetadataUtils.convert(oldValue, comparedField);
                             Object newObject = MetadataUtils.convert(newValue, comparedField);

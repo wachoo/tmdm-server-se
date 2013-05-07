@@ -1997,6 +1997,32 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
     }
     
+    public void test59() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test59_original.xml", "metadata7.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test59.xml");
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test59", "admin", recordXml, true,
+                false, "/Personne/Contextes/Contexte", // Loop (Pivot)
+                "IdContexte", // Key
+                true);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("[7]", evaluate(committedElement, "/Personne/Contextes/Contexte/TypeContexteFk"));
+        assertEquals("[8]", evaluate(committedElement, "/Personne/Contextes/Contexte/StatutContexteFk"));
+        assertEquals("[9]", evaluate(committedElement, "/Personne/Contextes/Contexte/Contacts/Contact/StatutContactFk"));
+        assertEquals("[10]", evaluate(committedElement, "/Personne/Contextes/Contexte/Contacts/Contact/SpecialisationContactType/NatureEmailFk"));
+    }
+
     public void testRemoveSimpleTypeNodeWithOccurrence() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
