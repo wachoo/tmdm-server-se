@@ -21,7 +21,6 @@ import java.util.Properties;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpSession;
 
 import org.talend.mdm.webapp.base.server.AbstractService;
 
@@ -66,7 +65,7 @@ public class ProxyGWTServiceImpl extends AbstractService {
 
     private synchronized Object getAction(String serviceIntfName) {
         Object action = actions.get(serviceIntfName);
-        if (action == null){
+        if (action == null) {
             try {
                 action = Class.forName(properties.getProperty(serviceIntfName), false,
                         Thread.currentThread().getContextClassLoader()).newInstance();
@@ -100,10 +99,6 @@ public class ProxyGWTServiceImpl extends AbstractService {
 
             RPCRequest rpcRequest = RPC.decodeRequest(payload, action.getClass(), this);
             onAfterRequestDeserialized(rpcRequest);
-            if (("org.talend.mdm.webapp.general.client.GeneralService").equals(serviceIntfName)) { //$NON-NLS-1$
-                HttpSession session = this.getThreadLocalRequest().getSession();
-                this.getServletContext().setAttribute(GwtWebContext.GENERALCONTEXT + session.getId(), session);
-            }
             GwtWebContextFactory.set(new GwtWebContext(this.getThreadLocalRequest(), this.getThreadLocalResponse(), this));
             return RPC.invokeAndEncodeResponse(action, rpcRequest.getMethod(), rpcRequest.getParameters(),
                     rpcRequest.getSerializationPolicy(), rpcRequest.getFlags());

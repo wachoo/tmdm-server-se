@@ -12,6 +12,8 @@
 // ============================================================================
 package com.amalto.webapp.core.bean;
 
+import java.util.Date;
+
 import javax.security.jacc.PolicyContextException;
 import javax.servlet.http.HttpSession;
 
@@ -50,8 +52,6 @@ public class Configuration {
     public interface ConfigurationContext {
 
         public HttpSession getSession();
-
-        public HttpSession getDefaultConfigurationSession();
     }
 
     private static class DWRConfigurationContext implements ConfigurationContext {
@@ -65,14 +65,16 @@ public class Configuration {
             if (ctx != null) {
                 session = ctx.getSession();
             } else if (gwtConfigurationContext != null) {
-                session = gwtConfigurationContext.getDefaultConfigurationSession();
+                session = gwtConfigurationContext.getSession();
+            }
+            if (LOG.isTraceEnabled()) {
+                if (session == null) {
+                    LOG.info("Called with null session"); //$NON-NLS-1$
+                } else {
+                    LOG.info("Session creation: " + new Date(session.getCreationTime()) + " ;Session last access: " + new Date(session.getLastAccessedTime())); //$NON-NLS-1$ //$NON-NLS-2$
+                }
             }
             return session;
-        }
-
-        @Override
-        public HttpSession getDefaultConfigurationSession() {
-            return null;
         }
     }
 
