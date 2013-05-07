@@ -256,9 +256,6 @@ public class UpdateReportDWR {
         } catch (NotImplementedException exception) {
             logger.error(exception);
             document = null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            document = null;
         }
         return !(document == null);
     }

@@ -44,3 +44,8 @@
 .tree-node-different{
     background-color: red;
 }
+
+.document-history-panel-messagebox table {  
+    margin-left:auto;  
+    margin-right:auto;  
+}

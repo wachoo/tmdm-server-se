@@ -41,8 +41,9 @@ Ext.extend(amalto.updatereport.DocumentHistoryPanel, Ext.Panel, {
                     	Ext.MessageBox.show({
                     		title:amalto.updatereport.bundle.getMsg('info_title'),
                     		msg:amalto.updatereport.bundle.getMsg('restore_confirm'),
-                    	    icon:Ext.MessageBox.INFO,
+                    	    icon:Ext.MessageBox.QUESTION,
                     	    buttons:Ext.Msg.YESNO,
+                    	    cls:'document-history-panel-messagebox',
                     		fn:function(btn) {
                         		if (btn == "yes") {
                                     Ext.Ajax.request({
