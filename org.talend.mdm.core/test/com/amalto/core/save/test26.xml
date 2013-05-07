@@ -19,6 +19,6 @@
     <Description>Doggie t-shirt from American Apparel</Description>
     <Availability>false</Availability>
     <Price>16.99</Price>
-    <Family tmdm:type="Test">[3]</Family>
+    <Family tmdm:type="ProductFamily">[3]</Family>
     <OnlineStore>Talend Shop@@http://www.cafepress.com/Talend.231035933</OnlineStore>
 </Product>
