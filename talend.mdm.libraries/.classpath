@@ -45,6 +45,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/asm-3.1.jar" sourcepath="talend.mdm.librariessrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/z.exist.1.4-xmldb.jar" sourcepath="talend.mdm.librariessrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/z.exist.1.4.TalendPatch.jar" sourcepath="talend.mdm.librariessrc.zip"/>
-	<classpathentry kind="lib" path="lib/commons-collections.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-collections.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
