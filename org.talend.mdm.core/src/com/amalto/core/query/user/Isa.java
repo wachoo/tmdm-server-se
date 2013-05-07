@@ -14,7 +14,7 @@ package com.amalto.core.query.user;
 
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
-public class Isa extends Condition {
+public class Isa implements Condition {
 
     private final TypedExpression expression;
 

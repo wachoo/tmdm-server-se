@@ -1,5 +1,7 @@
 package com.amalto.core.query.user;
 
+import org.talend.mdm.commmon.metadata.Types;
+
 /**
  *
  */
@@ -13,6 +15,6 @@ public class Count implements TypedExpression {
     }
 
     public String getTypeName() {
-        return "long"; // TODO Constants
+        return Types.LONG;
     }
 }

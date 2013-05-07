@@ -13,7 +13,7 @@ package com.amalto.core.query.user;
 
 public class TaskId implements TypedExpression {
 
-    public static final String TASK_ID_TYPE_NAME = "string";
+    public static final String TASK_ID_TYPE_NAME = "string"; //$NON-NLS-1$
 
     public static final TaskId INSTANCE = new TaskId();
 

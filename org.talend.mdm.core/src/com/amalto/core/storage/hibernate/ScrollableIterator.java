@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-class ScrollableIterator extends CloseableIterator<DataRecord> {
+class ScrollableIterator implements CloseableIterator<DataRecord> {
 
     private final static Logger LOGGER = Logger.getLogger(ScrollableIterator.class);
 

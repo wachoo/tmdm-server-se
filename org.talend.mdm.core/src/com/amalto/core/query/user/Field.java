@@ -18,9 +18,6 @@ import org.talend.mdm.commmon.metadata.TypeMetadata;
 
 import javax.xml.XMLConstants;
 
-/**
- *
- */
 public class Field implements TypedExpression {
 
     private final FieldMetadata fieldMetadata;

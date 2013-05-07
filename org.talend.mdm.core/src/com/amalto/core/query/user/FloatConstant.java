@@ -11,6 +11,8 @@
 
 package com.amalto.core.query.user;
 
+import org.talend.mdm.commmon.metadata.Types;
+
 public class FloatConstant implements TypedExpression {
 
     private final Float constant;
@@ -32,6 +34,6 @@ public class FloatConstant implements TypedExpression {
     }
 
     public String getTypeName() {
-        return "float"; // TODO Constants
+        return Types.FLOAT;
     }
 }

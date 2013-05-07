@@ -11,6 +11,8 @@
 
 package com.amalto.core.query.user;
 
+import org.talend.mdm.commmon.metadata.Types;
+
 /**
  *
  */
@@ -35,6 +37,6 @@ public class StringConstant implements TypedExpression {
     }
 
     public String getTypeName() {
-        return "string"; // TODO Constants
+        return Types.STRING;
     }
 }

@@ -430,15 +430,15 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             // Don't index fields where SQL type was forced.
             return new NotIndexedHandler();
         }
-        boolean validType = !("date".equals(metadata.getType().getName()) //$NON-NLS-1$
-                || "dateTime".equals(metadata.getType().getName()) //$NON-NLS-1$
-                || "time".equals(metadata.getType().getName()) //$NON-NLS-1$
-                || "duration".equals(metadata.getType().getName()) //$NON-NLS-1$
-                || "byte".equals(metadata.getType().getName()) //$NON-NLS-1$
-                || "unsignedByte".equals(metadata.getType().getName()));//$NON-NLS-1$
+        boolean validType = !(Types.DATE.equals(metadata.getType().getName())
+                || Types.DATETIME.equals(metadata.getType().getName())
+                || Types.TIME.equals(metadata.getType().getName())
+                || Types.DURATION.equals(metadata.getType().getName())
+                || Types.BYTE.equals(metadata.getType().getName())
+                || Types.UNSIGNED_BYTE.equals(metadata.getType().getName()));
         if (!metadata.isMany() && validType) {
-            if ("integer".equals(metadata.getType().getName())
-                    || "double".equals(metadata.getType().getName())) {
+            if (Types.INTEGER.equals(metadata.getType().getName())
+                    || Types.DOUBLE.equals(metadata.getType().getName())) {
                 return new NumericSearchIndexHandler();
             } else {
                 return new BasicSearchIndexHandler();

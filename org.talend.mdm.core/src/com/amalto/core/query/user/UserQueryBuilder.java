@@ -14,10 +14,7 @@ package com.amalto.core.query.user;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -209,44 +206,44 @@ public class UserQueryBuilder {
 
     public static Expression createConstant(TypedExpression expression, String constant) {
         String fieldTypeName = expression.getTypeName();
-        if ("integer".equals(fieldTypeName)  //$NON-NLS-1$
-                || "positiveInteger".equals(fieldTypeName) //$NON-NLS-1$
-                || "negativeInteger".equals(fieldTypeName) //$NON-NLS-1$
-                || "nonPositiveInteger".equals(fieldTypeName) //$NON-NLS-1$
-                || "nonNegativeInteger".equals(fieldTypeName) //$NON-NLS-1$
-                || "unsignedInt".equals(fieldTypeName) //$NON-NLS-1$
-                || "int".equals(fieldTypeName)) { //$NON-NLS-1$
+        if (Types.INTEGER.equals(fieldTypeName)
+                || Types.POSITIVE_INTEGER.equals(fieldTypeName)
+                || Types.NEGATIVE_INTEGER.equals(fieldTypeName)
+                || Types.NON_POSITIVE_INTEGER.equals(fieldTypeName)
+                || Types.NON_NEGATIVE_INTEGER.equals(fieldTypeName)
+                || Types.UNSIGNED_INT.equals(fieldTypeName)
+                || Types.INT.equals(fieldTypeName)) {
             if (constant.isEmpty()) {
                 return new IntegerConstant(0);
             } else {
                 return new IntegerConstant(Integer.parseInt(constant));
             }
-        } else if ("string".equals(fieldTypeName) //$NON-NLS-1$
-                || "hexBinary".equals(fieldTypeName) //$NON-NLS-1$
-                || "base64Binary".equals(fieldTypeName) //$NON-NLS-1$
-                || "anyURI".equals(fieldTypeName) //$NON-NLS-1$
-                || "QName".equals(fieldTypeName)) { //$NON-NLS-1$
+        } else if (Types.STRING.equals(fieldTypeName)
+                || Types.HEX_BINARY.equals(fieldTypeName)
+                || Types.BASE64_BINARY.equals(fieldTypeName)
+                || Types.ANY_URI.equals(fieldTypeName)
+                || Types.QNAME.equals(fieldTypeName)) {
             return new StringConstant(constant);
-        } else if ("date".equals(fieldTypeName)) { //$NON-NLS-1$
+        } else if (Types.DATE.equals(fieldTypeName)) {
             return new DateConstant(constant);
-        } else if ("dateTime".equals(fieldTypeName)) { //$NON-NLS-1$
+        } else if (Types.DATETIME.equals(fieldTypeName)) {
             return new DateTimeConstant(constant);
-        } else if ("time".equals(fieldTypeName) || "duration".equals(fieldTypeName)) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (Types.TIME.equals(fieldTypeName) || Types.DURATION.equals(fieldTypeName)) {
             return new TimeConstant(constant);
-        } else if ("boolean".equals(fieldTypeName)) { //$NON-NLS-1$
+        } else if (Types.BOOLEAN.equals(fieldTypeName)) {
             boolean value = Boolean.parseBoolean(constant);
             return new BooleanConstant(value);
-        } else if ("decimal".equals(fieldTypeName)) { //$NON-NLS-1$
+        } else if (Types.DECIMAL.equals(fieldTypeName)) {
             return new BigDecimalConstant(constant);
-        } else if ("short".equals(fieldTypeName) || "unsignedShort".equals(fieldTypeName)) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (Types.SHORT.equals(fieldTypeName) || Types.UNSIGNED_SHORT.equals(fieldTypeName)) {
             return new ShortConstant(constant);
-        } else if ("byte".equals(fieldTypeName) || "unsignedByte".equals(fieldTypeName)) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (Types.BYTE.equals(fieldTypeName) || Types.UNSIGNED_BYTE.equals(fieldTypeName)) {
             return new ByteConstant(constant);
-        } else if ("long".equals(fieldTypeName) || "unsignedLong".equals(fieldTypeName)) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (Types.LONG.equals(fieldTypeName) || Types.UNSIGNED_LONG.equals(fieldTypeName)) {
             return new LongConstant(constant);
-        } else if ("double".equals(fieldTypeName)) { //$NON-NLS-1$
+        } else if (Types.DOUBLE.equals(fieldTypeName)) {
             return new DoubleConstant(constant);
-        } else if ("float".equals(fieldTypeName)) { //$NON-NLS-1$
+        } else if (Types.FLOAT.equals(fieldTypeName)) {
             return new FloatConstant(constant);
         } else {
             throw new IllegalArgumentException("Cannot create expression constant for expression type '" + expression.getTypeName() + "' (is expression allowed to contain values?)");
@@ -256,7 +253,7 @@ public class UserQueryBuilder {
     public static Condition emptyOrNull(FieldMetadata field) {
         assertNullField(field);
         // Only do a isEmpty operator if field type is string, for all other known cases, isNull is enough.
-        if ("string".equals(field.getType().getName())) {
+        if (Types.STRING.equals(field.getType().getName())) {
             return new BinaryLogicOperator(isEmpty(field), Predicate.OR, isNull(field));
         } else {
             return isNull(field);
@@ -266,7 +263,7 @@ public class UserQueryBuilder {
     public static Condition emptyOrNull(TypedExpression field) {
         assertNullField(field);
         // Only do a isEmpty operator if field type is string, for all other known cases, isNull is enough.
-        if ("string".equals(field.getTypeName())) { //$NON-NLS-1$
+        if (Types.STRING.equals(field.getTypeName())) {
             return new BinaryLogicOperator(isEmpty(field), Predicate.OR, isNull(field));
         } else {
             return isNull(field);
@@ -361,7 +358,7 @@ public class UserQueryBuilder {
     }
 
     public UserQueryBuilder select(ComplexTypeMetadata type, String fieldName) {
-        if (fieldName.startsWith("@")) {
+        if (fieldName.startsWith("@")) { //$NON-NLS-1$
             fieldName = fieldName.substring(1); // TODO Not convincing: add a "Attribute" search capability?
         }
         if (type.hasField(fieldName)) {

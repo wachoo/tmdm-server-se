@@ -32,10 +32,10 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     }
 
     public Void visit(Select select) {
-        print("[SELECT]");
+        print("[SELECT]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Types");
+            print("Types"); //$NON-NLS-1$
             increaseIndent();
             {
                 List<ComplexTypeMetadata> types = select.getTypes();
@@ -45,7 +45,7 @@ public class UserQueryDumpConsole implements Visitor<Void> {
             }
             decreaseIndent();
 
-            print("Selected fields");
+            print("Selected fields"); //$NON-NLS-1$
             increaseIndent();
             {
                 List<TypedExpression> selectedFields = select.getSelectedFields();
@@ -55,7 +55,7 @@ public class UserQueryDumpConsole implements Visitor<Void> {
             }
             decreaseIndent();
 
-            print("Join");
+            print("Join"); //$NON-NLS-1$
             increaseIndent();
             {
                 List<Join> joins = select.getJoins();
@@ -64,45 +64,45 @@ public class UserQueryDumpConsole implements Visitor<Void> {
                         join.accept(this);
                     }
                 } else {
-                    print("<NONE>");
+                    print("<NONE>"); //$NON-NLS-1$
                 }
 
             }
             decreaseIndent();
 
-            print("Condition");
+            print("Condition"); //$NON-NLS-1$
             increaseIndent();
             {
                 Condition condition = select.getCondition();
                 if (condition != null) {
                     condition.accept(this);
                 } else {
-                    print("<NONE>");
+                    print("<NONE>"); //$NON-NLS-1$
                 }
             }
             decreaseIndent();
 
-            print("Order by");
+            print("Order by"); //$NON-NLS-1$
             increaseIndent();
             {
                 OrderBy orderBy = select.getOrderBy();
                 if (orderBy != null) {
                     orderBy.accept(this);
                 } else {
-                    print("<NONE>");
+                    print("<NONE>"); //$NON-NLS-1$
                 }
 
             }
             decreaseIndent();
 
-            print("Paging");
+            print("Paging"); //$NON-NLS-1$
             increaseIndent();
             {
                 Paging paging = select.getPaging();
                 if (paging != null) {
                     paging.accept(this);
                 } else {
-                    print("<NONE>");
+                    print("<NONE>"); //$NON-NLS-1$
                 }
 
             }
@@ -115,7 +115,7 @@ public class UserQueryDumpConsole implements Visitor<Void> {
 
     @Override
     public Void visit(NativeQuery nativeQuery) {
-        print("[NATIVE QUERY]");
+        print("[NATIVE QUERY]"); //$NON-NLS-1$
         increaseIndent();
         {
             print(nativeQuery.getQueryText());
@@ -134,15 +134,15 @@ public class UserQueryDumpConsole implements Visitor<Void> {
 
     public Void visit(Condition condition) {
         if (condition == UserQueryHelper.NO_OP_CONDITION) {
-            print("[NO OP (TRUE)]");
+            print("[NO OP (TRUE)]"); //$NON-NLS-1$
         } else {
-            print("Unvisited condition: " + condition.toString());
+            print("Unvisited condition: " + condition.toString()); //$NON-NLS-1$
         }
         return null;
     }
 
     public Void visit(Compare condition) {
-        print("[COMPARE]");
+        print("[COMPARE]"); //$NON-NLS-1$
         increaseIndent();
         {
             condition.getLeft().accept(this);
@@ -150,11 +150,11 @@ public class UserQueryDumpConsole implements Visitor<Void> {
             condition.getRight().accept(this);
         }
         decreaseIndent();
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     public Void visit(BinaryLogicOperator condition) {
-        print("[BINARY LOGIC OPERATOR]");
+        print("[BINARY LOGIC OPERATOR]"); //$NON-NLS-1$
         increaseIndent();
         {
             condition.getLeft().accept(this);
@@ -162,37 +162,37 @@ public class UserQueryDumpConsole implements Visitor<Void> {
             condition.getRight().accept(this);
         }
         decreaseIndent();
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     public Void visit(UnaryLogicOperator condition) {
-        print("[UNARY LOGIC OPERATOR]");
+        print("[UNARY LOGIC OPERATOR]"); //$NON-NLS-1$
         increaseIndent();
         {
             condition.getPredicate().accept(this);
             condition.getCondition().accept(this);
         }
         decreaseIndent();
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     public Void visit(Range range) {
-        print("[RANGE]");
+        print("[RANGE]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Expression");
+            print("Expression"); //$NON-NLS-1$
             increaseIndent();
             {
                 range.getExpression().accept(this);
             }
             decreaseIndent();
-            print("Start");
+            print("Start"); //$NON-NLS-1$
             increaseIndent();
             {
                 range.getStart().accept(this);
             }
             decreaseIndent();
-            print("End");
+            print("End"); //$NON-NLS-1$
             increaseIndent();
             {
                 range.getEnd().accept(this);
@@ -204,18 +204,18 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     }
 
     public Void visit(Timestamp timestamp) {
-        print("[Technical field: TIMESTAMP]");
+        print("[Technical field: TIMESTAMP]"); //$NON-NLS-1$
         return null;
     }
 
     public Void visit(TaskId taskId) {
-        print("[Technical field: TASK_ID]");
+        print("[Technical field: TASK_ID]"); //$NON-NLS-1$
         return null;
     }
 
     @Override
     public Void visit(Type type) {
-        print("[Field type name]");
+        print("[Field type name]"); //$NON-NLS-1$
         increaseIndent();
         type.getField().accept(this);
         decreaseIndent();
@@ -223,33 +223,33 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     }
 
     public Void visit(StagingStatus stagingStatus) {
-        print("[Technical field: STAGING_STATUS]");
+        print("[Technical field: STAGING_STATUS]"); //$NON-NLS-1$
         return null;
     }
 
     @Override
     public Void visit(StagingError stagingError) {
-        print("[Technical field: STAGING_ERROR]");
+        print("[Technical field: STAGING_ERROR]"); //$NON-NLS-1$
         return null;
     }
 
     @Override
     public Void visit(StagingSource stagingSource) {
-        print("[Technical field: STAGING_SOURCE]");
+        print("[Technical field: STAGING_SOURCE]"); //$NON-NLS-1$
         return null;
     }
 
     public Void visit(Join join) {
-        print("[JOIN]");
+        print("[JOIN]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("[LEFT]");
+            print("[LEFT]"); //$NON-NLS-1$
             increaseIndent();
             {
                 join.getLeftField().accept(this);
             }
             decreaseIndent();
-            print("[RIGHT]");
+            print("[RIGHT]"); //$NON-NLS-1$
             increaseIndent();
             {
                 join.getRightField().accept(this);
@@ -261,33 +261,33 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     }
 
     public Void visit(Expression expression) {
-        print("Unvisited expression: " + expression.toString());
+        print("Unvisited expression: " + expression.toString()); //$NON-NLS-1$
         return null;
     }
 
     public Void visit(Predicate predicate) {
         if (predicate == Predicate.NOT) {
-            print("[PREDICATE] NOT");
+            print("[PREDICATE] NOT"); //$NON-NLS-1$
         } else if (predicate == Predicate.STARTS_WITH) {
-            print("[PREDICATE] STARTS WITH");
+            print("[PREDICATE] STARTS WITH"); //$NON-NLS-1$
         } else if (predicate == Predicate.EQUALS) {
-            print("[PREDICATE] EQUALS");
+            print("[PREDICATE] EQUALS"); //$NON-NLS-1$
         } else if (predicate == Predicate.GREATER_THAN) {
-            print("[PREDICATE] GREATER THAN");
+            print("[PREDICATE] GREATER THAN"); //$NON-NLS-1$
         } else if (predicate == Predicate.GREATER_THAN_OR_EQUALS) {
-            print("[PREDICATE] GREATER THAN OR EQUALS");
+            print("[PREDICATE] GREATER THAN OR EQUALS"); //$NON-NLS-1$
         } else if (predicate == Predicate.LOWER_THAN) {
-            print("[PREDICATE] LOWER THAN");
+            print("[PREDICATE] LOWER THAN"); //$NON-NLS-1$
         } else if (predicate == Predicate.LOWER_THAN_OR_EQUALS) {
-            print("[PREDICATE] LOWER THAN OR EQUALS");
+            print("[PREDICATE] LOWER THAN OR EQUALS"); //$NON-NLS-1$
         } else {
-            print("Unvisited predicate: " + predicate.toString());
+            print("Unvisited predicate: " + predicate.toString()); //$NON-NLS-1$
         }
         return null;
     }
 
     public Void visit(Field field) {
-        print("[FIELD]");
+        print("[FIELD]"); //$NON-NLS-1$
         increaseIndent();
         {
             field.getFieldMetadata().accept(new DefaultMetadataVisitor<Void>() {
@@ -336,10 +336,10 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     }
 
     public Void visit(Alias alias) {
-        print("[ALIAS]");
+        print("[ALIAS]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Alias name: " + alias.getAliasName());
+            print("Alias name: " + alias.getAliasName()); //$NON-NLS-1$
             alias.getTypedExpression().accept(this);
         }
         decreaseIndent();
@@ -347,158 +347,158 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     }
 
     public Void visit(Id id) {
-        print("[ID REFERENCE]");
+        print("[ID REFERENCE]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Type -> '" + id.getType().getName() + "'");
-            print("Value -> '" + id.getId() + "'");
+            print("Type -> '" + id.getType().getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$
+            print("Value -> '" + id.getId() + "'"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         decreaseIndent();
         return null;
     }
 
     public Void visit(StringConstant constant) {
-        print("[STRING CONSTANT]");
+        print("[STRING CONSTANT]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Value -> '" + constant.getValue() + "'");
+            print("Value -> '" + constant.getValue() + "'"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         decreaseIndent();
         return null;
     }
 
     public Void visit(IntegerConstant constant) {
-        print("[INTEGER CONSTANT]");
+        print("[INTEGER CONSTANT]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Value -> " + constant.getValue());
+            print("Value -> " + constant.getValue()); //$NON-NLS-1$
         }
         decreaseIndent();
         return null;
     }
 
     public Void visit(DateConstant constant) {
-        print("[DATE CONSTANT]");
+        print("[DATE CONSTANT]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Value -> " + constant.getValue());
+            print("Value -> " + constant.getValue()); //$NON-NLS-1$
         }
         decreaseIndent();
         return null;
     }
 
     public Void visit(DateTimeConstant constant) {
-        print("[DATE TIME CONSTANT]");
+        print("[DATE TIME CONSTANT]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Value -> " + constant.getValue());
+            print("Value -> " + constant.getValue()); //$NON-NLS-1$
         }
         decreaseIndent();
         return null;
     }
 
     public Void visit(BooleanConstant constant) {
-        print("[BOOLEAN CONSTANT]");
+        print("[BOOLEAN CONSTANT]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Value -> " + constant.getValue());
+            print("Value -> " + constant.getValue()); //$NON-NLS-1$
         }
         decreaseIndent();
         return null;
     }
 
     public Void visit(BigDecimalConstant constant) {
-        print("[BIG DECIMAL CONSTANT]");
+        print("[BIG DECIMAL CONSTANT]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Value -> " + constant.getValue());
+            print("Value -> " + constant.getValue()); //$NON-NLS-1$
         }
         decreaseIndent();
         return null;
     }
 
     public Void visit(TimeConstant constant) {
-        print("[TIME CONSTANT]");
+        print("[TIME CONSTANT]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Value -> " + constant.getValue());
+            print("Value -> " + constant.getValue()); //$NON-NLS-1$
         }
         decreaseIndent();
         return null;
     }
 
     public Void visit(ShortConstant constant) {
-        print("[SHORT CONSTANT]");
+        print("[SHORT CONSTANT]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Value -> " + constant.getValue());
+            print("Value -> " + constant.getValue()); //$NON-NLS-1$
         }
         decreaseIndent();
         return null;
     }
 
     public Void visit(ByteConstant constant) {
-        print("[BYTE CONSTANT]");
+        print("[BYTE CONSTANT]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Value -> " + constant.getValue());
+            print("Value -> " + constant.getValue()); //$NON-NLS-1$
         }
         decreaseIndent();
         return null;
     }
 
     public Void visit(LongConstant constant) {
-        print("[LONG CONSTANT]");
+        print("[LONG CONSTANT]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Value -> " + constant.getValue());
+            print("Value -> " + constant.getValue()); //$NON-NLS-1$
         }
         decreaseIndent();
         return null;
     }
 
     public Void visit(DoubleConstant constant) {
-        print("[DOUBLE CONSTANT]");
+        print("[DOUBLE CONSTANT]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Value -> " + constant.getValue());
+            print("Value -> " + constant.getValue()); //$NON-NLS-1$
         }
         decreaseIndent();
         return null;
     }
 
     public Void visit(FloatConstant constant) {
-        print("[FLOAT CONSTANT]");
+        print("[FLOAT CONSTANT]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Value -> " + constant.getValue());
+            print("Value -> " + constant.getValue()); //$NON-NLS-1$
         }
         decreaseIndent();
         return null;
     }
 
     public Void visit(Predicate.And and) {
-        print("[PREDICATE] AND");
+        print("[PREDICATE] AND"); //$NON-NLS-1$
         return null;
     }
 
     public Void visit(Predicate.Or or) {
-        print("[PREDICATE] OR");
+        print("[PREDICATE] OR"); //$NON-NLS-1$
         return null;
     }
 
     public Void visit(Predicate.Equals equals) {
-        print("[PREDICATE] EQUALS");
+        print("[PREDICATE] EQUALS"); //$NON-NLS-1$
         return null;
     }
 
     public Void visit(Predicate.Contains contains) {
-        print("[PREDICATE] CONTAINS");
+        print("[PREDICATE] CONTAINS"); //$NON-NLS-1$
         return null;
     }
 
     public Void visit(IsEmpty isEmpty) {
-        print("[IS EMPTY]");
+        print("[IS EMPTY]"); //$NON-NLS-1$
         increaseIndent();
         {
             isEmpty.getField().accept(this);
@@ -508,7 +508,7 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     }
 
     public Void visit(NotIsEmpty notIsEmpty) {
-        print("[NOT IS EMPTY]");
+        print("[NOT IS EMPTY]"); //$NON-NLS-1$
         increaseIndent();
         {
             notIsEmpty.getField().accept(this);
@@ -518,7 +518,7 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     }
 
     public Void visit(IsNull isNull) {
-        print("[IS NULL]");
+        print("[IS NULL]"); //$NON-NLS-1$
         increaseIndent();
         {
             isNull.getField().accept(this);
@@ -528,7 +528,7 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     }
 
     public Void visit(NotIsNull notIsNull) {
-        print("[NOT IS NULL]");
+        print("[NOT IS NULL]"); //$NON-NLS-1$
         increaseIndent();
         {
             notIsNull.getField().accept(this);
@@ -538,31 +538,31 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     }
 
     public Void visit(Predicate.GreaterThan greaterThan) {
-        print("[PREDICATE] GREATER THAN");
+        print("[PREDICATE] GREATER THAN"); //$NON-NLS-1$
         return null;
     }
 
     public Void visit(Predicate.LowerThan lowerThan) {
-        print("[PREDICATE] LOWER THAN");
+        print("[PREDICATE] LOWER THAN"); //$NON-NLS-1$
         return null;
     }
 
     public Void visit(FullText fullText) {
-        print("[FULLTEXT]");
+        print("[FULLTEXT]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Value -> " + fullText.getValue());
+            print("Value -> " + fullText.getValue()); //$NON-NLS-1$
         }
         decreaseIndent();
         return null;
     }
 
     public Void visit(Isa isa) {
-        print("[IS A]");
+        print("[IS A]"); //$NON-NLS-1$
         increaseIndent();
         {
             isa.getExpression().accept(this);
-            print("Type -> " + isa.getType().getName());
+            print("Type -> " + isa.getType().getName()); //$NON-NLS-1$
         }
         decreaseIndent();
         return null;
@@ -570,42 +570,42 @@ public class UserQueryDumpConsole implements Visitor<Void> {
 
     @Override
     public Void visit(ComplexTypeExpression expression) {
-        print("Type: " + expression.getTypeName());
+        print("Type: " + expression.getTypeName()); //$NON-NLS-1$
         return null;
     }
 
     @Override
     public Void visit(IndexedField indexedField) {
-        print("[INDEXED FIELD]");
+        print("[INDEXED FIELD]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Field: " + indexedField.getFieldMetadata().getName());
-            print("Index: " + indexedField.getPosition());
+            print("Field: " + indexedField.getFieldMetadata().getName()); //$NON-NLS-1$
+            print("Index: " + indexedField.getPosition()); //$NON-NLS-1$
         }
         decreaseIndent();
         return null;
     }
 
     public Void visit(OrderBy orderBy) {
-        print("[ORDER BY]");
+        print("[ORDER BY]"); //$NON-NLS-1$
         increaseIndent();
         {
             orderBy.getField().accept(this);
-            print("Direction: " + orderBy.getDirection());
+            print("Direction: " + orderBy.getDirection()); //$NON-NLS-1$
         }
         decreaseIndent();
         return null;
     }
 
     public Void visit(Paging paging) {
-        print("[PAGING]");
+        print("[PAGING]"); //$NON-NLS-1$
         increaseIndent();
         {
-            print("Start: " + paging.getStart());
+            print("Start: " + paging.getStart()); //$NON-NLS-1$
             if (paging.getLimit() == Integer.MAX_VALUE) {
-                print("Limit: <NO LIMIT>");
+                print("Limit: <NO LIMIT>"); //$NON-NLS-1$
             } else {
-                print("Limit: " + paging.getLimit());
+                print("Limit: " + paging.getLimit()); //$NON-NLS-1$
             }
         }
         decreaseIndent();
@@ -613,7 +613,7 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     }
 
     public Void visit(Count count) {
-        print("[COUNT]");
+        print("[COUNT]"); //$NON-NLS-1$
         return null;
     }
 

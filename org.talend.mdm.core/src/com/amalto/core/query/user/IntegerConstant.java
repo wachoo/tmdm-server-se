@@ -1,5 +1,7 @@
 package com.amalto.core.query.user;
 
+import org.talend.mdm.commmon.metadata.Types;
+
 public class IntegerConstant implements TypedExpression {
 
     private final int constant;
@@ -21,6 +23,6 @@ public class IntegerConstant implements TypedExpression {
     }
 
     public String getTypeName() {
-        return "integer"; // TODO Constants
+        return Types.INTEGER;
     }
 }

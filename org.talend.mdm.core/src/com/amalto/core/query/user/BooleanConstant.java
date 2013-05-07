@@ -13,6 +13,8 @@
 
 package com.amalto.core.query.user;
 
+import org.talend.mdm.commmon.metadata.Types;
+
 /**
  *
  */
@@ -37,6 +39,6 @@ public class BooleanConstant implements TypedExpression {
     }
 
     public String getTypeName() {
-        return "boolean"; // TODO Constants
+        return Types.BOOLEAN;
     }
 }

@@ -11,6 +11,8 @@
 
 package com.amalto.core.query.user;
 
+import org.talend.mdm.commmon.metadata.Types;
+
 public class DoubleConstant implements TypedExpression {
 
     private final Double constant;
@@ -32,6 +34,6 @@ public class DoubleConstant implements TypedExpression {
     }
 
     public String getTypeName() {
-        return "double"; // TODO Constants
+        return Types.DOUBLE;
     }
 }

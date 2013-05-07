@@ -11,6 +11,8 @@
 
 package com.amalto.core.query.user;
 
+import org.talend.mdm.commmon.metadata.Types;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -21,7 +23,7 @@ import java.util.Date;
  */
 public class TimeConstant implements TypedExpression {
 
-    public static final DateFormat TIME_FORMAT = new SimpleDateFormat("hh:mm:ss");
+    public static final DateFormat TIME_FORMAT = new SimpleDateFormat("hh:mm:ss"); //$NON-NLS-1$
 
     private final Date value;
 
@@ -48,6 +50,6 @@ public class TimeConstant implements TypedExpression {
     }
 
     public String getTypeName() {
-        return "dateTime"; // TODO Constants
+        return Types.DATETIME;
     }
 }

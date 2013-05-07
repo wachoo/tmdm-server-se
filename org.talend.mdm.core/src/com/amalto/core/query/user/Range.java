@@ -1,6 +1,6 @@
 package com.amalto.core.query.user;
 
-public class Range extends Condition {
+public class Range implements Condition {
 
     private final TypedExpression expression;
 

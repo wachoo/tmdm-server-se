@@ -42,7 +42,7 @@ public class SaverSession {
 
     private boolean hasMetAutoIncrement = false;
 
-    private SaverSession(SaverSource dataSource) {
+    public SaverSession(SaverSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -91,7 +91,7 @@ public class SaverSession {
         begin(dataCluster, getDefaultCommitter());
     }
 
-    private DefaultCommitter getDefaultCommitter() {
+    protected Committer getDefaultCommitter() {
         if (defaultCommitter == null) {
             defaultCommitter = new DefaultCommitter();
         }

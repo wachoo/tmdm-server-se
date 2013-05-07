@@ -235,7 +235,7 @@ public class UserQueryHelper {
         }
     }
 
-    private static class NoOpCondition extends Condition {
+    private static class NoOpCondition implements Condition {
         public Expression normalize() {
             return this;
         }

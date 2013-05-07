@@ -21,18 +21,13 @@ import org.apache.log4j.Logger;
 
 import java.util.List;
 
-public class UpdateReportOptimizer extends Optimizer {
+public class UpdateReportOptimizer implements Optimizer {
 
     private static final Logger LOGGER = Logger.getLogger(UpdateReportOptimizer.class);
 
     private static final UpdateReportDataModel REPORT_DATA_MODEL = new UpdateReportDataModel();
 
-    public UpdateReportOptimizer() {
-        super();
-    }
-
-    @Override
-    protected void doOptimize(Select select) {
+    public void optimize(Select select) {
         List<ComplexTypeMetadata> types = select.getTypes();
         if (types.size() == 1) {
             ComplexTypeMetadata mainType = types.get(0);

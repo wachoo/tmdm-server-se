@@ -984,7 +984,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         @Override
         public FieldCondition visit(Type type) {
             FieldCondition fieldCondition = new FieldCondition();
-            fieldCondition.criterionFieldName = type.getField().getFieldMetadata().getContainingType().getName() + ".class";
+            fieldCondition.criterionFieldName = type.getField().getFieldMetadata().getContainingType().getName() + ".class"; //$NON-NLS-1$
             fieldCondition.isMany = false;
             fieldCondition.isProperty = true;
             return fieldCondition;

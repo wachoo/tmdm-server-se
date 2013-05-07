@@ -11,6 +11,8 @@
 
 package com.amalto.core.query.user;
 
+import org.talend.mdm.commmon.metadata.Types;
+
 public class LongConstant implements TypedExpression {
 
     private final Long constant;
@@ -32,6 +34,6 @@ public class LongConstant implements TypedExpression {
     }
 
     public String getTypeName() {
-        return "long"; // TODO Constants
+        return Types.LONG;
     }
 }

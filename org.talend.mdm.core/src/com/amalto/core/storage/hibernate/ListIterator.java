@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-class ListIterator extends CloseableIterator<DataRecord> {
+class ListIterator implements CloseableIterator<DataRecord> {
 
     private final static Logger LOGGER = Logger.getLogger(ListIterator.class);
 

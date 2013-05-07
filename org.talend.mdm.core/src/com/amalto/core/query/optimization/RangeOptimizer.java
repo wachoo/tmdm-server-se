@@ -2,16 +2,11 @@ package com.amalto.core.query.optimization;
 
 import com.amalto.core.query.user.*;
 
-public class RangeOptimizer extends Optimizer {
+public class RangeOptimizer implements Optimizer {
 
     private static final RangeOptimization RANGE_OPTIMIZATION = new RangeOptimization();
 
-    public RangeOptimizer() {
-        super();
-    }
-
-    @Override
-    protected void doOptimize(Select select) {
+    public void optimize(Select select) {
         synchronized (RANGE_OPTIMIZATION) {
             try {
                 Condition condition = select.getCondition();

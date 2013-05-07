@@ -13,7 +13,7 @@
 
 package com.amalto.core.query.user;
 
-public class UnaryLogicOperator extends Condition {
+public class UnaryLogicOperator implements Condition {
 
     private Condition condition;
 

@@ -856,11 +856,11 @@ public class HibernateStorage implements Storage {
         @Override
         public Object visit(SimpleTypeFieldMetadata simpleField) {
             String simpleFieldTypeName = simpleField.getType().getName();
-            if ("gYearMonth".equals(simpleFieldTypeName) //$NON-NLS-1$
-                    || "gYear".equals(simpleFieldTypeName) //$NON-NLS-1$
-                    || "gMonthDay".equals(simpleFieldTypeName) //$NON-NLS-1$
-                    || "gDay".equals(simpleFieldTypeName) //$NON-NLS-1$
-                    || "gMonth".equals(simpleFieldTypeName)) { //$NON-NLS-1$
+            if (Types.G_YEAR_MONTH.equals(simpleFieldTypeName)
+                    || Types.G_YEAR.equals(simpleFieldTypeName)
+                    || Types.G_MONTH_DAY.equals(simpleFieldTypeName)
+                    || Types.G_DAY.equals(simpleFieldTypeName)
+                    || Types.G_MONTH.equals(simpleFieldTypeName)) {
                 throw new IllegalArgumentException("No support for field type '" + simpleFieldTypeName + "' (field '"
                         + simpleField.getName() + "' of type '" + simpleField.getContainingType().getName() + "').");
             }

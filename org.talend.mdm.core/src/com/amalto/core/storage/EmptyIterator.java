@@ -8,7 +8,7 @@ import java.io.IOException;
 /**
 *
 */
-public class EmptyIterator extends CloseableIterator<DataRecord> {
+public class EmptyIterator implements CloseableIterator<DataRecord> {
     public static final CloseableIterator<DataRecord> INSTANCE = new EmptyIterator();
 
     private EmptyIterator() {

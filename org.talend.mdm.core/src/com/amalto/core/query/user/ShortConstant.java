@@ -11,6 +11,8 @@
 
 package com.amalto.core.query.user;
 
+import org.talend.mdm.commmon.metadata.Types;
+
 public class ShortConstant implements TypedExpression {
 
     private final Short constant;
@@ -32,6 +34,6 @@ public class ShortConstant implements TypedExpression {
     }
 
     public String getTypeName() {
-        return "short"; // TODO Constants
+        return Types.SHORT;
     }
 }

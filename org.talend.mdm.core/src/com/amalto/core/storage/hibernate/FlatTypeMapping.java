@@ -321,6 +321,6 @@ class FlatTypeMapping extends TypeMapping {
 
     @Override
     public String toString() {
-        return "FLAT (" + user.getName() + ")";
+        return "FLAT (" + user.getName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
     }
 }

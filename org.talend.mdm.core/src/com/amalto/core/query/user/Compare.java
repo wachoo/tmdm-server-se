@@ -14,7 +14,7 @@ package com.amalto.core.query.user;
 /**
  *
  */
-public class Compare extends Condition {
+public class Compare implements Condition {
 
     private Expression left;
 

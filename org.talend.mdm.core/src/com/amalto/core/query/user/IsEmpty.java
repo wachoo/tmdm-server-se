@@ -11,7 +11,7 @@
 
 package com.amalto.core.query.user;
 
-public class IsEmpty extends Condition {
+public class IsEmpty implements Condition {
 
     private final TypedExpression field;
 

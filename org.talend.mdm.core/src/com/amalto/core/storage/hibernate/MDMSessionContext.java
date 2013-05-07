@@ -50,7 +50,7 @@ public class MDMSessionContext implements CurrentSessionContext {
 	/**
 	 * A ThreadLocal maintaining current sessions for the given execution thread.
 	 * The actual ThreadLocal variable is a java.util.Map to account for
-	 * the possibility for multiple SessionFactorys being used during execution
+	 * the possibility for multiple SessionFactory being used during execution
 	 * of the given thread.
 	 */
 	private static final ThreadLocal context = new ThreadLocal();

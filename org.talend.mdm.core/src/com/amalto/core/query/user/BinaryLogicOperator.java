@@ -1,6 +1,6 @@
 package com.amalto.core.query.user;
 
-public class BinaryLogicOperator extends Condition {
+public class BinaryLogicOperator implements Condition {
 
     private Condition left;
 

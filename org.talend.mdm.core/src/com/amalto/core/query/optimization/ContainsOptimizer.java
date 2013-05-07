@@ -15,18 +15,13 @@ import com.amalto.core.query.user.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-public class ContainsOptimizer extends Optimizer {
+public class ContainsOptimizer implements Optimizer {
 
     private static final ContainsOptimization CONTAINS_OPTIMIZATION = new ContainsOptimization();
 
     private static final Logger LOGGER = Logger.getLogger(ContainsOptimizer.class);
 
-    public ContainsOptimizer() {
-        super();
-    }
-
-    @Override
-    protected void doOptimize(Select select) {
+    public void optimize(Select select) {
         synchronized (CONTAINS_OPTIMIZATION) {
             Condition condition = select.getCondition();
             if (condition != null) {

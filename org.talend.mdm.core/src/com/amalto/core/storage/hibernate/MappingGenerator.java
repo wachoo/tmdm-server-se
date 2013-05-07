@@ -130,7 +130,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         // Adds a prefix until 's' is no longer a SQL reserved key word.
         String backup = s;
         while (reservedKeyWords.contains(s)) {
-            s = "X_" + s;
+            s = "X_" + s; //$NON-NLS-1$
         }
         if (LOGGER.isDebugEnabled()) {
             if (!s.equals(backup)) {
@@ -655,8 +655,8 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         Attr elementType = document.createAttribute("type"); //$NON-NLS-1$
         TypeMetadata fieldType = field.getType();
         String elementTypeName;
-        if ("MULTI_LINGUAL".equalsIgnoreCase(fieldType.getName()) //$NON-NLS-1$
-                || "base64Binary".equals(fieldType.getName())) { //$NON-NLS-1$
+        if (Types.MULTI_LINGUAL.equalsIgnoreCase(fieldType.getName())
+                || Types.BASE64_BINARY.equals(fieldType.getName())) {
             elementTypeName = TEXT_TYPE_NAME;
         } else {
             Object sqlType = fieldType.getData(TypeMapping.SQL_TYPE);

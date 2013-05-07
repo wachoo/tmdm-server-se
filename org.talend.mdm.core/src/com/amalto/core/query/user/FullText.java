@@ -13,7 +13,7 @@
 
 package com.amalto.core.query.user;
 
-public class FullText extends Condition {
+public class FullText implements Condition {
 
     private final String value;
 

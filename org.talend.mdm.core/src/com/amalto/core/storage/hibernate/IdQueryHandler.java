@@ -229,7 +229,7 @@ class IdQueryHandler extends AbstractQueryHandler {
                     false,
                     false,
                     currentAliasName,
-                    new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "long"),
+                    new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.LONG),
                     Collections.<String>emptyList(),
                     Collections.<String>emptyList());
             explicitProjectionType.addField(fieldType);
@@ -248,7 +248,7 @@ class IdQueryHandler extends AbstractQueryHandler {
                     false,
                     false,
                     currentAliasName,
-                    new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"),
+                    new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                     Collections.<String>emptyList(),
                     Collections.<String>emptyList());
             explicitProjectionType.addField(fieldType);

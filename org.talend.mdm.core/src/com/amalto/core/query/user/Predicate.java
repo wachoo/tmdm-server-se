@@ -16,8 +16,6 @@ package com.amalto.core.query.user;
  */
 public interface Predicate extends Visitable {
 
-    boolean isPrimitive();
-
     Predicate CONTAINS = new Contains();
 
     class Contains implements Predicate {
@@ -25,9 +23,6 @@ public interface Predicate extends Visitable {
             return visitor.visit(this);
         }
 
-        public boolean isPrimitive() {
-            return false;
-        }
     }
 
     Predicate STARTS_WITH = new StartsWith();
@@ -37,9 +32,6 @@ public interface Predicate extends Visitable {
             return visitor.visit(this);
         }
 
-        public boolean isPrimitive() {
-            return false;
-        }
     }
 
     Predicate GREATER_THAN = new GreaterThan();
@@ -49,9 +41,6 @@ public interface Predicate extends Visitable {
             return visitor.visit(this);
         }
 
-        public boolean isPrimitive() {
-            return true;
-        }
     }
 
     Predicate GREATER_THAN_OR_EQUALS = new GreaterThanOrEquals();
@@ -61,9 +50,6 @@ public interface Predicate extends Visitable {
             return visitor.visit(this);
         }
 
-        public boolean isPrimitive() {
-            return true;
-        }
     }
 
     Predicate LOWER_THAN = new LowerThan();
@@ -73,9 +59,6 @@ public interface Predicate extends Visitable {
             return visitor.visit(this);
         }
 
-        public boolean isPrimitive() {
-            return true;
-        }
     }
 
     Predicate LOWER_THAN_OR_EQUALS = new LowerThanOrEquals();
@@ -85,9 +68,6 @@ public interface Predicate extends Visitable {
             return visitor.visit(this);
         }
 
-        public boolean isPrimitive() {
-            return true;
-        }
     }
 
     Predicate AND = new And();
@@ -97,9 +77,6 @@ public interface Predicate extends Visitable {
             return visitor.visit(this);
         }
 
-        public boolean isPrimitive() {
-            return true;
-        }
     }
 
     Predicate EQUALS = new Equals();
@@ -109,9 +86,6 @@ public interface Predicate extends Visitable {
             return visitor.visit(this);
         }
 
-        public boolean isPrimitive() {
-            return true;
-        }
     }
 
     Predicate OR = new Or();
@@ -121,9 +95,6 @@ public interface Predicate extends Visitable {
             return visitor.visit(this);
         }
 
-        public boolean isPrimitive() {
-            return true;
-        }
     }
 
     Predicate NOT = new Not();
@@ -133,9 +104,6 @@ public interface Predicate extends Visitable {
             return visitor.visit(this);
         }
 
-        public boolean isPrimitive() {
-            return true;
-        }
     }
 
 }

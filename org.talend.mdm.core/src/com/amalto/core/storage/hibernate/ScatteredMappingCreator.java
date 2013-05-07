@@ -124,7 +124,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 null,
                 fkIntegrity,
                 referenceField.allowFKIntegrityOverride(),
-                new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"), //$NON-NLS-1$
+                new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                 referenceField.getWriteUsers(),
                 referenceField.getHideUsers());
         database.addField(newFlattenField);
@@ -165,7 +165,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                         false,
                         true,
                         GENERATED_ID,
-                        new SoftTypeRef(internalRepository, internalRepository.getUserNamespace(), "UUID", false), //$NON-NLS-1$
+                        new SoftTypeRef(internalRepository, internalRepository.getUserNamespace(), Types.UUID, false),
                         originalContainedType.getWriteUsers(),
                         originalContainedType.getHideUsers()));
             } else {
@@ -208,7 +208,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 null,
                 false,  // No need to enforce FK in references to these technical objects.
                 false,
-                new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"), //$NON-NLS-1$
+                new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                 containedField.getWriteUsers(),
                 containedField.getHideUsers());
         newFlattenField.setData("SQL_DELETE_CASCADE", "true"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -239,14 +239,14 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         if (!complexType.isInstantiable()) {
             // In this mapping prefix non instantiable types with "x_" so table name is not mixed up with an entity
             // table with same name.
-            database.setName(newNonInstantiableTypeName(database)); //$NON-NLS-1$
+            database.setName(newNonInstantiableTypeName(database));
         }
         currentMapping.push(entityMapping);
         currentType.push(database);
         {
             internalRepository.addTypeMetadata(database);
             if (complexType.getKeyFields().isEmpty() && complexType.getSuperTypes().isEmpty()) { // Assumes super type will define an id.
-                SoftTypeRef type = new SoftTypeRef(internalRepository, StringUtils.EMPTY, "UUID", false); //$NON-NLS-1$
+                SoftTypeRef type = new SoftTypeRef(internalRepository, StringUtils.EMPTY, Types.UUID, false);
                 database.addField(new SimpleTypeFieldMetadata(database,
                         true,
                         false,
@@ -273,7 +273,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             }
             super.visit(complexType);
             for (FieldMetadata keyField : complexType.getKeyFields()) {
-                database.registerKey(database.getField("x_" + keyField.getName().replace('-', '_').toLowerCase()));
+                database.registerKey(database.getField("x_" + keyField.getName().replace('-', '_').toLowerCase())); //$NON-NLS-1$
             }
         }
         currentType.pop();

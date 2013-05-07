@@ -13,6 +13,7 @@
 
 package com.amalto.core.query.user;
 
+import org.talend.mdm.commmon.metadata.Types;
 import java.math.BigDecimal;
 
 public class BigDecimalConstant implements TypedExpression {
@@ -36,6 +37,6 @@ public class BigDecimalConstant implements TypedExpression {
     }
 
     public String getTypeName() {
-        return "decimal"; // TODO Constants
+        return Types.DECIMAL;
     }
 }

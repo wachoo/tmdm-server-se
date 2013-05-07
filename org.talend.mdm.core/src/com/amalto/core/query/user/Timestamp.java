@@ -13,7 +13,7 @@ package com.amalto.core.query.user;
 
 public class Timestamp implements TypedExpression {
 
-    public static final String TIMESTAMP_TYPE_NAME = "long";
+    public static final String TIMESTAMP_TYPE_NAME = "long"; //$NON-NLS-1$
 
     public static final Timestamp INSTANCE = new Timestamp();
 

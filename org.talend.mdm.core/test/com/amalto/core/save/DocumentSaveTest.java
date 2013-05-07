@@ -2093,7 +2093,13 @@ public class DocumentSaveTest extends TestCase {
         TestSaverSource source = new TestSaverSource(repository, true, "test56_original.xml", "PROVISIONING.xsd");
         source.setUserName("admin");
 
-        SaverSession session = SaverSession.newSession(source);
+        final MockCommitter committer = new MockCommitter();
+        SaverSession session = new SaverSession(source) {
+            @Override
+            protected Committer getDefaultCommitter() {
+                return committer;
+            }
+        };
         InputStream partialUpdateContent = new ByteArrayInputStream(("<User>\n" + "    <username>user</username>\n"
                 + "        <roles>" + "           <role>System_Interactive</role>\n" + " <role>Demo_User</role>\n" +     "</roles>\n"
                 + "</User>\n").getBytes("UTF-8"));
@@ -2101,7 +2107,6 @@ public class DocumentSaveTest extends TestCase {
                 partialUpdateContent, true, false, "/User/roles/role", "", true);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
-        MockCommitter committer = new MockCommitter();
         session.end(committer);
 
         assertTrue(committer.hasSaved());

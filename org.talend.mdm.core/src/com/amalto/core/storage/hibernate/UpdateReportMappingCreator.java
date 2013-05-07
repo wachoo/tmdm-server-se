@@ -1,5 +1,6 @@
 package com.amalto.core.storage.hibernate;
 
+import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.*;
 
 import javax.xml.XMLConstants;
@@ -26,10 +27,10 @@ class UpdateReportMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         USER_UPDATE_REPORT_TYPE = (ComplexTypeMetadata) updateReportType;
 
         this.mappings = mappings;
-        ComplexTypeMetadata databaseUpdateReportType = new ComplexTypeMetadataImpl("", "X_UPDATE_REPORT", true); //$NON-NLS-1$ //$NON-NLS-2$
-        TypeMetadata stringType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"); //$NON-NLS-1$
-        TypeMetadata longStringType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"); //$NON-NLS-1$
-        TypeMetadata longType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "long"); //$NON-NLS-1$
+        ComplexTypeMetadata databaseUpdateReportType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, "X_UPDATE_REPORT", true); //$NON-NLS-1$
+        TypeMetadata stringType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING);
+        TypeMetadata longStringType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING);
+        TypeMetadata longType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.LONG);
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_user_name", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, true, false, true, "x_source", stringType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, true, false, true, "x_time_in_millis", longType, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$

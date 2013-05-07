@@ -16,6 +16,7 @@ import com.amalto.core.query.user.*;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.Types;
 
 class MappingExpressionTransformer extends VisitorAdapter<Expression> {
 
@@ -100,7 +101,7 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
         if (previousLeft instanceof TypedExpression && left instanceof TypedExpression) {
             TypedExpression previousTypedExpression = (TypedExpression) previousLeft;
             TypedExpression typedExpression = (TypedExpression) left;
-            if ("string".equals(previousTypedExpression.getTypeName()) //$NON-NLS-1$
+            if (Types.STRING.equals(previousTypedExpression.getTypeName())
                     && predicate == Predicate.CONTAINS
                     && !previousTypedExpression.getTypeName().equals(typedExpression.getTypeName())) {
                 predicate = Predicate.EQUALS;

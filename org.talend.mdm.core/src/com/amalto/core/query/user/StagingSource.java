@@ -11,9 +11,9 @@
 
 package com.amalto.core.query.user;
 
-public class StagingSource implements TypedExpression {
+import org.talend.mdm.commmon.metadata.Types;
 
-    public static final String STATING_SOURCE_TYPE_NAME = "string";
+public class StagingSource implements TypedExpression {
 
     public static final StagingSource INSTANCE = new StagingSource();
 
@@ -21,7 +21,7 @@ public class StagingSource implements TypedExpression {
     }
 
     public String getTypeName() {
-        return STATING_SOURCE_TYPE_NAME;
+        return Types.STRING;
     }
 
     public Expression normalize() {

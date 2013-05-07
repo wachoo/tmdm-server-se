@@ -118,7 +118,7 @@ class NativeQueryHandler extends AbstractQueryHandler {
 
     }
 
-    private static class NativeIterator extends CloseableIterator<DataRecord> {
+    private static class NativeIterator implements CloseableIterator<DataRecord> {
 
         private static final Logger LOGGER = Logger.getLogger(NativeIterator.class);
 

@@ -80,7 +80,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     null,
                     referenceField.isFKIntegrity(),
                     referenceField.allowFKIntegrityOverride(),
-                    new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"), //$NON-NLS-1$
+                    new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                     referenceField.getWriteUsers(),
                     referenceField.getHideUsers());
             database.addField(newFlattenField);
@@ -135,7 +135,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         } else {
             SoftTypeRef internalDeclaringType;
             if (!declaringType.isInstantiable()) {
-                internalDeclaringType = new SoftTypeRef(internalRepository, declaringType.getNamespace(), "X_" + declaringType.getName(), declaringType.isInstantiable());
+                internalDeclaringType = new SoftTypeRef(internalRepository, declaringType.getNamespace(), "X_" + declaringType.getName(), declaringType.isInstantiable()); //$NON-NLS-1$
             } else {
                 internalDeclaringType = new SoftTypeRef(internalRepository, declaringType.getNamespace(), declaringType.getName(), declaringType.isInstantiable());
             }
@@ -196,7 +196,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         }
         forceKey = false;
         if (typeMapping.getUser().getKeyFields().isEmpty() && typeMapping.getUser().getSuperTypes().isEmpty()) { // Assumes super type defines key field.
-            SoftTypeRef type = new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, "string", false); //$NON-NLS-1$
+            SoftTypeRef type = new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING, false);
             database.addField(new SimpleTypeFieldMetadata(database, true, false, true, "X_TALEND_ID", type, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return typeMapping;

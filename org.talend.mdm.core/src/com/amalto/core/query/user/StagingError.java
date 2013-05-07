@@ -11,9 +11,9 @@
 
 package com.amalto.core.query.user;
 
-public class StagingError implements TypedExpression {
+import org.talend.mdm.commmon.metadata.Types;
 
-    public static final String STATING_ERROR_TYPE_NAME = "string";
+public class StagingError implements TypedExpression {
 
     public static final StagingError INSTANCE = new StagingError();
 
@@ -21,7 +21,7 @@ public class StagingError implements TypedExpression {
     }
 
     public String getTypeName() {
-        return STATING_ERROR_TYPE_NAME;
+        return Types.STRING;
     }
 
     public Expression normalize() {

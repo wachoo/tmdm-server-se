@@ -24,7 +24,7 @@ import javax.xml.XMLConstants;
 import java.io.IOException;
 import java.util.*;
 
-class ProjectionIterator extends CloseableIterator<DataRecord> {
+class ProjectionIterator implements CloseableIterator<DataRecord> {
 
     private static final Logger LOGGER = Logger.getLogger(ProjectionIterator.class);
 
@@ -184,7 +184,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                     fieldMetadata.getForeignKeyInfoField(),
                     false,
                     false,
-                    new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"),
+                    new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                     Collections.<String>emptyList(),
                     Collections.<String>emptyList());
             currentElement = new ProjectionElement();
@@ -289,7 +289,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
 
         public ProjectionElement visit(StagingStatus stagingStatus) {
             if (!isAlias) {
-                createElement(StagingStatus.STATING_STATUS_TYPE_NAME, Storage.METADATA_STAGING_STATUS);
+                createElement(stagingStatus.getTypeName(), Storage.METADATA_STAGING_STATUS);
             }
             currentElement.value = values[currentIndex++];
             return currentElement;
@@ -297,7 +297,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
 
         public ProjectionElement visit(StagingError stagingError) {
             if (!isAlias) {
-                createElement(StagingError.STATING_ERROR_TYPE_NAME, Storage.METADATA_STAGING_ERROR);
+                createElement(stagingError.getTypeName(), Storage.METADATA_STAGING_ERROR);
             }
             currentElement.value = values[currentIndex++];
             return currentElement;
@@ -305,7 +305,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
 
         public ProjectionElement visit(StagingSource stagingSource) {
             if (!isAlias) {
-                createElement(StagingSource.STATING_SOURCE_TYPE_NAME, Storage.METADATA_STAGING_SOURCE);
+                createElement(stagingSource.getTypeName(), Storage.METADATA_STAGING_SOURCE);
             }
             currentElement.value = values[currentIndex++];
             return currentElement;

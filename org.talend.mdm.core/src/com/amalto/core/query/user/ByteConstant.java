@@ -11,6 +11,8 @@
 
 package com.amalto.core.query.user;
 
+import org.talend.mdm.commmon.metadata.Types;
+
 public class ByteConstant implements TypedExpression {
 
     private final Byte constant;
@@ -32,6 +34,6 @@ public class ByteConstant implements TypedExpression {
     }
 
     public String getTypeName() {
-        return "byte"; // TODO Constants
+        return Types.BYTE;
     }
 }
