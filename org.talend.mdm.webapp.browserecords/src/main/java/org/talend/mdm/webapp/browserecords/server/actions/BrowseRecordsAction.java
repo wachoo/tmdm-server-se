@@ -102,6 +102,7 @@ import org.xml.sax.InputSource;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
@@ -809,7 +810,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             if (wsItem != null && xml != null) {
                 if ("/".equalsIgnoreCase(path)) { //$NON-NLS-1$
-                    pushUpdateReport(ids, concept, "LOGIC_DELETE"); //$NON-NLS-1$
+                    pushUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE);
                 } else {
                     throw new ServiceException(MESSAGES.getMessage("dropItem_null")); //$NON-NLS-1$
                 }
@@ -1450,7 +1451,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             LOG.trace("pushUpdateReport() concept " + concept + " operation " + operationType);//$NON-NLS-1$ //$NON-NLS-2$
         }
 
-        if (!("PHYSICAL_DELETE".equals(operationType) || "LOGIC_DELETE".equals(operationType))) { //$NON-NLS-1$ //$NON-NLS-2$
+        if (!("PHYSICAL_DELETE".equals(operationType) || UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(operationType))) { //$NON-NLS-1$
             throw new UnsupportedOperationException();
         }
 

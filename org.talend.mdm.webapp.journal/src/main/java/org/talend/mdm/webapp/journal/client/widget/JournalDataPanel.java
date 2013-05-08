@@ -20,6 +20,7 @@ import org.talend.mdm.webapp.journal.client.resources.icon.Icons;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -71,7 +72,7 @@ public class JournalDataPanel extends FormPanel {
         this.setLayout(new FitLayout());
         
         openRecordButton = new Button(MessagesFactory.getMessages().open_record_button());
-        if ("LOGIC_DELETE".equals(journalGridModel.getOperationType()) //$NON-NLS-1$
+        if (UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(journalGridModel.getOperationType())
                 || "PHYSICAL_DELETE".equals(journalGridModel.getOperationType())) { //$NON-NLS-1$
             openRecordButton.disable();
         }
