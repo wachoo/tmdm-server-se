@@ -67,7 +67,7 @@ public class JournalDBService {
     
     private WebService webService;
 
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss"); //$NON-NLS-1$
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //$NON-NLS-1$
 
     public JournalDBService(WebService webService) {
         this.webService = webService;
