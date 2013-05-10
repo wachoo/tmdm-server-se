@@ -65,7 +65,7 @@ class ID implements DocumentSaver {
 
             // Get ids.
             String currentIdValue;
-            if (EUUIDCustomType.UUID.getName().equalsIgnoreCase(keyFieldTypeName) || EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(keyFieldTypeName)) {
+            if (isServerProvidedValue(keyFieldTypeName)) {
                 if (userAccessor.exist()) { // Ignore cases where id is not there (will usually mean this is a creation).
                     String value = userAccessor.get();
                     if (!value.trim().isEmpty()) {
@@ -86,7 +86,7 @@ class ID implements DocumentSaver {
 
             if (currentIdValue != null && !"".equals(currentIdValue)) {
                 ids.add(currentIdValue);
-            } else {
+            } else if(!isServerProvidedValue(keyFieldTypeName)){
                 throw new IllegalArgumentException("Expected id '" + keyField.getName() + "' to be set.");
             }
         }
@@ -152,6 +152,11 @@ class ID implements DocumentSaver {
         // Continue save
         savedTypeName = context.getType().getName();
         next.save(session, context);
+    }
+
+    private static boolean isServerProvidedValue(String keyFieldTypeName) {
+        return EUUIDCustomType.UUID.getName().equalsIgnoreCase(keyFieldTypeName)
+                || EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(keyFieldTypeName);
     }
 
     private static Element getUserXmlElement(Document databaseDomDocument) {
