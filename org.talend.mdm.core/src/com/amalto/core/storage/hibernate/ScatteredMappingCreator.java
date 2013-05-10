@@ -260,7 +260,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 if (superType.isInstantiable()) {
                     SoftTypeRef type = new SoftTypeRef(internalRepository,
                             superType.getNamespace(),
-                            superType.getName(),
+                            superType.getName().replace('-', '_'),
                             superType.isInstantiable());
                     database.addSuperType(type, internalRepository);
                 } else {

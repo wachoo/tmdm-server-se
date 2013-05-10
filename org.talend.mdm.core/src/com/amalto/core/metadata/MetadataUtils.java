@@ -535,7 +535,12 @@ public class MetadataUtils {
                     }
                     containedType.accept(this);
                     for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
-                        subType.accept(this);
+                        if (processedTypes.contains(subType)) {
+                            return lineContent;
+                        } else {
+                            processedTypes.add(subType);
+                            subType.accept(this);
+                        }
                     }
                     return lineContent;
                 }

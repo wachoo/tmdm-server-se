@@ -69,7 +69,11 @@ public class SystemStorageWrapper extends StorageWrapper {
     private ComplexTypeMetadata getType(String clusterName, Storage storage, String uniqueId) {
         MetadataRepository repository = storage.getMetadataRepository();
         if (clusterName.startsWith(SYSTEM_PREFIX)) {
-            return repository.getComplexType(ClassRepository.format(clusterName.substring(SYSTEM_PREFIX.length()) + "POJO")); //$NON-NLS-1$
+            if (!"amaltoOBJECTSservices".equals(clusterName)) { //$NON-NLS-1$
+                return repository.getComplexType(ClassRepository.format(clusterName.substring(SYSTEM_PREFIX.length()) + "POJO")); //$NON-NLS-1$
+            } else {
+                return repository.getComplexType(ClassRepository.format(clusterName.substring(SYSTEM_PREFIX.length())));
+            }
         }
         if (XSystemObjects.DC_MDMITEMSTRASH.getName().equals(clusterName)) {
             return repository.getComplexType(DROPPED_ITEM_TYPE);

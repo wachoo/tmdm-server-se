@@ -12,6 +12,8 @@
 package com.amalto.core.metadata;
 
 import com.amalto.core.ejb.ObjectPOJO;
+import com.amalto.core.ejb.ServiceBean;
+import com.amalto.core.ejb.local.ServiceBMP;
 import com.amalto.core.util.ArrayListHolder;
 import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.lang.StringUtils;
@@ -70,6 +72,7 @@ public class ClassRepository extends MetadataRepository {
                 WhereCondition.class,
                 WhereLogicOperator.class,
                 WhereOr.class));
+        registeredSubClasses.put(ServiceBean.class, Arrays.<Class>asList(ServiceBMP.class));
     }
 
     public void load(Class... classes) {
@@ -127,6 +130,7 @@ public class ClassRepository extends MetadataRepository {
             Iterable<Class> subClasses = getSubclasses(clazz);
             for (Class subClass : subClasses) {
                 TypeMetadata typeMetadata = loadClass(subClass);
+                typeMetadata.setInstantiable(true);
                 typeMetadata.addSuperType(typeStack.peek(), this);
             }
         }
