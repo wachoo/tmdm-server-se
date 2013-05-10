@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.StorageProvider;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsController;
@@ -31,6 +32,7 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.core.client.EntryPoint;
@@ -110,6 +112,7 @@ public class BrowseRecords implements EntryPoint {
      */
     @Override
     public void onModuleLoad() {
+        initCurrentStateProvicer();
         registerPubService();
         Registry.register(BROWSERECORDS_SERVICE, GWT.create(BrowseRecordsService.class));
 
@@ -122,6 +125,13 @@ public class BrowseRecords implements EntryPoint {
 
         regItemDetails();
         Log.setUncaughtExceptionHandler();
+    }
+    
+    private void initCurrentStateProvicer(){
+        StorageProvider storageProvider = StorageProvider.newInstanceIfSupported();
+        if (storageProvider != null){
+            StateManager.get().setProvider(storageProvider);
+        }
     }
 
     private static BrowseRecordsServiceAsync getItemService() {

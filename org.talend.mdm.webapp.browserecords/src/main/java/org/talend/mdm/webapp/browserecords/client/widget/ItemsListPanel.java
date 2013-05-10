@@ -49,6 +49,7 @@ import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
+import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -348,8 +349,15 @@ public class ItemsListPanel extends ContentPanel {
         gridContainer.setBottomComponent(pagingBar);
         grid = new ColumnAlignGrid<ItemBean>(store, cm);
         grid.setSelectionModel(sm);
-        grid.setStateful(true);
-        grid.setStateId("browseRecord_grid"); //$NON-NLS-1$
+        
+        {
+            grid.setStateful(true);
+            AppHeader header = (AppHeader) BrowseRecords.getSession().get(UserSession.APP_HEADER);
+            ViewBean vb = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
+            EntityModel em = vb.getBindingEntityModel();
+            grid.setStateId(header.getDatamodel() + "." + em.getConceptName() + "." + vb.getViewPK());  //$NON-NLS-1$//$NON-NLS-2$
+        }
+        
         re = new SaveRowEditor();
         grid.getView().setForceFit(true);
         if (cm.getColumnCount() > 0) {
