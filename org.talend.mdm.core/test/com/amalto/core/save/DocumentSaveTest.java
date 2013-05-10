@@ -2023,6 +2023,34 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("[10]", evaluate(committedElement, "/Personne/Contextes/Contexte/Contacts/Contact/SpecialisationContactType/NatureEmailFk"));
     }
 
+    public void test60() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7_vinci.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test60_original.xml", "metadata7_vinci.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test60.xml");
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("Vinci", "Test60", "genericUI", recordXml,
+                true, false, "/Societe/ListeEtablissements/", // Loop (Pivot)
+                "CodeOSMOSE", // Key
+                true);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("[10702E0031]", evaluate(committedElement, "/Societe/ListeEtablissements/CodeOSMOSE[1]"));
+        assertEquals("[10702E0032]", evaluate(committedElement, "/Societe/ListeEtablissements/CodeOSMOSE[2]"));
+        assertEquals("[10702E0033]", evaluate(committedElement, "/Societe/ListeEtablissements/CodeOSMOSE[3]"));
+        assertEquals("[10702E0034]", evaluate(committedElement, "/Societe/ListeEtablissements/CodeOSMOSE[4]"));
+        assertEquals("[10702E0035]", evaluate(committedElement, "/Societe/ListeEtablissements/CodeOSMOSE[5]"));
+
+    }
+    
     public void testRemoveSimpleTypeNodeWithOccurrence() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
