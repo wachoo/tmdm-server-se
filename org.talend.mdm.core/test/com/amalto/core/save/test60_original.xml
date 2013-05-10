@@ -1,0 +1,23 @@
+<ii>
+    <c>Vinci</c>
+    <n>Societe</n>
+    <dmn>Vinci</dmn>
+    <i>1</i>
+    <t>1368010211933</t>
+    <p>
+        <Societe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <CodeOSMOSE>1</CodeOSMOSE>
+            <Structure>
+                <Nom>name</Nom>
+            </Structure>
+            <Consolidee>true</Consolidee>
+            <Archivee>true</Archivee>
+            <AppartenanceGroupe>true</AppartenanceGroupe>
+            <ListeEtablissements>
+                <CodeOSMOSE>[10702E0031]</CodeOSMOSE>
+                <CodeOSMOSE>[10702E0032]</CodeOSMOSE>
+                <CodeOSMOSE>[10702E0033]</CodeOSMOSE>
+            </ListeEtablissements>
+        </Societe>
+    </p>
+</ii>
