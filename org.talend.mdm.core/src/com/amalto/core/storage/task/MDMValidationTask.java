@@ -44,6 +44,8 @@ public class MDMValidationTask extends MetadataRepositoryTask {
 
     private static final Logger LOGGER = Logger.getLogger(MDMValidationTask.class);
 
+    private static final int COMMIT_SIZE;
+
     private final SaverSource source;
 
     private final SaverSession.Committer committer;
@@ -59,6 +61,9 @@ public class MDMValidationTask extends MetadataRepositoryTask {
         // staging.validation.pool tells how many threads do staging validation
         value = MDMConfiguration.getConfiguration().getProperty("staging.validation.pool"); //$NON-NLS-1$
         CONSUMER_POOL_SIZE = value == null ? 2 : Integer.valueOf(value);
+        // staging.validation.commit tells when validation should perform intermediate commits.
+        value = MDMConfiguration.getConfiguration().getProperty("staging.validation.commit"); //$NON-NLS-1$
+        COMMIT_SIZE = value == null ? 1000 : Integer.valueOf(value);
     }
 
     public MDMValidationTask(Storage storage, Storage destinationStorage, MetadataRepository repository, SaverSource source, SaverSession.Committer committer, ClosureExecutionStats stats) {
@@ -155,7 +160,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             try {
                 saver.save(session, context);
                 commitCount++;
-                if (commitCount % 1000 == 0) {
+                if (commitCount % COMMIT_SIZE == 0) {
                     end(stats);
                     begin();
                 }
