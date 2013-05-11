@@ -15,7 +15,7 @@ package com.amalto.core.history.accessor;
  *
  */
 public interface Accessor extends Comparable<Accessor> {
-    
+
     enum Marker {
         ADD,
         REMOVE,
@@ -60,6 +60,13 @@ public interface Accessor extends Comparable<Accessor> {
      * @see #exist()
      */
     void create();
+
+    /**
+     * Similar to {@link #create()}, except it will insert a new element instead of reusing an existing one.
+     * Depending on the underlying XML element, this method can be a strict equivalent to {@link #create()} (for unary
+     * fields for instance).
+     */
+    void insert();
 
     /**
      * Equivalent to consecutive calls of {@link #create()} and {@link #set(String)}, but implementation might provide

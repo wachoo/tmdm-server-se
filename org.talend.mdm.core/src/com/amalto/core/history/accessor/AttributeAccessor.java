@@ -133,6 +133,10 @@ class AttributeAccessor implements DOMAccessor {
         }
     }
 
+    public void insert() {
+        create();
+    }
+
     public void createAndSet(String value) {
         // Ensure everything is created in parent nodes.
         parent.create();

@@ -421,7 +421,7 @@ public class DocumentSaveTest extends TestCase {
                         + "        <MoreInfo>http://www.mynewsite.fr</MoreInfo>\n" + "    </Information>\n" + "</Agency>\n")
                         .getBytes("UTF-8"));
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source",
-                partialUpdateContent, true, true, "/Agency/Information/MoreInfo", "", false);
+                partialUpdateContent, true, true, "/Agency/Information/MoreInfo", "", -1, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -444,7 +444,7 @@ public class DocumentSaveTest extends TestCase {
                         + "        <MoreInfo>http://www.mynewsite.fr</MoreInfo>\n" + "    </Information>\n" + "</Agency>\n")
                         .getBytes("UTF-8"));
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source",
-                partialUpdateContent, true, true, "/", "/", true);
+                partialUpdateContent, true, true, "/", "/", -1, true);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -917,7 +917,7 @@ public class DocumentSaveTest extends TestCase {
                 + "        <Colors>" + "           <Color>Light Pink</Color>\n" + "        </Colors>\n" + "    </Features>\n"
                 + "</Product>\n").getBytes("UTF-8"));
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source",
-                partialUpdateContent, true, false, "/Product/Features/Colors/Color", "", false);
+                partialUpdateContent, true, false, "/Product/Features/Colors/Color", "", -1, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -925,6 +925,29 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
         assertEquals("Light Pink", evaluate(committer.getCommittedElement(), "/Product/Features/Colors/Color[4]"));
+    }
+
+    public void testProductPartialUpdateWithIndex() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test11_original.xml", "metadata1.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream partialUpdateContent = new ByteArrayInputStream(("<Product>\n" + "    <Id>1</Id>\n" + "    <Features>\n"
+                + "        <Colors>" + "           <Color>Light Pink</Color>\n" + "        </Colors>\n" + "    </Features>\n"
+                + "</Product>\n").getBytes("UTF-8"));
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source",
+                partialUpdateContent, true, false, "/Product/Features/Colors/Color", "", 1, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        assertEquals("Light Pink", evaluate(committer.getCommittedElement(), "/Product/Features/Colors/Color[1]"));
+        assertEquals("Khaki", evaluate(committer.getCommittedElement(), "/Product/Features/Colors/Color[4]"));
     }
 
     public void testProductPartialUpdate2() throws Exception {
@@ -939,7 +962,7 @@ public class DocumentSaveTest extends TestCase {
                 + "        <Colors>" + "           <Color>Light Pink</Color>\n" + "        </Colors>\n" + "    </Features>\n"
                 + "</Product>\n").getBytes("UTF-8"));
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source",
-                partialUpdateContent, true, true, "/Product/Features/Colors/Color", "", false);
+                partialUpdateContent, true, true, "/Product/Features/Colors/Color", "", -1, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1340,6 +1363,7 @@ public class DocumentSaveTest extends TestCase {
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test28", "admin", recordXml, true,
                 false, "/Organisation/Contacts/Contact", // Loop (Pivot)
                 "SpecialisationContactType/NatureLocalisationFk", // Key
+                -1,
                 true);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
@@ -1400,7 +1424,7 @@ public class DocumentSaveTest extends TestCase {
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test30.xml");
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test28", "admin", recordXml, true,
-                false, "/Organisation/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", false);
+                false, "/Organisation/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", -1, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1427,7 +1451,7 @@ public class DocumentSaveTest extends TestCase {
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test31.xml");
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test31", "admin", recordXml, true,
-                true, "/Societe/Contacts/Contact/", "/StatutContactFk", true);
+                true, "/Societe/Contacts/Contact/", "/StatutContactFk", -1, true);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1451,7 +1475,7 @@ public class DocumentSaveTest extends TestCase {
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test32.xml");
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test32", "admin", recordXml, true,
-                false, "/Societe/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", false);
+                false, "/Societe/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", -1, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1482,7 +1506,7 @@ public class DocumentSaveTest extends TestCase {
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test32.xml");
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test33", "admin", recordXml, true,
-                false, "/Societe/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", false);
+                false, "/Societe/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", -1, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1517,7 +1541,7 @@ public class DocumentSaveTest extends TestCase {
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test34.xml");
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test34", "admin", recordXml, true,
-                true, "/Organisation/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", true);
+                true, "/Organisation/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", -1, true);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1544,7 +1568,7 @@ public class DocumentSaveTest extends TestCase {
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test36.xml");
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test36", "admin", recordXml, true,
-                false, "/Societe/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", false);
+                false, "/Societe/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", -1, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1575,7 +1599,7 @@ public class DocumentSaveTest extends TestCase {
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test37.xml");
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test37", "admin", recordXml, true,
-                true, "/Societe/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", true);
+                true, "/Societe/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", -1, true);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1603,7 +1627,7 @@ public class DocumentSaveTest extends TestCase {
         session = SaverSession.newSession(source);
         recordXml = DocumentSaveTest.class.getResourceAsStream("test37.xml");
         context = session.getContextFactory().createPartialUpdate("MDM", "Test37", "admin", recordXml, true, false,
-                "/Societe/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", false);
+                "/Societe/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", -1, false);
         saver = context.createSaver();
         saver.save(session, context);
         committer = new MockCommitter();
@@ -1642,7 +1666,7 @@ public class DocumentSaveTest extends TestCase {
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test38.xml");
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test38", "admin", recordXml, true,
-                false, "/Societe/Contacts/Contact", "/SpecialisationContactType/NatureTelephoneFk", true);
+                false, "/Societe/Contacts/Contact", "/SpecialisationContactType/NatureTelephoneFk", -1, true);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1709,7 +1733,7 @@ public class DocumentSaveTest extends TestCase {
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test42.xml");
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("Product", "test42", "Source", recordXml,
-                true, false, "Personne/Contextes/Contexte", "", false);
+                true, false, "Personne/Contextes/Contexte", "", -1, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -1897,7 +1921,7 @@ public class DocumentSaveTest extends TestCase {
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test50.xml");
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test50", "Source", recordXml,
-                true, false, "Personne/Contextes/Contexte", "IdContexte", true);
+                true, false, "Personne/Contextes/Contexte", "IdContexte", -1, true);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -2050,6 +2074,7 @@ public class DocumentSaveTest extends TestCase {
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test59", "admin", recordXml, true,
                 false, "/Personne/Contextes/Contexte", // Loop (Pivot)
                 "IdContexte", // Key
+                -1,
                 true);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
@@ -2076,6 +2101,7 @@ public class DocumentSaveTest extends TestCase {
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("Vinci", "Test60", "genericUI", recordXml,
                 true, false, "/Societe/ListeEtablissements/", // Loop (Pivot)
                 "CodeOSMOSE", // Key
+                -1,
                 true);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
@@ -2180,7 +2206,7 @@ public class DocumentSaveTest extends TestCase {
                 + "        <roles>" + "           <role>System_Interactive</role>\n" + " <role>Demo_User</role>\n" +     "</roles>\n"
                 + "</User>\n").getBytes("UTF-8"));
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("PROVISIONING", "PROVISIONING", "Source",
-                partialUpdateContent, true, false, "/User/roles/role", "", true);
+                partialUpdateContent, true, false, "/User/roles/role", "", -1, true);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         session.end(committer);

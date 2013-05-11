@@ -14,6 +14,7 @@ package com.amalto.core.save.context;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
+import com.amalto.core.history.action.FieldInsertAction;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.metadata.MetadataUtils;
 import org.apache.commons.lang.StringUtils;
@@ -25,6 +26,7 @@ import java.util.*;
 class PartialUpdateActionCreator extends UpdateActionCreator {
 
     public static final Logger LOGGER = Logger.getLogger(PartialUpdateActionCreator.class);
+
     private final String partialUpdatePivot;
 
     private final String partialUpdateKey;
@@ -51,12 +53,13 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                                       MutableDocument newDocument,
                                       Date date,
                                       boolean preserveCollectionOldValues,
+                                      int insertIndex,
                                       String pivot,
                                       String key,
                                       String source,
                                       String userName,
                                       MetadataRepository repository) {
-        super(originalDocument, newDocument, date, preserveCollectionOldValues, source, userName, repository);
+        super(originalDocument, newDocument, date, preserveCollectionOldValues, insertIndex, source, userName, repository);
         // Pivot MUST NOT end with '/' and key MUST start with '/' (see TMDM-4381).
         if (pivot.charAt(pivot.length() - 1) == '/') {
             partialUpdatePivot = pivot.substring(0, pivot.length() - 1);
@@ -184,7 +187,11 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                 for (int i = 1; i <= max; i++) {
                     // XPath indexes are 1-based (not 0-based).
                     if (preserveCollectionOldValues) {
-                        enterLeft(field, (leftAccessor.size() + i));
+                        if (insertIndex < 0) {
+                            enterLeft(field, (leftAccessor.size() + i));
+                        } else {
+                            enterLeft(field, insertIndex);
+                        }
                     } else {
                         enterLeft(field, i);
                     }
@@ -313,7 +320,11 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                 String newValue = newAccessor.get();
                 if (newValue != null && !newValue.isEmpty()) {
                     generateNoOp(lastMatchPath);
-                    actions.add(new FieldUpdateAction(date, source, userName, leftPath, StringUtils.EMPTY, newValue, comparedField));
+                    if (insertIndex < 0) {
+                        actions.add(new FieldUpdateAction(date, source, userName, leftPath, StringUtils.EMPTY, newValue, comparedField));
+                    } else {
+                        actions.add(new FieldInsertAction(date, source, userName, leftPath, StringUtils.EMPTY, newValue, comparedField));
+                    }
                 }
             }
         } else { // original accessor exist
@@ -328,11 +339,17 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                             originalFieldToLastIndex.put(comparedField, originalAccessor.size());
                         }
                         leaveLeft();
-                        int newIndex = originalFieldToLastIndex.get(comparedField);
-                        enterLeft(comparedField, (newIndex + 1));
-                        actions.add(new FieldUpdateAction(date, source, userName, getLeftPath(), StringUtils.EMPTY,
-                                newValue, comparedField));
-                        originalFieldToLastIndex.put(comparedField, newIndex + 1);
+                        if (insertIndex < 0) {
+                            int newIndex = originalFieldToLastIndex.get(comparedField);
+                            enterLeft(comparedField, (newIndex + 1));
+                            actions.add(new FieldUpdateAction(date, source, userName, getLeftPath(), StringUtils.EMPTY,
+                                    newValue, comparedField));
+                            originalFieldToLastIndex.put(comparedField, newIndex + 1);
+                        } else {
+                            enterLeft(comparedField, insertIndex);
+                            actions.add(new FieldInsertAction(date, source, userName, getLeftPath(), StringUtils.EMPTY,
+                                                                newValue, comparedField));
+                        }
                     } else if (oldValue != null && !oldValue.equals(newValue)) {
                         if (!Types.STRING.equals(comparedField.getType().getName()) && !(comparedField instanceof ReferenceFieldMetadata)) {
                             // Field is not string. To ensure false positive difference detection, creates a typed value.
@@ -351,7 +368,11 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                                 }
                             }
                         }
-                        actions.add(new FieldUpdateAction(date, source, userName, leftPath, oldValue, newValue, comparedField));
+                        if (insertIndex < 0) {
+                            actions.add(new FieldUpdateAction(date, source, userName, leftPath, oldValue, newValue, comparedField));
+                        } else {
+                            actions.add(new FieldInsertAction(date, source, userName, leftPath, oldValue, newValue, comparedField));
+                        }
                     }
                 }
             }

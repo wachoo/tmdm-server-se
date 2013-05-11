@@ -30,13 +30,13 @@ public class FieldUpdateAction extends AbstractAction {
     
     public static final String MODIFY_REMOVE_MARKER_VALUE = "tree-node-remove"; //$NON-NLS-1$
 
-    private final String field;
+    protected final String field;
 
-    private final String oldValue;
+    protected final String oldValue;
 
-    private final String newValue;
+    protected final String newValue;
 
-    private final FieldMetadata updatedField;
+    protected final FieldMetadata updatedField;
 
     public FieldUpdateAction(Date date, String source, String userName, String field, String oldValue, String newValue, FieldMetadata updatedField) {
         super(date, source, userName);
