@@ -92,12 +92,6 @@ public class SmartViewServlet extends HttpServlet {
                         public HttpSession getSession() {
                             return request.getSession();
                         }
-
-                        @Override
-                        public HttpSession getDefaultConfigurationSession() {
-                            return null;
-                        }
-
                     });
                 dataClusterPK = conf.getCluster();
             } catch (Exception e) {
