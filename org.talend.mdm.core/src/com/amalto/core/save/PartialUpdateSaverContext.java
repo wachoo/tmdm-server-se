@@ -23,6 +23,8 @@ public class PartialUpdateSaverContext extends AbstractDocumentSaverContext {
 
     private final DocumentSaverContext delegate;
 
+    private final int index;
+
     private final boolean overwrite;
 
     private UserAction userAction;
@@ -31,16 +33,25 @@ public class PartialUpdateSaverContext extends AbstractDocumentSaverContext {
 
     private final String key;
 
-    private PartialUpdateSaverContext(DocumentSaverContext delegate, String pivot, String key, boolean overwrite,
+    private PartialUpdateSaverContext(DocumentSaverContext delegate,
+                                      String pivot,
+                                      String key,
+                                      int index,
+                                      boolean overwrite,
                                       UserAction userAction) {
         this.delegate = delegate;
         this.pivot = pivot;
         this.key = key;
+        this.index = index;
         this.overwrite = overwrite;
         this.userAction = userAction;
     }
 
-    public static DocumentSaverContext decorate(DocumentSaverContext context, String pivot, String key, boolean overwrite) {
+    public static DocumentSaverContext decorate(DocumentSaverContext context,
+                                                String pivot,
+                                                String key,
+                                                int index,
+                                                boolean overwrite) {
         if (pivot == null) {
             pivot = StringUtils.EMPTY;
         }
@@ -48,9 +59,9 @@ public class PartialUpdateSaverContext extends AbstractDocumentSaverContext {
             key = StringUtils.EMPTY;
         }
         if (pivot.length() > 1) {
-            return new PartialUpdateSaverContext(context, pivot, key, overwrite, UserAction.PARTIAL_UPDATE);
+            return new PartialUpdateSaverContext(context, pivot, key, index, overwrite, UserAction.PARTIAL_UPDATE);
         } else {
-            return new PartialUpdateSaverContext(context, pivot, key, overwrite, UserAction.UPDATE);
+            return new PartialUpdateSaverContext(context, pivot, key, index, overwrite, UserAction.UPDATE);
         }
     }
 
@@ -177,6 +188,11 @@ public class PartialUpdateSaverContext extends AbstractDocumentSaverContext {
     @Override
     public String getPartialUpdateKey() {
         return key;
+    }
+
+    @Override
+    public int getPartialUpdateIndex() {
+        return index;
     }
 
     @Override

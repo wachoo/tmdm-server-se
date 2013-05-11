@@ -130,5 +130,7 @@ public interface DocumentSaverContext {
 
     String getPartialUpdateKey();
 
+    int getPartialUpdateIndex();
+
     Map<String, String> getAutoIncrementFieldMap();
 }

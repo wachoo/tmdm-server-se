@@ -130,8 +130,15 @@ class GenerateActions implements DocumentSaver {
             break;
         case PARTIAL_UPDATE:
             PartialUpdateActionCreator partialUpdateActionCreator = new PartialUpdateActionCreator(databaseDocument,
-                    userDocument, date, context.preserveOldCollectionValues(), context.getPartialUpdatePivot(),
-                    context.getPartialUpdateKey(), source, userName, metadataRepository);
+                    userDocument,
+                    date,
+                    context.preserveOldCollectionValues(),
+                    context.getPartialUpdateIndex(),
+                    context.getPartialUpdatePivot(),
+                    context.getPartialUpdateKey(),
+                    source,
+                    userName,
+                    metadataRepository);
             actions = type.accept(partialUpdateActionCreator);
             break;
         default:

@@ -13,6 +13,7 @@ package com.amalto.core.save.context;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
+import com.amalto.core.history.action.FieldInsertAction;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.metadata.*;
 
@@ -24,6 +25,8 @@ import java.util.*;
 
 // TODO Clean up: preserveCollectionOldValues is dedicated to partial update only!
 class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
+
+    private static final Logger LOGGER = Logger.getLogger(UpdateActionCreator.class);
 
     protected final Stack<String> path = new Stack<String>();
 
@@ -38,6 +41,8 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     protected final MutableDocument originalDocument;
 
     protected final MutableDocument newDocument;
+
+    protected final int insertIndex;
 
     protected final MetadataRepository repository;
 
@@ -60,9 +65,21 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                                String source,
                                String userName,
                                MetadataRepository repository) {
+        this(originalDocument, newDocument, date, preserveCollectionOldValues, -1, source, userName, repository);
+    }
+
+    public UpdateActionCreator(MutableDocument originalDocument,
+                               MutableDocument newDocument,
+                               Date date,
+                               boolean preserveCollectionOldValues,
+                               int insertIndex,
+                               String source,
+                               String userName,
+                               MetadataRepository repository) {
         this.preserveCollectionOldValues = preserveCollectionOldValues;
         this.originalDocument = originalDocument;
         this.newDocument = newDocument;
+        this.insertIndex = insertIndex;
         this.repository = repository;
         this.date = date;
         this.source = source;
@@ -225,12 +242,11 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                             originalFieldToLastIndex.put(comparedField, originalAccessor.size());
                         }
                         String previousPathElement = this.path.pop();
-                        int newIndex = originalFieldToLastIndex.get(comparedField);
-                        this.path.push(comparedField.getName() + "[" + (newIndex + 1) + "]");
-                        actions.add(new FieldUpdateAction(date, source, userName, getLeftPath(), StringUtils.EMPTY, newValue, comparedField));
+                        int insertIndex = getInsertIndex(comparedField);
+                        this.path.push(comparedField.getName() + "[" + insertIndex + "]");
+                        actions.add(new FieldInsertAction(date, source, userName, getLeftPath(), StringUtils.EMPTY, newValue, comparedField));
                         this.path.pop();
                         this.path.push(previousPathElement);
-                        originalFieldToLastIndex.put(comparedField, newIndex + 1);
                     } else if (oldValue != null && !oldValue.equals(newValue)) {
                         if (!"string".equals(comparedField.getType().getName()) && !(comparedField instanceof ReferenceFieldMetadata)) {
                             // Field is not string. To ensure false positive difference detection, creates a typed value.
@@ -257,6 +273,17 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                     }
                 }
             }
+        }
+    }
+
+    private int getInsertIndex(FieldMetadata comparedField) {
+        if (insertIndex < 0) {
+            int newIndex = originalFieldToLastIndex.get(comparedField);
+            newIndex = newIndex + 1;
+            originalFieldToLastIndex.put(comparedField, newIndex);
+            return newIndex;
+        } else {
+            return insertIndex;
         }
     }
 

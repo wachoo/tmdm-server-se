@@ -19,6 +19,11 @@ public abstract class AbstractDocumentSaverContext implements DocumentSaverConte
 
     private final Map<String, String> autoIncrementFieldMap = new HashMap<String, String>();
 
+    @Override
+    public int getPartialUpdateIndex() {
+        return -1;
+    }
+
     public Map<String, String> getAutoIncrementFieldMap() {
         return autoIncrementFieldMap;
     }

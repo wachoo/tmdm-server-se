@@ -183,6 +183,11 @@ class UpdateReportDocument extends DOMDocument {
             // Nothing to do.
         }
 
+        @Override
+        public void insert() {
+            // Nothing to do.
+        }
+
         public void createAndSet(String value) {
             set(value);
         }
@@ -232,6 +237,10 @@ class UpdateReportDocument extends DOMDocument {
         }
 
         public void create() {
+        }
+
+        @Override
+        public void insert() {
         }
 
         public void createAndSet(String value) {

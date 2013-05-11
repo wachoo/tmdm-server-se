@@ -205,6 +205,7 @@ public class SaverContextFactory {
                                                     boolean updateReport,
                                                     String pivot,
                                                     String key,
+                                                    int index,
                                                     boolean overwrite) {
         // TODO Support before saving in case of partial update (set to "true" beforeSaving parameter to support it).
         DocumentSaverContext context = create(dataCluster,
@@ -215,6 +216,6 @@ public class SaverContextFactory {
                 validate,
                 updateReport,
                 false, XSystemObjects.DC_PROVISIONING.getName().equals(dataCluster)); // Before saving is not supported
-        return PartialUpdateSaverContext.decorate(context, pivot, key, overwrite);
+        return PartialUpdateSaverContext.decorate(context, pivot, key, index, overwrite);
     }
 }

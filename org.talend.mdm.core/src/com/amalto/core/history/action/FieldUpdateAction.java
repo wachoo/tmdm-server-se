@@ -24,13 +24,13 @@ import java.util.Set;
  */
 public class FieldUpdateAction extends AbstractAction {
 
-    private final String field;
+    protected final String field;
 
-    private final String oldValue;
+    protected final String oldValue;
 
-    private final String newValue;
+    protected final String newValue;
 
-    private final FieldMetadata updatedField;
+    protected final FieldMetadata updatedField;
 
     public FieldUpdateAction(Date date, String source, String userName, String field, String oldValue, String newValue, FieldMetadata updatedField) {
         super(date, source, userName);

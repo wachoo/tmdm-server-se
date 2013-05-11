@@ -46,6 +46,10 @@ class RootAccessor implements DOMAccessor {
         // Nothing to do (won't recreate the document).
     }
 
+    public void insert() {
+        // Nothing to do (won't insert a new document inside an existing one).
+    }
+
     public void createAndSet(String value) {
         // Nothing to do (won't recreate the document).
     }
