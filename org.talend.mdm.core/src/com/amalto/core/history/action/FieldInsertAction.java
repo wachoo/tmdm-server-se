@@ -13,7 +13,7 @@ package com.amalto.core.history.action;
 
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
 
 import java.util.Date;
 
