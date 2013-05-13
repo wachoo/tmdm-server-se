@@ -149,7 +149,7 @@ public abstract class TypeMapping {
                 }
             }
             String targetSQLType = sourceField.getType().getData(TypeMapping.SQL_TYPE);
-            if (targetSQLType != null && "clob".equalsIgnoreCase(targetSQLType)) { //$NON-NLS-1$
+            if (value != null && targetSQLType != null && "clob".equalsIgnoreCase(targetSQLType)) { //$NON-NLS-1$
                 try {
                     Reader characterStream = ((Clob) value).getCharacterStream();
                     try {
