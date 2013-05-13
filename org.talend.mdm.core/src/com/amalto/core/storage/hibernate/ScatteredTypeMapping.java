@@ -402,7 +402,7 @@ class ScatteredTypeMapping extends TypeMapping {
 
     @Override
     public String toString() {
-        return "SCATTERED (" + user.getName() + ")";
+        return "SCATTERED (" + user.getName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     protected void map(FieldMetadata user, FieldMetadata database) {

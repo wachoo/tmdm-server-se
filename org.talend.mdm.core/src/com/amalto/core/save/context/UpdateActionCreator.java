@@ -248,7 +248,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                         this.path.pop();
                         this.path.push(previousPathElement);
                     } else if (oldValue != null && !oldValue.equals(newValue)) {
-                        if (!"string".equals(comparedField.getType().getName()) && !(comparedField instanceof ReferenceFieldMetadata)) {
+                        if (!Types.STRING.equals(comparedField.getType().getName()) && !(comparedField instanceof ReferenceFieldMetadata)) {
                             // Field is not string. To ensure false positive difference detection, creates a typed value.
                             Object oldObject = MetadataUtils.convert(oldValue, comparedField);
                             Object newObject = MetadataUtils.convert(newValue, comparedField);

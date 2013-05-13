@@ -199,7 +199,7 @@ public class MetadataUtils {
         }
         if (field instanceof ReferenceFieldMetadata) {
             List<String> ids = new LinkedList<String>();
-            if (dataAsString.startsWith("[")) {
+            if (dataAsString.startsWith("[")) { //$NON-NLS-1$
                 char[] chars = dataAsString.toCharArray();
                 StringBuilder builder = null;
                 for (char currentChar : chars) {

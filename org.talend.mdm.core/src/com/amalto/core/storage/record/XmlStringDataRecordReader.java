@@ -78,7 +78,7 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                 if (event.isStartElement()) {
                     StartElement startElement = event.asStartElement();
                     if (!hasMetUserElement) {
-                        if (level == 0 && "ii".equals(startElement.getName().getLocalPart())) {
+                        if (level == 0 && "ii".equals(startElement.getName().getLocalPart())) { //$NON-NLS-1$
                             containsMetadata = true;
                         } else if ("t".equals(startElement.getName().getLocalPart())) { //$NON-NLS-1$
                             isReadingTimestamp = true;
@@ -193,7 +193,7 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                     }
                     if (level < skipLevel) {
                         if (xmlAccumulatorLevel > userXmlPayloadLevel) {
-                            xmlAccumulator.append("</").append(xmlEvent.asEndElement().getName().getLocalPart()).append('>');
+                            xmlAccumulator.append("</").append(xmlEvent.asEndElement().getName().getLocalPart()).append('>'); //$NON-NLS-1$
                             continue;
                         } else if (xmlAccumulatorLevel == level) {
                             dataRecords.peek().set(field, xmlAccumulator.reset());

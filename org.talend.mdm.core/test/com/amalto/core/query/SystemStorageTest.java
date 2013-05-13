@@ -54,6 +54,7 @@ public class SystemStorageTest extends TestCase {
 
     public void testSystemRepository() throws Exception {
         ClassRepository repository = buildRepository();
+        // The additional loaded type is the sub type of ServiceBean
         assertEquals(ObjectPOJO.OBJECT_TYPES.length + 1, repository.getUserComplexTypes().size());
     }
 
