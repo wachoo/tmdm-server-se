@@ -1,6 +1,5 @@
 package com.amalto.core.ejb;
 
-import static com.amalto.core.query.user.UserQueryBuilder.alias;
 import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 import java.io.BufferedWriter;
@@ -44,6 +43,7 @@ import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
@@ -62,6 +62,7 @@ import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.SystemStorageWrapper;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.util.EntityNotFoundException;
@@ -603,12 +604,29 @@ public class ItemCtrl2Bean implements SessionBean {
                     }
 
                     public void write(DataRecord record, Writer writer) throws IOException {
+                        boolean isReferenceField = false;
                         writer.write("<result>\n"); //$NON-NLS-1$
                         for (FieldMetadata fieldMetadata : record.getSetFields()) {
                             Object value = record.get(fieldMetadata);
                             if (value != null) {
                                 writer.append("\t<").append(fieldMetadata.getName()).append(">");
-                                writer.append(StringEscapeUtils.escapeXml(String.valueOf(value)));
+                                isReferenceField = fieldMetadata instanceof ReferenceFieldMetadata;
+                                if (value instanceof Object[]){
+                                    Object[] values = (Object[])value;
+                                    for (int i=0;i<values.length;i++) {
+                                        if (isReferenceField) {
+                                            writer.append("[" + StringEscapeUtils.escapeXml(String.valueOf(values[i])) + "]");  //$NON-NLS-1$ //$NON-NLS-2$
+                                        } else {
+                                            writer.append(StringEscapeUtils.escapeXml(String.valueOf(values[i]))); 
+                                        }                                        
+                                    }
+                                } else {
+                                    if (isReferenceField) {
+                                        writer.append("[" + StringEscapeUtils.escapeXml(String.valueOf(value)) + "]");  //$NON-NLS-1$ //$NON-NLS-2$
+                                    } else {
+                                        writer.append(StringEscapeUtils.escapeXml(String.valueOf(value)));
+                                    }                                    
+                                }
                                 writer.append("</").append(fieldMetadata.getName()).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                             }
                         }
