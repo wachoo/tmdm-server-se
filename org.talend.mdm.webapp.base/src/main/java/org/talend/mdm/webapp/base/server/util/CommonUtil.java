@@ -224,7 +224,7 @@ public class CommonUtil {
             hasMatchedOnce = true;
         }
 
-        if (hasMatchedOnce) {
+        if (!hasMatchedOnce) {
             throw new IllegalArgumentException(MESSAGES.getMessage(new Locale(language), "exception_fk_malform", ids)); //$NON-NLS-1$
         }
 
