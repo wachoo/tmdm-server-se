@@ -19,12 +19,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.widget.MultiLanguageField;
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
-import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;

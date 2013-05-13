@@ -23,6 +23,7 @@ import java.util.Set;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -46,7 +47,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumber
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.UrlField;
-import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 

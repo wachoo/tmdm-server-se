@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 
 import com.google.gwt.user.client.rpc.IsSerializable;

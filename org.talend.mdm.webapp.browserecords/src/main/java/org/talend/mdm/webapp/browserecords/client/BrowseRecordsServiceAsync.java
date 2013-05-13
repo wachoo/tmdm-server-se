@@ -19,6 +19,7 @@ import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
@@ -31,7 +32,6 @@ import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
 import org.talend.mdm.webapp.browserecords.client.model.UpdateItemModel;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
-import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
@@ -44,7 +44,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface BrowseRecordsServiceAsync {
 
     void getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model, String dataClusterPK, boolean ifFKFilter,
-            String value, AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback);
+            String value,String language, AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback);
 
     void getForeignKeyPolymTypeList(String xpathForeignKey, String language, AsyncCallback<List<Restriction>> callback);
 

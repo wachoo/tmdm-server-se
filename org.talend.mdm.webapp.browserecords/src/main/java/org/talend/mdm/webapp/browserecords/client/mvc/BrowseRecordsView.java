@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
@@ -43,8 +45,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyListWindow;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
-import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
-import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 

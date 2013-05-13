@@ -16,12 +16,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ForeignKeyField;
-import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.event.BaseEvent;

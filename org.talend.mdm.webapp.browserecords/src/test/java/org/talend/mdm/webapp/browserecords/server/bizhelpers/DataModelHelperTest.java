@@ -35,10 +35,10 @@ import org.powermock.modules.junit3.PowerMockSuite;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.webapp.base.client.model.DataTypeCustomized;
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
-import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
-import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 
 import com.amalto.core.util.Util;
 import com.sun.xml.xsom.XSElementDecl;

@@ -34,8 +34,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -63,6 +61,8 @@ import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.ForeignKeyHelper;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
@@ -90,8 +90,6 @@ import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.browserecords.server.util.NoAccessCheckUtil;
 import org.talend.mdm.webapp.browserecords.server.util.SmartViewUtil;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
-import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
-import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.SmartViewDescriptions;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -174,8 +172,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages", BrowseRecordsAction.class.getClassLoader()); //$NON-NLS-1$
-
-    private static final Pattern extractIdPattern = Pattern.compile("\\[.*?\\]"); //$NON-NLS-1$
 
     private final List<String> dateTypeNames = Arrays.asList("date", "dateTime"); //$NON-NLS-1$//$NON-NLS-2$
 
@@ -295,9 +291,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
-            String dataClusterPK, boolean ifFKFilter, String value) throws ServiceException {
+            String dataClusterPK, boolean ifFKFilter, String value, String language) throws ServiceException {
         try {
-            return ForeignKeyHelper.getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value);
+            return ForeignKeyHelper.getForeignKeyList(config, model,getEntityModel(model.getXpath(), language), dataClusterPK, ifFKFilter, value);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -363,7 +359,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 return bean;
             } else {
                 ItemPOJOPK pk = new ItemPOJOPK();
-                String[] itemId = extractFKRefValue(ids);
+                String[] itemId = CommonUtil.extractFKRefValue(ids,language);
                 pk.setIds(itemId);
                 String conceptName = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
                 // get deriveType's conceptName, otherwise getItem() method will throw exception.
@@ -385,8 +381,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         if (nodes.getLength() == 1) {
                             String value = nodes.item(0).getTextContent();
                             TypeModel typeModel = entityModel.getTypeModel(foreignKeyPath);
-                            if (typeModel != null && typeModel.getType().equals(DataTypeConstants.MLS)) {
-                                value = MultilanguageMessageParser.getValueByLanguage(value, language);
+                            if (typeModel != null){
+                                if (typeModel.getForeignKeyInfo() != null && typeModel.getForeignKeyInfo().size() >0 && !"".equals(value)) { //$NON-NLS-1$
+                                    value = ForeignKeyHelper.getDisplayValue(value, foreignKeyPath, getCurrentDataCluster(), entityModel,language);
+                                }
+                                
+                                if (typeModel.getType().equals(DataTypeConstants.MLS)) {
+                                    value = MultilanguageMessageParser.getValueByLanguage(value, language);
+                                }
                             }
                             bean.getForeignKeyInfo().put(foreignKeyPath, value);
                             if (formattedId.equals("")) { //$NON-NLS-1$
@@ -1387,28 +1389,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
-    }
-
-    /**
-     * @param ids Expect a id like "[value0][value1][value2]"
-     * @return Returns an array with ["value0", "value1", "value2"]
-     */
-    private static String[] extractFKRefValue(String ids) {
-        List<String> idList = new ArrayList<String>();
-        Matcher matcher = extractIdPattern.matcher(ids);
-        boolean hasMatchedOnce = false;
-        while (matcher.find()) {
-            String id = matcher.group();
-            id = id.replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-            idList.add(id);
-            hasMatchedOnce = true;
-        }
-
-        if (!hasMatchedOnce) {
-            throw new IllegalArgumentException(MESSAGES.getMessage("label_exception_fk_malform", ids)); //$NON-NLS-1$
-        }
-
-        return idList.toArray(new String[idList.size()]);
     }
 
     /**

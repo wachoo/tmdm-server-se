@@ -13,7 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client.model;
 
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
-import org.talend.mdm.webapp.browserecords.shared.EntityModel;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 public class QueryModel extends ItemBaseModel {

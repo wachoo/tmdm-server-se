@@ -13,13 +13,13 @@ import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
-import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
-import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ReusableType;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 

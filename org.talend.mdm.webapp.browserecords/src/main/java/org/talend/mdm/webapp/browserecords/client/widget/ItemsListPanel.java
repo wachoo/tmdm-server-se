@@ -29,6 +29,7 @@ import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.Parser;
 import org.talend.mdm.webapp.base.client.widget.ColumnAlignGrid;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
@@ -48,7 +49,6 @@ import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
-import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;

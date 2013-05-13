@@ -12,10 +12,10 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.ForeignKey;
 
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyListWindow;
-import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 
 public class FKRelRecordWindow extends ForeignKeyListWindow {
 

@@ -16,11 +16,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
-import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
-import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 
 import com.google.gwt.junit.client.GWTTestCase;
 

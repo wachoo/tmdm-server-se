@@ -7,9 +7,9 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
-import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 
 
 public class DisplayRuleTestData {
