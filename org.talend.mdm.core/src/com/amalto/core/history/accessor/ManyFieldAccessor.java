@@ -153,7 +153,6 @@ class ManyFieldAccessor implements DOMAccessor {
         Node refNode = children.item(index);
         Node node = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
         parentNode.insertBefore(node, refNode);
-        cachedCollectionItemNode = (Element) node;
     }
 
     public void createAndSet(String value) {
