@@ -56,7 +56,6 @@ import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.SystemStorageWrapper;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordDefaultWriter;
 import com.amalto.core.storage.record.DataRecordWriter;
