@@ -114,6 +114,11 @@ class UnaryFieldAccessor implements DOMAccessor {
         internalCreate();
     }
 
+    @Override
+    public void insert() {
+        create();
+    }
+
     public void createAndSet(String value) {
         Element element = internalCreate();
         internalSet(value, element);
