@@ -1,30 +1,28 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.history.accessor;
 
 import javax.xml.XMLConstants;
 
-import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.action.FieldUpdateAction;
+import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 
 /**
  *
@@ -84,41 +82,54 @@ class UnaryFieldAccessor implements DOMAccessor {
         return element;
     }
 
+    @Override
     public void set(String value) {
         Element element = getElement();
         internalSet(value, element);
     }
 
+    @Override
     public String get() {
         Element element = getElement();
         Node textChild = element.getFirstChild();
         if (textChild != null) {
-            if (textChild instanceof Text)
+            if (textChild instanceof Text) {
                 return element.getTextContent();// get node value can not handle bracket well
-            else
+            } else {
                 return textChild.getNodeValue();
+            }
         } else {
             return StringUtils.EMPTY;
         }
     }
 
+    @Override
     public void touch() {
         document.setLastAccessedNode(getElement());
     }
 
+    @Override
     public Node getNode() {
         return getElement();
     }
 
+    @Override
     public void create() {
         internalCreate();
     }
 
+    @Override
+    public void insert() {
+        create();
+    }
+
+    @Override
     public void createAndSet(String value) {
         Element element = internalCreate();
         internalSet(value, element);
     }
 
+    @Override
     public void delete() {
         while (exist()) {
             Element element = getElement();
@@ -126,32 +137,35 @@ class UnaryFieldAccessor implements DOMAccessor {
         }
     }
 
+    @Override
     public boolean exist() {
         return parent.exist() && getElement() != null;
     }
 
+    @Override
     public void markModified(Marker marker) {
         Document domDocument = document.asDOM();
         Element element = getElement();
         if (element != null) {
             Attr newAttribute = domDocument.createAttribute(MODIFIED_MARKER_ATTRIBUTE);
-                switch(marker) {
-                case ADD:
-                    newAttribute.setValue(FieldUpdateAction.MODIFY_ADD_MARKER_VALUE);
-                    break;
-                case UPDATE:
-                    newAttribute.setValue(FieldUpdateAction.MODIFY_UPDATE_MARKER_VALUE);
-                    break;
-                case REMOVE:
-                    newAttribute.setValue(FieldUpdateAction.MODIFY_REMOVE_MARKER_VALUE);
-                    break;
-                default:
-                    throw new IllegalArgumentException("No support for marker " + marker); //$NON-NLS-1$
-            }            
+            switch (marker) {
+            case ADD:
+                newAttribute.setValue(FieldUpdateAction.MODIFY_ADD_MARKER_VALUE);
+                break;
+            case UPDATE:
+                newAttribute.setValue(FieldUpdateAction.MODIFY_UPDATE_MARKER_VALUE);
+                break;
+            case REMOVE:
+                newAttribute.setValue(FieldUpdateAction.MODIFY_REMOVE_MARKER_VALUE);
+                break;
+            default:
+                throw new IllegalArgumentException("No support for marker " + marker); //$NON-NLS-1$
+            }
             element.getAttributes().setNamedItem(newAttribute);
         }
     }
 
+    @Override
     public void markUnmodified() {
         Node parentNode = getElement();
         NamedNodeMap attributes = parentNode.getAttributes();
@@ -160,6 +174,7 @@ class UnaryFieldAccessor implements DOMAccessor {
         }
     }
 
+    @Override
     public int size() {
         if (!exist()) {
             return 0;
@@ -173,6 +188,7 @@ class UnaryFieldAccessor implements DOMAccessor {
         }
     }
 
+    @Override
     public String getActualType() {
         Attr type = ((Element) getNode()).getAttributeNodeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
         if (type == null) {
