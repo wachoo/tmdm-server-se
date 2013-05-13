@@ -122,6 +122,8 @@ public class ClassRepository extends MetadataRepository {
                     Collections.<String>emptyList());
             keyField.setData(LINK, "PK/unique-id"); //$NON-NLS-1$
             classType.addField(keyField);
+        } else if (isEntity && ServiceBean.class.isAssignableFrom(clazz)) {
+            keyFieldName = "service-name"; //$NON-NLS-1$
         } else if (isEntity) {
             keyFieldName = "unique-id"; //$NON-NLS-1$
         }
@@ -151,8 +153,8 @@ public class ClassRepository extends MetadataRepository {
             }
         });
         for (Method declaredMethod : declaredMethods) {
-            if (!Object.class.equals(declaredMethod.getDeclaringClass()) && !Modifier.isStatic(declaredMethod.getModifiers())) {
-                if (isBeanMethod(declaredMethod)) {
+            if (!Modifier.isStatic(declaredMethod.getModifiers())) {
+                if (isBeanMethod(declaredMethod) && isClassMethod(clazz, declaredMethod)) {
                     String fieldName = getName(declaredMethod);
                     if (typeStack.peek().hasField(fieldName)) {
                         continue; // TODO Avoid override of fields (like PK)
@@ -246,9 +248,25 @@ public class ClassRepository extends MetadataRepository {
         return typeStack.pop();
     }
 
+    // TODO Make it non specific to ServiceBean
+    private static boolean isClassMethod(Class clazz, Method declaredMethod) {
+        if (ServiceBean.class.isAssignableFrom(clazz)) {
+            Class superClass = clazz.getSuperclass();
+            if (!Object.class.equals(superClass)) {
+                try {
+                    superClass.getMethod(declaredMethod.getName(), declaredMethod.getParameterTypes());
+                    return false;
+                } catch (NoSuchMethodException e) {
+                    return true;
+                }
+            }
+            return true;
+        }
+        return true;
+    }
+
     private static boolean isBeanMethod(Method declaredMethod) {
-        return !Modifier.isAbstract(declaredMethod.getModifiers())
-                && (isGetter(declaredMethod) || isBooleanGetter(declaredMethod));
+        return isGetter(declaredMethod) || isBooleanGetter(declaredMethod);
     }
 
     private static boolean isBooleanGetter(Method declaredMethod) {
