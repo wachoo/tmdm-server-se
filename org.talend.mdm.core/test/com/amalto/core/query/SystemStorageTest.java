@@ -54,7 +54,7 @@ public class SystemStorageTest extends TestCase {
 
     public void testSystemRepository() throws Exception {
         ClassRepository repository = buildRepository();
-        assertEquals(ObjectPOJO.OBJECT_TYPES.length, repository.getUserComplexTypes().size());
+        assertEquals(ObjectPOJO.OBJECT_TYPES.length + 1, repository.getUserComplexTypes().size());
     }
 
     private ClassRepository buildRepository() {

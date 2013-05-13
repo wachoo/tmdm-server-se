@@ -29,7 +29,7 @@ class SystemTypeMappingRepository extends InternalRepository {
         // Add MDM specific record specific metadata: keep this additional fields for system objects too: MDM studio
         // may query these fields (see TMDM-5666).
         ComplexTypeMetadata database = typeMapping.getDatabase();
-        if (database.isInstantiable() && !database.isFrozen()) {
+        if (database.isInstantiable() && !database.isFrozen() && database.getSuperTypes().isEmpty()) {
             TypeMetadata longType = new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.LONG, false);
             TypeMetadata stringType = new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING, false);
             database.addField(new SimpleTypeFieldMetadata(database, false, false, true, Storage.METADATA_TIMESTAMP, longType, Collections.<String>emptyList(), Collections.<String>emptyList()));

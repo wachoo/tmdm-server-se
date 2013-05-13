@@ -103,10 +103,10 @@ public class ClassRepository extends MetadataRepository {
         if (Map.class.isAssignableFrom(clazz)) {
             return MAP_TYPE;
         }
-        boolean isEntity = typeStack.isEmpty();
         if (ArrayListHolder.class.equals(clazz)) {
             typeName = typeName + listCounter++;
         }
+        boolean isEntity = typeStack.isEmpty();
         ComplexTypeMetadata classType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, typeName, isEntity);
         addTypeMetadata(classType);
         typeStack.push(classType);
@@ -128,10 +128,17 @@ public class ClassRepository extends MetadataRepository {
         // Class is abstract / interface: load sub classes
         if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
             Iterable<Class> subClasses = getSubclasses(clazz);
+            ComplexTypeMetadata superType = typeStack.peek();
+            if (superType.isInstantiable()) {
+                typeStack.clear();
+            }
             for (Class subClass : subClasses) {
                 TypeMetadata typeMetadata = loadClass(subClass);
-                typeMetadata.setInstantiable(true);
-                typeMetadata.addSuperType(typeStack.peek(), this);
+                typeMetadata.setInstantiable(superType.isInstantiable());
+                typeMetadata.addSuperType(superType, this);
+            }
+            if (superType.isInstantiable()) {
+                typeStack.push(superType);
             }
         }
         // Analyze methods
@@ -194,7 +201,7 @@ public class ClassRepository extends MetadataRepository {
                                 Collections.<String>emptyList(),
                                 Collections.<String>emptyList());
                         LongString annotation = declaredMethod.getAnnotation(LongString.class);
-                        if ("string".equals(fieldTypeName) && annotation != null) { //$NON-NLS-1$
+                        if (Types.STRING.equals(fieldTypeName) && annotation != null) {
                             fieldType.setData(MetadataRepository.DATA_MAX_LENGTH, String.valueOf(Integer.MAX_VALUE));
                         }
                     } else {
