@@ -259,7 +259,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     }
 
     private String computeTime(String src) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss"); //$NON-NLS-1$
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //$NON-NLS-1$
         Date d = sdf.parse(src);
         Calendar c = Calendar.getInstance();
         int offset = c.getTimeZone().getRawOffset() / 3600000;
@@ -269,7 +269,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     }
 
     private String changeDataFormat(String src) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss"); //$NON-NLS-1$
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //$NON-NLS-1$
         Date d = sdf.parse(src);
         return this.getDateStringPlusGMT(d);
     }
