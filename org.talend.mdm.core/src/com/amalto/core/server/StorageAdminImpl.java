@@ -52,6 +52,10 @@ public class StorageAdminImpl implements StorageAdmin {
 
     private static final String LICENSE_POJO_CLASS = "com.amalto.core.util.license.LicensePOJO"; //$NON-NLS-1$
 
+    private static final String VERSIONING_POJO_CLASS = "com.amalto.core.objects.versioning.ejb.VersioningSystemPOJO"; //$NON-NLS-1$
+
+    private static final String[] OPTIONAL_CLASSES = new String[] {LICENSE_POJO_CLASS, VERSIONING_POJO_CLASS};
+
     private final Map<String, Map<String, Storage>> storages = new StorageMap();
 
     public String[] getAll(String revisionID) {
@@ -156,14 +160,16 @@ public class StorageAdminImpl implements StorageAdmin {
                 }
             }
         }
-        // License POJO handling
-        try {
-            // Keep the Class.forName() call (LicensePOJO might not be present).
-            Class<?> clazz = Class.forName(LICENSE_POJO_CLASS);
-            repository.load(clazz);
-        } catch (ClassNotFoundException e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Ignore LicencePOJO parsing. Not running enterprise edition.", e);
+        // Additional POJO handling
+        for (String optionalClass : OPTIONAL_CLASSES) {
+            try {
+                // Keep the Class.forName() call (LicensePOJO might not be present).
+                Class<?> clazz = Class.forName(optionalClass);
+                repository.load(clazz);
+            } catch (ClassNotFoundException e) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Ignore LicencePOJO parsing. Not running enterprise edition.", e);
+                }
             }
         }
         // Init system storage
