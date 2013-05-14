@@ -26,6 +26,7 @@ import org.talend.mdm.webapp.journal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.journal.client.util.KeyUtil;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -176,12 +177,12 @@ public class JournalSearchPanel extends FormPanel {
 
         list.clear();
         list.add("ALL"); //$NON-NLS-1$
-        list.add("CREATE"); //$NON-NLS-1$
-        list.add("UPDATE"); //$NON-NLS-1$
-        list.add("PHYSICAL_DELETE"); //$NON-NLS-1$
-        list.add("LOGIC_DELETE"); //$NON-NLS-1$
-        list.add("RESTORED"); //$NON-NLS-1$
-        list.add("ACTION"); //$NON-NLS-1$
+        list.add(UpdateReportPOJO.OPERATION_TYPE_CREATE);
+        list.add(UpdateReportPOJO.OPERATION_TYPE_UPDATE);
+        list.add(UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE);
+        list.add(UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE);
+        list.add(UpdateReportPOJO.OPERATION_TYPE_RESTORED);
+        list.add(UpdateReportPOJO.OPERATION_TYPE_ACTION);
 
         operationTypeCombo = new ComboBox<ItemBaseModel>();
         operationTypeCombo.setId("operationType");//$NON-NLS-1$

@@ -199,7 +199,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     WSItemPK wsItem = CommonUtil.getPort().deleteItem(
                             new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), override));
                     if (wsItem != null) {
-                        pushUpdateReport(ids, concept, "PHYSICAL_DELETE"); //$NON-NLS-1$
+                        pushUpdateReport(ids, concept,UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE);
                     } else {
                         throw new ServiceException(MESSAGES.getMessage("delete_record_failure")); //$NON-NLS-1$
                     }
@@ -1451,7 +1451,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             LOG.trace("pushUpdateReport() concept " + concept + " operation " + operationType);//$NON-NLS-1$ //$NON-NLS-2$
         }
 
-        if (!("PHYSICAL_DELETE".equals(operationType) || UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(operationType))) { //$NON-NLS-1$
+        if (!(UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE.equals(operationType) || UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(operationType))) {
             throw new UnsupportedOperationException();
         }
 
@@ -1497,7 +1497,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 .append(dataModelPK).append("</DataModel><Concept>").append(concept) //$NON-NLS-1$
                 .append("</Concept><Key>").append(key).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        if ("UPDATE".equals(operationType)) { //$NON-NLS-1$
+        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)) {
             // Important: Leave update report creation to MDM server
             throw new UnsupportedOperationException();
         }
@@ -2096,7 +2096,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Creating update-report for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
             }
-            String updateReport = Util.createUpdateReport(ids, concept, "ACTION", null); //$NON-NLS-1$
+            String updateReport = Util.createUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_ACTION, null);
             WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
             WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")),//$NON-NLS-1$
                     "text/xml; charset=utf-8");//$NON-NLS-1$

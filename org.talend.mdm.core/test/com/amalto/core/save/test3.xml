@@ -13,7 +13,7 @@
     <UserName>administrator</UserName>
     <Source>genericUI</Source>
     <TimeInMillis>1306490022341</TimeInMillis>
-    <OperationType>LOGICAL_DELETE</OperationType>
+    <OperationType>LOGIC_DELETE</OperationType>
     <RevisionID>null</RevisionID>
     <DataCluster>Product</DataCluster>
     <DataModel>Product</DataModel>

@@ -26,6 +26,7 @@ import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 /**
@@ -43,7 +44,7 @@ public class JournalDBServiceTest extends TestCase{
         criteria.setStartDate(dateFormat.parse("2012-07-01")); //$NON-NLS-1$
         criteria.setEndDate(dateFormat.parse("2012-09-30")); //$NON-NLS-1$
         criteria.setKey("1"); //$NON-NLS-1$
-        criteria.setOperationType("CREATE"); //$NON-NLS-1$
+        criteria.setOperationType(UpdateReportPOJO.OPERATION_TYPE_CREATE);
         criteria.setSource("genericUI"); //$NON-NLS-1$
         
         Object[] result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key", false); //$NON-NLS-1$ //$NON-NLS-2$   
@@ -54,7 +55,7 @@ public class JournalDBServiceTest extends TestCase{
         assertEquals("Product", journalGridModel.getDataModel()); //$NON-NLS-1$
         assertEquals("Product", journalGridModel.getEntity()); //$NON-NLS-1$
         assertEquals("1", journalGridModel.getKey()); //$NON-NLS-1$
-        assertEquals("UPDATE", journalGridModel.getOperationType()); //$NON-NLS-1$
+        assertEquals(UpdateReportPOJO.OPERATION_TYPE_UPDATE, journalGridModel.getOperationType());
         assertEquals("genericUI.1360140140037", journalGridModel.getIds()); //$NON-NLS-1$
         assertEquals("administrator", journalGridModel.getUserName()); //$NON-NLS-1$
     }
@@ -157,7 +158,7 @@ public class JournalDBServiceTest extends TestCase{
         assertEquals("genericUI.1360032633336", returnValue.getIds()); //$NON-NLS-1$   
         assertEquals("2", returnValue.getKey()); //$NON-NLS-1$   
         assertEquals("", returnValue.getRevisionId()); //$NON-NLS-1$   
-        assertEquals("UPDATE", returnValue.getOperationType()); //$NON-NLS-1$   
+        assertEquals(UpdateReportPOJO.OPERATION_TYPE_UPDATE, returnValue.getOperationType());
         assertEquals("genericUI", returnValue.getSource()); //$NON-NLS-1$   
         assertEquals("1360032633336", returnValue.getOperationTime()); //$NON-NLS-1$
         assertEquals("Jennifer", returnValue.getUserName()); //$NON-NLS-1$

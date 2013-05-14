@@ -73,7 +73,7 @@ public class JournalDataPanel extends FormPanel {
         
         openRecordButton = new Button(MessagesFactory.getMessages().open_record_button());
         if (UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(journalGridModel.getOperationType())
-                || "PHYSICAL_DELETE".equals(journalGridModel.getOperationType())) { //$NON-NLS-1$
+                || UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE.equals(journalGridModel.getOperationType())) {
             openRecordButton.disable();
         }
         openRecordButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.browse()));

@@ -23,6 +23,7 @@ import org.talend.mdm.webapp.base.server.util.Constants;
 import org.talend.mdm.webapp.journal.server.util.Util;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.webapp.util.webservices.WSGetItems;
 import com.amalto.webapp.util.webservices.WSGetItemsSort;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
@@ -46,7 +47,7 @@ public class UtilTest extends TestCase {
         criteria.setEntity("TestModel"); //$NON-NLS-1$
         criteria.setStartDate(new Date()); //$NON-NLS-1$
         criteria.setKey("1"); //$NON-NLS-1$
-        criteria.setOperationType("CREATE"); //$NON-NLS-1$
+        criteria.setOperationType(UpdateReportPOJO.OPERATION_TYPE_CREATE);
         criteria.setSource("genericUI"); //$NON-NLS-1$
     }
 
@@ -64,7 +65,7 @@ public class UtilTest extends TestCase {
             } else if ("Source".equals(condition.getLeftPath())) { //$NON-NLS-1$
                 assertEquals(condition.getRightValueOrPath(), "genericUI"); //$NON-NLS-1$
             } else if ("OperationType".equals(condition.getLeftPath())) { //$NON-NLS-1$
-                assertEquals(condition.getRightValueOrPath(), "CREATE"); //$NON-NLS-1$
+                assertEquals(condition.getRightValueOrPath(), UpdateReportPOJO.OPERATION_TYPE_CREATE);
             } else if ("TimeInMillis".equals(condition.getLeftPath())) { //$NON-NLS-1$
                 assertEquals(WSWhereOperator.GREATER_THAN_OR_EQUAL, condition.getOperator());
             } else {

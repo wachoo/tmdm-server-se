@@ -42,6 +42,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
@@ -232,7 +233,7 @@ public class RecycleBinAction implements RecycleBinService {
                 WSRemoveDroppedItem wsrdi = new WSRemoveDroppedItem(wddipk);
                 Util.getPort().removeDroppedItem(wsrdi);
 
-                String xml = createUpdateReport(ids1, conceptName, "PHYSICAL_DELETE", null); //$NON-NLS-1$
+                String xml = createUpdateReport(ids1, conceptName, UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE, null);
                 Util.persistentUpdateReport(xml, true);
 
                 if (message == null || message.equals("")) //$NON-NLS-1$
@@ -279,7 +280,7 @@ public class RecycleBinAction implements RecycleBinService {
             Util.getPort().recoverDroppedItem(wsrdi);
 
             // put the restore into updatereport archive
-            String xml = createUpdateReport(ids1, conceptName, "RESTORED", null); //$NON-NLS-1$
+            String xml = createUpdateReport(ids1, conceptName, UpdateReportPOJO.OPERATION_TYPE_RESTORED, null);
             Util.persistentUpdateReport(xml, true);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -340,7 +341,7 @@ public class RecycleBinAction implements RecycleBinService {
                 .append(dataModelPK).append("</DataModel><Concept>").append(concept) //$NON-NLS-1$
                 .append("</Concept><Key>").append(key).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$ 
 
-        if ("UPDATE".equals(operationType)) { //$NON-NLS-1$
+        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)) {
             Collection<UpdateReportItem> list = updatedPath.values();
             boolean isUpdate = false;
             for (UpdateReportItem item : list) {
