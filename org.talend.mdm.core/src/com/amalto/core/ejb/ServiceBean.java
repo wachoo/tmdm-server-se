@@ -317,7 +317,6 @@ public abstract class ServiceBean implements EntityBean {
      * @ejb.persistence
      * @ejb.pk-field
      */
-    @LongString
     public abstract String getServiceName();
 
     public abstract void setServiceName(String name);
