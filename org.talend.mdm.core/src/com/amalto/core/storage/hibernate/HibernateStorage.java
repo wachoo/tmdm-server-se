@@ -590,6 +590,27 @@ public class HibernateStorage implements Storage {
     public void begin() {
         assertPrepared();
         Session session = factory.getCurrentSession();
+        // TMDM-5794: Clean up transaction in case previous operation did not clean up a failed transaction
+        try {
+            Transaction transaction = session.getTransaction();
+            if (transaction.isActive() && session.getStatistics().getEntityCount() > 0) { // Not expecting active transaction here in begin().
+                LOGGER.warn("Transaction #" + transaction.hashCode() + " should not be active.");
+                try {
+                    transaction.commit();
+                } catch (Exception e) {
+                    LOGGER.warn("Transaction #" + transaction.hashCode() + " was rolled back due to previous errors.");
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Failed commit exception for Transaction #" + transaction.hashCode(), e);
+                    }
+                    transaction.rollback();
+                }
+                session = factory.getCurrentSession();
+            }
+        } catch (HibernateException e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Error occurred during automatic transaction clean up.", e);
+            }
+        }
         session.beginTransaction();
         session.setFlushMode(FlushMode.AUTO);
     }
