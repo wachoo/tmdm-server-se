@@ -11,14 +11,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.model.ItemBean;
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.DateUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.FieldSetCreator;
-import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.binding.FieldBinding;

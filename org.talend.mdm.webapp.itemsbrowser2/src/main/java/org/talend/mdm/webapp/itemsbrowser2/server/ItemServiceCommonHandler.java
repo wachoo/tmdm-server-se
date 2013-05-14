@@ -53,6 +53,7 @@ import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.ForeignKeyHelper;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.server.util.XmlUtil;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyDrawer;
@@ -66,7 +67,6 @@ import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.RoleHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
-import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 import org.w3c.dom.NodeList;
 
@@ -77,6 +77,7 @@ import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.util.CVCException;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.ValidateException;
+import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.RoutingException;
@@ -821,7 +822,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value) {
         try {
-            return ForeignKeyHelper.getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value);
+            EntityModel entityModel = new EntityModel();
+            DataModelHelper.parseSchema(Configuration.getConfiguration().getModel(), model.getXpath(), entityModel, RoleHelper.getUserRoles());
+            return ForeignKeyHelper.getForeignKeyList(config, model, entityModel,dataClusterPK, ifFKFilter, value);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             return null;

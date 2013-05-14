@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.OperatorConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ForeignKey.FKField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.DateTimeField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.SpinnerField;
-import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;

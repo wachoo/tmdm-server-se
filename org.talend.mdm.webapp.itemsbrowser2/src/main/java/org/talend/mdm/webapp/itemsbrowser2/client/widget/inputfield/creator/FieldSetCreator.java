@@ -2,9 +2,9 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator;
 
 import java.util.List;
 
-import org.talend.mdm.webapp.base.shared.TypeModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 
 import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.widget.Component;

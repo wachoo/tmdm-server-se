@@ -21,8 +21,8 @@ import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ItemBean;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 
 /**
  * DOC HSHU class global comment. Detailled comment

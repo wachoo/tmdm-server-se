@@ -19,8 +19,8 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
-import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 /**

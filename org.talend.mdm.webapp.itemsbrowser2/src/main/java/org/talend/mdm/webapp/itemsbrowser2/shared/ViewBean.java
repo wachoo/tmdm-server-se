@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.shared.EntityModel;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
