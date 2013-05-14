@@ -235,29 +235,54 @@ public class HibernateStorage implements Storage {
             }
             // Set fields to be indexed in database.
             Set<FieldMetadata> databaseIndexedFields = new HashSet<FieldMetadata>();
-            for (FieldMetadata indexedField : indexedFields) {
-                // TMDM-5311: Don't index TEXT fields
-                TypeMetadata indexedFieldType = indexedField.getType();
-                if (!isIndexable(indexedFieldType)) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Ignore index on field '" + indexedField.getName() + "' because value is stored in TEXT.");
+            switch (storageType) {
+                case MASTER:
+                    // Adds indexes on user defined fields
+                    for (FieldMetadata indexedField : indexedFields) {
+                        // TMDM-5311: Don't index TEXT fields
+                        TypeMetadata indexedFieldType = indexedField.getType();
+                        if (!isIndexable(indexedFieldType)) {
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("Ignore index on field '" + indexedField.getName() + "' because value is stored in TEXT.");
+                            }
+                            continue;
+                        }
+                        // Go up the containment tree in case containing type is anonymous.
+                        ComplexTypeMetadata containingType = indexedField.getContainingType();
+                        while (containingType instanceof ContainedComplexTypeMetadata) {
+                            containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
+                        }
+                        TypeMapping mapping = mappingRepository.getMappingFromUser(containingType);
+                        FieldMetadata database = mapping.getDatabase(indexedField);
+                        if (!isIndexable(database.getType())) {
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("Ignore index on field '" + indexedField.getName() + "' because value (in database mapping) is stored in TEXT.");
+                            }
+                            continue; // Don't take into indexed fields long text fields
+                        }
+                        databaseIndexedFields.add(database);
                     }
-                    continue;
-                }
-                // Go up the containment tree in case containing type is anonymous.
-                ComplexTypeMetadata containingType = indexedField.getContainingType();
-                while (containingType instanceof ContainedComplexTypeMetadata) {
-                    containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
-                }
-                TypeMapping mapping = mappingRepository.getMappingFromUser(containingType);
-                FieldMetadata database = mapping.getDatabase(indexedField);
-                if (!isIndexable(database.getType())) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Ignore index on field '" + indexedField.getName() + "' because value (in database mapping) is stored in TEXT.");
+                    break;
+                case STAGING:
+                     // Adds "staging status" as indexed field
+                    if (!indexedFields.isEmpty()) {
+                        if (LOGGER.isDebugEnabled()) {
+                            for (FieldMetadata indexedField : indexedFields) {
+                                LOGGER.debug("Field '" + indexedField.getName()
+                                        + "' from type '" + indexedField.getContainingType().getName() + "'"
+                                        + " is not indexed in staging area");
+                            }
+                        }
                     }
-                    continue; // Don't take into indexed fields long text fields
-                }
-                databaseIndexedFields.add(database);
+                    for (TypeMapping typeMapping : mappingRepository.getAllTypeMappings()) {
+                        ComplexTypeMetadata database = typeMapping.getDatabase();
+                        if (database.hasField(METADATA_STAGING_STATUS)) {
+                            databaseIndexedFields.add(database.getField(METADATA_STAGING_STATUS));
+                        }
+                    }
+                    break;
+                case SYSTEM: // Nothing to index on SYSTEM
+                    break;
             }
             // Set table/column name length limitation
             switch (dataSource.getDialectName()) {
