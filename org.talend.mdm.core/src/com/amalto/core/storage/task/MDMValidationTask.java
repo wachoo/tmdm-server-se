@@ -11,9 +11,14 @@
 
 package com.amalto.core.storage.task;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.util.core.EUUIDCustomType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
 import com.amalto.core.query.user.Select;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
@@ -24,17 +29,11 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.DataRecordXmlWriter.OverrideValue;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.EUUIDCustomType;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-
 import java.io.*;
-import java.util.Map;
+import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
-import static com.amalto.core.query.user.UserStagingQueryBuilder.status;
+import static com.amalto.core.query.user.UserStagingQueryBuilder.*;
 
 public class MDMValidationTask extends MetadataRepositoryTask {
 
@@ -158,6 +157,9 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             DocumentSaver saver = context.createSaver();
             Map<String, String> recordProperties = stagingRecord.getRecordMetadata().getRecordProperties();
             try {
+                if (!isAllowedAccess(stagingRecord, source.getCurrentUserRoles())){
+                    throw new Exception("Current user '" + source.getUserName() + "' could not allow to access concept '" + stagingRecord.getType().getName() + "' ."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                }
                 saver.save(session, context);
                 commitCount++;
                 if (commitCount % COMMIT_SIZE == 0) {
@@ -185,6 +187,28 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             }
         }
 
+        private boolean isAllowedAccess(DataRecord stagingRecord, Collection<String> currentRoles) {
+            List<String> writeUsers = stagingRecord.getType().getWriteUsers();
+            if (writeUsers != null) {
+                List<String> hideUserRoles = stagingRecord.getType().getHideUsers();
+                Iterator<String> iter = writeUsers.iterator();
+                while (iter.hasNext()){
+                    String writeUser = iter.next();
+                    if (hideUserRoles.contains(writeUser)){
+                        continue;
+                    }
+                    if (currentRoles != null){
+                        for (String role : currentRoles) {
+                            if (writeUser.equals(role)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        
         @Override
         public void cancel() {
         }

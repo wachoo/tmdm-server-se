@@ -485,7 +485,10 @@ public class StagingAreaTest extends TestCase {
 
         @Override
         public Set<String> getCurrentUserRoles() {
-            return Collections.singleton(ICoreConstants.ADMIN_PERMISSION);
+            Set<String> set = new HashSet<String>();
+            set.add(ICoreConstants.ADMIN_PERMISSION);
+            set.add(ICoreConstants.SYSTEM_ADMIN_ROLE);
+            return set;
         }
 
         @Override

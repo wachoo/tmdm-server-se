@@ -11,14 +11,18 @@
 
 package com.amalto.core.storage.task.staging;
 
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserStagingQueryBuilder;
@@ -35,12 +39,14 @@ import com.amalto.core.storage.task.StagingConstants;
 import com.amalto.core.storage.task.Task;
 import com.amalto.core.storage.task.TaskFactory;
 import com.amalto.core.storage.task.TaskSubmitterFactory;
+import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import com.amalto.core.util.XtentisException;
 
 public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
+    private static final Logger logger = Logger.getLogger(DefaultStagingTaskService.class);
+    
     private static final String EXECUTION_LOG_TYPE = "TALEND_TASK_EXECUTION"; //$NON-NLS-1$
 
     // SimpleDateFormat is not thread-safe
@@ -119,10 +125,16 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             }
             MetadataRepository stagingRepository = staging.getMetadataRepository();
             MetadataRepository userRepository = user.getMetadataRepository();
+            String userName = null;
+            try {
+                userName = LocalUser.getLocalUser().getUsername();
+            } catch (XtentisException e) {
+                logger.warn("Current user name unknow. some access will be forbidden  ");
+            }
             StagingConfiguration stagingConfig = new StagingConfiguration(staging,
                     stagingRepository,
                     userRepository,
-                    new DefaultSaverSource(),
+                    new DefaultSaverSource(userName),
                     new DefaultCommitter(),
                     user);
             Task stagingTask = TaskFactory.createStagingTask(stagingConfig);
