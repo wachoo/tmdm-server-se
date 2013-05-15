@@ -84,7 +84,7 @@ public class SaverHelper {
                 partialPutItem.isReport(),
                 partialPutItem.getPivot(),
                 partialPutItem.getKeyXPath(),
-                partialPutItem.getStartingPosition(),
+                partialPutItem.getStartingPosition() != null ? partialPutItem.getStartingPosition() : -1,
                 partialPutItem.getOverwrite());
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
