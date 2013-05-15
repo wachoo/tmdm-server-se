@@ -79,6 +79,7 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
     private static boolean isValidAttributeType(TypeMetadata type) {
         return !("string".equals(type.getName()) //$NON-NLS-1$
                 || "date".equals(type.getName()) //$NON-NLS-1$
+                || "boolean".equals(type.getName()) //$NON-NLS-1$
                 || ClassRepository.EMBEDDED_XML.equals(type.getName()));
     }
 
