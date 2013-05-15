@@ -102,31 +102,22 @@ public class Configuration {
     }
 
     public static Configuration getInstance(ConfigurationContext configurationContext) throws Exception {
-        try {
-            Configuration instance;
+        Configuration instance;
 
-            HttpSession session = configurationContext.getSession();
-            if (session == null) {
-                instance = null;
-            } else {
-                instance = SessionListener.getRegisteredConfiguration(session.getId());
-            }
-            if (instance == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Configuration instance is null, loading ..."); //$NON-NLS-1$
-                }
-                instance = load(session);
-            }
-
-            return instance;
-
-        } catch (IllegalStateException e) {
-            // Session is already invalidated
-            // Throw an exception that will cause the client to redirect to the login page
-            // This particular string signals to the client that the exception from the backend is due to session
-            // timeout (see SessionAwareAsyncCallback)
-            throw new IllegalStateException("<meta http-equiv=\"refresh\" content=\"0; url=/talendmdm/secure\"", e); //$NON-NLS-1$
+        HttpSession session = configurationContext.getSession();
+        if (session == null) {
+            instance = null;
+        } else {
+            instance = SessionListener.getRegisteredConfiguration(session.getId());
         }
+        if (instance == null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Configuration instance is null, loading ..."); //$NON-NLS-1$
+            }
+            instance = load(session);
+        }
+
+        return instance;
     }
 
     public static void initialize(String cluster, String model, ConfigurationContext configurationContext) throws Exception {
