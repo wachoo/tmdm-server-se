@@ -10,22 +10,20 @@
   -->
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <xsd:element name="Root">
+    <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>
+    <xsd:element name="fac">
         <xsd:complexType>
             <xsd:sequence>
                 <xsd:element name="subelement" type="xsd:string"/>
-                <xsd:element maxOccurs="1" minOccurs="1" name="name" type="xsd:string"/>
-                <xsd:element maxOccurs="1" minOccurs="1" name="fk" type="xsd:string">
-                    <xsd:annotation>
-                        <xsd:appinfo source="X_ForeignKey">Root/name</xsd:appinfo>
-                    </xsd:annotation>
-                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="ac" type="xsd:string"/>
+                <xsd:element maxOccurs="1" minOccurs="0" name="bc" type="xsd:string"/>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="cc" type="xsd:string"/>
             </xsd:sequence>
         </xsd:complexType>
-        <xsd:unique name="Root">
+        <xsd:unique name="fac">
             <xsd:selector xpath="."/>
-            <xsd:field xpath="name"/>
-            <xsd:field xpath="fk"/>
+            <xsd:field xpath="subelement"/>
+            <xsd:field xpath="cc"/>
         </xsd:unique>
     </xsd:element>
 </xsd:schema>

@@ -144,6 +144,19 @@ public class MetadataValidationTest extends TestCase {
         assertEquals(1, handler.getMessages().size());
     }
 
+    public void testPK6() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("PK6_0.1.xsd");
+        DefaultValidationHandler handler = new DefaultValidationHandler();
+        try {
+            repository.load(resourceAsStream, handler);
+            fail("Should fail validation.");
+        } catch (Exception e) {
+            // Expected
+        }
+        assertEquals(2, handler.getMessages().size());
+    }
+
     public void testLookUpField1() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         InputStream resourceAsStream = this.getClass().getResourceAsStream("LookUpField1_0.1.xsd");
