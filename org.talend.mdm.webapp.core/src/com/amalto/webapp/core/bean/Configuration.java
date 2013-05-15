@@ -20,7 +20,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
-import org.jboss.invocation.InvocationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -101,32 +100,23 @@ public class Configuration {
         return instance;
     }
 
-    public static Configuration getInstance(ConfigurationContext configurationContext) throws Exception {        
-        try {
-            Configuration instance;
-            
-            HttpSession session = configurationContext.getSession();
-            if (session == null) {
-                instance = null;
-            } else {
-                instance = SessionListener.getRegisteredConfiguration(session.getId());
-            }
-            if (instance == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Configuration instance is null, loading ..."); //$NON-NLS-1$
-                }
-                instance = load(session);
-            }
+    public static Configuration getInstance(ConfigurationContext configurationContext) throws Exception {
+        Configuration instance;
 
-            return instance;
+        HttpSession session = configurationContext.getSession();
+        if (session == null) {
+            instance = null;
+        } else {
+            instance = SessionListener.getRegisteredConfiguration(session.getId());
+        }
+        if (instance == null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Configuration instance is null, loading ..."); //$NON-NLS-1$
+            }
+            instance = load(session);
+        }
 
-        } catch (IllegalStateException e) {
-            // Session is already invalidated
-            // Throw an exception that will cause the client to redirect to the login page
-            // This particular string signals to the client that the exception from the backend is due to session timeout (see SessionAwareAsyncCallback)
-            InvocationException ie = new InvocationException("<meta http-equiv=\"refresh\" content=\"0; url=/talendmdm/secure\"", e); //$NON-NLS-1$
-            throw ie;
-        }        
+        return instance;
     }
 
     public static void initialize(String cluster, String model, ConfigurationContext configurationContext) throws Exception {
