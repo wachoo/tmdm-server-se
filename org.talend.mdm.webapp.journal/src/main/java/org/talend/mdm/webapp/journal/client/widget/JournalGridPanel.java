@@ -31,6 +31,7 @@ import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
@@ -411,7 +412,7 @@ public class JournalGridPanel extends ContentPanel {
 
                     @Override
                     public void onSuccess(Boolean isAdmin) {
-                        if (isAdmin) {
+                        if (isAdmin && !UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(gridModel.getOperationType()) && !UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE.equals(gridModel.getOperationType())) {
                             restoreMenuItem.setEnabled(true);
                         } else {
                             restoreMenuItem.setEnabled(false);
@@ -421,7 +422,7 @@ public class JournalGridPanel extends ContentPanel {
 
                             @Override
                             public void onSuccess(Boolean result) {
-                                if (result) {
+                                if (result && !UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE.equals(gridModel.getOperationType())) {
                                     viewChagesMenuItem.setEnabled(true);
                                 } else {
                                     viewChagesMenuItem.setEnabled(false);
