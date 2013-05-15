@@ -56,7 +56,7 @@ class UpdateReport implements DocumentSaver {
         boolean hasHeader = false;
         for (Action action : actions) {
             if (!hasHeader) {
-                createHeaderField(updateReportDocument, "UserName", String.valueOf(action.getUserName())); //$NON-NLS-1$
+                createHeaderField(updateReportDocument, "UserName", session.getSaverSource().getLegitimateUser()); //$NON-NLS-1$
                 createHeaderField(updateReportDocument, "Source", String.valueOf(action.getSource())); //$NON-NLS-1$
                 createHeaderField(updateReportDocument, "TimeInMillis", String.valueOf(action.getDate().getTime())); //$NON-NLS-1$
                 createHeaderField(updateReportDocument, "RevisionID", String.valueOf(context.getRevisionID())); //$NON-NLS-1$

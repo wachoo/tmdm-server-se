@@ -2363,6 +2363,11 @@ public class DocumentSaveTest extends TestCase {
         }
 
         @Override
+        public String getLegitimateUser() {
+            return getUserName();
+        }
+        
+        @Override
         public boolean existCluster(String revisionID, String dataClusterName) {
             return true;
         }

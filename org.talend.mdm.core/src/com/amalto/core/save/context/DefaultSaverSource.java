@@ -131,24 +131,14 @@ public class DefaultSaverSource implements SaverSource {
 
     public Set<String> getCurrentUserRoles() {
         try {
-            if (userName == null) {
-                // No user name specified, get from current user.
-                return LocalUser.getLocalUser().getRoles();
-            } else {
-                User user = new User();
-                user.setUserName(userName);
-                return UserHelper.getInstance().getOriginalRole(user);
-            }
+            // get user roles from current user.
+            return LocalUser.getLocalUser().getRoles();
         } catch (XtentisException e) {
             throw new RuntimeException(e);
         }
     }
 
     public String getUserName() {
-        // Allow saver caller to override user name.
-        if (userName != null) {
-            return userName;
-        }
         try {
             return LocalUser.getLocalUser().getUsername();
         } catch (XtentisException e) {
@@ -210,6 +200,14 @@ public class DefaultSaverSource implements SaverSource {
 
     public String nextAutoIncrementId(String universe, String dataCluster, String conceptName) {
         return String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, conceptName));
+    }
+
+    public String getLegitimateUser() {
+        // web service caller
+        if (userName != null) {
+            return userName;
+        }
+        return getUserName();
     }
 
 }

@@ -38,6 +38,8 @@ public interface SaverSource {
     Set<String> getCurrentUserRoles();
 
     String getUserName();
+    
+    String getLegitimateUser();
 
     boolean existCluster(String revisionID, String dataClusterName);
 

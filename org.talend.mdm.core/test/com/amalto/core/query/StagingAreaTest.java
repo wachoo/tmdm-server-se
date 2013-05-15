@@ -495,6 +495,11 @@ public class StagingAreaTest extends TestCase {
         public String getUserName() {
             return ICoreConstants.ADMIN_PERMISSION;
         }
+        
+        @Override
+        public String getLegitimateUser() {
+            return getUserName();
+        }
 
         @Override
         public boolean existCluster(String revisionID, String dataClusterName) {
