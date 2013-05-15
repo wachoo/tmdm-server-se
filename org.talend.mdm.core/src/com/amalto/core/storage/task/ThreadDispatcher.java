@@ -93,13 +93,11 @@ class ThreadDispatcher implements Closure {
 
     @Override
     public void cancel() {
-        queue.clear();
+        prepareEndFlag(true);
     }
 
     public void end(ClosureExecutionStats stats) {
-        for (int i = 0; i < childClosures.size(); i++) {
-            queue.offer(new EndDataRecord());
-        }
+        prepareEndFlag(false);
         for (ConsumerRunnable childClosure : childClosures) {
             try {
                 childClosure.waitForEnd();
@@ -109,6 +107,15 @@ class ThreadDispatcher implements Closure {
         }
     }
 
+    private synchronized void prepareEndFlag(boolean cleanQueue) {
+        if (cleanQueue){
+            queue.clear();
+        }
+        for (int i = 0; i < childClosures.size(); i++) {
+            queue.offer(new EndDataRecord());
+        }
+    }
+    
     public Closure copy() {
         return this;
     }
