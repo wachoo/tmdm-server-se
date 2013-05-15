@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.journal.client.util;
 
 import org.talend.mdm.webapp.journal.client.Journal;
 import org.talend.mdm.webapp.journal.client.widget.JournalGridPanel;
-import org.talend.mdm.webapp.journal.client.widget.JournalTabPanel;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 
@@ -74,21 +73,21 @@ public class TimelineUtil {
         String startDate = criteria.getStartDate() == null ? "" : String.valueOf(criteria.getStartDate().getTime()); //$NON-NLS-1$
         String endDate = criteria.getEndDate() == null ? "" : String.valueOf(criteria.getEndDate().getTime()); //$NON-NLS-1$
         if (type.equalsIgnoreCase(TimelineUtil.TIMELIME_INIT))
-            loadTimelineInit(entity, key, source, operationType, startDate, endDate, criteria.isBrowseRecord());
+            loadTimelineInit(entity, key, source, operationType, startDate, endDate, criteria.isStrict());
         else if (type.equalsIgnoreCase(TimelineUtil.TIMELIME_LOAD))
-            loadTimelineLoad(entity, key, source, operationType, startDate, endDate, criteria.isBrowseRecord());
+            loadTimelineLoad(entity, key, source, operationType, startDate, endDate, criteria.isStrict());
     }
     
     public native static void loadTimelineInit(String entity, String key, String source, String operationType,
-            String startDate, String endDate, boolean isBrowseRecord)/*-{
+            String startDate, String endDate, boolean isStrict)/*-{
         $wnd.JournalInterface.getReportString($wnd.startIndex + $wnd.configStr, entity, key, source, operationType,
-                startDate, endDate, isBrowseRecord, $wnd.journalCallback);
+                startDate, endDate, isStrict, $wnd.journalCallback);
     }-*/;
     
     public native static void loadTimelineLoad(String entity, String key, String source, String operationType,
-            String startDate, String endDate, boolean isBrowseRecord)/*-{
+            String startDate, String endDate, boolean isStrict)/*-{
         $wnd.JournalInterface.getReportString($wnd.startIndex + $wnd.configStr, entity, key, source, operationType,
-                startDate, endDate, isBrowseRecord, $wnd.journalLoadDateCallback);
+                startDate, endDate, isStrict, $wnd.journalLoadDateCallback);
     }-*/;
 
     public native static void setSearchStart(int searchStart)/*-{

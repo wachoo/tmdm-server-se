@@ -17,12 +17,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import java.util.LinkedHashMap;
 import org.apache.log4j.Logger;
 import org.dom4j.Attribute;
 import org.dom4j.DocumentException;
@@ -38,17 +38,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSStringArray;
-import com.amalto.webapp.util.webservices.WSStringPredicate;
-import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
-import com.amalto.webapp.util.webservices.WSWhereOperator;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSComplexType;
@@ -73,25 +69,9 @@ public class JournalDBService {
         this.webService = webService;
     }
 
-    public Object[] getResultListByCriteria(JournalSearchCriteria criteria, int start, int limit, String sort, String field,
-            boolean isBrowseRecord) throws Exception {
+    public Object[] getResultListByCriteria(JournalSearchCriteria criteria, int start, int limit, String sort, String field) throws Exception {
 
-        List<WSWhereItem> conditions = org.talend.mdm.webapp.journal.server.util.Util.buildWhereItems(criteria, isBrowseRecord);
-
-        if (isBrowseRecord) {
-            Configuration configuration = Configuration.getInstance(true);
-            String dataCluster = configuration.getCluster();
-            String dataModel = configuration.getModel();
-            WSWhereCondition clusterwc = new WSWhereCondition(
-                    "DataCluster", WSWhereOperator.EQUALS, dataCluster.trim(), WSStringPredicate.NONE, false); //$NON-NLS-1$
-            WSWhereCondition modelwc = new WSWhereCondition(
-                    "DataModel", WSWhereOperator.EQUALS, dataModel.trim(), WSStringPredicate.NONE, false); //$NON-NLS-1$
-
-            WSWhereItem wsWhereDataCluster = new WSWhereItem(clusterwc, null, null);
-            WSWhereItem wsWhereDataModel = new WSWhereItem(modelwc, null, null);
-            conditions.add(wsWhereDataCluster);
-            conditions.add(wsWhereDataModel);
-        }
+        List<WSWhereItem> conditions = org.talend.mdm.webapp.journal.server.util.Util.buildWhereItems(criteria);
 
         int totalSize = 0;
         List<JournalGridModel> list = new ArrayList<JournalGridModel>();

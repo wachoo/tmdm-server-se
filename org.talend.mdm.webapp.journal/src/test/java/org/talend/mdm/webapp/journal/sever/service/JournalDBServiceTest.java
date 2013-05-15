@@ -47,7 +47,7 @@ public class JournalDBServiceTest extends TestCase{
         criteria.setOperationType(UpdateReportPOJO.OPERATION_TYPE_CREATE);
         criteria.setSource("genericUI"); //$NON-NLS-1$
         
-        Object[] result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key", false); //$NON-NLS-1$ //$NON-NLS-2$   
+        Object[] result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$   
         assertEquals(1, result[0]);
         List<JournalGridModel> journalGridModelList = (List<JournalGridModel>)result[1];        
         JournalGridModel journalGridModel = journalGridModelList.get(0);

@@ -41,8 +41,6 @@ public class Journal implements EntryPoint {
 
     public static final String SEARCH_CRITERIA = "SearchCriteria"; //$NON-NLS-1$
 
-    public static boolean browseReocrd = false;
-
     private native void registerJournalService()/*-{
 
         $wnd.amalto.journal.Journal.browseJournalWithCriteria = function(ids,
@@ -82,11 +80,6 @@ public class Journal implements EntryPoint {
         $wnd.amalto.journal.Journal = function() {
 
             function initUI() {
-                if (@org.talend.mdm.webapp.journal.client.Journal::browseReocrd) {
-                    @org.talend.mdm.webapp.journal.client.Journal::browseReocrd = false;
-                } else {
-                    @org.talend.mdm.webapp.journal.client.Journal::resetSearchCondition()();
-                }
                 instance.@org.talend.mdm.webapp.journal.client.Journal::initUI()();
             }
 
@@ -180,10 +173,8 @@ public class Journal implements EntryPoint {
     public static void initJournalfromBrowseRecord(String ids, String concept) {
         resetSearchCondition();
         JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);
-        criteria.setBrowseRecord(true);
         criteria.setEntity(concept);
         criteria.setKey(ids);
-        browseReocrd = true;
     }
 
     public static void setSearchField(String ids, String concept) {
@@ -198,7 +189,7 @@ public class Journal implements EntryPoint {
 
     public static void resetSearchCondition() {
         JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);
-        criteria.setBrowseRecord(false);
+        criteria.setStrict(true);
         criteria.setEntity(null);
         criteria.setKey(null);
         criteria.setOperationType(null);

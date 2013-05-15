@@ -58,7 +58,7 @@ public class JournalExportServlet extends HttpServlet {
         Object[] resultArr = null;
         try {
             JournalDBService service = new JournalDBService(new WebServiceImp());
-            resultArr = service.getResultListByCriteria(getCriteriaFromRequest(request), 0, -1, null, null, false);
+            resultArr = service.getResultListByCriteria(getCriteriaFromRequest(request), 0, -1, null, null);
 
             List<JournalGridModel> resultList = (List<JournalGridModel>) resultArr[1];
             int i = 1;
@@ -96,12 +96,14 @@ public class JournalExportServlet extends HttpServlet {
         String operationType = request.getParameter("operationType"); //$NON-NLS-1$
         String startDate = request.getParameter("startDate"); //$NON-NLS-1$
         String endDate = request.getParameter("endDate"); //$NON-NLS-1$
+        String isStrict = request.getParameter("isStrict"); //$NON-NLS-1$
 
         JournalSearchCriteria criteria = new JournalSearchCriteria();
         criteria.setEntity(entity);
         criteria.setKey(key);
         criteria.setSource(source);
         criteria.setOperationType(operationType);
+        criteria.setStrict(Boolean.parseBoolean(isStrict));
 
         if (startDate != null) {
             Date date = new Date();

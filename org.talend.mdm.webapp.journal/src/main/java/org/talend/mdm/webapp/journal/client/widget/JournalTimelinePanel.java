@@ -57,7 +57,7 @@ public class JournalTimelinePanel extends ContentPanel {
 
     private String endDate;
 
-    private boolean isBrowseRecord;
+    private boolean isStrict;
 
     private int start;
 
@@ -91,7 +91,7 @@ public class JournalTimelinePanel extends ContentPanel {
         operationType = criteria.getOperationType() == null ? "" : criteria.getOperationType(); //$NON-NLS-1$
         startDate = criteria.getStartDate() == null ? "" : String.valueOf(criteria.getStartDate().getTime()); //$NON-NLS-1$
         endDate = criteria.getEndDate() == null ? "" : String.valueOf(criteria.getEndDate().getTime()); //$NON-NLS-1$
-        isBrowseRecord = criteria.isBrowseRecord();
+        isStrict = criteria.isStrict();
         String[] cfgArray = (startIndex + config).split(","); //$NON-NLS-1$
         start = Integer.parseInt(cfgArray[0]);
         limit = Integer.parseInt(cfgArray[1]);
@@ -103,7 +103,7 @@ public class JournalTimelinePanel extends ContentPanel {
 
     private void loadTimeline(int startIndex) {
         start = startIndex;
-        service.getReportString(startIndex, limit, sort, field, language, entity, key, source, operationType, startDate, endDate,isBrowseRecord, new SessionAwareAsyncCallback<String>() {                
+        service.getReportString(startIndex, limit, sort, field, language, entity, key, source, operationType, startDate, endDate,isStrict, new SessionAwareAsyncCallback<String>() {                
             public void onSuccess(String result) {
                 parseResult(result);
             }

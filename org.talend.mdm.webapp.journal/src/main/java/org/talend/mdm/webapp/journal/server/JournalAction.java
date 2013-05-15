@@ -62,14 +62,11 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         int limit = load.getLimit();
         String sort = load.getSortDir().toString();
         String field = load.getSortField();
-        boolean isBrowseRecord = criteria.isBrowseRecord();
 
         try {
-            Object[] result = service.getResultListByCriteria(criteria, start, limit, sort, field, isBrowseRecord);
-
+            Object[] result = service.getResultListByCriteria(criteria, start, limit, sort, field);
             int totalSize = Integer.parseInt(result[0].toString());
             List<JournalGridModel> resultList = (List<JournalGridModel>) result[1];
-
             return new ItemBasePageLoadResult<JournalGridModel>(resultList, load.getOffset(), totalSize);
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
@@ -146,12 +143,12 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
 
     @Override
     public String getReportString(int start, int limit, String sort, String field, String language, String entity, String key,
-            String source, String operationType, String startDate, String endDate, boolean isBrowseRecord)
+            String source, String operationType, String startDate, String endDate, boolean isStrict)
             throws ServiceException {
 
         try {
-            JournalSearchCriteria criteria = this.buildCriteria(entity, key, source, operationType, startDate, endDate);
-            Object[] result = service.getResultListByCriteria(criteria, start, limit, sort, field, isBrowseRecord);
+            JournalSearchCriteria criteria = this.buildCriteria(entity, key, source, operationType, startDate, endDate,isStrict);
+            Object[] result = service.getResultListByCriteria(criteria, start, limit, sort, field);
             List<JournalGridModel> resultList = (List<JournalGridModel>) result[1];
             String reportString = this.generateEventString(resultList, language, criteria.getStartDate());
             return reportString;
@@ -191,7 +188,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     }
 
     private JournalSearchCriteria buildCriteria(String entity, String key, String source, String operationType, String startDate,
-            String endDate) {
+            String endDate,boolean isStrict) {
         JournalSearchCriteria criteria = new JournalSearchCriteria();
         if (!entity.equalsIgnoreCase("")) { //$NON-NLS-1$
             criteria.setEntity(entity);
@@ -211,6 +208,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         if (!endDate.equalsIgnoreCase("")) { //$NON-NLS-1$
             criteria.setEndDate(new Date(Long.parseLong(endDate)));
         }
+        criteria.setStrict(isStrict);
         return criteria;
     }
 

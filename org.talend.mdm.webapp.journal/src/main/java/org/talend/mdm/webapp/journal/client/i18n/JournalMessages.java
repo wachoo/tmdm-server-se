@@ -96,4 +96,6 @@ public interface JournalMessages extends Messages {
     public String restore_confirm();
     
     public String menu_item_viewchages();
+    
+    public String strict_search_checkbox();
 }

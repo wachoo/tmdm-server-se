@@ -49,33 +49,54 @@ public class UtilTest extends TestCase {
         criteria.setKey("1"); //$NON-NLS-1$
         criteria.setOperationType(UpdateReportPOJO.OPERATION_TYPE_CREATE);
         criteria.setSource("genericUI"); //$NON-NLS-1$
+        criteria.setStrict(true);
     }
 
 
     public void testBuildWhereItems() throws Exception {
 
-        List<WSWhereItem> conditions = Util.buildWhereItems(criteria, true);
-
+        List<WSWhereItem> conditions = Util.buildWhereItems(criteria);
         for (WSWhereItem whereItem : conditions) {
             WSWhereCondition condition = whereItem.getWhereCondition();
             if ("Concept".equals(condition.getLeftPath())) { //$NON-NLS-1$
+                assertEquals(WSWhereOperator.EQUALS,condition.getOperator()); //$NON-NLS-1$
                 assertEquals(condition.getRightValueOrPath(), "TestModel"); //$NON-NLS-1$
             } else if ("Key".equals(condition.getLeftPath())) { //$NON-NLS-1$
+                assertEquals(WSWhereOperator.EQUALS,condition.getOperator()); //$NON-NLS-1$
                 assertEquals(condition.getRightValueOrPath(), "1"); //$NON-NLS-1$
             } else if ("Source".equals(condition.getLeftPath())) { //$NON-NLS-1$
+                assertEquals(WSWhereOperator.EQUALS,condition.getOperator()); //$NON-NLS-1$
                 assertEquals(condition.getRightValueOrPath(), "genericUI"); //$NON-NLS-1$
             } else if ("OperationType".equals(condition.getLeftPath())) { //$NON-NLS-1$
                 assertEquals(condition.getRightValueOrPath(), UpdateReportPOJO.OPERATION_TYPE_CREATE);
             } else if ("TimeInMillis".equals(condition.getLeftPath())) { //$NON-NLS-1$
                 assertEquals(WSWhereOperator.GREATER_THAN_OR_EQUAL, condition.getOperator());
-            } else {
-                assertFalse(true);
             }
         }
+        
+        criteria.setStrict(false);
+        conditions = Util.buildWhereItems(criteria);
+        for (WSWhereItem whereItem : conditions) {
+            WSWhereCondition condition = whereItem.getWhereCondition();
+            if ("Concept".equals(condition.getLeftPath())) { //$NON-NLS-1$
+                assertEquals(WSWhereOperator.CONTAINS,condition.getOperator()); //$NON-NLS-1$
+                assertEquals(condition.getRightValueOrPath(), "TestModel"); //$NON-NLS-1$
+            } else if ("Key".equals(condition.getLeftPath())) { //$NON-NLS-1$
+                assertEquals(WSWhereOperator.CONTAINS,condition.getOperator()); //$NON-NLS-1$
+                assertEquals(condition.getRightValueOrPath(), "1"); //$NON-NLS-1$
+            } else if ("Source".equals(condition.getLeftPath())) { //$NON-NLS-1$
+                assertEquals(WSWhereOperator.CONTAINS,condition.getOperator()); //$NON-NLS-1$
+                assertEquals(condition.getRightValueOrPath(), "genericUI"); //$NON-NLS-1$
+            } else if ("OperationType".equals(condition.getLeftPath())) { //$NON-NLS-1$
+                assertEquals(condition.getRightValueOrPath(), UpdateReportPOJO.OPERATION_TYPE_CREATE);
+            } else if ("TimeInMillis".equals(condition.getLeftPath())) { //$NON-NLS-1$
+                assertEquals(WSWhereOperator.GREATER_THAN_OR_EQUAL, condition.getOperator());
+            }
+        }        
     }
     
     public void testBuildGetItem() {
-        List<WSWhereItem> conditions = Util.buildWhereItems(criteria, true);
+        List<WSWhereItem> conditions = Util.buildWhereItems(criteria);
         WSGetItems item = Util.buildGetItem(conditions, 0, 20);
         assertEquals("Update", item.getConceptName());
         assertNotNull(item.getWhereItem());
@@ -85,7 +106,7 @@ public class UtilTest extends TestCase {
     }
     
     public void testBuildGetItemsSort() {
-        List<WSWhereItem> conditions = Util.buildWhereItems(criteria, true);
+        List<WSWhereItem> conditions = Util.buildWhereItems(criteria);
         String sort = "ASC";
         if (SortDir.ASC.equals(SortDir.findDir(sort))) {
             sort = Constants.SEARCH_DIRECTION_ASC;

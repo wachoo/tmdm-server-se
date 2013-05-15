@@ -43,7 +43,7 @@ public interface JournalService extends RemoteService {
     boolean checkDCAndDM(String dataContainer, String dataModel);
 
     String getReportString(int start, int limit, String sort, String field, String language, String entity, String key,
-            String source, String operationType, String startDate, String endDate, boolean isBrowseRecord)
+            String source, String operationType, String startDate, String endDate, boolean isStrict)
             throws ServiceException;
 
     boolean isAdmin();

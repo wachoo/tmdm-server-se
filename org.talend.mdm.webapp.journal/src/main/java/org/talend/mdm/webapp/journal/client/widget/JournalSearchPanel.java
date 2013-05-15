@@ -39,6 +39,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
@@ -69,13 +70,14 @@ public class JournalSearchPanel extends FormPanel {
     private DateField startDateField;
     
     private DateField endDateField;
+    
+    private CheckBox strictCheckBox;
         
     private Button resetButton;
     
     private Button searchButton;
     
     private Button exportButton;
-    
     
     public static JournalSearchPanel getInstance() {
         if (formPanel == null)
@@ -226,20 +228,11 @@ public class JournalSearchPanel extends FormPanel {
         main.add(right, new ColumnData(.5));
         this.add(main, new FormData("100%")); //$NON-NLS-1$
 
-        resetButton = new Button(MessagesFactory.getMessages().reset_button());
-        resetButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                entityField.clear();
-                keyField.clear();
-                sourceCombo.clear();
-                operationTypeCombo.clear();
-                startDateField.clear();
-                endDateField.clear();
-            }
-        });
-        this.addButton(resetButton);
+        strictCheckBox = new CheckBox();
+        strictCheckBox.setEnabled(true);
+        strictCheckBox.setValue(true);
+        strictCheckBox.setBoxLabel(MessagesFactory.getMessages().strict_search_checkbox());
+        this.getButtonBar().add(strictCheckBox);
 
         searchButton = new Button(MessagesFactory.getMessages().search_button());
         searchButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -258,6 +251,22 @@ public class JournalSearchPanel extends FormPanel {
             }
         });
         this.addButton(searchButton);
+        
+        resetButton = new Button(MessagesFactory.getMessages().reset_button());
+        resetButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                entityField.clear();
+                keyField.clear();
+                sourceCombo.clear();
+                operationTypeCombo.clear();
+                startDateField.clear();
+                endDateField.clear();
+                strictCheckBox.setValue(true);
+            }
+        });
+        this.addButton(resetButton);
 
         exportButton = new Button(MessagesFactory.getMessages().exprot_excel_button());
         exportButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -302,7 +311,7 @@ public class JournalSearchPanel extends FormPanel {
 
         criteria.setStartDate(startDateField.getValue());
         criteria.setEndDate(endDateField.getValue());
-        criteria.setBrowseRecord(false);
+        criteria.setStrict(strictCheckBox.getValue());
     }
 
     private Map<String, String> getCriteriaMap() {
@@ -319,6 +328,7 @@ public class JournalSearchPanel extends FormPanel {
             map.put("startDate", String.valueOf(startDateField.getValue().getTime())); //$NON-NLS-1$
         if (endDateField.getValue() != null)
             map.put("endDate", String.valueOf(endDateField.getValue().getTime())); //$NON-NLS-1$
+        map.put("isStrict", String.valueOf(strictCheckBox.getValue())); //$NON-NLS-1$
         map.put("language", UrlUtil.getLanguage()); //$NON-NLS-1$
 
         return map;

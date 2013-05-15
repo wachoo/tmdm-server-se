@@ -39,26 +39,26 @@ public class Util {
 
     public static final String concept = "Update"; //$NON-NLS-1$
     
-    public static List<WSWhereItem> buildWhereItems(JournalSearchCriteria criteria,boolean isBrowseRecord) {         
+    public static List<WSWhereItem> buildWhereItems(JournalSearchCriteria criteria) {         
         
         List<WSWhereItem> whereItemList = new ArrayList<WSWhereItem>();
         if (criteria.getEntity() != null) {
             WSWhereCondition wc = new WSWhereCondition(
-                    "Concept", isBrowseRecord ? WSWhereOperator.EQUALS : WSWhereOperator.CONTAINS, criteria.getEntity().trim(), WSStringPredicate.NONE, false); //$NON-NLS-1$
+                    "Concept", criteria.isStrict() ? WSWhereOperator.EQUALS : WSWhereOperator.CONTAINS, criteria.getEntity().trim(), WSStringPredicate.NONE, false); //$NON-NLS-1$
             WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
             whereItemList.add(wsWhereItem);
         }
 
         if (criteria.getKey() != null) {
             WSWhereCondition wc = new WSWhereCondition(
-                    "Key", isBrowseRecord ? WSWhereOperator.EQUALS : WSWhereOperator.CONTAINS, criteria.getKey().trim(), WSStringPredicate.NONE, false); //$NON-NLS-1$
+                    "Key", criteria.isStrict() ? WSWhereOperator.EQUALS : WSWhereOperator.CONTAINS, criteria.getKey().trim(), WSStringPredicate.NONE, false); //$NON-NLS-1$
             WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
             whereItemList.add(wsWhereItem);
         }
 
         if (criteria.getSource() != null) {
             WSWhereCondition wc = new WSWhereCondition(
-                    "Source", WSWhereOperator.EQUALS, criteria.getSource().trim(), WSStringPredicate.NONE, false); //$NON-NLS-1$
+                    "Source", criteria.isStrict() ? WSWhereOperator.EQUALS : WSWhereOperator.CONTAINS, criteria.getSource().trim(), WSStringPredicate.NONE, false); //$NON-NLS-1$
             WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
             whereItemList.add(wsWhereItem);
         }

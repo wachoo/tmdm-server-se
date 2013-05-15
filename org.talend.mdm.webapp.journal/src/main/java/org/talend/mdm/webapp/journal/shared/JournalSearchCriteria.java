@@ -33,7 +33,7 @@ public class JournalSearchCriteria implements IsSerializable {
 
     private Date endDate;
     
-    private boolean isBrowseRecord;
+    private boolean isStrict;
 
     public JournalSearchCriteria() {
 
@@ -86,12 +86,12 @@ public class JournalSearchCriteria implements IsSerializable {
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
- 
-    public boolean isBrowseRecord() {
-        return isBrowseRecord;
+
+    public boolean isStrict() {
+        return this.isStrict;
     }
-    
-    public void setBrowseRecord(boolean isBrowseRecord) {
-        this.isBrowseRecord = isBrowseRecord;
-    }
+
+    public void setStrict(boolean isStrict) {
+        this.isStrict = isStrict;
+    } 
 }
