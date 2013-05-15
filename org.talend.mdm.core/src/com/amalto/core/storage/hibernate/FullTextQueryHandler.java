@@ -543,7 +543,9 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 @Override
                 public Void visit(SimpleTypeFieldMetadata simpleField) {
                     addClass(simpleField.getContainingType());
-                    fields.add(getFieldName(simpleField, false, false));
+                    if (!Storage.METADATA_TIMESTAMP.equals(simpleField.getName()) && !Storage.METADATA_TASK_ID.equals(simpleField.getName())) {
+                        fields.add(getFieldName(simpleField, false, false));
+                    }
                     return null;
                 }
 
