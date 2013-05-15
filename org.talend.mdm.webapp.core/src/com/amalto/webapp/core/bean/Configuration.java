@@ -27,6 +27,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.dwr.CommonDWR;
+import com.amalto.webapp.core.util.SessionListener;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
@@ -40,9 +41,7 @@ public class Configuration {
 
     private static final Logger LOG = Logger.getLogger(Configuration.class);
 
-    private static final String CONFIGURATION_ATTRIBUTE = "configuration"; //$NON-NLS-1$
-
-    private static ConfigurationContext defaultConfigurationContext = new DWRConfigurationContext();
+    private static ConfigurationContext defaultConfigurationContext = new DefaultConfigurationContext();
 
     private static ConfigurationContext gwtConfigurationContext;
 
@@ -55,23 +54,28 @@ public class Configuration {
         public HttpSession getSession();
     }
 
-    private static class DWRConfigurationContext implements ConfigurationContext {
+    private static class DefaultConfigurationContext implements ConfigurationContext {
 
         public HttpSession getSession() {
-            HttpSession session = null;
-            // Here, we do use a DWR call to store the information into the session, therefore we must use its
-            // session only. But when run a GWT application, we must use GWTConfigurationContext to get session
+            HttpSession session;
             WebContext ctx = WebContextFactory.get();
             if (ctx != null) {
+                // DWR call ?
                 session = ctx.getSession();
             } else if (gwtConfigurationContext != null) {
+                // GWT call ?
                 session = gwtConfigurationContext.getSession();
+            } else {
+                // Unknown context
+                session = null;
             }
+
             if (LOG.isTraceEnabled()) {
                 if (session == null) {
                     LOG.info("Called with null session"); //$NON-NLS-1$
                 } else {
-                    LOG.info("Session creation: " + new Date(session.getCreationTime()) + " ;Session last access: " + new Date(session.getLastAccessedTime())); //$NON-NLS-1$ //$NON-NLS-2$
+                    LOG.info("Session id: " + session.getId() + " ;creation: " + new Date(session.getCreationTime()) //$NON-NLS-1$ //$NON-NLS-2$
+                            + " ;last access: " + new Date(session.getLastAccessedTime())); //$NON-NLS-1$
                 }
             }
             return session;
@@ -105,11 +109,12 @@ public class Configuration {
             if (session == null) {
                 instance = null;
             } else {
-                instance = (Configuration) session.getAttribute(CONFIGURATION_ATTRIBUTE);
+                instance = SessionListener.getRegisteredConfiguration(session.getId());
             }
             if (instance == null) {
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug("Configuration instance is null, loading ..."); //$NON-NLS-1$
+                }
                 instance = load(session);
             }
 
@@ -125,19 +130,19 @@ public class Configuration {
     }
 
     public static void initialize(String cluster, String model, ConfigurationContext configurationContext) throws Exception {
-        HttpSession session = configurationContext.getSession();
-        if (session != null)
-            session.setAttribute(CONFIGURATION_ATTRIBUTE, null);
-
-        if (cluster == null || cluster.trim().length() == 0)
+        if (cluster == null || cluster.trim().length() == 0) {
             throw new Exception("Data Container can't be empty!");
-        if (model == null || model.trim().length() == 0)
+        }
+        if (model == null || model.trim().length() == 0) {
             throw new Exception("Data Model can't be empty!");
+        }
 
         store(cluster, model);
 
-        if (session != null)
-            session.setAttribute(CONFIGURATION_ATTRIBUTE, new Configuration(cluster, model));
+        HttpSession session = configurationContext.getSession();
+        if (session != null) {
+            SessionListener.registerConfiguration(session.getId(), new Configuration(cluster, model));
+        }
     }
 
     public static Configuration getInstance(boolean forceReload) throws Exception {
@@ -157,16 +162,18 @@ public class Configuration {
     }
 
     private static synchronized void store(String cluster, String model) throws Exception {
-        if (cluster == null || cluster.trim().length() == 0)
+        if (cluster == null || cluster.trim().length() == 0) {
             throw new Exception("nocontainer"); //$NON-NLS-1$
-        else if (model == null || model.trim().length() == 0)
+        } else if (model == null || model.trim().length() == 0) {
             throw new Exception("nomodel"); //$NON-NLS-1$
+        }
         String xml = Util.getAjaxSubject().getXml();
         Document d = Util.parse(xml);
         NodeList nodeList = Util.getNodeList(d, "//property"); //$NON-NLS-1$
         if (nodeList.getLength() == 0) {
-            if (Util.getNodeList(d, "//properties").item(0) == null) //$NON-NLS-1$
+            if (Util.getNodeList(d, "//properties").item(0) == null) { //$NON-NLS-1$
                 d.getDocumentElement().appendChild(d.createElement("properties")); //$NON-NLS-1$
+            }
             Node node = Util.getNodeList(d, "//properties").item(0).appendChild(d.createElement("property")); //$NON-NLS-1$ //$NON-NLS-2$
             node.appendChild(d.createElement("name")).appendChild(d.createTextNode("cluster")); //$NON-NLS-1$ //$NON-NLS-2$
             ;
@@ -182,19 +189,21 @@ public class Configuration {
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
             if ("cluster".equals(Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
-                if (Util.getFirstTextNode(node, "value") == null) //$NON-NLS-1$
+                if (Util.getFirstTextNode(node, "value") == null) { //$NON-NLS-1$
                     Util.getNodeList(node, "value").item(0).appendChild(d.createTextNode(cluster)); //$NON-NLS-1$
-                else
+                } else {
                     Util.getNodeList(node, "value").item(0).getFirstChild().setNodeValue(cluster); //$NON-NLS-1$
+                }
             }
         }
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
             if ("model".equals(Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
-                if (Util.getFirstTextNode(node, "value") == null) //$NON-NLS-1$
+                if (Util.getFirstTextNode(node, "value") == null) { //$NON-NLS-1$
                     Util.getNodeList(node, "value").item(0).appendChild(d.createTextNode(model)); //$NON-NLS-1$
-                else
+                } else {
                     Util.getNodeList(node, "value").item(0).getFirstChild().setNodeValue(model); //$NON-NLS-1$
+                }
             }
         }
         if (com.amalto.core.util.Util.isEnterprise()) {
@@ -209,10 +218,12 @@ public class Configuration {
 
     private static Configuration load(HttpSession session) throws Exception {
         Configuration configuration = loadConfigurationFromDB();
-        if (session != null)
-            session.setAttribute(CONFIGURATION_ATTRIBUTE, configuration);
-        if (LOG.isDebugEnabled())
+        if (session != null) {
+            SessionListener.registerConfiguration(session.getId(), configuration);
+        }
+        if (LOG.isDebugEnabled()) {
             LOG.debug("MDM set up with " + configuration.getCluster() + " and " + configuration.getModel()); //$NON-NLS-1$ //$NON-NLS-2$
+        }
 
         return configuration;
     }
@@ -278,8 +289,9 @@ public class Configuration {
             needToStoreAgain = true;
         }
 
-        if (needToStoreAgain)
+        if (needToStoreAgain) {
             store(configuration.getCluster(), configuration.getModel());
+        }
 
         return configuration;
     }
