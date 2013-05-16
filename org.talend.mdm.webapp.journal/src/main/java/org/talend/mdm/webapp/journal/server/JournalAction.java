@@ -177,8 +177,12 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     @Override
     public boolean isJournalHistoryExist(JournalParameters parameter) throws ServiceException {
         try {
-            JournalHistoryService.getInstance().getComparisionTreeString(parameter);
-            return true;
+            if (isEnterpriseVersion()) {
+                JournalHistoryService.getInstance().getComparisionTreeString(parameter);
+                return true;
+            } else {
+                return true;
+            }
         } catch (UnsupportedUndoPhysicalDeleteException exception) {
             return false;
         } catch (Exception exception) {
