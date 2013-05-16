@@ -81,7 +81,7 @@ public class JDBCStorageInitializer implements StorageInitializer {
             default:
                 throw new NotImplementedException("Can not initialize storages based on dialect '" + dialect + "'");
         }
-        return jdbcStorageInitializer;
+        return new FullTextIndexCleaner(jdbcStorageInitializer);
     }
 
 }
