@@ -81,16 +81,18 @@ public class MultiThreadedTask implements Task {
         try {
             taskStartTime = System.currentTimeMillis();
             StorageResults records = storage.fetch(expression);
-            closure.begin();
-            for (DataRecord record : records) {
-                // Exit if cancelled.
-                if (isCancelled.get()) {
-                    break;
+            if (records.getCount() > 0) {
+                closure.begin();
+                for (DataRecord record : records) {
+                    // Exit if cancelled.
+                    if (isCancelled.get()) {
+                        break;
+                    }
+                    closure.execute(record, stats);
+                    count++;
                 }
-                closure.execute(record, stats);
-                count++;
+                closure.end(stats);
             }
-            closure.end(stats);
             isFinished = true;
         } finally {
             synchronized (executionLock) {
