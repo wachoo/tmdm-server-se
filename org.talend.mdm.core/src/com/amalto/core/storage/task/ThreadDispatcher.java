@@ -105,6 +105,10 @@ class ThreadDispatcher implements Closure {
                 throw new RuntimeException("Child executions did not complete normally.", e);
             }
         }
+        if (!queue.isEmpty()) {
+            LOGGER.warn("After end of queue processors work, " + queue.size() + " remained in processing queue.");
+            queue.clear();
+        }
     }
 
     private synchronized void prepareEndFlag(boolean cleanQueue) {
