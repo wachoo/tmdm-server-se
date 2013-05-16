@@ -26,6 +26,7 @@ import com.amalto.xmlserver.interfaces.XmlServerException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Element;
@@ -38,6 +39,8 @@ import java.util.*;
 import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 public class StorageWrapper implements IXmlServerSLWrapper {
+
+    private static final Logger LOGGER = Logger.getLogger(StorageWrapper.class);
 
     private final DataRecordReader<String> xmlStringReader = new XmlStringDataRecordReader();
 
@@ -753,9 +756,26 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         MetadataRepository repository = storage.getMetadataRepository();
         Iterator<ComplexTypeMetadata> types = repository.getUserComplexTypes().iterator();
         if (types.hasNext()) {
-            UserQueryBuilder qb = from(types.next());
+            ComplexTypeMetadata mainType = types.next();
+            while (mainType.getKeyFields().size() > 1) {
+                ComplexTypeMetadata next = types.next();
+                if (next.getKeyFields().size() > 1) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Ignoring type '" + next.getName() + "' (compound key).");
+                    }
+                }
+                mainType = next;
+            }
+            UserQueryBuilder qb = from(mainType);
             while (types.hasNext()) {
-                qb.and(types.next());
+                ComplexTypeMetadata additionalType = types.next();
+                if (additionalType.getKeyFields().size() == 1) {
+                    qb.and(additionalType);
+                } else {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Ignoring type '" + additionalType.getName() + "' (compound key).");
+                    }
+                }
             }
             qb.where(fullText(keyword));
             qb.start(start);
