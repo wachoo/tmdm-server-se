@@ -666,7 +666,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
             Object sqlType = field.getData("SQL_TYPE"); //$NON-NLS-1$
             if (sqlType != null) {
                 elementTypeName = String.valueOf(sqlType);
-            } else if("MULTILINGUAL".equalsIgnoreCase(fieldType.getName())) { //$NON-NLS-1$
+            } else if("MULTI_LINGUAL".equalsIgnoreCase(fieldType.getName())) { //$NON-NLS-1$
                 elementTypeName = TEXT_TYPE_NAME;
             } else if ("string".equals(fieldType.getName())) { //$NON-NLS-1$
                 Object maxLength = field.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
