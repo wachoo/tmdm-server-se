@@ -211,6 +211,19 @@ public class StorageAdminImpl implements StorageAdmin {
             LOGGER.warn("Can not initialize " + storageType + " storage for '" + storageName + "': data source '" + dataSourceName + "' configuration is incomplete.");
             return null;
         }
+        // Create storage
+        if (XSystemObjects.DC_UPDATE_PREPORT.getName().equals(storageName) && dataSource instanceof RDBMSDataSource) {
+            RDBMSDataSource previousDataSource = (RDBMSDataSource) dataSource;
+            dataSource = new RDBMSDataSource(previousDataSource) {
+                @Override
+                public boolean supportFullText() {
+                    if (LOGGER.isDebugEnabled() && super.supportFullText()) {
+                        LOGGER.debug("Disabling full text for update report storage.");
+                    }
+                    return false;
+                }
+            };
+        }
         Storage dataModelStorage = instance.getLifecycle().createStorage(storageName, dataSourceName, storageType);
         dataModelStorage.init(dataSource);
         MetadataRepositoryAdmin metadataRepositoryAdmin = instance.get().getMetadataRepositoryAdmin();

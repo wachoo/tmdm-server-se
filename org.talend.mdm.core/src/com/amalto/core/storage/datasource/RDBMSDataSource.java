@@ -15,15 +15,15 @@ import java.util.Map;
 
 public class RDBMSDataSource implements DataSource {
 
-    private final Boolean caseSensitiveSearch;
-
     public static enum DataSourceDialect {
-        H2, ORACLE_10G, MYSQL, POSTGRES, SQL_SERVER
+        H2, ORACLE_10G, MYSQL, POSTGRES, SQL_SERVER;
     }
 
     public static enum SchemaGeneration {
-        CREATE, VALIDATE, UPDATE
+        CREATE, VALIDATE, UPDATE;
     }
+
+    private final Boolean caseSensitiveSearch;
 
     private final String name;
 
@@ -56,6 +56,26 @@ public class RDBMSDataSource implements DataSource {
     private int connectionPoolMinSize;
 
     private int connectionPoolMaxSize;
+
+    public RDBMSDataSource(RDBMSDataSource dataSource) {
+        caseSensitiveSearch = dataSource.caseSensitiveSearch;
+        name = dataSource.name;
+        schemaGeneration = dataSource.schemaGeneration;
+        advancedProperties = dataSource.advancedProperties;
+        cacheDirectory = dataSource.cacheDirectory;
+        initConnectionURL = dataSource.initConnectionURL;
+        initUserName = dataSource.initUserName;
+        initPassword = dataSource.initPassword;
+        dialect = dataSource.dialect;
+        driverClassName = dataSource.driverClassName;
+        password = dataSource.password;
+        indexDirectory = dataSource.indexDirectory;
+        userName = dataSource.userName;
+        connectionURL = dataSource.connectionURL;
+        databaseName = dataSource.databaseName;
+        connectionPoolMinSize = dataSource.connectionPoolMinSize;
+        connectionPoolMaxSize = dataSource.connectionPoolMaxSize;
+    }
 
     public RDBMSDataSource(String name,
                            String dialectName,
