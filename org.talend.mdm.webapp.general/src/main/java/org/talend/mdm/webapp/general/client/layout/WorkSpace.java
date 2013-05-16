@@ -158,6 +158,10 @@ public class WorkSpace extends LayoutContainer {
             item.setText(text);
             // add content to tabItem and select the tabItem
             item.add(content);
+            // it need to refresh panel when activeItem = item
+            if (item == workTabPanel.getSelectedItem()) {
+                item.layout(true);
+            }
         }
 
         workTabPanel.setSelection(item);
