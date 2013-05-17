@@ -272,15 +272,7 @@ public abstract class ObjectPOJO implements Serializable {
             LOG.trace("load() " + objectPOJOPK.getUniqueId()); //$NON-NLS-1$
         }
         try {
-            // for the user have a role of administration , or role of write on instance or role of read on instance
             ILocalUser user = LocalUser.getLocalUser();
-            if (!user.userCanRead(objectClass, objectPOJOPK.getUniqueId())) {
-                String err =
-                        "Unauthorized read access by " +
-                                "user '" + user.getUsername() + "' on object " + ObjectPOJO.getObjectName(objectClass) + " [" + objectPOJOPK.getUniqueId() + "] ";
-                LOG.error(err);
-                throw new XtentisException(err);
-            }
             //get the universe
             UniversePOJO universe = user.getUniverse();
             if (universe == null) {
@@ -293,7 +285,19 @@ public abstract class ObjectPOJO implements Serializable {
             if (BAMLogger.log) {
                 BAMLogger.log("DATA MANAGER", user.getUsername(), "read", objectClass, objectPOJOPK, true); //$NON-NLS-1$ //$NON-NLS-2$
             }
-            return load(revisionID, objectClass, objectPOJOPK);
+            T loadedObject = load(revisionID, objectClass, objectPOJOPK);
+            if (loadedObject==null) {
+                throw new Exception("Object does not exist"); 
+            }
+            // for the user have a role of administration , or role of write on instance or role of read on instance
+            if (!user.userCanRead(objectClass, objectPOJOPK.getUniqueId())) {
+                String err =
+                        "Unauthorized read access by " +
+                                "user '" + user.getUsername() + "' on object " + ObjectPOJO.getObjectName(objectClass) + " [" + objectPOJOPK.getUniqueId() + "] ";
+                LOG.error(err);
+                throw new XtentisException(err);
+            }
+            return loadedObject;
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
