@@ -24,6 +24,7 @@ import org.talend.mdm.commmon.metadata.TypeMetadata;
 import org.talend.mdm.webapp.journal.server.model.ForeignKeyInfoTransformer;
 import org.talend.mdm.webapp.journal.shared.JournalParameters;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.DocumentHistory;
 import com.amalto.core.history.DocumentHistoryFactory;
@@ -34,6 +35,7 @@ import com.amalto.core.history.ModificationMarker;
 import com.amalto.core.history.UniqueIdTransformer;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.webapp.core.util.Util;
 
 
 /**
@@ -141,6 +143,8 @@ public class JournalHistoryService {
         }
         
         document.restore();
+        String xml = Util.createUpdateReport(parameter.getId(), parameter.getConceptName(), UpdateReportPOJO.OPERATION_TYPE_RESTORED, null);
+        Util.persistentUpdateReport(xml, true);
         return true;
     }
 }

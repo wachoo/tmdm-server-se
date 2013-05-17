@@ -46,4 +46,6 @@ public interface JournalServiceAsync {
     void isAdmin(AsyncCallback<Boolean> callback);
     
     void isJournalHistoryExist(JournalParameters parameter,AsyncCallback<Boolean> callback);
+    
+    void checkConflict(String itemPk, String conceptName, String id,AsyncCallback<Boolean> callback);
 }

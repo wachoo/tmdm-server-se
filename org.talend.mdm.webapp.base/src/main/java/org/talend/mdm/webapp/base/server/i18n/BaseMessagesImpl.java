@@ -133,4 +133,8 @@ public final class BaseMessagesImpl implements BaseMessages {
     public String exception_fk_malform(String fk) {
         return MESSAGES.getMessage("exception_fk_malform",fk);
     }
+
+    public String overwrite_confirm() {
+        return MESSAGES.getMessage("overwrite_confirm");
+    }
 }

@@ -49,4 +49,6 @@ public interface JournalService extends RemoteService {
     boolean isAdmin();
     
     boolean isJournalHistoryExist(JournalParameters parameter) throws ServiceException;
+    
+    boolean checkConflict(String itemPk, String conceptName, String id) throws ServiceException;
 }

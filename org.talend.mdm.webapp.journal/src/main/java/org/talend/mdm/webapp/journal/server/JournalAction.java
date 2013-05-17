@@ -39,6 +39,9 @@ import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
+import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSExistsItem;
+import com.amalto.webapp.util.webservices.WSItemPK;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
@@ -125,6 +128,17 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     public boolean checkDCAndDM(String dataContainer, String dataModel) {
         return Util.checkDCAndDM(dataContainer, dataModel);
     }
+    
+    public boolean checkConflict(String itemPk, String conceptName, String id) throws ServiceException {
+      try {
+          String ids[] = { id };
+          WSDataClusterPK wddcpk = new WSDataClusterPK(itemPk);
+          return Util.getPort().existsItem(new WSExistsItem(new WSItemPK(wddcpk, conceptName, ids))).is_true();
+      } catch (Exception e) {
+          LOG.error(e.getMessage(), e);
+          throw new ServiceException(e.getLocalizedMessage());
+      }
+    }
 
     @Override
     public void restoreRecord(JournalParameters parameter, String language) throws ServiceException {
@@ -184,6 +198,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
                 return true;
             }
         } catch (UnsupportedUndoPhysicalDeleteException exception) {
+            LOG.warn("Undo for physical delete is not supported."); //$NON-NLS-1$
             return false;
         } catch (Exception exception) {
             LOG.error(exception.getMessage(), exception);

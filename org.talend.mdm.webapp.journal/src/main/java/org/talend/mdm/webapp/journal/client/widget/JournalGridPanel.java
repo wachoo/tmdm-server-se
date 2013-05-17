@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
@@ -85,6 +86,8 @@ public class JournalGridPanel extends ContentPanel {
     private final static int PAGE_SIZE = 20;
     
     private PagingLoadConfig pagingLoadConfig;
+    
+    private final String BEFORE_ACTION = "before"; //$NON-NLS-1$
     
     public static JournalGridPanel getInstance() {
         if (instance == null) {
@@ -214,7 +217,7 @@ public class JournalGridPanel extends ContentPanel {
 
             public void handleEvent(GridEvent<JournalGridModel> be) {
                 final JournalGridModel gridModel = be.getModel();
-                service.isJournalHistoryExist(JournalSearchUtil.buildParameter(gridModel, "current", true), new SessionAwareAsyncCallback<Boolean>() { //$NON-NLS-1$
+                service.isJournalHistoryExist(JournalSearchUtil.buildParameter(gridModel,BEFORE_ACTION, true), new SessionAwareAsyncCallback<Boolean>() {
 
                     @Override
                     public void onSuccess(Boolean result) {
@@ -377,10 +380,11 @@ public class JournalGridPanel extends ContentPanel {
     }
     
     private void addContextMenu() {
-        Menu contextMenu = new Menu();
+        final Menu contextMenu = new Menu();
         final MenuItem viewChagesMenuItem = new MenuItem();
         viewChagesMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.view()));
         viewChagesMenuItem.setText(MessagesFactory.getMessages().menu_item_viewchages());
+        viewChagesMenuItem.setEnabled(true);
         viewChagesMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 
             @Override
@@ -388,52 +392,60 @@ public class JournalGridPanel extends ContentPanel {
                 JournalGridPanel.this.openTabPanel(grid.getSelectionModel().getSelectedItem());                
             }            
         });
-        final MenuItem restoreMenuItem = new MenuItem();
-        restoreMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));
-        restoreMenuItem.setText(MessagesFactory.getMessages().restore_button());
-        restoreMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
-
-            @Override
-            public void componentSelected(MenuEvent ce) {
-                JournalGridPanel.this.restore(JournalSearchUtil.buildParameter(grid.getSelectionModel().getSelectedItem(), "current", true),false);  //$NON-NLS-1$
-            }            
-        });
         contextMenu.add(viewChagesMenuItem);
-        contextMenu.add(restoreMenuItem);
-        grid.setContextMenu(contextMenu);
         
-        grid.addListener(Events.ContextMenu, new Listener<GridEvent<JournalGridModel>>(){
+        service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
 
             @Override
-            public void handleEvent(GridEvent<JournalGridModel> be) {
-                final JournalGridModel gridModel = be.getModel();                
-                
-                service.isAdmin(new SessionAwareAsyncCallback<Boolean>() {
+            public void onSuccess(Boolean result) {
+                if (result) {
+                    final MenuItem restoreMenuItem = new MenuItem();
+                    restoreMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));
+                    restoreMenuItem.setText(MessagesFactory.getMessages().restore_button());
+                    restoreMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 
-                    @Override
-                    public void onSuccess(Boolean isAdmin) {
-                        if (isAdmin && !UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(gridModel.getOperationType()) && !UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE.equals(gridModel.getOperationType())) {
-                            restoreMenuItem.setEnabled(true);
-                        } else {
-                            restoreMenuItem.setEnabled(false);
+                        @Override
+                        public void componentSelected(MenuEvent ce) {
+                            JournalGridPanel.this.restore(JournalSearchUtil.buildParameter(grid.getSelectionModel().getSelectedItem(), BEFORE_ACTION, true),false);
                         }
-                        
-                        service.isJournalHistoryExist(JournalSearchUtil.buildParameter(gridModel, "current", true), new SessionAwareAsyncCallback<Boolean>() { //$NON-NLS-1$
+                    });
+                    contextMenu.add(restoreMenuItem);
+                    grid.addListener(Events.ContextMenu, new Listener<GridEvent<JournalGridModel>>(){
 
-                            @Override
-                            public void onSuccess(Boolean result) {
-                                if (result && !UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE.equals(gridModel.getOperationType())) {
-                                    viewChagesMenuItem.setEnabled(true);
-                                } else {
-                                    viewChagesMenuItem.setEnabled(false);
-                                    restoreMenuItem.setEnabled(false);
-                                }
-                            }
-                        });
-                     }
-                });
+                        @Override
+                        public void handleEvent(GridEvent<JournalGridModel> be) {
+                            final JournalGridModel gridModel = be.getModel();  
+                                                                          
+                            service.isAdmin(new SessionAwareAsyncCallback<Boolean>() {
+        
+                                @Override
+                                public void onSuccess(Boolean isAdmin) {
+                                    if (isAdmin && (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(gridModel.getOperationType()) || UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(gridModel.getOperationType()))) {
+                                        restoreMenuItem.setEnabled(true);
+                                    } else {
+                                        restoreMenuItem.setEnabled(false);
+                                    }
+                                    
+                                    service.isJournalHistoryExist(JournalSearchUtil.buildParameter(gridModel, BEFORE_ACTION, true), new SessionAwareAsyncCallback<Boolean>() {
+        
+                                        @Override
+                                        public void onSuccess(Boolean result) {
+                                            if (result) {
+                                                viewChagesMenuItem.setEnabled(true);
+                                            } else {
+                                                viewChagesMenuItem.setEnabled(false);
+                                                restoreMenuItem.setEnabled(false);
+                                            }
+                                        }
+                                    });
+                                 }
+                            });
+                         }
+                    });
+                } 
             }            
         });
+        grid.setContextMenu(contextMenu);
     }
 
     public String getLoaderConfigStr() {
@@ -460,36 +472,59 @@ public class JournalGridPanel extends ContentPanel {
             @Override
             public void handleEvent(MessageBoxEvent be) {
                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                    service.restoreRecord(parameter, UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Void>() {
+                    service.checkConflict(parameter.getDataClusterName(), parameter.getConceptName(), parameter.getId()[0], new SessionAwareAsyncCallback<Boolean>() {
 
                         @Override
-                        public void onSuccess(Void result) {
-                            MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().restore_success(), new Listener<MessageBoxEvent>(){
+                        public void onSuccess(Boolean result) {
+                            if (result) {
+                                MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(),
+                                        BaseMessagesFactory.getMessages().overwrite_confirm(),
+                                        new Listener<MessageBoxEvent>() {
 
-                                @Override
-                                public void handleEvent(MessageBoxEvent be) {
-                                    if (be.getButtonClicked().getItemId().equals(Dialog.OK) && isCloseTabPanel) {
-                                        closeTabPanel();
-                                    }
-                                }
-                                
-                            });
-                        }
-                        
-                        @Override
-                        protected void doOnFailure(Throwable caught) {
-                            MessageBox.alert(MessagesFactory.getMessages().error_level(), caught.getMessage(), new Listener<MessageBoxEvent>(){
-
-                                @Override
-                                public void handleEvent(MessageBoxEvent be) {
-                                    if (be.getButtonClicked().getItemId().equals(Dialog.OK) && isCloseTabPanel) {
-                                        closeTabPanel();
-                                    }
-                                }
-                            });
-                        }
+                                            public void handleEvent(MessageBoxEvent be) {
+                                                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                                    recoverDroppedItem(parameter, isCloseTabPanel);
+                                                }
+                                            }
+                                        });
+                            } else {
+                                recoverDroppedItem(parameter, isCloseTabPanel);
+                            }                         
+                        }                        
                     });
                 }
+            }
+        });
+    }
+    
+    private void recoverDroppedItem(final JournalParameters parameter,final boolean isCloseTabPanel) {
+        service.restoreRecord(parameter, UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Void>() {
+
+            @Override
+            public void onSuccess(Void result) {
+                MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().restore_success(), new Listener<MessageBoxEvent>(){
+
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
+                        if (be.getButtonClicked().getItemId().equals(Dialog.OK) && isCloseTabPanel) {
+                            closeTabPanel();
+                        }
+                    }
+                    
+                });
+            }
+            
+            @Override
+            protected void doOnFailure(Throwable caught) {
+                MessageBox.alert(MessagesFactory.getMessages().error_level(), caught.getMessage(), new Listener<MessageBoxEvent>(){
+
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
+                        if (be.getButtonClicked().getItemId().equals(Dialog.OK) && isCloseTabPanel) {
+                            closeTabPanel();
+                        }
+                    }
+                });
             }
         });
     }
