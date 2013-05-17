@@ -595,10 +595,7 @@ public abstract class ObjectPOJO implements Serializable {
             //add system default object ids
             Set<String> allId = new HashSet<String>();
             allId.addAll(Arrays.asList(ids));
-            // TMDM-5566: removed addition of invalid PKs by bypassing the following if using sqldb
-            if (!MDMConfiguration.isSqlDataBase()) {
-                allId.addAll(getSystemObjectIDs(cluster));
-            }
+
             ids = allId.toArray(new String[allId.size()]);
             //build PKs collection
             ArrayList<ObjectPOJOPK> list = new ArrayList<ObjectPOJOPK>();
