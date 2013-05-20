@@ -509,7 +509,7 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
         RoutingEngineV2POJO.getInstance().setStatus(RoutingEngineV2POJO.RUNNING);
 		//make sure that the thread is started
 		Collection<Timer> timers = context.getTimerService().getTimers();
-		if ((timers==null) || (timers.size()<1))
+		if ((timers==null) || (timers.isEmpty()))
 			createTimer(new RoutingEngineV2POJOPK(RoutingEngineV2POJO.getInstance().getPK()), RoutingEngineV2POJO.getInstance().getMinRunPeriodMillis());	
     }
     
@@ -537,10 +537,14 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
      */
     public void suspend(boolean suspend) throws XtentisException{       
         org.apache.log4j.Logger.getLogger(this.getClass()).trace("suspend() "+suspend);
-        if (suspend)
+        if (suspend) {
         	RoutingEngineV2POJO.getInstance().setStatus(RoutingEngineV2POJO.SUSPENDED);
-        else
+        } else {
         	RoutingEngineV2POJO.getInstance().setStatus(RoutingEngineV2POJO.RUNNING);
+            Collection<Timer> timers = context.getTimerService().getTimers();
+            if ((timers==null) || (timers.isEmpty()))
+                createTimer(new RoutingEngineV2POJOPK(RoutingEngineV2POJO.getInstance().getPK()), RoutingEngineV2POJO.getInstance().getMinRunPeriodMillis());
+        }
     }
     
     /**
