@@ -198,6 +198,7 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
 
     @Override
     public Expression visit(Alias alias) {
+        currentField = alias.getTypedExpression();
         return new Alias((TypedExpression) alias.getTypedExpression().accept(this), alias.getAliasName());
     }
 
