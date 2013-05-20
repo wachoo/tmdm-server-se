@@ -12,8 +12,11 @@ package com.amalto.core.query;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.UserQueryBuilder;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
@@ -28,6 +31,9 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.hibernate.HibernateStorage;
+
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.isNull;
 
 @SuppressWarnings("nls")
 public class StorageTestCase extends TestCase {
@@ -112,11 +118,14 @@ public class StorageTestCase extends TestCase {
         employee = repository.getComplexType("Employee");
         manager = repository.getComplexType("Manager");
         storage.init(getDatasource(DATABASE + "-Default"));
-        List<FieldMetadata> indexedFields = Arrays.asList(person.getField("firstname"),
-                person.getField("score"),
-                address.getField("score"),
-                product.getField("Stores/Store"));
-        storage.prepare(repository, new HashSet<FieldMetadata>(indexedFields), true, true);
+        // Indexed expressions
+        List<Expression> indexedExpressions = new LinkedList<Expression>();
+        indexedExpressions.add(UserQueryBuilder.from(person).where(isNull(person.getField("firstname"))).getExpression());
+        indexedExpressions.add(UserQueryBuilder.from(person).where(isNull(person.getField("score"))).getExpression());
+        indexedExpressions.add(UserQueryBuilder.from(person).where(isNull(address.getField("score"))).getExpression());
+        indexedExpressions.add(UserQueryBuilder.from(person).where(isNull(product.getField("Stores/Store"))).getExpression());
+        indexedExpressions.add(UserQueryBuilder.from(country).where(isNull(country.getField("notes/comment"))).getExpression());
+        storage.prepare(repository, new HashSet<Expression>(indexedExpressions), true, true);
         LOG.info("Storage prepared.");
     }
 

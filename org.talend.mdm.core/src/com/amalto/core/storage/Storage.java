@@ -13,7 +13,6 @@ package com.amalto.core.storage;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.record.DataRecord;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import java.util.Set;
@@ -87,19 +86,20 @@ public interface Storage {
     /**
      * Prepare storage to handle types located in {@link MetadataRepository}.
      * 
-     * @param repository A initialized {@link MetadataRepository} instance.
-     * @param indexedFields A {@link Set} of {@link FieldMetadata} that need to be indexed. It is up to the
+     *
+     * @param repository A initialized {@link org.talend.mdm.commmon.metadata.MetadataRepository} instance.
+     * @param optimizedExpressions A {@link java.util.Set} of {@link Expression} that need to be optimized. It is up to the
      * implementation to decide whether this information should be used or not. Callers of this method expects
-     * implementation to take all necessary actions to allow quick search on the fields in <code>indexedFields</code>.
+     * implementation to take all necessary actions to allow quick execution on the queries in <code>optimizedExpressions</code>.
      * @param force <code>true</code> will force the storage to prepare event if
-     * {@link #prepare(MetadataRepository, boolean)} has already been called.
+     * {@link #prepare(org.talend.mdm.commmon.metadata.MetadataRepository, boolean)} has already been called.
      * <code>false</code> will be a "no op" operation if storage is already prepared.
      * @param dropExistingData if <code>true</code>, storage preparation will drop all data that may previously exist.
      * Use this parameter with caution since recovery is not supported.
      * @see MetadataRepository#load(java.io.InputStream)
      * @see #prepare(MetadataRepository, boolean)
      */
-    void prepare(MetadataRepository repository, Set<FieldMetadata> indexedFields, boolean force, boolean dropExistingData);
+    void prepare(MetadataRepository repository, Set<Expression> optimizedExpressions, boolean force, boolean dropExistingData);
 
     /**
      * Prepare storage to handle types located in {@link MetadataRepository}.

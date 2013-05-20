@@ -507,6 +507,14 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 notNull.setValue(String.valueOf(isColumnMandatory));
                 column.getAttributes().setNamedItem(notNull);
             }
+            if (resolver.isIndexed(field)) { // Create indexes for fields that should be indexed.
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Creating index for field '" + field.getName() + "'.");
+                }
+                Attr indexName = document.createAttribute("index"); //$NON-NLS-1$
+                indexName.setValue(formatSQLName(field.getContainingType().getName() + '_' + fieldName + "_index", resolver.getNameMaxLength())); //$NON-NLS-1$
+                column.getAttributes().setNamedItem(indexName);
+            }
             parentElement.appendChild(column);
             return column;
         }

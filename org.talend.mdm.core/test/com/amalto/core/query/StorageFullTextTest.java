@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.amalto.core.query.user.Expression;
 import org.apache.log4j.Logger;
 
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -474,7 +475,7 @@ public class StorageFullTextTest extends StorageTestCase {
         Storage storage = new HibernateStorage("noFullText");
         try {
             storage.init(getDatasource("RDBMS-1-NO-FT"));
-            storage.prepare(repository, Collections.<FieldMetadata> emptySet(), false, false);
+            storage.prepare(repository, Collections.<Expression> emptySet(), false, false);
             UserQueryBuilder qb = from(product).where(fullText("Test"));
 
             try {

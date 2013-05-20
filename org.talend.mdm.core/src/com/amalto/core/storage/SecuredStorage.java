@@ -57,8 +57,8 @@ public class SecuredStorage implements Storage {
         delegate.init(dataSource);
     }
 
-    public void prepare(MetadataRepository repository, Set<FieldMetadata> indexedFields, boolean force, boolean dropExistingData) {
-        delegate.prepare(repository, indexedFields, force, dropExistingData);
+    public void prepare(MetadataRepository repository, Set<Expression> optimizedExpressions, boolean force, boolean dropExistingData) {
+        delegate.prepare(repository, optimizedExpressions, force, dropExistingData);
     }
 
     public void prepare(MetadataRepository repository, boolean dropExistingData) {

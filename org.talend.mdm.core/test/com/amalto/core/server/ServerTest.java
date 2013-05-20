@@ -15,10 +15,10 @@ package com.amalto.core.server;
 
 import java.util.Collections;
 
+import com.amalto.core.query.user.Expression;
 import junit.framework.TestCase;
 
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.Storage;
@@ -77,7 +77,7 @@ public class ServerTest extends TestCase {
         Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1", null);
         assertNotNull(storage);
 
-        storage.prepare(metadataRepository, Collections.<FieldMetadata> emptySet(), true, true);
+        storage.prepare(metadataRepository, Collections.<Expression> emptySet(), true, true);
     }
 
     // Temporary exclusion see TMDM-4839

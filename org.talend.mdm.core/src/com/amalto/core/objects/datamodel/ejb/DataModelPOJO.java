@@ -5,8 +5,8 @@ import java.util.Set;
 
 import com.amalto.commons.core.datamodel.synchronization.DataModelChangeNotifier;
 import com.amalto.core.metadata.LongString;
+import com.amalto.core.query.user.Expression;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -116,8 +116,8 @@ public class DataModelPOJO extends ObjectPOJO{
             if (storage != null) {
                 // Storage already exists so update it.
                 MetadataRepository repository = metadataRepositoryAdmin.get(updatedDataModelName);
-                Set<FieldMetadata> indexedFields = metadataRepositoryAdmin.getIndexedFields(updatedDataModelName);
-                storage.prepare(repository, indexedFields, true, false);
+                Set<Expression> indexedExpressions = metadataRepositoryAdmin.getIndexedExpressions(updatedDataModelName);
+                storage.prepare(repository, indexedExpressions, true, false);
             } else {
                 LOGGER.warn("No SQL storage defined for data model '" + updatedDataModelName + "'. No SQL storage to update."); //$NON-NLS-1$//$NON-NLS-2$
             }
@@ -128,8 +128,8 @@ public class DataModelPOJO extends ObjectPOJO{
                     // Storage already exists so update it.
                     MetadataRepository stagingRepository = metadataRepositoryAdmin.get(updatedDataModelName
                             + StorageAdmin.STAGING_SUFFIX);
-                    Set<FieldMetadata> indexedFields = metadataRepositoryAdmin.getIndexedFields(updatedDataModelName);
-                    stagingStorage.prepare(stagingRepository, indexedFields, true, false);
+                    Set<Expression> indexedExpressions = metadataRepositoryAdmin.getIndexedExpressions(updatedDataModelName);
+                    stagingStorage.prepare(stagingRepository, indexedExpressions, true, false);
                 } else {
                     LOGGER.warn("No SQL staging storage defined for data model '" + updatedDataModelName //$NON-NLS-1$
                             + "'. No SQL staging storage to update."); //$NON-NLS-1$

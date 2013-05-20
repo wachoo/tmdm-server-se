@@ -12,7 +12,6 @@
 package com.amalto.core.storage;
 
 import org.talend.mdm.commmon.metadata.ConsoleDumpMetadataVisitor;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryDumpConsole;
@@ -54,9 +53,9 @@ public class StorageLogger implements Storage {
         throw new RuntimeException(e);
     }
 
-    public void prepare(MetadataRepository repository, Set<FieldMetadata> indexedFields, boolean force, boolean dropExistingData) {
+    public void prepare(MetadataRepository repository, Set<Expression> optimizedExpressions, boolean force, boolean dropExistingData) {
         try {
-            delegate.prepare(repository, indexedFields, force, dropExistingData);
+            delegate.prepare(repository, optimizedExpressions, force, dropExistingData);
         } catch (Exception e) {
             handlePrepareError(repository, force, e);
         }

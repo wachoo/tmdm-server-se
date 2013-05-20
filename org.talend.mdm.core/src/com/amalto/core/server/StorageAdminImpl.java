@@ -16,8 +16,8 @@ package com.amalto.core.server;
 import com.amalto.core.ejb.DroppedItemPOJO;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.metadata.ClassRepository;
+import com.amalto.core.query.user.Expression;
 import org.apache.commons.io.IOUtils;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.storage.Storage;
@@ -177,7 +177,7 @@ public class StorageAdminImpl implements StorageAdmin {
         ServerContext instance = ServerContext.INSTANCE;
         DataSource dataSource = instance.get().getDataSource(dataSourceName, SYSTEM_STORAGE, StorageType.SYSTEM);
         storage.init(dataSource);
-        storage.prepare(repository, Collections.<FieldMetadata>emptySet(), false, false);
+        storage.prepare(repository, Collections.<Expression>emptySet(), false, false);
         registerStorage(SYSTEM_STORAGE, null, storage);
         return storage;
     }
@@ -232,9 +232,9 @@ public class StorageAdminImpl implements StorageAdmin {
             throw new UnsupportedOperationException("Data model '" + dataModelName + "' must exist before container '" + storageName + "' can be created.");
         }
         MetadataRepository metadataRepository = metadataRepositoryAdmin.get(dataModelName);
-        Set<FieldMetadata> indexedFields = metadataRepositoryAdmin.getIndexedFields(dataModelName);
+        Set<Expression> indexedExpressions = metadataRepositoryAdmin.getIndexedExpressions(dataModelName);
         try {
-            dataModelStorage.prepare(metadataRepository, indexedFields, hasDataModel, autoClean);
+            dataModelStorage.prepare(metadataRepository, indexedExpressions, hasDataModel, autoClean);
         } catch (Exception e) {
             throw new RuntimeException("Could not create storage for container '" + storageName + "' (" + storageType + ") using data model '" + dataModelName + "'.", e);
         }
@@ -304,7 +304,7 @@ public class StorageAdminImpl implements StorageAdmin {
     }
 
     private static boolean isHead(String revision) {
-        return revision == null || "HEAD".equals(revision) || revision.isEmpty();  //$NON-NLS-1$
+        return revision == null || "HEAD".equals(revision) || revision.isEmpty(); //$NON-NLS-1$
     }
 
     public void close() {

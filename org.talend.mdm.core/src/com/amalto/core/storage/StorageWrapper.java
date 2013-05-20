@@ -822,7 +822,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             throw new UnsupportedOperationException();
         }
 
-        public void prepare(MetadataRepository repository, Set<FieldMetadata> indexedFields, boolean force, boolean dropExistingData) {
+        public void prepare(MetadataRepository repository, Set<Expression> optimizedExpressions, boolean force, boolean dropExistingData) {
             throw new UnsupportedOperationException();
         }
 

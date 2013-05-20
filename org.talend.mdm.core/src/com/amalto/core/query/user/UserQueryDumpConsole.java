@@ -11,6 +11,7 @@
 
 package com.amalto.core.query.user;
 
+import org.apache.log4j.Level;
 import org.talend.mdm.commmon.metadata.*;
 import org.apache.log4j.Logger;
 
@@ -24,11 +25,18 @@ public class UserQueryDumpConsole implements Visitor<Void> {
 
     private Logger logger;
 
+    private Level priority;
+
     public UserQueryDumpConsole() {
     }
 
     public UserQueryDumpConsole(Logger logger) {
+        this(logger, Level.DEBUG);
+    }
+
+    public UserQueryDumpConsole(Logger logger, Level priority) {
         this.logger = logger;
+        this.priority = priority;
     }
 
     public Void visit(Select select) {
@@ -624,7 +632,7 @@ public class UserQueryDumpConsole implements Visitor<Void> {
                 indentString.append('\t');
             }
             indentString.append(message);
-            logger.debug(indentString.toString());
+            logger.log(priority, indentString.toString());
         } else {
             for (int i = 0; i < indent; i++) {
                 System.out.print('\t');

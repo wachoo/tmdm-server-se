@@ -14,7 +14,7 @@
 package com.amalto.core.server;
 
 
-import org.talend.mdm.commmon.metadata.FieldMetadata;
+import com.amalto.core.query.user.Expression;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import java.util.Set;
@@ -62,9 +62,9 @@ public interface MetadataRepositoryAdmin {
 
     /**
      * @param dataModelName A non-null data model name.
-     * @return A {@link Set} of {@link FieldMetadata} that are likely to be used for search and sort.
+     * @return A {@link Set} of {@link Expression} that are likely to be used for search and sort.
      */
-    Set<FieldMetadata> getIndexedFields(String dataModelName);
+    Set<Expression> getIndexedExpressions(String dataModelName);
 
     /**
      * Releases all resources used by this {@link MetadataRepositoryAdmin}.

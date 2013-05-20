@@ -13,14 +13,16 @@
 
 package com.amalto.core.server;
 
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.xmlserver.interfaces.IWhereItem;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
-import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocal;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -33,7 +35,8 @@ import java.util.*;
 
 class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
 
-    public static final Logger LOGGER = Logger.getLogger(MetadataRepositoryAdminImpl.class);
+    private static final Logger LOGGER = Logger.getLogger(MetadataRepositoryAdminImpl.class);
+
     private final Map<String, MetadataRepository> metadataRepository = new HashMap<String, MetadataRepository>();
 
     private final DataModel dataModelControl;
@@ -63,22 +66,28 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
         }
     }
 
-    public Set<FieldMetadata> getIndexedFields(String dataModelName) {
+    public Set<Expression> getIndexedExpressions(String dataModelName) {
         synchronized (metadataRepository) {
             try {
                 MetadataRepository repository = get(dataModelName);
                 ViewCtrlLocal viewCtrlLocal = Util.getViewCtrlLocal();
-                Set<FieldMetadata> indexedFields = new HashSet<FieldMetadata>();
+                Set<Expression> indexedExpressions = new HashSet<Expression>();
                 for (Object viewAsObject : viewCtrlLocal.getAllViews(".*")) { //$NON-NLS-1$
+                    UserQueryBuilder qb = null;
                     ViewPOJO view = (ViewPOJO) viewAsObject;
                     ArrayList<String> searchableElements = view.getSearchableBusinessElements().getList();
                     for (String searchableElement : searchableElements) {
                         String typeName = StringUtils.substringBefore(searchableElement, "/"); //$NON-NLS-1$
                         ComplexTypeMetadata userType = repository.getComplexType(typeName);
                         if (userType != null) {
+                            if (qb == null) {
+                                qb = UserQueryBuilder.from(userType);
+                            } else {
+                                qb.and(userType);
+                            }
                             String fieldName = StringUtils.substringAfter(searchableElement, "/"); //$NON-NLS-1$
                             if (userType.hasField(fieldName)) {
-                                indexedFields.add(userType.getField(fieldName));
+                                qb.where(UserQueryBuilder.isEmpty(userType.getField(fieldName)));
                             }
                         } else {
                             if (LOGGER.isDebugEnabled()) {
@@ -87,8 +96,14 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
                             break; // View does not apply to model
                         }
                     }
+                    if (qb != null) {
+                        for (IWhereItem condition : view.getWhereConditions().getList()) {
+                            qb.where(UserQueryHelper.buildCondition(qb, condition, repository));
+                        }
+                        indexedExpressions.add(qb.getExpression());
+                    }
                 }
-                return indexedFields;
+                return indexedExpressions;
             } catch (Exception e) {
                 throw new RuntimeException("Could not get indexed fields.", e);
             }

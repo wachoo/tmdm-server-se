@@ -11,7 +11,7 @@
 
 package com.amalto.core.server;
 
-import org.talend.mdm.commmon.metadata.FieldMetadata;
+import com.amalto.core.query.user.Expression;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.apache.log4j.Logger;
 
@@ -59,7 +59,7 @@ class MockMetadataRepositoryAdmin implements MetadataRepositoryAdmin {
     public void close() {
     }
 
-    public Set<FieldMetadata> getIndexedFields(String dataModelName) {
+    public Set<Expression> getIndexedExpressions(String dataModelName) {
         return Collections.emptySet();
     }
 

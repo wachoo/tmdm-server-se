@@ -11,12 +11,10 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.query.optimization.*;
 import com.amalto.core.query.user.*;
+import org.apache.log4j.Level;
 import org.talend.mdm.commmon.metadata.*;
-import com.amalto.core.query.optimization.ContainsOptimizer;
-import com.amalto.core.query.optimization.Optimizer;
-import com.amalto.core.query.optimization.RangeOptimizer;
-import com.amalto.core.query.optimization.UpdateReportOptimizer;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
@@ -156,7 +154,7 @@ public class HibernateStorage implements Storage {
 
     @Override
     public synchronized void prepare(MetadataRepository repository,
-                                     Set<FieldMetadata> indexedFields,
+                                     Set<Expression> optimizedExpressions,
                                      boolean force,
                                      boolean dropExistingData) {
         if (!force && isPrepared) {
@@ -238,40 +236,50 @@ public class HibernateStorage implements Storage {
             switch (storageType) {
                 case MASTER:
                     // Adds indexes on user defined fields
-                    for (FieldMetadata indexedField : indexedFields) {
-                        // TMDM-5311: Don't index TEXT fields
-                        TypeMetadata indexedFieldType = indexedField.getType();
-                        if (!isIndexable(indexedFieldType)) {
-                            if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Ignore index on field '" + indexedField.getName() + "' because value is stored in TEXT.");
+                    for (Expression optimizedExpression : optimizedExpressions) {
+                        Collection<FieldMetadata> indexedFields = RecommendedIndexes.get(optimizedExpression);
+                        for (FieldMetadata indexedField : indexedFields) {
+                            // TMDM-5311: Don't index TEXT fields
+                            TypeMetadata indexedFieldType = indexedField.getType();
+                            if (!isIndexable(indexedFieldType)) {
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("Ignore index on field '" + indexedField.getName() + "' because value is stored in TEXT.");
+                                }
+                                continue;
                             }
-                            continue;
-                        }
-                        // Go up the containment tree in case containing type is anonymous.
-                        ComplexTypeMetadata containingType = indexedField.getContainingType();
-                        while (containingType instanceof ContainedComplexTypeMetadata) {
-                            containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
-                        }
-                        TypeMapping mapping = mappingRepository.getMappingFromUser(containingType);
-                        FieldMetadata database = mapping.getDatabase(indexedField);
-                        if (!isIndexable(database.getType())) {
-                            if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Ignore index on field '" + indexedField.getName() + "' because value (in database mapping) is stored in TEXT.");
+                            // Go up the containment tree in case containing type is anonymous.
+                            ComplexTypeMetadata containingType = indexedField.getContainingType();
+                            while (containingType instanceof ContainedComplexTypeMetadata) {
+                                containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
                             }
-                            continue; // Don't take into indexed fields long text fields
+                            TypeMapping mapping = mappingRepository.getMappingFromUser(containingType);
+                            FieldMetadata databaseField = mapping.getDatabase(indexedField);
+                            if (!isIndexable(databaseField.getType())) {
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("Ignore index on field '" + indexedField.getName() + "' because value (in database mapping) is stored in TEXT.");
+                                }
+                                continue; // Don't take into indexed fields long text fields
+                            }
+                            databaseIndexedFields.add(databaseField);
+                            if (!databaseField.getContainingType().isInstantiable()) {
+                                Collection<ComplexTypeMetadata> roots = RecommendedIndexes.getRoots(optimizedExpression);
+                                for (ComplexTypeMetadata root : roots) {
+                                    List<FieldMetadata> path = MetadataUtils.path(mappingRepository.getMappingFromUser(root).getDatabase(), databaseField);
+                                    if (path.size() > 1) {
+                                        databaseIndexedFields.addAll(path.subList(0, path.size() - 1));
+                                    } else {
+                                        LOGGER.warn("Failed to properly index field '" + databaseField + "'.");
+                                    }
+                                }
+                            }
                         }
-                        databaseIndexedFields.add(database);
                     }
                     break;
                 case STAGING:
                      // Adds "staging status" as indexed field
-                    if (!indexedFields.isEmpty()) {
+                    if (!optimizedExpressions.isEmpty()) {
                         if (LOGGER.isDebugEnabled()) {
-                            for (FieldMetadata indexedField : indexedFields) {
-                                LOGGER.debug("Field '" + indexedField.getName()
-                                        + "' from type '" + indexedField.getContainingType().getName() + "'"
-                                        + " is not indexed in staging area");
-                            }
+                            LOGGER.debug("Ignoring " + optimizedExpressions.size() + " to optimize (disabled on staging area).");
                         }
                     }
                     for (TypeMapping typeMapping : mappingRepository.getAllTypeMappings()) {
@@ -485,7 +493,7 @@ public class HibernateStorage implements Storage {
     @Override
     public synchronized void prepare(MetadataRepository repository, boolean dropExistingData) {
         if (!isPrepared) {
-            prepare(repository, Collections.<FieldMetadata>emptySet(), false, dropExistingData);
+            prepare(repository, Collections.<Expression>emptySet(), false, dropExistingData);
         }
     }
 
@@ -856,6 +864,7 @@ public class HibernateStorage implements Storage {
                 optimizer.optimize(select);
             }
         }
+        expression = userQuery.normalize();
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Query after optimizations:");
             userQuery.accept(new UserQueryDumpConsole(LOGGER));
@@ -878,8 +887,8 @@ public class HibernateStorage implements Storage {
                 internalExpression = expression.accept(transformer).normalize();
             }
             if (LOGGER.isTraceEnabled()) {
-                LOGGER.debug("Internal query after mappings:");
-                userQuery.accept(new UserQueryDumpConsole(LOGGER));
+                LOGGER.trace("Internal query after mappings:");
+                userQuery.accept(new UserQueryDumpConsole(LOGGER, Level.TRACE));
             }
         }
         // Evaluate query

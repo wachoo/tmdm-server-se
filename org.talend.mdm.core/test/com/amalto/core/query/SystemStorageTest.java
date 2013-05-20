@@ -15,6 +15,7 @@ import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.initdb.InitDBUtil;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.query.user.Expression;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import com.amalto.core.objects.menu.ejb.MenuEntryPOJO;
@@ -88,8 +89,7 @@ public class SystemStorageTest extends TestCase {
         });
         ClassRepository repository = buildRepository();
         storage.init(getDatasource("H2-Default"));
-        List<FieldMetadata> indexedFields = Collections.emptyList();
-        storage.prepare(repository, new HashSet<FieldMetadata>(indexedFields), true, true);
+        storage.prepare(repository, Collections.<Expression>emptySet(), true, true);
         LOG.info("Storage prepared.");
     }
 
@@ -219,8 +219,7 @@ public class SystemStorageTest extends TestCase {
         });
         ClassRepository repository = buildRepository();
         storage.init(getDatasource("H2-Default"));
-        List<FieldMetadata> indexedFields = Collections.emptyList();
-        storage.prepare(repository, new HashSet<FieldMetadata>(indexedFields), true, true);
+        storage.prepare(repository, Collections.<Expression>emptySet(), true, true);
         LOG.info("Storage prepared.");
 
         Collection<File> files = getConfigFiles();
