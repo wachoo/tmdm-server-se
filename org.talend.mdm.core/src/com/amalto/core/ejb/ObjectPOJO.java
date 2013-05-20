@@ -286,7 +286,9 @@ public abstract class ObjectPOJO implements Serializable {
                 BAMLogger.log("DATA MANAGER", user.getUsername(), "read", objectClass, objectPOJOPK, true); //$NON-NLS-1$ //$NON-NLS-2$
             }
             T loadedObject = load(revisionID, objectClass, objectPOJOPK);
-
+            if (loadedObject==null && ViewPOJO.class.equals(objectClass)) {
+                throw new Exception("Object does not exist"); 
+            }
             // for the user have a role of administration , or role of write on instance or role of read on instance
             if (!user.userCanRead(objectClass, objectPOJOPK.getUniqueId())) {
                 String err =
