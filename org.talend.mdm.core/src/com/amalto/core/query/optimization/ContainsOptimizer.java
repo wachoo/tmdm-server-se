@@ -96,13 +96,17 @@ public class ContainsOptimizer implements Optimizer {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Contains value before replace: " + containsValue);
                 }
-                String processedContains = containsValue.replace('*', '%');
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Contains value after replace: " + processedContains);
+                if (!StringUtils.containsOnly(containsValue, new char[] {'*'})) {
+                    String processedContains = containsValue.replace('*', '%');
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Contains value after replace: " + processedContains);
+                    }
+                    isContains = false;
+                    containsValue = StringUtils.EMPTY;
+                    return new Compare(condition.getLeft(), Predicate.CONTAINS, new StringConstant(processedContains));
+                } else {
+                    return UserQueryHelper.NO_OP_CONDITION;
                 }
-                isContains = false;
-                containsValue = StringUtils.EMPTY;
-                return new Compare(condition.getLeft(), Predicate.CONTAINS, new StringConstant(processedContains));
             }
             return condition;
         }
