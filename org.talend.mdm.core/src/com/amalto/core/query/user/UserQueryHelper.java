@@ -105,7 +105,7 @@ public class UserQueryHelper {
                 }
                 String fieldTypeName = field.getTypeName();
                 boolean isFk = field instanceof Field && ((Field) field).getFieldMetadata() instanceof ReferenceFieldMetadata;
-                if (!isFk && !MetadataUtils.isValueAssignable(value, fieldTypeName)) {
+                if (!isFk && !MetadataUtils.isValueAssignable(value, fieldTypeName) && !WhereCondition.EMPTY_NULL.equals(operator)) {
                     LOGGER.warn("Skip '" + leftFieldName + "' because it can't accept value '" + value + "'");
                     return NO_OP_CONDITION;
                 }
