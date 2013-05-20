@@ -968,6 +968,10 @@ public class ItemsToolBar extends ToolBar {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
+                if (bookmarkfield.getValue() == null) {
+                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages().bookmark_nameNotBlank(), null);
+                    return; 
+                }
                 service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue(), //$NON-NLS-1$
                         new SessionAwareAsyncCallback<Boolean>() {
 

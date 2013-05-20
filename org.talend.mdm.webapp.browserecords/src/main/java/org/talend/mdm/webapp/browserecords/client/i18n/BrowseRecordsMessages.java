@@ -190,6 +190,8 @@ public interface BrowseRecordsMessages extends Messages {
     String bookmark_DelMsg();
 
     String bookmark_existMsg();
+    
+    String bookmark_nameNotBlank();
 
     String bookmark_saveFailed();
 
