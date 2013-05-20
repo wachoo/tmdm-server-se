@@ -518,6 +518,10 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
             RoutingEngineV2POJO.getInstance().setStatus(RoutingEngineV2POJO.SUSPENDED);
         } else {
             RoutingEngineV2POJO.getInstance().setStatus(RoutingEngineV2POJO.RUNNING);
+            Collection<Timer> timers = context.getTimerService().getTimers();
+            if ((timers == null) || timers.isEmpty()) {
+                createTimer(new RoutingEngineV2POJOPK(RoutingEngineV2POJO.getInstance().getPK()), RoutingEngineV2POJO.getInstance().getMinRunPeriodMillis());
+            }
         }
     }
 
