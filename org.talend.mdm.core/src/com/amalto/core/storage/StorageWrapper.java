@@ -721,7 +721,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         Iterator<ComplexTypeMetadata> types = repository.getUserComplexTypes().iterator();
         if (types.hasNext()) {
             ComplexTypeMetadata mainType = types.next();
-            while (mainType.getKeyFields().size() > 1) {
+            while (types.hasNext() && mainType.getKeyFields().size() > 1) {
                 ComplexTypeMetadata next = types.next();
                 if (next.getKeyFields().size() > 1) {
                     if (LOGGER.isDebugEnabled()) {
