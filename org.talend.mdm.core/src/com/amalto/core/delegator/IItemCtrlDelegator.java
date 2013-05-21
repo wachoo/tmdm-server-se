@@ -228,7 +228,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 // Order by
                 if (orderBy != null) {
                     TypedExpression field = UserQueryHelper.getField(repository,
-                            type.getName(),
+                            StringUtils.substringBefore(orderBy, "/"), //$NON-NLS-1$
                             StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
                     OrderBy.Direction queryDirection;
                     if ("ascending".equals(direction) //$NON-NLS-1$
