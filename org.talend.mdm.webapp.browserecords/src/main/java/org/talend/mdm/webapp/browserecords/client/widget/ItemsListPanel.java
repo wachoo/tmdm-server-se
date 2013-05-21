@@ -76,7 +76,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
@@ -96,6 +95,7 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Element;
@@ -328,9 +328,10 @@ public class ItemsListPanel extends ContentPanel {
         gridContainer.setBodyBorder(false);
         gridContainer.setHeaderVisible(false);
         int usePageSize = PAGE_SIZE;
-        if (StateManager.get().get("browseRecord_grid") != null) { //$NON-NLS-1$
-            usePageSize = Integer.valueOf(((Map<?, ?>) StateManager.get().get("browseRecord_grid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
+        if (Cookies.getCookie(PagingToolBarEx.BROWSERECORD_PAGESIZE) != null) {
+            usePageSize = Integer.parseInt(Cookies.getCookie(PagingToolBarEx.BROWSERECORD_PAGESIZE));
         }
+        
         pagingBar = new PagingToolBarEx(usePageSize) {
 
             @Override

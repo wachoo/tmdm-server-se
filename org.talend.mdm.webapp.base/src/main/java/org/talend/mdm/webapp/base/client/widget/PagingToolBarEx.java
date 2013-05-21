@@ -40,6 +40,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Widget;
@@ -53,6 +54,8 @@ public class PagingToolBarEx extends PagingToolBar {
     boolean isFireKeyEnter;
 
     boolean isBrowseRecordsGridCall;
+    
+    public static String BROWSERECORD_PAGESIZE = "browseRecord_pagesize"; //$NON-NLS-1$
 
     public PagingToolBarEx(int pageSize) {
         super(pageSize);
@@ -78,6 +81,9 @@ public class PagingToolBarEx extends PagingToolBar {
                     return;
                 }
                 isFireKeyEnter = false;
+                if (isBrowseRecordsGridCall) {
+                    Cookies.setCookie(BROWSERECORD_PAGESIZE, String.valueOf(sizeField.getValue().intValue()));
+                }
                 refreshData();
             }
         });
