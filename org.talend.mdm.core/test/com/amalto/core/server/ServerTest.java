@@ -80,22 +80,21 @@ public class ServerTest extends TestCase {
         storage.prepare(metadataRepository, Collections.<FieldMetadata> emptySet(), true, true);
     }
 
-    // Temporary exclusion see TMDM-4839
-    // public void testStorageReindex() throws Exception {
-    // Server server = ServerContext.INSTANCE.get();
-    // assertNotNull(server);
-    //
-    // String metadataRepositoryId = "../query/metadata.xsd";
-    // MetadataRepository metadataRepository = server.getMetadataRepositoryAdmin().get(metadataRepositoryId);
-    // assertNotNull(metadataRepository);
-    //
-    // StorageAdmin storageAdmin = server.getStorageAdmin();
-    // assertNotNull(storageAdmin);
-    // Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1", null);
-    // assertNotNull(storage);
-    //
-    // storage.reindex();
-    // }
+    public void testStorageReindex() throws Exception {
+        Server server = ServerContext.INSTANCE.get();
+        assertNotNull(server);
+
+        String metadataRepositoryId = "../query/metadata.xsd";
+        MetadataRepository metadataRepository = server.getMetadataRepositoryAdmin().get(metadataRepositoryId);
+        assertNotNull(metadataRepository);
+
+        StorageAdmin storageAdmin = server.getStorageAdmin();
+        assertNotNull(storageAdmin);
+        Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-Default", null);
+        assertNotNull(storage);
+
+        storage.reindex();
+    }
 
     public void testCreateWithSlash() throws Exception {
         Server server = ServerContext.INSTANCE.get();
