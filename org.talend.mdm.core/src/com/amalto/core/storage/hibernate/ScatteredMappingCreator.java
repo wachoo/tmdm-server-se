@@ -30,6 +30,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private final boolean preferClobUse;
 
+    private final boolean enforceTechnicalFK;
+
     private final Stack<ComplexTypeMetadata> currentType = new Stack<ComplexTypeMetadata>();
 
     private final Stack<TypeMapping> currentMapping = new Stack<TypeMapping>();
@@ -40,10 +42,12 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     public ScatteredMappingCreator(MetadataRepository repository,
                                    MappingRepository mappings,
-                                   boolean shouldCompressLongStrings) {
+                                   boolean shouldCompressLongStrings,
+                                   boolean enforceTechnicalFK) {
         internalRepository = repository;
         this.mappings = mappings;
         this.preferClobUse = shouldCompressLongStrings;
+        this.enforceTechnicalFK = enforceTechnicalFK;
     }
 
     private TypeMapping handleField(FieldMetadata field) {
@@ -206,7 +210,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 typeRef,
                 new SoftIdFieldRef(internalRepository, containedTypeName),
                 null,
-                false,  // No need to enforce FK in references to these technical objects.
+                enforceTechnicalFK,
                 false,
                 new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                 containedField.getWriteUsers(),

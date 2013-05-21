@@ -19,8 +19,8 @@ import java.util.Collections;
 
 class UserTypeMappingRepository extends InternalRepository {
 
-    public UserTypeMappingRepository() {
-        super(TypeMappingStrategy.AUTO);
+    public UserTypeMappingRepository(TypeMappingStrategy mappingStrategy) {
+        super(mappingStrategy);
     }
 
     public MetadataRepository visit(ComplexTypeMetadata complexType) {

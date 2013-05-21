@@ -228,6 +228,14 @@ public class DataSourceFactory {
                 // Default value is "update".
                 schemaGeneration = "update"; //$NON-NLS-1$
             }
+            String generateTechnicalFKAsString = (String) evaluate(dataSource, "rdbms-configuration/schema-technical-fk", XPathConstants.STRING); //$NON-NLS-1$
+            Boolean generateTechnicalFK;
+            if (generateTechnicalFKAsString == null || generateTechnicalFKAsString.isEmpty()) {
+                // Default value is "true" (enforce FK for technical FKs).
+                generateTechnicalFK = Boolean.TRUE;
+            } else {
+                generateTechnicalFK = Boolean.parseBoolean(generateTechnicalFKAsString);
+            }
             Map<String, String> advancedProperties = new HashMap<String, String>();
             NodeList properties = (NodeList) evaluate(dataSource, "rdbms-configuration/properties/property", XPathConstants.NODESET); //$NON-NLS-1$
             for (int i = 0; i < properties.getLength(); i++) {
@@ -261,6 +269,7 @@ public class DataSourceFactory {
                     cacheDirectory,
                     caseSensitiveSearch,
                     schemaGeneration,
+                    generateTechnicalFK,
                     advancedProperties,
                     connectionURL,
                     databaseName,

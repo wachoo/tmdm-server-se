@@ -27,6 +27,8 @@ public class RDBMSDataSource implements DataSource {
         CREATE, VALIDATE, UPDATE
     }
 
+    private final boolean generateTechnicalFK;
+
     private final ContainsOptimization containsOptimization;
 
     private final Boolean caseSensitiveSearch;
@@ -82,6 +84,7 @@ public class RDBMSDataSource implements DataSource {
         connectionPoolMinSize = dataSource.connectionPoolMinSize;
         connectionPoolMaxSize = dataSource.connectionPoolMaxSize;
         containsOptimization = dataSource.containsOptimization;
+        generateTechnicalFK = dataSource.generateTechnicalFK;
     }
 
     public RDBMSDataSource(String name,
@@ -95,6 +98,7 @@ public class RDBMSDataSource implements DataSource {
                            String cacheDirectory,
                            Boolean caseSensitiveSearch,
                            String schemaGeneration,
+                           Boolean generateTechnicalFK,
                            Map<String, String> advancedProperties,
                            String connectionURL,
                            String databaseName,
@@ -142,6 +146,11 @@ public class RDBMSDataSource implements DataSource {
         this.databaseName = databaseName;
         this.advancedProperties = advancedProperties;
         this.containsOptimization = containsOptimization;
+        this.generateTechnicalFK = generateTechnicalFK;
+    }
+
+    public boolean generateTechnicalFK() {
+        return generateTechnicalFK;
     }
 
     public ContainsOptimization getContainsOptimization() {
@@ -217,7 +226,7 @@ public class RDBMSDataSource implements DataSource {
     public int getConnectionPoolMinSize() {
         return this.connectionPoolMinSize;
     }
-    
+
     public int getConnectionPoolMaxSize() {
         return this.connectionPoolMaxSize;
     }

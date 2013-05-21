@@ -33,14 +33,41 @@ public enum TypeMappingStrategy {
 
     private final boolean preferClobUse;
 
+    private boolean useTechnicalFK;
+
     private TypeMappingStrategy(boolean preferClobUse) {
+        this(preferClobUse, true);
+    }
+
+    private TypeMappingStrategy(boolean preferClobUse, boolean useTechnicalFK) {
         this.preferClobUse = preferClobUse;
+        this.useTechnicalFK = useTechnicalFK;
     }
 
     /**
-     * @return <code>true</code> if strategy implies compression of long string values, <code>false</code> otherwise.
+     * @return <code>true</code> if strategy implies use of *LOB to store string values, <code>false</code> otherwise.
      */
     public boolean preferClobUse() {
         return preferClobUse;
+    }
+
+    /**
+     * @return <code>true</code> if strategy implies use of enforced FK for technical FKs (i.e. FKs not part of user's
+     * data model but added by MDM).
+     */
+    public boolean useTechnicalFk() {
+        return useTechnicalFK;
+    }
+
+    public void setUseTechnicalFK(boolean useTechnicalFK) {
+        this.useTechnicalFK = useTechnicalFK;
+    }
+
+    @Override
+    public String toString() {
+        return this.name() + " {" +
+                "preferClobUse=" + preferClobUse +
+                ", useTechnicalFK=" + useTechnicalFK +
+                '}';
     }
 }

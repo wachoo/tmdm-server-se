@@ -142,6 +142,7 @@
                     <xs:element type="xs:string" name="cache-directory" minOccurs="0" maxOccurs="1"/>
                     <xs:element type="xs:boolean" name="case-sensitive-search" minOccurs="0" maxOccurs="1" default="true"/>
                     <xs:element type="schemaGenerationType" name="schema-generation" minOccurs="0" maxOccurs="1"/>
+                    <xs:element type="xs:boolean" name="schema-technical-fk" minOccurs="0" maxOccurs="1" default="true"/>
                     <xs:element type="containsOptimizationType" name="contains-optimization" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="properties" minOccurs="0" maxOccurs="1">
                         <xs:complexType>

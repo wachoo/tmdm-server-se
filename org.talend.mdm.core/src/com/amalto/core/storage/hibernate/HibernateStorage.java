@@ -466,25 +466,35 @@ public class HibernateStorage implements Storage {
 
     public InternalRepository getTypeEnhancer() {
         if (typeMappingRepository == null) {
+            TypeMappingStrategy mappingStrategy;
             switch (storageType) {
                 case SYSTEM:
                     switch (dataSource.getDialectName()) {
                         case ORACLE_10G: // Oracle needs to store long string values to CLOBs.
-                            typeMappingRepository = new SystemTypeMappingRepository(TypeMappingStrategy.SCATTERED_CLOB);
+                            mappingStrategy = TypeMappingStrategy.SCATTERED_CLOB;
                             break;
                         default:
-                            typeMappingRepository = new SystemTypeMappingRepository(TypeMappingStrategy.SCATTERED);
+                            mappingStrategy = TypeMappingStrategy.SCATTERED;
                             break;
                     }
+                    mappingStrategy.setUseTechnicalFK(dataSource.generateTechnicalFK());
+                    typeMappingRepository = new SystemTypeMappingRepository(mappingStrategy);
                     break;
                 case MASTER:
-                    typeMappingRepository = new UserTypeMappingRepository();
+                    mappingStrategy = TypeMappingStrategy.AUTO;
+                    mappingStrategy.setUseTechnicalFK(dataSource.generateTechnicalFK());
+                    typeMappingRepository = new UserTypeMappingRepository(mappingStrategy);
                     break;
                 case STAGING:
-                    typeMappingRepository = new StagingTypeMappingRepository();
+                    mappingStrategy = TypeMappingStrategy.AUTO;
+                    mappingStrategy.setUseTechnicalFK(dataSource.generateTechnicalFK());
+                    typeMappingRepository = new StagingTypeMappingRepository(mappingStrategy);
                     break;
                 default:
                     throw new IllegalArgumentException("Storage type '" + storageType + "' is not supported.");
+            }
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Selected type mapping strategy: " + mappingStrategy);
             }
         }
         return typeMappingRepository;
@@ -682,8 +692,11 @@ public class HibernateStorage implements Storage {
 
     @Override
     public void reindex() {
+        if (!dataSource.supportFullText()) {
+            LOGGER.error("Can not reindex storage '" + storageName + "': datasource '" + dataSource.getName() + "' does not support full text.");
+            return;
+        }
         Session session = factory.getCurrentSession();
-
         MassIndexer indexer = Search.getFullTextSession(session).createIndexer();
         indexer.optimizeOnFinish(true);
         indexer.optimizeAfterPurge(true);

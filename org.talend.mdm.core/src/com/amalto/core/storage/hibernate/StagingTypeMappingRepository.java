@@ -18,8 +18,8 @@ import javax.xml.XMLConstants;
 import java.util.Collections;
 
 class StagingTypeMappingRepository extends InternalRepository {
-    public StagingTypeMappingRepository() {
-        super(TypeMappingStrategy.AUTO);
+    public StagingTypeMappingRepository(TypeMappingStrategy mappingStrategy) {
+        super(mappingStrategy);
     }
 
     public MetadataRepository visit(ComplexTypeMetadata complexType) {
