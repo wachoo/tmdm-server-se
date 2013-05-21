@@ -136,13 +136,40 @@ public class StorageFullTextTest extends StorageTestCase {
     }
 
     public void testSimpleSearchOrderBy() throws Exception {
-        UserQueryBuilder qb = from(supplier).where(fullText("Talend")).orderBy(supplier.getField("Id"), OrderBy.Direction.ASC);
+        UserQueryBuilder qb = from(supplier)
+                .select(supplier.getField("Id"))
+                .where(fullText("Talend"))
+                .orderBy(supplier.getField("Id"), OrderBy.Direction.ASC);
 
+        StorageResults records = storage.fetch(qb.getSelect());
         try {
-            storage.fetch(qb.getSelect());
-            fail("Expected exception since there's no support for order by clause in full text searches.");
-        } catch (Exception e) {
-            // Expected
+            assertEquals(2, records.getCount());
+            int currentId = -1;
+            for (DataRecord record : records) {
+                Integer id = (Integer) record.get("Id");
+                assertTrue(id > currentId);
+                currentId = id;
+            }
+        } finally {
+            records.close();
+        }
+
+        qb = from(supplier)
+                .select(supplier.getField("Id"))
+                .where(fullText("Talend"))
+                .orderBy(supplier.getField("Id"), OrderBy.Direction.DESC);
+
+        records = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, records.getCount());
+            int currentId = Integer.MAX_VALUE;
+            for (DataRecord record : records) {
+                Integer id = (Integer) record.get("Id");
+                assertTrue(id < currentId);
+                currentId = id;
+            }
+        } finally {
+            records.close();
         }
     }
 

@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
@@ -152,7 +153,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         return null;
     }
 
-    private StorageResults createResults(List list) {
+    private StorageResults createResults(final List list) {
         CloseableIterator<DataRecord> iterator;
         if (selectedFields.isEmpty()) {
             iterator = new ListIterator(mappings, storageClassLoader, list.iterator(), callbacks);
@@ -201,6 +202,17 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                                 nextRecord.set(fieldMetadata, constant.getValue());
                             } else {
                                 throw new IllegalStateException("Expected an alias for a constant expression.");
+                            }
+                            return null;
+                        }
+
+                        @Override
+                        public Void visit(Count count) {
+                            if (aliasName != null) {
+                                SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
+                                FieldMetadata fieldMetadata = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, aliasName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList());
+                                explicitProjectionType.addField(fieldMetadata);
+                                nextRecord.set(fieldMetadata, list.size());
                             }
                             return null;
                         }
@@ -328,13 +340,58 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         }
     }
 
-
-
     @Override
     public StorageResults visit(OrderBy orderBy) {
-        throw new NotImplementedException("No support for order by for full text search.");
+        TypedExpression field = orderBy.getField();
+        if (field instanceof Field) {
+            FieldMetadata fieldMetadata = ((Field) field).getFieldMetadata();
+            SortField sortField = new SortField(fieldMetadata.getName(),
+                    getSortType(fieldMetadata),
+                    orderBy.getDirection() == OrderBy.Direction.DESC);
+            query.setSort(new Sort(sortField));
+            return null;
+        } else {
+            throw new NotImplementedException("No support for order by for full text search on non-field.");
+        }
     }
 
+    private static int getSortType(FieldMetadata fieldMetadata) {
+        TypeMetadata fieldType = fieldMetadata.getType();
+        String type = MetadataUtils.getSuperConcreteType(fieldType).getName();
+        if (Types.STRING.equals(type)
+                || Types.ANY_URI.equals(type)
+                || Types.BOOLEAN.equals(type)
+                || Types.BASE64_BINARY.equals(type)
+                || Types.QNAME.equals(type)
+                || Types.HEX_BINARY.equals(type)) {
+            return SortField.STRING_VAL; // STRING does not work well for 'long' strings.
+        } else if (Types.INT.equals(type)
+                || Types.INTEGER.equals(type)
+                || Types.POSITIVE_INTEGER.equals(type)
+                || Types.NON_POSITIVE_INTEGER.equals(type)
+                || Types.NON_NEGATIVE_INTEGER.equals(type)
+                || Types.NEGATIVE_INTEGER.equals(type)
+                || Types.UNSIGNED_INT.equals(type)) {
+            return SortField.INT;
+        } else if (Types.DECIMAL.equals(type) || Types.DOUBLE.equals(type)) {
+            return SortField.DOUBLE;
+        } else if (Types.DATE.equals(type)
+                || Types.DATETIME.equals(type)
+                || Types.TIME.equals(type)
+                || Types.DURATION.equals(type)) {
+            return SortField.STRING;
+        } else if (Types.UNSIGNED_SHORT.equals(type) || Types.SHORT.equals(type)) {
+            return SortField.SHORT;
+        } else if (Types.UNSIGNED_LONG.equals(type) || Types.LONG.equals(type)) {
+            return SortField.LONG;
+        } else if (Types.FLOAT.equals(type)) {
+            return SortField.FLOAT;
+        } else if (Types.BYTE.equals(type) || Types.UNSIGNED_BYTE.equals(type)) {
+            return SortField.BYTE;
+        } else {
+            throw new UnsupportedOperationException("No support for field typed as '" + type + "'");
+        }
+    }
 
     private static class FullTextStorageResults implements StorageResults {
 
