@@ -30,7 +30,6 @@
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
                 <connection-url>jdbc:h2:${project.build.directory}/data/h2_ds1</connection-url>
-                <fulltext-index-directory>${project.build.directory}/indexes/H2_DS1</fulltext-index-directory>
                 <schema-generation>create</schema-generation>
                 <case-sensitive-search>true</case-sensitive-search>
             </rdbms-configuration>
@@ -45,7 +44,6 @@
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
                 <connection-url>jdbc:h2:${project.build.directory}/data/h2_ds2</connection-url>
-                <fulltext-index-directory>${project.build.directory}/indexes/H2_DS2</fulltext-index-directory>
                 <schema-generation>create</schema-generation>
                 <case-sensitive-search>false</case-sensitive-search>
             </rdbms-configuration>
@@ -59,7 +57,15 @@
                 <schema-generation>create</schema-generation>
             </rdbms-configuration>
         </staging>
-
+        <system>
+            <type>RDBMS</type>
+            <rdbms-configuration>
+                <dialect>H2</dialect>
+                <connection-driver-class>org.h2.Driver</connection-driver-class>
+                <connection-url>jdbc:h2:${project.build.directory}/data/system;MVCC=true</connection-url>
+                <schema-generation>create</schema-generation>
+            </rdbms-configuration>
+        </system>
     </datasource>
 
     <datasource name="RDBMS-1-NO-FT">

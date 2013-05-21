@@ -19,12 +19,7 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.lucene.analysis.KeywordAnalyzer;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.MultiFieldQueryParser;
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.*;
-import org.apache.lucene.util.Version;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
@@ -40,23 +35,9 @@ import java.util.*;
 
 class FullTextQueryHandler extends AbstractQueryHandler {
 
-    private final LinkedList<Query> subQueries = new LinkedList<Query>();
-
-    private final Set<Class> classes = new HashSet<Class>();
-
     private FullTextQuery query;
 
-    private List<ComplexTypeMetadata> types;
-
     private int pageSize;
-
-    private String[] fieldsAsArray;
-
-    private String fullTextQuery;
-
-    private String currentFieldName;
-
-    private Object currentValue;
 
     private final MappingRepository mappings;
 
@@ -75,7 +56,8 @@ class FullTextQueryHandler extends AbstractQueryHandler {
     public StorageResults visit(Select select) {
         // TMDM-4654: Checks if entity has a composite PK.
         Set<ComplexTypeMetadata> compositeKeyTypes = new HashSet<ComplexTypeMetadata>();
-        for (ComplexTypeMetadata type : select.getTypes()) {
+        List<ComplexTypeMetadata> types = select.getTypes();
+        for (ComplexTypeMetadata type : types) {
             if (type.getKeyFields().size() > 1) {
                 compositeKeyTypes.add(type);
             }
@@ -93,7 +75,6 @@ class FullTextQueryHandler extends AbstractQueryHandler {
             throw new FullTextQueryCompositeKeyException(message.toString());
         }
         // Removes Joins and joined fields.
-        types = select.getTypes();
         List<Join> joins = select.getJoins();
         if (!joins.isEmpty()) {
             Set<TypeMetadata> joinedTypes = new HashSet<TypeMetadata>();
@@ -125,25 +106,21 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         if (condition == null) {
             throw new IllegalArgumentException("Expected a condition in select clause but got 0.");
         }
-        condition.accept(this);
+        // condition.accept(this);
         // Create Lucene query (concatenates all sub queries together).
         FullTextSession fullTextSession = Search.getFullTextSession(session);
-        MultiFieldQueryParser parser = new MultiFieldQueryParser(Version.LUCENE_29, fieldsAsArray, new KeywordAnalyzer());
-        BooleanQuery parsedQuery;
-        try {
-            parsedQuery = (BooleanQuery) parser.parse(fullTextQuery);
-        } catch (ParseException e) {
-            throw new RuntimeException("Invalid generated Lucene query", e);
-        }
-        if (!subQueries.isEmpty()) {
-            Query fullTextQuery = parsedQuery;
-            parsedQuery = new BooleanQuery();
-            parsedQuery.add(fullTextQuery, BooleanClause.Occur.SHOULD);
-            for (Query subQuery : subQueries) {
-                parsedQuery.add(subQuery, BooleanClause.Occur.MUST);
+        Query parsedQuery = select.getCondition().accept(new LuceneQueryGenerator(types));
+        // Create Hibernate Search query
+        Set<Class> classes = new HashSet<Class>();
+        for (ComplexTypeMetadata type : types) {
+            String className = ClassCreator.getClassName(type.getName());
+            try {
+                ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+                classes.add(contextClassLoader.loadClass(className));
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Could not find class '" + className + "'.", e);
             }
         }
-        // Create Hibernate Search query
         FullTextQuery fullTextQuery = fullTextSession.createFullTextQuery(parsedQuery,
                 classes.toArray(new Class<?>[classes.size()]));
         // Very important to leave this null (would disable ability to search across different types)
@@ -165,6 +142,14 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         } else {
             return createResults(query.list());
         }
+    }
+
+    @Override
+    public StorageResults visit(Paging paging) {
+        query.setFirstResult(paging.getStart());
+        query.setFetchSize(AbstractQueryHandler.JDBC_FETCH_SIZE);
+        query.setMaxResults(paging.getLimit());
+        return null;
     }
 
     private StorageResults createResults(List list) {
@@ -190,18 +175,18 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                             if (mapping != null && mapping.getUser(fieldMetadata) != null) {
                                 fieldMetadata = mapping.getUser(fieldMetadata);
                             }
+                            Object value;
+                            if (fieldMetadata instanceof ReferenceFieldMetadata) {
+                                value = getReferencedId(next, (ReferenceFieldMetadata) fieldMetadata);
+                            } else {
+                                value = next.get(fieldMetadata);
+                            }
                             if (aliasName != null) {
                                 SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName == null ? fieldMetadata.getType().getName() : typeName);
                                 fieldMetadata = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, aliasName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList());
                                 explicitProjectionType.addField(fieldMetadata);
                             } else {
                                 explicitProjectionType.addField(fieldMetadata);
-                            }
-                            Object value;
-                            if (fieldMetadata instanceof ReferenceFieldMetadata) {
-                                value = getReferencedId(next, (ReferenceFieldMetadata) fieldMetadata);
-                            } else {
-                                value = next.get(fieldMetadata);
                             }
                             nextRecord.set(fieldMetadata, value);
                             return null;
@@ -307,6 +292,8 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                             TypedExpression typedExpression = alias.getTypedExpression();
                             if (typedExpression instanceof StringConstant) {
                                 nextRecord.set(newField, ((StringConstant) typedExpression).getValue());
+                            } else if(typedExpression instanceof Field) {
+                                nextRecord.set(newField, next.get(((Field) typedExpression).getFieldMetadata()));
                             } else {
                                 throw new IllegalArgumentException("Aliased expression '" + typedExpression + "' is not supported.");
                             }
@@ -341,237 +328,13 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         }
     }
 
-    @Override
-    public StorageResults visit(Compare condition) {
-        condition.getLeft().accept(this);
-        Expression right = condition.getRight();
-        right.accept(this);
-        if (condition.getPredicate() == Predicate.EQUALS
-                || condition.getPredicate() == Predicate.CONTAINS
-                || condition.getPredicate() == Predicate.STARTS_WITH) {
-            StringTokenizer tokenizer = new StringTokenizer(String.valueOf(currentValue));
-            BooleanQuery termQuery = new BooleanQuery();
-            while (tokenizer.hasMoreTokens()) {
-                TermQuery newTermQuery = new TermQuery(new Term(currentFieldName, tokenizer.nextToken().toLowerCase()));
-                termQuery.add(newTermQuery, BooleanClause.Occur.MUST);
-                if (condition.getPredicate() == Predicate.STARTS_WITH) {
-                    break;
-                }
-            }
-            subQueries.addLast(termQuery);
-        } else if (condition.getPredicate() == Predicate.GREATER_THAN
-                || condition.getPredicate() == Predicate.GREATER_THAN_OR_EQUALS
-                || condition.getPredicate() == Predicate.LOWER_THAN
-                || condition.getPredicate() == Predicate.LOWER_THAN_OR_EQUALS) {
-            throw new RuntimeException("Greater than, less than are not supported in full text searches.");
-        } else {
-            throw new NotImplementedException("No support for predicate '" + condition.getPredicate() + "'");
-        }
-        return null;
-    }
 
-    @Override
-    public StorageResults visit(BinaryLogicOperator condition) {
-        condition.getLeft().accept(this);
-        condition.getRight().accept(this);
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(UnaryLogicOperator condition) {
-        condition.getCondition().accept(this);
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Range range) {
-        range.getStart().accept(this);
-        Integer currentRangeStart = ((Integer) currentValue) == Integer.MIN_VALUE ? null : (Integer) currentValue;
-        range.getEnd().accept(this);
-        Integer currentRangeEnd = ((Integer) currentValue) == Integer.MAX_VALUE ? null : (Integer) currentValue;
-        NumericRangeQuery subQuery = NumericRangeQuery.newIntRange(currentFieldName,
-                currentRangeStart,
-                currentRangeEnd,
-                true,
-                true);
-        subQueries.add(subQuery);
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Field field) {
-        currentFieldName = field.getFieldMetadata().getName();
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Alias alias) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(StringConstant constant) {
-        currentValue = constant.getValue();
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(IntegerConstant constant) {
-        currentValue = constant.getValue();
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(DateConstant constant) {
-        currentValue = constant.getValue();
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(DateTimeConstant constant) {
-        currentValue = constant.getValue();
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(BooleanConstant constant) {
-        currentValue = constant.getValue();
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(BigDecimalConstant constant) {
-        currentValue = constant.getValue();
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(TimeConstant constant) {
-        currentValue = constant.getValue();
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(ShortConstant constant) {
-        currentValue = constant.getValue();
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(ByteConstant constant) {
-        currentValue = constant.getValue();
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(LongConstant constant) {
-        currentValue = constant.getValue();
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(DoubleConstant constant) {
-        currentValue = constant.getValue();
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(FloatConstant constant) {
-        currentValue = constant.getValue();
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(Paging paging) {
-        query.setFirstResult(paging.getStart());
-        query.setFetchSize(JDBC_FETCH_SIZE);
-        query.setMaxResults(paging.getLimit());
-        return null;
-    }
 
     @Override
     public StorageResults visit(OrderBy orderBy) {
         throw new NotImplementedException("No support for order by for full text search.");
     }
 
-    @Override
-    public StorageResults visit(FullText fullText) {
-        // TODO Test me on conditions where many types share same field names.
-        final Set<String> fields = new HashSet<String>();
-        for (final ComplexTypeMetadata type : types) {
-            type.accept(new DefaultMetadataVisitor<Void>() {
-
-                private void addClass(ComplexTypeMetadata complexType) {
-                    String name = complexType.getName();
-                    if(!complexType.isInstantiable() && !complexType.getName().startsWith("X_")) { //$NON-NLS-1$
-                        name = "X_" + complexType.getName(); //$NON-NLS-1$
-                    }
-                    String className = ClassCreator.getClassName(name);
-                    try {
-                        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-                        classes.add(contextClassLoader.loadClass(className));
-                    } catch (ClassNotFoundException e) {
-                        throw new RuntimeException("Could not find class '" + className + "'.", e);
-                    }
-                }
-
-                @Override
-                public Void visit(ComplexTypeMetadata complexType) {
-                    addClass(complexType);
-                    super.visit(complexType);
-                    return null;
-                }
-
-                @Override
-                public Void visit(ContainedComplexTypeMetadata containedType) {
-                    super.visit(containedType);
-                    for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
-                        subType.accept(this);
-                    }
-                    return null;
-                }
-
-                @Override
-                public Void visit(ReferenceFieldMetadata referenceField) {
-                    ComplexTypeMetadata referencedType = referenceField.getReferencedType();
-                    if (!referencedType.isInstantiable()) {
-                        referencedType.accept(this);
-                    }
-                    return null;
-                }
-
-                @Override
-                public Void visit(SimpleTypeFieldMetadata simpleField) {
-                    addClass(simpleField.getContainingType());
-                    if (!Storage.METADATA_TIMESTAMP.equals(simpleField.getName()) && !Storage.METADATA_TASK_ID.equals(simpleField.getName())) {
-                        fields.add(getFieldName(simpleField, false, false));
-                    }
-                    return null;
-                }
-
-                @Override
-                public Void visit(EnumerationFieldMetadata enumField) {
-                    addClass(enumField.getContainingType());
-                    fields.add(getFieldName(enumField, false, false));
-                    return null;
-                }
-            });
-        }
-
-        fieldsAsArray = fields.toArray(new String[fields.size()]);
-        StringBuilder queryBuffer = new StringBuilder();
-        Iterator<String> fieldsIterator = fields.iterator();
-        String fullTextValue = fullText.getValue().toLowerCase();
-        while (fieldsIterator.hasNext()) {
-            String next = fieldsIterator.next();
-            queryBuffer.append(next).append(':').append(fullTextValue).append('*');
-            if (fieldsIterator.hasNext()) {
-                queryBuffer.append(" OR "); //$NON-NLS-1$
-            }
-        }
-        fullTextQuery = queryBuffer.toString();
-        return null;
-    }
 
     private static class FullTextStorageResults implements StorageResults {
 
@@ -588,6 +351,9 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         }
 
         public int getSize() {
+            if (size == Integer.MAX_VALUE) {
+                return getCount();
+            }
             return size;
         }
 

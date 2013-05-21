@@ -310,6 +310,18 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
     }
 
     @Override
+    public Expression visit(FieldFullText fullText) {
+        fullText.getField().accept(this);
+        if (currentField == null) {
+            throw new IllegalStateException("Could not get field information from full text expression.");
+        }
+        if (!(currentField instanceof Field)) {
+            throw new IllegalStateException("Expected full text expression to contains a field not '" + currentField.getClass() + "'.");
+        }
+        return new FieldFullText((Field) currentField, fullText.getValue());
+    }
+
+    @Override
     public Expression visit(Isa isa) {
         return new Isa((TypedExpression) isa.getExpression().accept(this), getMapping(isa.getType()));
     }

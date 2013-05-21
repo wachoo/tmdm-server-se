@@ -112,4 +112,5 @@ public interface Visitor<T> {
 
     T visit(IndexedField indexedField);
 
+    T visit(FieldFullText fieldFullText);
 }

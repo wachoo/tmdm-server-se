@@ -304,6 +304,10 @@ public class UserQueryBuilder {
         return new FullText(constant);
     }
 
+    public static Condition fullText(FieldMetadata field, String constant) {
+        return new FieldFullText(new Field(field), constant);
+    }
+
     public static TypedExpression count() {
         return new Alias(new Count(), "count"); //$NON-NLS-1$
     }

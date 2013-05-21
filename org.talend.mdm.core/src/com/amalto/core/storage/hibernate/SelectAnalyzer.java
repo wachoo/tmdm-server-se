@@ -254,6 +254,13 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
     }
 
     @Override
+    public VisitorAdapter<StorageResults> visit(FieldFullText fieldFullText) {
+        fullTextExpression = fieldFullText;
+        isFullText = true;
+        return null;
+    }
+
+    @Override
     public VisitorAdapter<StorageResults> visit(Range range) {
         return null;
     }

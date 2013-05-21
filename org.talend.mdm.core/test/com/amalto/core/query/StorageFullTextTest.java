@@ -190,7 +190,7 @@ public class StorageFullTextTest extends StorageTestCase {
         }
 
         qb = from(supplier).where(fullText("Renault")).where(
-                eq(supplier.getField("Id"), "2"));
+                eq(supplier.getField("Id"), "1"));
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
@@ -199,10 +199,10 @@ public class StorageFullTextTest extends StorageTestCase {
         }
 
         qb = from(supplier).where(fullText("Renault")).where(
-                eq(supplier.getField("Id"), "1"));
+                eq(supplier.getField("Id"), "2"));
         results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(1, results.getCount());
+            assertEquals(0, results.getCount());
         } finally {
             results.close();
         }
@@ -295,7 +295,16 @@ public class StorageFullTextTest extends StorageTestCase {
                 contains(supplier.getField("Contact/Name"), "Jean"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(3, results.getCount());
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(supplier).where(fullText("Talend")).where(
+                contains(supplier.getField("Contact/Name"), "Jean"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
         } finally {
             results.close();
         }
@@ -395,6 +404,38 @@ public class StorageFullTextTest extends StorageTestCase {
             for (DataRecord result : results) {
                 assertEquals(1, result.getSetFields().size());
                 assertNotNull(result.get("Name"));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testSimpleSearchWithProjectionAlias() throws Exception {
+        UserQueryBuilder qb = from(supplier)
+                .select(alias(supplier.getField("Contact/Name"), "element"))
+                .where(fullText("Renault"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertEquals(1, result.getSetFields().size());
+                assertNotNull(result.get("element"));
+            }
+        } finally {
+            results.close();
+        }
+
+        qb = from(supplier)
+                .select(alias(supplier.getField("Contact/Name"), "element"))
+                .where(fullText("Renault"))
+                .start(0)
+                .limit(20);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertEquals(1, result.getSetFields().size());
+                assertNotNull(result.get("element"));
             }
         } finally {
             results.close();
@@ -528,6 +569,28 @@ public class StorageFullTextTest extends StorageTestCase {
             } else {
                 throw runtimeException;
             }
+        }
+    }
+
+    public void testFieldFullText() throws Exception {
+        UserQueryBuilder qb = from(product)
+                .where(fullText(product.getField("ShortDescription"), "description"))
+                .limit(20);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(product)
+                .where(fullText(product.getField("ShortDescription"), "long"))
+                .limit(20);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
         }
     }
 }

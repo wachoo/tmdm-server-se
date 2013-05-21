@@ -35,6 +35,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
+import com.amalto.core.query.user.*;
+import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -45,22 +49,6 @@ import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.optimization.UpdateReportOptimizer;
-import com.amalto.core.query.user.Alias;
-import com.amalto.core.query.user.BinaryLogicOperator;
-import com.amalto.core.query.user.Compare;
-import com.amalto.core.query.user.Condition;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.Field;
-import com.amalto.core.query.user.IntegerConstant;
-import com.amalto.core.query.user.LongConstant;
-import com.amalto.core.query.user.OrderBy;
-import com.amalto.core.query.user.Predicate;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.query.user.StringConstant;
-import com.amalto.core.query.user.Timestamp;
-import com.amalto.core.query.user.TypedExpression;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
@@ -2622,4 +2610,86 @@ public class StorageQueryTest extends StorageTestCase {
         */
     }
 
+    public void testContainsOptimization() throws Exception {
+        DataSource datasource = getDatasource(DATABASE + "-Default");
+        assertTrue(datasource instanceof RDBMSDataSource);
+        RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) datasource;
+        TestRDBMSDataSource testDataSource = new TestRDBMSDataSource(rdbmsDataSource);
+        testDataSource.setCaseSensitiveSearch(false);
+        testDataSource.setSupportFullText(true);
+        ConfigurableContainsOptimizer optimizer = new ConfigurableContainsOptimizer(testDataSource);
+        // Default optimization
+        UserQueryBuilder qb = UserQueryBuilder.from(person)
+                .where(contains(person.getField("knownAddresses/knownAddress/Notes/Note"), "test note"));
+        Select select = qb.getSelect();
+        assertTrue(select.getCondition() instanceof Compare);
+        assertTrue(((Compare) select.getCondition()).getPredicate() == Predicate.CONTAINS);
+        // LIKE optimization
+        testDataSource.setOptimization(RDBMSDataSource.ContainsOptimization.LIKE);
+        qb = UserQueryBuilder.from(person)
+                .where(contains(person.getField("knownAddresses/knownAddress/Notes/Note"), "test note"));
+        select = qb.getSelect();
+        optimizer.optimize(select);
+        assertTrue(select.getCondition() instanceof Compare);
+        assertTrue(((Compare) select.getCondition()).getPredicate() == Predicate.CONTAINS);
+        // DISABLED optimization
+        testDataSource.setOptimization(RDBMSDataSource.ContainsOptimization.DISABLED);
+        qb = UserQueryBuilder.from(person)
+                .where(contains(person.getField("knownAddresses/knownAddress/Notes/Note"), "test note"));
+        select = qb.getSelect();
+        try {
+            optimizer.optimize(select);
+            fail("Contains use is disabled.");
+        } catch (Exception e) {
+            // Expected
+        }
+        // FULL TEXT optimization
+        testDataSource.setOptimization(RDBMSDataSource.ContainsOptimization.FULL_TEXT);
+        qb = UserQueryBuilder.from(person)
+                .where(contains(person.getField("knownAddresses/knownAddress/Notes/Note"), "test note"));
+        select = qb.getSelect();
+        optimizer.optimize(select);
+        assertTrue(select.getCondition() instanceof FieldFullText);
+        assertEquals("test note", ((FieldFullText) select.getCondition()).getValue());
+    }
+
+    private static class TestRDBMSDataSource extends RDBMSDataSource {
+
+        private ContainsOptimization optimization;
+
+        private boolean supportFullText;
+
+        private boolean isCaseSensitiveSearch;
+
+        public TestRDBMSDataSource(RDBMSDataSource rdbmsDataSource) {
+            super(rdbmsDataSource);
+        }
+
+        @Override
+        public boolean supportFullText() {
+            return supportFullText;
+        }
+
+        private void setSupportFullText(boolean supportFullText) {
+            this.supportFullText = supportFullText;
+        }
+
+        @Override
+        public boolean isCaseSensitiveSearch() {
+            return isCaseSensitiveSearch;
+        }
+
+        private void setCaseSensitiveSearch(boolean caseSensitiveSearch) {
+            isCaseSensitiveSearch = caseSensitiveSearch;
+        }
+
+        @Override
+        public ContainsOptimization getContainsOptimization() {
+            return optimization;
+        }
+
+        public void setOptimization(ContainsOptimization optimization) {
+            this.optimization = optimization;
+        }
+    }
 }

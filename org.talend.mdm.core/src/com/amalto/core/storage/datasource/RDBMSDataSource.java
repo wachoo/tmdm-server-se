@@ -15,13 +15,19 @@ import java.util.Map;
 
 public class RDBMSDataSource implements DataSource {
 
+    public static enum ContainsOptimization {
+        FULL_TEXT, LIKE, DISABLED
+    }
+
     public static enum DataSourceDialect {
-        H2, ORACLE_10G, MYSQL, POSTGRES, SQL_SERVER;
+        H2, ORACLE_10G, MYSQL, POSTGRES, SQL_SERVER
     }
 
     public static enum SchemaGeneration {
-        CREATE, VALIDATE, UPDATE;
+        CREATE, VALIDATE, UPDATE
     }
+
+    private final ContainsOptimization containsOptimization;
 
     private final Boolean caseSensitiveSearch;
 
@@ -75,6 +81,7 @@ public class RDBMSDataSource implements DataSource {
         databaseName = dataSource.databaseName;
         connectionPoolMinSize = dataSource.connectionPoolMinSize;
         connectionPoolMaxSize = dataSource.connectionPoolMaxSize;
+        containsOptimization = dataSource.containsOptimization;
     }
 
     public RDBMSDataSource(String name,
@@ -91,6 +98,7 @@ public class RDBMSDataSource implements DataSource {
                            Map<String, String> advancedProperties,
                            String connectionURL,
                            String databaseName,
+                           ContainsOptimization containsOptimization,
                            String initPassword,
                            String initUserName,
                            String initConnectionURL) {
@@ -133,6 +141,11 @@ public class RDBMSDataSource implements DataSource {
         this.connectionURL = connectionURL;
         this.databaseName = databaseName;
         this.advancedProperties = advancedProperties;
+        this.containsOptimization = containsOptimization;
+    }
+
+    public ContainsOptimization getContainsOptimization() {
+        return containsOptimization;
     }
 
     public boolean isCaseSensitiveSearch() {

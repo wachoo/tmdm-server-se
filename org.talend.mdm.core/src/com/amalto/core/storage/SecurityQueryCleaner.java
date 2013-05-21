@@ -183,6 +183,15 @@ class SecurityQueryCleaner extends VisitorAdapter<Expression> {
     }
 
     @Override
+    public Expression visit(FieldFullText fullText) {
+        if (!fullText.getField().accept(checker)) {
+            return UserQueryHelper.NO_OP_CONDITION;
+        } else {
+            return fullText;
+        }
+    }
+
+    @Override
     public Expression visit(StagingStatus stagingStatus) {
         return stagingStatus;
     }

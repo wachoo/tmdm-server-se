@@ -428,7 +428,7 @@ public class HibernateStorage implements Storage {
     }
 
     private static boolean isIndexable(TypeMetadata fieldType) {
-        if ("MULTI_LINGUAL".equals(fieldType.getName())) { //$NON-NLS-1$
+        if (Types.MULTI_LINGUAL.equals(fieldType.getName())) { //$NON-NLS-1$
             return false;
         }
         if (fieldType.getData(MetadataRepository.DATA_MAX_LENGTH) != null) {
@@ -860,6 +860,10 @@ public class HibernateStorage implements Storage {
         Expression expression = userQuery.normalize();
         if (expression instanceof Select) {
             Select select = (Select) expression;
+            // Contains optimizations (use of full text, disable it...)
+            ConfigurableContainsOptimizer containsOptimizer = new ConfigurableContainsOptimizer(dataSource);
+            containsOptimizer.optimize(select);
+            // Other optimizations
             for (Optimizer optimizer : OPTIMIZERS) {
                 optimizer.optimize(select);
             }

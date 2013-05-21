@@ -300,5 +300,10 @@ public class RecommendedIndexes {
         public Collection<FieldMetadata> visit(IndexedField indexedField) {
             return Collections.singleton(indexedField.getFieldMetadata());
         }
+
+        @Override
+        public Collection<FieldMetadata> visit(FieldFullText fieldFullText) {
+            return fieldFullText.getField().accept(this);
+        }
     }
 }

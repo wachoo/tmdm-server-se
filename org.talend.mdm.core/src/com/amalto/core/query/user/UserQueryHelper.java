@@ -20,7 +20,6 @@ import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.*;
 
 import java.util.Collection;
 import java.util.List;

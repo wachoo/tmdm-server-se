@@ -594,6 +594,18 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(FieldFullText fieldFullText) {
+        print("[FIELD FULL TEXT]"); //$NON-NLS-1$
+        increaseIndent();
+        {
+            print("Value -> " + fieldFullText.getValue()); //$NON-NLS-1$
+            fieldFullText.getField().accept(this);
+        }
+        decreaseIndent();
+        return null;
+    }
+
     public Void visit(OrderBy orderBy) {
         print("[ORDER BY]"); //$NON-NLS-1$
         increaseIndent();
