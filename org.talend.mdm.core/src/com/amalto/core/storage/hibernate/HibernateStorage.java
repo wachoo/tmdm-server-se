@@ -702,6 +702,9 @@ public class HibernateStorage implements Storage {
         indexer.optimizeAfterPurge(true);
         try {
             session.getTransaction().begin();
+            indexer.threadsForSubsequentFetching(2);
+            indexer.threadsToLoadObjects(2);
+            indexer.batchSizeToLoadObjects(batchSize);
             indexer.startAndWait();
             session.getTransaction().commit();
         } catch (InterruptedException e) {
