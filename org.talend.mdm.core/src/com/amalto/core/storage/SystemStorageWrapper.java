@@ -11,31 +11,47 @@
 
 package com.amalto.core.storage;
 
-import com.amalto.core.metadata.ClassRepository;
-import org.talend.mdm.commmon.metadata.*;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.server.Server;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.record.*;
-import com.amalto.xmlserver.interfaces.XmlServerException;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.*;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.MetadataVisitor;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.*;
-
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
+import com.amalto.core.metadata.ClassRepository;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.server.Server;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.SystemDataRecordXmlWriter;
+import com.amalto.core.storage.record.XmlDOMDataRecordReader;
+import com.amalto.core.storage.record.XmlSAXDataRecordReader;
+import com.amalto.xmlserver.interfaces.XmlServerException;
 
 public class SystemStorageWrapper extends StorageWrapper {
 
@@ -365,7 +381,12 @@ public class SystemStorageWrapper extends StorageWrapper {
             UserQueryBuilder qb = from(type).where(eq(type.getKeyFields().iterator().next(), uniqueID));
             try {
                 storage.begin();
-                storage.delete(qb.getSelect());
+                Select select = qb.getSelect();
+                StorageResults results = storage.fetch(select);
+                if (results.getCount() == 0) {
+                    throw new IllegalArgumentException("Could not find document to delete."); //$NON-NLS-1$
+                }
+                storage.delete(select);
                 storage.commit();
             } catch (Exception e) {
                 storage.rollback();
