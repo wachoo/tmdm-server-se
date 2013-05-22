@@ -22,20 +22,24 @@ import org.talend.mdm.commmon.metadata.FieldMetadata;
 
 class ManyFieldProjection extends SimpleProjection {
 
+    private final String alias;
+
     private final FieldMetadata field;
 
     private final TableResolver resolver;
 
-    ManyFieldProjection(FieldMetadata field, TableResolver resolver) {
+    ManyFieldProjection(String alias, FieldMetadata field, TableResolver resolver) {
+        this.alias = alias;
         this.field = field;
         this.resolver = resolver;
     }
 
     @Override
     public String toSqlString(Criteria criteria, int position, CriteriaQuery criteriaQuery) throws HibernateException {
+        Criteria subCriteria = StandardQueryHandler.findCriteria(criteria, alias);
         ComplexTypeMetadata containingType = field.getContainingType();
-        String containerTable = MappingGenerator.formatSQLName(containingType.getName(), resolver.getNameMaxLength());
-        String collectionTable = MappingGenerator.formatSQLName(containerTable + '_' + field.getName(), resolver.getNameMaxLength());
+        String containerTable = MappingGenerator.formatSQLName(resolver.get(containingType), resolver.getNameMaxLength());
+        String collectionTable = MappingGenerator.formatSQLName((containerTable + '_' + field.getName()).toUpperCase(), resolver.getNameMaxLength());
         String containerIdColumn = MappingGenerator.formatSQLName(containingType.getKeyFields().iterator().next().getName(), resolver.getNameMaxLength());
         StringBuilder sqlFragment = new StringBuilder();
         sqlFragment.append("(select group_concat(") //$NON-NLS-1$
@@ -55,7 +59,7 @@ class ManyFieldProjection extends SimpleProjection {
                 .append('.')
                 .append(containerIdColumn)
                 .append(" = ") //$NON-NLS-1$
-                .append(criteriaQuery.getSQLAlias(criteria))
+                .append(criteriaQuery.getSQLAlias(subCriteria))
                 .append('.')
                 .append(containerIdColumn).append(") as y").append(position).append('_'); //$NON-NLS-1$
         return sqlFragment.toString();

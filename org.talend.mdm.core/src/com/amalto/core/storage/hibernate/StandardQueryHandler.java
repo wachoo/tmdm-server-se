@@ -277,7 +277,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 if (!simpleField.isMany()) {
                     projectionList.add(Projections.property(alias + '.' + simpleField.getName()));
                 } else {
-                    projectionList.add(new ManyFieldProjection(simpleField, resolver));
+                    projectionList.add(new ManyFieldProjection(alias, simpleField, resolver));
                 }
                 return null;
             }
@@ -287,7 +287,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 if (!enumField.isMany()) {
                     projectionList.add(Projections.property(alias + '.' + enumField.getName()));
                 } else {
-                    projectionList.add(new ManyFieldProjection(enumField, resolver));
+                    projectionList.add(new ManyFieldProjection(alias, enumField, resolver));
                 }
                 return null;
             }
@@ -543,26 +543,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 String alias = getAlias(mainType, fieldCondition.fieldMetadata);
                 generateJoinPath(alias, JoinFragment.INNER_JOIN, path);
                 // Find the criteria that does the join to the table to check (only way to get the SQL alias for table).
-                if (criteria instanceof CriteriaImpl) {
-                    Iterator iterator = ((CriteriaImpl) criteria).iterateSubcriteria();
-                    Criteria typeCheckCriteria = null;
-                    while (iterator.hasNext()) {
-                        Criteria subCriteria = (Criteria) iterator.next();
-                        if (alias.equals(subCriteria.getAlias())) {
-                            typeCheckCriteria = subCriteria;
-                            break;
-                        }
-                    }
-                    if (typeCheckCriteria == null) {
-                        throw new IllegalStateException("Could not find criteria for type check.");
-                    }
-                    String name = storageClassLoader.getClassFromType(isa.getType()).getName();
-                    return new FieldTypeCriterion(typeCheckCriteria, name);
-                } else {
-                    throw new IllegalStateException("Expected a criteria instance of " + CriteriaImpl.class.getName() + ".");
-                }
+                Criteria foundSubCriteria = findCriteria(criteria, alias);
+                String name = storageClassLoader.getClassFromType(isa.getType()).getName();
+                return new FieldTypeCriterion(foundSubCriteria, name);
             }
-
         }
 
         @Override
@@ -806,6 +790,29 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     throw new NotImplementedException("No support for predicate '" + predicate.getClass() + "'");
                 }
             }
+        }
+    }
+
+    public static Criteria findCriteria(Criteria mainCriteria, String alias) {
+        if (alias.equals(mainCriteria.getAlias())) {
+            return mainCriteria;
+        }
+        if (mainCriteria instanceof CriteriaImpl) {
+            Criteria foundSubCriteria = null;
+            Iterator iterator = ((CriteriaImpl) mainCriteria).iterateSubcriteria();
+            while (iterator.hasNext()) {
+                Criteria subCriteria = (Criteria) iterator.next();
+                if (alias.equals(subCriteria.getAlias())) {
+                    foundSubCriteria = subCriteria;
+                    break;
+                }
+            }
+            if (foundSubCriteria == null) {
+                throw new IllegalStateException("Could not find criteria for type check.");
+            }
+            return foundSubCriteria;
+        } else {
+            throw new IllegalStateException("Expected a criteria instance of " + CriteriaImpl.class.getName() + ".");
         }
     }
 
