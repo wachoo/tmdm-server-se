@@ -778,9 +778,7 @@ public class HibernateStorage implements Storage {
             Thread.currentThread().setContextClassLoader(storageClassLoader);
             Session session = factory.getCurrentSession();
             Iterable<DataRecord> records = internalFetch(session, userQuery, Collections.<EndOfResultsCallback>emptySet());
-            boolean hasMetRecords = false;
             for (DataRecord currentDataRecord : records) {
-                hasMetRecords = true;
                 ComplexTypeMetadata currentType = currentDataRecord.getType();
                 TypeMapping mapping = mappingRepository.getMappingFromUser(currentType);
                 if (mapping == null) {
@@ -807,9 +805,6 @@ public class HibernateStorage implements Storage {
                     LOGGER.warn("Instance of type '" + currentType.getName() + "' and ID '" + idValue.toString()
                             + "' has already been deleted within same transaction.");
                 }
-            }
-            if (!hasMetRecords) {
-                throw new IllegalArgumentException("Could not find document to delete.");
             }
         } catch (ConstraintViolationException e) {
             throw new com.amalto.core.storage.exception.ConstraintViolationException(e);
