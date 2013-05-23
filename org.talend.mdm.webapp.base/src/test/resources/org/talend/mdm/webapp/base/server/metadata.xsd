@@ -1,0 +1,291 @@
+<!--
+  ~ Copyright (C) 2006-2013 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>
+    <xsd:element name="ReferenceCategory" type="ReferenceCategory">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:unique name="ReferenceCategory">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="unique_id"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="ReferenceCategory">
+        <xsd:all>
+            <xsd:element maxOccurs="1" minOccurs="1" name="unique_id" type="xsd:integer">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="category_label" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="category_description" type="TEXT">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:all>
+    </xsd:complexType>
+    <xsd:simpleType name="UUID">
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType>
+    <xsd:simpleType name="TEXT">
+        <xsd:restriction base="xsd:string">
+            <xsd:maxLength value="5000"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:element name="Reference">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element maxOccurs="1" minOccurs="1" name="unique_id" type="UUID">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="label" type="MULTI_LINGUAL">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="reference_category" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_ForeignKey">ReferenceCategory/unique_id</xsd:appinfo>
+                        <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                        <xsd:appinfo source="X_ForeignKeyInfo">ReferenceCategory/category_label</xsd:appinfo>
+                        <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="Reference">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="unique_id"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:simpleType name="MULTI_LINGUAL">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="(\[\w+\:[^\[\]]*\]){0,}"/>
+            <xsd:maxLength value="5000"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:element name="Artist" type="Artist">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:unique name="Artist">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="unique_id"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="Artist">
+        <xsd:all>
+            <xsd:element maxOccurs="1" minOccurs="1" name="unique_id" type="UUID">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="artist_name" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="artist_genre" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_ForeignKey">Reference/unique_id</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKeyInfo">Reference/label</xsd:appinfo>
+                    <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKey_Filter">Reference/reference_category$$=$$&amp;quot; 105&amp;quot;$$#</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="artist_relations" type="artist_relations">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="country" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_ForeignKey">Country/unique_id</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKeyInfo">Country/country_name</xsd:appinfo>
+                    <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:all>
+    </xsd:complexType>
+    <xsd:complexType name="artist_relations">
+        <xsd:sequence>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="artist_relation" type="artist_relation">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="artist_relation">
+        <xsd:all>
+            <xsd:element maxOccurs="1" minOccurs="0" name="artist_id" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_ForeignKey">Artist/unique_id</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKey_NotSep">false</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKeyInfo">Artist/artist_name</xsd:appinfo>
+                    <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="relation_type" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:all>
+    </xsd:complexType>
+    <xsd:element name="Country" type="Country">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:unique name="Country">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="unique_id"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="Country">
+        <xsd:all>
+            <xsd:element maxOccurs="1" minOccurs="1" name="unique_id" type="UUID">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="country_name" type="MULTI_LINGUAL">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:all>
+    </xsd:complexType>
+    <xsd:element name="Territory" type="Territory">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:unique name="Territory">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="unique_id"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="Territory">
+        <xsd:all>
+            <xsd:element maxOccurs="1" minOccurs="1" name="unique_id" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="label" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="countries" type="countries">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:all>
+    </xsd:complexType>
+    <xsd:complexType name="countries">
+        <xsd:sequence>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="country_relation" type="country_relation">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="country_relation">
+        <xsd:all>
+            <xsd:element maxOccurs="1" minOccurs="1" name="market_type" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="country_id" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_ForeignKey">Country/unique_id</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKeyInfo">Country/country_name</xsd:appinfo>
+                    <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:all>
+    </xsd:complexType>
+    <xsd:element name="EntityTest">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element name="subelement" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="totos">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element maxOccurs="unbounded" minOccurs="0" name="toto">
+                                <xsd:annotation>
+                                    <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                                </xsd:annotation>
+                                <xsd:complexType>
+                                    <xsd:all>
+                                        <xsd:element maxOccurs="1" minOccurs="1" name="valeur" type="xsd:string">
+                                            <xsd:annotation>
+                                                <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                                            </xsd:annotation>
+                                        </xsd:element>
+                                        <xsd:element maxOccurs="1" minOccurs="0" name="valeur2" type="xsd:string">
+                                            <xsd:annotation>
+                                                <xsd:appinfo source="X_Write">Hell_Admin</xsd:appinfo>
+                                            </xsd:annotation>
+                                        </xsd:element>
+                                    </xsd:all>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="EntityTest">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="subelement"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="toto">
+        <xsd:all>
+            <xsd:element name="subelement" type="xsd:string"/>
+        </xsd:all>
+    </xsd:complexType>
+</xsd:schema>
