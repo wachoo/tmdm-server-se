@@ -1,4 +1,15 @@
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">  
+<!--
+  ~ Copyright (C) 2006-2013 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>  
   <xsd:element name="Personne"> 
     <xsd:annotation> 
@@ -906,7 +917,7 @@
         <xsd:element maxOccurs="1" minOccurs="0" name="IdVINCIResponsable" type="xsd:string"> 
           <xsd:annotation> 
               
-            <xsd:appinfo source="X_ForeignKey">Personne/IdVINCI</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKey">Personne/IdMDM</xsd:appinfo>
             <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
             <xsd:appinfo source="X_Label_FR">Responsable</xsd:appinfo> 
           <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>

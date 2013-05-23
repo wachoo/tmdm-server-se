@@ -4990,7 +4990,7 @@
                             <xsd:sequence>
                                 <xsd:element maxOccurs="unbounded" minOccurs="0" name="GRD" type="xsd:string">
                                     <xsd:annotation>
-                                        <xsd:appinfo source="X_ForeignKey">Grd/idGrc</xsd:appinfo>
+                                        <xsd:appinfo source="X_ForeignKey">Grd/nom1Grc</xsd:appinfo>
                                         <xsd:appinfo source="X_ForeignKeyInfo">Grd/nom1Grc</xsd:appinfo>
                                         <xsd:appinfo source="X_ForeignKeyInfo">Grd/nom2Grc</xsd:appinfo>
                                         <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
@@ -5068,7 +5068,7 @@
                             <xsd:sequence>
                                 <xsd:element maxOccurs="unbounded" minOccurs="0" name="GRD" type="xsd:string">
                                     <xsd:annotation>
-                                        <xsd:appinfo source="X_ForeignKey">Grd/idGrc</xsd:appinfo>
+                                        <xsd:appinfo source="X_ForeignKey">Grd/nom1Grc</xsd:appinfo>
                                         <xsd:appinfo source="X_ForeignKeyInfo">Grd/nom1Grc</xsd:appinfo>
                                         <xsd:appinfo source="X_ForeignKeyInfo">Grd/nom2Grc</xsd:appinfo>
                                         <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
@@ -5531,7 +5531,7 @@
                                 <xsd:element maxOccurs="unbounded" minOccurs="1" name="SiteInjectionRpd"
                                              type="xsd:string">
                                     <xsd:annotation>
-                                        <xsd:appinfo source="X_ForeignKey">SiteInjectionRpd/code</xsd:appinfo>
+                                        <xsd:appinfo source="X_ForeignKey">SiteInjectionRpd/nom1</xsd:appinfo>
                                         <xsd:appinfo source="X_Label_FR">Site Injection RPD</xsd:appinfo>
                                         <xsd:appinfo source="X_ForeignKeyInfo">SiteInjectionRpd/nom1</xsd:appinfo>
                                         <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
@@ -5545,7 +5545,7 @@
                     </xsd:element>
                     <xsd:element maxOccurs="1" minOccurs="1" name="Grd" type="xsd:string">
                         <xsd:annotation>
-                            <xsd:appinfo source="X_ForeignKey">Grd/idGrc</xsd:appinfo>
+                            <xsd:appinfo source="X_ForeignKey">Grd/nom1Grc</xsd:appinfo>
                             <xsd:appinfo source="X_Label_FR">GRD</xsd:appinfo>
                             <xsd:appinfo source="X_ForeignKeyInfo">Grd/nom1Grc</xsd:appinfo>
                             <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>

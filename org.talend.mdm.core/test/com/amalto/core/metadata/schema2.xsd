@@ -1005,7 +1005,7 @@
         <xsd:all maxOccurs="1" minOccurs="1">
             <xsd:element maxOccurs="1" minOccurs="1" name="companycode" type="xsd:string">
                 <xsd:annotation>
-                    <xsd:appinfo source="X_ForeignKey">companyCode/name</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKey">companyCode/key</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">companyCode/code</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">companyCode/name</xsd:appinfo>
                     <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
@@ -1031,7 +1031,7 @@
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="1" name="sortKey" type="xsd:string">
                 <xsd:annotation>
-                    <xsd:appinfo source="X_ForeignKey">sortKey/description</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKey">sortKey/key</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">sortKey/code</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">sortKey/name</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">sortKey/description</xsd:appinfo>
@@ -1168,7 +1168,7 @@
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="1" name="accClerk" type="xsd:string">
                 <xsd:annotation>
-                    <xsd:appinfo source="X_ForeignKey">accountingClerk/name</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKey">accountingClerk/key</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">accountingClerk/code</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">accountingClerk/id</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">accountingClerk/name</xsd:appinfo>
@@ -1577,7 +1577,7 @@
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="1" name="customerCondition1" type="xsd:string">
                 <xsd:annotation>
-                    <xsd:appinfo source="X_ForeignKey">paymentMethod/description</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKey">paymentMethod/key</xsd:appinfo>
                     <xsd:appinfo source="X_Label_EN">Payment Method</xsd:appinfo>
                     <xsd:appinfo source="X_Description_EN">"Payment Method - Using condition groups on the customer
                         record, a customer can be assigned to a group that can be used during subsequent processing
@@ -6248,7 +6248,7 @@
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="1" name="customerCondition1" type="xsd:string">
                 <xsd:annotation>
-                    <xsd:appinfo source="X_ForeignKey">paymentMethod/description</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKey">paymentMethod/key</xsd:appinfo>
                     <xsd:appinfo source="X_Label_EN">Payment Method</xsd:appinfo>
                     <xsd:appinfo source="X_Description_EN">"Payment Method - Using condition groups on the customer
                         record, a customer can be assigned to a group that can be used during subsequent processing
@@ -6268,7 +6268,7 @@
         <xsd:all maxOccurs="1" minOccurs="1">
             <xsd:element maxOccurs="1" minOccurs="0" name="companycode" type="xsd:string">
                 <xsd:annotation>
-                    <xsd:appinfo source="X_ForeignKey">companyCode/name</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKey">companyCode/key</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">companyCode/code</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">companyCode/name</xsd:appinfo>
                     <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
@@ -6294,7 +6294,7 @@
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="0" name="sortKey" type="xsd:string">
                 <xsd:annotation>
-                    <xsd:appinfo source="X_ForeignKey">sortKey/description</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKey">sortKey/key</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">sortKey/code</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">sortKey/name</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">sortKey/description</xsd:appinfo>
@@ -6427,7 +6427,7 @@
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="0" name="accClerk" type="xsd:string">
                 <xsd:annotation>
-                    <xsd:appinfo source="X_ForeignKey">accountingClerk/name</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKey">accountingClerk/key</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">accountingClerk/code</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">accountingClerk/id</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">accountingClerk/name</xsd:appinfo>

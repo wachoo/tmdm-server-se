@@ -25,8 +25,7 @@
                 </xsd:element>
                 <xsd:element maxOccurs="1" minOccurs="0" name="IdVINCIRapprochement" type="xsd:string">
                     <xsd:annotation>
-
-                        <xsd:appinfo source="X_ForeignKey">Personne/IdVINCI</xsd:appinfo>
+                        <xsd:appinfo source="X_ForeignKey">Personne/IdMDM</xsd:appinfo>
                         <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
                         <xsd:appinfo source="X_Label_FR">ID VINCI de Rapprochement
                         </xsd:appinfo>
@@ -2033,8 +2032,6 @@
                 </xsd:element>
                 <xsd:element maxOccurs="1" minOccurs="1" name="IdContexteFk" type="xsd:string">
                     <xsd:annotation>
-                        <xsd:appinfo source="X_ForeignKey">Personne/Contextes/Contexte/IdContexte
-                        </xsd:appinfo>
                         <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
                         <xsd:appinfo source="X_Write">MDM_Admin</xsd:appinfo>
                     </xsd:annotation>

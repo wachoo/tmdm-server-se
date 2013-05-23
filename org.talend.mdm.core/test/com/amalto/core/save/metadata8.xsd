@@ -2419,7 +2419,7 @@
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="0" name="bank_country" type="xsd:string">
                 <xsd:annotation>
-                    <xsd:appinfo source="X_ForeignKey">CountryCode_Ref/CountryCode_A2</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKey">CountryCode_Ref/Country_Number</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">CountryCode_Ref/Country_Name</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">CountryCode_Ref/CountryCode_A2</xsd:appinfo>

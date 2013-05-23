@@ -32,7 +32,7 @@ public class MetadataValidationTest extends TestCase {
             // Expected
         }
         assertEquals(3, handler.getErrorCount());
-        assertTrue(handler.getErrors().contains(ValidationError.TYPE_DOES_NOT_EXIST));
+        assertTrue(handler.getMessages().contains(ValidationError.TYPE_DOES_NOT_EXIST));
     }
 
     public void testFK2() throws Exception {
@@ -46,7 +46,7 @@ public class MetadataValidationTest extends TestCase {
             // Expected
         }
         assertEquals(1, handler.getErrorCount());
-        assertTrue(handler.getErrors().contains(ValidationError.TYPE_DOES_NOT_EXIST));
+        assertTrue(handler.getMessages().contains(ValidationError.TYPE_DOES_NOT_EXIST));
     }
 
     public void testFK3() throws Exception {
@@ -59,13 +59,22 @@ public class MetadataValidationTest extends TestCase {
         assertEquals(0, handler.getWarningType());
     }
 
+    public void testFKPointToNonPK() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("FKCheck.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        repository.load(resourceAsStream, handler);
+        assertEquals(1, handler.getWarningField());
+        assertTrue(handler.getMessages().contains(ValidationError.FOREIGN_KEY_SHOULD_POINT_TO_PRIMARY_KEY));
+    }
+
     public void testFKINFO() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         InputStream resourceAsStream = this.getClass().getResourceAsStream("FKINFO.xsd");
         TestValidationHandler handler = new TestValidationHandler();
         repository.load(resourceAsStream, handler);
         assertEquals(1, handler.getWarningField());
-        assertTrue(handler.getErrors().contains(ValidationError.FOREIGN_KEY_INFO_NOT_PRIMITIVE_XSD_TYPED));
+        assertTrue(handler.getMessages().contains(ValidationError.FOREIGN_KEY_INFO_NOT_PRIMITIVE_XSD_TYPED));
     }
 
     public void testPKINFO_manyType() throws Exception {
@@ -79,7 +88,7 @@ public class MetadataValidationTest extends TestCase {
             // Expected
         }
         assertEquals(2, handler.getErrorCount());
-        assertTrue(handler.getErrors().contains(ValidationError.TYPE_DOES_NOT_OWN_FIELD));
+        assertTrue(handler.getMessages().contains(ValidationError.TYPE_DOES_NOT_OWN_FIELD));
     }
 
     public void testPK1() throws Exception {
@@ -93,7 +102,7 @@ public class MetadataValidationTest extends TestCase {
             // Expected
         }
         assertEquals(1, handler.getErrorCount());
-        assertTrue(handler.getErrors().contains(ValidationError.TYPE_DOES_NOT_OWN_FIELD));
+        assertTrue(handler.getMessages().contains(ValidationError.TYPE_DOES_NOT_OWN_FIELD));
     }
 
     public void testPK2() throws Exception {
@@ -107,7 +116,7 @@ public class MetadataValidationTest extends TestCase {
             // Expected
         }
         assertEquals(1, handler.getErrorCount());
-        assertTrue(handler.getErrors().contains(ValidationError.PRIMARY_KEY_INFO_CANNOT_BE_REPEATABLE));
+        assertTrue(handler.getMessages().contains(ValidationError.PRIMARY_KEY_INFO_CANNOT_BE_REPEATABLE));
     }
 
     public void testPK3() throws Exception {
@@ -121,7 +130,7 @@ public class MetadataValidationTest extends TestCase {
             // Expected
         }
         assertEquals(1, handler.getErrorCount());
-        assertTrue(handler.getErrors().contains(ValidationError.TYPE_DOES_NOT_OWN_FIELD));
+        assertTrue(handler.getMessages().contains(ValidationError.TYPE_DOES_NOT_OWN_FIELD));
     }
 
     public void testPK3_ManyPKInfo() throws Exception {
@@ -135,8 +144,8 @@ public class MetadataValidationTest extends TestCase {
             // Expected
         }
         assertEquals(4, handler.getErrorCount());
-        assertTrue(handler.getErrors().contains(ValidationError.TYPE_DOES_NOT_OWN_FIELD));
-        assertTrue(handler.getErrors().contains(ValidationError.PRIMARY_KEY_INFO_NOT_IN_ENTITY));
+        assertTrue(handler.getMessages().contains(ValidationError.TYPE_DOES_NOT_OWN_FIELD));
+        assertTrue(handler.getMessages().contains(ValidationError.PRIMARY_KEY_INFO_NOT_IN_ENTITY));
     }
 
     public void testPK4() throws Exception {
@@ -150,7 +159,7 @@ public class MetadataValidationTest extends TestCase {
             // Expected
         }
         assertEquals(1, handler.getErrorCount());
-        assertTrue(handler.getErrors().contains(ValidationError.PRIMARY_KEY_INFO_NOT_IN_ENTITY));
+        assertTrue(handler.getMessages().contains(ValidationError.PRIMARY_KEY_INFO_NOT_IN_ENTITY));
     }
 
     public void testPK5() throws Exception {
@@ -164,7 +173,7 @@ public class MetadataValidationTest extends TestCase {
             // Expected
         }
         assertEquals(1, handler.getErrorCount());
-        assertTrue(handler.getErrors().contains(ValidationError.FIELD_KEY_CANNOT_BE_FOREIGN_KEY));
+        assertTrue(handler.getMessages().contains(ValidationError.FIELD_KEY_CANNOT_BE_FOREIGN_KEY));
     }
 
     public void testPK6() throws Exception {
@@ -178,8 +187,8 @@ public class MetadataValidationTest extends TestCase {
             // Expected
         }
         assertEquals(2, handler.getErrorCount());
-        assertTrue(handler.getErrors().contains(ValidationError.FIELD_KEY_MUST_BE_MANDATORY));
-        assertTrue(handler.getErrors().contains(ValidationError.FIELD_KEY_CANNOT_BE_REPEATABLE));
+        assertTrue(handler.getMessages().contains(ValidationError.FIELD_KEY_MUST_BE_MANDATORY));
+        assertTrue(handler.getMessages().contains(ValidationError.FIELD_KEY_CANNOT_BE_REPEATABLE));
     }
 
     public void testLookUpField1() throws Exception {
@@ -193,7 +202,7 @@ public class MetadataValidationTest extends TestCase {
             // Expected
         }
         assertEquals(1, handler.getErrorCount());
-        assertTrue(handler.getErrors().contains(ValidationError.LOOKUP_FIELD_CANNOT_BE_KEY));
+        assertTrue(handler.getMessages().contains(ValidationError.LOOKUP_FIELD_CANNOT_BE_KEY));
     }
 
     private static class TestValidationHandler implements ValidationHandler {
@@ -268,7 +277,7 @@ public class MetadataValidationTest extends TestCase {
             return warningType;
         }
 
-        private Set<ValidationError> getErrors() {
+        private Set<ValidationError> getMessages() {
             return errors;
         }
     }

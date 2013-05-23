@@ -347,7 +347,7 @@
                         <xsd:annotation>
                             <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                             <xsd:appinfo source="X_Label_FR">Nature de l'email</xsd:appinfo>
-                            <xsd:appinfo source="X_ForeignKey">NatureEmail/Libelle</xsd:appinfo>
+                            <xsd:appinfo source="X_ForeignKey">NatureEmail/IdNatureEmail</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
                     <xsd:element maxOccurs="1" minOccurs="1" name="Email" type="EmailType">
@@ -1047,7 +1047,7 @@
         <xsd:sequence>
             <xsd:element maxOccurs="unbounded" minOccurs="0" name="Societe" type="xsd:string">
                 <xsd:annotation>
-                    <xsd:appinfo source="X_ForeignKey">Societe/CodeOSMOSE</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKey">Societe/IdSociete</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">Societe/Nom</xsd:appinfo>
                     <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                     <xsd:appinfo source="X_Label_FR">Societe</xsd:appinfo>

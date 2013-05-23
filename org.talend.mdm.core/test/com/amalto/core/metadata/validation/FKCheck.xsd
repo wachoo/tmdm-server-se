@@ -12,16 +12,27 @@
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>
     <xsd:element name="Test">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+        </xsd:annotation>
         <xsd:complexType>
             <xsd:all>
-                <xsd:element name="subelement" type="xsd:string"/>
-                <xsd:element maxOccurs="1" minOccurs="0" name="name" type="xsd:string"/>
+                <xsd:element name="subelement" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="name" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
                 <xsd:element maxOccurs="1" minOccurs="0" name="fk" type="xsd:string">
                     <xsd:annotation>
-                        <xsd:appinfo source="X_ForeignKey">Fk/subelement</xsd:appinfo>
+                        <xsd:appinfo source="X_ForeignKey">Fk/number</xsd:appinfo>
                         <xsd:appinfo source="X_ForeignKey_NotSep">false</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                         <xsd:appinfo source="X_ForeignKeyInfo">Fk/number</xsd:appinfo>
-                        <xsd:appinfo source="X_ForeignKeyInfo">Fk/complexType</xsd:appinfo>
                         <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                     </xsd:annotation>
                 </xsd:element>
@@ -33,11 +44,21 @@
         </xsd:unique>
     </xsd:element>
     <xsd:element name="Fk">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+        </xsd:annotation>
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:element name="subelement" type="xsd:string"/>
-                <xsd:element maxOccurs="1" minOccurs="0" name="number" type="xsd:int"/>
-                <xsd:element maxOccurs="1" minOccurs="0" name="complexType" type="TestFK"/>
+                <xsd:element name="subelement" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="number" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
             </xsd:sequence>
         </xsd:complexType>
         <xsd:unique name="Fk">
@@ -45,12 +66,4 @@
             <xsd:field xpath="subelement"/>
         </xsd:unique>
     </xsd:element>
-    <xsd:simpleType name="URL">
-        <xsd:restriction base="xsd:string"/>
-    </xsd:simpleType>
-    <xsd:complexType name="TestFK">
-        <xsd:all>
-            <xsd:element name="subelement" type="xsd:string"/>
-        </xsd:all>
-    </xsd:complexType>
 </xsd:schema>
