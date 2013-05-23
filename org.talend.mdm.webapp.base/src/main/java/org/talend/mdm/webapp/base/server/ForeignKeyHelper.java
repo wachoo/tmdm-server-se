@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
+import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
@@ -133,6 +134,16 @@ public class ForeignKeyHelper {
             if (model.getForeignKeyInfo() != null && model.getForeignKeyInfo().size() > 0 && businessConcept != null) {
                 businessConcept.load();
             }
+            // Polymorphism FK
+            boolean isPolymorphismFK = false;
+            if (businessConcept != null) {
+                String fkReusableType = businessConcept.getCorrespondTypeName();
+                if (fkReusableType != null) {
+                    List<ReusableType> subTypes = SchemaWebAgent.getInstance().getMySubtypes(fkReusableType, true);
+                    List<ReusableType> parentTypes = SchemaWebAgent.getInstance().getMyParents(fkReusableType);
+                    isPolymorphismFK = subTypes.size() > 0 || parentTypes.size() > 0;
+                }   
+            }
 
             for (int currentResult = 1; currentResult < results.length; currentResult++) { // TMDM-2834: first
                                                                                            // result is count
@@ -143,7 +154,7 @@ public class ForeignKeyHelper {
                 Element resultAsDOM = Util.parse(results[currentResult]).getDocumentElement();
 
                 ForeignKeyBean bean = new ForeignKeyBean();
-                if (businessConcept != null && businessConcept.getCorrespondTypeName() != null) {
+                if (businessConcept != null && isPolymorphismFK) {
                     bean.setTypeName(businessConcept.getCorrespondTypeName());
                     bean.setConceptName(fk);
                 }

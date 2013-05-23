@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.server;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -57,8 +58,9 @@ public class SchemaMockAgent extends SchemaAbstractWebAgent {
 
     @Override
     protected DataModelBean getFromPool(DataModelID dataModelID) throws Exception {
-        if (map.get(dataModelID) != null)
+        if (map.get(dataModelID) != null) {
             return map.get(dataModelID);
+        }
 
         DataModelBean dmBean = instantiateDataModelBean(dataModelSchema);
         map.put(dataModelID, dmBean);
@@ -91,6 +93,53 @@ public class SchemaMockAgent extends SchemaAbstractWebAgent {
     @Override
     public List<BusinessConcept> getAllBusinessConcepts() throws Exception {
         return getBusinessConcepts(dataModelID);
+    }
+
+    public List<ReusableType> getMyParents(String subTypeName) throws Exception {
+        DataModelBean dataModelBean = getFromPool(dataModelID);
+        List<ReusableType> reusableTypes = dataModelBean.getReusableTypes();
+        List<ReusableType> parentsTypes = new ArrayList<ReusableType>();
+        getParents(subTypeName, reusableTypes, parentsTypes);
+        return parentsTypes;
+    }
+
+    private void getParents(String subTypeName, List<ReusableType> reusableTypes, List<ReusableType> parentsTypes) {
+        for (ReusableType reusableType : reusableTypes) {
+            if (reusableType.getName().equals(subTypeName)) {
+                String parentName = reusableType.getParentName();
+                ReusableType type = findParentType(parentName, reusableTypes);
+                if (type != null) {
+                    parentsTypes.add(type);
+                    getParents(parentName, reusableTypes, parentsTypes);
+                }
+            }
+        }
+    }
+
+    private ReusableType findParentType(String parName, List<ReusableType> reusableTypes) {
+        ReusableType reUsable = null;
+        for (ReusableType reusableType : reusableTypes) {
+            if (reusableType.getName().equals(parName)) {
+                reUsable = reusableType;
+                break;
+            }
+        }
+        return reUsable;
+    }
+
+    public boolean isPolymorphismTypeFK(String fk) throws Exception {
+        // Polymorphism FK
+        boolean isPolymorphismFK = false;
+        BusinessConcept businessConcept = getBusinessConcept(fk);
+        if (businessConcept != null) {
+            String fkReusableType = businessConcept.getCorrespondTypeName();
+            if (fkReusableType != null) {
+                List<ReusableType> subTypes = this.getMySubtypes(fkReusableType, true);
+                List<ReusableType> parentTypes = this.getMyParents(fkReusableType);
+                isPolymorphismFK = subTypes.size() > 0 || parentTypes.size() > 0;
+            }
+        }
+        return isPolymorphismFK;
     }
 
 }

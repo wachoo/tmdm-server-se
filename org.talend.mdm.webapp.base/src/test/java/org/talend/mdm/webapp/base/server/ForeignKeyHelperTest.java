@@ -408,4 +408,22 @@ public class ForeignKeyHelperTest extends TestCase {
         ForeignKeyHelper.convertFKInfo2DisplayInfo(bean2, fkInfoList);
         assertNull(bean2.getDisplayInfo());
     }
+    
+    public void testIsPolymorphismTypeFK() throws Exception {
+        InputStream stream = getClass().getResourceAsStream("metadata.xsd");
+        String xsd = inputStream2String(stream);
+
+        SchemaMockAgent schemaMockAgent = new SchemaMockAgent(xsd, new DataModelID("Territory", null));
+        assertFalse(schemaMockAgent.isPolymorphismTypeFK("Country"));
+        
+        stream = getClass().getResourceAsStream("person.xsd");
+        xsd = inputStream2String(stream);
+
+        schemaMockAgent = new SchemaMockAgent(xsd, new DataModelID("ProductEntity", null));
+        assertTrue(schemaMockAgent.isPolymorphismTypeFK("Party"));
+        assertTrue(schemaMockAgent.isPolymorphismTypeFK("Individual"));
+        assertTrue(schemaMockAgent.isPolymorphismTypeFK("Company"));
+        assertFalse(schemaMockAgent.isPolymorphismTypeFK("Family"));
+        
+    }
 }
