@@ -133,7 +133,7 @@ public class SaverSession {
             ComplexTypeMetadata type = null;
             for (Map.Entry<String, Set<ItemPOJO>> currentTransaction : itemsPerDataCluster.entrySet()) {
                 String dataCluster = currentTransaction.getKey();
-                begin(dataCluster, committer);
+                // No need to call 'begin(dataCluster, committer)' -> this was already done
                 for (ItemPOJO currentItemToCommit : currentTransaction.getValue()) {
                     if (repository == null || type == null) {
                         String dataModelName = currentItemToCommit.getDataModelName();
