@@ -29,16 +29,7 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
 
     private final ClassRepository repository;
 
-    private ComplexTypeMetadata type;
-
-    public SystemDataRecordXmlWriter(ClassRepository repository) {
-        this(repository, ((String) null));
-    }
-
-    private SystemDataRecordXmlWriter(ClassRepository repository, String rootElementName) {
-        this.repository = repository;
-        this.rootElementName = rootElementName;
-    }
+    private final ComplexTypeMetadata type;
 
     public SystemDataRecordXmlWriter(ClassRepository repository, ComplexTypeMetadata type) {
         this.repository = repository;
@@ -77,9 +68,9 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
     }
 
     private static boolean isValidAttributeType(TypeMetadata type) {
-        return !("string".equals(type.getName()) //$NON-NLS-1$
-                || "date".equals(type.getName()) //$NON-NLS-1$
-                || "boolean".equals(type.getName()) //$NON-NLS-1$
+        return !(Types.STRING.equals(type.getName())
+                || Types.DATE.equals(type.getName())
+                || Types.BOOLEAN.equals(type.getName())
                 || ClassRepository.EMBEDDED_XML.equals(type.getName()));
     }
 
@@ -195,7 +186,7 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
                             if (currentValue != null) {
                                 if (ClassRepository.EMBEDDED_XML.equals(simpleField.getType().getName())) {
                                     out.write("<" + simpleField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
-                                } else if ("base64Binary".equals(simpleField.getType().getName())) { //$NON-NLS-1$
+                                } else if (Types.BASE64_BINARY.equals(simpleField.getType().getName())) {
                                     out.write("<" + simpleField.getName() //$NON-NLS-1$
                                             + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" //$NON-NLS-1$
                                             + " xsi:type=\"[B\">"); //$NON-NLS-1$
@@ -230,11 +221,11 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
             if (value == null) {
                 throw new IllegalArgumentException("Not supposed to write null values to XML.");
             }
-            if ("date".equals(simpleField.getType().getName())) { //$NON-NLS-1$
+            if (Types.DATE.equals(simpleField.getType().getName())) { //$NON-NLS-1$
                 synchronized (DateConstant.DATE_FORMAT) {
                     out.write((DateConstant.DATE_FORMAT).format(value));
                 }
-            } else if ("dateTime".equals(simpleField.getType().getName())) { //$NON-NLS-1$
+            } else if (Types.DATETIME.equals(simpleField.getType().getName())) { //$NON-NLS-1$
                 synchronized (DateTimeConstant.DATE_FORMAT) {
                     out.write((DateTimeConstant.DATE_FORMAT).format(value));
                 }

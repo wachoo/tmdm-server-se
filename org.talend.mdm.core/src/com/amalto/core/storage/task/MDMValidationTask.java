@@ -191,13 +191,11 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             List<String> writeUsers = stagingRecord.getType().getWriteUsers();
             if (writeUsers != null) {
                 List<String> hideUserRoles = stagingRecord.getType().getHideUsers();
-                Iterator<String> iter = writeUsers.iterator();
-                while (iter.hasNext()){
-                    String writeUser = iter.next();
-                    if (hideUserRoles.contains(writeUser)){
+                for (String writeUser : writeUsers) {
+                    if (hideUserRoles.contains(writeUser)) {
                         continue;
                     }
-                    if (currentRoles != null){
+                    if (currentRoles != null) {
                         for (String role : currentRoles) {
                             if (writeUser.equals(role)) {
                                 return true;

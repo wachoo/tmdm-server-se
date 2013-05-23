@@ -26,7 +26,7 @@ public interface DataRecordWriter {
      * @param record A {@link DataRecord} instance.
      * @param output A {@link OutputStream} instance.
      * @throws IOException In case of errors while writing to <code>output</code>.
-     * @see DataRecordReader#read(String, org.talend.mdm.commmon.metadata.ComplexTypeMetadata, org.talend.mdm.commmon.metadata.ComplexTypeMetadata, Object)
+     * @see DataRecordReader#read(String, org.talend.mdm.commmon.metadata.MetadataRepository, org.talend.mdm.commmon.metadata.ComplexTypeMetadata, Object)
      */
     public void write(DataRecord record, OutputStream output) throws IOException;
 
