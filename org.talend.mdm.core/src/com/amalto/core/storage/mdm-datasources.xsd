@@ -141,6 +141,7 @@
                     <xs:element type="xs:string" name="fulltext-index-directory" minOccurs="0" maxOccurs="1"/>
                     <xs:element type="xs:string" name="cache-directory" minOccurs="0" maxOccurs="1"/>
                     <xs:element type="schemaGenerationType" name="schema-generation" minOccurs="0" maxOccurs="1"/>
+                    <xs:element type="containsOptimizationType" name="contains-optimization" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="properties" minOccurs="0" maxOccurs="1">
                         <xs:complexType>
                             <xs:sequence>
@@ -178,6 +179,13 @@
             <xs:enumeration value="update"/>
             <xs:enumeration value="create"/>
             <xs:enumeration value="validate"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="containsOptimizationType">
+        <xs:restriction base="xsd:string">
+            <xs:enumeration value="fulltext"/>
+            <xs:enumeration value="disabled"/>
+            <xs:enumeration value="like"/>
         </xs:restriction>
     </xs:simpleType>
 </xs:schema>

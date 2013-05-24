@@ -11,147 +11,131 @@
 
 package com.amalto.core.storage.hibernate;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import javax.xml.XMLConstants;
-
-import com.amalto.core.metadata.*;
+import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.query.user.*;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.exception.FullTextQueryCompositeKeyException;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.lucene.analysis.KeywordAnalyzer;
-import org.apache.lucene.queryParser.MultiFieldQueryParser;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.util.Version;
+import org.apache.lucene.search.*;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
+import com.amalto.core.metadata.*;
 
-import com.amalto.core.query.user.Alias;
-import com.amalto.core.query.user.BinaryLogicOperator;
-import com.amalto.core.query.user.Compare;
-import com.amalto.core.query.user.Condition;
-import com.amalto.core.query.user.Field;
-import com.amalto.core.query.user.FullText;
-import com.amalto.core.query.user.Join;
-import com.amalto.core.query.user.OrderBy;
-import com.amalto.core.query.user.Paging;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.query.user.StringConstant;
-import com.amalto.core.query.user.TaskId;
-import com.amalto.core.query.user.Timestamp;
-import com.amalto.core.query.user.TypedExpression;
-import com.amalto.core.query.user.UnaryLogicOperator;
-import com.amalto.core.query.user.VisitorAdapter;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.exception.FullTextQueryCompositeKeyException;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import javax.xml.XMLConstants;
+import java.io.IOException;
+import java.util.*;
 
 
 class FullTextQueryHandler extends AbstractQueryHandler {
 
     private FullTextQuery query;
 
-    private List<ComplexTypeMetadata> types;
-
     private int pageSize;
 
+    private final MappingRepository mappings;
+
     public FullTextQueryHandler(Storage storage,
-                                MappingRepository repository,
+                                MappingRepository mappings,
                                 StorageClassLoader storageClassLoader,
                                 Session session,
                                 Select select,
                                 List<TypedExpression> selectedFields,
                                 Set<EndOfResultsCallback> callbacks) {
-        super(storage, repository, storageClassLoader, session, select, selectedFields, callbacks);
+        super(storage, mappings, storageClassLoader, session, select, selectedFields, callbacks);
+        this.mappings = mappings;
     }
 
     @Override
-    public StorageResults visit(Select select) {        
-    
+    public StorageResults visit(Select select) {
+        // TMDM-4654: Checks if entity has a composite PK.
         Set<ComplexTypeMetadata> compositeKeyTypes = new HashSet<ComplexTypeMetadata>();
-        for (ComplexTypeMetadata type : select.getTypes()) {
+        List<ComplexTypeMetadata> types = select.getTypes();
+        for (ComplexTypeMetadata type : types) {
             if (type.getKeyFields().size() > 1) {
                 compositeKeyTypes.add(type);
             }
-        }        
-        
-        if (!compositeKeyTypes.isEmpty()) {        
+        }
+        if (!compositeKeyTypes.isEmpty()) {
             StringBuilder message = new StringBuilder();
             Iterator it = compositeKeyTypes.iterator();
             while (it.hasNext()) {
-                ComplexTypeMetadata compositeKeyType = (ComplexTypeMetadata)it.next();
+                ComplexTypeMetadata compositeKeyType = (ComplexTypeMetadata) it.next();
                 message.append(compositeKeyType.getName());
                 if (it.hasNext()) {
-                    message.append(","); //$NON-NLS-1$
+                    message.append(',');
                 }
-            }          
+            }
             throw new FullTextQueryCompositeKeyException(message.toString());
-        } 
-      
+        }
+        // Removes Joins and joined fields.
         List<Join> joins = select.getJoins();
         if (!joins.isEmpty()) {
-            throw new IllegalArgumentException("Cannot perform join clause(s) when doing full text search.");
+            Set<TypeMetadata> joinedTypes = new HashSet<TypeMetadata>();
+            for (Join join : joins) {
+                joinedTypes.add(join.getRightField().getFieldMetadata().getContainingType());
+            }
+            for (TypeMetadata joinedType : joinedTypes) {
+                types.remove(joinedType);
+            }
+            List<TypedExpression> filteredFields = new LinkedList<TypedExpression>();
+            for (TypedExpression expression : select.getSelectedFields()) {
+                if (expression instanceof Field) {
+                    FieldMetadata fieldMetadata = ((Field) expression).getFieldMetadata();
+                    if (joinedTypes.contains(fieldMetadata.getContainingType())) {
+                        TypeMapping mapping = mappings.getMappingFromDatabase(fieldMetadata.getContainingType());
+                        filteredFields.add(new Alias(new StringConstant(StringUtils.EMPTY), mapping.getUser(fieldMetadata).getName()));
+                    } else {
+                        filteredFields.add(expression);
+                    }
+                } else {
+                    filteredFields.add(expression);
+                }
+            }
+            selectedFields.clear();
+            selectedFields.addAll(filteredFields);
         }
-
+        // Handle condition
         Condition condition = select.getCondition();
         if (condition == null) {
             throw new IllegalArgumentException("Expected a condition in select clause but got 0.");
         }
-
-        boolean isValidFullTextQuery = condition.accept(new VisitorAdapter<Boolean>() {
-            @Override
-            public Boolean visit(Condition condition) {
-                return false;
+        // condition.accept(this);
+        // Create Lucene query (concatenates all sub queries together).
+        FullTextSession fullTextSession = Search.getFullTextSession(session);
+        Query parsedQuery = select.getCondition().accept(new LuceneQueryGenerator(types));
+        // Create Hibernate Search query
+        Set<Class> classes = new HashSet<Class>();
+        for (ComplexTypeMetadata type : types) {
+            String className = ClassCreator.getClassName(type.getName());
+            try {
+                ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+                classes.add(contextClassLoader.loadClass(className));
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Could not find class '" + className + "'.", e);
             }
-
-            @Override
-            public Boolean visit(UnaryLogicOperator condition) {
-                return condition.getCondition().accept(this);
-            }
-
-            @Override
-            public Boolean visit(BinaryLogicOperator condition) {
-                return condition.getLeft().accept(this) && condition.getRight().accept(this);
-            }
-
-            @Override
-            public Boolean visit(Compare condition) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(FullText fullText) {
-                return true;
-            }
-        });
-        if (!isValidFullTextQuery) {
-            throw new IllegalArgumentException("Expected a full text search clause and *only* a full text search.");
         }
-
-        types = select.getTypes();
-        condition.accept(this);
-
+        FullTextQuery fullTextQuery = fullTextSession.createFullTextQuery(parsedQuery,
+                classes.toArray(new Class<?>[classes.size()]));
+        // Very important to leave this null (would disable ability to search across different types)
+        fullTextQuery.setCriteriaQuery(null);
+        fullTextQuery.setSort(Sort.RELEVANCE); // Default sort (if no order by specified).
+        query = EntityFinder.wrap(fullTextQuery, (HibernateStorage) storage, session); // ensures only MDM entity objects are returned.
+        // Order by
         OrderBy orderBy = select.getOrderBy();
         if (orderBy != null) {
             orderBy.accept(this);
         }
-
+        // Paging
         Paging paging = select.getPaging();
         paging.accept(this);
-
         pageSize = paging.getLimit();
         boolean hasPaging = pageSize < Integer.MAX_VALUE;
         if (!hasPaging) {
@@ -161,12 +145,20 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         }
     }
 
-    private StorageResults createResults(List list) {
+    @Override
+    public StorageResults visit(Paging paging) {
+        query.setFirstResult(paging.getStart());
+        query.setFetchSize(AbstractQueryHandler.JDBC_FETCH_SIZE);
+        query.setMaxResults(paging.getLimit());
+        return null;
+    }
+
+    private StorageResults createResults(final List list) {
         CloseableIterator<DataRecord> iterator;
         if (selectedFields.isEmpty()) {
-            iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, list.iterator(), callbacks);
+            iterator = new ListIterator(mappings, storageClassLoader, list.iterator(), callbacks);
         } else {
-            iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, list.iterator(), callbacks) {
+            iterator = new ListIterator(mappings, storageClassLoader, list.iterator(), callbacks) {
                 @Override
                 public DataRecord next() {
                     final DataRecord next = super.next();
@@ -180,12 +172,9 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                         @Override
                         public Void visit(Field field) {
                             FieldMetadata fieldMetadata = field.getFieldMetadata();
-                            if (aliasName != null) {
-                                SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName == null ? fieldMetadata.getType().getName() : typeName);
-                                fieldMetadata = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, aliasName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList());
-                                explicitProjectionType.addField(fieldMetadata);
-                            } else {
-                                explicitProjectionType.addField(fieldMetadata);
+                            TypeMapping mapping = mappings.getMappingFromDatabase(fieldMetadata.getContainingType());
+                            if (mapping != null && mapping.getUser(fieldMetadata) != null) {
+                                fieldMetadata = mapping.getUser(fieldMetadata);
                             }
                             Object value;
                             if (fieldMetadata instanceof ReferenceFieldMetadata) {
@@ -193,12 +182,38 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                             } else {
                                 value = next.get(fieldMetadata);
                             }
+                            if (aliasName != null) {
+                                SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName == null ? fieldMetadata.getType().getName() : typeName);
+                                fieldMetadata = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, aliasName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList());
+                                explicitProjectionType.addField(fieldMetadata);
+                            } else {
+                                explicitProjectionType.addField(fieldMetadata);
+                            }
                             nextRecord.set(fieldMetadata, value);
                             return null;
                         }
 
                         @Override
                         public Void visit(StringConstant constant) {
+                            if (aliasName != null) {
+                                SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
+                                FieldMetadata fieldMetadata = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, aliasName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList());
+                                explicitProjectionType.addField(fieldMetadata);
+                                nextRecord.set(fieldMetadata, constant.getValue());
+                            } else {
+                                throw new IllegalStateException("Expected an alias for a constant expression.");
+                            }
+                            return null;
+                        }
+
+                        @Override
+                        public Void visit(Count count) {
+                            if (aliasName != null) {
+                                SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
+                                FieldMetadata fieldMetadata = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, aliasName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList());
+                                explicitProjectionType.addField(fieldMetadata);
+                                nextRecord.set(fieldMetadata, list.size());
+                            }
                             return null;
                         }
 
@@ -245,12 +260,12 @@ class FullTextQueryHandler extends AbstractQueryHandler {
     private StorageResults createResults(ScrollableResults scrollableResults) {
         CloseableIterator<DataRecord> iterator;
         if (selectedFields.isEmpty()) {
-            iterator = new ScrollableIterator(mappingMetadataRepository,
+            iterator = new ScrollableIterator(mappings,
                     storageClassLoader,
                     scrollableResults,
                     callbacks);
         } else {
-            iterator = new ScrollableIterator(mappingMetadataRepository,
+            iterator = new ScrollableIterator(mappings,
                     storageClassLoader,
                     scrollableResults,
                     callbacks) {
@@ -262,12 +277,38 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                             false);
                     DataRecord nextRecord = new DataRecord(explicitProjectionType, UnsupportedDataRecordMetadata.INSTANCE);
                     for (TypedExpression selectedField : selectedFields) {
-                        FieldMetadata field = ((Field) selectedField).getFieldMetadata();
-                        explicitProjectionType.addField(field);
-                        if (field instanceof ReferenceFieldMetadata) {
-                            nextRecord.set(field, getReferencedId(next, (ReferenceFieldMetadata) field));
-                        } else {
-                            nextRecord.set(field, next.get(field));
+                        if (selectedField instanceof Field) {
+                            FieldMetadata field = ((Field) selectedField).getFieldMetadata();
+                            TypeMapping mapping = mappings.getMappingFromDatabase(field.getContainingType());
+                            if (mapping != null && mapping.getUser(field) != null) {
+                                field = mapping.getUser(field);
+                            }
+                            explicitProjectionType.addField(field);
+                            if (field instanceof ReferenceFieldMetadata) {
+                                nextRecord.set(field, getReferencedId(next, (ReferenceFieldMetadata) field));
+                            } else {
+                                nextRecord.set(field, next.get(field));
+                            }
+                        } else if (selectedField instanceof Alias) {
+                            SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, selectedField.getTypeName());
+                            Alias alias = (Alias) selectedField;
+                            SimpleTypeFieldMetadata newField = new SimpleTypeFieldMetadata(explicitProjectionType,
+                                    false,
+                                    false,
+                                    false,
+                                    alias.getAliasName(),
+                                    fieldType,
+                                    Collections.<String>emptyList(),
+                                    Collections.<String>emptyList());
+                            explicitProjectionType.addField(newField);
+                            TypedExpression typedExpression = alias.getTypedExpression();
+                            if (typedExpression instanceof StringConstant) {
+                                nextRecord.set(newField, ((StringConstant) typedExpression).getValue());
+                            } else if (typedExpression instanceof Field) {
+                                nextRecord.set(newField, next.get(((Field) typedExpression).getFieldMetadata()));
+                            } else {
+                                throw new IllegalArgumentException("Aliased expression '" + typedExpression + "' is not supported.");
+                            }
                         }
                     }
                     explicitProjectionType.freeze(DefaultValidationHandler.INSTANCE);
@@ -281,10 +322,10 @@ class FullTextQueryHandler extends AbstractQueryHandler {
 
     private static Object getReferencedId(DataRecord next, ReferenceFieldMetadata field) {
         DataRecord record = (DataRecord) next.get(field);
-        if (record != null){
-            List<FieldMetadata> keyFields = record.getType().getKeyFields();
+        if (record != null) {
+            Collection<FieldMetadata> keyFields = record.getType().getKeyFields();
             if (keyFields.size() == 1) {
-                return record.get(keyFields.get(0));
+                return record.get(keyFields.iterator().next());
             } else {
                 List<Object> compositeKeyValues = new ArrayList<Object>(keyFields.size());
                 for (FieldMetadata keyField : keyFields) {
@@ -292,83 +333,61 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 }
                 return compositeKeyValues;
             }
-        }else{
+        } else {
             return StringUtils.EMPTY;
-        }        
-    }
-
-    @Override
-    public StorageResults visit(Paging paging) {
-        query.setFirstResult(paging.getStart());
-        query.setFetchSize(JDBC_FETCH_SIZE);
-        query.setMaxResults(paging.getLimit());
-        return null;
+        }
     }
 
     @Override
     public StorageResults visit(OrderBy orderBy) {
-        throw new NotImplementedException("No support for order by for full text search.");
+        TypedExpression field = orderBy.getField();
+        if (field instanceof Field) {
+            FieldMetadata fieldMetadata = ((Field) field).getFieldMetadata();
+            SortField sortField = new SortField(fieldMetadata.getName(),
+                    getSortType(fieldMetadata),
+                    orderBy.getDirection() == OrderBy.Direction.DESC);
+            query.setSort(new Sort(sortField));
+            return null;
+        } else {
+            throw new NotImplementedException("No support for order by for full text search on non-field.");
+        }
     }
 
-    @Override
-    public StorageResults visit(FullText fullText) {
-        // TODO Test me on conditions where many types share same field names.
-        FullTextSession fullTextSession = Search.getFullTextSession(session);
-        try {
-            List<Class> classes = new LinkedList<Class>();
-            List<String> fields = new LinkedList<String>();
-            for (ComplexTypeMetadata type : types) {
-                try {
-                    fields.addAll(type.accept(new DefaultMetadataVisitor<List<String>>() {
-                        final List<String> fields = new LinkedList<String>();
-
-                        @Override
-                        public List<String> visit(ComplexTypeMetadata complexType) {
-                            super.visit(complexType);
-                            return fields;
-                        }
-
-                        @Override
-                        public List<String> visit(SimpleTypeFieldMetadata simpleField) {
-                            fields.add(getFieldName(simpleField, mappingMetadataRepository, false, false));
-                            return fields;
-                        }
-
-                        @Override
-                        public List<String> visit(EnumerationFieldMetadata enumField) {
-                            fields.add(getFieldName(enumField, mappingMetadataRepository, false, false));
-                            return fields;
-                        }
-                    }));
-                    Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(ClassCreator.PACKAGE_PREFIX + type.getName());
-                    classes.add(clazz);
-                } catch (ClassNotFoundException e) {
-                    throw new IllegalArgumentException("Type '" + type.getName() + "' has no generated class in current class loader.");
-                }
-            }
-
-            String[] fieldsAsArray = fields.toArray(new String[fields.size()]);
-            MultiFieldQueryParser parser = new MultiFieldQueryParser(Version.LUCENE_29, fieldsAsArray, new KeywordAnalyzer());
-            StringBuilder queryBuffer = new StringBuilder();
-            Iterator<String> fieldsIterator = fields.iterator();
-            while (fieldsIterator.hasNext()) {
-                String next = fieldsIterator.next();
-                queryBuffer.append(next).append(':').append(fullText.getValue()).append("*"); //$NON-NLS-1$
-                if (fieldsIterator.hasNext()) {
-                    queryBuffer.append(" OR "); //$NON-NLS-1$
-                }
-            }
-            org.apache.lucene.search.Query parse = parser.parse(queryBuffer.toString());
-
-            FullTextQuery fullTextQuery = fullTextSession.createFullTextQuery(parse, classes.toArray(new Class<?>[classes.size()]));
-            // Very important to leave this null (would disable ability to search across different types)
-            fullTextQuery.setCriteriaQuery(null);
-            fullTextQuery.setSort(Sort.RELEVANCE);
-            this.query = fullTextQuery;
-
-            return null;
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
+    private static int getSortType(FieldMetadata fieldMetadata) {
+        TypeMetadata fieldType = fieldMetadata.getType();
+        String type = MetadataUtils.getSuperConcreteType(fieldType).getName();
+        if ("string".equals(type)
+                || "anyURI".equals(type)
+                || "boolean".equals(type)
+                || "base64binary".equals(type)
+                || "QName".equals(type)
+                || "hexBinary".equals(type)) {
+            return SortField.STRING_VAL; // STRING does not work well for 'long' strings.
+        } else if ("int".equals(type) //$NON-NLS-1$
+                        || "integer".equals(type) //$NON-NLS-1$
+                        || "positiveInteger".equals(type) //$NON-NLS-1$
+                        || "nonPositiveInteger".equals(type) //$NON-NLS-1$
+                        || "nonNegativeInteger".equals(type) //$NON-NLS-1$
+                        || "negativeInteger".equals(type) //$NON-NLS-1$
+                        || "unsignedInt".equals(type)) { //$NON-NLS-1$
+            return SortField.INT;
+        } else if ("decimal".equals(type) || "double".equals(type)) {
+            return SortField.DOUBLE;
+        } else if ("date".equals(type) //$NON-NLS-1$
+                        || "dateTime".equals(type) //$NON-NLS-1$
+                        || "time".equals(type) //$NON-NLS-1$
+                        || "duration".equals(type)) { //$NON-NLS-1$
+            return SortField.STRING;
+        } else if ("unsignedShort".equals(type) || "short".equals(type)) {
+            return SortField.SHORT;
+        } else if ("unsignedLong".equals(type) || "long".equals(type)) {
+            return SortField.LONG;
+        } else if ("float".equals(type)) {
+            return SortField.FLOAT;
+        } else if ("byte".equals(type) || "unsignedByte".equals(type)) {
+            return SortField.BYTE;
+        } else {
+            throw new UnsupportedOperationException("No support for field typed as '" + type + "'");
         }
     }
 
@@ -387,6 +406,9 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         }
 
         public int getSize() {
+            if (size == Integer.MAX_VALUE) {
+                return getCount();
+            }
             return size;
         }
 

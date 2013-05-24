@@ -291,6 +291,13 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         return null;
     }
 
+    public static String getClassName(String typeName) {
+        if (typeName.charAt(0) >= 'a') {
+            typeName = (char) (typeName.charAt(0) + ('A' - 'a')) + typeName.substring(1);
+        }
+        return PACKAGE_PREFIX + typeName;
+    }
+
     private CtMethod createFixedSetter(CtClass newClass, String fieldName, String methodName) throws CannotCompileException {
         StringBuilder setTimeStampMethodBody = new StringBuilder();
         setTimeStampMethodBody.append("public void ").append(methodName).append("(long value) {"); //$NON-NLS-1$ //$NON-NLS-2$

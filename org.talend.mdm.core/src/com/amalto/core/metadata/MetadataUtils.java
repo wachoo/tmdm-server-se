@@ -26,6 +26,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
 
+import javax.xml.XMLConstants;
+
 public class MetadataUtils {
 
     private MetadataUtils() {
@@ -153,6 +155,40 @@ public class MetadataUtils {
             }
         }
         return path;
+    }
+
+    /**
+     * Returns the top level type for <code>type</code> parameter: this method returns the type before <i>anyType</i>
+     * in type hierarchy. This does not apply to types declared in {@link javax.xml.XMLConstants#W3C_XML_SCHEMA_NS_URI}.
+     * <ul>
+     * <li>In an MDM entity B inherits from A, getSuperConcreteType(B) returns A.</li>
+     * <li>If a simple type LimitedString extends xsd:string, getSuperConcreteType(LimitedString) returns xsd:string.</li>
+     * <li>getSuperConcreteType(xsd:long) returns xsd:long (even if xsd:long extends xsd:decimal).</li>
+     * <li>If the type does not have any super type, this method returns the <code>type</code> parameter.</li>
+     * </ul>
+     *
+     * @param type A non null type that may have super types.
+     * @return The higher type in inheritance tree before <i>anyType</i>.
+     */
+    public static TypeMetadata getSuperConcreteType(TypeMetadata type) {
+        if (type == null) {
+            return null;
+        }
+        // Move up the inheritance tree to find the "most generic" type (used when simple types inherits from XSD types,
+        // in this case, the XSD type is interesting, not the custom one).
+        if (!XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(type.getNamespace())) {
+            while (!type.getSuperTypes().isEmpty()) {
+                TypeMetadata superType = type.getSuperTypes().iterator().next();
+                if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(superType.getNamespace())
+                        && ("anyType".equals(superType.getName()) //$NON-NLS-1$
+                        || "anySimpleType".equals(superType.getName()) //$NON-NLS-1$
+                        || "decimal".equals(superType.getName()))) { //$NON-NLS-1$
+                    break;
+                }
+                type = superType;
+            }
+        }
+        return type;
     }
 
     /**

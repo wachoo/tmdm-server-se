@@ -126,5 +126,10 @@ public class ContainsOptimizer extends Optimizer {
         public Condition visit(FullText fullText) {
             return fullText;
         }
+
+        @Override
+        public Condition visit(FieldFullText fieldFullText) {
+            return fieldFullText;
+        }
     }
 }

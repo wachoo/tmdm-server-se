@@ -11,6 +11,7 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
 import com.amalto.core.query.user.*;
 import com.amalto.core.metadata.*;
 import com.amalto.core.query.optimization.ContainsOptimizer;
@@ -404,7 +405,7 @@ public class HibernateStorage implements Storage {
         }
     }
 
-    private InternalRepository getTypeEnhancer() {
+    public InternalRepository getTypeEnhancer() {
         if (typeMappingRepository == null) {
             switch (storageType) {
                 case MASTER:
@@ -765,14 +766,19 @@ public class HibernateStorage implements Storage {
     private StorageResults internalFetch(Session session, Expression userQuery, Set<EndOfResultsCallback> callbacks) {
         // Always normalize the query to ensure query has expected format.
         Expression expression = userQuery.normalize();
-        SelectAnalyzer selectAnalysis = new SelectAnalyzer(mappingRepository, storageClassLoader, session, callbacks, this, tableResolver);
-        AbstractQueryHandler queryHandler = userQuery.accept(selectAnalysis);
         if (expression instanceof Select) {
             Select select = (Select) expression;
+            // Contains optimizations (use of full text, disable it...)
+            ConfigurableContainsOptimizer containsOptimizer = new ConfigurableContainsOptimizer(dataSource);
+            containsOptimizer.optimize(select);
+            // Other optimizations
             for (Optimizer optimizer : OPTIMIZERS) {
                 optimizer.optimize(select);
             }
         }
+        expression = expression.normalize();
+        SelectAnalyzer selectAnalysis = new SelectAnalyzer(mappingRepository, storageClassLoader, session, callbacks, this, tableResolver);
+        AbstractQueryHandler queryHandler = userQuery.accept(selectAnalysis);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Query after optimizations:");
             userQuery.accept(new UserQueryDumpConsole(LOGGER));

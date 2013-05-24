@@ -233,11 +233,20 @@ public class DataSourceFactory {
                 String propertyValue = item.getTextContent();
                 advancedProperties.put(propertyName, propertyValue);
             }
+            // Contains optimization
+            String containsOptimizationAsString = (String) evaluate(dataSource, "rdbms-configuration/contains-optimization", XPathConstants.STRING); //$NON-NLS-1$
+            RDBMSDataSource.ContainsOptimization containsOptimization = RDBMSDataSource.ContainsOptimization.LIKE; // 5.2 default is "like"
+            if ("fulltext".equals(containsOptimizationAsString)) { //$NON-NLS-1$
+                containsOptimization = RDBMSDataSource.ContainsOptimization.FULL_TEXT;
+            } else if ("disabled".equals(containsOptimizationAsString)) { //$NON-NLS-1$
+                containsOptimization = RDBMSDataSource.ContainsOptimization.DISABLED;
+            } else if ("like".equals(containsOptimizationAsString)) { //$NON-NLS-1$
+                containsOptimization = RDBMSDataSource.ContainsOptimization.LIKE;
+            }
             String initConnectionURL = (String) evaluate(dataSource, "rdbms-configuration/init/connection-url", XPathConstants.STRING); //$NON-NLS-1$
             String initUserName = (String) evaluate(dataSource, "rdbms-configuration/init/connection-username", XPathConstants.STRING); //$NON-NLS-1$
             String initPassword = (String) evaluate(dataSource, "rdbms-configuration/init/connection-password", XPathConstants.STRING); //$NON-NLS-1$
             String databaseName = (String) evaluate(dataSource, "rdbms-configuration/init/database-name", XPathConstants.STRING); //$NON-NLS-1$
-
             return new RDBMSDataSource(name,
                     dialectName,
                     driverClassName,
@@ -251,6 +260,7 @@ public class DataSourceFactory {
                     advancedProperties,
                     connectionURL,
                     databaseName,
+                    containsOptimization,
                     initPassword,
                     initUserName,
                     initConnectionURL);

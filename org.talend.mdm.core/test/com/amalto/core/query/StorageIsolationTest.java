@@ -25,6 +25,9 @@ import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 
+import static com.amalto.core.query.user.UserQueryBuilder.contains;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
+
 @SuppressWarnings("nls")
 public class StorageIsolationTest extends TestCase {
 
@@ -119,7 +122,7 @@ public class StorageIsolationTest extends TestCase {
                 storage.commit();
                 storage.end();
 
-                UserQueryBuilder qb = UserQueryBuilder.from(type).select(type.getField("field"));
+                UserQueryBuilder qb = from(type).select(type.getField("field"));
                 StorageResults results = storage.fetch(qb.getSelect());
                 try {
                     actualInstanceNumber = results.getCount();
@@ -127,7 +130,7 @@ public class StorageIsolationTest extends TestCase {
                     results.close();
                 }
 
-                qb = UserQueryBuilder.from(type).where(UserQueryBuilder.fullText(valueNotToBeFound));
+                qb = from(type).where(contains(type.getField("field"), valueNotToBeFound));
                 results = storage.fetch(qb.getSelect());
                 try {
                     actualFullTextResults = results.getCount();

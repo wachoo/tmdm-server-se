@@ -164,6 +164,11 @@ public class UpdateReportOptimizer extends Optimizer {
         public String visit(FullText fullText) {
             return null;
         }
+
+        @Override
+        public String visit(FieldFullText fullText) {
+            return null;
+        }
     }
 
     private static class UpdateReportTransformer extends VisitorAdapter<Condition> {
@@ -294,6 +299,11 @@ public class UpdateReportOptimizer extends Optimizer {
 
         @Override
         public Condition visit(FullText fullText) {
+            return fullText;
+        }
+
+        @Override
+        public Condition visit(FieldFullText fullText) {
             return fullText;
         }
     }

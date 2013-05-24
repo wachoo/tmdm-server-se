@@ -11,12 +11,15 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.CompoundFieldMetadata;
+import com.amalto.core.metadata.ContainedComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
@@ -30,7 +33,7 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     private final List<TypedExpression> selectedFields = new LinkedList<TypedExpression>();
 
-    private final MappingRepository storageRepository;
+    private final MappingRepository mappings;
 
     private final StorageClassLoader storageClassLoader;
 
@@ -46,8 +49,10 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     private boolean isCheckingProjection;
 
+    private FullText fullTextExpression;
+
     SelectAnalyzer(MappingRepository storageRepository, StorageClassLoader storageClassLoader, Session session, Set<EndOfResultsCallback> callbacks, Storage storage, TableResolver resolver) {
-        this.storageRepository = storageRepository;
+        this.mappings = storageRepository;
         this.storageClassLoader = storageClassLoader;
         this.session = session;
         this.callbacks = callbacks;
@@ -57,7 +62,7 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     @Override
     public AbstractQueryHandler visit(NativeQuery nativeQuery) {
-        return new NativeQueryHandler(storage, storageRepository, storageClassLoader, session, callbacks);
+        return new NativeQueryHandler(storage, mappings, storageClassLoader, session, callbacks);
     }
 
     @Override
@@ -74,32 +79,39 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
         if (condition != null) {
             condition.accept(this);
         }
-
         if (isFullText) {
             DataSource dataSource = storage.getDataSource();
             RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) dataSource;
+            String fullTextValue = fullTextExpression.getValue().trim();
+            if (fullTextValue.isEmpty() || StringUtils.containsOnly(fullTextValue, new char[]{'*'})) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Using \"standard query\" strategy (full text query on '*' or ' ')");
+                }
+                return new StandardQueryHandler(storage, mappings, resolver, storageClassLoader, session, select, this.selectedFields, callbacks);
+            }
             if (rdbmsDataSource.supportFullText()) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Using \"full text query\" strategy");
                 }
-                return new FullTextQueryHandler(storage, storageRepository, storageClassLoader, session, select, this.selectedFields, callbacks);
+                return new FullTextQueryHandler(storage, mappings, storageClassLoader, session, select, this.selectedFields, callbacks);
             } else {
                 throw new IllegalArgumentException("Storage '" + storage.getName() + "' is not configured to support full text queries.");
             }
         }
         if (condition != null) {
-            boolean isId = condition.accept(new IdCheck());
-            if (isId) {
+            ConditionChecks conditionChecks = new ConditionChecks(select);
+            ConditionChecks.Result result = condition.accept(conditionChecks);
+            if (result.id) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Using \"get by id\" strategy");
                 }
-                return new IdQueryHandler(storage, storageRepository, storageClassLoader, session, select, this.selectedFields, callbacks);
+                return new IdQueryHandler(storage, mappings, storageClassLoader, session, select, this.selectedFields, callbacks);
             }
         }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Using \"standard query\" strategy");
         }
-        return new StandardQueryHandler(storage, storageRepository, resolver, storageClassLoader, session, select, this.selectedFields, callbacks);
+        return new StandardQueryHandler(storage, mappings, resolver, storageClassLoader, session, select, this.selectedFields, callbacks);
     }
 
     @Override
@@ -166,11 +178,14 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     @Override
     public AbstractQueryHandler visit(BinaryLogicOperator condition) {
+        condition.getLeft().accept(this);
+        condition.getRight().accept(this);
         return null;
     }
 
     @Override
     public AbstractQueryHandler visit(UnaryLogicOperator condition) {
+        condition.getCondition().accept(this);
         return null;
     }
 
@@ -209,6 +224,14 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     @Override
     public AbstractQueryHandler visit(FullText fullText) {
+        fullTextExpression = fullText;
+        isFullText = true;
+        return null;
+    }
+
+    @Override
+    public AbstractQueryHandler visit(FieldFullText fieldFullText) {
+        fullTextExpression = fieldFullText;
         isFullText = true;
         return null;
     }
@@ -223,111 +246,153 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
         selectedFields.add(field);
         return null;
     }
-    
-    private static class IdCheck extends VisitorAdapter<Boolean> {
+
+    private static class ConditionChecks extends VisitorAdapter<ConditionChecks.Result> {
+
+        private final Result result = new Result();
+
+        private final Select select;
+
         private FieldMetadata keyField;
 
-        @Override
-        public Boolean visit(Isa isa) {
-            return false;
+        public ConditionChecks(Select select) {
+            this.select = select;
+        }
+
+        class Result {
+            boolean id = false;
+            public boolean limitJoins = false;
         }
 
         @Override
-        public Boolean visit(IsEmpty isEmpty) {
-            return false;
+        public Result visit(Isa isa) {
+            result.id = false;
+            return result;
         }
 
         @Override
-        public Boolean visit(NotIsEmpty notIsEmpty) {
-            return false;
+        public Result visit(IsEmpty isEmpty) {
+            result.id = false;
+            return result;
         }
 
         @Override
-        public Boolean visit(UnaryLogicOperator condition) {
+        public Result visit(NotIsEmpty notIsEmpty) {
+            result.id = false;
+            return result;
+        }
+
+        @Override
+        public Result visit(UnaryLogicOperator condition) {
             // TMDM-5319: Using a 'not' predicate, don't do a get by id.
             if (condition.getPredicate() == Predicate.NOT) {
-                return false;
+                result.id = false;
+                return result;
             } else {
                 return condition.getCondition().accept(this);
             }
         }
 
         @Override
-        public Boolean visit(Condition condition) {
-            return condition != UserQueryHelper.NO_OP_CONDITION;
+        public Result visit(Condition condition) {
+            result.id = condition != UserQueryHelper.NO_OP_CONDITION;
+            return result;
         }
 
         @Override
-        public Boolean visit(BinaryLogicOperator condition) {
-            return condition.getLeft().accept(this) && condition.getRight().accept(this);
+        public Result visit(BinaryLogicOperator condition) {
+            result.id = condition.getLeft().accept(this).id && condition.getRight().accept(this).id;
+            return result;
         }
 
         @Override
-        public Boolean visit(StagingStatus stagingStatus) {
-            return false;
+        public Result visit(StagingStatus stagingStatus) {
+            result.id = false;
+            return result;
         }
 
         @Override
-        public Boolean visit(StagingError stagingError) {
-            return false;
+        public Result visit(StagingError stagingError) {
+            result.id = false;
+            return result;
         }
 
         @Override
-        public Boolean visit(StagingSource stagingSource) {
-            return false;
+        public Result visit(StagingSource stagingSource) {
+            result.id = false;
+            return result;
         }
 
         @Override
-        public Boolean visit(Compare condition) {
-            return condition.getLeft().accept(this) && condition.getPredicate() == Predicate.EQUALS;
+        public Result visit(Compare condition) {
+            result.id = condition.getLeft().accept(this).id && condition.getPredicate() == Predicate.EQUALS;
+            return result;
         }
 
         @Override
-        public Boolean visit(Id id) {
-            return false;
+        public Result visit(Id id) {
+            result.id = false;
+            return result;
         }
 
         @Override
-        public Boolean visit(Timestamp timestamp) {
-            return false;
+        public Result visit(Timestamp timestamp) {
+            result.id = false;
+            return result;
         }
 
         @Override
-        public Boolean visit(IsNull isNull) {
-            return false;
+        public Result visit(IsNull isNull) {
+            result.id = false;
+            return result;
         }
 
         @Override
-        public Boolean visit(NotIsNull notIsNull) {
-            return false;
+        public Result visit(NotIsNull notIsNull) {
+            result.id = false;
+            return result;
         }
 
         @Override
-        public Boolean visit(FullText fullText) {
-            return false;
+        public Result visit(FullText fullText) {
+            result.id = false;
+            return result;
         }
 
         @Override
-        public Boolean visit(Range range) {
-            return false;
+        public Result visit(Range range) {
+            result.id = false;
+            return result;
         }
 
         @Override
-        public Boolean visit(Field field) {
+        public Result visit(Field field) {
             FieldMetadata fieldMetadata = field.getFieldMetadata();
+            // Limit join for contained fields
+            if (!result.limitJoins) {
+                int level = 0;
+                ComplexTypeMetadata containingType = fieldMetadata.getContainingType();
+                while (containingType instanceof ContainedComplexTypeMetadata) {
+                    containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
+                    level++;
+                }
+                if (level > 2 || !select.getTypes().contains(fieldMetadata.getContainingType())) {
+                    result.limitJoins = true;
+                }
+            }
             if (fieldMetadata.getContainingType().getKeyFields().size() == 1) {
                 if (fieldMetadata.isKey() && !(fieldMetadata instanceof CompoundFieldMetadata)) {
                     if (keyField != null) {
                         // At least twice an Id field means different Id values
                         // TODO Support for "entity/id = n AND entity/id = n" (could simplified to "entity/id = n").
-                        return false;
+                        result.id = false;
                     } else {
                         keyField = fieldMetadata;
-                        return true;
+                        result.id = true;
                     }
                 }
             } // TODO Support compound key field.
-            return false;
+            return result;
         }
     }
 }

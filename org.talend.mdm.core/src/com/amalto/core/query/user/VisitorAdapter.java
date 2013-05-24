@@ -187,6 +187,10 @@ public class VisitorAdapter<T> implements Visitor<T> {
         throw new NotImplementedException();
     }
 
+    public T visit(FieldFullText fieldFullText) {
+        throw new NotImplementedException();
+    }
+
     public T visit(Isa isa) {
         throw new NotImplementedException();
     }

@@ -186,6 +186,11 @@ public class QizxQueryModelConverter implements Visitor<Expression> {
     }
 
     @Override
+    public Expression visit(FieldFullText fieldFullText) {
+        throw new NotImplementedException("Support for full text query to be implemented");
+    }
+
+    @Override
     public Expression visit(ComplexTypeExpression expression) {
         throw new NotImplementedException("Support for typed expressions to be implemented");
     }

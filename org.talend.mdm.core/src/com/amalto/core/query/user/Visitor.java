@@ -108,5 +108,7 @@ public interface Visitor<T> {
 
     T visit(Isa isa);
 
+    T visit(FieldFullText fieldFullText);
+
     T visit(ComplexTypeExpression expression);
 }

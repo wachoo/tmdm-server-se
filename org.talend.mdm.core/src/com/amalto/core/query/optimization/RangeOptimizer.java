@@ -136,6 +136,11 @@ public class RangeOptimizer extends Optimizer {
             return fullText;
         }
 
+        @Override
+        public Condition visit(FieldFullText fieldFullText) {
+            return fieldFullText;
+        }
+
         public void reset() {
             rangeExpression = null;
             rangeStart = null;
