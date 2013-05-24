@@ -174,9 +174,6 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                     // If new list does not exist, it means element was omitted in new version (legacy behavior).
                     return;
                 }
-                if (!preserveCollectionOldValues){
-                    cleanExistNodeForNewDocument(newDocument, originalDocument);
-                }
                 leftAccessor = originalDocument.createAccessor(getLeftPath());
                 leaveLeft();
                 leaveRight();
@@ -214,30 +211,6 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
         }
     }
 
-    private void cleanExistNodeForNewDocument(MutableDocument newDocument, MutableDocument originalDocument){
-        String rightPath = getRightPath();
-        String leftPath = getLeftPath();
-        int leftSize = originalDocument.createAccessor(leftPath).size();
-        int rightSize = newDocument.createAccessor(rightPath).size();
-        for (int i = 1;i <= leftSize;i++) {
-            Accessor oriDocAccessor = originalDocument.createAccessor(leftPath + '[' + i + ']');
-            if (!oriDocAccessor.exist()){
-                continue;
-            }
-            String oriVal = oriDocAccessor.get();
-            for (int j = rightSize;j >= 1;j-- ){
-                Accessor newDocAccessor = newDocument.createAccessor(rightPath + '[' + j + ']');
-                if (!newDocAccessor.exist()){
-                    continue;
-                }
-                String newVal = newDocAccessor.get();
-                if (oriVal != null && oriVal.equals(newVal)){
-                    newDocAccessor.delete();
-                }
-            }
-        }
-    }
-    
     private void enterLeft(FieldMetadata field) {
         leftPath.add(field.getName());
     }
