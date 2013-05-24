@@ -2100,8 +2100,8 @@ public class DocumentSaveTest extends TestCase {
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test60.xml");
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("Vinci", "Test60", "genericUI", recordXml,
-                true, false, "/Societe/ListeEtablissements/", // Loop (Pivot)
-                "CodeOSMOSE", // Key
+                true, false, "/Societe/ListeEtablissements/CodeOSMOSE", // Loop (Pivot)
+                null, // Key
                 -1,
                 true);
         DocumentSaver saver = context.createSaver();
