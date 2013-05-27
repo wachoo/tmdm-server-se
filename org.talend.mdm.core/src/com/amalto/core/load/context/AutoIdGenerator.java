@@ -11,6 +11,8 @@
 
 package com.amalto.core.load.context;
 
+import com.amalto.core.server.XmlServer;
+
 /**
  *
  */
@@ -34,5 +36,5 @@ public interface AutoIdGenerator {
     /**
      * Tells the auto id generator to save its state (usually the last id that has been generated).
      */
-    void saveState();
+    void saveState(XmlServer server);
 }

@@ -76,7 +76,7 @@ public class OptimizedLoadAction implements LoadAction {
     public void endLoad(XmlServer server) {
         if (context != null) {
             // This call should clean up everything (incl. save counter state in case of autogen pk).
-            context.close();
+            context.close(server);
         }
     }
 }

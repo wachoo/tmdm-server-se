@@ -41,6 +41,7 @@ import com.amalto.core.load.context.AutoIdGenerator;
 import com.amalto.core.load.context.StateContext;
 import com.amalto.core.load.exception.ParserCallbackException;
 import com.amalto.core.load.io.XMLRootInputStream;
+import com.amalto.core.server.XmlServer;
 
 /**
  *
@@ -217,7 +218,7 @@ public class LoadParserTest extends TestCase {
         assertEquals("0", callback.getId());
 
         assertFalse(idGenerator.isStateSaved());
-        context.close();
+        context.close(null);
         assertTrue(idGenerator.isStateSaved());
     }
 
@@ -243,7 +244,7 @@ public class LoadParserTest extends TestCase {
         assertTrue(hasParsedElement(callback, "Picture"));
         assertEquals("231035933", callback.getId());
 
-        context.close();
+        context.close(null);
     }
 
 
@@ -368,7 +369,7 @@ public class LoadParserTest extends TestCase {
         assertTrue(idGenerator.getKeyFields().contains("id"));
 
         assertFalse(idGenerator.isStateSaved());
-        context.close();
+        context.close(null);
         assertTrue(idGenerator.isStateSaved());
     }
 
@@ -402,7 +403,7 @@ public class LoadParserTest extends TestCase {
         assertTrue(idGenerator.getKeyFields().contains("id"));
 
         assertFalse(idGenerator.isStateSaved());
-        context.close();
+        context.close(null);
         assertTrue(idGenerator.isStateSaved());
     }
 
@@ -438,7 +439,7 @@ public class LoadParserTest extends TestCase {
         assertTrue(idGenerator.getKeyFields().contains("id2"));
 
         assertFalse(idGenerator.isStateSaved());
-        context.close();
+        context.close(null);
         assertTrue(idGenerator.isStateSaved());
 
     }
@@ -891,7 +892,7 @@ public class LoadParserTest extends TestCase {
             return String.valueOf(currentId++);
         }
 
-        public void saveState() {
+        public void saveState(XmlServer server) {
             savedState = true;
         }
 

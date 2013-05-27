@@ -11,6 +11,9 @@
 
 package com.amalto.core.load.context;
 
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+
+import com.amalto.core.server.XmlServer;
 import com.amalto.core.util.AutoIncrementGenerator;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
@@ -33,7 +36,13 @@ public class DefaultAutoIdGenerator implements AutoIdGenerator {
         }
     }
 
-    public void saveState() {
-        AutoIncrementGenerator.saveToDB();
+    public void saveState(XmlServer server) {
+        try {
+            server.start(XSystemObjects.DC_CONF.getName());
+            AutoIncrementGenerator.saveToDB();
+            server.commit(XSystemObjects.DC_CONF.getName());
+        } catch (XtentisException e) {
+            throw new RuntimeException("Could not save auto increment count.", e);
+        }
     }
 }

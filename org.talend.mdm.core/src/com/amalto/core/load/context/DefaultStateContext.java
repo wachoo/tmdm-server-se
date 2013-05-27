@@ -21,6 +21,7 @@ import com.amalto.core.load.path.PathMatch;
 import com.amalto.core.load.path.PathMatcher;
 import com.amalto.core.load.payload.EndPayload;
 import com.amalto.core.load.payload.StartPayload;
+import com.amalto.core.server.XmlServer;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -249,7 +250,7 @@ public class DefaultStateContext implements StateContext {
         return false;
     }
 
-    public void close() {
+    public void close(XmlServer server) {
         // Nothing to do
     }
 

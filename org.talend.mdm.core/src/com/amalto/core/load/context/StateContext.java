@@ -14,6 +14,7 @@
 package com.amalto.core.load.context;
 
 import com.amalto.core.load.LoadParserCallback;
+import com.amalto.core.server.XmlServer;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -60,5 +61,5 @@ public interface StateContext {
 
     boolean skipElement();
 
-    void close();
+    void close(XmlServer server);
 }

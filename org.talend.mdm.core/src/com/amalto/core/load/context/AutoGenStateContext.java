@@ -18,6 +18,7 @@ import com.amalto.core.load.exception.ParserCallbackException;
 import com.amalto.core.load.payload.EndPayload;
 import com.amalto.core.load.payload.StartPayload;
 import com.amalto.core.load.xml.Selector;
+import com.amalto.core.server.XmlServer;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -152,10 +153,10 @@ public class AutoGenStateContext implements StateContext {
         return delegate.isIdElement();
     }
 
-    public void close() {
+    public void close(XmlServer server) {
         // This line is rather important since the generator might need to persist its state
         // see DefaultAutoIdGenerator for instance.
-        generator.saveState();
+        generator.saveState(server);
     }
 
 }
