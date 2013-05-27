@@ -10,22 +10,27 @@
 
 package com.amalto.core.save.context;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
-import com.amalto.core.util.SynchronizedNow;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
-
-import com.amalto.core.history.Action;
-import com.amalto.core.history.MutableDocument;
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+
+import com.amalto.core.history.Action;
+import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.PartialUpdateSaverContext;
 import com.amalto.core.save.ReportDocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.UserAction;
-import org.apache.log4j.Logger;
+import com.amalto.core.util.SynchronizedNow;
 
 class GenerateActions implements DocumentSaver {
 
@@ -50,6 +55,13 @@ class GenerateActions implements DocumentSaver {
         String source;
         if (context instanceof ReportDocumentSaverContext) {
             source = ((ReportDocumentSaverContext) context).getChangeSource();
+        } else if (context instanceof PartialUpdateSaverContext) {
+            DocumentSaverContext delegate = ((PartialUpdateSaverContext) context).getDelegate();
+            if (delegate instanceof ReportDocumentSaverContext){
+                source = ((ReportDocumentSaverContext) delegate).getChangeSource();
+            } else {
+                source = StringUtils.EMPTY;
+            }
         } else {
             source = StringUtils.EMPTY;
         }

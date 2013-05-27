@@ -11,22 +11,24 @@
 
 package com.amalto.core.save.context;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.history.MutableDocument;
-import com.amalto.core.history.accessor.Accessor;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.save.DocumentSaverContext;
-import com.amalto.core.save.ReportDocumentSaverContext;
-import com.amalto.core.save.SaverSession;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.w3c.dom.Element;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.history.MutableDocument;
+import com.amalto.core.history.accessor.Accessor;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.PartialUpdateSaverContext;
+import com.amalto.core.save.ReportDocumentSaverContext;
+import com.amalto.core.save.SaverSession;
 
 class Save implements DocumentSaver {
 
@@ -51,6 +53,14 @@ class Save implements DocumentSaver {
             MutableDocument updateReportDocument = context.getUpdateReportDocument();
             if (updateReportDocument != null) {
                 saveUpdateReport(updateReportDocument, session.getSaverSource(), session);
+            }
+        } else if (context instanceof PartialUpdateSaverContext) {
+            DocumentSaverContext delegate = ((PartialUpdateSaverContext) context).getDelegate();
+            if (delegate instanceof ReportDocumentSaverContext){
+                MutableDocument updateReportDocument = ((ReportDocumentSaverContext)delegate).getUpdateReportDocument();
+                if (updateReportDocument != null) {
+                    saveUpdateReport(updateReportDocument, session.getSaverSource(), session);
+                }
             }
         }
     }
