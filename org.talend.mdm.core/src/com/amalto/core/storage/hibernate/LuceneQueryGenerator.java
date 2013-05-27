@@ -107,7 +107,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
 
     @Override
     public Query visit(Field field) {
-        currentFieldName = field.getFieldMetadata().getName();
+        currentFieldName = "x_" + field.getFieldMetadata().getName().toLowerCase(); //$NON-NLS-1$
         return null;
     }
 
@@ -245,7 +245,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
 
     @Override
     public Query visit(FieldFullText fieldFullText) {
-        String fieldName = fieldFullText.getField().getFieldMetadata().getName();
+        String fieldName = "x_" + fieldFullText.getField().getFieldMetadata().getName().toLowerCase(); //$NON-NLS-1$
         String[] fieldsAsArray = new String[]{fieldName};
         String fullTextQuery = fieldName + ':' + getValue(fieldFullText);
         return parseQuery(fieldsAsArray, fullTextQuery);
