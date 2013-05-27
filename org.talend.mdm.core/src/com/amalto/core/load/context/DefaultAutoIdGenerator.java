@@ -11,6 +11,8 @@
 
 package com.amalto.core.load.context;
 
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.DefaultValidationHandler;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.core.server.XmlServer;
@@ -22,6 +24,8 @@ import com.amalto.core.util.XtentisException;
  *
  */
 public class DefaultAutoIdGenerator implements AutoIdGenerator {
+    private static final Logger LOGGER = Logger.getLogger(DefaultAutoIdGenerator.class);
+    
     public String generateId(String dataClusterName, String conceptName, String keyElementName) {
         // TODO check if uuid key exist
         try {
@@ -42,7 +46,12 @@ public class DefaultAutoIdGenerator implements AutoIdGenerator {
             AutoIncrementGenerator.saveToDB();
             server.commit(XSystemObjects.DC_CONF.getName());
         } catch (XtentisException e) {
-            throw new RuntimeException("Could not save auto increment count.", e);
+            try {
+                server.rollback(XSystemObjects.DC_CONF.getName()); 
+            } catch (XtentisException ex) { 
+                LOGGER.error("Rollback exception occurred", ex); //$NON-NLS-1$
+            }
+            throw new RuntimeException("Could not save auto increment count.", e); //$NON-NLS-1$
         }
     }
 }
