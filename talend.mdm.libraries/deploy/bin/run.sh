@@ -179,7 +179,7 @@ fi
 JAVA_OPTS="-Dprogram.name=$PROGNAME $JAVA_OPTS"
 
 # Bonita environment
-BONITA_OPTS="-DBONITA_HOME=$JBOSS_HOME/bonita -Dorg.ow2.bonita.api-type=Standard"
+BONITA_OPTS="-DBONITA_HOME=$JBOSS_HOME/bonita -Dorg.ow2.bonita.api-type=EJB2"
 JAVA_OPTS="$JAVA_OPTS $BONITA_OPTS"
 
 # Setup the java endorsed dirs

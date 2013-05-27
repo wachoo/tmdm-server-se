@@ -97,7 +97,7 @@ rem Setup the java endorsed dirs
 set JBOSS_ENDORSED_DIRS=%JBOSS_HOME%\lib\endorsed
 
 rem Setup Bonita specific properties
-set BONITA_OPTS="-DBONITA_HOME=%JBOSS_HOME%\bonita" -Dorg.ow2.bonita.api-type=Standard
+set BONITA_OPTS="-DBONITA_HOME=%JBOSS_HOME%\bonita" -Dorg.ow2.bonita.api-type=EJB2
 set JAVA_OPTS=%JAVA_OPTS% %BONITA_OPTS%
 
 echo ===============================================================================
