@@ -16,6 +16,7 @@ import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.commmon.metadata.Types;
 
 public class ConfigurableContainsOptimizer implements Optimizer {
@@ -331,10 +332,11 @@ public class ConfigurableContainsOptimizer implements Optimizer {
     private static class HasForbiddenFullTextPredicates extends VisitorAdapter<Boolean> {
             @Override
             public Boolean visit(Compare condition) {
-                return condition.getPredicate() == Predicate.GREATER_THAN ||
+                return (condition.getPredicate() == Predicate.GREATER_THAN ||
                         condition.getPredicate() == Predicate.GREATER_THAN_OR_EQUALS ||
                         condition.getPredicate() == Predicate.LOWER_THAN ||
-                        condition.getPredicate() == Predicate.LOWER_THAN_OR_EQUALS;
+                        condition.getPredicate() == Predicate.LOWER_THAN_OR_EQUALS) ||
+                        condition.getLeft().accept(this);
             }
 
             @Override
@@ -384,6 +386,81 @@ public class ConfigurableContainsOptimizer implements Optimizer {
 
             @Override
             public Boolean visit(FieldFullText fieldFullText) {
+                return false;
+            }
+            
+            @Override
+            public Boolean visit(Alias alias) {
+                return false;
+            }
+
+            @Override
+            public Boolean visit(Field field) {
+                return field.getFieldMetadata() instanceof ReferenceFieldMetadata;
+            }
+
+            @Override
+            public Boolean visit(Id id) {
+                return false;
+            }
+
+            @Override
+            public Boolean visit(StringConstant constant) {
+                return false;
+            }
+
+            @Override
+            public Boolean visit(IntegerConstant constant) {
+                return false;
+            }
+
+            @Override
+            public Boolean visit(DateConstant constant) {
+                return false;
+            }
+
+            @Override
+            public Boolean visit(DateTimeConstant constant) {
+                return false;
+            }
+
+            @Override
+            public Boolean visit(BooleanConstant constant) {
+                return false;
+            }
+
+            @Override
+            public Boolean visit(BigDecimalConstant constant) {
+                return false;
+            }
+
+            @Override
+            public Boolean visit(TimeConstant constant) {
+                return false;
+            }
+
+            @Override
+            public Boolean visit(ShortConstant constant) {
+                return false;
+            }
+
+            @Override
+            public Boolean visit(ByteConstant constant) {
+                return false;
+            }
+
+            @Override
+            public Boolean visit(LongConstant constant) {
+                return false;
+            }
+
+            @Override
+            public Boolean visit(DoubleConstant constant) {
+                return false;
+            }
+
+            @Override
+            public Boolean visit(FloatConstant constant) {
                 return false;
             }
 

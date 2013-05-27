@@ -2652,6 +2652,16 @@ public class StorageQueryTest extends StorageTestCase {
         assertTrue(select.getCondition() instanceof FieldFullText);
         assertEquals("test note", ((FieldFullText) select.getCondition()).getValue());
     }
+    
+    public void testQueryWithFK() throws Exception {
+        UserQueryBuilder qb = from(product).where(and(contains(product.getField("Id"), "1"), eq(product.getField("Family"), "[2]")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
 
     private static class TestRDBMSDataSource extends RDBMSDataSource {
 
