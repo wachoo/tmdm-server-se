@@ -120,4 +120,18 @@ public class ItemBean extends org.talend.mdm.webapp.base.client.model.ItemBean {
         if (result != null && result.getInsertionTime() > 0)
             this.set("time", result.getInsertionTime()); //$NON-NLS-1$
     }
+    
+    public void copy(org.talend.mdm.webapp.base.client.model.ItemBean itemBean) {
+        super.copy(itemBean);
+        if (itemBean instanceof ItemBean){
+            ItemBean item = (ItemBean) itemBean;
+            this.description = item.getDescription();
+            this.displayPKInfo = item.getDisplayPKInfo();
+            this.pkInfoList = item.getPkInfoList();
+            this.smartViewMode = item.getSmartViewMode();
+            this.readOnly = item.isReadOnly();
+            this.taskId = item.getTaskId();
+            this.label = item.getLabel();
+        }
+    }
 }
