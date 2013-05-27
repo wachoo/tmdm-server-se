@@ -15,11 +15,12 @@ package com.amalto.core.server;
 
 import java.util.Collections;
 
-import com.amalto.core.query.user.Expression;
 import junit.framework.TestCase;
 
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+
+import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
@@ -80,21 +81,19 @@ public class ServerTest extends TestCase {
         storage.prepare(metadataRepository, Collections.<Expression> emptySet(), true, true);
     }
 
-    public void testStorageReindex() throws Exception {
-        Server server = ServerContext.INSTANCE.get();
-        assertNotNull(server);
-
-        String metadataRepositoryId = "../query/metadata.xsd";
-        MetadataRepository metadataRepository = server.getMetadataRepositoryAdmin().get(metadataRepositoryId);
-        assertNotNull(metadataRepository);
-
-        StorageAdmin storageAdmin = server.getStorageAdmin();
-        assertNotNull(storageAdmin);
-        Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-Default", null);
-        assertNotNull(storage);
-
-        storage.reindex();
-    }
+    // Temporary exclusion, see TMDM-5825
+    /*
+     * public void testStorageReindex() throws Exception { Server server = ServerContext.INSTANCE.get();
+     * assertNotNull(server);
+     * 
+     * String metadataRepositoryId = "../query/metadata.xsd"; MetadataRepository metadataRepository =
+     * server.getMetadataRepositoryAdmin().get(metadataRepositoryId); assertNotNull(metadataRepository);
+     * 
+     * StorageAdmin storageAdmin = server.getStorageAdmin(); assertNotNull(storageAdmin); Storage storage =
+     * storageAdmin.create(metadataRepositoryId, "Storage", "H2-Default", null); assertNotNull(storage);
+     * 
+     * storage.reindex(); }
+     */
 
     public void testCreateWithSlash() throws Exception {
         Server server = ServerContext.INSTANCE.get();
