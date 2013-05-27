@@ -188,21 +188,10 @@ public class MultiOccurrenceManager {
             MultiOccurrenceChangeItem multiItem = (MultiOccurrenceChangeItem) childItem.getWidget();
             ItemNodeModel nodeModel = childItem.getItemNodeModel();
             multiItem.clearWarning();
-            childItem.getElement().getStyle().setProperty("borderRight", ""); //$NON-NLS-1$ //$NON-NLS-2$
             childItem.getElement().setTitle(null);
             nodeModel.setValid(true);
             if (mandatory != null) {
-                if (nodeModel.isLeaf()) {
-                    if (i == 0) {
-                        multiItem.setWarningFirst();
-                    }
-                    if (i == brothersGroup.size() - 1) {
-                        multiItem.setWarningLast();
-                    }
-                    multiItem.setWarning();
-                } else {
-                    childItem.getElement().getStyle().setProperty("borderRight", "solid 3px #ff8888"); //$NON-NLS-1$ //$NON-NLS-2$
-                }
+                multiItem.warnMandatory(); 
                 childItem.setTitle(mandatory);
                 nodeModel.setValid(false);
             }

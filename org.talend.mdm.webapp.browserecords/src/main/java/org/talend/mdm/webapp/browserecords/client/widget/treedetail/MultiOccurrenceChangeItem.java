@@ -52,6 +52,8 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
 
     private Image removeNodeImg;
 
+    private Image warnImg; 
+    
     private TreeDetail treeDetail;
 
     private Field<?> field;
@@ -151,6 +153,11 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         }
         this.add(new Label()); // format placeholder, align icon on line
         this.setCellWidth(label, "200px"); //$NON-NLS-1$
+        warnImg = new Image("/talendmdm/secure/img/genericUI/validateBadge.gif"); //$NON-NLS-1$ 
+        warnImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX); 
+        warnImg.setVisible(false); 
+        this.add(warnImg); 
+        this.setCellVerticalAlignment(warnImg, VerticalPanel.ALIGN_BOTTOM); 
         this.getElement().getStyle().setMarginBottom(6D, Unit.PX);
         this.setVisible(typeModel.isVisible());
     }
@@ -188,32 +195,12 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         }
     }
 
+    public void warnMandatory(){
+        warnImg.setVisible(true); 
+    }
+    
     public void clearWarning() {
-
-        Widget w = this.getWidget(this.getWidgetCount() - 1);
-        w.getElement().getParentElement().getStyle().setProperty("border", "");  //$NON-NLS-1$//$NON-NLS-2$
-
-        w = this.getWidget(this.getWidgetCount() - 1);
-        w.getElement().getParentElement().getStyle().setProperty("border", ""); //$NON-NLS-1$ //$NON-NLS-2$
-
-        this.getElement().getStyle().setProperty("border", ""); //$NON-NLS-1$ //$NON-NLS-2$
-
-    }
-    public void setWarningFirst() {
-        Widget w = this.getWidget(this.getWidgetCount() - 1);
-        w.getElement().getParentElement().getStyle().setProperty("borderTop", "solid 3px #ff8888"); //$NON-NLS-1$ //$NON-NLS-2$
-    }
-
-    public void setWarning() {
-        this.getElement().getStyle().setProperty("borderRight", "solid 3px #ff8888"); //$NON-NLS-1$ //$NON-NLS-2$
-        Widget w = this.getWidget(this.getWidgetCount() - 1);
-        w.getElement().getParentElement().getStyle().setProperty("paddingRight", "5px"); //$NON-NLS-1$ //$NON-NLS-2$
-    }
-
-    public void setWarningLast() {
-        this.getElement().getStyle().setPaddingBottom(0D, Unit.PX);
-        Widget w = this.getWidget(this.getWidgetCount() - 1);
-        w.getElement().getParentElement().getStyle().setProperty("borderBottom", "solid 3px #ff8888"); //$NON-NLS-1$ //$NON-NLS-2$
+        warnImg.setVisible(false);
     }
 
     public void setTreeDetail(TreeDetail treeDetail){
