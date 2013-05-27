@@ -209,7 +209,8 @@ public class ItemTreeHandler implements IsSerializable {
                                     root.appendChild(el);
                                 } else {
                                 	TypeModel childTypeModel = entityModel.getMetaDataTypes().get(childNode.getTypePath());
-                                	if (childTypeModel.getType().getTypeName().equals(DataTypeConstants.UUID.getTypeName())) {
+                                	if (childTypeModel.getType().getTypeName().equals(DataTypeConstants.UUID.getTypeName()) ||
+                                	        childTypeModel.getType().getTypeName().equals(DataTypeConstants.AUTO_INCREMENT.getTypeName())) {
                                 		root.appendChild(el);
                                 	} else {
                                 		// for mixture mode
