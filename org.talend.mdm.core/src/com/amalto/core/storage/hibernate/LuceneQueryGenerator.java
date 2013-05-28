@@ -15,6 +15,7 @@ import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.ContainedComplexTypeMetadata;
 import com.amalto.core.metadata.DefaultMetadataVisitor;
 import com.amalto.core.metadata.EnumerationFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.ReferenceFieldMetadata;
 import com.amalto.core.metadata.SimpleTypeFieldMetadata;
 import com.amalto.core.query.user.*;
@@ -107,7 +108,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
 
     @Override
     public Query visit(Field field) {
-        currentFieldName = "x_" + field.getFieldMetadata().getName().toLowerCase(); //$NON-NLS-1$
+        currentFieldName = format(field.getFieldMetadata());
         return null;
     }
 
@@ -188,6 +189,10 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         return null;
     }
 
+    public static String format(FieldMetadata field) {
+        return "x_" + field.getName().toLowerCase(); //$NON-NLS-1$
+    }
+
     @Override
     public Query visit(FullText fullText) {
         // TODO Test me on conditions where many types share same field names.
@@ -215,14 +220,14 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
                 @Override
                 public Void visit(SimpleTypeFieldMetadata simpleField) {
                     if (!Storage.METADATA_TIMESTAMP.equals(simpleField.getName()) && !Storage.METADATA_TASK_ID.equals(simpleField.getName())) {
-                        fields.add(simpleField.getName());
+                        fields.add(format(simpleField));
                     }
                     return null;
                 }
 
                 @Override
                 public Void visit(EnumerationFieldMetadata enumField) {
-                    fields.add(enumField.getName());
+                    fields.add(format(enumField));
                     return null;
                 }
             });
@@ -245,7 +250,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
 
     @Override
     public Query visit(FieldFullText fieldFullText) {
-        String fieldName = "x_" + fieldFullText.getField().getFieldMetadata().getName().toLowerCase(); //$NON-NLS-1$
+        String fieldName = format(fieldFullText.getField().getFieldMetadata());
         String[] fieldsAsArray = new String[]{fieldName};
         String fullTextQuery = fieldName + ':' + getValue(fieldFullText);
         return parseQuery(fieldsAsArray, fullTextQuery);
