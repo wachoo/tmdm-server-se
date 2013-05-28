@@ -34,12 +34,15 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
 
     private final Collection<ComplexTypeMetadata> types;
 
+    private final MappingRepository mappings;
+
     private String currentFieldName;
 
     private Object currentValue;
 
-    LuceneQueryGenerator(List<ComplexTypeMetadata> types) {
+    LuceneQueryGenerator(List<ComplexTypeMetadata> types, MappingRepository mappings) {
         this.types = types;
+        this.mappings = mappings;
     }
 
     @Override
@@ -108,7 +111,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
 
     @Override
     public Query visit(Field field) {
-        currentFieldName = format(field.getFieldMetadata());
+        currentFieldName = format(field.getFieldMetadata(), mappings);
         return null;
     }
 
@@ -189,8 +192,13 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         return null;
     }
 
-    public static String format(FieldMetadata field) {
-        return "x_" + field.getName().toLowerCase(); //$NON-NLS-1$
+    public static String format(FieldMetadata field, MappingRepository mappings) {
+        ComplexTypeMetadata containingType = field.getContainingType();
+        while (containingType instanceof ContainedComplexTypeMetadata) {
+            containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
+        }
+        TypeMapping mapping = mappings.getMappingFromUser(containingType);
+        return mapping.getDatabase(field).getName();
     }
 
     @Override
@@ -220,14 +228,14 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
                 @Override
                 public Void visit(SimpleTypeFieldMetadata simpleField) {
                     if (!Storage.METADATA_TIMESTAMP.equals(simpleField.getName()) && !Storage.METADATA_TASK_ID.equals(simpleField.getName())) {
-                        fields.add(format(simpleField));
+                        fields.add(format(simpleField, mappings));
                     }
                     return null;
                 }
 
                 @Override
                 public Void visit(EnumerationFieldMetadata enumField) {
-                    fields.add(format(enumField));
+                    fields.add(format(enumField, mappings));
                     return null;
                 }
             });
@@ -250,7 +258,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
 
     @Override
     public Query visit(FieldFullText fieldFullText) {
-        String fieldName = format(fieldFullText.getField().getFieldMetadata());
+        String fieldName = format(fieldFullText.getField().getFieldMetadata(), mappings);
         String[] fieldsAsArray = new String[]{fieldName};
         String fullTextQuery = fieldName + ':' + getValue(fieldFullText);
         return parseQuery(fieldsAsArray, fullTextQuery);

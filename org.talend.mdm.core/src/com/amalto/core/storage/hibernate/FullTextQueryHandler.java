@@ -90,8 +90,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 if (expression instanceof Field) {
                     FieldMetadata fieldMetadata = ((Field) expression).getFieldMetadata();
                     if (joinedTypes.contains(fieldMetadata.getContainingType())) {
-                        TypeMapping mapping = mappings.getMappingFromDatabase(fieldMetadata.getContainingType());
-                        filteredFields.add(new Alias(new StringConstant(StringUtils.EMPTY), mapping.getUser(fieldMetadata).getName()));
+                        filteredFields.add(new Alias(new StringConstant(StringUtils.EMPTY), fieldMetadata.getName()));
                     } else {
                         filteredFields.add(expression);
                     }
@@ -110,7 +109,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         // condition.accept(this);
         // Create Lucene query (concatenates all sub queries together).
         FullTextSession fullTextSession = Search.getFullTextSession(session);
-        Query parsedQuery = select.getCondition().accept(new LuceneQueryGenerator(types));
+        Query parsedQuery = select.getCondition().accept(new LuceneQueryGenerator(types, mappings));
         // Create Hibernate Search query
         Set<Class> classes = new HashSet<Class>();
         for (ComplexTypeMetadata type : types) {
@@ -343,7 +342,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         TypedExpression field = orderBy.getField();
         if (field instanceof Field) {
             FieldMetadata fieldMetadata = ((Field) field).getFieldMetadata();
-            SortField sortField = new SortField(fieldMetadata.getName(),
+            SortField sortField = new SortField(LuceneQueryGenerator.format(fieldMetadata, mappings),
                     getSortType(fieldMetadata),
                     orderBy.getDirection() == OrderBy.Direction.DESC);
             query.setSort(new Sort(sortField));
@@ -356,12 +355,12 @@ class FullTextQueryHandler extends AbstractQueryHandler {
     private static int getSortType(FieldMetadata fieldMetadata) {
         TypeMetadata fieldType = fieldMetadata.getType();
         String type = MetadataUtils.getSuperConcreteType(fieldType).getName();
-        if ("string".equals(type)
-                || "anyURI".equals(type)
-                || "boolean".equals(type)
-                || "base64binary".equals(type)
-                || "QName".equals(type)
-                || "hexBinary".equals(type)) {
+        if ("string".equals(type) //$NON-NLS-1$
+                || "anyURI".equals(type) //$NON-NLS-1$
+                || "boolean".equals(type) //$NON-NLS-1$
+                || "base64binary".equals(type) //$NON-NLS-1$
+                || "QName".equals(type) //$NON-NLS-1$
+                || "hexBinary".equals(type)) { //$NON-NLS-1$
             return SortField.STRING_VAL; // STRING does not work well for 'long' strings.
         } else if ("int".equals(type) //$NON-NLS-1$
                         || "integer".equals(type) //$NON-NLS-1$
@@ -371,20 +370,20 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                         || "negativeInteger".equals(type) //$NON-NLS-1$
                         || "unsignedInt".equals(type)) { //$NON-NLS-1$
             return SortField.INT;
-        } else if ("decimal".equals(type) || "double".equals(type)) {
+        } else if ("decimal".equals(type) || "double".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
             return SortField.DOUBLE;
         } else if ("date".equals(type) //$NON-NLS-1$
                         || "dateTime".equals(type) //$NON-NLS-1$
                         || "time".equals(type) //$NON-NLS-1$
                         || "duration".equals(type)) { //$NON-NLS-1$
             return SortField.STRING;
-        } else if ("unsignedShort".equals(type) || "short".equals(type)) {
+        } else if ("unsignedShort".equals(type) || "short".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
             return SortField.SHORT;
-        } else if ("unsignedLong".equals(type) || "long".equals(type)) {
+        } else if ("unsignedLong".equals(type) || "long".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
             return SortField.LONG;
-        } else if ("float".equals(type)) {
+        } else if ("float".equals(type)) { //$NON-NLS-1$
             return SortField.FLOAT;
-        } else if ("byte".equals(type) || "unsignedByte".equals(type)) {
+        } else if ("byte".equals(type) || "unsignedByte".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
             return SortField.BYTE;
         } else {
             throw new UnsupportedOperationException("No support for field typed as '" + type + "'");
