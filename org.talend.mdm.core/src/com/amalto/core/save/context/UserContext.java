@@ -178,7 +178,7 @@ class UserContext extends AbstractDocumentSaverContext {
     @Override
     public MutableDocument getUpdateReportDocument() {
         // See ReportDocumentSaverContext.decorate() if you wish this context to support update report creation.
-        throw new UnsupportedOperationException("No supported in this implementation.");
+        return null;
     }
 
     @Override

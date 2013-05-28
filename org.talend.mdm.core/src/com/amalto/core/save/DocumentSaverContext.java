@@ -118,6 +118,11 @@ public interface DocumentSaverContext {
      */
     boolean preserveOldCollectionValues();
 
+    /**
+     * @return A {@link MutableDocument} that represents the MDM Update Report (a XML document that sums up modifications
+     * performed by the user during save). Returns <code>null</code> if context does not have/support an update report
+     * (generation of update report is optional).
+     */
     MutableDocument getUpdateReportDocument();
 
     void setUpdateReportDocument(MutableDocument updateReportDocument);

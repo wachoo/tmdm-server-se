@@ -26,8 +26,6 @@ import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.save.DocumentSaverContext;
-import com.amalto.core.save.PartialUpdateSaverContext;
-import com.amalto.core.save.ReportDocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 
 class Save implements DocumentSaver {
@@ -42,26 +40,19 @@ class Save implements DocumentSaver {
             throw new IllegalStateException("No ID information to save instance of '" + typeName + "'");
         }
         Element documentElement = context.getDatabaseDocument().asDOM().getDocumentElement();
+        // We can keep "System.currentTimeMillis()" -> modification time has no 'collision' issue on master records
+        // (2+ records can share same timestamp).
         ItemPOJO item = new ItemPOJO(dataCluster, typeName, savedId, System.currentTimeMillis(), documentElement);
         item.setTaskId(context.getTaskId());
         // Data model name is rather important! (used by FK integrity checks for instance).
         item.setDataModelName(context.getDataModelName());
         item.setDataModelRevision(context.getRevisionID()); // TODO Is data model revision ok?
         session.save(context.getDataCluster(), item, context.hasMetAutoIncrement());
-
-        if (context instanceof ReportDocumentSaverContext) {
-            MutableDocument updateReportDocument = context.getUpdateReportDocument();
-            if (updateReportDocument != null) {
-                saveUpdateReport(updateReportDocument, session.getSaverSource(), session);
-            }
-        } else if (context instanceof PartialUpdateSaverContext) {
-            DocumentSaverContext delegate = ((PartialUpdateSaverContext) context).getDelegate();
-            if (delegate instanceof ReportDocumentSaverContext){
-                MutableDocument updateReportDocument = ((ReportDocumentSaverContext)delegate).getUpdateReportDocument();
-                if (updateReportDocument != null) {
-                    saveUpdateReport(updateReportDocument, session.getSaverSource(), session);
-                }
-            }
+        context.getAutoIncrementFieldMap().clear(); // Removes generated auto_inc in this save.
+        // Save update report (if any)
+        MutableDocument updateReportDocument = context.getUpdateReportDocument();
+        if (updateReportDocument != null) {
+            saveUpdateReport(updateReportDocument, session.getSaverSource(), session);
         }
     }
 

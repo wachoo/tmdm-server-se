@@ -153,7 +153,7 @@ class SystemContext extends AbstractDocumentSaverContext {
 
     @Override
     public MutableDocument getUpdateReportDocument() {
-        throw new UnsupportedOperationException("No supported in this implementation.");
+        return null;
     }
 
     @Override

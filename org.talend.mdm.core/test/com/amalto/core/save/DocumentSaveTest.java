@@ -1114,7 +1114,7 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(source.hasSavedAutoIncrement());
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
-        assertEquals("1", evaluate(committedElement, "/ProductFamily/Id"));
+        assertEquals("0", evaluate(committedElement, "/ProductFamily/Id"));
     }
 
     public void testCreatePerformance() throws Exception {
@@ -2457,7 +2457,7 @@ public class DocumentSaveTest extends TestCase {
 
         public TestSaverSourceWithOutputReportItem(MetadataRepository repository, boolean exist, String fileName, boolean OK,
                 boolean newOutput) {
-            super(repository, exist, fileName, "autoIncrementPK.xsd");
+            super(repository, exist, fileName, "metadata1.xsd");
             this.OK = OK;
             this.newOutput = newOutput;
         }

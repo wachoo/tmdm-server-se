@@ -246,7 +246,13 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
         }
         if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(simpleField.getType().getName()) && doCreate) {
             String conceptName = rootTypeName + "." + simpleField.getName().replaceAll("/", "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            String autoIncrementValue = saverSource.nextAutoIncrementId(universe, dataCluster, conceptName);
+            String autoIncrementValue;
+            if (autoIncrementFieldMap.containsKey(currentPath)) {
+                autoIncrementValue = autoIncrementFieldMap.get(currentPath);
+            } else {
+                autoIncrementValue = saverSource.nextAutoIncrementId(universe, dataCluster, conceptName);
+                autoIncrementFieldMap.put(currentPath, autoIncrementValue);
+            }
             actions.add(new FieldUpdateAction(date, source, userName, currentPath, StringUtils.EMPTY, autoIncrementValue,
                     simpleField));
             if (simpleField.isKey()) {
