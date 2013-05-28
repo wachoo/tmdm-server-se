@@ -95,7 +95,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         if (typeModel.isSimpleType()
                 || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
 
-            if (typeModel.getType().equals(DataTypeConstants.AUTO_INCREMENT)
+            if ((typeModel.getType().equals(DataTypeConstants.AUTO_INCREMENT) || typeModel.getType().equals(DataTypeConstants.UUID))
                     && ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
                 itemNode.setObjectValue(""); //$NON-NLS-1$
             }
