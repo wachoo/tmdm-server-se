@@ -14,6 +14,7 @@ package com.amalto.core.load.action;
 import com.amalto.core.load.LoadParser;
 import com.amalto.core.load.context.StateContext;
 import com.amalto.core.load.io.XMLRootInputStream;
+import com.amalto.core.save.SaverSession;
 import com.amalto.core.server.XmlServer;
 import com.amalto.core.util.XSDKey;
 import org.apache.log4j.Logger;
@@ -47,7 +48,7 @@ public class OptimizedLoadAction implements LoadAction {
         return true;
     }
 
-    public void load(InputStream stream, XSDKey keyMetadata, XmlServer server) throws Exception {
+    public void load(InputStream stream, XSDKey keyMetadata, XmlServer server, SaverSession session) throws Exception {
         if (!".".equals(keyMetadata.getSelector())) { //$NON-NLS-1$
             throw new UnsupportedOperationException("Selector '" + keyMetadata.getSelector() + "' isn't supported.");
         }

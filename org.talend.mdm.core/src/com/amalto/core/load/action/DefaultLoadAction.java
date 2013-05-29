@@ -51,12 +51,9 @@ public class DefaultLoadAction implements LoadAction {
         return true;
     }
 
-    public void load(InputStream stream, XSDKey keyMetadata, XmlServer server) throws Exception {
-        SaverSession session = SaverSession.newSession();
+    public void load(InputStream stream, XSDKey keyMetadata, XmlServer server, SaverSession session) throws Exception {
         try {
             SaverContextFactory contextFactory = session.getContextFactory();
-            session.begin(dataClusterName);
-
             // If you wish to debug content sent to server evaluate 'IOUtils.toString(request.getInputStream())'
             XMLStreamTokenizer xmlStreamTokenizer = new XMLStreamTokenizer(stream);
             while (xmlStreamTokenizer.hasMoreElements()) {
@@ -66,7 +63,7 @@ public class DefaultLoadAction implements LoadAction {
                     DocumentSaverContext context = contextFactory.create(dataClusterName,
                             dataModelName,
                             StringUtils.EMPTY,
-                            new ByteArrayInputStream(xmlData.getBytes("UTF-8")),
+                            new ByteArrayInputStream(xmlData.getBytes("UTF-8")), //$NON-NLS-1$
                             true, // Always replace in this case (bulk load).
                             needValidate,
                             false,
@@ -75,7 +72,6 @@ public class DefaultLoadAction implements LoadAction {
                     context.createSaver().save(session, context);
                 }
             }
-            session.end();
         } catch (Exception e) {
             try {
                 session.abort();

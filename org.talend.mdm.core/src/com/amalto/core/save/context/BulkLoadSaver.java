@@ -38,7 +38,7 @@ class BulkLoadSaver implements DocumentSaver {
 
     public void save(SaverSession session, DocumentSaverContext context) {
         try {
-            loadAction.load(documentStream, keyMetadata, server);
+            loadAction.load(documentStream, keyMetadata, server, session);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
