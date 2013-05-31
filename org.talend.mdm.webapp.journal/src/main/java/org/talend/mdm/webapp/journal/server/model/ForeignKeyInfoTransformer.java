@@ -95,7 +95,10 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
             Element element = item.getProjection();
             NodeList nodeList = Util.getNodeList(element,
                     "/" + referencedTypeName + "/" + foreignKeyField.getForeignKeyInfoField().getName()); //$NON-NLS-1$ //$NON-NLS-2$
-            if (nodeList.getLength() == 1) {
+            if (nodeList.getLength() == 0) {
+                // renturn foreign key when foreign info value is empty or null
+                return foreignKeyValue;
+            } else if (nodeList.getLength() == 1) {
                 return nodeList.item(0).getTextContent();
             } else {
                 throw new IllegalStateException("Expected 1 match but got " + nodeList.getLength() + "."); //$NON-NLS-1$ //$NON-NLS-2$
