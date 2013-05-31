@@ -47,7 +47,6 @@ import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.ValidateException;
 import com.amalto.core.util.XtentisException;
-import com.sun.org.apache.xpath.internal.XPathAPI;
 
 @SuppressWarnings("nls")
 public class DocumentSaveTest extends TestCase {
@@ -2019,6 +2018,26 @@ public class DocumentSaveTest extends TestCase {
         session.end(committer);
 
         assertTrue(committer.hasSaved());
+    }
+    
+    public void test53() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata12.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test53_original.xml", "metadata12.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test53.xml");
+        DocumentSaverContext context = session.getContextFactory().create("Product", "Test53", "Source", recordXml, false,
+                false, true, false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+        
+        assertTrue(committer.hasSaved());
+        assertNotNull(committer.getCommittedElement());
     }
     
     public void test59() throws Exception {
