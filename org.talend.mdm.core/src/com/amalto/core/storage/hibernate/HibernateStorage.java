@@ -301,6 +301,16 @@ public class HibernateStorage implements Storage {
                 case SYSTEM: // Nothing to index on SYSTEM
                     break;
             }
+            // Don't add FK in indexes if using H2
+            if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.H2) {
+                Iterator<FieldMetadata> indexedFields = databaseIndexedFields.iterator();
+                while (indexedFields.hasNext()) {
+                    FieldMetadata field = indexedFields.next();
+                    if (field instanceof ReferenceFieldMetadata || field.isKey()) {
+                        indexedFields.remove(); // H2 doesn't like indexes on PKs or FKs.
+                    }
+                }
+            }
             // Set table/column name length limitation
             switch (dataSource.getDialectName()) {
                 case ORACLE_10G:
