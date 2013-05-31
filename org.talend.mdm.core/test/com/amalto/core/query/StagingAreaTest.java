@@ -33,6 +33,8 @@ import com.amalto.core.storage.record.*;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.task.*;
 import com.amalto.core.util.OutputReport;
+import com.amalto.core.util.UserHelper;
+import com.amalto.core.util.UserManage;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
@@ -77,6 +79,8 @@ public class StagingAreaTest extends TestCase {
     private ClassLoader contextClassLoader;
 
     private Map<String, Storage> storages;
+    
+    private UserManage userManage;
 
 
     @Override
@@ -112,6 +116,9 @@ public class StagingAreaTest extends TestCase {
         origin.prepare(stagingRepository, true);
         destination.init(ServerContext.INSTANCE.get().getDataSource("H2-DS2", "MDM", StorageType.MASTER));
         destination.prepare(repository, true);
+        
+        userManage = new MockUserManageImpl();
+        UserHelper.getInstance().overrideUserManage(userManage);
     }
 
     private void generateData(boolean validData) {
@@ -405,6 +412,81 @@ public class StagingAreaTest extends TestCase {
             results.close();
         }
     }
+    
+    public void testStagingAuthorization() throws Exception {
+        generateData(true);
+    
+        Select select = UserQueryBuilder.from(person).getSelect();
+        Select selectEmptyTaskId = UserQueryBuilder.from(person).where(isEmpty(taskId())).getSelect();
+        assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
+        assertEquals(0, destination.fetch(select).getCount());
+        assertEquals(0, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
+        assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
+        String userName = "UserA";
+        // 1. Authorization failure
+        SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd", userName);
+        SaverSession.Committer committer = new TestCommitter(storages);
+        StagingConfiguration config = new StagingConfiguration(origin, stagingRepository, repository, source, committer, destination);
+        Task stagingTask = TaskFactory.createStagingTask(config);
+        assertEquals(0, stagingTask.getProcessedRecords());
+        assertEquals(0, stagingTask.getRecordCount()); // Record count only get a value when task is started.
+        TaskSubmitterFactory.getSubmitter().submitAndWait(stagingTask);
+         
+        assertEquals(COUNT * 3, stagingTask.getProcessedRecords());        
+        assertEquals(COUNT * 3, stagingTask.getRecordCount());
+        assertEquals(COUNT * 3, stagingTask.getErrorCount());
+        StorageResults errorResults = origin.fetch(UserQueryBuilder.from(person).select(person, UserQueryBuilder.STAGING_ERROR_FIELD).
+                where(eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)).getSelect());
+        try {
+            assertEquals(COUNT, errorResults.getCount());
+            String errorMessage = "User 'UserA' is not allowed to write 'Person' .";
+            for (DataRecord result : errorResults) {
+                assertNotNull(result.get(UserQueryBuilder.STAGING_ERROR_ALIAS));
+                assertEquals(errorMessage, result.get(UserQueryBuilder.STAGING_ERROR_ALIAS));
+            }
+        } finally {
+            errorResults.close();
+        }
+        UserQueryBuilder qb = UserQueryBuilder.from(stagingRepository.getComplexType("TALEND_TASK_EXECUTION"));
+        StorageResults results = origin.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+        
+        // 2. Authorization success
+        userName = "administrator";
+        source = new TestSaverSource(destination, repository, "metadata.xsd", userName);
+        committer = new TestCommitter(storages);
+        config = new StagingConfiguration(origin, stagingRepository, repository, source, committer, destination);
+        stagingTask = TaskFactory.createStagingTask(config);
+        assertEquals(0, stagingTask.getProcessedRecords());
+        assertEquals(0, stagingTask.getRecordCount()); // Record count only get a value when task is started.
+        TaskSubmitterFactory.getSubmitter().submitAndWait(stagingTask);
+        
+        assertEquals(COUNT * 3, stagingTask.getProcessedRecords());        
+        assertEquals(COUNT * 3, stagingTask.getRecordCount());
+        assertEquals(0, stagingTask.getErrorCount());
+        
+        assertEquals(COUNT, destination.fetch(selectEmptyTaskId).getCount());
+        assertEquals(COUNT, destination.fetch(select).getCount());
+        assertEquals(COUNT, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
+        assertEquals(COUNT, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
+        assertEquals(COUNT * 3, destination.fetch(UserQueryBuilder.from(update).getSelect()).getCount());
+        assertEquals(COUNT, origin.fetch(UserQueryBuilder.from(person).getSelect()).getCount());
+        assertEquals(COUNT,
+                origin.fetch(UserQueryBuilder.from(person).where(eq(status(), StagingConstants.SUCCESS_VALIDATE)).getSelect())
+                        .getCount());
+    
+        qb = UserQueryBuilder.from(stagingRepository.getComplexType("TALEND_TASK_EXECUTION"));
+        results = origin.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
 
     private static class TestSaverSource implements SaverSource {
 
@@ -413,11 +495,18 @@ public class StagingAreaTest extends TestCase {
         private final MetadataRepository repository;
 
         private final String fileName;
+        
+        private final String userName;
 
         private TestSaverSource(Storage storage, MetadataRepository repository, String fileName) {
+            this(storage, repository, fileName, "administrator");
+        }
+        
+        private TestSaverSource(Storage storage, MetadataRepository repository, String fileName, String userName) {
             this.storage = storage;
             this.repository = repository;
             this.fileName = fileName;
+            this.userName = userName;
         }
 
         @Override
@@ -486,8 +575,10 @@ public class StagingAreaTest extends TestCase {
         @Override
         public Set<String> getCurrentUserRoles() {
             Set<String> set = new HashSet<String>();
-            set.add(ICoreConstants.ADMIN_PERMISSION);
-            set.add(ICoreConstants.SYSTEM_ADMIN_ROLE);
+            if ("administrator".equals(userName)) {
+                set.add(ICoreConstants.ADMIN_PERMISSION);
+                set.add(ICoreConstants.SYSTEM_ADMIN_ROLE);    
+            }
             return set;
         }
 
@@ -498,6 +589,9 @@ public class StagingAreaTest extends TestCase {
         
         @Override
         public String getLegitimateUser() {
+            if (userName != null) {
+                return userName;
+            }
             return getUserName();
         }
 

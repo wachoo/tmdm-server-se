@@ -42,6 +42,10 @@ public final class UserHelper {
         instance = null;
     }
     
+    public void overrideUserManage(UserManage _um) {
+        this.um = _um;
+    }
+    
     /**
      * get web users
      * @return

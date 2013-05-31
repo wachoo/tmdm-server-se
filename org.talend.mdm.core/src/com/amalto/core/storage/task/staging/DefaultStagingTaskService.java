@@ -125,11 +125,11 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             }
             MetadataRepository stagingRepository = staging.getMetadataRepository();
             MetadataRepository userRepository = user.getMetadataRepository();
-            String userName = null;
+            String userName;
             try {
                 userName = LocalUser.getLocalUser().getUsername();
             } catch (XtentisException e) {
-                logger.warn("Current user name unknow. some access will be forbidden  ");
+                throw new RuntimeException("Can not get current user information.", e);
             }
             StagingConfiguration stagingConfig = new StagingConfiguration(staging,
                     stagingRepository,

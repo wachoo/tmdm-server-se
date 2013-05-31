@@ -17,6 +17,7 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.core.query.user.Select;
@@ -29,6 +30,9 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.DataRecordXmlWriter.OverrideValue;
+import com.amalto.core.util.User;
+import com.amalto.core.util.UserHelper;
+
 import java.io.*;
 import java.util.*;
 
@@ -157,8 +161,8 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             DocumentSaver saver = context.createSaver();
             Map<String, String> recordProperties = stagingRecord.getRecordMetadata().getRecordProperties();
             try {
-                if (!isAllowedAccess(stagingRecord, source.getCurrentUserRoles())){
-                    throw new Exception("Current user '" + source.getUserName() + "' could not allow to access concept '" + stagingRecord.getType().getName() + "' ."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                if (!isAllowedAccess(stagingRecord, source.getLegitimateUser())) {
+                    throw new Exception("User '" + source.getLegitimateUser() + "' is not allowed to write '" + stagingRecord.getType().getName() + "' ."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
                 saver.save(session, context);
                 commitCount++;
@@ -187,7 +191,13 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             }
         }
 
-        private boolean isAllowedAccess(DataRecord stagingRecord, Collection<String> currentRoles) {
+        private boolean isAllowedAccess(DataRecord stagingRecord, String userName) {
+            User user = new User();
+            user.setUserName(userName);
+            Collection<String> currentRoles = UserHelper.getInstance().getOriginalRole(user);
+            if (currentRoles != null && currentRoles.contains(ICoreConstants.ADMIN_PERMISSION)) {
+                return true;
+            }
             List<String> writeUsers = stagingRecord.getType().getWriteUsers();
             if (writeUsers != null) {
                 List<String> hideUserRoles = stagingRecord.getType().getHideUsers();
@@ -195,12 +205,8 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                     if (hideUserRoles.contains(writeUser)) {
                         continue;
                     }
-                    if (currentRoles != null) {
-                        for (String role : currentRoles) {
-                            if (writeUser.equals(role)) {
-                                return true;
-                            }
-                        }
+                    if (currentRoles != null && currentRoles.contains(writeUser)) {
+                        return true;
                     }
                 }
             }
