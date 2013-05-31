@@ -25,7 +25,6 @@ class InMemoryJoinNodeCreation extends VisitorAdapter<Void> {
         InMemoryJoinNode current = root;
         List<FieldMetadata> path = MetadataUtils.path(root.type, field);
         for (FieldMetadata fieldMetadata : path) {
-            // TODO intersection / union / ?
             InMemoryJoinNode node = new InMemoryJoinNode();
             node.name = fieldMetadata.getName();
             node.type = fieldMetadata.getContainingType();

@@ -11,19 +11,19 @@
 
 package com.amalto.core.storage.inmemory;
 
-import com.amalto.core.query.user.Condition;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.query.user.UserQueryDumpConsole;
+import com.amalto.core.query.user.*;
+import com.amalto.core.storage.EmptyIterator;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.hibernate.CloseableIterator;
+import com.amalto.core.storage.hibernate.MappingRepository;
+import com.amalto.core.storage.hibernate.TypeMapping;
 import com.amalto.core.storage.record.DataRecord;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
-import java.io.IOException;
 import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.from;
@@ -36,11 +36,11 @@ class InMemoryJoinResults implements StorageResults {
 
     private static final int UUID_SIZE = 64;
 
+    private final MappingRepository mappings;
+
     private final InMemoryJoinNode node;
 
     private final Storage storage;
-
-    private CloseableIterator<DataRecord> iterator;
 
     private List list;
 
@@ -48,50 +48,49 @@ class InMemoryJoinResults implements StorageResults {
         Set<Object> execute(Storage storage, InMemoryJoinNode node);
     }
 
-    public InMemoryJoinResults(Storage storage, InMemoryJoinNode node) {
+    public InMemoryJoinResults(Storage storage, MappingRepository mappings, InMemoryJoinNode node) {
         this.storage = storage;
+        this.mappings = mappings;
         this.node = node;
     }
 
     @Override
     public int getSize() {
-        materializeList();
+        materialize();
         return list.size();
     }
 
     @Override
     public int getCount() {
-        materializeList();
+        materialize();
         return list.size();
     }
 
     @Override
     public void close() {
-        try {
-            iterator.close();
-        } catch (IOException e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Exception during close.", e);
-            }
-        }
     }
 
     @Override
     public Iterator<DataRecord> iterator() {
-        materializeIterator();
-        return iterator;
+        materialize();
+        return list.iterator();
     }
 
-    private synchronized void materializeList() {
-        materializeIterator();
+    private synchronized void materialize() {
         if (list == null) {
-            list = IteratorUtils.toList(iterator);
-        }
-    }
-
-    private synchronized void materializeIterator() {
-        if (iterator == null) {
-            iterator = evaluateResults(storage, node);
+            try {
+                storage.begin();
+                CloseableIterator<DataRecord> iterator = evaluateResults(storage, node);
+                try {
+                    list = IteratorUtils.toList(iterator);
+                } finally {
+                    iterator.close();
+                }
+                storage.commit();
+            } catch (Exception e) {
+                storage.rollback();
+                throw new RuntimeException("Could not materialize result list.", e);
+            }
         }
     }
 
@@ -119,7 +118,7 @@ class InMemoryJoinResults implements StorageResults {
         return size;
     }
 
-    private static CloseableIterator<DataRecord> evaluateResults(Storage storage, InMemoryJoinNode node) {
+    private CloseableIterator<DataRecord> evaluateResults(Storage storage, InMemoryJoinNode node) {
         // Computes memory cost for check.
         // {
         //   a = sum of all path length from node
@@ -134,13 +133,59 @@ class InMemoryJoinResults implements StorageResults {
             throw new IllegalStateException("Query execution requires too much memory (" + memoryCost + " > " + MEMORY_COST_LIMIT + ")");
         }
         // Actual evaluation
-        State state;
-        if (node.type.isInstantiable()) {
-            state = new EntityState();
-        } else {
-            state = new ProjectionState(); // TODO this is not always correct
+        return process(storage, node);
+    }
+
+    public CloseableIterator<DataRecord> process(Storage storage, InMemoryJoinNode node) {
+        // Additional logging
+        if (LOGGER.isTraceEnabled()) {
+            InMemoryJoinResults.trace(node);
         }
-        return state.process(storage, node);
+        if (LOGGER.isDebugEnabled()) {
+            InMemoryJoinResults.debug(node);
+        }
+        // Evaluate direct children
+        Set<Object> childIds = new HashSet<Object>();
+        for (InMemoryJoinNode child : node.children.keySet()) {
+            Set<Object> childrenIds = InMemoryJoinResults._evaluateConditions(storage, child);
+            switch (node.merge) {
+                case UNION:
+                case NONE:
+                    childIds.addAll(childrenIds);
+                    break;
+                case INTERSECTION:
+                    childIds.retainAll(childrenIds);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Not supported: " + child.merge);
+            }
+        }
+        // Compute DataRecord results
+        if (childIds.isEmpty()) {
+            return EmptyIterator.INSTANCE;
+        } else {
+            FieldMetadata field = node.type.getKeyFields().iterator().next(); // TODO Support compound keys.
+            Condition condition = InMemoryJoinResults.buildConditionFromValues(node.expression.getCondition(), field, childIds);
+            UserQueryBuilder qb = from(node.type).where(condition);
+            for (TypedExpression typedExpression : node.expression.getSelectedFields()) {
+                TypedExpression mappedExpression = typedExpression.accept(new VisitorAdapter<TypedExpression>() {
+                    @Override
+                    public TypedExpression visit(Alias alias) {
+                        return new Alias(alias.getTypedExpression().accept(this), alias.getAliasName());
+                    }
+
+                    @Override
+                    public TypedExpression visit(Field field) {
+                        FieldMetadata fieldMetadata = field.getFieldMetadata();
+                        TypeMapping typeMapping = mappings.getMappingFromDatabase(fieldMetadata.getContainingType());
+                        FieldMetadata user = typeMapping.getUser(fieldMetadata);
+                        return new Field(user);
+                    }
+                });
+                qb.select(mappedExpression);
+            }
+            return (CloseableIterator<DataRecord>) storage.fetch(qb.getSelect()).iterator();
+        }
     }
 
     static Set<Object> _evaluateConditions(Storage storage, InMemoryJoinNode node) {
@@ -267,6 +312,7 @@ class InMemoryJoinResults implements StorageResults {
     static void trace(InMemoryJoinNode node) {
         LOGGER.trace("====");
         LOGGER.trace("Node " + node);
+        LOGGER.trace("Merge: " + node.merge);
         LOGGER.trace("Execution time: " + node.execTime + " ms");
         if (node.expression != null) {
             LOGGER.trace("Query:");

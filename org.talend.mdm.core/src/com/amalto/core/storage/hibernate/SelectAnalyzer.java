@@ -17,7 +17,6 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.inmemory.InMemoryJoinStrategy;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -129,7 +128,7 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Using \"in memory\" strategy");
                 }
-                return new InMemoryJoinStrategy(storage);
+                return new InMemoryJoinStrategy(storage, mappings);
             }
         }
         if (LOGGER.isDebugEnabled()) {

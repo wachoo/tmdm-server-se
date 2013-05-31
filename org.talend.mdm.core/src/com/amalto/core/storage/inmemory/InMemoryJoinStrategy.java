@@ -14,6 +14,7 @@ package com.amalto.core.storage.inmemory;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.hibernate.MappingRepository;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import java.util.*;
@@ -22,8 +23,11 @@ public class InMemoryJoinStrategy extends VisitorAdapter<StorageResults> {
 
     private final Storage storage;
 
-    public InMemoryJoinStrategy(Storage storage) {
+    private final MappingRepository mappings;
+
+    public InMemoryJoinStrategy(Storage storage, MappingRepository mappings) {
         this.storage = storage;
+        this.mappings = mappings;
     }
 
     @Override
@@ -50,7 +54,7 @@ public class InMemoryJoinStrategy extends VisitorAdapter<StorageResults> {
         Select selectCopy = select.copy();
         selectCopy.setCondition(null);
         root.expression = selectCopy;
-        return new InMemoryJoinResults(storage, root);
+        return new InMemoryJoinResults(storage, mappings, root);
     }
 
 }

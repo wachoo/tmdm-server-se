@@ -16,7 +16,7 @@ import org.talend.mdm.commmon.metadata.TypeMetadata;
 
 import java.util.Collection;
 
-class MappingRepository {
+public class MappingRepository {
 
     private final MultiKeyMap userToMapping = new MultiKeyMap();
 
