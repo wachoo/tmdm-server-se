@@ -237,6 +237,10 @@ public class JournalGridPanel extends ContentPanel {
     public void refreshGrid() {
         pagetoolBar.first();
     }
+    
+    public void lastPage() {
+        pagetoolBar.last();
+    }
 
     public void openTabPanel(final JournalGridModel gridModel) {
         service.getDetailTreeModel(gridModel.getIds(), new SessionAwareAsyncCallback<JournalTreeModel>() {
@@ -506,8 +510,11 @@ public class JournalGridPanel extends ContentPanel {
 
                     @Override
                     public void handleEvent(MessageBoxEvent be) {
-                        if (be.getButtonClicked().getItemId().equals(Dialog.OK) && isCloseTabPanel) {
-                            closeTabPanel();
+                        if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
+                            if (isCloseTabPanel) {
+                                closeTabPanel();
+                            }
+                            lastPage();
                         }
                     }
                     
