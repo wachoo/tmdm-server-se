@@ -59,6 +59,17 @@ public class MetadataValidationTest extends TestCase {
         assertEquals(0, handler.getWarningType());
     }
 
+    public void testFK4() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("FK4_0.1.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        repository.load(resourceAsStream, handler);
+        assertEquals(0, handler.getErrorCount());
+        assertEquals(1, handler.getWarningField());
+        assertEquals(0, handler.getWarningType());
+        assertTrue(handler.getMessages().contains(ValidationError.FOREIGN_KEY_USES_MAX_LENGTH));
+    }
+
     public void testFKPointToNonPK() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         InputStream resourceAsStream = this.getClass().getResourceAsStream("FKCheck.xsd");
