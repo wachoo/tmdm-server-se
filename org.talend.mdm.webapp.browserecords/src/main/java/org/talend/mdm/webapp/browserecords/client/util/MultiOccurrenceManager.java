@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.browserecords.client.util;
 
 import java.util.ArrayList;
@@ -191,7 +203,7 @@ public class MultiOccurrenceManager {
             childItem.getElement().setTitle(null);
             nodeModel.setValid(true);
             if (mandatory != null) {
-                multiItem.warnMandatory(); 
+                multiItem.warnMandatory();
                 childItem.setTitle(mandatory);
                 nodeModel.setValid(false);
             }
@@ -309,6 +321,10 @@ public class MultiOccurrenceManager {
                     model = modelList.get(0);
                 }
             }
+            if (model == null) {
+                throw new IllegalStateException("Model is null"); //$NON-NLS-1$
+            }
+
             model.setDynamicLabel(LabelUtil.getNormalLabel(model.getLabel()));
             model.setMandatory(selectedModel.isMandatory());
             ItemNodeModel parentModel = (ItemNodeModel) selectedModel.getParent();
@@ -348,45 +364,45 @@ public class MultiOccurrenceManager {
         final int count = CommonUtil.getCountOfBrotherOfTheSameName(selectedModel);
 
         final Map<String, Field<?>> fieldMap = treeDetail.getFieldMap();
-        MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages().delete_confirm(),
-                new Listener<MessageBoxEvent>() {
+        MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
+                .delete_occurrence_confirm(), new Listener<MessageBoxEvent>() {
 
-                    @Override
-                    public void handleEvent(MessageBoxEvent be) {
-                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                            if (count > 1 && count > typeModel.getMinOccurs()) {
-                                TreeDetailGridFieldCreator.deleteField(selectedModel, fieldMap);
+            @Override
+            public void handleEvent(MessageBoxEvent be) {
+                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                    if (count > 1 && count > typeModel.getMinOccurs()) {
+                        TreeDetailGridFieldCreator.deleteField(selectedModel, fieldMap);
 
-                                removeMultiOccurrenceNode(selectedItem);
-                                selectedModel.setObjectValue(null);
-                                warningItems(selectedModel);
-                                String selectedXpath = CommonUtil.getRealXPath(selectedModel);
-                                parentItem.removeItem(selectedItem);
-                                parentModel.remove(selectedModel);
-                                parentModel.setChangeValue(true);
+                        removeMultiOccurrenceNode(selectedItem);
+                        selectedModel.setObjectValue(null);
+                        warningItems(selectedModel);
+                        String selectedXpath = CommonUtil.getRealXPath(selectedModel);
+                        parentItem.removeItem(selectedItem);
+                        parentModel.remove(selectedModel);
+                        parentModel.setChangeValue(true);
 
-                                Set<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(
-                                        treeDetail.getViewBean(), selectedModel);
-                                for (ItemNodeModel fkContainer : fkContainers) {
-                                    treeDetail.getFkRender().removeRelationFkPanel(fkContainer);
-                                }
+                        Set<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(treeDetail.getViewBean(),
+                                selectedModel);
+                        for (ItemNodeModel fkContainer : fkContainers) {
+                            treeDetail.getFkRender().removeRelationFkPanel(fkContainer);
+                        }
 
-                                handleOptIcon(selectedXpath);
+                        handleOptIcon(selectedXpath);
 
-                                if (parentModel.getChildCount() > 0) {
-                                    ItemNodeModel child = (ItemNodeModel) parentModel.getChild(0);
-                                    Field<?> field = fieldMap.get(child.getId().toString());
-                                    if (field != null) {
-                                        TreeDetailGridFieldCreator.updateMandatory(field, child, fieldMap);
-                                    }
-                                }
-                            } else {
-                                MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
-                                        .multiOccurrence_minimize(count), null);
+                        if (parentModel.getChildCount() > 0) {
+                            ItemNodeModel child = (ItemNodeModel) parentModel.getChild(0);
+                            Field<?> field = fieldMap.get(child.getId().toString());
+                            if (field != null) {
+                                TreeDetailGridFieldCreator.updateMandatory(field, child, fieldMap);
                             }
                         }
+                    } else {
+                        MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
+                                .multiOccurrence_minimize(count), null);
                     }
-                });
+                }
+            }
+        });
     }
 
     private void handleClearNodeValue(final DynamicTreeItem selectedItem) {

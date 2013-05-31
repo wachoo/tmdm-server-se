@@ -85,6 +85,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String delete_confirm();
 
+    String delete_occurrence_confirm();
+
     String select_delete_item_record();
 
     String delete_item_record_failure(int value);
@@ -190,7 +192,7 @@ public interface BrowseRecordsMessages extends Messages {
     String bookmark_DelMsg();
 
     String bookmark_existMsg();
-    
+
     String bookmark_nameNotBlank();
 
     String bookmark_saveFailed();
@@ -236,7 +238,7 @@ public interface BrowseRecordsMessages extends Messages {
     String picture_select_title();
 
     String picture_upload_local_title();
-    
+
     String picture_upload_remote_title();
 
     String picture_field_label();
@@ -272,7 +274,7 @@ public interface BrowseRecordsMessages extends Messages {
     String delete_tip();
 
     String upload_title();
-    
+
     String export_title();
 
     String label_combo_filetype_select();
@@ -394,25 +396,25 @@ public interface BrowseRecordsMessages extends Messages {
     String hierarchy_title();
 
     String search_result();
-    
+
     String search_field_error_title();
-    
+
     String search_field_error_info(String value);
 
     String msg_confirm_close_tab(String entityName);
-    
+
     String fkinfo_display_label();
-    
+
     String fkinfo_display_type_label();
-    
-    String error_column_header(String columnName,String concept);
-    
+
+    String error_column_header(String columnName, String concept);
+
     String entity_no_access();
-    
+
     String rendering_title();
-    
+
     String render_message();
-    
+
     String rendering_progress();
 
     String load_title();
@@ -420,22 +422,22 @@ public interface BrowseRecordsMessages extends Messages {
     String load_message();
 
     String load_progress();
-    
+
     String invalid_data(String name);
 
     String of_word();
 
     String display_items();
-    
+
     String record_exists();
 
     String criteria_AND();
 
     String criteria_OR();
-    
+
     String date_format_error();
-    
+
     String output_report_null();
-    
+
     String export_error();
 }
