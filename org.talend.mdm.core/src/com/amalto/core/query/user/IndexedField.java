@@ -37,4 +37,26 @@ public class IndexedField extends Field {
     public Expression normalize() {
         return this;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof IndexedField)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        IndexedField that = (IndexedField) o;
+        return position == that.position;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + position;
+        return result;
+    }
 }

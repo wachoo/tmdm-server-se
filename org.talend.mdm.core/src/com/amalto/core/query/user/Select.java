@@ -142,4 +142,53 @@ public class Select implements Expression {
         copy.getPaging().setStart(this.paging.getStart());
         return copy;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Select)) {
+            return false;
+        }
+        Select select = (Select) o;
+        if (isProjection != select.isProjection) {
+            return false;
+        }
+        if (condition != null ? !condition.equals(select.condition) : select.condition != null) {
+            return false;
+        }
+        if (!joins.equals(select.joins)) {
+            return false;
+        }
+        if (orderBy != null ? !orderBy.equals(select.orderBy) : select.orderBy != null) {
+            return false;
+        }
+        if (!paging.equals(select.paging)) {
+            return false;
+        }
+        if (revisionId != null ? !revisionId.equals(select.revisionId) : select.revisionId != null) {
+            return false;
+        }
+        if (!selectedFields.equals(select.selectedFields)) {
+            return false;
+        }
+        if (!types.equals(select.types)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = selectedFields.hashCode();
+        result = 31 * result + joins.hashCode();
+        result = 31 * result + types.hashCode();
+        result = 31 * result + paging.hashCode();
+        result = 31 * result + (condition != null ? condition.hashCode() : 0);
+        result = 31 * result + (revisionId != null ? revisionId.hashCode() : 0);
+        result = 31 * result + (orderBy != null ? orderBy.hashCode() : 0);
+        result = 31 * result + (isProjection ? 1 : 0);
+        return result;
+    }
 }

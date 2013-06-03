@@ -36,4 +36,21 @@ public class DoubleConstant implements TypedExpression {
     public String getTypeName() {
         return Types.DOUBLE;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof DoubleConstant)) {
+            return false;
+        }
+        DoubleConstant that = (DoubleConstant) o;
+        return !(constant != null ? !constant.equals(that.constant) : that.constant != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return constant != null ? constant.hashCode() : 0;
+    }
 }

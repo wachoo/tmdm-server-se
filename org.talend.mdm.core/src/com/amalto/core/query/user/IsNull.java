@@ -30,4 +30,21 @@ public class IsNull implements Condition {
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof IsNull)) {
+            return false;
+        }
+        IsNull isNull = (IsNull) o;
+        return !(field != null ? !field.equals(isNull.field) : isNull.field != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return field != null ? field.hashCode() : 0;
+    }
 }

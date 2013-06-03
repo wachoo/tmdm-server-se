@@ -32,4 +32,21 @@ public class FullText implements Condition {
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof FullText)) {
+            return false;
+        }
+        FullText fullText = (FullText) o;
+        return !(value != null ? !value.equals(fullText.value) : fullText.value != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return value != null ? value.hashCode() : 0;
+    }
 }

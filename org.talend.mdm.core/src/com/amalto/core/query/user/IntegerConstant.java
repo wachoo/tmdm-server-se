@@ -25,4 +25,21 @@ public class IntegerConstant implements TypedExpression {
     public String getTypeName() {
         return Types.INTEGER;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof IntegerConstant)) {
+            return false;
+        }
+        IntegerConstant that = (IntegerConstant) o;
+        return constant == that.constant;
+    }
+
+    @Override
+    public int hashCode() {
+        return constant;
+    }
 }

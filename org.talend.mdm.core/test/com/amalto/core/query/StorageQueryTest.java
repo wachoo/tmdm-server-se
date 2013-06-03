@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
+import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
@@ -45,7 +46,6 @@ import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.optimization.UpdateReportOptimizer;
@@ -2661,6 +2661,42 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+    }
+
+    public void testRangeOptimization() throws Exception {
+        RangeOptimizer optimizer = new RangeOptimizer();
+        // No optimization
+        UserQueryBuilder qb = UserQueryBuilder.from(person)
+                .where(and(gte(person.getField("id"), "0"), lte(person.getField("id"), "1")));
+        Select select = qb.getSelect();
+        assertTrue(select.getCondition() instanceof BinaryLogicOperator);
+        // Optimization
+        optimizer.optimize(select);
+        assertTrue(select.getCondition() instanceof Range);
+        assertEquals(new IntegerConstant(0), ((Range) select.getCondition()).getStart());
+        assertEquals(new IntegerConstant(1), ((Range) select.getCondition()).getEnd());
+        // Optimization
+        qb = UserQueryBuilder.from(person)
+                .where(and(lte(person.getField("id"), "1"), gte(person.getField("id"), "0")));
+        select = qb.getSelect();
+        optimizer.optimize(select);
+        assertTrue(select.getCondition() instanceof Range);
+        assertEquals(new IntegerConstant(0), ((Range) select.getCondition()).getStart());
+        assertEquals(new IntegerConstant(1), ((Range) select.getCondition()).getEnd());
+        // No optimization (not applicable)
+        qb = UserQueryBuilder.from(person)
+                .where(and(and(gte(person.getField("id"), "0"), eq(person.getField("score"), "0")), lte(person.getField("id"), "1")));
+        select = qb.getSelect();
+        optimizer.optimize(select);
+        assertTrue(select.getCondition() instanceof BinaryLogicOperator);
+        assertFalse(((BinaryLogicOperator) select.getCondition()).getLeft() instanceof Range);
+        // Optimization
+        qb = UserQueryBuilder.from(person)
+                .where(and(and(gte(person.getField("id"), "0"), lte(person.getField("id"), "1")), eq(person.getField("score"), "0")));
+        select = qb.getSelect();
+        optimizer.optimize(select);
+        assertTrue(select.getCondition() instanceof BinaryLogicOperator);
+        assertTrue(((BinaryLogicOperator) select.getCondition()).getLeft() instanceof Range);
     }
 
     private static class TestRDBMSDataSource extends RDBMSDataSource {

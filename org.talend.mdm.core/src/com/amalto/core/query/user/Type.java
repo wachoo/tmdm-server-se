@@ -34,4 +34,21 @@ public class Type implements TypedExpression {
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Type)) {
+            return false;
+        }
+        Type type = (Type) o;
+        return !(field != null ? !field.equals(type.field) : type.field != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return field != null ? field.hashCode() : 0;
+    }
 }

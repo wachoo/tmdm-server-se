@@ -36,4 +36,21 @@ public class ComplexTypeExpression implements TypedExpression {
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ComplexTypeExpression)) {
+            return false;
+        }
+        ComplexTypeExpression that = (ComplexTypeExpression) o;
+        return !(type != null ? !type.equals(that.type) : that.type != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return type != null ? type.hashCode() : 0;
+    }
 }

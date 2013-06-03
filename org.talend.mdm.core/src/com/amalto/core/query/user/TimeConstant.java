@@ -52,4 +52,21 @@ public class TimeConstant implements TypedExpression {
     public String getTypeName() {
         return Types.DATETIME;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TimeConstant)) {
+            return false;
+        }
+        TimeConstant that = (TimeConstant) o;
+        return !(value != null ? !value.equals(that.value) : that.value != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return value != null ? value.hashCode() : 0;
+    }
 }

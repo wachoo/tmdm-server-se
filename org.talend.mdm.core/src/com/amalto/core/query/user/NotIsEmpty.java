@@ -30,4 +30,21 @@ public class NotIsEmpty implements Condition {
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof NotIsEmpty)) {
+            return false;
+        }
+        NotIsEmpty that = (NotIsEmpty) o;
+        return !(field != null ? !field.equals(that.field) : that.field != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return field != null ? field.hashCode() : 0;
+    }
 }

@@ -36,4 +36,21 @@ public class LongConstant implements TypedExpression {
     public String getTypeName() {
         return Types.LONG;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof LongConstant)) {
+            return false;
+        }
+        LongConstant that = (LongConstant) o;
+        return !(constant != null ? !constant.equals(that.constant) : that.constant != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return constant != null ? constant.hashCode() : 0;
+    }
 }
