@@ -11,6 +11,7 @@
 
 package com.amalto.core.save.context;
 
+import org.w3c.dom.Node;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
@@ -110,8 +111,19 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                  * then do a new partial update (with overwrite=false) so new elements are added at the end (this is the
                  * behavior of a overwrite=false).
                  */
+                // TODO these code will be replaced by fhuaulme's new API
+                List<Node> nodes = new ArrayList<Node>();
                 for (String usedPath : usedPaths) {
-                    newDocument.createAccessor(usedPath).delete();
+                    Accessor accessor = newDocument.createAccessor(usedPath);
+                    if (accessor.exist()){
+                        accessor.touch();
+                        nodes.add(newDocument.getLastAccessedNode());
+                    }
+                }
+                for (Node node : nodes) {
+                    if (node != null && node.getParentNode() != null){
+                        node.getParentNode().removeChild(node);
+                    }
                 }
                 // Since this a costly operation do this only if there are still elements under the pivot.
                 int leftElementCount = newDocument.createAccessor(StringUtils.substringBeforeLast(partialUpdatePivot, "/")).size(); //$NON-NLS-1$
@@ -307,21 +319,23 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                 String newValue = newAccessor.get();
                 if (newValue != null) {
                     if (comparedField.isMany()) {
-                        // Append at the end of the collection
-                        if (!originalFieldToLastIndex.containsKey(comparedField)) {
-                            originalFieldToLastIndex.put(comparedField, originalAccessor.size());
-                        }
-                        leaveLeft();
-                        if (insertIndex < 0) {
-                            int newIndex = originalFieldToLastIndex.get(comparedField);
-                            enterLeft(comparedField, (newIndex + 1));
-                            actions.add(new FieldUpdateAction(date, source, userName, getLeftPath(), StringUtils.EMPTY,
-                                    newValue, comparedField));
-                            originalFieldToLastIndex.put(comparedField, newIndex + 1);
-                        } else {
-                            enterLeft(comparedField, insertIndex);
-                            actions.add(new FieldInsertAction(date, source, userName, getLeftPath(), StringUtils.EMPTY,
-                                                                newValue, comparedField));
+                        if (preserveCollectionOldValues) {
+                            // Append at the end of the collection
+                            if (!originalFieldToLastIndex.containsKey(comparedField)) {
+                                originalFieldToLastIndex.put(comparedField, originalAccessor.size());
+                            }
+                            leaveLeft();
+                            if (insertIndex < 0) {
+                                int newIndex = originalFieldToLastIndex.get(comparedField);
+                                enterLeft(comparedField, (newIndex + 1));
+                                actions.add(new FieldUpdateAction(date, source, userName, getLeftPath(), StringUtils.EMPTY,
+                                        newValue, comparedField));
+                                originalFieldToLastIndex.put(comparedField, newIndex + 1);
+                            } else {
+                                enterLeft(comparedField, insertIndex);
+                                actions.add(new FieldInsertAction(date, source, userName, getLeftPath(), StringUtils.EMPTY,
+                                        newValue, comparedField));
+                            }
                         }
                     } else if (oldValue != null && !oldValue.equals(newValue)) {
                         if (!Types.STRING.equals(comparedField.getType().getName()) && !(comparedField instanceof ReferenceFieldMetadata)) {
