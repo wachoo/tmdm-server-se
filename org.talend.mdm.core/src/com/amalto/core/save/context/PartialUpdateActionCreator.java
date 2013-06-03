@@ -109,6 +109,7 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                  * then do a new partial update (with overwrite=false) so new elements are added at the end (this is the
                  * behavior of a overwrite=false).
                  */
+                // TODO these code will be replaced by fhuaulme's new API
                 List<Node> nodes = new ArrayList<Node>();
                 for (String usedPath : usedPaths) {
                     Accessor accessor = newDocument.createAccessor(usedPath);

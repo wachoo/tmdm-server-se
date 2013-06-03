@@ -2095,7 +2095,61 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("[10702E0035]", evaluate(committedElement, "/Societe/ListeEtablissements/CodeOSMOSE[5]"));
 
     }
-    
+
+    public void test60Ex1() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7_vinci.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test60_originalEx1.xml", "metadata7_vinci.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test60Ex1.xml");
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("Vinci", "Test60Ex1", "genericUI",
+                recordXml, true, false, "/Societe/ListeEtablissements/CodeOSMOSE", // Loop (Pivot)
+                null, // Key
+                -1, true);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        
+        assertEquals("[10702E0035]", evaluate(committedElement, "/Societe/ListeEtablissements/CodeOSMOSE[1]"));
+        assertEquals("[10702E0032]", evaluate(committedElement, "/Societe/ListeEtablissements/CodeOSMOSE[2]"));
+        assertEquals("[10702E0033]", evaluate(committedElement, "/Societe/ListeEtablissements/CodeOSMOSE[3]"));
+        assertEquals("[10702E0034]", evaluate(committedElement, "/Societe/ListeEtablissements/CodeOSMOSE[4]"));
+    }
+
+    public void test60Ex2() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7_vinci.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test60_originalEx2.xml", "metadata7_vinci.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test60Ex2.xml");
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("Vinci", "Test60Ex2", "genericUI",
+                recordXml, true, false, "/Societe/ListeEtablissements/CodeOSMOSE", // Loop (Pivot)
+                null, // Key
+                -1, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+        assertTrue(committer.hasSaved());
+
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("[10702E0035]", evaluate(committedElement, "/Societe/ListeEtablissements/CodeOSMOSE[1]"));
+        assertEquals("[10702E0032]", evaluate(committedElement, "/Societe/ListeEtablissements/CodeOSMOSE[2]"));
+        assertEquals("[10702E0033]", evaluate(committedElement, "/Societe/ListeEtablissements/CodeOSMOSE[3]"));
+        assertEquals("[10702E0033]", evaluate(committedElement, "/Societe/ListeEtablissements/CodeOSMOSE[4]"));
+        assertEquals("[10702E0034]", evaluate(committedElement, "/Societe/ListeEtablissements/CodeOSMOSE[5]"));
+        assertEquals("[10702E0035]", evaluate(committedElement, "/Societe/ListeEtablissements/CodeOSMOSE[6]"));
+    }
+
     public void testRemoveSimpleTypeNodeWithOccurrence() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));

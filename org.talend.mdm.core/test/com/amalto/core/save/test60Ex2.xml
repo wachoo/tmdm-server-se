@@ -1,0 +1,14 @@
+<Societe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <CodeOSMOSE>1</CodeOSMOSE>
+    <Structure>
+        <Nom>name</Nom>
+    </Structure>
+    <Consolidee>true</Consolidee>
+    <Archivee>true</Archivee>
+    <AppartenanceGroupe>true</AppartenanceGroupe>
+    <ListeEtablissements>
+        <CodeOSMOSE>[10702E0033]</CodeOSMOSE>
+        <CodeOSMOSE>[10702E0034]</CodeOSMOSE>
+        <CodeOSMOSE>[10702E0035]</CodeOSMOSE>
+    </ListeEtablissements>
+</Societe>
