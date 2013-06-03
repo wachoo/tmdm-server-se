@@ -142,6 +142,11 @@ public class ViewUtil {
         setStyleAttribute(item.getElement(), style);
         item.getElement().getStyle().setProperty("marginLeft", marginLeft); //$NON-NLS-1$
         item.getElement().getStyle().setProperty("padding", padding); //$NON-NLS-1$
+        // It need to reapply the display style according to nodeModel's visible attribute
+        ItemNodeModel itemNodeModel = (ItemNodeModel) item.getUserObject();
+        if (itemNodeModel != null) {
+            item.setVisible(itemNodeModel.isVisible());
+        }
         DeferredCommand.addCommand(new Command() {
 
             public void execute() {
