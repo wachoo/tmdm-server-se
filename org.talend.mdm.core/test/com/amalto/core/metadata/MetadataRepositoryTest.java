@@ -209,4 +209,13 @@ public class MetadataRepositoryTest extends TestCase {
         }
     }
 
+    public void test20() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema20.xsd");
+        repository.load(stream);
+        ComplexTypeMetadata test = repository.getComplexType("Test");
+        assertNotNull(test);
+        assertTrue(test.hasField("text"));
+        assertEquals("888", test.getField("text").getType().getData(MetadataRepository.DATA_MAX_LENGTH));
+    }
 }
