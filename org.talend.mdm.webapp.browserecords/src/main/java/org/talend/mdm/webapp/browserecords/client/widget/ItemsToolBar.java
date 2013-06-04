@@ -935,7 +935,7 @@ public class ItemsToolBar extends ToolBar {
         // winBookmark.setAutoWidth(true);
         winBookmark.setWidth(355);
         winBookmark.setHeight(191);
-        FormPanel content = new FormPanel();
+        final FormPanel content = new FormPanel();
         content.setFrame(false);
         content.setBodyBorder(false);
         content.setHeaderVisible(false);
@@ -968,7 +968,7 @@ public class ItemsToolBar extends ToolBar {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                if (bookmarkfield.getValue() == null) {
+                if (bookmarkfield.getValue() == null || !content.isValid()) {
                     MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages().bookmark_nameNotBlank(), null);
                     return; 
                 }
