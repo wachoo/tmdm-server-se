@@ -12,19 +12,16 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.SearchPanel;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.talend.mdm.webapp.base.client.exception.ParserException;
-import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
-import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.client.util.Parser;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
+import org.talend.mdm.webapp.browserecords.client.util.FormatUtil;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsSearchContainer;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -50,11 +47,11 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.ColumnData;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
@@ -148,6 +145,8 @@ public class AdvancedSearchPanel extends FormPanel {
                                 .parseSimpleSearchExpression(sa, 0).cr);
             }
         } catch (Exception e) {
+            if (Log.isErrorEnabled())
+                Log.error(e.toString());
         }
     }
 
@@ -202,7 +201,7 @@ public class AdvancedSearchPanel extends FormPanel {
             modifiedonField1.setWidth(120);
             modifiedonField1.setFieldLabel(MessagesFactory.getMessages().search_modifiedon());
             modifiedonField1.setId("modifiedonField1"); //$NON-NLS-1$
-            modifiedonField1.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd")); //$NON-NLS-1$
+            modifiedonField1.setPropertyEditor(new DateTimePropertyEditor(FormatUtil.defaultDateTimePattern));
             left.add(modifiedonField1);
 
             LayoutContainer right = new LayoutContainer();
@@ -214,7 +213,7 @@ public class AdvancedSearchPanel extends FormPanel {
             modifiedonField2.setWidth(120);
             modifiedonField2.setFieldLabel(MessagesFactory.getMessages().search_modifiedto());
             modifiedonField2.setId("modifiedonField2"); //$NON-NLS-1$
-            modifiedonField2.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd")); //$NON-NLS-1$
+            modifiedonField2.setPropertyEditor(new DateTimePropertyEditor(FormatUtil.defaultDateTimePattern));
             right.add(modifiedonField2);
 
             main.add(left, new ColumnData(.5));
