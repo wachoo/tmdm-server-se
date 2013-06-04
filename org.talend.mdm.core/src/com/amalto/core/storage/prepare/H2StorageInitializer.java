@@ -26,7 +26,23 @@ class H2StorageInitializer implements StorageInitializer {
 
     @Override
     public boolean isInitialized(Storage storage) {
-        return false; // Returns always false to ensure initialize() is called.
+        try {
+            DataSource storageDataSource = storage.getDataSource();
+            if (!(storageDataSource instanceof RDBMSDataSource)) {
+                throw new IllegalArgumentException("Storage to clean does not seem to be a RDBMS storage.");
+            }
+            RDBMSDataSource dataSource = (RDBMSDataSource) storageDataSource;
+            Class.forName(dataSource.getDriverClassName()).newInstance();
+            // On H2, opening a connection implicitly creates the database files, adds "IFEXISTS" to throw an exception
+            // if doesn't exist.
+            Connection connection = DriverManager.getConnection(dataSource.getConnectionURL() + ";IFEXISTS=TRUE", //$NON-NLS-1$
+                    dataSource.getUserName(),
+                    dataSource.getPassword());
+            connection.close();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
@@ -47,6 +63,5 @@ class H2StorageInitializer implements StorageInitializer {
         } catch (Exception e) {
             throw new RuntimeException("Exception occurred during initialization of H2 database", e);
         }
-
     }
 }
