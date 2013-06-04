@@ -167,9 +167,5 @@ public class JournalHistoryService {
             throw new ServiceException(MESSAGES.getMessage(new Locale(language),"action_not_supported",parameter.getAction())); //$NON-NLS-1$
         }
         document.restore();
-        if (UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(parameter.getOperationType())) {
-            String xml = Util.createUpdateReport(parameter.getId(), parameter.getConceptName(), UpdateReportPOJO.OPERATION_TYPE_RESTORED, null);
-            Util.persistentUpdateReport(xml, true);
-        }
     }
 }
