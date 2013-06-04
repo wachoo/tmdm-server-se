@@ -42,20 +42,11 @@ public class Journal implements EntryPoint {
     public static final String SEARCH_CRITERIA = "SearchCriteria"; //$NON-NLS-1$
 
     private native void registerJournalService()/*-{
-
+        var instance = this;
         $wnd.amalto.journal.Journal.browseJournalWithCriteria = function(ids,
                 concept, isItemsBroswer) {
-            @org.talend.mdm.webapp.journal.client.Journal::initJournalfromBrowseRecord(Ljava/lang/String;Ljava/lang/String;)(ids, concept);
-            var tabPanel = $wnd.amalto.core.getTabPanel();
-            var panel = tabPanel.getItem("Journal");
-            if (panel == undefined) {
-                $wnd.amalto.journal.Journal.init();
-                @org.talend.mdm.webapp.journal.client.Journal::setSearchField(Ljava/lang/String;Ljava/lang/String;)(ids, concept);
-            } else {
-                @org.talend.mdm.webapp.journal.client.Journal::onSearchWithCriteria()();
-                @org.talend.mdm.webapp.journal.client.Journal::setSearchField(Ljava/lang/String;Ljava/lang/String;)(ids, concept);
-                tabPanel.setSelection("Journal");
-            }
+            instance.@org.talend.mdm.webapp.journal.client.Journal::initJournalfromBrowseRecord(Ljava/lang/String;Ljava/lang/String;)(ids, concept);
+            instance.@org.talend.mdm.webapp.journal.client.Journal::initUI()();
         }
     }-*/;
 
@@ -80,6 +71,7 @@ public class Journal implements EntryPoint {
         $wnd.amalto.journal.Journal = function() {
 
             function initUI() {
+                instance.@org.talend.mdm.webapp.journal.client.Journal::resetSearchCondition()();
                 instance.@org.talend.mdm.webapp.journal.client.Journal::initUI()();
             }
 
@@ -99,7 +91,7 @@ public class Journal implements EntryPoint {
             panel = this.@org.talend.mdm.webapp.journal.client.Journal::createPanel()();
             tabPanel.add(panel);
         } else {
-            @org.talend.mdm.webapp.journal.client.Journal::onSearchWithCriteria()();
+            this.@org.talend.mdm.webapp.journal.client.Journal::onSearchWithCriteria()();
         }
         tabPanel.setSelection(panel.getItemId());
     }-*/;
@@ -170,24 +162,22 @@ public class Journal implements EntryPoint {
         dispatcher.dispatch(JournalEvents.InitFrame);
     }
 
-    public static void initJournalfromBrowseRecord(String ids, String concept) {
+    private void initJournalfromBrowseRecord(String ids, String concept) {
         resetSearchCondition();
         JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);
-        criteria.setEntity(concept);
         criteria.setKey(ids);
-    }
-
-    public static void setSearchField(String ids, String concept) {
         JournalSearchPanel.getInstance().setKeyFieldValue(ids);
+        criteria.setEntity(concept);
         JournalSearchPanel.getInstance().setEntityFieldValue(concept);
     }
 
-    public static void onSearchWithCriteria() {
+    private void onSearchWithCriteria() {
         Dispatcher dispatcher = Dispatcher.get();
         dispatcher.dispatch(JournalEvents.DoSearch);
     }
 
-    public static void resetSearchCondition() {
+    private void resetSearchCondition() {
+        JournalSearchPanel.getInstance().reset();
         JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);
         criteria.setStrict(true);
         criteria.setEntity(null);
