@@ -16,14 +16,20 @@ import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.servlet.ServletException;
 
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.journal.server.model.ForeignKeyInfoTransformer;
 import org.talend.mdm.webapp.journal.shared.JournalParameters;
 
+import com.amalto.core.ejb.DroppedItemPOJO;
+import com.amalto.core.ejb.DroppedItemPOJOPK;
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.DocumentHistory;
@@ -33,8 +39,11 @@ import com.amalto.core.history.DocumentTransformer;
 import com.amalto.core.history.EmptyDocument;
 import com.amalto.core.history.ModificationMarker;
 import com.amalto.core.history.UniqueIdTransformer;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.Util;
 
 
@@ -52,6 +61,9 @@ public class JournalHistoryService {
     private static final String PREVIOUS_ACTION = "before";  //$NON-NLS-1$
 
     private static final String NEXT_ACTION = "next";  //$NON-NLS-1$    
+    
+    private static final Messages MESSAGES = MessagesFactory.getMessages(
+            "org.talend.mdm.webapp.journal.client.i18n.JournalMessages", JournalHistoryService.class.getClassLoader()); //$NON-NLS-1$
     
     private JournalHistoryService() {
         doucmentHistory = DocumentHistoryFactory.getInstance().create();      
@@ -121,12 +133,25 @@ public class JournalHistoryService {
         return transformedDocument.exportToString();
     }
     
-    public boolean restoreRecord(JournalParameters parameter) throws Exception {
+    public void restoreRecord(JournalParameters parameter,String language) throws Exception {
+        if (UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(parameter.getOperationType())) {
+            ItemPOJOPK refItemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(parameter.getDataClusterName()), parameter.getConceptName(), parameter.getId());
+            DroppedItemPOJOPK droppedItemPOJOPK = new DroppedItemPOJOPK(parameter.getRevisionId(), refItemPOJOPK, "/");  //$NON-NLS-1$
+            if (DroppedItemPOJO.load(droppedItemPOJOPK) == null) {
+                throw new ServiceException(MESSAGES.getMessage(new Locale(language), "restore_logic_delete_fail")); //$NON-NLS-1$              
+            }      
+        } else if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(parameter.getOperationType())) {
+            ItemPOJOPK itemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(parameter.getDataClusterName()), parameter.getConceptName(), parameter.getId());
+            if (ItemPOJO.load(itemPOJOPK) == null) {
+                throw new ServiceException(MESSAGES.getMessage(new Locale(language), "restore_update_fail")); //$NON-NLS-1$
+            }   
+        } else {
+            throw new ServiceException(MESSAGES.getMessage(new Locale(language), "restore_not_support",parameter.getOperationType())); //$NON-NLS-1$
+        }
         Date historyDate = new Date(parameter.getDate());
         DocumentHistoryNavigator navigator = doucmentHistory.getHistory(parameter.getDataClusterName(), parameter.getDataModelName(),
                 parameter.getConceptName(), parameter.getId(), parameter.getRevisionId());
         navigator.goTo(historyDate);
-        
         com.amalto.core.history.Document document = EmptyDocument.INSTANCE;
         if (CURRENT_ACTION.equalsIgnoreCase(parameter.getAction())) {
             document = navigator.current();
@@ -139,12 +164,12 @@ public class JournalHistoryService {
                 document = navigator.next();
             }
         } else {
-            throw new ServletException(new IllegalArgumentException("Action '" + parameter.getAction() + " is not supported.")); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new ServiceException(MESSAGES.getMessage(new Locale(language),"action_not_supported",parameter.getAction())); //$NON-NLS-1$
         }
-        
         document.restore();
-        String xml = Util.createUpdateReport(parameter.getId(), parameter.getConceptName(), UpdateReportPOJO.OPERATION_TYPE_RESTORED, null);
-        Util.persistentUpdateReport(xml, true);
-        return true;
+        if (UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(parameter.getOperationType())) {
+            String xml = Util.createUpdateReport(parameter.getId(), parameter.getConceptName(), UpdateReportPOJO.OPERATION_TYPE_RESTORED, null);
+            Util.persistentUpdateReport(xml, true);
+        }
     }
 }

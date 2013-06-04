@@ -98,4 +98,12 @@ public interface JournalMessages extends Messages {
     public String menu_item_viewchages();
     
     public String strict_search_checkbox();
+    
+    public String restore_logic_delete_fail();
+        
+    public String restore_not_support(String operationType);
+        
+    public String restore_update_fail();
+    
+    public String action_not_supported(String action);
 }

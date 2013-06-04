@@ -40,6 +40,8 @@ public class JournalParameters implements Serializable, IsSerializable {
     private String action;
     
     private boolean isAuth;
+    
+    private String OperationType; 
 
     public JournalParameters() {
 
@@ -115,5 +117,13 @@ public class JournalParameters implements Serializable, IsSerializable {
     
     public void setAuth(boolean isAuth) {
         this.isAuth = isAuth;
+    }
+
+    public String getOperationType() {
+        return this.OperationType;
+    }
+
+    public void setOperationType(String operationType) {
+        this.OperationType = operationType;
     }
 }

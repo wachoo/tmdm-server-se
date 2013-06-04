@@ -476,32 +476,36 @@ public class JournalGridPanel extends ContentPanel {
             @Override
             public void handleEvent(MessageBoxEvent be) {
                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                    service.checkConflict(parameter.getDataClusterName(), parameter.getConceptName(), parameter.getId()[0], new SessionAwareAsyncCallback<Boolean>() {
+                    if (UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(parameter.getOperationType())) {
+                        service.checkConflict(parameter.getDataClusterName(), parameter.getConceptName(), parameter.getId()[0], new SessionAwareAsyncCallback<Boolean>() {
 
-                        @Override
-                        public void onSuccess(Boolean result) {
-                            if (result) {
-                                MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(),
-                                        BaseMessagesFactory.getMessages().overwrite_confirm(),
-                                        new Listener<MessageBoxEvent>() {
+                            @Override
+                            public void onSuccess(Boolean result) {
+                                if (result) {
+                                    MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(),
+                                            BaseMessagesFactory.getMessages().overwrite_confirm(),
+                                            new Listener<MessageBoxEvent>() {
 
-                                            public void handleEvent(MessageBoxEvent be) {
-                                                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                                    recoverDroppedItem(parameter, isCloseTabPanel);
+                                                public void handleEvent(MessageBoxEvent be) {
+                                                    if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                                        restoreRecord(parameter, isCloseTabPanel);
+                                                    }
                                                 }
-                                            }
-                                        });
-                            } else {
-                                recoverDroppedItem(parameter, isCloseTabPanel);
-                            }                         
-                        }                        
-                    });
+                                            });
+                                } else {
+                                    restoreRecord(parameter, isCloseTabPanel);
+                                }
+                            }
+                        });
+                    } else {
+                        restoreRecord(parameter, isCloseTabPanel);
+                    }
                 }
             }
         });
     }
     
-    private void recoverDroppedItem(final JournalParameters parameter,final boolean isCloseTabPanel) {
+    private void restoreRecord(final JournalParameters parameter,final boolean isCloseTabPanel) {
         service.restoreRecord(parameter, UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Void>() {
 
             @Override
@@ -517,7 +521,6 @@ public class JournalGridPanel extends ContentPanel {
                             lastPage();
                         }
                     }
-                    
                 });
             }
             

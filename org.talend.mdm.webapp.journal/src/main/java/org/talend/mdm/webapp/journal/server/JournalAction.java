@@ -143,7 +143,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     @Override
     public void restoreRecord(JournalParameters parameter, String language) throws ServiceException {
         try {
-            JournalHistoryService.getInstance().restoreRecord(parameter);
+            JournalHistoryService.getInstance().restoreRecord(parameter, language);
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;

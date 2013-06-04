@@ -34,7 +34,8 @@ public class JournalSearchUtil {
         parameter.setAction(action);
         String[] id = gridModel.getKey().split("\\."); //$NON-NLS-1$
         parameter.setId(id);
-        parameter.setAuth(isAuth);        
+        parameter.setAuth(isAuth);
+        parameter.setOperationType(gridModel.getOperationType());
         return parameter;
     }
 }
