@@ -52,7 +52,17 @@ public class InheritanceTest extends StorageTestCase {
                                 repository,
                                 c,
                                 "<C xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>2</id><refB tmdm:type=\"D\">[2]</refB><textA>TextAC</textA><nestedB xsi:type=\"SubNested\"><text>Text</text><subText>SubText</subText></nestedB><textC>TextCC</textC></C>"));
-
+        allRecords.add(factory
+                .read("1",
+                        repository,
+                        ss,
+                        "<SS xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>1</id><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></SS>"));
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                ss,
+                                "<SS xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>2</id><nestedB xsi:type=\"SubNested\"><text>Text</text><subText>SubText</subText></nestedB></SS>"));
         try {
             storage.begin();
             storage.update(allRecords);
@@ -70,8 +80,9 @@ public class InheritanceTest extends StorageTestCase {
 
     public void testTypeOrdering() throws Exception {
         List<ComplexTypeMetadata> sortedList = MetadataUtils.sortTypes(repository);
-        String[] expectedOrder = { "Group", "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "ProductFamily", "Persons", "Employee", "TypeA", "Update",
-                "E1", "E2", "ff", "Country", "Address", "Person", "Supplier", "Manager", "B", "D", "A", "C", "a2", "a1", "Store", "Product" };
+        String[] expectedOrder = {"Group", "Persons", "Employee", "Update", "SS", "Country", "Address", "Supplier", "B",
+                "D", "A", "C", "Person", "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "ProductFamily",
+                "TypeA", "ff", "E1", "E2", "Manager", "Store", "Product", "a2", "a1"};
         int i = 0;
         for (ComplexTypeMetadata sortedType : sortedList) {
             assertEquals(expectedOrder[i++], sortedType.getName());
@@ -442,6 +453,55 @@ public class InheritanceTest extends StorageTestCase {
             fail("Expected exception: can perform 'is a' on a FK");
         } catch (Exception e) {
             // Expected.
+        }
+    }
+
+    public void testXsiTypeOrderBy() throws Exception {
+        ComplexTypeMetadata subNested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "SubNested");
+        assertNotNull(subNested);
+        ComplexTypeMetadata nested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "Nested");
+        assertNotNull(nested);
+        // Test 1
+        UserQueryBuilder qb = UserQueryBuilder.from(ss).select(alias(type(ss.getField("nestedB")), "type"))
+                .orderBy(type(ss.getField("nestedB")), OrderBy.Direction.ASC);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+            String[] expected = new String[]{"Nested", "SubNested"};
+            int i = 0;
+            for (DataRecord result : results) {
+                assertEquals(expected[i++], result.get("type"));
+            }
+        } finally {
+            results.close();
+        }
+        // Test 2
+        qb = UserQueryBuilder.from(ss).select(alias(type(ss.getField("nestedB")), "type"))
+                .orderBy(type(ss.getField("nestedB")), OrderBy.Direction.DESC);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+            String[] expected = new String[]{"SubNested", "Nested"};
+            int i = 0;
+            for (DataRecord result : results) {
+                assertEquals(expected[i++], result.get("type"));
+            }
+        } finally {
+            results.close();
+        }
+        // Test 3
+        qb = UserQueryBuilder.from(ss).select(alias(type(ss.getField("nestedB")), "type"))
+                .orderBy(UserQueryHelper.getField(repository, "SS", "nestedB/@xsi:type"), OrderBy.Direction.ASC);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+            String[] expected = new String[]{"Nested", "SubNested"};
+            int i = 0;
+            for (DataRecord result : results) {
+                assertEquals(expected[i++], result.get("type"));
+            }
+        } finally {
+            results.close();
         }
     }
 }
