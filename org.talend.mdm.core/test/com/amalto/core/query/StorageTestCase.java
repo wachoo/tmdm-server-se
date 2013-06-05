@@ -82,6 +82,8 @@ public class StorageTestCase extends TestCase {
 
     protected static final ComplexTypeMetadata manager;
 
+    protected static final ComplexTypeMetadata ss;
+
     protected static TestUserDelegator userSecurity = new TestUserDelegator();
 
     public static final String DATABASE = "H2";
@@ -110,10 +112,9 @@ public class StorageTestCase extends TestCase {
         d = repository.getComplexType("D");
         updateReport = repository.getComplexType("Update");
         ff = repository.getComplexType("ff");
-
         e2 = repository.getComplexType("E2");
-
         e1 = repository.getComplexType("E1");
+        ss = repository.getComplexType("SS");
         persons = repository.getComplexType("Persons");
         employee = repository.getComplexType("Employee");
         manager = repository.getComplexType("Manager");
