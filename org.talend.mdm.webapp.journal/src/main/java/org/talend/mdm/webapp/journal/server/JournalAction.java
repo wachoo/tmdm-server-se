@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -128,16 +128,17 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     public boolean checkDCAndDM(String dataContainer, String dataModel) {
         return Util.checkDCAndDM(dataContainer, dataModel);
     }
-    
+
+    @Override
     public boolean checkConflict(String itemPk, String conceptName, String id) throws ServiceException {
-      try {
-          String ids[] = { id };
-          WSDataClusterPK wddcpk = new WSDataClusterPK(itemPk);
-          return Util.getPort().existsItem(new WSExistsItem(new WSItemPK(wddcpk, conceptName, ids))).is_true();
-      } catch (Exception e) {
-          LOG.error(e.getMessage(), e);
-          throw new ServiceException(e.getLocalizedMessage());
-      }
+        try {
+            String ids[] = { id };
+            WSDataClusterPK wddcpk = new WSDataClusterPK(itemPk);
+            return Util.getPort().existsItem(new WSExistsItem(new WSItemPK(wddcpk, conceptName, ids))).is_true();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
     }
 
     @Override
@@ -157,11 +158,10 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
 
     @Override
     public String getReportString(int start, int limit, String sort, String field, String language, String entity, String key,
-            String source, String operationType, String startDate, String endDate, boolean isStrict)
-            throws ServiceException {
+            String source, String operationType, String startDate, String endDate, boolean isStrict) throws ServiceException {
 
         try {
-            JournalSearchCriteria criteria = this.buildCriteria(entity, key, source, operationType, startDate, endDate,isStrict);
+            JournalSearchCriteria criteria = this.buildCriteria(entity, key, source, operationType, startDate, endDate, isStrict);
             Object[] result = service.getResultListByCriteria(criteria, start, limit, sort, field);
             List<JournalGridModel> resultList = (List<JournalGridModel>) result[1];
             String reportString = this.generateEventString(resultList, language, criteria.getStartDate());
@@ -198,7 +198,9 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
                 return true;
             }
         } catch (UnsupportedUndoPhysicalDeleteException exception) {
-            LOG.warn("Undo for physical delete is not supported."); //$NON-NLS-1$
+            if (LOG.isDebugEnabled()) {
+                LOG.warn("Undo for physical delete is not supported."); //$NON-NLS-1$
+            }
             return false;
         } catch (Exception exception) {
             LOG.error(exception.getMessage(), exception);
@@ -207,7 +209,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     }
 
     private JournalSearchCriteria buildCriteria(String entity, String key, String source, String operationType, String startDate,
-            String endDate,boolean isStrict) {
+            String endDate, boolean isStrict) {
         JournalSearchCriteria criteria = new JournalSearchCriteria();
         if (!entity.equalsIgnoreCase("")) { //$NON-NLS-1$
             criteria.setEntity(entity);
