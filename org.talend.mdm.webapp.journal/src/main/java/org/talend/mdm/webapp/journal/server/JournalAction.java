@@ -33,6 +33,7 @@ import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.history.exception.UnsupportedUndoPhysicalDeleteException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
@@ -190,21 +191,33 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
 
     @Override
     public boolean isJournalHistoryExist(JournalParameters parameter) throws ServiceException {
-        try {
-            if (isEnterpriseVersion()) {
-                JournalHistoryService.getInstance().getComparisionTreeString(parameter);
-                return true;
-            } else {
-                return true;
+        if (isEnterpriseVersion()) {
+            try {
+                String operationType = parameter.getOperationType();
+                if (UpdateReportPOJO.OPERATION_TYPE_CREATE.equals(operationType)
+                        || UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)
+                        || UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(operationType)
+                        || UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE.equals(operationType)
+                        || UpdateReportPOJO.OPERATION_TYPE_RESTORED.equals(operationType)) {
+                    JournalHistoryService.getInstance().getComparisionTreeString(parameter);
+                    return true;
+                } else {
+                    if (!UpdateReportPOJO.OPERATION_TYPE_ACTION.equals(operationType)) {
+                        LOG.warn("Operation type '" + operationType + "' is not supported. Ignore action for document history."); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
+                    return false;
+                }
+            } catch (UnsupportedUndoPhysicalDeleteException exception) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.warn("Undo for physical delete is not supported."); //$NON-NLS-1$
+                }
+                return false;
+            } catch (Exception exception) {
+                LOG.error(exception.getMessage(), exception);
+                throw new ServiceException(exception.getMessage());
             }
-        } catch (UnsupportedUndoPhysicalDeleteException exception) {
-            if (LOG.isDebugEnabled()) {
-                LOG.warn("Undo for physical delete is not supported."); //$NON-NLS-1$
-            }
-            return false;
-        } catch (Exception exception) {
-            LOG.error(exception.getMessage(), exception);
-            throw new ServiceException(exception.getMessage());
+        } else {
+            return true;
         }
     }
 
