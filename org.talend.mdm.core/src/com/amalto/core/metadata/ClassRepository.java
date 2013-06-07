@@ -144,15 +144,8 @@ public class ClassRepository extends MetadataRepository {
             }
         }
         // Analyze methods
-        Method[] declaredMethods = clazz.getMethods();
-        // TMDM-5483: getMethods() does not always return methods in same order: sort them to ensure fixed order.
-        Arrays.sort(declaredMethods, new Comparator<Method>() {
-            @Override
-            public int compare(Method method1, Method method2) {
-                return method1.getName().compareTo(method2.getName());
-            }
-        });
-        for (Method declaredMethod : declaredMethods) {
+        Method[] classMethods = getMethods(clazz);
+        for (Method declaredMethod : classMethods) {
             if (!Modifier.isStatic(declaredMethod.getModifiers())) {
                 if (isBeanMethod(declaredMethod) && isClassMethod(clazz, declaredMethod)) {
                     String fieldName = getName(declaredMethod);
@@ -246,6 +239,38 @@ public class ClassRepository extends MetadataRepository {
             }
         }
         return typeStack.pop();
+    }
+
+    private static Method[] getMethods(Class clazz) {
+        // TMDM-5851: Work around several issues in introspection (getDeclaredMethods() and getMethods() may return
+        // inherited methods if returned type is a sub class of super class method).
+        Map<String, Class<?>> superClassMethods = new HashMap<String, Class<?>>();
+        if (clazz.getSuperclass() != null) {
+            for (Method method : clazz.getSuperclass().getMethods()) {
+                superClassMethods.put(method.getName(), method.getReturnType());
+            }
+        }
+        Map<String, Method> methods = new HashMap<String, Method>();
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (!(superClassMethods.containsKey(method.getName()) && superClassMethods.get(method.getName()).equals(method.getReturnType()))) {
+                methods.put(method.getName(), method);
+            }
+        }
+        Method[] allMethods = clazz.getMethods();
+        for (Method method : allMethods) {
+            if (!methods.containsKey(method.getName())) {
+                methods.put(method.getName(), method);
+            }
+        }
+        Method[] classMethods = methods.values().toArray(new Method[methods.size()]);
+        // TMDM-5483: getMethods() does not always return methods in same order: sort them to ensure fixed order.
+        Arrays.sort(classMethods, new Comparator<Method>() {
+            @Override
+            public int compare(Method method1, Method method2) {
+                return method1.getName().compareTo(method2.getName());
+            }
+        });
+        return classMethods;
     }
 
     // TODO Make it non specific to ServiceBean
