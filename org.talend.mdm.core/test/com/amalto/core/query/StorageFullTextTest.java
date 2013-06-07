@@ -337,6 +337,20 @@ public class StorageFullTextTest extends StorageTestCase {
         }
     }
 
+    public void testSimpleSearchWithContainsConditionAndNot() throws Exception {
+        UserQueryBuilder qb = from(supplier).where(fullText("Renault")).where(
+                and(contains(supplier.getField("Contact/Name"), "Jean"), not(eq(supplier.getField("Id"), "0"))));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotSame(0, result.get("Id"));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
     public void testSimpleSearchWithGreaterThanCondition() throws Exception {
         UserQueryBuilder qb = from(supplier).where(fullText("Renault")).where(
                 gt(supplier.getField("Id"), "1"));

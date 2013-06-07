@@ -32,6 +32,8 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
 
     private Object currentValue;
 
+    private boolean isBuildingNot;
+
     LuceneQueryGenerator(List<ComplexTypeMetadata> types) {
         this.types = types;
     }
@@ -48,7 +50,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
             BooleanQuery termQuery = new BooleanQuery();
             while (tokenizer.hasMoreTokens()) {
                 TermQuery newTermQuery = new TermQuery(new Term(currentFieldName, tokenizer.nextToken().toLowerCase()));
-                termQuery.add(newTermQuery, BooleanClause.Occur.MUST);
+                termQuery.add(newTermQuery, isBuildingNot ? BooleanClause.Occur.MUST_NOT : BooleanClause.Occur.MUST);
                 if (condition.getPredicate() == Predicate.STARTS_WITH) {
                     break;
                 }
@@ -73,18 +75,35 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
             query.add(left, BooleanClause.Occur.SHOULD);
             query.add(right, BooleanClause.Occur.SHOULD);
         } else if (condition.getPredicate() == Predicate.AND) {
-            query.add(left, BooleanClause.Occur.MUST);
-            query.add(right, BooleanClause.Occur.MUST);
+            query.add(left, isNotQuery(left) ? BooleanClause.Occur.SHOULD : BooleanClause.Occur.MUST);
+            query.add(right, isNotQuery(right) ? BooleanClause.Occur.SHOULD : BooleanClause.Occur.MUST);
         } else {
             throw new NotImplementedException("No support for '" + condition.getPredicate() + "'.");
         }
         return query;
     }
 
+    private static boolean isNotQuery(Query left) {
+        if (left instanceof BooleanQuery) {
+            for (BooleanClause booleanClause : ((BooleanQuery) left).getClauses()) {
+                if (booleanClause.getOccur() == BooleanClause.Occur.MUST_NOT) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     @Override
     public Query visit(UnaryLogicOperator condition) {
-        condition.getCondition().accept(this);
-        return null;
+        if (condition.getPredicate() == Predicate.NOT) {
+            isBuildingNot = true;
+            Query query = condition.getCondition().accept(this);
+            isBuildingNot = false;
+            return query;
+        } else {
+            throw new NotImplementedException("No support for predicate '" + condition.getPredicate() + "'.");
+        }
     }
 
     @Override
