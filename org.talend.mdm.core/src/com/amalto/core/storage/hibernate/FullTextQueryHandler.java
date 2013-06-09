@@ -113,7 +113,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         // Create Hibernate Search query
         Set<Class> classes = new HashSet<Class>();
         for (ComplexTypeMetadata type : types) {
-            String className = ClassCreator.getClassName(type.getName());
+            String className = ClassCreator.PACKAGE_PREFIX + type.getName();
             try {
                 ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
                 classes.add(contextClassLoader.loadClass(className));
