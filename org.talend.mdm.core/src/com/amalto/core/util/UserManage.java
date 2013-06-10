@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -14,30 +14,33 @@ package com.amalto.core.util;
 
 import java.util.Set;
 
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
-/**
- * DOC hshu  class global comment. Detailed comment
- */
 public abstract class UserManage {
-    
-    public abstract int getWebUsers();
 
-    public abstract int getViewerUsers();
+    public static final String PROVISIONING_CLUSTER = XSystemObjects.DC_PROVISIONING.getName();
 
-    public abstract int getNormalUsers();
-    
-    public abstract int getNBAdminUsers();
-    
+    public static final String USER_CONCEPT = "User"; //$NON-NLS-1$
+
+    public final int getViewerUsers() {
+        return getUserCount(XSystemObjects.ROLE_DEFAULT_VIEWER.getName());
+    }
+
+    public final int getNormalUsers() {
+        return getUserCount(XSystemObjects.ROLE_DEFAULT_USER.getName()) + getUserCount(XSystemObjects.ROLE_DEFAULT_WEB.getName());
+    }
+
+    public final int getNBAdminUsers() {
+        return getUserCount(XSystemObjects.ROLE_DEFAULT_ADMIN.getName());
+    }
+
     public abstract int getActiveUsers();
-    
-    public abstract boolean isExistUser(User user);
-    
-    public abstract boolean isUpdateDCDM(User user);
-    
-    public abstract boolean isActiveUser(User user);
-    
-    public abstract Set<String> getOriginalRole(User user);
-    
-    protected abstract int getUserCount(String role);
 
+    public abstract boolean isExistUser(User user);
+
+    public abstract boolean isActiveUser(User user);
+
+    public abstract Set<String> getOriginalRole(User user);
+
+    protected abstract int getUserCount(String role);
 }
