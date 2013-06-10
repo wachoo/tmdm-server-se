@@ -23,37 +23,12 @@ import com.amalto.core.util.UserManage;
 public class MockUserManageImpl extends UserManage {
 
     @Override
-    public int getWebUsers() {
-        return 0;
-    }
-
-    @Override
-    public int getViewerUsers() {
-        return 0;
-    }
-
-    @Override
-    public int getNormalUsers() {
-        return 0;
-    }
-
-    @Override
-    public int getNBAdminUsers() {
-        return 0;
-    }
-
-    @Override
     public int getActiveUsers() {
         return 0;
     }
 
     @Override
     public boolean isExistUser(User user) {
-        return false;
-    }
-
-    @Override
-    public boolean isUpdateDCDM(User user) {
         return false;
     }
 
