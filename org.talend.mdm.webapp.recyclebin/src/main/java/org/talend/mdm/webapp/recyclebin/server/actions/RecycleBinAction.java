@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -47,8 +46,7 @@ import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
-import com.amalto.webapp.core.bean.Configuration;
-import com.amalto.webapp.core.bean.UpdateReportItem;
+import com.amalto.core.util.SynchronizedNow;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
@@ -75,8 +73,12 @@ public class RecycleBinAction implements RecycleBinService {
 
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.recyclebin.client.i18n.RecycleBinMessages", RecycleBinAction.class.getClassLoader()); //$NON-NLS-1$
-    
-    public ItemBasePageLoadResult<ItemsTrashItem> getTrashItems(String regex, BasePagingLoadConfigImpl load) throws ServiceException {
+
+    private final static SynchronizedNow now = new SynchronizedNow();
+
+    @Override
+    public ItemBasePageLoadResult<ItemsTrashItem> getTrashItems(String regex, BasePagingLoadConfigImpl load)
+            throws ServiceException {
         try {
             //
             if (regex == null || regex.length() == 0) {
@@ -105,8 +107,9 @@ public class RecycleBinAction implements RecycleBinService {
                     // For enterprise version we check the user roles first, if one user don't have read permission on a
                     // DataModel Object, then ignore it
                     if (Webapp.INSTANCE.isEnterpriseVersion()
-                            && !LocalUser.getLocalUser().userCanRead(DataModelPOJO.class, modelName))
+                            && !LocalUser.getLocalUser().userCanRead(DataModelPOJO.class, modelName)) {
                         continue;
+                    }
 
                     model = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(modelName)));
 
@@ -137,8 +140,9 @@ public class RecycleBinAction implements RecycleBinService {
             if (li.size() > 0) {
                 start = start < li.size() ? start : li.size() - 1;
                 int end = li.size() < (start + limit) ? li.size() - 1 : (start + limit - 1);
-                for (int i = start; i < end + 1; i++)
+                for (int i = start; i < end + 1; i++) {
                     sublist.add(li.get(i));
+                }
             }
             return new ItemBasePageLoadResult<ItemsTrashItem>(sublist, load.getOffset(), li.size());
         } catch (Exception e) {
@@ -148,7 +152,7 @@ public class RecycleBinAction implements RecycleBinService {
 
     }
 
-    public static String getModelNameFromConceptXML(String conceptXML) {
+    private static String getModelNameFromConceptXML(String conceptXML) {
         String result = null;
 
         try {
@@ -168,7 +172,7 @@ public class RecycleBinAction implements RecycleBinService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
 
         return result;
@@ -186,11 +190,13 @@ public class RecycleBinAction implements RecycleBinService {
         return pojo;
     }
 
+    @Override
     public boolean isEntityPhysicalDeletable(String conceptName) throws ServiceException {
         try {
             boolean isDeletable = !SchemaWebAgent.getInstance().isEntityDenyPhysicalDeletable(conceptName);
-            if (!isDeletable)
+            if (!isDeletable) {
                 throw new NoPermissionException();
+            }
             return isDeletable;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -198,13 +204,15 @@ public class RecycleBinAction implements RecycleBinService {
         }
     }
 
-    public String removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids, String language)
-            throws ServiceException {
+    // FIXME Code duplication
+    @Override
+    public String removeDroppedItem(String clusterName, String modelName, String partPath, String revisionId, String conceptName,
+            String ids, String language) throws ServiceException {
         try {
             Locale locale = new Locale(language);
             // WSDroppedItemPK
             String[] ids1 = ids.split("\\.");//$NON-NLS-1$
-            String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(itemPk, conceptName, ids1);
+            String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(clusterName, conceptName, ids1);
 
             String message = null;
             String errorCode = null;
@@ -220,25 +228,29 @@ public class RecycleBinAction implements RecycleBinService {
             }
 
             if (outputErrorMessage != null && !"info".equals(errorCode)) { //$NON-NLS-1$
-                if (message == null || message.equals("")) //$NON-NLS-1$
-                    if("error".equals(errorCode)) //$NON-NLS-1$
+                if (message == null || message.isEmpty()) {
+                    if ("error".equals(errorCode)) { //$NON-NLS-1$
                         message = MESSAGES.getMessage(locale, "delete_process_validation_failure"); //$NON-NLS-1$
-                    else
+                    } else {
                         message = MESSAGES.getMessage(locale, "delete_record_failure"); //$NON-NLS-1$
+                    }
+                }
                 throw new ServiceException(message);
             } else {
-                WSDataClusterPK wddcpk = new WSDataClusterPK(itemPk);
+                WSDataClusterPK wddcpk = new WSDataClusterPK(clusterName);
                 WSItemPK wdipk = new WSItemPK(wddcpk, conceptName, ids1);
                 WSDroppedItemPK wddipk = new WSDroppedItemPK(wdipk, partPath, revisionId);
                 WSRemoveDroppedItem wsrdi = new WSRemoveDroppedItem(wddipk);
                 Util.getPort().removeDroppedItem(wsrdi);
 
-                String xml = createUpdateReport(ids1, conceptName, UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE, null);
+                String xml = createUpdateReport(clusterName, modelName, ids1, conceptName,
+                        UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE);
                 Util.persistentUpdateReport(xml, true);
 
-                if (message == null || message.equals("")) //$NON-NLS-1$
+                if (message == null || message.isEmpty()) {
                     message = MESSAGES.getMessage(locale, "delete_process_validation_success"); //$NON-NLS-1$
-                
+                }
+
                 return "info".equals(errorCode) ? message : null; //$NON-NLS-1$
             }
         } catch (Exception e) {
@@ -247,10 +259,11 @@ public class RecycleBinAction implements RecycleBinService {
         }
     }
 
-    public boolean checkConflict(String itemPk, String conceptName, String id) throws ServiceException {
+    @Override
+    public boolean checkConflict(String clusterName, String conceptName, String id) throws ServiceException {
         try {
             String ids[] = { id };
-            WSDataClusterPK wddcpk = new WSDataClusterPK(itemPk);
+            WSDataClusterPK wddcpk = new WSDataClusterPK(clusterName);
             return Util.getPort().existsItem(new WSExistsItem(new WSItemPK(wddcpk, conceptName, ids))).is_true();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -258,7 +271,8 @@ public class RecycleBinAction implements RecycleBinService {
         }
     }
 
-    public void recoverDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String modelName,
+    @Override
+    public void recoverDroppedItem(String clusterName, String modelName, String partPath, String revisionId, String conceptName,
             String ids) throws ServiceException {
         try {
             if (modelName != null) {
@@ -267,20 +281,21 @@ public class RecycleBinAction implements RecycleBinService {
                     String modelXSD = model.getXsdSchema();
 
                     if (Webapp.INSTANCE.isEnterpriseVersion()
-                            && !org.talend.mdm.webapp.recyclebin.server.actions.Util.checkRestoreAccess(modelXSD, conceptName))
+                            && !org.talend.mdm.webapp.recyclebin.server.actions.Util.checkRestoreAccess(modelXSD, conceptName)) {
                         throw new NoPermissionException();
+                    }
                 }
             }
 
             String[] ids1 = ids.split("\\.");//$NON-NLS-1$
-            WSDataClusterPK wddcpk = new WSDataClusterPK(itemPk);
+            WSDataClusterPK wddcpk = new WSDataClusterPK(clusterName);
             WSItemPK wdipk = new WSItemPK(wddcpk, conceptName, ids1);
             WSDroppedItemPK wsdipk = new WSDroppedItemPK(wdipk, partPath, revisionId);
             WSRecoverDroppedItem wsrdi = new WSRecoverDroppedItem(wsdipk);
             Util.getPort().recoverDroppedItem(wsrdi);
 
             // put the restore into updatereport archive
-            String xml = createUpdateReport(ids1, conceptName, UpdateReportPOJO.OPERATION_TYPE_RESTORED, null);
+            String xml = createUpdateReport(clusterName, modelName, ids1, conceptName, UpdateReportPOJO.OPERATION_TYPE_RESTORED);
             Util.persistentUpdateReport(xml, true);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -288,76 +303,18 @@ public class RecycleBinAction implements RecycleBinService {
         }
     }
 
-    // TODO use session instead
-    public String getCurrentDataModel() throws ServiceException {
-        try {
-            Configuration config = Configuration.getConfiguration();
-            return config.getModel();
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
-        }
-    }
-
-    public String getCurrentDataCluster() throws ServiceException {
-        try {
-            Configuration config = Configuration.getConfiguration();
-            return config.getCluster();
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
-        }
-    }
-
-    // TODO this is used in many places, refactor it in core project
-    private String createUpdateReport(String[] ids, String concept, String operationType,
-            HashMap<String, UpdateReportItem> updatedPath) throws Exception {
+    private String createUpdateReport(String dataClusterPK, String dataModelPK, String[] ids, String concept, String operationType)
+            throws Exception {
 
         String revisionId = null;
-        String dataModelPK = getCurrentDataModel() == null ? "" : getCurrentDataModel();//$NON-NLS-1$ 
-        String dataClusterPK = getCurrentDataCluster() == null ? "" : getCurrentDataCluster();//$NON-NLS-1$ 
-
         String username = com.amalto.webapp.core.util.Util.getLoginUserName();
         String universename = com.amalto.webapp.core.util.Util.getLoginUniverse();
-        if (universename != null && universename.length() > 0)
+        if (universename != null && universename.length() > 0) {
             revisionId = com.amalto.webapp.core.util.Util.getRevisionIdFromUniverse(universename, concept);
-
-        StringBuilder keyBuilder = new StringBuilder();
-        if (ids != null) {
-            for (int i = 0; i < ids.length; i++) {
-                keyBuilder.append(ids[i]);
-                if (i != ids.length - 1)
-                    keyBuilder.append("."); //$NON-NLS-1$
-            }
         }
-        String key = keyBuilder.length() == 0 ? "null" : keyBuilder.toString(); //$NON-NLS-1$
 
-        StringBuilder sb = new StringBuilder();
-        // TODO what is StringEscapeUtils.escapeXml used for
-        sb.append("<Update><UserName>").append(username).append("</UserName><Source>genericUI</Source><TimeInMillis>") //$NON-NLS-1$ //$NON-NLS-2$ 
-                .append(System.currentTimeMillis()).append("</TimeInMillis><OperationType>") //$NON-NLS-1$
-                .append(operationType).append("</OperationType><RevisionID>").append(revisionId) //$NON-NLS-1$
-                .append("</RevisionID><DataCluster>").append(dataClusterPK).append("</DataCluster><DataModel>") //$NON-NLS-1$ //$NON-NLS-2$ 
-                .append(dataModelPK).append("</DataModel><Concept>").append(concept) //$NON-NLS-1$
-                .append("</Concept><Key>").append(key).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$ 
-
-        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)) {
-            Collection<UpdateReportItem> list = updatedPath.values();
-            boolean isUpdate = false;
-            for (UpdateReportItem item : list) {
-                String oldValue = item.getOldValue() == null ? "" : item.getOldValue();//$NON-NLS-1$
-                String newValue = item.getNewValue() == null ? "" : item.getNewValue();//$NON-NLS-1$
-                if (newValue.equals(oldValue))
-                    continue;
-                sb.append("<Item>   <path>").append(item.getPath()).append("</path>   <oldValue>")//$NON-NLS-1$ //$NON-NLS-2$
-                        .append(oldValue).append("</oldValue>   <newValue>")//$NON-NLS-1$
-                        .append(newValue).append("</newValue></Item>");//$NON-NLS-1$
-                isUpdate = true;
-            }
-            if (!isUpdate)
-                return null;
-        }
-        sb.append("</Update>");//$NON-NLS-1$
-        return sb.toString();
+        UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType, //$NON-NLS-1$
+                "genericUI", now.getTime(), dataClusterPK, dataModelPK, username, revisionId, null); ////$NON-NLS-1$
+        return updateReportPOJO.serialize();
     }
 }
