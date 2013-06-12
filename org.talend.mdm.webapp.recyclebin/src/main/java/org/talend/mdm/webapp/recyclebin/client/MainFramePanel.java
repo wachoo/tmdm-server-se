@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -13,7 +13,6 @@
 package org.talend.mdm.webapp.recyclebin.client;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,6 @@ import org.talend.mdm.webapp.recyclebin.shared.NoPermissionException;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
@@ -95,8 +93,6 @@ public class MainFramePanel extends ContentPanel {
 
     private Grid<ItemsTrashItem> grid;
 
-    private final Map<String, String> CONCEPT_MODEL_MAP = new HashMap<String, String>();
-
     private int outstandingRestoreCallCount = 0;
 
     private int outstandingRestoreCallFailCount = 0;
@@ -125,7 +121,7 @@ public class MainFramePanel extends ContentPanel {
         sm.setSelectionMode(SelectionMode.MULTI);
         ccList.add(sm.getColumn());
         ColumnConfig colPK = new ColumnConfig();
-        colPK.setId("itemPK");//$NON-NLS-1$
+        colPK.setId("dataClusterName");//$NON-NLS-1$
         colPK.setWidth(COLUMN_WIDTH);
         colPK.setHeader(MessagesFactory.getMessages().dataClusterName());
         ccList.add(colPK);
@@ -176,87 +172,91 @@ public class MainFramePanel extends ContentPanel {
         colDelete.setId("delete");//$NON-NLS-1$
         colDelete.setWidth(50);
         colDelete.setHeader(MessagesFactory.getMessages().delete());
-        colDelete.setRenderer(new GridCellRenderer<BaseModelData>() {
+        colDelete.setRenderer(new GridCellRenderer<ItemsTrashItem>() {
 
-            public Object render(final BaseModelData model, String property, ColumnData config, int rowIndex, int colIndex,
-                    ListStore<BaseModelData> store, final Grid<BaseModelData> grid) {
+            @Override
+            public Object render(final ItemsTrashItem model, String property, ColumnData config, int rowIndex, int colIndex,
+                    ListStore<ItemsTrashItem> store, final Grid<ItemsTrashItem> modelGrid) {
                 Image image = new Image();
                 image.setResource(Icons.INSTANCE.delete());
                 image.addStyleName("clickable"); //$NON-NLS-1$
                 image.addClickHandler(new ClickHandler() {
 
+                    @Override
                     public void onClick(ClickEvent event) {
-                        service.isEntityPhysicalDeletable(
-                                model.get("conceptName").toString(), new SessionAwareAsyncCallback<Boolean>() {//$NON-NLS-1$
+                        service.isEntityPhysicalDeletable(model.getConceptName(), new SessionAwareAsyncCallback<Boolean>() {
 
-                                    protected void doOnFailure(Throwable caught) {
-                                        String errorMsg = caught.getLocalizedMessage();
-                                        if (errorMsg == null || "".equals(errorMsg)) { //$NON-NLS-1$
-                                            if (Log.isDebugEnabled())
-                                                errorMsg = caught.toString(); // for debugging purpose
-                                            else
-                                                errorMsg = BaseMessagesFactory.getMessages().unknown_error();
-                                        }
-
-                                        if (caught instanceof NoPermissionException) {
-                                            MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), MessagesFactory
-                                                    .getMessages().restore_no_permissions(), null);
-                                            // GWT.log(errorMsg, caught);
-                                        } else {
-                                            MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), MessagesFactory
-                                                    .getMessages().delete_no_permissions(), null);
-                                            // GWT.log(errorMsg, caught);
-                                        }
+                            @Override
+                            protected void doOnFailure(Throwable caught) {
+                                String errorMsg = caught.getLocalizedMessage();
+                                if (errorMsg == null || "".equals(errorMsg)) { //$NON-NLS-1$
+                                    if (Log.isDebugEnabled()) {
+                                        errorMsg = caught.toString(); // for debugging purpose
+                                    } else {
+                                        errorMsg = BaseMessagesFactory.getMessages().unknown_error();
                                     }
+                                }
 
-                                    public void onSuccess(Boolean result) {
+                                // FIXME exception handling seems weird
+                                if (caught instanceof NoPermissionException) {
+                                    MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), MessagesFactory
+                                            .getMessages().restore_no_permissions(), null);
+                                } else {
+                                    MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), MessagesFactory
+                                            .getMessages().delete_no_permissions(), null);
+                                }
+                            }
 
-                                        MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory
-                                                .getMessages().delete_confirm(), new Listener<MessageBoxEvent>() {
+                            @Override
+                            public void onSuccess(Boolean result) {
 
-                                            public void handleEvent(MessageBoxEvent be) {
-                                                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory
+                                        .getMessages().delete_confirm(), new Listener<MessageBoxEvent>() {
 
-                                                    if (model.get("projection") != null && !model.get("projection").equals("")) {//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-                                                        String[] picArray = model.get("projection").toString().split(//$NON-NLS-1$
-                                                                "/imageserver/");//$NON-NLS-1$
-                                                        for (int i = 1; i < picArray.length; i++) {
-                                                            String array = picArray[i];
-                                                            if (!array.isEmpty()) {
-                                                                String uri = array.substring(0, array.indexOf("?"));//$NON-NLS-1$
+                                    @Override
+                                    public void handleEvent(MessageBoxEvent be) {
+                                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                            String projection = model.getProjection();
+                                            if (projection != null && !projection.isEmpty()) {
+                                                String[] picArray = projection.split("/imageserver/");//$NON-NLS-1$
+                                                for (int i = 1; i < picArray.length; i++) {
+                                                    String array = picArray[i];
+                                                    if (!array.isEmpty()) {
+                                                        String uri = array.substring(0, array.indexOf("?"));//$NON-NLS-1$
 
-                                                                RequestBuilder builder = new RequestBuilder(RequestBuilder.POST,
-                                                                        "/imageserver/secure/ImageDeleteServlet?uri=" + uri);//$NON-NLS-1$
-                                                                builder.setCallback(new RequestCallback() {
+                                                        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST,
+                                                                "/imageserver/secure/ImageDeleteServlet?uri=" + uri);//$NON-NLS-1$
+                                                        builder.setCallback(new RequestCallback() {
 
-                                                                    public void onResponseReceived(Request request,
-                                                                            Response response) {
-                                                                        // TODO result
-                                                                    }
-
-                                                                    public void onError(Request request, Throwable e) {
-                                                                        MessageBox.alert(BaseMessagesFactory.getMessages()
-                                                                                .error_title(), e.getMessage(), null);
-                                                                    }
-                                                                });
-
-                                                                try {
-                                                                    builder.send();
-                                                                } catch (RequestException e) {
-                                                                    MessageBox.alert(BaseMessagesFactory.getMessages()
-                                                                            .error_title(), e.getMessage(), null);
-                                                                }
+                                                            @Override
+                                                            public void onResponseReceived(Request request, Response response) {
+                                                                // TODO result
                                                             }
+
+                                                            @Override
+                                                            public void onError(Request request, Throwable e) {
+                                                                MessageBox.alert(BaseMessagesFactory.getMessages().error_title(),
+                                                                        e.getMessage(), null);
+                                                            }
+                                                        });
+
+                                                        try {
+                                                            builder.send();
+                                                        } catch (RequestException e) {
+                                                            MessageBox.alert(BaseMessagesFactory.getMessages().error_title(),
+                                                                    e.getMessage(), null);
                                                         }
                                                     }
-                                                    deleteItem(model);
                                                 }
                                             }
-
-                                        });
+                                            deleteItem(model);
+                                        }
                                     }
 
                                 });
+                            }
+
+                        });
 
                     }
 
@@ -270,39 +270,43 @@ public class MainFramePanel extends ContentPanel {
         colRestore.setId("restore");//$NON-NLS-1$
         colRestore.setWidth(50);
         colRestore.setHeader(MessagesFactory.getMessages().restore());
-        colRestore.setRenderer(new GridCellRenderer<BaseModelData>() {
+        colRestore.setRenderer(new GridCellRenderer<ItemsTrashItem>() {
 
-            public Object render(final BaseModelData model, String property, ColumnData config, int rowIndex, int colIndex,
-                    ListStore<BaseModelData> store, final Grid<BaseModelData> grid) {
+            @Override
+            public Object render(final ItemsTrashItem model, String property, ColumnData config, int rowIndex, int colIndex,
+                    ListStore<ItemsTrashItem> store, final Grid<ItemsTrashItem> modelGrid) {
                 Image image = new Image();
                 image.setResource(Icons.INSTANCE.restore());
                 image.addStyleName("clickable"); //$NON-NLS-1$
                 image.addClickHandler(new ClickHandler() {
 
+                    @Override
                     public void onClick(ClickEvent event) {
                         MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
                                 .restore_confirm(), new Listener<MessageBoxEvent>() {
 
+                            @Override
                             public void handleEvent(MessageBoxEvent be) {
                                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                    service.checkConflict(model.get("itemPK").toString(), model //$NON-NLS-1$
-                                            .get("conceptName").toString(), model.get("ids").toString(), //$NON-NLS-1$ //$NON-NLS-2$
+                                    service.checkConflict(model.getDataClusterName(), model.getConceptName(), model.getIds(),
                                             new SessionAwareAsyncCallback<Boolean>() {
 
+                                                @Override
                                                 public void onSuccess(Boolean result) {
                                                     if (result) {
                                                         MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(),
                                                                 MessagesFactory.getMessages().overwrite_confirm(),
                                                                 new Listener<MessageBoxEvent>() {
 
-                                                                    public void handleEvent(MessageBoxEvent be) {
-                                                                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                                                            recoverDroppedItem(model, grid);
+                                                                    @Override
+                                                                    public void handleEvent(MessageBoxEvent be1) {
+                                                                        if (be1.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                                                            recoverDroppedItem(model, modelGrid);
                                                                         }
                                                                     }
                                                                 });
                                                     } else {
-                                                        recoverDroppedItem(model, grid);
+                                                        recoverDroppedItem(model, modelGrid);
                                                     }
                                                 }
                                             });
@@ -330,10 +334,8 @@ public class MainFramePanel extends ContentPanel {
                 service.getTrashItems(text.getValue() == null ? "*" : text.getValue(), baseConfig,//$NON-NLS-1$
                         new SessionAwareAsyncCallback<ItemBasePageLoadResult<ItemsTrashItem>>() {
 
+                            @Override
                             public void onSuccess(ItemBasePageLoadResult<ItemsTrashItem> result) {
-                                for (ItemsTrashItem trashItem : result.getData()) {
-                                    CONCEPT_MODEL_MAP.put(trashItem.getConceptName(), trashItem.getDataModelName());
-                                }
                                 callback.onSuccess(new BasePagingLoadResult<ItemsTrashItem>(result.getData(), result.getOffset(),
                                         result.getTotalLength()));
                             }
@@ -358,8 +360,9 @@ public class MainFramePanel extends ContentPanel {
         grid.getView().setForceFit(true);
         // grid.setSize(350, 600);
         int usePageSize = PAGE_SIZE;
-        if (StateManager.get().get("trashgrid") != null) //$NON-NLS-1$
+        if (StateManager.get().get("trashgrid") != null) { //$NON-NLS-1$
             usePageSize = Integer.valueOf(((Map<?, ?>) StateManager.get().get("trashgrid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
+        }
         pagetoolBar = new PagingToolBarEx(usePageSize);
         pagetoolBar.bind(loader);
         grid.setLoadMask(true);
@@ -367,10 +370,11 @@ public class MainFramePanel extends ContentPanel {
         grid.setStateful(true);
         grid.addListener(Events.Attach, new Listener<GridEvent<ItemsTrashItem>>() {
 
+            @Override
             public void handleEvent(GridEvent<ItemsTrashItem> be) {
                 PagingLoadConfig config = new BasePagingLoadConfig();
                 config.setOffset(0);
-                int pageSize = (Integer) pagetoolBar.getPageSize();
+                int pageSize = pagetoolBar.getPageSize();
                 config.setLimit(pageSize);
                 loader.load(config);
             }
@@ -395,7 +399,7 @@ public class MainFramePanel extends ContentPanel {
             public void componentSelected(ButtonEvent ce) {
                 PagingLoadConfig config = new BasePagingLoadConfig();
                 config.setOffset(0);
-                int pageSize = (Integer) pagetoolBar.getPageSize();
+                int pageSize = pagetoolBar.getPageSize();
                 config.setLimit(pageSize);
                 grid.getStore().getLoader().load(config);
             }
@@ -403,6 +407,7 @@ public class MainFramePanel extends ContentPanel {
         });
         text.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
+            @Override
             public void handleEvent(FieldEvent e) {
                 if (e.getKeyCode() == KeyCodes.KEY_ENTER) {
                     if (btn != null) {
@@ -427,6 +432,7 @@ public class MainFramePanel extends ContentPanel {
                     MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
                             .restoreSelectedConfirm(), new Listener<MessageBoxEvent>() {
 
+                        @Override
                         public void handleEvent(MessageBoxEvent be) {
 
                             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
@@ -457,6 +463,7 @@ public class MainFramePanel extends ContentPanel {
                     MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
                             .deleteSelectedConfirm(), new Listener<MessageBoxEvent>() {
 
+                        @Override
                         public void handleEvent(MessageBoxEvent be) {
 
                             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
@@ -477,52 +484,51 @@ public class MainFramePanel extends ContentPanel {
     }
 
     public void restoreSelected(List<ItemsTrashItem> selectedRecords) {
-        if (selectedRecords == null || selectedRecords.size() == 0)
+        if (selectedRecords == null || selectedRecords.size() == 0) {
             return;
+        }
         for (final ItemsTrashItem r : selectedRecords) {
             ++outstandingRestoreCallCount;
-            service.checkConflict(r.get("itemPK").toString(), r //$NON-NLS-1$
-                    .get("conceptName").toString(), r.get("ids").toString(), //$NON-NLS-1$ //$NON-NLS-2$
-                    new AsyncCallback<Boolean>() {
+            service.checkConflict(r.getDataClusterName(), r.getConceptName(), r.getIds(), new AsyncCallback<Boolean>() {
 
-                        public void onSuccess(Boolean result) {
-                            if (result) {
-                                MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory
-                                        .getMessages().restoreSelectedOverwriteConfirm(r.get("ids").toString()), //$NON-NLS-1$
-                                        new Listener<MessageBoxEvent>() {
+                @Override
+                public void onSuccess(Boolean result) {
+                    if (result) {
+                        MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
+                                .restoreSelectedOverwriteConfirm(r.getIds()), new Listener<MessageBoxEvent>() {
 
-                                            public void handleEvent(MessageBoxEvent be) {
-                                                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                                    restoreSelectedItem(r);
-                                                } else {
-                                                    restoreSelectedCheckFinished(r, false);
-                                                }
-                                            }
-                                        });
-                            } else {
-                                restoreSelectedItem(r);
+                            @Override
+                            public void handleEvent(MessageBoxEvent be) {
+                                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                    restoreSelectedItem(r);
+                                } else {
+                                    restoreSelectedCheckFinished(r, false);
+                                }
                             }
-                        }
+                        });
+                    } else {
+                        restoreSelectedItem(r);
+                    }
+                }
 
-                        public void onFailure(Throwable arg0) {
-                            restoreSelectedCheckFinished(r, false);
-                        }
-                    });
+                @Override
+                public void onFailure(Throwable arg0) {
+                    restoreSelectedCheckFinished(r, false);
+                }
+            });
         }
     }
 
     public void restoreSelectedItem(final ItemsTrashItem r) {
-        String conceptName = r.get("conceptName").toString(); //$NON-NLS-1$
-        String modelName = CONCEPT_MODEL_MAP.get(conceptName);
-        service.recoverDroppedItem(r.get("itemPK").toString(), r.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
-                r.get("revisionId") == null ? null : r.get("revisionId").toString(), //$NON-NLS-1$ //$NON-NLS-2$
-                conceptName, modelName, r.get("ids").toString(),//$NON-NLS-1$
-                new AsyncCallback<Void>() {
+        service.recoverDroppedItem(r.getDataClusterName(), r.getDataModelName(), r.getPartPath(), r.getRevisionID(),
+                r.getConceptName(), r.getIds(), new AsyncCallback<Void>() {
 
+                    @Override
                     public void onSuccess(Void arg0) {
                         restoreSelectedCheckFinished(r, true);
                     }
 
+                    @Override
                     public void onFailure(Throwable caught) {
                         restoreSelectedCheckFinished(r, false);
                     }
@@ -548,7 +554,7 @@ public class MainFramePanel extends ContentPanel {
                 StringBuffer buf = new StringBuffer();
                 boolean loopBegin = true;
                 for (ItemsTrashItem item : outstandingRestoreCallFailRecords) {
-                    buf.append((loopBegin ? " " : ", ") + item.get("ids")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    buf.append((loopBegin ? " " : ", ") + item.getIds()); //$NON-NLS-1$ //$NON-NLS-2$
                     loopBegin = false;
                 }
                 MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
@@ -557,76 +563,84 @@ public class MainFramePanel extends ContentPanel {
                 outstandingRestoreCallFailCount = 0;
                 outstandingRestoreCallFailRecords.clear();
             }
-
-            refreshBrowseRecordsGrid();
         }
     }
 
     public void deleteSelected(List<ItemsTrashItem> selectedRecords) {
-        if (selectedRecords == null || selectedRecords.size() == 0)
+        if (selectedRecords == null || selectedRecords.size() == 0) {
             return;
+        }
         for (final ItemsTrashItem r : selectedRecords) {
 
             ++outstandingDeleteCallCount;
 
-            service.isEntityPhysicalDeletable(r.get("conceptName").toString(), new SessionAwareAsyncCallback<Boolean>() {//$NON-NLS-1$
+            service.isEntityPhysicalDeletable(r.getConceptName(), new SessionAwareAsyncCallback<Boolean>() {
 
-                        protected void doOnFailure(Throwable caught) {
-                            deleteSelectedCheckFinished(r, false, caught.getMessage());
-                        }
+                @Override
+                protected void doOnFailure(Throwable caught) {
+                    deleteSelectedCheckFinished(r, false, caught.getMessage());
+                }
 
-                        public void onSuccess(Boolean result) {
-                            if (r.get("projection") != null && !r.get("projection").equals("")) {//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-                                String[] picArray = r.get("projection").toString().split(//$NON-NLS-1$
-                                        "/imageserver/");//$NON-NLS-1$
-                                for (int i = 1; i < picArray.length; i++) {
-                                    String array = picArray[i];
-                                    if (!array.isEmpty()) {
-                                        String uri = array.substring(0, array.indexOf("?"));//$NON-NLS-1$
+                @Override
+                public void onSuccess(Boolean result) {
+                    String projection = r.getProjection();
+                    if (projection != null && !projection.isEmpty()) {
+                        String[] picArray = projection.split("/imageserver/");//$NON-NLS-1$
+                        for (int i = 1; i < picArray.length; i++) {
+                            String array = picArray[i];
+                            if (!array.isEmpty()) {
+                                String uri = array.substring(0, array.indexOf("?"));//$NON-NLS-1$
 
-                                        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST,
-                                                "/imageserver/secure/ImageDeleteServlet?uri=" + uri);//$NON-NLS-1$
-                                        builder.setCallback(new RequestCallback() {
+                                RequestBuilder builder = new RequestBuilder(RequestBuilder.POST,
+                                        "/imageserver/secure/ImageDeleteServlet?uri=" + uri);//$NON-NLS-1$
+                                builder.setCallback(new RequestCallback() {
 
-                                            public void onResponseReceived(Request request, Response response) {
-                                            }
+                                    @Override
+                                    public void onResponseReceived(Request request, Response response) {
+                                        // do nothing
+                                    }
 
-                                            public void onError(Request request, Throwable e) {
-                                            }
-                                        });
+                                    @Override
+                                    public void onError(Request request, Throwable e) {
+                                        MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), e.getMessage(), null);
+                                    }
+                                });
 
-                                        try {
-                                            builder.send();
-                                        } catch (RequestException e) {
-                                        }
+                                try {
+                                    builder.send();
+                                } catch (RequestException e) {
+                                    if (Log.isErrorEnabled()) {
+                                        Log.error(e.toString());
                                     }
                                 }
                             }
-
-                            service.removeDroppedItem(r.get("itemPK").toString(), r.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
-                                    r.get("revisionId") == null ? null : r.get("revisionId").toString(), r //$NON-NLS-1$//$NON-NLS-2$
-                                            .get("conceptName").toString(), r.get("ids").toString(), UrlUtil.getLanguage(), //$NON-NLS-1$//$NON-NLS-2$
-                                    new SessionAwareAsyncCallback<String>() {
-
-                                        public void onSuccess(String msg) {
-                                            deleteSelectedCheckFinished(r, true, msg);
-                                        }
-
-                                        @Override
-                                        protected void doOnFailure(Throwable caught) {
-                                            String errorMsg = caught.getLocalizedMessage();
-                                            if (errorMsg == null) {
-                                                if (Log.isDebugEnabled())
-                                                    errorMsg = caught.toString(); // for debugging
-                                                // purpose
-                                                else
-                                                    errorMsg = BaseMessagesFactory.getMessages().unknown_error();
-                                                    }
-                                            deleteSelectedCheckFinished(r, false, errorMsg);
-                                                }
-                                    });
                         }
-                    });
+                    }
+
+                    service.removeDroppedItem(r.getDataClusterName(), r.getDataModelName(), r.getPartPath(), r.getRevisionID(),
+                            r.getConceptName(), r.getIds(), UrlUtil.getLanguage(), new SessionAwareAsyncCallback<String>() {
+
+                                @Override
+                                public void onSuccess(String msg) {
+                                    deleteSelectedCheckFinished(r, true, msg);
+                                }
+
+                                @Override
+                                protected void doOnFailure(Throwable caught) {
+                                    String errorMsg = caught.getLocalizedMessage();
+                                    if (errorMsg == null) {
+                                        if (Log.isDebugEnabled()) {
+                                            errorMsg = caught.toString(); // for debugging
+                                            // purpose
+                                        } else {
+                                            errorMsg = BaseMessagesFactory.getMessages().unknown_error();
+                                        }
+                                    }
+                                    deleteSelectedCheckFinished(r, false, errorMsg);
+                                }
+                            });
+                }
+            });
         }
     }
 
@@ -657,19 +671,19 @@ public class MainFramePanel extends ContentPanel {
         }
     }
 
-    private void deleteItem(final BaseModelData model) {
+    private void deleteItem(final ItemsTrashItem model) {
 
-        service.removeDroppedItem(model.get("itemPK").toString(), model.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
-                model.get("revisionId") == null ? null : model.get("revisionId").toString(), model //$NON-NLS-1$//$NON-NLS-2$
-                        .get("conceptName").toString(), model.get("ids").toString(), UrlUtil.getLanguage(),//$NON-NLS-1$//$NON-NLS-2$
+        service.removeDroppedItem(model.getDataClusterName(), model.getDataModelName(), model.getPartPath(),
+                model.getRevisionID(), model.getConceptName(), model.getIds(), UrlUtil.getLanguage(),
                 new SessionAwareAsyncCallback<String>() {
 
+                    @Override
                     public void onSuccess(String msg) {
                         pagetoolBar.refresh();
-                        grid.getStore().remove((ItemsTrashItem) model);
+                        grid.getStore().remove(model);
                         if (msg != null) {
-                            MessageBox.info(BaseMessagesFactory.getMessages().info_title(), MultilanguageMessageParser
-                                    .pickOutISOMessage(msg), null);
+                            MessageBox.info(BaseMessagesFactory.getMessages().info_title(),
+                                    MultilanguageMessageParser.pickOutISOMessage(msg), null);
                         }
                     }
 
@@ -677,59 +691,53 @@ public class MainFramePanel extends ContentPanel {
                     protected void doOnFailure(Throwable caught) {
                         String errorMsg = caught.getLocalizedMessage();
                         if (errorMsg == null) {
-                            if (Log.isDebugEnabled())
+                            if (Log.isDebugEnabled()) {
                                 errorMsg = caught.toString(); // for debugging purpose
-                            else
+                            } else {
                                 errorMsg = BaseMessagesFactory.getMessages().unknown_error();
+                            }
                         }
-                        MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), MultilanguageMessageParser
-                                .pickOutISOMessage(errorMsg), null);
+                        MessageBox.alert(BaseMessagesFactory.getMessages().error_title(),
+                                MultilanguageMessageParser.pickOutISOMessage(errorMsg), null);
                     }
                 });
     }
 
     public static MainFramePanel getInstance() {
-        if (instance == null)
+        if (instance == null) {
             instance = new MainFramePanel();
+        }
         return instance;
     }
 
-    public void recoverDroppedItem(final BaseModelData model, final Grid<BaseModelData> grid) {
-        String conceptName = model.get("conceptName").toString(); //$NON-NLS-1$
-        String modelName = CONCEPT_MODEL_MAP.get(conceptName);
-        service.recoverDroppedItem(model.get("itemPK").toString(), model.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
-                model.get("revisionId") == null ? null : model.get("revisionId").toString(), //$NON-NLS-1$ //$NON-NLS-2$
-                conceptName, modelName, model.get("ids").toString(),//$NON-NLS-1$
-                new SessionAwareAsyncCallback<Void>() {
+    public void recoverDroppedItem(final ItemsTrashItem model, final Grid<ItemsTrashItem> modelGrid) {
+        service.recoverDroppedItem(model.getDataClusterName(), model.getDataModelName(), model.getPartPath(),
+                model.getRevisionID(), model.getConceptName(), model.getIds(), new SessionAwareAsyncCallback<Void>() {
 
+                    @Override
                     public void onSuccess(Void arg0) {
                         pagetoolBar.refresh();
-                        grid.getStore().remove(model);
-                        refreshBrowseRecordsGrid();
+                        modelGrid.getStore().remove(model);
                     }
 
+                    @Override
                     protected void doOnFailure(Throwable caught) {
                         String errorMsg = caught.getLocalizedMessage();
                         if (errorMsg == null || "".equals(errorMsg)) { //$NON-NLS-1$
-                            if (Log.isDebugEnabled())
+                            if (Log.isDebugEnabled()) {
                                 errorMsg = caught.toString(); // for debugging purpose
-                            else
+                            } else {
                                 errorMsg = BaseMessagesFactory.getMessages().unknown_error();
+                            }
                         }
 
                         if (caught instanceof NoPermissionException) {
                             MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
                                     .restore_no_permissions(), null);
-                            // GWT.log(errorMsg, caught);
                         } else {
                             MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), errorMsg, null);
-                            // GWT.log(errorMsg, caught);
                         }
                     }
                 });
     }
-
-    private native void refreshBrowseRecordsGrid()/*-{
-		$wnd.amalto.browserecords.BrowseRecords.refreshGrid();
-    }-*/;
 }

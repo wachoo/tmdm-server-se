@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
 
+@SuppressWarnings("nls")
 public class FakeData {
 
     private static List<ItemsTrashItem> items = new ArrayList<ItemsTrashItem>();
@@ -37,9 +38,10 @@ public class FakeData {
         return items;
     }
 
-    public static void remvoeItem(String itempk, String concept, String ids) {
+    public static void remvoeItem(String clusterName, String concept, String ids) {
         for (ItemsTrashItem item : items) {
-            if (itempk.equals(item.getItemPK()) && concept.equals(item.getConceptName()) && ids.equals(item.getIds())) {
+            if (clusterName.equals(item.getDataClusterName()) && concept.equals(item.getConceptName())
+                    && ids.equals(item.getIds())) {
                 items.remove(item);
                 return;
             }

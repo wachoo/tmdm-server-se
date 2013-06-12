@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -25,17 +25,13 @@ public interface RecycleBinServiceAsync {
 
     void getTrashItems(String regex, BasePagingLoadConfigImpl load, AsyncCallback<ItemBasePageLoadResult<ItemsTrashItem>> callback);
 
-    void removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids, String language,
-            AsyncCallback<String> callback);
+    void removeDroppedItem(String clusterName, String modelName, String partPath, String revisionId, String conceptName,
+            String ids, String language, AsyncCallback<String> callback);
 
-    void recoverDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String modelName, String ids,
-            AsyncCallback<Void> callback);
-
-    void getCurrentDataModel(AsyncCallback<String> callback);
-
-    void getCurrentDataCluster(AsyncCallback<String> callback);
+    void recoverDroppedItem(String clusterName, String modelName, String partPath, String revisionId, String conceptName,
+            String ids, AsyncCallback<Void> callback);
 
     void isEntityPhysicalDeletable(String conceptName, AsyncCallback<Boolean> callback);
 
-    void checkConflict(String itemPk, String conceptName, String id, AsyncCallback<Boolean> callback);
+    void checkConflict(String clusterName, String conceptName, String id, AsyncCallback<Boolean> callback);
 }

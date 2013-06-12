@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -19,7 +19,7 @@ public class ItemsTrashItem extends BaseModelData implements IsSerializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String itemPK;
+    private String dataClusterName;
 
     private String uniqueId;
 
@@ -46,15 +46,15 @@ public class ItemsTrashItem extends BaseModelData implements IsSerializable {
     }
 
     public ItemsTrashItem(String conceptName, String dataModelName, String ids, String itemName, String insertionTime,
-            String insertionUserName,
-            String itemPK, String partPath, String projection, String revisionID, String uniqueId) {
+            String insertionUserName, String dataClusterName, String partPath, String projection, String revisionID,
+            String uniqueId) {
         this.conceptName = conceptName;
         this.dataModelName = dataModelName;
         this.ids = ids;
         this.itemName = itemName;
         this.insertionTime = insertionTime;
         this.insertionUserName = insertionUserName;
-        this.itemPK = itemPK;
+        this.dataClusterName = dataClusterName;
         this.partPath = partPath;
         this.projection = projection;
         this.revisionID = revisionID;
@@ -65,7 +65,7 @@ public class ItemsTrashItem extends BaseModelData implements IsSerializable {
         set("itemName", itemName); //$NON-NLS-1$
         set("insertionTime", insertionTime); //$NON-NLS-1$
         set("insertionUserName", insertionUserName); //$NON-NLS-1$
-        set("itemPK", itemPK); //$NON-NLS-1$
+        set("dataClusterName", dataClusterName); //$NON-NLS-1$
         set("partPath", partPath); //$NON-NLS-1$
         set("projection", projection); //$NON-NLS-1$
         set("revisionID", revisionID); //$NON-NLS-1$
@@ -80,12 +80,12 @@ public class ItemsTrashItem extends BaseModelData implements IsSerializable {
         this.revisionID = revisionID;
     }
 
-    public String getItemPK() {
-        return itemPK;
+    public String getDataClusterName() {
+        return dataClusterName;
     }
 
-    public void setItemPK(String itemPK) {
-        this.itemPK = itemPK;
+    public void setDataClusterName(String dataClusterName) {
+        this.dataClusterName = dataClusterName;
     }
 
     public String getUniqueId() {
