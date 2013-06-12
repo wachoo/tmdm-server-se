@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -114,6 +114,7 @@ import com.amalto.core.save.SaverHelper;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.util.ArrayListHolder;
+import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.RemoteExceptionFactory;
 import com.amalto.core.util.TransformerPluginContext;
@@ -355,8 +356,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     + "	<xsd:annotation>";
             WSI18NString[] labels = bc.getWsLabel();
             for (WSI18NString label : labels) {
-                s += "<xsd:appinfo source=\"" + label.getLanguage().getValue() + "\">" + label.getLabel()
-                        + "</xsd:appinfo>";
+                s += "<xsd:appinfo source=\"" + label.getLanguage().getValue() + "\">" + label.getLabel() + "</xsd:appinfo>";
             }
             WSI18NString[] docs = bc.getWsDescription();
             for (WSI18NString doc : docs) {
@@ -587,7 +587,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 pojo = new UniversePOJO();// default head revision
             }
             // get conceptRevisions
-            DataClusterPOJOPK dataClusterPOJOPK = new DataClusterPOJOPK(wsGetConceptsInDataClusterWithRevisions.getDataClusterPOJOPK().getPk());
+            DataClusterPOJOPK dataClusterPOJOPK = new DataClusterPOJOPK(wsGetConceptsInDataClusterWithRevisions
+                    .getDataClusterPOJOPK().getPk());
             Map concepts = Util.getItemCtrl2Local().getConceptsInDataCluster(dataClusterPOJOPK, pojo);
             if (concepts == null) {
                 return null;
@@ -775,8 +776,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         l = new LinkedList();
         WSWhereCondition[] whs = ws.getWhereConditions();
         if (whs != null) {
-            for (int i = 0; i < whs.length; i++) {
-                l.add(WS2VO(whs[i]));
+            for (WSWhereCondition wh : whs) {
+                l.add(WS2VO(wh));
             }
         }
         pojo.setWhereConditions(new ArrayListHolder(l));
@@ -1132,7 +1133,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
             if (MDMConfiguration.getAdminUser().equals(user.getUsername())
-                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$
+                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
                 authorized = true;
             } else if (user.userCanRead(DataClusterPOJO.class, dataClusterName)) {
                 authorized = true;
@@ -1216,8 +1217,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     public WSItem getItem(WSGetItem wsGetItem) throws RemoteException {
         try {
 
-            if (wsGetItem.getWsItemPK().getIds() == null)
+            if (wsGetItem.getWsItemPK().getIds() == null) {
                 throw (new RemoteException("input ids is null!"));
+            }
             ItemPOJOPK pk = new ItemPOJOPK(new DataClusterPOJOPK(wsGetItem.getWsItemPK().getWsDataClusterPK().getPk()), wsGetItem
                     .getWsItemPK().getConceptName(), wsGetItem.getWsItemPK().getIds());
 
@@ -1345,7 +1347,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      */
     protected String itemAsString(ItemPOJO iv) throws Exception {
         StringBuilder item = new StringBuilder();
-        item.append("<businessconcept><cluster>").append(iv.getDataClusterPOJOPK().getUniqueId()).append("</cluster>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        item.append("<businessconcept><cluster>").append(iv.getDataClusterPOJOPK().getUniqueId()).append("</cluster>"); //$NON-NLS-1$ //$NON-NLS-2$ 
         String[] ids = iv.getItemIds();
         for (String id : ids) {
             item.append("<id>").append(id).append("</id>"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1361,6 +1363,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      * **************************************************************************/
     /**
      * partial put item
+     * 
      * @throws RemoteException
      */
     public WSItemPK partialPutItem(WSPartialPutItem partialPutItem) throws RemoteException {
@@ -1410,13 +1413,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             return new WSItemPK(dataClusterPK, savedConceptName, savedId);
         } catch (Exception e) {
             LOG.error("Error during save.", e);
-            //TMDM-5594: Original cause was somehow lost during serialization,implementing a workaround here
+            // TMDM-5594: Original cause was somehow lost during serialization,implementing a workaround here
             Throwable cause = e.getCause();
-            if(cause == null) {
-                throw new RemoteException( e.getLocalizedMessage(), e);
+            if (cause == null) {
+                throw new RemoteException(e.getLocalizedMessage(), e);
             } else {
                 throw new RemoteException((cause.getCause() == null ? cause.getLocalizedMessage() : cause.getCause()
-                    .getLocalizedMessage()), e);
+                        .getLocalizedMessage()), e);
             }
         }
     }
@@ -1535,7 +1538,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 if (ve != null) {
                     throw e;
                 }
-                // Expected (legacy) behavior: set the  before saving message as source.
+                // Expected (legacy) behavior: set the before saving message as source.
                 wsPutItemWithReport.setSource(e.getBeforeSavingMessage());
                 throw new RemoteException("Could not save record.", e);
             }
@@ -1652,36 +1655,31 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
-    private void pushToUpdateReport(String resultUpdateReport, WSDeleteItemWithReport wsDeleteItem, String dataClusterPK,
+    private void pushToUpdateReport(WSDeleteItemWithReport wsDeleteItem, String dataClusterPK, String dataModelPK,
             String concept, String[] ids, boolean trigger) throws Exception {
-        // create resultUpdateReport
-        if (resultUpdateReport != null) { // see0012280: In jobs, Update Reports are no longer created for the
-            ILocalUser user = LocalUser.getLocalUser();
-            String source = wsDeleteItem.getSource();
-            String operationType = wsDeleteItem.getOperateType();
-            Map<String, UpdateReportItemPOJO> updateReportItemsMap = new HashMap<String, UpdateReportItemPOJO>();
 
-            String userName;
-            if (wsDeleteItem.getUser() != null && wsDeleteItem.getUser().length() > 0) {
-                userName = wsDeleteItem.getUser();
-            } else {
-                userName = user.getUsername();
-            }
-            String revisionID = ""; //$NON-NLS-1$
-            UniversePOJO universe = user.getUniverse();
-            if (universe != null) {
-                revisionID = universe.getConceptRevisionID(concept);
-            }
-            UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType, //$NON-NLS-1$
-                    source, System.currentTimeMillis(), dataClusterPK, "", userName, revisionID, //$NON-NLS-1$
-                    updateReportItemsMap);
-            WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), //$NON-NLS-1$
-                    updateReportPOJO.serialize(),
-                    new WSDataModelPK("UpdateReport"), //$NON-NLS-1$
-                    false));
-            if (trigger) {
-                routeItemV2(new WSRouteItemV2(itemPK));
-            }
+        ILocalUser user = LocalUser.getLocalUser();
+        String source = wsDeleteItem.getSource();
+        String operationType = wsDeleteItem.getOperateType();
+        Map<String, UpdateReportItemPOJO> updateReportItemsMap = new HashMap<String, UpdateReportItemPOJO>();
+
+        String userName;
+        if (wsDeleteItem.getUser() != null && wsDeleteItem.getUser().length() > 0) {
+            userName = wsDeleteItem.getUser();
+        } else {
+            userName = user.getUsername();
+        }
+        String revisionID = ""; //$NON-NLS-1$
+        UniversePOJO universe = user.getUniverse();
+        if (universe != null) {
+            revisionID = universe.getConceptRevisionID(concept);
+        }
+        UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType, //$NON-NLS-1$
+                source, System.currentTimeMillis(), dataClusterPK, dataModelPK, userName, revisionID, updateReportItemsMap);
+        WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK(UpdateReportPOJO.DATA_CLUSTER), updateReportPOJO.serialize(),
+                new WSDataModelPK(UpdateReportPOJO.DATA_MODEL), false));
+        if (trigger) {
+            routeItemV2(new WSRouteItemV2(itemPK));
         }
     }
 
@@ -1694,12 +1692,17 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String dataClusterPK = wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk();
             String concept = wsDeleteItem.getWsItemPK().getConceptName();
             String[] ids = wsDeleteItem.getWsItemPK().getIds();
-            String resultUpdateReport = Util.createUpdateReport(ids, concept, wsDeleteItem.getOperateType(), null,
-                    "", wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk()); //$NON-NLS-1$
+
+            ItemPOJO pojo = Util.getItemCtrl2Local().getItem(new ItemPOJOPK(new DataClusterPOJOPK(dataClusterPK), concept, ids));
+            if (pojo == null) {
+                throw new EntityNotFoundException("Could not find record.");
+            }
+            String dataModelPK = pojo.getDataModelName();
+
             if (UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(wsDeleteItem.getOperateType())) {
                 dropItem(new WSDropItem(wsDeleteItem.getWsItemPK(), wsDeleteItem.getUpdatePath(), wsDeleteItem.getOverride()));
                 if (wsDeleteItem.getPushToUpdateReport()) {
-                    pushToUpdateReport(resultUpdateReport, wsDeleteItem, dataClusterPK, concept, ids,
+                    pushToUpdateReport(wsDeleteItem, dataClusterPK, dataModelPK, concept, ids,
                             wsDeleteItem.getInvokeBeforeSaving());
                 }
                 return new WSString("logical delete item successful!");
@@ -1728,9 +1731,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 if (ids != null) {
                     WSItemPK wsItem = deleteItem(new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids),
                             wsDeleteItem.getOverride()));
-                    if (wsItem != null && !"UpdateReport".equals(dataClusterPK)) { //$NON-NLS-1$
+                    if (wsItem != null && !UpdateReportPOJO.DATA_CLUSTER.equals(dataClusterPK)) {
                         if (wsDeleteItem.getPushToUpdateReport()) {
-                            pushToUpdateReport(resultUpdateReport, wsDeleteItem, dataClusterPK, concept, ids,
+                            pushToUpdateReport(wsDeleteItem, dataClusterPK, dataModelPK, concept, ids,
                                     wsDeleteItem.getInvokeBeforeSaving());
                         }
                     } else {
@@ -1782,8 +1785,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         try {
             WSItemPK wsItemPK = wsDropItem.getWsItemPK();
             String partPath = wsDropItem.getPartPath();
-            DroppedItemPOJOPK droppedItemPOJOPK = Util.getItemCtrl2Local().dropItem(WS2POJO(wsItemPK),
-                    partPath,
+            DroppedItemPOJOPK droppedItemPOJOPK = Util.getItemCtrl2Local().dropItem(WS2POJO(wsItemPK), partPath,
                     wsDropItem.getOverride());
             return POJO2WS(droppedItemPOJOPK);
         } catch (XtentisException e) {
@@ -1843,21 +1845,24 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 Method getDocumentationMethod = Util.getMethod(service, "getDocumentation"); //$NON-NLS-1$
                 if (getDocumentationMethod != null) {
                     Object docObject = getDocumentationMethod.invoke(service, ""); //$NON-NLS-1$
-                    if (docObject != null)
+                    if (docObject != null) {
                         doc = (String) docObject;
+                    }
                 }
                 Method getDefaultConfigurationMethod = Util.getMethod(service, "getDefaultConfiguration"); //$NON-NLS-1$
                 if (getDefaultConfigurationMethod != null) {
                     Object defaultConfObject = getDefaultConfigurationMethod.invoke(service);
-                    if (defaultConfObject != null)
+                    if (defaultConfObject != null) {
                         defaultConf = (String) defaultConfObject;
+                    }
                 }
 
                 Method getConfigurationSchemaMethod = Util.getMethod(service, "getConfigurationSchema"); //$NON-NLS-1$
                 if (getConfigurationSchemaMethod != null) {
                     Object schemaObject = getConfigurationSchemaMethod.invoke(service);
-                    if (schemaObject != null)
+                    if (schemaObject != null) {
                         schema = (String) schemaObject;
+                    }
                 }
             } catch (Exception e) {
                 LOG.error("IXtentisWSDelegator.getServiceDocument error.", e);
@@ -1997,8 +2002,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     protected Connection getConnection(String JNDIName) throws RemoteException {
         try {
-            if (cxFactory == null)
+            if (cxFactory == null) {
                 cxFactory = (ConnectionFactory) (new InitialContext()).lookup(JNDIName);
+            }
             return cxFactory.getConnection();
         } catch (Exception e) {
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
@@ -2034,8 +2040,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             if (wsExecuteStoredProcedure.getWsDataClusterPK() != null) {
                 dcpk = new DataClusterPOJOPK(wsExecuteStoredProcedure.getWsDataClusterPK().getPk());
             }
-            Collection collection = ctrl.execute(new StoredProcedurePOJOPK(wsExecuteStoredProcedure.getWsStoredProcedurePK().getPk()),
-                    wsExecuteStoredProcedure.getRevisionID(), dcpk, wsExecuteStoredProcedure.getParameters());
+            Collection collection = ctrl.execute(new StoredProcedurePOJOPK(wsExecuteStoredProcedure.getWsStoredProcedurePK()
+                    .getPk()), wsExecuteStoredProcedure.getRevisionID(), dcpk, wsExecuteStoredProcedure.getParameters());
             if (collection == null) {
                 return null;
             }
@@ -2704,8 +2710,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     protected HashMap<String, String> WS2POJO(WSOutputDecisionTable table) {
         HashMap<String, String> decisions = new HashMap<String, String>();
-        if ((table == null) || (table.getDecisions() == null) || (table.getDecisions().length == 0))
+        if ((table == null) || (table.getDecisions() == null) || (table.getDecisions().length == 0)) {
             return decisions;
+        }
         WSProcessBytesUsingTransformerWsOutputDecisionTableDecisions[] wsDecisions = table.getDecisions();
         for (WSProcessBytesUsingTransformerWsOutputDecisionTableDecisions wsDecision : wsDecisions) {
             String name = wsDecision.getOutputVariableName();
@@ -2751,10 +2758,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     }
 
     protected WSDroppedItem POJO2WS(DroppedItemPOJO droppedItemPOJO) throws Exception {
-        return new WSDroppedItem(droppedItemPOJO.getRevisionID(), new WSDataClusterPK(droppedItemPOJO
-                .getDataClusterPOJOPK().getUniqueId()), droppedItemPOJO.getUniqueId(), droppedItemPOJO.getConceptName(),
-                droppedItemPOJO.getIds(), droppedItemPOJO.getPartPath(), droppedItemPOJO.getInsertionUserName(),
-                droppedItemPOJO.getInsertionTime(), droppedItemPOJO.getProjection());
+        return new WSDroppedItem(droppedItemPOJO.getRevisionID(), new WSDataClusterPK(droppedItemPOJO.getDataClusterPOJOPK()
+                .getUniqueId()), droppedItemPOJO.getUniqueId(), droppedItemPOJO.getConceptName(), droppedItemPOJO.getIds(),
+                droppedItemPOJO.getPartPath(), droppedItemPOJO.getInsertionUserName(), droppedItemPOJO.getInsertionTime(),
+                droppedItemPOJO.getProjection());
     }
 
     /**
@@ -2836,8 +2843,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     public WSRoutingRule getRoutingRule(WSGetRoutingRule wsRoutingRuleGet) throws RemoteException {
         try {
             if (Util.getRoutingRuleCtrlLocal().existsRoutingRule(
-                    new RoutingRulePOJOPK(wsRoutingRuleGet.getWsRoutingRulePK().getPk())) == null)
+                    new RoutingRulePOJOPK(wsRoutingRuleGet.getWsRoutingRulePK().getPk())) == null) {
                 return null;
+            }
             return VO2WS(Util.getRoutingRuleCtrlLocal().getRoutingRule(
                     new RoutingRulePOJOPK(wsRoutingRuleGet.getWsRoutingRulePK().getPk())));
         } catch (XtentisException e) {
@@ -3129,12 +3137,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             TransformerV2CtrlLocal ctrl = Util.getTransformerV2CtrlLocal();
             ctrl.execute(context, WS2POJO(wsExecuteTransformerV2.getWsTypedContent()), new TransformerCallBack() {
 
+                @Override
                 public void contentIsReady(TransformerContext context) throws XtentisException {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("XtentisWSBean.executeTransformerV2.contentIsReady() ");
                     }
                 }
 
+                @Override
                 public void done(TransformerContext context) throws XtentisException {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("XtentisWSBean.executeTransformerV2.done() ");
@@ -3162,14 +3172,18 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             BackgroundJobPOJOPK bgPK = ctrl.executeAsJob(WS2POJO(wsExecuteTransformerV2AsJob.getWsTransformerContext()),
                     new TransformerCallBack() {
 
+                        @Override
                         public void contentIsReady(TransformerContext context) throws XtentisException {
-                            if (LOG.isDebugEnabled())
+                            if (LOG.isDebugEnabled()) {
                                 LOG.debug("XtentisWSBean.executeTransformerV2AsJob.contentIsReady() ");
+                            }
                         }
 
+                        @Override
                         public void done(TransformerContext context) throws XtentisException {
-                            if (LOG.isDebugEnabled())
+                            if (LOG.isDebugEnabled()) {
                                 LOG.debug("XtentisWSBean.executeTransformerV2AsJob.done() ");
+                            }
                         }
                     });
             return new WSBackgroundJobPK(bgPK.getUniqueId());
@@ -3360,8 +3374,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     }
 
     public static WSPipeline POJO2WS(HashMap<String, TypedContent> pipeline) throws Exception {
-        if (pipeline == null)
+        if (pipeline == null) {
             return null;
+        }
 
         ArrayList<WSPipelineTypedContentEntry> entries = new ArrayList<WSPipelineTypedContentEntry>();
         Set keys = pipeline.keySet();
@@ -3438,13 +3453,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         try {
             Object service = Util.retrieveComponent(null, wsGetTransformerPluginDetails.getJndiName());
             String description = (String) Util.getMethod(service, "getDescription").invoke(//$NON-NLS-1$
-                    service,
-                    wsGetTransformerPluginDetails.getLanguage() == null ? "" : wsGetTransformerPluginDetails//$NON-NLS-1$
+                    service, wsGetTransformerPluginDetails.getLanguage() == null ? "" : wsGetTransformerPluginDetails//$NON-NLS-1$
                             .getLanguage());
             String documentation = (String) Util.getMethod(service, "getDocumentation").invoke(//$NON-NLS-1$
                     service,
-                    wsGetTransformerPluginDetails.getLanguage() == null ? "" : wsGetTransformerPluginDetails
-                            .getLanguage());
+                    wsGetTransformerPluginDetails.getLanguage() == null ? "" : wsGetTransformerPluginDetails.getLanguage());
             String parametersSchema = (String) Util.getMethod(service, "getParametersSchema").invoke(service);//$NON-NLS-1$
 
             ArrayList<TransformerPluginVariableDescriptor> inputVariableDescriptors = (ArrayList<TransformerPluginVariableDescriptor>) Util
@@ -3495,8 +3508,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 item.setJndiName(nc.getName());
                 Object service = Util.retrieveComponent(null, "amalto/local/transformer/plugin/" + nc.getName());//$NON-NLS-1$
                 String description = (String) Util.getMethod(service, "getDescription").invoke(//$NON-NLS-1$
-                        service,
-                        wsGetTransformerPluginsList.getLanguage() == null ? "" : wsGetTransformerPluginsList//$NON-NLS-1$
+                        service, wsGetTransformerPluginsList.getLanguage() == null ? "" : wsGetTransformerPluginsList//$NON-NLS-1$
                                 .getLanguage());
                 item.setDescription(description);
                 wsList.add(item);
@@ -3639,10 +3651,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             } else if (criteria.getStatus().equals(WSRoutingOrderV2Status.FAILED)) {
                 clazz = FailedRoutingOrderV2POJO.class;
             }
-            return ctrl.getRoutingOrderPKsByCriteria(clazz,
-                    criteria.getAnyFieldContains(), criteria.getNameContains(), criteria.getTimeCreatedMin(),
-                    criteria.getTimeCreatedMax(), criteria.getTimeScheduledMin(), criteria.getTimeScheduledMax(),
-                    criteria.getTimeLastRunStartedMin(), criteria.getTimeLastRunStartedMax(),
+            return ctrl.getRoutingOrderPKsByCriteria(clazz, criteria.getAnyFieldContains(), criteria.getNameContains(),
+                    criteria.getTimeCreatedMin(), criteria.getTimeCreatedMax(), criteria.getTimeScheduledMin(),
+                    criteria.getTimeScheduledMax(), criteria.getTimeLastRunStartedMin(), criteria.getTimeLastRunStartedMax(),
                     criteria.getTimeLastRunCompletedMin(), criteria.getTimeLastRunCompletedMax(),
                     criteria.getItemPKConceptContains(), criteria.getItemPKIDFieldsContain(), criteria.getServiceJNDIContains(),
                     criteria.getServiceParametersContain(), criteria.getMessageContain());
@@ -3668,10 +3679,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 clazz = FailedRoutingOrderV2POJO.class;
             }
 
-            return ctrl.getRoutingOrderPKsByCriteriaWithPaging(clazz,
-                    criteria.getAnyFieldContains(), criteria.getNameContains(), criteria.getTimeCreatedMin(),
-                    criteria.getTimeCreatedMax(), criteria.getTimeScheduledMin(), criteria.getTimeScheduledMax(),
-                    criteria.getTimeLastRunStartedMin(), criteria.getTimeLastRunStartedMax(),
+            return ctrl.getRoutingOrderPKsByCriteriaWithPaging(clazz, criteria.getAnyFieldContains(), criteria.getNameContains(),
+                    criteria.getTimeCreatedMin(), criteria.getTimeCreatedMax(), criteria.getTimeScheduledMin(),
+                    criteria.getTimeScheduledMax(), criteria.getTimeLastRunStartedMin(), criteria.getTimeLastRunStartedMax(),
                     criteria.getTimeLastRunCompletedMin(), criteria.getTimeLastRunCompletedMax(),
                     criteria.getItemPKConceptContains(), criteria.getItemPKIDFieldsContain(), criteria.getServiceJNDIContains(),
                     criteria.getServiceParametersContain(), criteria.getMessageContain(), criteria.getSkip(),
@@ -4044,8 +4054,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             } catch (Exception e) {
                 LOG.error("IXtentisWSDelegator.deleteMDMJob error.", e);
             }
-            if (xmlData == null)
+            if (xmlData == null) {
                 return new WSBoolean(false);
+            }
             doc = Util.parse(xmlData);
             NodeList list = Util.getNodeList(doc, "/jobs/job[@name='" + job.getJobName() + "']");//$NON-NLS-1$ //$NON-NLS-2$
             if (list.getLength() > 0) {
