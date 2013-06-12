@@ -83,6 +83,8 @@ public class HibernateStorage implements Storage {
         }
     };
 
+    private static final Boolean FLUSH_ON_LOAD = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("db.flush.on.load", "false")); //$NON-NLS-1$ //$NON-NLS-2$
+
     private final String storageName;
 
     private final StorageType storageType;
@@ -603,7 +605,7 @@ public class HibernateStorage implements Storage {
                                 + "' because there is no database field '" + key + "' in type '" + mapping.getName() + "'");
                     }
                 }
-                if (session.getStatistics().getEntityCount() % batchSize == 0) {
+                if (FLUSH_ON_LOAD && session.getStatistics().getEntityCount() % batchSize == 0) {
                     // Periodically flush objects to avoid using too much memory.
                     session.flush();
                     session.clear();
