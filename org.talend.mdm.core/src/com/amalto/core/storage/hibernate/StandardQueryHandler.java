@@ -12,11 +12,7 @@ package com.amalto.core.storage.hibernate;
 
 import static org.hibernate.criterion.Restrictions.*;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.Expression;
@@ -85,7 +81,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         criterionVisitor = new CriterionAdapter((RDBMSDataSource) dataSource);
     }
 
-    private StorageResults createResults(List list, boolean isProjection) {
+    protected StorageResults createResults(List list, boolean isProjection) {
         CloseableIterator<DataRecord> iterator;
         Iterator listIterator = list.iterator();
         if (isProjection) {
@@ -327,6 +323,27 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Select select) {
+        createCriteria(select);
+        // Paging
+        Paging paging = select.getPaging();
+        paging.accept(this);
+        return createResults(select);
+    }
+
+    protected StorageResults createResults(Select select) {
+        Paging paging = select.getPaging();
+        int pageSize = paging.getLimit();
+        boolean hasPaging = pageSize < Integer.MAX_VALUE;
+        // Results
+        if (!hasPaging) {
+            return createResults(criteria.scroll(ScrollMode.FORWARD_ONLY), select.isProjection());
+        } else {
+            List list = criteria.list();
+            return createResults(list, select.isProjection());
+        }
+    }
+
+    protected Criteria createCriteria(Select select) {
         List<ComplexTypeMetadata> selectedTypes = select.getTypes();
         if (selectedTypes.isEmpty()) {
             throw new IllegalArgumentException("Select clause is expected to select at least one entity type.");
@@ -367,18 +384,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (orderBy != null) {
             orderBy.accept(this);
         }
-        // Paging
-        Paging paging = select.getPaging();
-        paging.accept(this);
-        int pageSize = paging.getLimit();
-        boolean hasPaging = pageSize < Integer.MAX_VALUE;
-        // Results
-        if (!hasPaging) {
-            return createResults(criteria.scroll(ScrollMode.FORWARD_ONLY), select.isProjection());
-        } else {
-            List list = criteria.list();
-            return createResults(list, select.isProjection());
-        }
+        return criteria;
     }
 
     @Override

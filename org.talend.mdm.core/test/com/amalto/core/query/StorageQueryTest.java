@@ -977,8 +977,8 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
-    public void __testPagingWithOuterJoin() throws Exception {
-        UserQueryBuilder qb = from(product).limit(2);
+    public void testPagingWithOuterJoin() throws Exception {
+        UserQueryBuilder qb = from(product).start(0).limit(2);
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
