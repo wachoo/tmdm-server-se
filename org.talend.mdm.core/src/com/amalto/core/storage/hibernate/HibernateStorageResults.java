@@ -58,6 +58,9 @@ class HibernateStorageResults implements StorageResults {
             countSelect.setOrderBy(null);
             StorageResults countResult = storage.fetch(countSelect);
             Iterator<DataRecord> resultIterator = countResult.iterator();
+            if (!resultIterator.hasNext()) {
+                return 0;
+            }
             DataRecord count = resultIterator.next();
             if (count.get("count") == null) { //$NON-NLS-1$
                 throw new RuntimeException("Count returned no result");

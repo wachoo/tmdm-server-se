@@ -51,9 +51,9 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
 
     final Select select;
 
-    final Set<EndOfResultsCallback> callbacks;
-
     final List<TypedExpression> selectedFields;
+
+    Set<EndOfResultsCallback> callbacks;
 
     AbstractQueryHandler(Storage storage,
                          StorageClassLoader storageClassLoader,

@@ -76,7 +76,7 @@ public class HibernateStorage implements Storage {
 
     // Thread local to keep track of transactions explicitly started by MDM (prevents close() on Session during update
     // when initial record is read).
-    private static final ThreadLocal<Boolean> isMDMTransaction = new ThreadLocal<Boolean>() {
+    public static final ThreadLocal<Boolean> isMDMTransaction = new ThreadLocal<Boolean>() {
         @Override
         protected Boolean initialValue() {
             return false;
@@ -918,7 +918,9 @@ public class HibernateStorage implements Storage {
             boolean isInternal = true;
             for (ComplexTypeMetadata type : types) {
                 TypeMapping mapping = mappingRepository.getMappingFromUser(type);
-                isInternal &= mapping == null || mapping.getUser() != type;
+                if (mapping != null) {
+                    isInternal &= mapping.getDatabase() == type;
+                }
             }
             if (!isInternal) {
                 MappingExpressionTransformer transformer = new MappingExpressionTransformer(mappingRepository);
