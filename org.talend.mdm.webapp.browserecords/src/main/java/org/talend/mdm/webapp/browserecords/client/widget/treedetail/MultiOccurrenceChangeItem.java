@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -31,7 +32,6 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 public class MultiOccurrenceChangeItem extends HorizontalPanel {
 
@@ -153,11 +153,15 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         }
         this.add(new Label()); // format placeholder, align icon on line
         this.setCellWidth(label, "200px"); //$NON-NLS-1$
-        warnImg = new Image("/talendmdm/secure/img/genericUI/validateBadge.gif"); //$NON-NLS-1$ 
-        warnImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX); 
-        warnImg.setVisible(false); 
-        this.add(warnImg); 
-        this.setCellVerticalAlignment(warnImg, VerticalPanel.ALIGN_BOTTOM); 
+        // TMDM-5221 will affect TreeDetailGWTTest.testNodeLazyLoading(), (Image can not be created.)
+        // So add a special judgement to support TMDM-5221 on both product mode and debug mode.
+        if (GWT.isScript() || itemNode.get("GWT_TestCase") == null) { //$NON-NLS-1$
+            warnImg = new Image("/talendmdm/secure/img/genericUI/validateBadge.gif"); //$NON-NLS-1$ 
+            warnImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX); 
+            warnImg.setVisible(false); 
+            this.add(warnImg); 
+            this.setCellVerticalAlignment(warnImg, VerticalPanel.ALIGN_BOTTOM); 
+        }
         this.getElement().getStyle().setMarginBottom(6D, Unit.PX);
         this.setVisible(typeModel.isVisible());
     }
