@@ -494,33 +494,27 @@ public class TreeDetailGWTTest extends GWTTestCase {
 
     private ItemNodeModel builderItemNode() {
         ItemNodeModel testNode = new ItemNodeModel("Root");
-        testNode.set("GWT_TestCase", "GWTTestCase");
         testNode.setTypePath("Root");
 
         ItemNodeModel idNode = new ItemNodeModel("id");
         idNode.setTypePath("Root/id");
         idNode.setKey(true);
-        idNode.set("GWT_TestCase", "GWTTestCase");
         testNode.add(idNode);
 
         ItemNodeModel nameNode = new ItemNodeModel("name");
         nameNode.setTypePath("Root/name");
-        nameNode.set("GWT_TestCase", "GWTTestCase");
         testNode.add(nameNode);
 
         ItemNodeModel cpNode = new ItemNodeModel("cp");
         cpNode.setTypePath("Root/cp");
-        cpNode.set("GWT_TestCase", "GWTTestCase");
         testNode.add(cpNode);
 
         ItemNodeModel cpTitleNode = new ItemNodeModel("title");
         cpTitleNode.setTypePath("Root/cp/title");
-        cpTitleNode.set("GWT_TestCase", "GWTTestCase");
         cpNode.add(cpTitleNode);
 
         ItemNodeModel cpContentNode = new ItemNodeModel("content");
         cpContentNode.setTypePath("Root/cp/content");
-        cpContentNode.set("GWT_TestCase", "GWTTestCase");
         cpNode.add(cpContentNode);
 
         return testNode;

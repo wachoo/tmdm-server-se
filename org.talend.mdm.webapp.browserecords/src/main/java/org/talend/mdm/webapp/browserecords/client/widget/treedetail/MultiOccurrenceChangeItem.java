@@ -153,9 +153,8 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         }
         this.add(new Label()); // format placeholder, align icon on line
         this.setCellWidth(label, "200px"); //$NON-NLS-1$
-        // TMDM-5221 will affect TreeDetailGWTTest.testNodeLazyLoading(), (Image can not be created.)
-        // So add a special judgement to support TMDM-5221 on both product mode and debug mode.
-        if (GWT.isScript() || itemNode.get("GWT_TestCase") == null) { //$NON-NLS-1$
+        // TMDM-5221: only the mandatory node should be added the warning image. 
+        if (typeModel.getMinOccurs() >= 1) {
             warnImg = new Image("/talendmdm/secure/img/genericUI/validateBadge.gif"); //$NON-NLS-1$ 
             warnImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX); 
             warnImg.setVisible(false); 
@@ -200,11 +199,15 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
     }
 
     public void warnMandatory() {
-        warnImg.setVisible(true);
+        if (warnImg != null) {
+            warnImg.setVisible(true);    
+        }
     }
     
     public void clearWarning() {
-        warnImg.setVisible(false); 
+        if (warnImg != null) {
+            warnImg.setVisible(false);            
+        }
     }
 
     public void setTreeDetail(TreeDetail treeDetail){
