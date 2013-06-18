@@ -1303,8 +1303,6 @@
                 <xsd:annotation>
                     <xsd:appinfo source="X_ForeignKey">ElementArborescence/IdElementArborescence
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_ForeignKeyInfo">ElementArborescence/NiveauArborescence
-                    </xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">ElementArborescence/Nom
                     </xsd:appinfo>
                     <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>

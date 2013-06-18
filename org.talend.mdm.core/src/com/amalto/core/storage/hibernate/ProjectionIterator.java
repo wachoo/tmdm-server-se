@@ -181,7 +181,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
                     fieldMetadata.getName(),
                     fieldMetadata.getReferencedType(),
                     fieldMetadata.getReferencedField(),
-                    fieldMetadata.getForeignKeyInfoField(),
+                    fieldMetadata.getForeignKeyInfoFields(),
                     false,
                     false,
                     new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),

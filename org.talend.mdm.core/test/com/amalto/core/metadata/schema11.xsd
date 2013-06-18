@@ -801,7 +801,6 @@
                     <xsd:annotation>
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                         <xsd:appinfo source="X_ForeignKey">NiveauOrganisation/IdNiveauOrganisation</xsd:appinfo>
-                        <xsd:appinfo source="X_ForeignKeyInfo">NiveauOrganisation/nom</xsd:appinfo>
                         <xsd:appinfo source="X_ForeignKeyInfo">NiveauOrganisation/Valeur</xsd:appinfo>
                         <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                         <xsd:appinfo source="X_Label_FR">Niveau d'organisation</xsd:appinfo>
@@ -890,7 +889,6 @@
                 <xsd:annotation>
                     <xsd:appinfo source="X_ForeignKey">Organisation/IdOrganisation</xsd:appinfo>
                     <xsd:appinfo source="X_Label_FR">Organisation</xsd:appinfo>
-                    <xsd:appinfo source="X_ForeignKeyInfo">Organisation/RaisonSociale</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">Organisation/Nom</xsd:appinfo>
                     <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                     <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
@@ -1061,7 +1059,6 @@
             <xsd:element maxOccurs="unbounded" minOccurs="0" name="Enfants" type="xsd:string">
                 <xsd:annotation>
                     <xsd:appinfo source="X_ForeignKey">ElementArborescence/IdElementArborescence</xsd:appinfo>
-                    <xsd:appinfo source="X_ForeignKeyInfo">ElementArborescence/NiveauArborescence</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">ElementArborescence/Libelle</xsd:appinfo>
                     <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                     <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
