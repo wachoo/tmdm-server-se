@@ -1151,7 +1151,6 @@
             <xsd:element maxOccurs="unbounded" minOccurs="0" name="EnfantFk" type="xsd:string">
                 <xsd:annotation>
                     <xsd:appinfo source="X_ForeignKey">ElementArborescence/IdElementArborescence</xsd:appinfo>
-                    <xsd:appinfo source="X_ForeignKeyInfo">ElementArborescence/NiveauArborescence</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">ElementArborescence/Nom</xsd:appinfo>
                     <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                     <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>

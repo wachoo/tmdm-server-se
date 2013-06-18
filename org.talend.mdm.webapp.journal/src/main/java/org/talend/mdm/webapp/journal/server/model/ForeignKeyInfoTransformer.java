@@ -29,9 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-/**
- * DOC Administrator  class global comment. Detailled comment
- */
 public class ForeignKeyInfoTransformer implements DocumentTransformer {
 
     private final TypeMetadata metadata;
@@ -93,16 +90,14 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
 
         try {
             Element element = item.getProjection();
-            NodeList nodeList = Util.getNodeList(element,
-                    "/" + referencedTypeName + "/" + foreignKeyField.getForeignKeyInfoField().getName()); //$NON-NLS-1$ //$NON-NLS-2$
-            if (nodeList.getLength() == 0) {
-                // renturn foreign key when foreign info value is empty or null
-                return foreignKeyValue;
-            } else if (nodeList.getLength() == 1) {
-                return nodeList.item(0).getTextContent();
-            } else {
-                throw new IllegalStateException("Expected 1 match but got " + nodeList.getLength() + "."); //$NON-NLS-1$ //$NON-NLS-2$
+            for (FieldMetadata fieldMetadata : foreignKeyField.getForeignKeyInfoFields()) {
+                NodeList nodeList = Util.getNodeList(element,
+                        "/" + referencedTypeName + "/" + fieldMetadata.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+                if (nodeList.getLength() == 1) {
+                    return nodeList.item(0).getTextContent();
+                }
             }
+            return foreignKeyValue;
         } catch (XtentisException e) {
             throw new RuntimeException(e);
         }

@@ -77,7 +77,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     name,
                     referencedType,
                     referencedField,
-                    null,
+                    Collections.<FieldMetadata>emptyList(),
                     referenceField.isFKIntegrity(),
                     referenceField.allowFKIntegrityOverride(),
                     new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),

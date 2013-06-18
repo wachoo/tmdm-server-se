@@ -20,6 +20,7 @@
                     <xsd:annotation>
                         <xsd:appinfo source="X_ForeignKey">Fk/subelement</xsd:appinfo>
                         <xsd:appinfo source="X_ForeignKey_NotSep">false</xsd:appinfo>
+                        <xsd:appinfo source="X_ForeignKeyInfo">Fk/elementDoesNotExist</xsd:appinfo>
                         <xsd:appinfo source="X_ForeignKeyInfo">Fk/number</xsd:appinfo>
                         <xsd:appinfo source="X_ForeignKeyInfo">Fk/complexType</xsd:appinfo>
                         <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>

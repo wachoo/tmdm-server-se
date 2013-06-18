@@ -201,8 +201,7 @@
               <xsd:appinfo source="X_Label_FR">Soci�t�</xsd:appinfo>  
               <xsd:appinfo source="X_FKIntegrity">true</xsd:appinfo>  
               <xsd:appinfo source="X_FKIntegrity_Override">false</xsd:appinfo>  
-              <xsd:appinfo source="X_ForeignKeyInfo">Societe/Structure/CodeOSMOSE</xsd:appinfo>  
-              <xsd:appinfo source="X_ForeignKeyInfo">Societe/Structure/Nom</xsd:appinfo>  
+              <xsd:appinfo source="X_ForeignKeyInfo">Societe/Structure/Nom</xsd:appinfo>
               <xsd:appinfo source="X_ForeignKeyInfo">Societe/CodeOSMOSE</xsd:appinfo>  
               <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo> 
             </xsd:annotation> 
@@ -583,10 +582,7 @@
         <xsd:annotation> 
           <xsd:appinfo source="X_ForeignKey">Organisation/IdOrganisation</xsd:appinfo>  
           <xsd:appinfo source="X_Label_FR">Organisation</xsd:appinfo>  
-            
-          <xsd:appinfo source="X_ForeignKeyInfo">Organisation/Nom</xsd:appinfo>  
-          <xsd:appinfo source="X_ForeignKeyInfo">Organisation/LibelleLong</xsd:appinfo>  
-          <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo> 
+          <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
 </xsd:annotation> 
       </xsd:element>  
@@ -1603,8 +1599,7 @@
       <xsd:element maxOccurs="unbounded" minOccurs="0" name="EnfantFk" type="xsd:string"> 
         <xsd:annotation> 
           <xsd:appinfo source="X_ForeignKey">ElementArborescence/IdElementArborescence</xsd:appinfo>  
-          <xsd:appinfo source="X_ForeignKeyInfo">ElementArborescence/NiveauArborescence</xsd:appinfo>  
-          <xsd:appinfo source="X_ForeignKeyInfo">ElementArborescence/Nom</xsd:appinfo>  
+          <xsd:appinfo source="X_ForeignKeyInfo">ElementArborescence/Nom</xsd:appinfo>
           <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>  
           <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
           <xsd:appinfo source="X_Write">MDM_Admin</xsd:appinfo> 

@@ -725,7 +725,7 @@
                     <xsd:appinfo source="X_Write">RAP_Admin</xsd:appinfo>
                     <xsd:appinfo source="X_Label_FR">Type interlocuteur</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKey">TypeInterlocuteur</xsd:appinfo>
-                    <xsd:appinfo source="X_ForeignKeyInfo">TypeInterlocuteur/code</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKeyInfo">TypeInterlocuteur/nom</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">TypeInterlocuteur/libelleCourt</xsd:appinfo>
                     <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                     <xsd:appinfo source="X_Deny_Create">RAP_ReadOnly</xsd:appinfo>

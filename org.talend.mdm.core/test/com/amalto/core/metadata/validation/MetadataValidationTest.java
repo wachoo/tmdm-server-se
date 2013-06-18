@@ -83,9 +83,16 @@ public class MetadataValidationTest extends TestCase {
         MetadataRepository repository = new MetadataRepository();
         InputStream resourceAsStream = this.getClass().getResourceAsStream("FKINFO.xsd");
         TestValidationHandler handler = new TestValidationHandler();
-        repository.load(resourceAsStream, handler);
+        try {
+            repository.load(resourceAsStream, handler);
+            fail("Should fail validation.");
+        } catch (Exception e) {
+            // Expected
+        }
         assertEquals(1, handler.getWarningField());
         assertTrue(handler.getMessages().contains(ValidationError.FOREIGN_KEY_INFO_NOT_PRIMITIVE_XSD_TYPED));
+        assertEquals(2, handler.getErrorCount());
+        assertTrue(handler.getMessages().contains(ValidationError.TYPE_DOES_NOT_OWN_FIELD));
     }
 
     public void testPKINFO_manyType() throws Exception {
@@ -200,6 +207,34 @@ public class MetadataValidationTest extends TestCase {
         assertEquals(2, handler.getErrorCount());
         assertTrue(handler.getMessages().contains(ValidationError.FIELD_KEY_MUST_BE_MANDATORY));
         assertTrue(handler.getMessages().contains(ValidationError.FIELD_KEY_CANNOT_BE_REPEATABLE));
+    }
+
+    public void testPK7() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("PK7_0.1.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        try {
+            repository.load(resourceAsStream, handler);
+            fail("Should fail validation.");
+        } catch (Exception e) {
+            // Expected
+        }
+        assertEquals(4, handler.getErrorCount());
+        assertTrue(handler.getMessages().contains(ValidationError.TYPE_DOES_NOT_OWN_FIELD));
+    }
+
+    public void testPKInfo() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("PKINFO_0.1.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        try {
+            repository.load(resourceAsStream, handler);
+            fail("Should fail validation.");
+        } catch (Exception e) {
+            // Expected
+        }
+        assertEquals(4, handler.getErrorCount());
+        assertTrue(handler.getMessages().contains(ValidationError.TYPE_DOES_NOT_OWN_FIELD));
     }
 
     public void testLookUpField1() throws Exception {
