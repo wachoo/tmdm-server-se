@@ -74,7 +74,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         criterionFieldCondition = new CriterionFieldCondition();
     }
 
-    private StorageResults createResults(List list, boolean isProjection) {
+    protected StorageResults createResults(List list, boolean isProjection) {
         CloseableIterator<DataRecord> iterator;
         Iterator listIterator = list.iterator();
         if (isProjection) {
@@ -326,6 +326,28 @@ class StandardQueryHandler extends AbstractQueryHandler {
     @Override
     public StorageResults visit(Select select) {
         selectedTypes = select.getTypes();
+        createCriteria(select);
+        // Paging
+        Paging paging = select.getPaging();
+        paging.accept(this);
+        return createResults(select);
+    }
+
+    protected StorageResults createResults(Select select) {
+        Paging paging = select.getPaging();
+        int pageSize = paging.getLimit();
+        boolean hasPaging = pageSize < Integer.MAX_VALUE;
+        // Results
+        if (!hasPaging) {
+            return createResults(criteria.scroll(ScrollMode.FORWARD_ONLY), select.isProjection());
+        } else {
+            List list = criteria.list();
+            return createResults(list, select.isProjection());
+        }
+    }
+
+    protected Criteria createCriteria(Select select) {
+        List<ComplexTypeMetadata> selectedTypes = select.getTypes();
         if (selectedTypes.isEmpty()) {
             throw new IllegalArgumentException("Select clause is expected to select at least one entity type.");
         }
@@ -419,23 +441,18 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 condition.accept(this);
             }
         }
-
+        // Order by
         OrderBy orderBy = select.getOrderBy();
         if (orderBy != null) {
             orderBy.accept(this);
         }
+        return criteria;
+    }
 
-        Paging paging = select.getPaging();
-        paging.accept(this);
-
-        int pageSize = paging.getLimit();
-        boolean hasPaging = pageSize < Integer.MAX_VALUE;
-        if (!hasPaging) {
-            return createResults(criteria.scroll(ScrollMode.FORWARD_ONLY), select.isProjection());
-        } else {
-            List list = criteria.list();
-            return createResults(list, select.isProjection());
-        }
+    @Override
+    public StorageResults visit(FullText fullText) {
+        // Ignore full text queries (if any).
+        return null;
     }
 
     @Override
@@ -611,7 +628,6 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     throw new IllegalStateException("Expected a criteria instance of " + CriteriaImpl.class.getName() + ".");
                 }
             }
-
         }
 
         @Override
@@ -846,6 +862,29 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     throw new NotImplementedException("No support for predicate '" + predicate.getClass() + "'");
                 }
             }
+        }
+    }
+
+    public static Criteria findCriteria(Criteria mainCriteria, String alias) {
+        if (alias.equals(mainCriteria.getAlias())) {
+            return mainCriteria;
+        }
+        if (mainCriteria instanceof CriteriaImpl) {
+            Criteria foundSubCriteria = null;
+            Iterator iterator = ((CriteriaImpl) mainCriteria).iterateSubcriteria();
+            while (iterator.hasNext()) {
+                Criteria subCriteria = (Criteria) iterator.next();
+                if (alias.equals(subCriteria.getAlias())) {
+                    foundSubCriteria = subCriteria;
+                    break;
+                }
+            }
+            if (foundSubCriteria == null) {
+                throw new IllegalStateException("Could not find criteria for type check.");
+            }
+            return foundSubCriteria;
+        } else {
+            throw new IllegalStateException("Expected a criteria instance of " + CriteriaImpl.class.getName() + ".");
         }
     }
 

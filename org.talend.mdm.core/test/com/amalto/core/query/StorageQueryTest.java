@@ -44,6 +44,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -53,6 +54,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
+import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
@@ -1008,6 +1010,23 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testPagingWithOuterJoin() throws Exception {
+        UserQueryBuilder qb = from(product).start(0).limit(2);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+            int iteratorCount = 0;
+            for (DataRecord result : results) {
+                assertNotNull(result.get("Id"));
+                iteratorCount++;
+            }
+            assertEquals(results.getSize(), iteratorCount);
+        } finally {
+            results.close();
+        }
+    }
+
     public void testEnumeration() throws Exception {
         UserQueryBuilder qb = from(person).where(eq(person.getField("Status"), "Friend"));
         StorageResults results = storage.fetch(qb.getSelect());
@@ -1327,6 +1346,28 @@ public class StorageQueryTest extends StorageTestCase {
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testRangeOnTimestampWithCondition() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(person).where(or(
+                and(gte(timestamp(), "0"), lte(timestamp(), String.valueOf(System.currentTimeMillis()))),
+                eq(person.getField("id"), "1")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = UserQueryBuilder.from(person).where(and(
+                and(gte(timestamp(), "0"), lte(timestamp(), String.valueOf(System.currentTimeMillis()))),
+                eq(person.getField("id"), "1")));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
         } finally {
             results.close();
         }

@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -79,6 +80,7 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
         if (condition != null) {
             condition.accept(this);
         }
+        // Full text
         if (isFullText) {
             DataSource dataSource = storage.getDataSource();
             RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) dataSource;
@@ -98,6 +100,7 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
                 throw new IllegalArgumentException("Storage '" + storage.getName() + "' is not configured to support full text queries.");
             }
         }
+        // Condition optimizations
         if (condition != null) {
             ConditionChecks conditionChecks = new ConditionChecks(select);
             ConditionChecks.Result result = condition.accept(conditionChecks);
@@ -108,10 +111,46 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
                 return new IdQueryHandler(storage, mappings, storageClassLoader, session, select, this.selectedFields, callbacks);
             }
         }
+        // Instance paging (TMDM-5388).
+        if (!select.isProjection() && select.getTypes().size() == 1) {
+            ComplexTypeMetadata uniqueType = select.getTypes().get(0);
+            if (uniqueType.getSubTypes().isEmpty() && uniqueType.getSuperTypes().isEmpty()) {
+                TypeMapping mappingFromDatabase = mappings.getMappingFromDatabase(uniqueType);
+                if (allowInClauseOptimization(mappingFromDatabase)) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Using \"id in clause\" strategy");
+                    }
+                    return new InClauseOptimization(storage,
+                            mappings,
+                            resolver,
+                            storageClassLoader,
+                            session,
+                            select,
+                            this.selectedFields,
+                            callbacks,
+                            InClauseOptimization.Mode.CONSTANT);
+                }
+            }
+        }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Using \"standard query\" strategy");
         }
         return new StandardQueryHandler(storage, mappings, resolver, storageClassLoader, session, select, this.selectedFields, callbacks);
+    }
+
+    private static boolean allowInClauseOptimization(TypeMapping mappingFromDatabase) {
+        boolean allowInClauseOptimization = mappingFromDatabase instanceof ScatteredTypeMapping;
+        boolean containsManyField = false;
+        if (mappingFromDatabase instanceof FlatTypeMapping) {
+            Collection<FieldMetadata> fields = mappingFromDatabase.getDatabase().getFields();
+            for (FieldMetadata field : fields) {
+                if (field.isMany()) {
+                    containsManyField = true;
+                    break;
+                }
+            }
+        }
+        return allowInClauseOptimization || containsManyField;
     }
 
     @Override

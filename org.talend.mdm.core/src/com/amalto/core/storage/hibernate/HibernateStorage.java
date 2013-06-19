@@ -593,7 +593,6 @@ public class HibernateStorage implements Storage {
     @Override
     public void reindex() {
         Session session = factory.getCurrentSession();
-
         MassIndexer indexer = Search.getFullTextSession(session).createIndexer();
         indexer.optimizeOnFinish(true);
         indexer.optimizeAfterPurge(true);
