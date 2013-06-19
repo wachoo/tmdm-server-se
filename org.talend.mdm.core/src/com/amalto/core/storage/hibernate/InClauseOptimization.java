@@ -31,8 +31,8 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.TypedValue;
 import org.hibernate.type.IntegerType;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.FieldMetadata;
 
 import java.util.*;
 
@@ -119,7 +119,8 @@ public class InClauseOptimization extends StandardQueryHandler {
                     constants.add(constant);
                 }
                 if (!constants.isEmpty()) {
-                    criteria.add(new IdInConstantClause(mainType.getKeyFields(), constants));
+                    TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(mainType);
+                    criteria.add(new IdInConstantClause(mapping.getDatabase().getKeyFields(), constants));
                 } else {
                     return new HibernateStorageResults(storage, select, EmptyIterator.INSTANCE);
                 }

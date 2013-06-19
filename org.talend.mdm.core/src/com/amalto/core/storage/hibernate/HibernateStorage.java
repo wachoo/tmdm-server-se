@@ -77,6 +77,15 @@ public class HibernateStorage implements Storage {
     private static final boolean autoPrepare = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty(
             "db.autoPrepare", "true")); //$NON-NLS-1$ //$NON-NLS-2$
 
+    // Thread local to keep track of transactions explicitly started by MDM (prevents close() on Session during update
+    // when initial record is read).
+    public static final ThreadLocal<Boolean> isMDMTransaction = new ThreadLocal<Boolean>() {
+        @Override
+        protected Boolean initialValue() {
+            return false;
+        }
+    };
+
     private final String storageName;
 
     private final StorageType storageType;
@@ -454,7 +463,7 @@ public class HibernateStorage implements Storage {
 
                 @Override
                 public void onEndOfResults() {
-                    if (session.isOpen()) { // Prevent any problem if anyone (Hibernate...) already closed session.
+                    if (!isMDMTransaction.get() && session.isOpen()) { // Prevent any problem if anyone (Hibernate...) already closed session.
                         session.close();
                     } else {
                         if (LOGGER.isDebugEnabled()) {
@@ -531,11 +540,13 @@ public class HibernateStorage implements Storage {
         Session session = factory.getCurrentSession();
         session.beginTransaction();
         session.setFlushMode(FlushMode.AUTO);
+        isMDMTransaction.set(true);
     }
 
     @Override
     public void commit() {
         assertPrepared();
+        isMDMTransaction.remove();
         Session session = factory.getCurrentSession();
         Transaction transaction = session.getTransaction();
         if (LOGGER.isDebugEnabled()) {
@@ -562,6 +573,7 @@ public class HibernateStorage implements Storage {
     @Override
     public void rollback() {
         assertPrepared();
+        isMDMTransaction.remove();
         Session session = factory.getCurrentSession();
         Transaction transaction = session.getTransaction();
         if (!transaction.isActive()) {
@@ -715,6 +727,9 @@ public class HibernateStorage implements Storage {
     public synchronized void close() {
         LOGGER.info("Closing storage '" + storageName + "' (" + storageType + ").");
         ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
+        if (previousClassLoader instanceof StorageClassLoader) { // Prevent restoring a closed classloader.
+            previousClassLoader = previousClassLoader.getParent();
+        }
         try {
             Thread.currentThread().setContextClassLoader(storageClassLoader);
             try {
