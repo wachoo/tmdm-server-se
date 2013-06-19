@@ -244,8 +244,11 @@ public class ItemDetailToolBar extends ToolBar {
         if (this.openTab) {
             this.addSeparator();
             this.addOpenTabButton(false);
+        }       
+        if (BrowseRecords.getSession().getAppHeader().isUseRelations()) {
+            this.addRelationButton();
         }
-        this.addRelationButton();
+        this.addWorkFlosCombo();
         this.addOpenTaskButton();
         checkEntitlement(viewBean);
     }
@@ -254,7 +257,10 @@ public class ItemDetailToolBar extends ToolBar {
         this.addSaveButton();
         this.addSeparator();
         this.addSaveQuitButton();
-        this.addRelationButton();
+        if (BrowseRecords.getSession().getAppHeader().isUseRelations()) {
+            this.addRelationButton();
+        }
+        this.addWorkFlosCombo();
     }
 
     /**
@@ -587,7 +593,6 @@ public class ItemDetailToolBar extends ToolBar {
 
     private void setRelation(List<String> list) {
         if (list == null || list.size() == 0) {
-            ItemDetailToolBar.this.addWorkFlosCombo();
             return;
         }
 
@@ -612,7 +617,6 @@ public class ItemDetailToolBar extends ToolBar {
         });
         ItemDetailToolBar.this.addSeparator();
         add(relationButton);
-        ItemDetailToolBar.this.addWorkFlosCombo();
     }
 
     private void addOpenTabButton(final boolean fromSmartView) {

@@ -1292,6 +1292,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             header.setAutoTextAreaLength(BrowseRecordsConfiguration.getAutoTextAreaLength());
             header.setAutoValidate(BrowseRecordsConfiguration.isAutoValidate());
             header.setDataMigrationMultiLingualFieldAuto(BrowseRecordsConfiguration.dataMigrationMultiLingualFieldAuto());
+            header.setUseRelations(BrowseRecordsConfiguration.IsUseRelations());
             return header;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
