@@ -2484,6 +2484,7 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+        qb = from(country).where(contains(country.getField("name"), "FRANCE"));
         results = s2.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
@@ -2735,7 +2736,7 @@ public class StorageQueryTest extends StorageTestCase {
             return isCaseSensitiveSearch;
         }
 
-        private void setCaseSensitiveSearch(boolean caseSensitiveSearch) {
+        public void setCaseSensitiveSearch(boolean caseSensitiveSearch) {
             isCaseSensitiveSearch = caseSensitiveSearch;
         }
 
