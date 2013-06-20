@@ -2436,6 +2436,16 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(0, results.getCount());
     }
 
+    public void testManyFieldUsingAndCondition() throws Exception {
+        UserQueryBuilder qb = from(product).where(eq(product.getField("Features/Sizes/Size"), "ValueDoesNotExist"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(0, results.getCount());
+
+        qb = from(product).where(and(eq(product.getField("Id"), "1"), eq(product.getField("Features/Sizes/Size"), "ValueDoesNotExist")));
+        results = storage.fetch(qb.getSelect());
+        assertEquals(0, results.getCount());
+    }
+
     public void testContainsCaseSensitivity() throws Exception {
         Storage s1 = new HibernateStorage("MDM1", StorageType.MASTER);
         s1.init(ServerContext.INSTANCE.get().getDataSource(StorageTestCase.DATABASE + "-DS1", "MDM", StorageType.MASTER));

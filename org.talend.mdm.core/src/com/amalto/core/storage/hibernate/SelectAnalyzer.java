@@ -311,8 +311,6 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
 
     private static class ConditionChecks extends VisitorAdapter<ConditionChecks.Result> {
 
-        private final Result result = new Result();
-
         private final Select select;
 
         private FieldMetadata keyField;
@@ -328,28 +326,32 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
 
         @Override
         public Result visit(Isa isa) {
-            result.id = false;
-            return result;
+            Result fieldResult = new Result();
+            fieldResult.id = false;
+            return fieldResult;
         }
 
         @Override
         public Result visit(IsEmpty isEmpty) {
-            result.id = false;
-            return result;
+            Result fieldResult = new Result();
+            fieldResult.id = false;
+            return fieldResult;
         }
 
         @Override
         public Result visit(NotIsEmpty notIsEmpty) {
-            result.id = false;
-            return result;
+            Result fieldResult = new Result();
+            fieldResult.id = false;
+            return fieldResult;
         }
 
         @Override
         public Result visit(UnaryLogicOperator condition) {
             // TMDM-5319: Using a 'not' predicate, don't do a get by id.
             if (condition.getPredicate() == Predicate.NOT) {
-                result.id = false;
-                return result;
+                Result fieldResult = new Result();
+                fieldResult.id = false;
+                return fieldResult;
             } else {
                 return condition.getCondition().accept(this);
             }
@@ -357,84 +359,103 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
 
         @Override
         public Result visit(Condition condition) {
-            result.id = condition != UserQueryHelper.NO_OP_CONDITION;
-            return result;
+            Result conditionResult = new Result();
+            conditionResult.id = condition != UserQueryHelper.NO_OP_CONDITION;
+            return conditionResult;
         }
 
         @Override
         public Result visit(BinaryLogicOperator condition) {
-            result.id = condition.getLeft().accept(this).id && condition.getRight().accept(this).id;
-            return result;
+            Result conditionResult = new Result();
+            Result leftResult = condition.getLeft().accept(this);
+            Result rightResult = condition.getRight().accept(this);
+            conditionResult.id = leftResult.id && rightResult.id;
+            conditionResult.limitJoins = leftResult.limitJoins && rightResult.limitJoins;
+            return conditionResult;
         }
 
         @Override
         public Result visit(StagingStatus stagingStatus) {
-            result.id = false;
-            return result;
+            Result fieldResult = new Result();
+            fieldResult.id = false;
+            return fieldResult;
         }
 
         @Override
         public Result visit(StagingError stagingError) {
-            result.id = false;
-            return result;
+            Result fieldResult = new Result();
+            fieldResult.id = false;
+            return fieldResult;
         }
 
         @Override
         public Result visit(StagingSource stagingSource) {
-            result.id = false;
-            return result;
+            Result fieldResult = new Result();
+            fieldResult.id = false;
+            return fieldResult;
         }
 
         @Override
         public Result visit(IndexedField indexedField) {
-            result.id = false;
-            return result;
+            Result fieldResult = new Result();
+            fieldResult.id = false;
+            return fieldResult;
         }
 
         @Override
         public Result visit(Compare condition) {
-            result.id = condition.getLeft().accept(this).id && condition.getPredicate() == Predicate.EQUALS;
-            return result;
+            Result conditionResult = new Result();
+            Result result = condition.getLeft().accept(this);
+            conditionResult.id = result.id && condition.getPredicate() == Predicate.EQUALS;
+            conditionResult.limitJoins = result.limitJoins;
+            return conditionResult;
         }
 
         @Override
         public Result visit(Id id) {
-            result.id = false;
-            return result;
+            Result fieldResult = new Result();
+            fieldResult.id = false;
+            return fieldResult;
         }
 
         @Override
         public Result visit(Timestamp timestamp) {
-            result.id = false;
-            return result;
+            Result fieldResult = new Result();
+            fieldResult.id = false;
+            return fieldResult;
         }
 
         @Override
         public Result visit(IsNull isNull) {
-            result.id = false;
-            return result;
+            Result fieldResult = new Result();
+            fieldResult.id = false;
+            return fieldResult;
         }
 
         @Override
         public Result visit(NotIsNull notIsNull) {
-            result.id = false;
-            return result;
+            Result fieldResult = new Result();
+            fieldResult.id = false;
+            return fieldResult;
         }
 
         @Override
         public Result visit(FullText fullText) {
-            result.id = false;
-            return result;
+            Result fieldResult = new Result();
+            fieldResult.id = false;
+            return fieldResult;
         }
 
         @Override
         public Result visit(Range range) {
-            result.id = false;
-            return result;
+            Result fieldResult = new Result();
+            fieldResult.id = false;
+            return fieldResult;
         }
 
         @Override
         public Result visit(Field field) {
+            Result result = new Result();
             FieldMetadata fieldMetadata = field.getFieldMetadata();
             // Limit join for contained fields
             if (!result.limitJoins) {
