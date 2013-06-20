@@ -15,6 +15,8 @@ import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.exception.FullTextQueryCompositeKeyException;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
@@ -70,7 +72,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 ComplexTypeMetadata compositeKeyType = (ComplexTypeMetadata) it.next();
                 message.append(compositeKeyType.getName());
                 if (it.hasNext()) {
-                    message.append(","); //$NON-NLS-1$
+                    message.append(',');
                 }
             }
             throw new FullTextQueryCompositeKeyException(message.toString());
@@ -107,10 +109,13 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         if (condition == null) {
             throw new IllegalArgumentException("Expected a condition in select clause but got 0.");
         }
-        // condition.accept(this);
         // Create Lucene query (concatenates all sub queries together).
         FullTextSession fullTextSession = Search.getFullTextSession(session);
-        Query parsedQuery = select.getCondition().accept(new LuceneQueryGenerator(types));
+        DataSource dataSource = storage.getDataSource();
+        if (!(dataSource instanceof RDBMSDataSource)) {
+            throw new IllegalArgumentException("Data source is not a RDBMS datasource.");
+        }
+        Query parsedQuery = select.getCondition().accept(new LuceneQueryGenerator(types, (RDBMSDataSource) dataSource));
         // Create Hibernate Search query
         Set<Class> classes = new HashSet<Class>();
         for (ComplexTypeMetadata type : types) {
@@ -126,7 +131,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 classes.toArray(new Class<?>[classes.size()]));
         // Very important to leave this null (would disable ability to search across different types)
         fullTextQuery.setCriteriaQuery(null);
-        fullTextQuery.setSort(Sort.RELEVANCE);
+        fullTextQuery.setSort(Sort.RELEVANCE); // Default sort (if no order by specified).
         query = EntityFinder.wrap(fullTextQuery, (HibernateStorage) storage, session); // ensures only MDM entity objects are returned.
         // Order by
         OrderBy orderBy = select.getOrderBy();

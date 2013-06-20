@@ -13,8 +13,11 @@ package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.KeywordAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
@@ -28,14 +31,17 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
 
     private final Collection<ComplexTypeMetadata> types;
 
+    private final RDBMSDataSource dataSource;
+
     private String currentFieldName;
 
     private Object currentValue;
 
     private boolean isBuildingNot;
 
-    LuceneQueryGenerator(List<ComplexTypeMetadata> types) {
+    LuceneQueryGenerator(List<ComplexTypeMetadata> types, RDBMSDataSource dataSource) {
         this.types = types;
+        this.dataSource = dataSource;
     }
 
     @Override
@@ -245,7 +251,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         String[] fieldsAsArray = fields.toArray(new String[fields.size()]);
         StringBuilder queryBuffer = new StringBuilder();
         Iterator<String> fieldsIterator = fields.iterator();
-        String fullTextValue = getValue(fullText);
+        String fullTextValue = getValue(fullText, dataSource);
         while (fieldsIterator.hasNext()) {
             String next = fieldsIterator.next();
             queryBuffer.append(next).append(':').append(fullTextValue);
@@ -261,12 +267,14 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
     public Query visit(FieldFullText fieldFullText) {
         String fieldName = fieldFullText.getField().getFieldMetadata().getName();
         String[] fieldsAsArray = new String[]{fieldName};
-        String fullTextQuery = fieldName + ':' + getValue(fieldFullText);
+        String fullTextQuery = fieldName + ':' + getValue(fieldFullText, dataSource);
         return parseQuery(fieldsAsArray, fullTextQuery);
     }
 
-    private static Query parseQuery(String[] fieldsAsArray, String fullTextQuery) {
-        MultiFieldQueryParser parser = new MultiFieldQueryParser(Version.LUCENE_29, fieldsAsArray, new KeywordAnalyzer());
+    private Query parseQuery(String[] fieldsAsArray, String fullTextQuery) {
+        MultiFieldQueryParser parser = new MultiFieldQueryParser(Version.LUCENE_29, fieldsAsArray, getAnalyzer(dataSource));
+        // Very important! Lucene does an implicit lower case for "expanded terms" (which is something used).
+        parser.setLowercaseExpandedTerms(!dataSource.isCaseSensitiveSearch());
         try {
             return parser.parse(fullTextQuery);
         } catch (ParseException e) {
@@ -274,8 +282,21 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         }
     }
 
-    private static String getValue(FullText fullText) {
-        String value = fullText.getValue().toLowerCase();
+    private static Analyzer getAnalyzer(RDBMSDataSource dataSource) {
+        if (!dataSource.isCaseSensitiveSearch()) {
+            return new KeywordAnalyzer();
+        } else {
+            return new StandardAnalyzer(Version.LUCENE_29, Collections.emptySet());
+        }
+    }
+
+    private static String getValue(FullText fullText, RDBMSDataSource dataSource) {
+        String value;
+        if (!dataSource.isCaseSensitiveSearch()) {
+            value = fullText.getValue().toLowerCase();
+        } else {
+            value = fullText.getValue();
+        }
         int index = 0;
         while (value.charAt(index) == '*') { // Skip '*' characters at beginning.
             index++;
