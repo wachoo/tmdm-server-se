@@ -70,4 +70,13 @@ public class BrowseRecordsConfiguration {
 
         return Boolean.parseBoolean(autoValidate);
     }
+    
+    public static boolean IsUseRelations() {
+        String useRelations = getPropertyValue("use.relations.flag");//$NON-NLS-1$
+
+       if (useRelations == null || useRelations.trim().length() == 0)
+            return true;
+
+        return Boolean.parseBoolean(useRelations);
+    }
 }

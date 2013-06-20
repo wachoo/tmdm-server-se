@@ -244,7 +244,10 @@ public class ItemDetailToolBar extends ToolBar {
                 this.addSeparator();
                 this.addOpenTabButton();
             }
-            this.addRelationButton();
+            if (isUseRelations()) {
+                this.addRelationButton();
+            }
+            this.addWorkFlosCombo();
             this.addOpenTaskButton();
             checkEntitlement(viewBean);
         }
@@ -252,14 +255,29 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private void initCreateToolBar() {
-        if (this.readOnly)
-            this.addRelationButton();
+        if (this.readOnly) {
+            if (isUseRelations()) {
+                this.addRelationButton();
+            }
+            this.addWorkFlosCombo();
+        }
         else {
             this.addSaveButton();
             this.addSeparator();
             this.addSaveQuitButton();
-            this.addRelationButton();
+            if (isUseRelations()) {
+                this.addRelationButton();
+            }
+            this.addWorkFlosCombo();
         }
+    }
+    
+    private boolean isUseRelations() {
+        boolean isUseRelations = false;
+        if (BrowseRecords.getSession().getAppHeader() != null) {
+            isUseRelations = BrowseRecords.getSession().getAppHeader().isUseRelations();
+        }
+        return isUseRelations;
     }
 
     /**
@@ -561,7 +579,6 @@ public class ItemDetailToolBar extends ToolBar {
 
             public void onSuccess(List<String> list) {
                 if (list == null || list.size() == 0) {
-                    ItemDetailToolBar.this.addWorkFlosCombo();
                     return;
                 }
 
@@ -585,8 +602,6 @@ public class ItemDetailToolBar extends ToolBar {
                 });
                 ItemDetailToolBar.this.addSeparator();
                 add(relationButton);
-                ItemDetailToolBar.this.addWorkFlosCombo();
-
             }
 
         });
