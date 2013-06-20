@@ -245,7 +245,10 @@ public class ItemDetailToolBar extends ToolBar {
             this.addSeparator();
             this.addOpenTabButton(false);
         }
-        this.addRelationButton();
+        if (isUseRelations()) {
+            this.addRelationButton();
+        }
+        this.addWorkFlosCombo();    
         this.addOpenTaskButton();
         checkEntitlement(viewBean);
     }
@@ -254,9 +257,20 @@ public class ItemDetailToolBar extends ToolBar {
         this.addSaveButton();
         this.addSeparator();
         this.addSaveQuitButton();
-        this.addRelationButton();
+        if (isUseRelations()) {
+            this.addRelationButton();
+        }
+        this.addWorkFlosCombo();
     }
 
+    private boolean isUseRelations() {
+        boolean isUseRelations = false;
+        if (BrowseRecords.getSession().getAppHeader() != null) {
+            isUseRelations = BrowseRecords.getSession().getAppHeader().isUseRelations();
+        }
+        return isUseRelations;
+    }
+    
     /**
      * call it only when save the foreignKey in primaryKey view or save the outMost entity
      */
@@ -587,7 +601,6 @@ public class ItemDetailToolBar extends ToolBar {
 
     private void setRelation(List<String> list) {
         if (list == null || list.size() == 0) {
-            ItemDetailToolBar.this.addWorkFlosCombo();
             return;
         }
 
@@ -612,7 +625,6 @@ public class ItemDetailToolBar extends ToolBar {
         });
         ItemDetailToolBar.this.addSeparator();
         add(relationButton);
-        ItemDetailToolBar.this.addWorkFlosCombo();
     }
 
     private void addOpenTabButton(final boolean fromSmartView) {
