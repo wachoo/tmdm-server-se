@@ -245,7 +245,7 @@ public class ItemDetailToolBar extends ToolBar {
             this.addSeparator();
             this.addOpenTabButton(false);
         }       
-        if (BrowseRecords.getSession().getAppHeader().isUseRelations()) {
+        if (isUseRelations()) {
             this.addRelationButton();
         }
         this.addWorkFlosCombo();
@@ -257,12 +257,20 @@ public class ItemDetailToolBar extends ToolBar {
         this.addSaveButton();
         this.addSeparator();
         this.addSaveQuitButton();
-        if (BrowseRecords.getSession().getAppHeader().isUseRelations()) {
+        if (isUseRelations()) {
             this.addRelationButton();
         }
         this.addWorkFlosCombo();
     }
 
+    private boolean isUseRelations() {
+        boolean isUseRelations = false;
+        if (BrowseRecords.getSession().getAppHeader() != null) {
+            isUseRelations = BrowseRecords.getSession().getAppHeader().isUseRelations();
+        }
+        return isUseRelations;
+    }
+    
     /**
      * call it only when save the foreignKey in primaryKey view or save the outMost entity
      */
