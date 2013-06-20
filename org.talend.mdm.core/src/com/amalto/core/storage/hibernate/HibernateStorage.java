@@ -843,6 +843,9 @@ public class HibernateStorage implements Storage {
     public synchronized void close() {
         LOGGER.info("Closing storage '" + storageName + "' (" + storageType + ").");
         ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
+        if (previousClassLoader instanceof StorageClassLoader) { // TMDM-5934: Prevent restoring a closed classloader.
+            previousClassLoader = previousClassLoader.getParent();
+        }
         try {
             Thread.currentThread().setContextClassLoader(storageClassLoader);
             try {
