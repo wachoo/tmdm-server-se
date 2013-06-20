@@ -28,6 +28,8 @@ public class AppHeader implements IsSerializable {
     private int autoTextAreaLength;
     
     private boolean isAutoValidate = true;
+    
+    private boolean isUseRelations = true;
 
     /**
      * DOC HSHU AppHeader constructor comment.
@@ -73,7 +75,6 @@ public class AppHeader implements IsSerializable {
         return "AppHeader [datamodel=" + datamodel + ", datacluster=" + datacluster + "]";//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$  
     }
 
-    
     public boolean isAutoValidate() {
         return isAutoValidate;
     }
@@ -82,4 +83,11 @@ public class AppHeader implements IsSerializable {
         this.isAutoValidate = isAutoValidate;
     }
 
+    public boolean isUseRelations() {
+        return isUseRelations;
+    }
+
+    public void setUseRelations(boolean isUseRelations) {
+        this.isUseRelations = isUseRelations;
+    }
 }
