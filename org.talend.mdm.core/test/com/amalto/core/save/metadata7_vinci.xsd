@@ -617,8 +617,7 @@
       <xsd:element maxOccurs="1" minOccurs="0" name="SocieteExterneFk" type="xsd:string"> 
         <xsd:annotation> 
           <xsd:appinfo source="X_ForeignKey">Societe/CodeOSMOSE</xsd:appinfo>  
-          <xsd:appinfo source="X_ForeignKeyInfo">SocieteExterne/Libelle</xsd:appinfo>  
-          <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>  
+          <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
           <xsd:appinfo source="X_Label_FR">Soci�t� externe</xsd:appinfo>  
            
         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
