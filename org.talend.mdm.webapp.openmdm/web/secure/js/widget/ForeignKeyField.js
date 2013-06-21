@@ -57,23 +57,18 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 	},
 
 	showFkDialog : function(newFkFilter){
-	    var FILTER = {
-			'fr':'Saisissez un critère de recherche puis sélectionnez une valeur dans la liste déroulante',
-			'en':'Fill the box with a key-word then select a value'
-		};
-    	
-    	var TITLE_WINDOW_FK = {
-			'fr':'Choix de la clé étrangère',
-			'en':'Choose a foreign key'
-		};
-    	var MESSAGE_MULTI_SHOW = {
-			'fr':'clés possibles trouvées',
-			'en':'possible keys are found'
-		};
-    	var MESSAGE_SINGLE_SHOW = {
-			'fr':'clé possible trouvée',
-			'en':'possible key is found'
-		};
+		if (amalto.widget.ForeignKeyField.i18nBundleReady){
+			this._showFkDialog(newFkFilter);
+		} else {
+			amalto.workflowtasks.bundle = new Ext.i18n.Bundle({bundle:'ForeignKeyFieldMessages', path:'/talendmdm/secure/resources', lang:language});
+			amalto.workflowtasks.bundle.onReady(function(){
+				this._showFkDialog(newFkFilter);
+				amalto.widget.ForeignKeyField.i18nBundleReady = true;
+			}.createDelegate(this));
+		}
+	},
+
+	_showFkDialog : function(newFkFilter){
     	var  pos = this.el.getXY();
 	    var dwrpasm = [this.xpathForeignKey, this.xpathForeignKeyInfo, newFkFilter];
 	    var retrieve = "true" == this.retrieveFKinfos + "";
@@ -111,7 +106,7 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 		    this.foreignKeyCombo = new Ext.form.ComboBox({
                 width : 280,
                 resizable : true, 
-                fieldLabel : FILTER[language],
+                fieldLabel : amalto.workflowtasks.bundle.getMsg('FILTER'),
                 id : 'task-foreign-key-filter',
 		        store : this.taskForeignKeytore,
 		        allowBlank : !this.isMandatory,
@@ -149,7 +144,7 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
                 count = parseInt(count)
                 var window =  Ext.getCmp('task-foreign-key-window');
                 if(window!= null){
-                    var title = TITLE_WINDOW_FK[language]+'<br/>('+count+' '+(count>1?MESSAGE_MULTI_SHOW[language]+')':MESSAGE_SINGLE_SHOW[language]+')');
+                    var title = amalto.workflowtasks.bundle.getMsg('TITLE_WINDOW_FK')+'<br/>('+count+' '+(count>1?amalto.workflowtasks.bundle.getMsg('MESSAGE_MULTI_SHOW')+')':amalto.workflowtasks.bundle.getMsg('MESSAGE_SINGLE_SHOW')+')');
                     window.setTitle(title);
                 }
               }
@@ -162,8 +157,8 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
                 resizable : true, 
                 closeAction : 'hide',
                 plain : true,
-                title : TITLE_WINDOW_FK[language] + '<br/>(' + count + ' ' + (count > 1 ? 
-                			MESSAGE_MULTI_SHOW[language] + ')' : MESSAGE_SINGLE_SHOW[language] + ')'),
+                title : amalto.workflowtasks.bundle.getMsg('TITLE_WINDOW_FK') + '<br/>(' + count + ' ' + (count > 1 ? 
+                		amalto.workflowtasks.bundle.getMsg('MESSAGE_MULTI_SHOW') + ')' : amalto.workflowtasks.bundle.getMsg('MESSAGE_SINGLE_SHOW') + ')'),
                 items : [new Ext.form.FormPanel({
                 	labelAlign : 'top',
                     items: [new Ext.Panel({html: '', border: false}),
