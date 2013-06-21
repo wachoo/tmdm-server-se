@@ -2341,5 +2341,5 @@ public class StorageQueryTest extends StorageTestCase {
             expectedResults.remove(result.get("Size"));
         }
         assertTrue(expectedResults.isEmpty());
-    }
+	}
 }
