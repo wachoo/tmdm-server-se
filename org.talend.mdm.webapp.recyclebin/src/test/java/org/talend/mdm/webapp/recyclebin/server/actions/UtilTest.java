@@ -31,22 +31,6 @@ public class UtilTest extends TestCase {
 
     private static final List<String> ROLES = Arrays.asList(new String[] { "System_Admin" });
 
-    public void testCheckRestoreAccessHelper() throws Exception {
-        String modelXSD = getXSDModel("UtilTest.xsd");
-        assertFalse(Util.checkRestoreAccessHelper(modelXSD, "M26_E01", ROLES));
-        assertTrue(Util.checkRestoreAccessHelper(modelXSD, "M26_E02", ROLES));
-        assertFalse(Util.checkRestoreAccessHelper(modelXSD, "M26_E03", ROLES));
-        assertFalse(Util.checkRestoreAccessHelper(modelXSD, "M26_E04", ROLES));
-    }
-
-    public void testCheckReadAccessHelper() throws Exception {
-        String modelXSD = getXSDModel("UtilTest.xsd");
-        assertTrue(Util.checkReadAccessHelper(modelXSD, "M26_E01", ROLES));
-        assertTrue(Util.checkReadAccessHelper(modelXSD, "M26_E02", ROLES));
-        assertFalse(Util.checkReadAccessHelper(modelXSD, "M26_E03", ROLES));
-        assertFalse(Util.checkReadAccessHelper(modelXSD, "M26_E04", ROLES));
-    }
-
     private String getXSDModel(String filename) throws Exception {
         InputStream is = getClass().getClassLoader().getResourceAsStream(filename);
         assertNotNull(is);
