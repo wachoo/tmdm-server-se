@@ -38,6 +38,7 @@ import com.amalto.core.history.exception.UnsupportedUndoPhysicalDeleteException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
+import com.amalto.webapp.core.util.DataModelAccessor;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
@@ -145,7 +146,11 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     @Override
     public void restoreRecord(JournalParameters parameter, String language) throws ServiceException {
         try {
-            JournalHistoryService.getInstance().restoreRecord(parameter, language);
+            if (DataModelAccessor.getInstance().checkRestoreAccess(parameter.getDataModelName(),parameter.getConceptName())) {
+                JournalHistoryService.getInstance().restoreRecord(parameter, language);
+            } else {
+                throw new ServiceException(MESSAGES.getMessage(new Locale(language), "restore_no_permissions")); //$NON-NLS-1$
+            }
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;

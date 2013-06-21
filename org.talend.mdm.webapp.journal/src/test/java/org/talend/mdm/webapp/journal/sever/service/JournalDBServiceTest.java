@@ -35,7 +35,9 @@ import com.extjs.gxt.ui.client.data.ModelData;
 
 public class JournalDBServiceTest extends TestCase{
     
-    JournalDBService journalDBService = new JournalDBService(new WebServiceMock());
+    private WebServiceMock mock = new WebServiceMock();
+
+    JournalDBService journalDBService = new JournalDBService(mock);
     
     public void testGetResultListByCriteria () throws Exception {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  //$NON-NLS-1$
@@ -47,17 +49,87 @@ public class JournalDBServiceTest extends TestCase{
         criteria.setOperationType(UpdateReportPOJO.OPERATION_TYPE_CREATE);
         criteria.setSource("genericUI"); //$NON-NLS-1$
         
-        Object[] result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$   
-        assertEquals(1, result[0]);
-        List<JournalGridModel> journalGridModelList = (List<JournalGridModel>)result[1];        
-        JournalGridModel journalGridModel = journalGridModelList.get(0);
+        Object[] result = null;
+        List<JournalGridModel> journalGridModelList = null;
+        JournalGridModel journalGridModel = null;
+        
+        mock.setEnterpriseVersion(true);
+        result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$   
+        assertEquals(20, result[0]);
+
+        mock.setForbiddenDataModelName("Product"); //$NON-NLS-1$
+        result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$   
+        assertEquals(6, result[0]);
+        journalGridModelList = (List<JournalGridModel>)result[1];
+        journalGridModel = journalGridModelList.get(0);
+        assertEquals("T", journalGridModel.getDataContainer()); //$NON-NLS-1$
+        assertEquals("T", journalGridModel.getDataModel()); //$NON-NLS-1$
+        
+        journalGridModel = journalGridModelList.get(2);
+        assertEquals("T", journalGridModel.getDataContainer()); //$NON-NLS-1$
+        assertEquals("T", journalGridModel.getDataModel()); //$NON-NLS-1$
+
+        mock.setForbiddenDataModelName("T"); //$NON-NLS-1$
+        result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$   
+        assertEquals(14, result[0]);
+        journalGridModelList = (List<JournalGridModel>)result[1];
+        journalGridModel = journalGridModelList.get(0);
+        assertEquals("Product", journalGridModel.getDataContainer()); //$NON-NLS-1$
+        assertEquals("Product", journalGridModel.getDataModel()); //$NON-NLS-1$
+        
+        journalGridModel = journalGridModelList.get(2);
+        assertEquals("Product", journalGridModel.getDataContainer()); //$NON-NLS-1$
+        assertEquals("Product", journalGridModel.getDataModel()); //$NON-NLS-1$
+
+        mock.setForbiddenconceptName("Product"); //$NON-NLS-1$
+        result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$   
+        assertEquals(2, result[0]);
+        journalGridModelList = (List<JournalGridModel>)result[1];
+        journalGridModel = journalGridModelList.get(0);
+        assertEquals("Product", journalGridModel.getDataContainer()); //$NON-NLS-1$
+        assertEquals("Product", journalGridModel.getDataModel()); //$NON-NLS-1$
+        assertEquals("ProductFamily", journalGridModel.getEntity()); //$NON-NLS-1$
+
+        journalGridModel = journalGridModelList.get(1);
+        assertEquals("Product", journalGridModel.getDataContainer()); //$NON-NLS-1$
+        assertEquals("Product", journalGridModel.getDataModel()); //$NON-NLS-1$
+        assertEquals("ProductFamily", journalGridModel.getEntity()); //$NON-NLS-1$        
+
+        mock.setForbiddenconceptName("ProductFamily"); //$NON-NLS-1$
+        result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$   
+        assertEquals(12, result[0]);
+        journalGridModelList = (List<JournalGridModel>)result[1];
+        journalGridModel = journalGridModelList.get(0);
         assertEquals("Product", journalGridModel.getDataContainer()); //$NON-NLS-1$
         assertEquals("Product", journalGridModel.getDataModel()); //$NON-NLS-1$
         assertEquals("Product", journalGridModel.getEntity()); //$NON-NLS-1$
-        assertEquals("1", journalGridModel.getKey()); //$NON-NLS-1$
-        assertEquals(UpdateReportPOJO.OPERATION_TYPE_UPDATE, journalGridModel.getOperationType());
-        assertEquals("genericUI.1360140140037", journalGridModel.getIds()); //$NON-NLS-1$
-        assertEquals("administrator", journalGridModel.getUserName()); //$NON-NLS-1$
+
+        journalGridModel = journalGridModelList.get(2);
+        assertEquals("Product", journalGridModel.getDataContainer()); //$NON-NLS-1$
+        assertEquals("Product", journalGridModel.getDataModel()); //$NON-NLS-1$
+        assertEquals("Product", journalGridModel.getEntity()); //$NON-NLS-1$   
+
+        mock.setForbiddenDataModelName(null);
+        mock.setForbiddenconceptName(null);
+        mock.setEnterpriseVersion(false);
+        result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$   
+        assertEquals(20, result[0]);
+
+        mock.setForbiddenDataModelName("Product"); //$NON-NLS-1$
+        result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$   
+        assertEquals(20, result[0]);
+
+        mock.setForbiddenDataModelName("T"); //$NON-NLS-1$
+        result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$   
+        assertEquals(20, result[0]);
+
+        mock.setForbiddenconceptName("Product"); //$NON-NLS-1$
+        result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$   
+        assertEquals(20, result[0]);
+
+        mock.setForbiddenconceptName("ProductFamily"); //$NON-NLS-1$
+        result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$   
+        assertEquals(20, result[0]);
     }
     
     public void testGetDetailTreeModel() throws Exception {
@@ -117,7 +189,7 @@ public class JournalDBServiceTest extends TestCase{
         assertEquals("root", returnValue.getId()); //$NON-NLS-1$
         assertEquals("Document", returnValue.getName()); //$NON-NLS-1$
         assertEquals("root", returnValue.getPath()); //$NON-NLS-1$
-        assertEquals(0, returnValue.getChildCount()); //$NON-NLS-1$
+        assertEquals(0, returnValue.getChildCount());
     }
     
     public void testGetModelByElement() throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
