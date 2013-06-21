@@ -1,83 +1,9 @@
 amalto.namespace("amalto.viewbrowser");
 
 amalto.viewbrowser.ViewBrowser = function () {
-	 
-	var BROWSE_VIEWS = {
-	'en':'Browse views' ,
-	'fr':'Accès aux vues'
-	}	
-	
-	var  TITLE_SEARCH_RESULT =    {
-    'fr' : 'Résultats',
-    'en' : 'Search results'
-	}
-	var  TITLE_SEARCH_PANEL =    {
-	    'fr' : 'Recherche',
-	    'en' : 'Search panel'
-	}
-	var  LABEL_CRITERIA =    {
-	    'fr' : 'Critères de recherche',
-	    'en' : 'Search criteria'
-	}
-	var  LABEL_VIEW =    {
-	    'fr' : 'Vues',
-	    'en' : 'Views'
-	}
-	
-	var LABEL_FILTER = {
-		'fr' : 'Filtres',
-		'en' : 'Filters'
-	}
-	
-	var  BUTTON_SEARCH =    {
-	    'fr' : 'Rechercher',
-	    'en' : 'Search'
-	}
-	
-	var  LABEL_LINES_PER_PAGE =    {
-	    'fr' : 'Nombre de lignes par page',
-	    'en' : 'Number of lines per page'
-	}
-	
-	var  LABEL_NO_RESULT =    {
-	    'fr' : 'Pas de résultat',
-	    'en' : 'No result'
-	}
-	var LABEL_LINE={
-		'fr':'ligne',
-		'en':'line'
-	}
-	
-	var LABEL_SELECT_VIEW = {
-		'fr':'Sélectionnez une vue',
-		'en':'Select a view'
-	}
 
-	var OPERATORS = {
-		'fr':{
-	   			CONTAINS:"contient le(s) mot(s)",
-	   			EQUALS:"est égal à",
-	   			NOT_EQUALS:"n'est pas égal à",
-	   			GREATER_THAN:"est supérieur à",
-	   			GREATER_THAN_OR_EQUAL:"est supérieur ou égal à",
-	   			LOWER_THAN:"est inférieur à",
-	   			LOWER_THAN_OR_EQUAL:"est inférieur ou égal à",
-	   			STARTSWITH:"contient un mot commençant par",
-	   			STRICTCONTAINS:"contient la phrase"
-	   		},
-		'en':{
-	   			CONTAINS:"contains the word(s)",
-	   			EQUALS:"is equal to",
-	   			NOT_EQUALS:"is not equal to",
-	   			GREATER_THAN:"is greater than",
-	   			GREATER_THAN_OR_EQUAL:"is greater or equals",
-	   			LOWER_THAN:"is lower than",
-	   			LOWER_THAN_OR_EQUAL:"is lower or equals",
-	   			STARTSWITH:"contains a word starting with",
-	   			STRICTCONTAINS:"contains the sentence"
-	   		}	
-	}
-	
+	var operators;
+
 	/********************************************************************
 	 * Action BROWSE VIEW
 	 ********************************************************************/
@@ -100,7 +26,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 	
 	function getViewsListCB(result){
 		//alert(DWRUtil.toDescriptiveString(result));
-		var tmp = [LABEL_SELECT_VIEW[language]];
+		var tmp = [amalto.viewbrowser.bundle.getMsg('LABEL_SELECT_VIEW')];
 		DWRUtil.removeAllOptions('viewSelect');
 		DWRUtil.addOptions('viewSelect',tmp);
 		DWRUtil.addOptions('viewSelect',result);
@@ -110,7 +36,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 	function getView(){
 		var viewName = DWRUtil.getValue('viewSelect');
 		amalto.core.working('');
-		if(viewName!=LABEL_SELECT_VIEW[language]){	
+		if(viewName!=amalto.viewbrowser.bundle.getMsg('LABEL_SELECT_VIEW')){	
 			ViewBrowserInterface.getView(getViewCB,viewName, language);
 		}
 		else{
@@ -130,7 +56,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 						'<span onClick="amalto.viewbrowser.ViewBrowser.addCriteria(\'criteria1\');"><img src="img/genericUI/add.png"/></span>'+
 						'<br/></span>');	
 	
-		DWRUtil.addOptions('viewoperator1',OPERATORS[language]);
+		DWRUtil.addOptions('viewoperator1',operators);
 		DWRUtil.removeAllOptions('viewfield1');
 		//var tmp = ["Any field"];
 		//DWRUtil.addOptions('field1',tmp);
@@ -165,7 +91,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 		//criteria[criteriaCount]=criteriaCount;
 		var id2 = parseInt(criteriaCount+1);
 		tpl.insertAfter(criteriaParent,{id:criteriaCount});
-		DWRUtil.addOptions('viewoperator'+criteriaCount,OPERATORS[language]);
+		DWRUtil.addOptions('viewoperator'+criteriaCount,operators);
 		DWRUtil.addOptions('viewfield'+criteriaCount,SEARCHABLES);
 		
 	}
@@ -184,12 +110,12 @@ amalto.viewbrowser.ViewBrowser = function () {
 			
 			var html = 
 					'<div id="fieldset" class="ylayout-inactive-content">' +
-						'<div>'+LABEL_VIEW[language]+' : <select id="viewSelect" onChange="amalto.viewbrowser.ViewBrowser.getView();"><option value="">Loading...</option></select>' +
+						'<div>'+amalto.viewbrowser.bundle.getMsg('LABEL_VIEW')+' : <select id="viewSelect" onChange="amalto.viewbrowser.ViewBrowser.getView();"><option value="">' + amalto.viewbrowser.bundle.getMsg('LOADING') + '</option></select>' +
 						'<span id="viewInfos"></span></div>' +
-						'<span id="labelCriteria" style="display:none">'+LABEL_CRITERIA[language] +' : </span>'+
+						'<span id="labelCriteria" style="display:none">'+amalto.viewbrowser.bundle.getMsg('LABEL_CRITERIA') +' : </span>'+
 						'<div id="criterias">' +
 						'</div>' +
-						'<br/><input type="button" id="view-search-btn" disabled="true" value="'+BUTTON_SEARCH[language]+'" onClick="amalto.viewbrowser.ViewBrowser.displayView()"/>' +
+						'<br/><input type="button" id="view-search-btn" disabled="true" value="'+amalto.viewbrowser.bundle.getMsg('BUTTON_SEARCH')+'" onClick="amalto.viewbrowser.ViewBrowser.displayView()"/>' +
 					'</div>'+
 			        '<div id="preview" class="ylayout-inactive-content">'+
 			            '<div id="data-grid-view-tb"></div>'+
@@ -212,7 +138,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 				
 			viewBrowsePanel = new Ext.Panel({
 				id: 'viewBrowser',
-				title: BROWSE_VIEWS[language],
+				title: amalto.viewbrowser.bundle.getMsg('BROWSE_VIEWS'),
 				deferredRender: false,
 				layout:'border',
 				autoScroll: false,
@@ -224,7 +150,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 				[	
 					new Ext.Panel({
 						id: 'view-search',
-			    		title: TITLE_SEARCH_PANEL[language],
+			    		title: amalto.viewbrowser.bundle.getMsg('TITLE_SEARCH_PANEL'),
 			    		region: 'north',
 						layout:'fit',
 						border:false,
@@ -262,7 +188,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 	function displayView(pageSize ) {	
 		amalto.core.working('');
 		var viewName = DWRUtil.getValue('viewSelect');
-		if(viewName==LABEL_SELECT_VIEW[language]){
+		if(viewName==amalto.viewbrowser.bundle.getMsg('LABEL_SELECT_VIEW')){
 			return;
 		}
 		
@@ -362,7 +288,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 		        emptyMsg: "No items to display",
 		        items:[ 
 		        	new Ext.Toolbar.Separator(),
-		        	new Ext.Toolbar.TextItem(LABEL_LINES_PER_PAGE[language]+" : "),
+		        	new Ext.Toolbar.TextItem(amalto.viewbrowser.bundle.getMsg('LABEL_LINES_PER_PAGE')+" : "),
 		        	new Ext.form.TextField({
 						id:'lineMaxView',
 						value:pageSize,
@@ -545,7 +471,23 @@ amalto.viewbrowser.ViewBrowser = function () {
 	}
 	
 	return {
-		init: function() {browseViews(); },
+		init: function() {
+			amalto.viewbrowser.bundle = new Ext.i18n.Bundle({bundle:'ViewBrowserMessages', path:'/viewbrowser/secure/resources', lang:language});
+			amalto.viewbrowser.bundle.onReady(function(){
+			    operators = {
+					CONTAINS:amalto.viewbrowser.bundle.getMsg('CONTAINS'),
+					EQUALS:amalto.viewbrowser.bundle.getMsg('EQUALS'),
+					NOT_EQUALS:amalto.viewbrowser.bundle.getMsg('NOT_EQUALS'),
+					GREATER_THAN:amalto.viewbrowser.bundle.getMsg('GREATER_THAN'),
+					GREATER_THAN_OR_EQUAL:amalto.viewbrowser.bundle.getMsg('GREATER_THAN_OR_EQUAL'),
+					LOWER_THAN:amalto.viewbrowser.bundle.getMsg('LOWER_THAN'),
+					LOWER_THAN_OR_EQUAL:amalto.viewbrowser.bundle.getMsg('LOWER_THAN_OR_EQUAL'),
+					STARTSWITH:amalto.viewbrowser.bundle.getMsg('STARTSWITH'),
+					STRICTCONTAINS:amalto.viewbrowser.bundle.getMsg('STRICTCONTAINS')
+			    };
+			    browseViews();
+			});
+		},
 		getView: function() {getView();},
 		addCriteria: function(a) {addCriteria(a)},
 		removeCriteria: function(a) {removeCriteria(a)},
