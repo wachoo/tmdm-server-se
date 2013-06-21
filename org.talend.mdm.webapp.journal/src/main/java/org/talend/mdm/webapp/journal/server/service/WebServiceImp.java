@@ -16,8 +16,12 @@ import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.Set;
 
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.core.dwr.CommonDWR;
+import com.amalto.webapp.core.util.DataModelAccessor;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSGetItemsSort;
@@ -48,5 +52,20 @@ public class WebServiceImp implements WebService {
     
     public boolean isAuth(Set<String> roleSet) throws Exception {
         return Util.isAuth(roleSet);
+    }
+
+    @Override
+    public boolean isEnterpriseVersion() {
+        return Webapp.INSTANCE.isEnterpriseVersion();
+    }
+
+    @Override
+    public boolean userCanRead(Class<?> dataModel, String dataModelName) throws XtentisException {
+        return LocalUser.getLocalUser().userCanRead(dataModel,dataModelName);
+    }
+
+    @Override
+    public boolean checkReadAccess(String dataModelName, String conceptName) {
+        return DataModelAccessor.getInstance().checkReadAccess(dataModelName, conceptName);
     }
 }

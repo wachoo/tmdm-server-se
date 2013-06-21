@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.journal.server.service;
 import java.rmi.RemoteException;
 import java.util.Set;
 
+import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSGetItemsSort;
@@ -37,4 +38,10 @@ public interface WebService {
     public XSElementDecl getXSElementDecl(String dataModel, String concept) throws Exception;
     
     public boolean isAuth(Set<String> roleSet) throws Exception;
+    
+    public boolean isEnterpriseVersion();
+    
+    public boolean userCanRead(Class<?> dataModel,String dataModelName) throws XtentisException;
+    
+    public boolean checkReadAccess(String dataModelName, String conceptName);
 }

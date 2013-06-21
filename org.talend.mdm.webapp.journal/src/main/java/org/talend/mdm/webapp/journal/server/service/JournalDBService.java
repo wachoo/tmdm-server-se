@@ -38,6 +38,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSGetItem;
@@ -60,7 +61,7 @@ import com.sun.xml.xsom.XSType;
 public class JournalDBService {
 
     private static final Logger LOG = Logger.getLogger(JournalDBService.class);
-    
+
     private WebService webService;
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //$NON-NLS-1$
@@ -69,7 +70,8 @@ public class JournalDBService {
         this.webService = webService;
     }
 
-    public Object[] getResultListByCriteria(JournalSearchCriteria criteria, int start, int limit, String sort, String field) throws Exception {
+    public Object[] getResultListByCriteria(JournalSearchCriteria criteria, int start, int limit, String sort, String field)
+            throws Exception {
 
         List<WSWhereItem> conditions = org.talend.mdm.webapp.journal.server.util.Util.buildWhereItems(criteria);
 
@@ -81,19 +83,27 @@ public class JournalDBService {
         } else if (SortDir.DESC.equals(SortDir.findDir(sort))) {
             sortDir = Constants.SEARCH_DIRECTION_DESC;
         }
-        WSStringArray resultsArray = webService.getItemsBySort(
-                org.talend.mdm.webapp.journal.server.util.Util.buildGetItemsSort(conditions, start, limit, sortDir, field));
+        WSStringArray resultsArray = webService.getItemsBySort(org.talend.mdm.webapp.journal.server.util.Util.buildGetItemsSort(
+                conditions, start, limit, sortDir, field));
         String[] results = resultsArray == null ? new String[0] : resultsArray.getStrings();
         Document document = Util.parse(results[0]);
         totalSize = Integer.parseInt(document.getDocumentElement().getTextContent());
 
         for (int i = 1; i < results.length; i++) {
             String result = results[i];
-            list.add(this.parseString2Model(result));
+            JournalGridModel journalGridModel = parseString2Model(result);
+            if (webService.isEnterpriseVersion()) {
+                boolean canReadModel = webService.userCanRead(DataModelPOJO.class, journalGridModel.getDataModel());
+                boolean canReadEntity = webService.checkReadAccess(journalGridModel.getDataModel(), journalGridModel.getEntity());
+                if (!canReadModel || !canReadEntity) {
+                    continue;
+                }
+            }
+            list.add(journalGridModel);
         }
 
         Object[] resArr = new Object[2];
-        resArr[0] = totalSize;
+        resArr[0] = list.size();
         resArr[1] = list;
         return resArr;
     }
@@ -168,7 +178,7 @@ public class JournalDBService {
     }
 
     public JournalTreeModel getComparisionTreeModel(String xmlStr) {
-        JournalTreeModel root = new JournalTreeModel("root", "Document","root"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        JournalTreeModel root = new JournalTreeModel("root", "Document", "root"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         if (xmlStr == null || "".equals(xmlStr)) { //$NON-NLS-1$
             return root;
         }
@@ -187,7 +197,7 @@ public class JournalDBService {
     }
 
     private void retrieveElement(org.dom4j.Element element, JournalTreeModel root) {
-        List list = element.elements();
+        List<?> list = element.elements();
         JournalTreeModel model = this.getModelByElement(element);
         root.add(model);
         if (list.size() == 0) {
@@ -218,11 +228,11 @@ public class JournalDBService {
         if (!value.equalsIgnoreCase("")) { //$NON-NLS-1$
             value = ":" + value; //$NON-NLS-1$
         }
-        
+
         if (cls == null) {
-            model = new JournalTreeModel(id, element.getName() + value,element.getUniquePath());
+            model = new JournalTreeModel(id, element.getName() + value, element.getUniquePath());
         } else {
-            model = new JournalTreeModel(id, element.getName() + value,element.getUniquePath(), cls);
+            model = new JournalTreeModel(id, element.getName() + value, element.getUniquePath(), cls);
         }
         return model;
     }
@@ -239,8 +249,7 @@ public class JournalDBService {
         String ids[] = { value };
 
         try {
-            WSItem wsItem = webService.getItem(
-                    new WSGetItem(new WSItemPK(new WSDataClusterPK(dataCluster), conceptName, ids)));
+            WSItem wsItem = webService.getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(dataCluster), conceptName, ids)));
             Document document = Util.parse(wsItem.getContent());
             NodeList list = Util.getNodeList(document, "/" + fkInfo); //$NON-NLS-1$
             Node it = list.item(0);
@@ -272,8 +281,8 @@ public class JournalDBService {
         model.setSource(source);
         model.setUserName(checkNull(Util.getFirstTextNode(doc, "result/Update/UserName"))); //$NON-NLS-1$
         model.setIds(Util.joinStrings(new String[] { source, timeInMillis }, ".")); //$NON-NLS-1$
-        
-        Map<String,List<String>> changeNodeMap = new LinkedHashMap<String,List<String>>();        
+
+        Map<String, List<String>> changeNodeMap = new LinkedHashMap<String, List<String>>();
         String changeNodePath = ""; //$NON-NLS-1$
         String[] pathArray = Util.getTextNodes(doc, "result/Update/Item/path"); //$NON-NLS-1$
 
@@ -281,20 +290,20 @@ public class JournalDBService {
             for (int i = 0; i < pathArray.length; i++) {
                 changeNodePath = "/" + model.getEntity() + "/" + pathArray[i]; //$NON-NLS-1$ //$NON-NLS-2$
                 if (changeNodePath.contains("[") && changeNodePath.contains("]")) { //$NON-NLS-1$ //$NON-NLS-2$
-                    changeNodePath = changeNodePath.substring(0,changeNodePath.lastIndexOf("[")); //$NON-NLS-1$
-                }  
+                    changeNodePath = changeNodePath.substring(0, changeNodePath.lastIndexOf("[")); //$NON-NLS-1$
+                }
 
                 if (changeNodeMap.get(changeNodePath) == null) {
-                    changeNodeMap.put(changeNodePath, new LinkedList());
+                    changeNodeMap.put(changeNodePath, new LinkedList<String>());
                 }
                 changeNodeMap.get(changeNodePath).add("/" + model.getEntity() + "/" + pathArray[i]); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
-        
-        Iterator it = changeNodeMap.values().iterator();
+
+        Iterator<List<String>> it = changeNodeMap.values().iterator();
         while (it.hasNext()) {
-            List<String> pathList = (List<String>)it.next();
-            for (int i=pathList.size()-1;i>=0;i--) {
+            List<String> pathList = it.next();
+            for (int i = pathList.size() - 1; i >= 0; i--) {
                 model.getChangeNodeList().add(pathList.get(i));
             }
         }
