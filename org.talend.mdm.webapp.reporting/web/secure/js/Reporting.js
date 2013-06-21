@@ -4,219 +4,10 @@ amalto.reporting.Reporting = function () {
 
 
 	///loadResource("/reporting/secure/css/Reporting.css", "" );
-
-
-	var MSG_LOADING={
-		'fr':'Chargement...',
-		'en':'Loading...'
-	}
-	var  TITLE_SEARCH_PANEL =    {
-	    'fr' : 'Recherche',
-	    'en' : 'Search panel'
-	}
-	var  LABEL_LINES_PER_PAGE =    {
-	    'fr' : 'Nombre de lignes par page',
-	    'en' : 'Number of lines per page'
-	}
-
 	
-	var LABEL_DISPLAYING = {
-		'fr':'Résultats affichés : ',
-		'en':'Displaying records: '
-	}
-	var LABEL_OF = {
-		'fr':'sur',
-		'en':'of'
-	}
-	 
-	 
-	var FIELD_REQUIRED = {
-		'fr' :'Ce champ est obligatoire',
-		'en' :'This field is required'
-	}
-
-	var  MSG_CONFIRM_DELETE_REPORTING =    {
-	    'fr' : 'Voulez vous réellement effacer ce rapport : ',
-	    'en' : 'Do you really want to delete this report: '
-	}
+	var config_cal;
+	var operators;
 	
-	var OPERATOR_UNDEFINED = {
-	    'fr' : 'cliquer pour choisir',
-	    'en' : 'click to select'	
-	}
-
-	var BUTTON_SAVE = {
-		'fr':'Sauvegarder',
-		'en':'Save'
-	}
-
-	var BUTTON_DISPLAY = {
-		'fr':'Visualiser',
-		'en':'Display'
-	}
-	var BUTTON_EXPORT = {
-		'fr':'Exporter vers Excel',
-		'en':'Export to Excel'
-	}	
-	var BUTTON_DELETE = {
-		'fr':'Supprimer',
-		'en':'Delete'
-	}
-	var BUTTON_EDIT={
-		'fr':'Editer',
-		'en':'Edit'
-	}
-	var NEW_REPORTING = {
-	'fr':'Nouveau rapport',
-	'en':'New Report'
-	}
-
-    var DUPLICATE_REPORTING = {
-    	'fr':'Dupliquer le rapport',
-    	'en':'Duplicate Report'
-    }
-    
-	var REPORTING = {
-		'fr':'Rapports',
-		'en':'Reports'
-	}
-
-	var NEW_REPORTING = {
-		'fr':'Nouveau rapport',
-		'en':'New Report'
-	}
-
-	var ALERT_EXISTING_REPORTING={
-		'fr':'Il existe déjà un rapport avec ce nom. \nVeuillez choisir un autre nom',
-		'en':'A report with this name already exists. \nPlease choose another name.'
-	}
-	
-	var HEAD_FIELD = {
-		'fr':'Champ',
-		'en':'Field'
-	}
-	var HEAD_VALUE = {
-		'fr':'Valeur',
-		'en':'Value'
-	}
-	var HEAD_OPERATOR = {
-		'fr':'Op&eacute;rateur',
-		'en':'Operator'
-	}
-	
-	var REPORTING_EXISTANT = {
-		'fr':'Rapports existants',
-		'en':'Existing reports'
-	}
-	
-	var LABEL_SELECT = {
-	'fr':'Sélectionnez',
-	'en':'Select'
-	}
-
-	var LABEL_NAME = {
-		'fr':'Nom du rapport',
-		'en':'Report name'
-	}
-	
-	var LABEL_SHARE_REPORTING = {
-		'fr':'Partager ce rapport',
-		'en':'Share this report'
-	}
-	
-	var LABEL_DATAOBJECT = {
-		'fr':'Entité',
-		'en':'Entity'
-	}
-	
-	var LABEL_FIELDS = {
-		'fr':'Champs à afficher',
-		'en':'Display fields'
-	}
-	var LABEL_AVAILABLE_FIELDS = {
-		'fr':'Champs disponibles',
-		'en':'Available fields'
-	}
-	
-	var LABEL_FILTER = {
-	'fr' : 'Filtres',
-	'en' : 'Filters'
-	}
-	
-	var LABEL_PIVOT = {
-		'fr':'Pivot de recherche',
-		'en':'Search pivot'
-	}
-	
-	var LABEL_STORED_PROCEDURE = {
-		'fr':'La procédure stockée',
-		'en':'Stored procedure'
-	}
-	
-	var LABEL_STORED_PROCEDURE_PARAM = {
-		'fr':'Paramètres de procédure stockée',
-		'en':'Stored procedure parameters'
-	}
-	
-	var BUTTON_ADD_FIELD = {
-		'fr':'Ajouter un champ',
-		'en':'Add a field'
-	}
-	
-	var BUTTON_ADD_FILTER = {
-		'fr':'Ajouter un filtre',
-		'en':'Add a filter'
-	}
-	
-	var BUTTON_ADD_PARAM = {
-		'fr':'Ajoutez un paramètre',
-		'en':'Add a parameter'
-	}
-	
-	var config_cal = {
-		'fr':{
-	   			MONTHS_LONG:["Janvier","F&eacute;vrier","Mars","Avril","Mai","Juin","Juillet","Aout","Septembre","Octobre","Novembre","D&eacute;cembre"],
-	   			WEEKDAYS_SHORT:[]
-	   		},
-		'en':null		
-	}	
-
-
-	var SAVE_WITHOUT_NAME ={
-		'fr':'Le rapport doit avoir un nom',
-		'en':'The report must be named'	
-	}
-	var SAVE_WITHOUT_FIELD = {
-		'fr':'Aucun champ sélectionné',
-		'en':'The report must have some fields'	
-	}
-	
-	
-	var OPERATORS = {
-	'fr':{
-   			CONTAINS:"contient le(s) mot(s)",
-   			EQUALS:"est égal à",
-   			NOT_EQUALS:"n'est pas égal à",
-   			GREATER_THAN:"est supérieur à",
-   			GREATER_THAN_OR_EQUAL:"est supérieur ou égal à",
-   			LOWER_THAN:"est inférieur à",
-   			LOWER_THAN_OR_EQUAL:"est inférieur ou égal à",
-   			STARTSWITH:"contient un mot commençant par",
-   			STRICTCONTAINS:"contient la phrase"
-   		},
-	'en':{
-   			CONTAINS:"contains the word(s)",
-   			EQUALS:"is equal to",
-   			NOT_EQUALS:"is not equal to",
-   			GREATER_THAN:"is greater than",
-   			GREATER_THAN_OR_EQUAL:"is greater or equals",
-   			LOWER_THAN:"is lower than",
-   			LOWER_THAN_OR_EQUAL:"is lower or equals",
-   			STARTSWITH:"contains a word starting with",
-   			STRICTCONTAINS:"contains the sentence"
-   		}	
-	}
-
 	var reportingPanel;	
 	var reporting = new Array();
 	var fields  = new Array();
@@ -236,7 +27,7 @@ amalto.reporting.Reporting = function () {
 		if(tabPanel.getItem('reporting') == undefined){
 		reportingPanel = new Ext.Panel({
 				id: 'reporting',
-				title: REPORTING[language],
+				title: amalto.reporting.bundle.getMsg('REPORTING'),
 				deferredRender: false,
 				layout:'border',
 				autoScroll: false,
@@ -248,7 +39,7 @@ amalto.reporting.Reporting = function () {
 				[	
 					new Ext.FormPanel({
 						id: 'select-reporting',
-			    		//title: TITLE_SEARCH_PANEL[language],
+			    		//title: amalto.reporting.bundle.getMsg('TITLE_SEARCH_PANEL'),
 			    		region: 'north',
 						border:false,
 						bodyBorder:false,
@@ -264,7 +55,7 @@ amalto.reporting.Reporting = function () {
 						defaults: {labelSeparator:''},
 						items:[
 							new Ext.form.ComboBox({
-								fieldLabel:REPORTING[language],
+								fieldLabel:amalto.reporting.bundle.getMsg('REPORTING'),
 								id:'reportingSelect',
 								grow:true,
                                 resizable:true,
@@ -274,7 +65,7 @@ amalto.reporting.Reporting = function () {
                                 }),
 								displayField: 'value',
 								valueField: 'key',
-							  	loadingText:MSG_LOADING[language],
+							  	loadingText:amalto.reporting.bundle.getMsg('MSG_LOADING'),
 					         	mode:'remote',
 					          	triggerAction:'all',
 					          	editable:false,
@@ -290,7 +81,7 @@ amalto.reporting.Reporting = function () {
 							}),
 							{
 								xtype:'textfield',
-								fieldLabel:LABEL_DATAOBJECT[language],
+								fieldLabel:amalto.reporting.bundle.getMsg('LABEL_DATAOBJECT'),
 								id:'typeReportingInfo',
 								anchor:'90%',
 								readOnly:true,
@@ -298,7 +89,7 @@ amalto.reporting.Reporting = function () {
 							},
 							{
 								xtype:'textfield',
-								fieldLabel:LABEL_FILTER[language],
+								fieldLabel:amalto.reporting.bundle.getMsg('LABEL_FILTER'),
 								anchor:'90%',
 								id:'reportingInfo',
 								readOnly:true,
@@ -316,35 +107,35 @@ amalto.reporting.Reporting = function () {
 						buttons:[
 							new Ext.Button({
 								id:'displayButton',
-						        text: BUTTON_DISPLAY[language],
+						        text: amalto.reporting.bundle.getMsg('BUTTON_DISPLAY'),
 								handler: getReportingContent,
 								disabled:true
 					    	}),
 					    	new Ext.Button({
 					    		id:'exportButton',
-						        text: BUTTON_EXPORT[language],
+						        text: amalto.reporting.bundle.getMsg('BUTTON_EXPORT'),
 								handler: exportReporting,
 								disabled:true
 					    	}),
 					    	new Ext.Button({
 					    		id:'deleteButton',
-						        text: BUTTON_DELETE[language],
+						        text: amalto.reporting.bundle.getMsg('BUTTON_DELETE'),
 								handler: deleteReporting,
 								disabled:true
 					    	}),
 					    	new Ext.Button({
 					    		id:'editButton',
-						        text: BUTTON_EDIT[language],
+						        text: amalto.reporting.bundle.getMsg('BUTTON_EDIT'),
 								handler: editReporting,
 								disabled:true
 					    	}),
 					    	new Ext.Button({
-						        text: NEW_REPORTING[language],
+						        text: amalto.reporting.bundle.getMsg('NEW_REPORTING'),
 								handler: newReporting
 					    	}),
 					    	new Ext.Button({
 					    		id:'duplicateButton',
-						        text: DUPLICATE_REPORTING[language],
+						        text: amalto.reporting.bundle.getMsg('DUPLICATE_REPORTING'),
 								handler: duplicateReporting,
 								disabled:true
 					    	})
@@ -449,7 +240,7 @@ amalto.reporting.Reporting = function () {
 	
 	function getReportingContent(){
 		var reportingName = DWRUtil.getValue('reportingSelect');
-		if(reportingName!=LABEL_SELECT[language]){	    
+		if(reportingName!=amalto.reporting.bundle.getMsg('LABEL_SELECT')){	    
 			displayReportingGrid(reportingName,lineMax);
 		}
 	}
@@ -522,11 +313,11 @@ amalto.reporting.Reporting = function () {
 		        pageSize: parseInt(pageSize),
 		        store: store,
 		        displayInfo: true,
-		        displayMsg: LABEL_DISPLAYING[language]+' {0} - {1} '+LABEL_OF[language]+' {2}',
+		        displayMsg: amalto.reporting.bundle.getMsg('LABEL_DISPLAYING')+' {0} - {1} '+amalto.reporting.bundle.getMsg('LABEL_OF')+' {2}',
 		        emptyMsg: "No items to display",
 		        items:[ 
 		        	new Ext.Toolbar.Separator(),
-		        	new Ext.Toolbar.TextItem(LABEL_LINES_PER_PAGE[language]+" : "),
+		        	new Ext.Toolbar.TextItem(amalto.reporting.bundle.getMsg('LABEL_LINES_PER_PAGE')+" : "),
 		        	new Ext.form.TextField({
 						id:'lineMaxReporting',
 						value:pageSize,
@@ -600,7 +391,7 @@ amalto.reporting.Reporting = function () {
 		}
 		
 		
-		if(reportingName!=LABEL_SELECT[language]){		
+		if(reportingName!=amalto.reporting.bundle.getMsg('LABEL_SELECT')){		
 			reportingName = escape(reportingName);
 			window.location.href="/reporting/secure/ReportingExportServlet?reportingName="+reportingName+"&params="+myParams;	
 		}
@@ -608,8 +399,9 @@ amalto.reporting.Reporting = function () {
 	
 	function deleteReporting(){
 		var reportingName = DWRUtil.getValue('reportingSelect');
-		if(reportingName!=LABEL_SELECT[language]){
-			var msg = MSG_CONFIRM_DELETE_REPORTING[language]+reportingName+"?";
+		
+		if(reportingName!=amalto.reporting.bundle.getMsg('LABEL_SELECT')){
+			var msg = amalto.reporting.bundle.getMsg('MSG_CONFIRM_DELETE_REPORTING')+reportingName+"?";
 			Ext.Msg.confirm("confirm",msg,function re(en){
 				if(en=="yes"){
 				ReportingInterface.deleteReporting(deleteReportingCB,reportingName);
@@ -676,16 +468,16 @@ amalto.reporting.Reporting = function () {
 			//update the div structure
 			var html = 
 				'	<div id="chooseReportingName" style="display:inline;width:400;float:left">'+
-				'	<div class="left">'+LABEL_NAME[language]+' :</div>'+
+				'	<div class="left">'+amalto.reporting.bundle.getMsg('LABEL_NAME')+' :</div>'+
 				'	<div class="leftField"><input type="text" ' + readonly +
 				'	id="reportingName" /></div>'+
 				'	<br/><br/>'+
-				'	<div class="left">'+LABEL_SHARE_REPORTING[language]+' :</div>'+
+				'	<div class="left">'+amalto.reporting.bundle.getMsg('LABEL_SHARE_REPORTING')+' :</div>'+
 				'	<div class="leftField"><input style="text-align:left" type="checkbox" id="sharedCheckBox" /></div>'+
 				'	<br/><br/>'+
-				'	<div class="left">'+LABEL_DATAOBJECT[language]+' :</div>'+
+				'	<div class="left">'+amalto.reporting.bundle.getMsg('LABEL_DATAOBJECT')+' :</div>'+
 				'	<div  class="leftField"><select id="businessConceptsList" onChange="amalto.reporting.Reporting.getTranslation();">'+
-				'		<option>'+MSG_LOADING[language]+'</option>'+
+				'		<option>'+amalto.reporting.bundle.getMsg('MSG_LOADING')+'</option>'+
 				'	</select>'+
 				'	</div>'+
 				'	</div>'+
@@ -693,44 +485,44 @@ amalto.reporting.Reporting = function () {
 				''+
 				'<br style="clear: both;"/><br/= style="clear: both;"/>	'+
 				'<div id="chooseDisplayFields" style="display:none;">'+
-				'	<div class="left">'+LABEL_FIELDS[language]+' :</div>'+
+				'	<div class="left">'+amalto.reporting.bundle.getMsg('LABEL_FIELDS')+' :</div>'+
 				'	<div id="ddgrid1" style="text-align:left;border: 1px solid #c3daf9;float: left;	width:250px;height:225px;" class="ygrid-mso"></div>'+
 				'	<div class="leftField">&nbsp;</div>'+
 				'	<div id="ddgrid2" style="text-align:left;border: 1px solid #c3daf9;float: left;	width:250px;height:225px;" class="ygrid-mso"></div>'+
-				'	<input type="button" id="addFieldBTN" value="'+BUTTON_ADD_FIELD[language]+'" onclick="amalto.reporting.Reporting.addFieldToTable();"/>' +				
+				'	<input type="button" id="addFieldBTN" value="'+amalto.reporting.bundle.getMsg('BUTTON_ADD_FIELD')+'" onclick="amalto.reporting.Reporting.addFieldToTable();"/>' +				
 				'	</div>'+
 				'	<br style="clear: both;"/><br style="clear: both;"/>'+
 				' <div id="chooseFilterFields" style="display:none;">	'+
-				'	<div class="left">'+LABEL_FILTER[language]+' :</div>'+
+				'	<div class="left">'+amalto.reporting.bundle.getMsg('LABEL_FILTER')+' :</div>'+
 				'	<div id="ddfilterGrid2"  style="text-align:left;border: 1px solid #c3daf9;float: left;	width:508px;height:100px;" class="ygrid-mso"></div>' +
 				'	<div class="leftField">&nbsp;</div>' +
-				'	<input type="button" value="'+BUTTON_ADD_FILTER[language]+'" onclick="amalto.reporting.Reporting.addFilterToTable();"/>' +
+				'	<input type="button" value="'+amalto.reporting.bundle.getMsg('BUTTON_ADD_FILTER')+'" onclick="amalto.reporting.Reporting.addFilterToTable();"/>' +
 				'<div id="dateContainer"/> ' +
 				'	</div>' +
 				'' +
 				'<br style="clear: both;"/><br style="clear: both;"/>' +
 				'<div id="choosePivot" style="display:none;">	' +
-				'	<div class="left">'+LABEL_PIVOT[language]+' :</div>' +
+				'	<div class="left">'+amalto.reporting.bundle.getMsg('LABEL_PIVOT')+' :</div>' +
 				'	<select id="pivotList"  style="text-align:leftField" onkeypress="DWRUtil.onReturn(event, amalto.reporting.Reporting.saveReporting);">' +
 				'<option value=""></option></select>' +
 				'</div>' +
 				'<br/><br style="clear: both;"/>	' +
 				'<div id="chooseStoredProcedure" style="display:none;">	' +
-				'	<div class="left">'+LABEL_STORED_PROCEDURE[language]+' :</div>' +
+				'	<div class="left">'+amalto.reporting.bundle.getMsg('LABEL_STORED_PROCEDURE')+' :</div>' +
 				'	<select id="storedProcedureList"  style="text-align:leftField" onChange="amalto.reporting.Reporting.getTranslation2();"><option value=""></option></select>' +
 				'</div>' +
 				'   <br/><br style="clear: both;"/>	' +
 				' <div id="chooseStoredProcedureParams" style="display:none;">	'+
-				'	<div class="left">'+LABEL_STORED_PROCEDURE_PARAM[language]+' :</div>'+
+				'	<div class="left">'+amalto.reporting.bundle.getMsg('LABEL_STORED_PROCEDURE_PARAM')+' :</div>'+
 				'	<div id="SPPEditGrid"  style="text-align:left;border: 1px solid #c3daf9;float: left; width:508px;height:100px;" class="ygrid-mso"></div>' +
 				'	<div class="leftField">&nbsp;</div>' +
-				'	<input type="button" value="'+BUTTON_ADD_PARAM[language]+'" onclick="amalto.reporting.Reporting.addParamToTable();"/>' +
+				'	<input type="button" value="'+amalto.reporting.bundle.getMsg('BUTTON_ADD_PARAM')+'" onclick="amalto.reporting.Reporting.addParamToTable();"/>' +
 				' </div>' +
 				'' +
 				'<br style="clear: both;"/><br style="clear: both;"/>' +
 				'<div id="finish" style="display:inline;">' +
 				'	<div class="leftField">' +
-				'		<input type="button" value="'+BUTTON_SAVE[language]+'"  onclick="amalto.reporting.Reporting.saveReporting();" /></div>' +
+				'		<input type="button" value="'+amalto.reporting.bundle.getMsg('BUTTON_SAVE')+'"  onclick="amalto.reporting.Reporting.saveReporting();" /></div>' +
 				'</div>' +
 				'			' +
 			    '<div style="display:none"><select id="fieldListGrid"></select></div>';
@@ -738,7 +530,7 @@ amalto.reporting.Reporting = function () {
 				
 			var contentPanel = new Ext.Panel({
 				id:'newReportingDiv', 
-				title:(edit==true?DWRUtil.getValue('reportingSelect'):NEW_REPORTING[language] ), 
+				title:(edit==true?DWRUtil.getValue('reportingSelect'):amalto.reporting.bundle.getMsg('NEW_REPORTING') ), 
 				layout:'fit',
 				bodyStyle:'padding:5px',
 				autoScroll:true,
@@ -757,7 +549,7 @@ amalto.reporting.Reporting = function () {
 		ReportingInterface.getBusinessConcepts(language,function(results){					
 			if (Ext.get('businessConceptsList')!=null){
 				DWRUtil.removeAllOptions('businessConceptsList');
-				DWRUtil.addOptions('businessConceptsList',[LABEL_SELECT[language]]);
+				DWRUtil.addOptions('businessConceptsList',[amalto.reporting.bundle.getMsg('LABEL_SELECT')]);
 				DWRUtil.addOptions('businessConceptsList',results);
 				amalto.core.ready();
 			}			
@@ -802,7 +594,7 @@ amalto.reporting.Reporting = function () {
 			if(storedProcedure == '') {
 		    ReportingInterface.getStoredProcedurePKs(function(result){
 				DWRUtil.removeAllOptions('storedProcedureList');
-				DWRUtil.addOptions( 'storedProcedureList',[LABEL_SELECT[language]]);
+				DWRUtil.addOptions( 'storedProcedureList',[amalto.reporting.bundle.getMsg('LABEL_SELECT')]);
 				DWRUtil.addOptions( 'storedProcedureList', result);
 				
 				if(reporting.storedProcedure){
@@ -835,7 +627,7 @@ amalto.reporting.Reporting = function () {
 	
 	function getTranslation2(){
 		var storedProcedure = DWRUtil.getValue('storedProcedureList');
-	    if(storedProcedure==[LABEL_SELECT[language]])storedProcedure='';
+	    if(storedProcedure==[amalto.reporting.bundle.getMsg('LABEL_SELECT')])storedProcedure='';
 	    
 	    if(storedProcedure==''){
 	    	$('chooseStoredProcedureParams').style.display="none";
@@ -870,10 +662,10 @@ amalto.reporting.Reporting = function () {
 	    var parameters = new Array();
 	    var pivot = DWRUtil.getValue('pivotList');
 	    var storedProcedure = DWRUtil.getValue('storedProcedureList');
-	    if(storedProcedure==[LABEL_SELECT[language]])storedProcedure='';
+	    if(storedProcedure==[amalto.reporting.bundle.getMsg('LABEL_SELECT')])storedProcedure='';
 	
 	    if(DWRUtil.getValue('reportingName')==""){
-	    	Ext.Msg.alert("alert",SAVE_WITHOUT_NAME[language]);
+	    	Ext.Msg.alert("alert",amalto.reporting.bundle.getMsg('SAVE_WITHOUT_NAME'));
 	    	return;
 	    }
 	    
@@ -894,7 +686,7 @@ amalto.reporting.Reporting = function () {
 	    //alert(DWRUtil.toDescriptiveString(grid2.getStore(),1));
 
 	     if(fields.length==0){
-	    	Ext.Msg.alert("alert",SAVE_WITHOUT_FIELD[language]);
+	    	Ext.Msg.alert("alert",amalto.reporting.bundle.getMsg('SAVE_WITHOUT_FIELD'));
 	    	return;
 	    }
 	    var store = filterGrid2.getStore();
@@ -940,7 +732,7 @@ amalto.reporting.Reporting = function () {
 	
 	function saveReportingCB(result){
 		if(result=="ERROR1") 
-			Ext.Msg.alert("alert",ALERT_EXISTING_REPORTING[language]);
+			Ext.Msg.alert("alert",amalto.reporting.bundle.getMsg('ALERT_EXISTING_REPORTING'));
 		else{		
 			var tabPanel = amalto.core.getTabPanel();
 			tabPanel.remove('newReportingDiv');
@@ -1216,7 +1008,7 @@ amalto.reporting.Reporting = function () {
 	    // create the Grid1
 	    grid1 = new Ext.grid.GridPanel({
 	        applyTo: 'ddgrid1',
-	        title:LABEL_AVAILABLE_FIELDS[language],
+	        title:amalto.reporting.bundle.getMsg('LABEL_AVAILABLE_FIELDS'),
 	        store: dsRelac1,
 	        columns: [
 	            {id:'element',header: "Element",  sortable: false, dataIndex: 'element', renderer: renderField}
@@ -1259,7 +1051,7 @@ amalto.reporting.Reporting = function () {
 	    // create the Grid2
 	    grid2 = new Ext.grid.GridPanel({
 	        applyTo: 'ddgrid2',
-	        title:LABEL_FIELDS[language],
+	        title:amalto.reporting.bundle.getMsg('LABEL_FIELDS'),
 	        store: dsRelac2,
 	        columns: [
  				{id:'element',header: "Element",  sortable: true, dataIndex: 'element', renderer: renderField}	
@@ -1442,15 +1234,15 @@ amalto.reporting.Reporting = function () {
 		var operatorStore = new Ext.data.SimpleStore({
 		  fields: [ "value", "text" ],
 		  data: [
-        		['EQUALS',OPERATORS[language]['EQUALS']],
-        		['CONTAINS',OPERATORS[language]['CONTAINS']],
-        		['GREATER_THAN',OPERATORS[language]['GREATER_THAN']],
-		        ['GREATER_THAN_OR_EQUAL',OPERATORS[language]['GREATER_THAN_OR_EQUAL']],
-		        ['LOWER_THAN',OPERATORS[language]['LOWER_THAN']],
-		        ['LOWER_THAN_OR_EQUAL',OPERATORS[language]['LOWER_THAN_OR_EQUAL']],
-		        ['NOT_EQUALS',OPERATORS[language]['NOT_EQUALS']],
-		        ['STARTSWITH',OPERATORS[language]['STARTSWITH']],
-		        ['STRICTCONTAINS',OPERATORS[language]['STRICTCONTAINS']]
+        		['EQUALS',operators['EQUALS']],
+        		['CONTAINS',operators['CONTAINS']],
+        		['GREATER_THAN',operators['GREATER_THAN']],
+		        ['GREATER_THAN_OR_EQUAL',operators['GREATER_THAN_OR_EQUAL']],
+		        ['LOWER_THAN',operators['LOWER_THAN']],
+		        ['LOWER_THAN_OR_EQUAL',operators['LOWER_THAN_OR_EQUAL']],
+		        ['NOT_EQUALS',operators['NOT_EQUALS']],
+		        ['STARTSWITH',operators['STARTSWITH']],
+		        ['STRICTCONTAINS',operators['STRICTCONTAINS']]
 		  ]
 		});
 		
@@ -1470,8 +1262,8 @@ amalto.reporting.Reporting = function () {
 	    }
 	    
 	    function renderOperator(val){
-			if(val==null) return OPERATOR_UNDEFINED[language];
-			return OPERATORS[language][val];
+			if(val==null) return amalto.reporting.bundle.getMsg('OPERATOR_UNDEFINED');
+			return operators[val];
 		}
 		
 	    var dsFilter = new Ext.data.SimpleStore({
@@ -1497,25 +1289,25 @@ amalto.reporting.Reporting = function () {
 		
 	    var myColumnsFilter = [
 		    {
-		    	header: HEAD_FIELD[language], 
+		    	header: amalto.reporting.bundle.getMsg('HEAD_FIELD'), 
 		    	dataIndex:'field', 
                 editor: comboField,
     			renderer: Ext.ux.comboBoxRenderer(comboField),
 		    	width: 160
 		    },
 		    {
-		    	header: HEAD_OPERATOR[language], 
+		    	header: amalto.reporting.bundle.getMsg('HEAD_OPERATOR'), 
 		    	dataIndex:'operator',    
                 editor: comboOperator,
 			renderer: Ext.ux.comboBoxRenderer(comboOperator),
 	            width:150
 	         },
-		    {header: HEAD_VALUE[language], dataIndex:'value', editor: new Ext.form.TextField({allowBlank: false,blankText:FIELD_REQUIRED[language]}),  width:150},
-		    {header: BUTTON_DELETE[language], dataIndex:'trash', width:30,renderer:trash}
+		    {header: amalto.reporting.bundle.getMsg('HEAD_VALUE'), dataIndex:'value', editor: new Ext.form.TextField({allowBlank: false,blankText:amalto.reporting.bundle.getMsg('FIELD_REQUIRED')}),  width:150},
+		    {header: amalto.reporting.bundle.getMsg('BUTTON_DELETE'), dataIndex:'trash', width:30,renderer:trash}
 		];
 	    filterGrid2 = new Ext.grid.EditorGridPanel({
 	        applyTo: 'ddfilterGrid2',
-	        title:LABEL_FILTER[language],
+	        title:amalto.reporting.bundle.getMsg('LABEL_FILTER'),
 	       	store: dsFilter,
 	       	loadMask:true,
 	        columns: myColumnsFilter,
@@ -1528,7 +1320,7 @@ amalto.reporting.Reporting = function () {
 	        },
 	        clicksToEdit:1,
 	        /*tbar:new Ext.Toolbar.Button({
-	        	text:BUTTON_ADD_FILTER[language],
+	        	text:amalto.reporting.bundle.getMsg('BUTTON_ADD_FILTER'),
 	        	handler:addFilterToTable
 	        }),*/
 			listeners: {
@@ -1587,8 +1379,8 @@ amalto.reporting.Reporting = function () {
   	
   	var myColumnsParam = [
 		    
-		    {header: 'Name', dataIndex:'Name', editor: new Ext.form.TextField({allowBlank: false,blankText:FIELD_REQUIRED[language]}),  width:150},
-		    {header: 'Description', dataIndex:'Description', editor: new Ext.form.TextField({allowBlank: false,blankText:FIELD_REQUIRED[language]}),  width:150},
+		    {header: 'Name', dataIndex:'Name', editor: new Ext.form.TextField({allowBlank: false,blankText:amalto.reporting.bundle.getMsg('FIELD_REQUIRED')}),  width:150},
+		    {header: 'Description', dataIndex:'Description', editor: new Ext.form.TextField({allowBlank: false,blankText:amalto.reporting.bundle.getMsg('FIELD_REQUIRED')}),  width:150},
 		    {
 		    	header: 'Type', 
 		    	dataIndex:'Type',    
@@ -1596,7 +1388,7 @@ amalto.reporting.Reporting = function () {
 			    renderer: Ext.ux.comboBoxRenderer(comboType),
 	            width:120
 	         },
-		    {header: BUTTON_DELETE[language], dataIndex:'trash', width:30,renderer:trash}
+		    {header: amalto.reporting.bundle.getMsg('BUTTON_DELETE'), dataIndex:'trash', width:30,renderer:trash}
 		];
   	
   	paramGrid1 = new Ext.grid.EditorGridPanel({
@@ -1667,7 +1459,7 @@ amalto.reporting.Reporting = function () {
 		var myCal = new YAHOO.widget.Calendar(
 			"calEl",
 	   		"dateContainer2",
-	   		config_cal[language]
+	   		config_cal
 	   		);
 	   	if(d!="Invalid Date")	
 	   		myCal.cfg.setProperty("pagedate",d);
@@ -1689,7 +1481,41 @@ amalto.reporting.Reporting = function () {
 	}
 	
 	 	return {
-			init: function() {displayReporting(); },
+			init: function() {
+				amalto.reporting.bundle = new Ext.i18n.Bundle({bundle:'ReportingMessages', path:'/reporting/secure/resources', lang:language});
+				amalto.reporting.bundle.onReady(function(){
+					operators = {
+			   			CONTAINS:amalto.reporting.bundle.getMsg('CONTAINS'),
+			   			EQUALS:amalto.reporting.bundle.getMsg('EQUALS'),
+			   			NOT_EQUALS:amalto.reporting.bundle.getMsg('NOT_EQUALS'),
+			   			GREATER_THAN:amalto.reporting.bundle.getMsg('GREATER_THAN'),
+			   			GREATER_THAN_OR_EQUAL:amalto.reporting.bundle.getMsg('GREATER_THAN_OR_EQUAL'),
+			   			LOWER_THAN:amalto.reporting.bundle.getMsg('LOWER_THAN'),
+			   			LOWER_THAN_OR_EQUAL:amalto.reporting.bundle.getMsg('LOWER_THAN_OR_EQUAL'),
+			   			STARTSWITH:amalto.reporting.bundle.getMsg('STARTSWITH'),
+			   			STRICTCONTAINS:amalto.reporting.bundle.getMsg('STRICTCONTAINS')
+			   		}
+					
+					config_cal = {
+			   			MONTHS_LONG:[
+							amalto.reporting.bundle.getMsg('January'),
+							amalto.reporting.bundle.getMsg('February'),
+							amalto.reporting.bundle.getMsg('March'),
+							amalto.reporting.bundle.getMsg('April'),
+							amalto.reporting.bundle.getMsg('May'),
+							amalto.reporting.bundle.getMsg('June'),
+							amalto.reporting.bundle.getMsg('July'),
+							amalto.reporting.bundle.getMsg('August'),
+							amalto.reporting.bundle.getMsg('September'),
+							amalto.reporting.bundle.getMsg('October'),
+							amalto.reporting.bundle.getMsg('November'),
+							amalto.reporting.bundle.getMsg('December')
+			   			],
+			   			WEEKDAYS_SHORT:[]
+			   		}
+					displayReporting();
+				});
+			},
 			getReporting: function(){getReporting();},
 			getReportingContent: function(){getReportingContent();},
 			exportReporting: function(){exportReporting()},
