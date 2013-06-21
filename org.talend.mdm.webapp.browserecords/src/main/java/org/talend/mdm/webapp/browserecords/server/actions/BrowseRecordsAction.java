@@ -87,7 +87,6 @@ import org.talend.mdm.webapp.browserecords.server.provider.SmartViewProvider;
 import org.talend.mdm.webapp.browserecords.server.ruleengine.DisplayRuleEngine;
 import org.talend.mdm.webapp.browserecords.server.util.BrowseRecordsConfiguration;
 import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
-import org.talend.mdm.webapp.browserecords.server.util.NoAccessCheckUtil;
 import org.talend.mdm.webapp.browserecords.server.util.SmartViewUtil;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
@@ -112,6 +111,7 @@ import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
+import com.amalto.webapp.core.util.DataModelAccessor;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.WebCoreException;
 import com.amalto.webapp.core.util.Webapp;
@@ -120,7 +120,6 @@ import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSByteArray;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSDataModel;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSDeleteItem;
 import com.amalto.webapp.util.webservices.WSDropItem;
@@ -736,19 +735,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         String model = getCurrentDataModel();
         String concept = ViewHelper.getConceptFromDefaultViewName(viewPk);
         if (concept != null) {
-            WSDataModel modelObj = null;
             try {
-                modelObj = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(model)));
-            } catch (Exception e) {
-                modelObj = null;
-            }
-
-            if (modelObj != null) {
-                String modelXSD = modelObj.getXsdSchema();
-                if (Webapp.INSTANCE.isEnterpriseVersion() && NoAccessCheckUtil.checkNoAccess(modelXSD, concept)) {
+                if (Webapp.INSTANCE.isEnterpriseVersion() && !DataModelAccessor.getInstance().checkReadAccess(model, concept)) {
                     Locale locale = new Locale(language);
                     throw new ServiceException(MESSAGES.getMessage(locale, "entity_no_access")); //$NON-NLS-1$
                 }
+            } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
             }
         }
 

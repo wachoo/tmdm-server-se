@@ -48,17 +48,15 @@ import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.core.util.SynchronizedNow;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
+import com.amalto.webapp.core.util.DataModelAccessor;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSDataModel;
-import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSDroppedItem;
 import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSDroppedItemPKArray;
 import com.amalto.webapp.util.webservices.WSExistsItem;
 import com.amalto.webapp.util.webservices.WSFindAllDroppedItemsPKs;
-import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSLoadDroppedItem;
 import com.amalto.webapp.util.webservices.WSRecoverDroppedItem;
@@ -101,9 +99,6 @@ public class RecycleBinAction implements RecycleBinService {
                 String modelName = getModelNameFromConceptXML(conceptXML);
 
                 if (modelName != null) {
-                    WSDataModel model = null;
-                    String modelXSD = null;
-
                     // For enterprise version we check the user roles first, if one user don't have read permission on a
                     // DataModel Object, then ignore it
                     if (Webapp.INSTANCE.isEnterpriseVersion()
@@ -111,23 +106,18 @@ public class RecycleBinAction implements RecycleBinService {
                         continue;
                     }
 
-                    model = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(modelName)));
-
-                    if (model != null) {
-                        modelXSD = model.getXsdSchema();
-                        if (modelXSD != null && modelXSD.trim().length() > 0) {
-                            if (!repositoryMap.containsKey(modelName)) {
-                                MetadataRepository repository = new MetadataRepository();
-                                InputStream is = new ByteArrayInputStream(modelXSD.getBytes("UTF-8")); //$NON-NLS-1$
-                                repository.load(is);
-                                repositoryMap.put(modelName, repository);
-                            }
+                    String modelXSD = DataModelAccessor.getInstance().getDataModelXSD(modelName);
+                    if (modelXSD != null && modelXSD.trim().length() > 0) {
+                        if (!repositoryMap.containsKey(modelName)) {
+                            MetadataRepository repository = new MetadataRepository();
+                            InputStream is = new ByteArrayInputStream(modelXSD.getBytes("UTF-8")); //$NON-NLS-1$
+                            repository.load(is);
+                            repositoryMap.put(modelName, repository);
                         }
                     }
 
                     if (!Webapp.INSTANCE.isEnterpriseVersion()
-                            || (modelXSD != null && org.talend.mdm.webapp.recyclebin.server.actions.Util.checkReadAccess(
-                                    modelXSD, conceptName))) {
+                            || (DataModelAccessor.getInstance().checkReadAccess(modelName, conceptName))) {
                         ItemsTrashItem item = new ItemsTrashItem();
                         item = WS2POJO(wsitem, repositoryMap.get(modelName), (String) load.get("language")); //$NON-NLS-1$
                         li.add(item);
@@ -275,18 +265,10 @@ public class RecycleBinAction implements RecycleBinService {
     public void recoverDroppedItem(String clusterName, String modelName, String partPath, String revisionId, String conceptName,
             String ids) throws ServiceException {
         try {
-            if (modelName != null) {
-                WSDataModel model = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(modelName)));
-                if (model != null) {
-                    String modelXSD = model.getXsdSchema();
-
-                    if (Webapp.INSTANCE.isEnterpriseVersion()
-                            && !org.talend.mdm.webapp.recyclebin.server.actions.Util.checkRestoreAccess(modelXSD, conceptName)) {
-                        throw new NoPermissionException();
-                    }
-                }
+            if (Webapp.INSTANCE.isEnterpriseVersion()
+                    && !DataModelAccessor.getInstance().checkRestoreAccess(modelName, conceptName)) {
+                throw new NoPermissionException();
             }
-
             String[] ids1 = ids.split("\\.");//$NON-NLS-1$
             WSDataClusterPK wddcpk = new WSDataClusterPK(clusterName);
             WSItemPK wdipk = new WSItemPK(wddcpk, conceptName, ids1);
