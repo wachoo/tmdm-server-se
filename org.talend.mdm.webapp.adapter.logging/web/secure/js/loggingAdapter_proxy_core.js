@@ -99,20 +99,6 @@ Ext.extend(Ext.ux.LocaleMap, Ext.util.Observable, {
 
 Ext.BLANK_IMAGE_URL = '/core/secure/ext-2.2/resources/images/default/s.gif';
 
-var LOGOUT = {
-	'fr':'D&eacute;connexion',
-	'en':'Logout'
-}
-
-var LOADING={
-	'fr':'Chargement...',
-	'en':'Loading...'
-}
-
-var CLOSECONFIRM={
-	'fr':'Si vous fermez l\'onglet maintenant, vos modifications seront perdues. Êtes-vous sûr de vouloir continuer ?',
-	'en':'If you close the tab now, your changes will be lost. Are you sure you want to proceed?'
-}
 
 /********************************************************************
 * Hot Loads a Resource
