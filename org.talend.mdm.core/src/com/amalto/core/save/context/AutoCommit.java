@@ -35,9 +35,8 @@ public class AutoCommit implements DocumentSaver {
             id = context.getId();
             session.end();
             session.begin(context.getDataCluster());
-        } finally {
-            id = new String[0];
-            typeName = null;
+        } catch (Exception e) {
+            throw new RuntimeException("Exception occurred during auto commit phase.", e); //$NON-NLS-1$
         }
     }
 
