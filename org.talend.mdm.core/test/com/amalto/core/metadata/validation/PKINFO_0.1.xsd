@@ -15,13 +15,9 @@
         <xsd:annotation>
             <xsd:appinfo source="X_Label_EN">Product</xsd:appinfo>
             <xsd:appinfo source="X_Label_FR">Produit</xsd:appinfo>
-
-
             <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
             <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
             <xsd:appinfo source="X_Write">Demo_User</xsd:appinfo>
-
-
             <xsd:appinfo source="X_Lookup_Field">Product/Availability</xsd:appinfo>
             <xsd:appinfo source="X_PrimaryKeyInfo">Product/Nam</xsd:appinfo>
             <xsd:appinfo source="X_PrimaryKeyInfo">Product/Description</xsd:appinfo>
@@ -211,8 +207,6 @@
                 </xsd:element>
                 <xsd:element maxOccurs="1" minOccurs="0" name="OnlineStore" type="URL">
                     <xsd:annotation>
-
-
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                         <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
                         <xsd:appinfo source="X_Workflow">Demo_User#Product_Product_1.0#Read-only</xsd:appinfo>
@@ -221,8 +215,6 @@
                 </xsd:element>
                 <xsd:element maxOccurs="1" minOccurs="0" name="Stores">
                     <xsd:annotation>
-
-
                         <xsd:appinfo source="X_Label_EN">Stores</xsd:appinfo>
                         <xsd:appinfo source="X_Label_FR">Magasins</xsd:appinfo>
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
@@ -341,8 +333,6 @@
     </xsd:simpleType>
     <xsd:element name="Store">
         <xsd:annotation>
-
-
             <xsd:appinfo source="X_Label_EN">Store</xsd:appinfo>
             <xsd:appinfo source="X_Label_FR">Magasin</xsd:appinfo>
             <xsd:appinfo source="X_PrimaryKeyInfo">Store/Adres</xsd:appinfo>
@@ -353,8 +343,6 @@
             <xsd:all>
                 <xsd:element maxOccurs="1" minOccurs="1" name="Id" type="xsd:string">
                     <xsd:annotation>
-
-
                         <xsd:appinfo source="X_Label_EN">Store Id</xsd:appinfo>
                         <xsd:appinfo source="X_Label_FR">Id Magasin</xsd:appinfo>
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
@@ -363,8 +351,6 @@
                 </xsd:element>
                 <xsd:element maxOccurs="1" minOccurs="0" name="Address" type="xsd:string">
                     <xsd:annotation>
-
-
                         <xsd:appinfo source="X_Label_EN">Address</xsd:appinfo>
                         <xsd:appinfo source="X_Label_FR">Addresse</xsd:appinfo>
                         <xsd:appinfo source="X_Description_EN">Enter the complete address of the store</xsd:appinfo>
@@ -375,23 +361,15 @@
                 </xsd:element>
                 <xsd:element maxOccurs="1" minOccurs="0" name="Lat" type="xsd:double">
                     <xsd:annotation>
-
-
                         <xsd:appinfo source="X_Label_EN">Latitude</xsd:appinfo>
                         <xsd:appinfo source="X_Label_FR">Latitude</xsd:appinfo>
-
-
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                     </xsd:annotation>
                 </xsd:element>
                 <xsd:element maxOccurs="1" minOccurs="0" name="Long" type="xsd:double">
                     <xsd:annotation>
-
-
                         <xsd:appinfo source="X_Label_EN">Longitude</xsd:appinfo>
                         <xsd:appinfo source="X_Label_FR">Longitude</xsd:appinfo>
-
-
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                     </xsd:annotation>
                 </xsd:element>
@@ -399,8 +377,6 @@
                     <xsd:annotation>
                         <xsd:appinfo source="X_Label_EN">Location</xsd:appinfo>
                         <xsd:appinfo source="X_Label_FR">Localisation</xsd:appinfo>
-
-
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                     </xsd:annotation>
                 </xsd:element>
