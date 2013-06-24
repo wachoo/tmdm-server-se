@@ -251,7 +251,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         String[] fieldsAsArray = fields.toArray(new String[fields.size()]);
         StringBuilder queryBuffer = new StringBuilder();
         Iterator<String> fieldsIterator = fields.iterator();
-        String fullTextValue = getValue(fullText, dataSource);
+        String fullTextValue = getValue(fullText, false);
         while (fieldsIterator.hasNext()) {
             String next = fieldsIterator.next();
             queryBuffer.append(next).append(':').append(fullTextValue);
@@ -260,21 +260,22 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
             }
         }
         String fullTextQuery = queryBuffer.toString();
-        return parseQuery(fieldsAsArray, fullTextQuery);
+        return parseQuery(fieldsAsArray, fullTextQuery, false);
     }
 
     @Override
     public Query visit(FieldFullText fieldFullText) {
         String fieldName = fieldFullText.getField().getFieldMetadata().getName();
         String[] fieldsAsArray = new String[]{fieldName};
-        String fullTextQuery = fieldName + ':' + getValue(fieldFullText, dataSource);
-        return parseQuery(fieldsAsArray, fullTextQuery);
+        boolean caseSensitiveSearch = dataSource.isCaseSensitiveSearch();
+        String fullTextQuery = fieldName + ':' + getValue(fieldFullText, caseSensitiveSearch);
+        return parseQuery(fieldsAsArray, fullTextQuery, caseSensitiveSearch);
     }
 
-    private Query parseQuery(String[] fieldsAsArray, String fullTextQuery) {
-        MultiFieldQueryParser parser = new MultiFieldQueryParser(Version.LUCENE_29, fieldsAsArray, getAnalyzer(dataSource));
+    private Query parseQuery(String[] fieldsAsArray, String fullTextQuery, boolean caseSensitiveSearch) {
+        MultiFieldQueryParser parser = new MultiFieldQueryParser(Version.LUCENE_29, fieldsAsArray, getAnalyzer(caseSensitiveSearch));
         // Very important! Lucene does an implicit lower case for "expanded terms" (which is something used).
-        parser.setLowercaseExpandedTerms(!dataSource.isCaseSensitiveSearch());
+        parser.setLowercaseExpandedTerms(!caseSensitiveSearch);
         try {
             return parser.parse(fullTextQuery);
         } catch (ParseException e) {
@@ -282,17 +283,17 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         }
     }
 
-    private static Analyzer getAnalyzer(RDBMSDataSource dataSource) {
-        if (!dataSource.isCaseSensitiveSearch()) {
+    private static Analyzer getAnalyzer(boolean caseSensitiveSearch) {
+        if (!caseSensitiveSearch) {
             return new KeywordAnalyzer();
         } else {
             return new StandardAnalyzer(Version.LUCENE_29, Collections.emptySet());
         }
     }
 
-    private static String getValue(FullText fullText, RDBMSDataSource dataSource) {
+    private static String getValue(FullText fullText, boolean caseSensitiveSearch) {
         String value;
-        if (!dataSource.isCaseSensitiveSearch()) {
+        if (!caseSensitiveSearch) {
             value = fullText.getValue().toLowerCase();
         } else {
             value = fullText.getValue();
