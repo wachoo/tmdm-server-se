@@ -94,6 +94,9 @@ public class PagingToolBarEx extends PagingToolBar {
                     isFireKeyEnter = true;
                     blur(inputEl.dom);
                     if (!sizeField.isFireChangeEventOnSetValue()) {
+                        if (isBrowseRecordsGridCall) {
+                            Cookies.setCookie(BROWSERECORD_PAGESIZE, String.valueOf(sizeField.getValue().intValue()));
+                        }
                         refreshData();
                     }
                 }
