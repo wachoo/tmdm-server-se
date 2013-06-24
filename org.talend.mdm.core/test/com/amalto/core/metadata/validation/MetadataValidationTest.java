@@ -349,6 +349,15 @@ public class MetadataValidationTest extends TestCase {
         assertTrue(handler.getMessages().contains(ValidationError.LOOKUP_FIELD_NOT_IN_ENTITY));
     }
 
+    public void testLookUpField3() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("LookUpField3_0.1.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        repository.load(resourceAsStream, handler);
+        assertEquals(0, handler.getErrorCount());
+        assertEquals(0, handler.getWarningCount());
+    }
+
     // See TMDMQA-6357 / 6367
     public void testInheritance() throws Exception {
         MetadataRepository repository = new MetadataRepository();
