@@ -278,7 +278,7 @@ Ext
 																// only enabled
 																// in enterprise
 																// version
-																UpdateReportInterface.isJournalHistoryExist(record.data.dataCluster,record.data.dataModel,record.data.concept,record.data.key,record.data.epochTime,function(data) {
+																UpdateReportInterface.isJournalHistoryExist(record.data.dataCluster,record.data.dataModel,record.data.concept,record.data.key,record.data.operationType,record.data.epochTime,function(data) {
 																	if (data) {
 																		dataLogViewer = new amalto.updatereport.HistoryViewer(
 																		{

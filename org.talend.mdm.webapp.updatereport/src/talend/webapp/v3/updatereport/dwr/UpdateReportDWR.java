@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -16,8 +15,10 @@ import org.w3c.dom.Document;
 
 import talend.webapp.v3.updatereport.bean.DataChangeLog;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.history.DocumentHistoryFactory;
 import com.amalto.core.history.DocumentHistoryNavigator;
+import com.amalto.core.history.exception.UnsupportedUndoPhysicalDeleteException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -243,21 +244,40 @@ public class UpdateReportDWR {
         return generateEventString(data, language);
     }
     
-    public boolean isJournalHistoryExist(String dataClusterName,String dataModelName,String concept,String key,String historyDate) {
-        com.amalto.core.history.Document document;
-        DocumentHistoryNavigator navigator = DocumentHistoryFactory.getInstance().create().getHistory(dataClusterName,
-                dataModelName,
-                concept,
-                key.split("\\."), //$NON-NLS-1$
-                ""); //$NON-NLS-1$        
-        try {
-            navigator.goTo(new Date(Long.parseLong(historyDate)));
-            document = navigator.previous();
-        } catch (NotImplementedException exception) {
-            logger.error(exception);
-            document = null;
+    public boolean isJournalHistoryExist(String dataClusterName,String dataModelName,String concept,String key,String operationType,String historyDate) {
+        if (isEnterpriseVersion()) {
+            try {
+                if (UpdateReportPOJO.OPERATION_TYPE_CREATE.equals(operationType)
+                        || UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)
+                        || UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(operationType)
+                        || UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE.equals(operationType)
+                        || UpdateReportPOJO.OPERATION_TYPE_RESTORED.equals(operationType)) {
+                    DocumentHistoryNavigator navigator = DocumentHistoryFactory.getInstance().create().getHistory(dataClusterName,
+                            dataModelName,
+                            concept,
+                            key.split("\\."), //$NON-NLS-1$
+                            ""); //$NON-NLS-1$
+                    navigator.goTo(new Date(Long.parseLong(historyDate)));
+                    navigator.previous();                    
+                    return true;                    
+                } else {
+                    if (!UpdateReportPOJO.OPERATION_TYPE_ACTION.equals(operationType)) {
+                        logger.warn("Operation type '" + operationType + "' is not supported. Ignore action for document history."); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
+                    return false;
+                }
+            } catch (UnsupportedUndoPhysicalDeleteException exception) {
+                if (logger.isDebugEnabled()) {
+                    logger.warn("Undo for physical delete is not supported."); //$NON-NLS-1$
+                }
+                return false;
+            } catch (Exception exception) {
+                logger.error(exception.getMessage(), exception);
+                return false;
+            }
+        } else {
+            return true;
         }
-        return !(document == null);
     }
     
     private static String upperCaseFirstLetter(String str){
