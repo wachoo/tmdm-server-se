@@ -156,14 +156,6 @@ public class JournalDBService {
                     String oldValue = checkNull(Util.getFirstTextNode(doc, "/Update/Item[" + (i + 1) + "]/oldValue")); //$NON-NLS-1$//$NON-NLS-2$
                     String newValue = checkNull(Util.getFirstTextNode(doc, "/Update/Item[" + (i + 1) + "]/newValue")); //$NON-NLS-1$ //$NON-NLS-2$
 
-                    if (fkInstance.isRetireveFKInfo() && !"".equals(oldValue) && fkInstance.getFkInfo() != null) { //$NON-NLS-1$
-                        oldValue = getFKInfoByRetrieveConf(dataCluster, fkInstance.getFkInfo(), oldValue);
-                    }
-
-                    if (fkInstance.isRetireveFKInfo() && !"".equals(newValue) && fkInstance.getFkInfo() != null) { //$NON-NLS-1$
-                        newValue = getFKInfoByRetrieveConf(dataCluster, fkInstance.getFkInfo(), newValue);
-                    }
-
                     list.add(new JournalTreeModel("path:" + path)); //$NON-NLS-1$
                     list.add(new JournalTreeModel("oldValue:" + oldValue)); //$NON-NLS-1$
                     list.add(new JournalTreeModel("newValue:" + newValue)); //$NON-NLS-1$
