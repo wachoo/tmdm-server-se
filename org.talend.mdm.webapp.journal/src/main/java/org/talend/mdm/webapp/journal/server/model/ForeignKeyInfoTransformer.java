@@ -100,7 +100,7 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
             for (FieldMetadata fieldMetadata : foreignKeyField.getForeignKeyInfoFields()) {
                 NodeList nodeList = Util.getNodeList(element,
                         "/" + referencedTypeName + "/" + fieldMetadata.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-                if (nodeList.getLength() == 1) {
+                if (nodeList.getLength() == 1 && nodeList.item(0).getTextContent() != null && !nodeList.item(0).getTextContent().isEmpty()) {
                     if (foreignKeyInfo.length() > 0) {
                         foreignKeyInfo.append("-"); //$NON-NLS-1$
                     } 
