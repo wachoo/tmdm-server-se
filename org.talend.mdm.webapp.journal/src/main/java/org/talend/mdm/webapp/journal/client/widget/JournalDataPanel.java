@@ -104,7 +104,6 @@ public class JournalDataPanel extends FormPanel {
             public void componentSelected(ButtonEvent ce) {
                 treeWindow.show();
                 tree.setExpanded(root, true);
-                
             }
         });
 
@@ -113,8 +112,10 @@ public class JournalDataPanel extends FormPanel {
 
         treeWindow = new Window();
         treeWindow.setHeading(MessagesFactory.getMessages().updatereport_label());
-        treeWindow.setAutoWidth(true);
-        treeWindow.setAutoHeight(true);
+        treeWindow.setWidth(400);
+        treeWindow.setHeight(450);
+        treeWindow.setLayout(new FitLayout());
+        treeWindow.setScrollMode(Scroll.NONE);
         
         TreeStore<JournalTreeModel> store = new TreeStore<JournalTreeModel>();  
         store.add(root, true);
@@ -125,8 +126,7 @@ public class JournalDataPanel extends FormPanel {
         ContentPanel contentPanel = new ContentPanel();
         contentPanel.setHeaderVisible(false);
         contentPanel.setScrollMode(Scroll.AUTO);
-        contentPanel.setWidth(400);
-        contentPanel.setHeight(450);
+        contentPanel.setLayout(new FitLayout());
         contentPanel.add(tree);
         treeWindow.add(contentPanel);
               
