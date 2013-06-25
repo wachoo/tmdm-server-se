@@ -10,6 +10,21 @@
  */
 package org.talend.mdm.webapp.journal.server.model;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.history.Document;
@@ -19,15 +34,6 @@ import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.*;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
 
 public class ForeignKeyInfoTransformer implements DocumentTransformer {
 
@@ -90,14 +96,22 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
 
         try {
             Element element = item.getProjection();
+            StringBuilder foreignKeyInfo = new StringBuilder();
             for (FieldMetadata fieldMetadata : foreignKeyField.getForeignKeyInfoFields()) {
                 NodeList nodeList = Util.getNodeList(element,
                         "/" + referencedTypeName + "/" + fieldMetadata.getName()); //$NON-NLS-1$ //$NON-NLS-2$
                 if (nodeList.getLength() == 1) {
-                    return nodeList.item(0).getTextContent();
+                    if (foreignKeyInfo.length() > 0) {
+                        foreignKeyInfo.append("-"); //$NON-NLS-1$
+                    } 
+                    foreignKeyInfo.append(nodeList.item(0).getTextContent());
                 }
             }
-            return foreignKeyValue;
+            if (foreignKeyField.getForeignKeyInfoFields().size() > 0) {
+                return foreignKeyInfo.toString();   
+            } else {
+                return foreignKeyValue;
+            }
         } catch (XtentisException e) {
             throw new RuntimeException(e);
         }
