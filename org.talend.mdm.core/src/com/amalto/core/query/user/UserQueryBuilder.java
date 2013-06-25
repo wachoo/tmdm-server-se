@@ -580,9 +580,27 @@ public class UserQueryBuilder {
         }
     }
 
+    /**
+     * Adds a {@link TypedExpression} the query should return. If the typed expression has already been selected, an
+     * {@link Alias} is automatically created.
+     *
+     * @param expression Expression that represents a value to return in query results.
+     * @return This instance for method call chaining.
+     */
     public UserQueryBuilder select(TypedExpression expression) {
-        expressionAsSelect().getSelectedFields().add(expression);
-        expressionAsSelect().setProjection(true);
+        Select select = expressionAsSelect();
+        List<TypedExpression> selectedFields = select.getSelectedFields();
+        if (!selectedFields.contains(expression)) {
+            selectedFields.add(expression);
+        } else {
+            if (expression instanceof Field) {
+                // TMDM-5022: Automatic alias if a field with same name was already selected.
+                selectedFields.add(alias(expression, ((Field) expression).getFieldMetadata().getName()));
+            } else {
+                throw new UnsupportedOperationException("Can't select twice a non-field expression.");
+            }
+        }
+        select.setProjection(true);
         return this;
     }
 

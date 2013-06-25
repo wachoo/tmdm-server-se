@@ -2221,6 +2221,53 @@ public class StorageQueryTest extends StorageTestCase {
         actual = new String(output.toByteArray());
         assertEquals(E2_Record3, actual);
     }
+    
+    public void testDuplicateFieldNames() {
+        UserQueryBuilder qb = from(product);
+
+        List<String> viewables = new ArrayList<String>();
+        viewables.add("Product/Id");
+        viewables.add("Product/Name");
+        viewables.add("Product/Family");
+        viewables.add("ProductFamily/Id");
+        viewables.add("ProductFamily/Name");
+
+        List<IWhereItem> conditions = new ArrayList<IWhereItem>();
+        conditions.add(new WhereCondition("Product/Family", "JOINS", "ProductFamily/Id", "&"));
+
+        IWhereItem fullWhere = new WhereAnd(conditions);
+        qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
+
+        for (String viewableBusinessElement : viewables) {
+            String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
+            String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
+            qb.select(UserQueryHelper.getField(repository, viewableTypeName, viewablePath));
+        }
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(2, results.getCount());
+
+        DataRecordWriter writer = new ViewSearchResultsWriter();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        List<String> strings = new ArrayList<String>();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+                String document = new String(output.toByteArray(), Charset.forName("UTF-8"));
+                strings.add(document);
+                output.reset();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        assertEquals(2, strings.size());
+        assertEquals(
+                "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t<Id>1</Id>\n\t<Name>Product name</Name>\n\t<Family>[2]</Family>\n\t<Id>2</Id>\n\t<Name>Product family #2</Name>\n</result>",
+                strings.get(0));
+        assertEquals(
+                "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t<Id>2</Id>\n\t<Name>Renault car</Name>\n\t<Family/>\n\t<Id/>\n\t<Name/>\n</result>",
+                strings.get(1));
+    }
 
     public void testFetchAllE2() throws Exception {
         UserQueryBuilder qb = from(e2);

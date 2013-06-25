@@ -3,9 +3,14 @@ package com.amalto.core.delegator;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
-import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -15,7 +20,6 @@ import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
@@ -36,22 +40,21 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.ViewSearchResultsWriter;
+import com.amalto.core.util.ArrayListHolder;
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.RoleSpecification;
+import com.amalto.core.util.RoleWhereCondition;
 import com.amalto.core.util.Util;
-import com.amalto.core.util.*;
+import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.xmlserver.interfaces.WhereOr;
 import com.amalto.xmlserver.interfaces.XmlServerException;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.*;
 
 public abstract class IItemCtrlDelegator implements IBeanDelegator,
         IItemCtrlDelegatorService {
-    Logger logger = Logger.getLogger(IItemCtrlDelegator.class);
+    private static final Logger LOGGER = Logger.getLogger(IItemCtrlDelegator.class);
 
     // methods from ItemCtrl2Bean
     public ArrayList<String> getItemsPivotIndex(String clusterName,
@@ -65,28 +68,26 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             // validate parameters
             if (pivotWithKeys.size() == 0) {
                 String err = "The Map of pivots must contain at least one element";
-                logger.error(err);
+                LOGGER.error(err);
                 throw new XtentisException(err);
             }
 
             if (indexPaths.length == 0) {
                 String err = "The Array of Index Paths must contain at least one element";
-                logger.error(err);
+                LOGGER.error(err);
                 throw new XtentisException(err);
             }
 
             // get the universe and revision ID
-            ILocalUser localuser = getLocalUser();
-            UniversePOJO universe = localuser.getUniverse();
+            ILocalUser localUser  = getLocalUser();
+            UniversePOJO universe = localUser .getUniverse();
             if (universe == null) {
-                String err = "ERROR: no Universe set for user '"
-                        + localuser.getUsername() + "'";
-                logger.error(err);
+                String err = "ERROR: no Universe set for user '" + localUser.getUsername() + "'";  //$NON-NLS-1$//$NON-NLS-2$
+                LOGGER.error(err);
                 throw new XtentisException(err);
             }
 
-            ViewPOJOPK viewPOJOPK = new ViewPOJOPK("Browse_items_" //$NON-NLS-1$
-                    + mainPivotName);
+            ViewPOJOPK viewPOJOPK = new ViewPOJOPK("Browse_items_" + mainPivotName); //$NON-NLS-1$ 
             ViewPOJO view = getViewPOJO(viewPOJOPK);
 
             // Create an ItemWhere which combines the search and and view wheres
@@ -106,9 +107,8 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err = "Unable to search: " + ": " + e.getClass().getName()
-                    + ": " + e.getLocalizedMessage();
-            logger.error(err, e);
+            String err = "Unable to search: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            LOGGER.error(err, e);
             throw new XtentisException(err);
         }
     }
@@ -119,17 +119,15 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                                               int start, int limit) throws XtentisException {
         try {
             // get the universe and revision ID
-            ILocalUser localuser = getLocalUser();
-            UniversePOJO universe = localuser.getUniverse();
+            ILocalUser localUser = getLocalUser();
+            UniversePOJO universe = localUser.getUniverse();
             if (universe == null) {
-                String err = "ERROR: no Universe set for user '"
-                        + localuser.getUsername() + "'";
-                logger.error(err);
+                String err = "ERROR: no Universe set for user '" + localUser.getUsername() + "'"; //$NON-NLS-1$ //$NON-NLS-2$
+                LOGGER.error(err);
                 throw new XtentisException(err);
             }
 
-            ViewPOJOPK viewPOJOPK = new ViewPOJOPK("Browse_items_" //$NON-NLS-1$
-                    + conceptName);
+            ViewPOJOPK viewPOJOPK = new ViewPOJOPK("Browse_items_" + conceptName);//$NON-NLS-1$ 
             ViewPOJO view = getViewPOJO(viewPOJOPK);
 
             // Create an ItemWhere which combines the search and and view wheres
@@ -146,10 +144,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err = "Unable to search: " + ": " + e.getClass().getName()
-                    + ": " + e.getLocalizedMessage();
-            logger.error(err, e);
-            throw new XtentisException(err);
+            String err = "Unable to search: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            LOGGER.error(err, e);
+            throw new XtentisException(err, e);
         }
     }
 
@@ -165,8 +162,8 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
         // get the universe and revision ID
         UniversePOJO universe = getLocalUser().getUniverse();
         if (universe == null) {
-            String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+            String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";  //$NON-NLS-1$//$NON-NLS-2$
+            LOGGER.error(err);
             throw new XtentisException(err);
         }
 
@@ -304,7 +301,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
         } catch (Exception e) {
             String err = "Unable to single search: " + ": "
                     + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
     }
@@ -331,8 +328,8 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
     }
 
     public ItemPOJOPK putItem(ItemPOJO item, String schema, String dataModelName) throws XtentisException {
-        if (logger.isTraceEnabled()) {
-            logger.trace("putItem() " + item.getItemPOJOPK().getUniqueID());
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("putItem() " + item.getItemPOJOPK().getUniqueID());
 		}
         try {
             //make sure the plan is reset
@@ -348,15 +345,13 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             ItemPOJOPK pk;
             try {
                 xmlServerCtrlLocal.start(dataClusterName);
-                {
-                    pk = item.store();
-                }
+                pk = item.store();
                 xmlServerCtrlLocal.commit(dataClusterName);
             } catch (XtentisException e) {
                 try {
                     xmlServerCtrlLocal.rollback(dataClusterName);
                 } catch (XtentisException e1) {
-                    Logger.getLogger(IItemCtrlDelegator.class).error("Rollback error.", e1);
+                    LOGGER.error("Rollback error.", e1);
                 }
                 throw new RuntimeException(e);
             }
@@ -369,7 +364,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
         } catch (Exception e) {
             String prefix = "Unable to create/update the item " + item.getDataClusterPOJOPK().getUniqueId() + "." + Util.joinStrings(item.getItemIds(), ".") + ": ";
             String err = prefix + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            logger.error(err, e);
+            LOGGER.error(err, e);
             // simplify the error message
             if ("Reporting".equalsIgnoreCase(dataModelName)) {
                 if (err.contains("One of '{ListOfFilters}'")) {
@@ -388,7 +383,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
         try {
             if (viewablePaths.size() == 0) {
                 String err = "The list of viewable xPaths must contain at least one element";
-                logger.error(err);
+                LOGGER.error(err);
                 throw new XtentisException(err);
             }
             // Check if user is allowed to read the cluster
@@ -414,7 +409,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             if (universe == null) {
                 String err = "ERROR: no Universe set for user '"
                         + LocalUser.getLocalUser().getUsername() + "'";
-                logger.error(err);
+                LOGGER.error(err);
                 throw new XtentisException(err);
             }
 
@@ -444,7 +439,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
         } catch (Exception e) {
             String err = "Unable to single search: " + ": "
                     + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            logger.error(err, e);
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
     }
@@ -458,7 +453,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
         UniversePOJO universe = user.getUniverse();
         if (universe == null) {
             String err = "ERROR: no Universe set for user '" + user.getUsername() + "'";
-            logger.error(err);
+            LOGGER.error(err);
             throw new XtentisException(err);
         }
         isExistDataCluster(dataClusterPOJOPK);
@@ -551,7 +546,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             } catch (Exception e) {
                 String err = "Unable to get the items: " + ": "
                         + e.getClass().getName() + ": " + e.getLocalizedMessage();
-                logger.error(err, e);
+                LOGGER.error(err, e);
                 throw new XtentisException(err, e);
             }
         }
@@ -614,7 +609,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 // element of the viewable list
                 viewableFullPaths, whereItem, orderBy, direction, start, limit,
                 spellThreshold, firstTotalCount, metaDataTypes);
-        logger.debug(query);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(query);
+        }
         if (withStartLimit)
             return server.runQuery(null, null, query, null, start, limit, true);
         else
@@ -630,8 +627,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
         String query = server.getChildrenItemsQuery(clusterName, conceptName,
                 PKXpaths, FKXpath, labelXpath, fatherPK, itemsRevisionIDs,
                 defaultRevisionID, whereItem, start, limit);
-
-        logger.debug(query);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(query);
+        }
         return server.runQuery(null, null, query, null);
     }
 
@@ -645,7 +643,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
         String query = server.getPivotIndexQuery(clusterName, mainPivotName,
                 pivotWithKeys, itemsRevisionIDs, defaultRevisionID, indexPaths,
                 whereItem, pivotDirections, indexDirections, start, limit);
-        logger.debug(query);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(query);
+        }
         return server.runQuery(null, null, query, null, start, limit, false);
     }
     

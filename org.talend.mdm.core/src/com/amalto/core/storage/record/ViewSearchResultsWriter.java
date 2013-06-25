@@ -39,10 +39,13 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
         writer.write("<result xmlns:xsi=\"" + XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI + "\">\n"); //$NON-NLS-1$ //$NON-NLS-2$
         for (FieldMetadata fieldMetadata : record.getSetFields()) {
             Object value = record.get(fieldMetadata);
+            String name = fieldMetadata.getName();
             if (value != null) {
-                writer.append("\t<").append(fieldMetadata.getName()).append(">"); //$NON-NLS-1$ //$NON-NLS-2$
+                writer.append("\t<").append(name).append(">"); //$NON-NLS-1$ //$NON-NLS-2$
                 processValue(writer, fieldMetadata, value);
-                writer.append("</").append(fieldMetadata.getName()).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$
+                writer.append("</").append(name).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$
+            } else {
+                writer.append("\t<").append(name).append("/>\n"); //$NON-NLS-1$//$NON-NLS-2$
             }
         }
         writer.append("</result>"); //$NON-NLS-1$
