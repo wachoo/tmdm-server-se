@@ -157,8 +157,8 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             // Add Filters from the Roles
             ILocalUser user = getLocalUser();
             HashSet<String> roleNames = user.getRoles();
-            ArrayList<IWhereItem> roleWhereConditions = new ArrayList<IWhereItem>();
             String objectType = "View"; //$NON-NLS-1$
+            ArrayList<IWhereItem> roleWhereConditions = new ArrayList<IWhereItem>();
             for (String roleName : roleNames) {
                 if ("administration".equals(roleName) || "authenticated".equals(roleName)) { //$NON-NLS-1$ //$NON-NLS-2$
                     continue;
@@ -189,13 +189,13 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             }
             // add collected additional conditions
             if (roleWhereConditions.size() > 0) {
+                IWhereItem normalizedRolesConditions = normalizeConditions(roleWhereConditions);
                 if (fullWhere == null) {
-                    fullWhere = new WhereAnd(roleWhereConditions);
+                    fullWhere = normalizedRolesConditions;
                 } else {
-                    WhereAnd viewWhere = new WhereAnd(roleWhereConditions);
                     WhereAnd wAnd = new WhereAnd();
                     wAnd.add(fullWhere);
-                    wAnd.add(viewWhere);
+                    wAnd.add(normalizedRolesConditions);
                     fullWhere = wAnd;
                 }
             }
