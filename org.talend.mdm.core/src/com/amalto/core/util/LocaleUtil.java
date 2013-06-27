@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -21,12 +21,17 @@ public class LocaleUtil {
     public static Locale getLocale(HttpServletRequest request) {
         Locale locale;
         String language = request.getParameter("language"); //$NON-NLS-1$
-        if (language == null)
+        if (language == null) {
             language = (String) request.getSession().getAttribute("language"); //$NON-NLS-1$
-        if (language == null)
+        }
+        if (language == null) {
+            language = request.getHeader("X-MDM-Language"); //$NON-NLS-1$
+        }
+        if (language == null) {
             locale = request.getLocale();
-        else
+        } else {
             locale = new Locale(language.toLowerCase());
+        }
         return locale;
     }
 }

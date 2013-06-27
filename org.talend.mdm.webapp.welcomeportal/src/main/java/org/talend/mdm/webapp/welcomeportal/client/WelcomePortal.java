@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.client;
 
+import org.talend.mdm.webapp.base.client.ServiceEnhancer;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.WelcomePortalController;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -24,6 +25,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 
@@ -65,7 +67,9 @@ public class WelcomePortal implements EntryPoint {
         // log setting
         Log.setUncaughtExceptionHandler();
 
-        Registry.register(WELCOMEPORTAL_SERVICE, GWT.create(WelcomePortalService.class));
+        ServiceDefTarget service = GWT.create(WelcomePortalService.class);
+        ServiceEnhancer.customizeService(service);
+        Registry.register(WELCOMEPORTAL_SERVICE, service);
 
         // add controller to dispatcher
         Dispatcher dispatcher = Dispatcher.get();

@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.recyclebin.client;
 
+import org.talend.mdm.webapp.base.client.ServiceEnhancer;
 import org.talend.mdm.webapp.recyclebin.client.mvc.RecycleBinController;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -24,6 +25,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 
@@ -49,7 +51,9 @@ public class RecycleBin implements EntryPoint {
         // log setting
         Log.setUncaughtExceptionHandler();
 
-        Registry.register(RECYCLEBIN_SERVICE, GWT.create(RecycleBinService.class));
+        ServiceDefTarget service = GWT.create(RecycleBinService.class);
+        ServiceEnhancer.customizeService(service);
+        Registry.register(RECYCLEBIN_SERVICE, service);
 
         // add controller to dispatcher
         Dispatcher dispatcher = Dispatcher.get();
