@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.general.client;
 
+import org.talend.mdm.webapp.base.client.ServiceEnhancer;
 import org.talend.mdm.webapp.base.client.util.Cookies;
 import org.talend.mdm.webapp.general.client.boundary.PubService;
 import org.talend.mdm.webapp.general.client.layout.AccordionMenus;
@@ -26,6 +27,7 @@ import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
 public class General implements EntryPoint {
 
@@ -33,6 +35,7 @@ public class General implements EntryPoint {
 
     public static final String USER_BEAN = "UserBean"; //$NON-NLS-1$
 
+    @Override
     public void onModuleLoad() {
         XDOM.setAutoIdPrefix(GWT.getModuleName() + "-" + XDOM.getAutoIdPrefix()); //$NON-NLS-1$
         recordStatus();
@@ -44,7 +47,9 @@ public class General implements EntryPoint {
 
         registerPubService();
 
-        Registry.register(OVERALL_SERVICE, GWT.create(GeneralService.class));
+        ServiceDefTarget service = GWT.create(GeneralService.class);
+        ServiceEnhancer.customizeService(service);
+        Registry.register(OVERALL_SERVICE, service);
         PublicMessageService.registerMessageService();
 
         Dispatcher dispatcher = Dispatcher.get();
@@ -63,7 +68,7 @@ public class General implements EntryPoint {
 
     public native void recordStatus()/*-{
         var instance = this;
-        $wnd.onunload = function(){
+        $wnd.onunload = function() {
             instance.@org.talend.mdm.webapp.general.client.General::recordPanelStatus()();
         };
     }-*/;
