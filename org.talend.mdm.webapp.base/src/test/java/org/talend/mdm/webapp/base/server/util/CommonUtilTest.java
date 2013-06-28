@@ -313,4 +313,26 @@ public class CommonUtilTest extends TestCase {
         assertEquals("1", id[0]);
         assertEquals("2", id[1]);        
     }
+    
+    public void testBuildCriteriaByIds() {
+        String[] keys = null;
+        String[] ids = null;
+        assertNull(CommonUtil.buildCriteriaByIds(keys, ids));
+        
+        keys = new String[1];
+        ids = new String[1];
+        keys[0] = "Product/Id";
+        ids[0] = "10001";
+        String criteria = CommonUtil.buildCriteriaByIds(keys, ids);
+        assertEquals("Product/Id EQUALS 10001", criteria);
+        
+        keys = new String[2];
+        ids = new String[2];
+        keys[0] = "Product/Id";
+        keys[1] = "Product/Name";
+        ids[0] = "10001";
+        ids[1] = "Test";
+        criteria = CommonUtil.buildCriteriaByIds(keys, ids);
+        assertEquals("((Product/Id EQUALS 10001) AND (Product/Name EQUALS Test))", criteria);
+    }
 }

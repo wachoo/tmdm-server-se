@@ -47,6 +47,8 @@ public class CommonUtil {
 
     public static final String OR = "OR"; //$NON-NLS-1$ 
     
+    public static final String EQUALS = "EQUALS";  //$NON-NLS-1$
+    
     private static final Pattern extractIdPattern = Pattern.compile("\\[.*?\\]"); //$NON-NLS-1$
     
     private static final Messages MESSAGES = MessagesFactory.getMessages(
@@ -229,5 +231,23 @@ public class CommonUtil {
         }
 
         return idList.toArray(new String[idList.size()]);
+    }
+    
+    public static String buildCriteriaByIds(String[] keys, String[] ids) {
+        if(keys == null || ids == null)
+            return null;
+        
+        StringBuilder criteria = new StringBuilder();
+        if(keys.length == 1 && ids.length == 1) {
+            criteria.append(keys[0]).append(" ").append(EQUALS).append(" ").append(ids[0]); //$NON-NLS-1$ //$NON-NLS-2$
+            return criteria.toString(); 
+        }
+
+        criteria.append("((").append(keys[0]).append(" ").append(EQUALS).append(" ").append(ids[0]).append(")"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        for (int i = 1; i < keys.length; i++) {
+            criteria.append(" AND (").append(keys[i]).append(" ").append(EQUALS).append(" ").append(ids[i]).append(")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        }
+        criteria.append(")"); //$NON-NLS-1$
+        return criteria.toString();
     }
 }

@@ -534,6 +534,11 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
 
         }
 
+        public void queryItemBeanById(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String id,
+                String language, AsyncCallback<ItemBean> callback) {
+            
+        }
+
     }
 
     @Override

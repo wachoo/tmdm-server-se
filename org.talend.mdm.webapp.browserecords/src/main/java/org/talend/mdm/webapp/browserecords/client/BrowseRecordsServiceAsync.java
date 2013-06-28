@@ -134,4 +134,7 @@ public interface BrowseRecordsServiceAsync {
 
     void isExistId(String concept, String[] ids, String language, AsyncCallback<Boolean> callback);
 
+    void queryItemBeanById(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String id, String language,
+            AsyncCallback<ItemBean> callback);
+
 }

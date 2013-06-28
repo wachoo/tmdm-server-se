@@ -884,6 +884,27 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             throw new ServiceException(errorMessage);
         }
     }
+    
+    public ItemBean queryItemBeanById(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String ids, String language) throws ServiceException {
+        try {
+            String[] idArr = ids.split("\\."); //$NON-NLS-1$
+            String criteria = CommonUtil.buildCriteriaByIds(entityModel.getKeys(), idArr);
+            Object[] result = getItemBeans(dataClusterPK, viewBean, entityModel, criteria, -1, 20, ItemHelper.SEARCH_DIRECTION_ASC, null, language);
+            @SuppressWarnings("unchecked")
+            List<ItemBean> itemBeans = (List<ItemBean>) result[0];
+            return itemBeans.get(0);
+        } catch (Exception exception) {
+            String errorMessage;
+            if (WebCoreException.class.isInstance(exception.getCause())){
+                WebCoreException webCoreException = (WebCoreException) exception.getCause();
+                errorMessage = getErrorMessageFromWebCoreException(webCoreException,"",null,new Locale(language)); //$NON-NLS-1$
+            }else{     
+                errorMessage = exception.getLocalizedMessage();
+            }         
+            LOG.error(exception.getMessage(), exception);
+            throw new ServiceException(errorMessage);
+        }    
+    }
 
     private Object[] getItemBeans(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String criteria, int skip,
             int max, String sortDir, String sortCol, String language) throws Exception {
