@@ -12,6 +12,7 @@
 // ============================================================================
 package com.amalto.core.migration.tasks;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
@@ -63,13 +64,13 @@ public class UpdateActionTypeWithNewTypeStrategy extends AbstractDataModelMigrat
                 Node enumNode = enumList.item(0);
                 Node parentNode = enumNode.getParentNode();
                 Node actionTypeNode = enumNode.getAttributes().getNamedItem("value"); //$NON-NLS-1$
-                actionTypeNode.setNodeValue("LOGIC_DELETE"); //$NON-NLS-1$
+                actionTypeNode.setNodeValue(UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE);
                 Element newOne = schemaRoot.createElement("xsd:enumeration"); //$NON-NLS-1$
-                newOne.setAttribute("value", "PHYSICAL_DELETE"); //$NON-NLS-1$
+                newOne.setAttribute("value", UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE); //$NON-NLS-1$
                 parentNode.appendChild(newOne);
 
                 Element antOne = schemaRoot.createElement("xsd:enumeration"); //$NON-NLS-1$
-                antOne.setAttribute("value", "RESTORED"); //$NON-NLS-1$
+                antOne.setAttribute("value", UpdateReportPOJO.OPERATION_TYPE_RESTORED); //$NON-NLS-1$
                 parentNode.appendChild(antOne);
 
                 String newSchema = "<schema>" + StringEscapeUtils.escapeXml(Util.nodeToString(schemaRoot)) + "</schema>"; //$NON-NLS-1$

@@ -102,6 +102,7 @@ import org.xml.sax.InputSource;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
@@ -198,7 +199,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     WSItemPK wsItem = CommonUtil.getPort().deleteItem(
                             new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), override));
                     if (wsItem != null) {
-                        pushUpdateReport(ids, concept, "PHYSICAL_DELETE"); //$NON-NLS-1$
+                        pushUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE);
                     } else {
                         throw new ServiceException(MESSAGES.getMessage("delete_record_failure")); //$NON-NLS-1$
                     }
@@ -808,7 +809,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             if (wsItem != null && xml != null) {
                 if ("/".equalsIgnoreCase(path)) { //$NON-NLS-1$
-                    pushUpdateReport(ids, concept, "LOGIC_DELETE"); //$NON-NLS-1$
+                    pushUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE);
                 } else {
                     throw new ServiceException(MESSAGES.getMessage("dropItem_null")); //$NON-NLS-1$
                 }
@@ -1414,7 +1415,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             LOG.trace("pushUpdateReport() concept " + concept + " operation " + operationType);//$NON-NLS-1$ //$NON-NLS-2$
         }
 
-        if (!("PHYSICAL_DELETE".equals(operationType) || "LOGIC_DELETE".equals(operationType))) { //$NON-NLS-1$ //$NON-NLS-2$
+        if (!(UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE.equals(operationType) || UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(operationType))) { //$NON-NLS-1$ //$NON-NLS-2$
             throw new UnsupportedOperationException();
         }
 
@@ -1460,7 +1461,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 .append(dataModelPK).append("</DataModel><Concept>").append(concept) //$NON-NLS-1$
                 .append("</Concept><Key>").append(key).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        if ("UPDATE".equals(operationType)) { //$NON-NLS-1$
+        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)) { //$NON-NLS-1$
             // Important: Leave update report creation to MDM server
             throw new UnsupportedOperationException();
         }

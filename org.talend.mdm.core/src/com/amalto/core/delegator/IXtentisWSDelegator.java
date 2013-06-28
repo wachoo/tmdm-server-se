@@ -1766,7 +1766,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         String[] ids=wsDeleteItem.getWsItemPK().getIds();
             String resultUpdateReport = Util.createUpdateReport(ids, concept, wsDeleteItem.getOperateType(), null,
                     "", wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk()); //$NON-NLS-1$
-        if("LOGIC_DELETE".equals(wsDeleteItem.getOperateType())){//$NON-NLS-1$
+        if(UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(wsDeleteItem.getOperateType())){
                 dropItem(new WSDropItem(wsDeleteItem.getWsItemPK(), wsDeleteItem.getUpdatePath(), wsDeleteItem.getOverride()));
         	if(wsDeleteItem.getPushToUpdateReport()){
                     pushToUpdateReport(resultUpdateReport, wsDeleteItem, dataClusterPK, concept, ids,

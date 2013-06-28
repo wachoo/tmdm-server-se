@@ -1,5 +1,6 @@
 package com.amalto.core.save.context;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
@@ -112,7 +113,7 @@ class UpdateReportDocument extends DOMDocument {
     public MutableDocument create(MutableDocument content) {
         isCreated = true;
         Element item = updateReportDocument.createElement("OperationType"); //$NON-NLS-1$
-        item.appendChild(updateReportDocument.createTextNode("CREATE")); //$NON-NLS-1$
+        item.appendChild(updateReportDocument.createTextNode(UpdateReportPOJO.OPERATION_TYPE_CREATE));
         updateReportDocument.getDocumentElement().appendChild(item);
 
         return this;
@@ -138,7 +139,7 @@ class UpdateReportDocument extends DOMDocument {
         if (!isCreated) {
             // TODO Doing so add the OperationType element to the end of the document... not very human readable but works for an XML parser.
             Element item = updateReportDocument.createElement("OperationType"); //$NON-NLS-1$
-            item.appendChild(updateReportDocument.createTextNode("UPDATE")); //$NON-NLS-1$
+            item.appendChild(updateReportDocument.createTextNode(UpdateReportPOJO.OPERATION_TYPE_UPDATE));
             updateReportDocument.getDocumentElement().appendChild(item);
         }
         isRecordingFieldChange = false;

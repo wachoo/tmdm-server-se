@@ -36,6 +36,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.save.context.DocumentSaver;
@@ -833,7 +834,7 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
-        assertEquals("LOGICAL_DELETE", evaluate(committedElement, "/Update/OperationType"));
+        assertEquals(UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE, evaluate(committedElement, "/Update/OperationType"));
     }
 
     public void testSystemCreate() throws Exception {
@@ -853,7 +854,7 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
-        assertEquals("LOGICAL_DELETE", evaluate(committedElement, "/Update/OperationType"));
+        assertEquals(UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE, evaluate(committedElement, "/Update/OperationType"));
     }
 
     public void testProductUpdate() throws Exception {

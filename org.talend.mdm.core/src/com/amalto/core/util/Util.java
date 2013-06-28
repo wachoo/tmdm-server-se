@@ -2581,7 +2581,7 @@ public class Util {
                 }else{
                 	xml=pojo.getProjectionAsString();
                 }
-                String resultUpdateReport = Util.createUpdateReport(ids, concept, "PHYSICAL_DELETE", null, //$NON-NLS-1$
+                String resultUpdateReport = Util.createUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE, null,
                         "", clusterName); //$NON-NLS-1$
                 String exchangeData = mergeExchangeData(xml, resultUpdateReport);
                 final String RUNNING = "XtentisWSBean.executeTransformerV2.beforeDeleting.running";
