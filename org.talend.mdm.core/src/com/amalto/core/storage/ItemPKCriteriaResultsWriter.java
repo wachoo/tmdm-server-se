@@ -13,6 +13,8 @@ package com.amalto.core.storage;
 
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
+
+import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
@@ -62,7 +64,7 @@ class ItemPKCriteriaResultsWriter implements DataRecordWriter {
             writer.write("<ids>"); //$NON-NLS-1$
             Collection<FieldMetadata> keyFields = itemType.getKeyFields();
             for (FieldMetadata keyField : keyFields) {
-                writer.write("<i>" + record.get(keyField) + "</i>"); //$NON-NLS-1$ //$NON-NLS-2$
+                writer.write("<i>" + StringEscapeUtils.escapeXml(String.valueOf(record.get(keyField))) + "</i>"); //$NON-NLS-1$ //$NON-NLS-2$
             }
             writer.write("</ids>"); //$NON-NLS-1$
         }
