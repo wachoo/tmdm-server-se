@@ -818,8 +818,8 @@ public class StorageQueryTest extends StorageTestCase {
                 .join(person.getField("addresses/address"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(1, results.getSize());
-            assertEquals(1, results.getCount());
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
         } finally {
             results.close();
         }
@@ -829,8 +829,8 @@ public class StorageQueryTest extends StorageTestCase {
                 .join(person.getField("addresses/address"));
         results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(1, results.getSize());
-            assertEquals(1, results.getCount());
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
         } finally {
             results.close();
         }

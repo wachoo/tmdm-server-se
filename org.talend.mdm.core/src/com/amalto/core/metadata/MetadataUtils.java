@@ -92,6 +92,19 @@ public class MetadataUtils {
     }
 
     /**
+     * Similar to {@link #path(org.talend.mdm.commmon.metadata.ComplexTypeMetadata, org.talend.mdm.commmon.metadata.FieldMetadata, boolean)}
+     * but will remain in entity boundaries (won't follow FK to other MDM entities).
+     *
+     * @param origin Point of entry in the metadata graph.
+     * @param target Field to look for as end of path.
+     * @return A path <b>within</b> type <code>origin</code> to field <code>target</code>. Returns empty stack if no path could be found.
+     * @throws IllegalArgumentException If either <code>origin</code> or <code>path</code> is null.
+     */
+    public static List<FieldMetadata> path(ComplexTypeMetadata origin, FieldMetadata target) {
+        return path(origin, target, true);
+    }
+
+    /**
      * <p>
      * Find <b>a</b> path (<b>not necessarily the shortest</b>) from type <code>origin</code> to field <code>target</code>.
      * </p>
@@ -108,7 +121,7 @@ public class MetadataUtils {
      * @return A path from type <code>origin</code> to field <code>target</code>. Returns empty stack if no path could be found.
      * @throws IllegalArgumentException If either <code>origin</code> or <code>path</code> is null.
      */
-    public static List<FieldMetadata> path(ComplexTypeMetadata origin, FieldMetadata target) {
+    public static List<FieldMetadata> path(ComplexTypeMetadata origin, FieldMetadata target, boolean includeReferences) {
         if (origin == null) {
             throw new IllegalArgumentException("Origin can not be null");
         }
@@ -151,21 +164,37 @@ public class MetadataUtils {
                 processedFields.add(current);
                 if (current instanceof ContainedTypeFieldMetadata) {
                     ContainedComplexTypeMetadata containedType = ((ContainedTypeFieldMetadata) current).getContainedType();
-                    processStack.addAll(containedType.getFields());
-                    for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
-                        for (FieldMetadata field : subType.getFields()) {
-                            if (field.getDeclaringType() == subType) {
-                                processStack.add(field);
+                    if (includeReferences) {
+                        processStack.addAll(containedType.getFields());
+                        for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
+                            for (FieldMetadata field : subType.getFields()) {
+                                if (field.getDeclaringType() == subType) {
+                                    processStack.add(field);
+                                }
+                            }
+                        }
+                    } else {
+                        for (FieldMetadata fieldMetadata : containedType.getFields()) {
+                            if (includeFieldInPath(fieldMetadata, target)) {
+                                processStack.add(fieldMetadata);
                             }
                         }
                     }
                 } else if (current instanceof ReferenceFieldMetadata) {
                     ComplexTypeMetadata referencedType = ((ReferenceFieldMetadata) current).getReferencedType();
-                    processStack.addAll(referencedType.getFields());
-                    for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
-                        for (FieldMetadata field : subType.getFields()) {
-                            if (field.getDeclaringType() == subType) {
-                                processStack.add(field);
+                    if (includeReferences) {
+                        processStack.addAll(referencedType.getFields());
+                        for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
+                            for (FieldMetadata field : subType.getFields()) {
+                                if (field.getDeclaringType() == subType) {
+                                    processStack.add(field);
+                                }
+                            }
+                        }
+                    } else {
+                        for (FieldMetadata fieldMetadata : referencedType.getFields()) {
+                            if (includeFieldInPath(fieldMetadata, target)) {
+                                processStack.add(fieldMetadata);
                             }
                         }
                     }
@@ -173,6 +202,13 @@ public class MetadataUtils {
             }
         }
         return path;
+    }
+
+    private static boolean includeFieldInPath(FieldMetadata fieldMetadata, FieldMetadata target) {
+        Collection<FieldMetadata> keyFields = fieldMetadata.getContainingType().getKeyFields();
+        return fieldMetadata.equals(target)
+                        || !(fieldMetadata instanceof ReferenceFieldMetadata)
+                        || (!keyFields.isEmpty() && "x_talend_id".equals(keyFields.iterator().next().getName())); //$NON-NLS-1$
     }
 
     /**

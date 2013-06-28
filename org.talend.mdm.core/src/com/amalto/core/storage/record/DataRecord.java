@@ -68,7 +68,7 @@ public class DataRecord {
             if (fieldToValue.containsKey(field)) {
                 return fieldToValue.get(field);
             }
-            Iterator<FieldMetadata> path = MetadataUtils.path(type, field).iterator();
+            Iterator<FieldMetadata> path = MetadataUtils.path(type, field, false).iterator();
             if (!path.hasNext()) {
                 Object value = get(field.getName());
                 if(value != null) { // Support explicit projection type fields
