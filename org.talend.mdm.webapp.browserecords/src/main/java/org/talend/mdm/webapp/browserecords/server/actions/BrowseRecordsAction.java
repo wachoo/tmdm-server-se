@@ -42,6 +42,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
@@ -1480,9 +1481,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 .append(operationType).append("</OperationType><RevisionID>").append(revisionId) //$NON-NLS-1$
                 .append("</RevisionID><DataCluster>").append(dataClusterPK).append("</DataCluster><DataModel>") //$NON-NLS-1$ //$NON-NLS-2$
                 .append(dataModelPK).append("</DataModel><Concept>").append(concept) //$NON-NLS-1$
-                .append("</Concept><Key>").append(key).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$
+                .append("</Concept><Key>").append(StringEscapeUtils.escapeXml(key)).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)) { //$NON-NLS-1$
+        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)) {
             // Important: Leave update report creation to MDM server
             throw new UnsupportedOperationException();
         }
