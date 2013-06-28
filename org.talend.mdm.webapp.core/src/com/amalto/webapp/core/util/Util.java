@@ -190,7 +190,7 @@ public class Util {
         }
 
         // Auto
-        if (endpointAddress.contains("localhost")) {
+        if (endpointAddress.contains("localhost")) { //$NON-NLS-1$
             return getRMIEndPoint();
         }
 
@@ -281,12 +281,12 @@ public class Util {
         if (path == null || path.trim().length() == 0) {
             return null;
         }
-        if (path.startsWith("/")) {
+        if (path.startsWith("/")) { //$NON-NLS-1$
             path = path.substring(1);
         }
 
         Pattern p = Pattern.compile("(.*?)[\\[|/].*"); //$NON-NLS-1$
-        if (!path.endsWith("/")) {
+        if (!path.endsWith("/")) { //$NON-NLS-1$
             path += "/"; //$NON-NLS-1$
         }
         Matcher m = p.matcher(path);
@@ -305,7 +305,7 @@ public class Util {
     public static String getFieldFromPath(String path) {
         String result = null;
         if (path != null) {
-            if (path.endsWith("/")) {
+            if (path.endsWith("/")) { //$NON-NLS-1$
                 path = path.substring(0, path.lastIndexOf("/")); //$NON-NLS-1$
             }
             String[] tmps = path.split("/"); //$NON-NLS-1$
@@ -325,7 +325,7 @@ public class Util {
 
     public static WSWhereCondition getConditionFromPath(String path) {
         Pattern p = Pattern.compile("(.*?)\\[(.*?)(&=|!=|>=|<=|>|<|=)(.*?)\\].*"); //$NON-NLS-1$
-        if (!path.endsWith("/")) {
+        if (!path.endsWith("/")) { //$NON-NLS-1$
             path += "/"; //$NON-NLS-1$
         }
         Matcher m = p.matcher(path);
@@ -352,7 +352,7 @@ public class Util {
         if (fkFilter == null || fkFilter.length() == 0) {
             return null;
         }
-        if (fkFilter.equals("null")) {
+        if (fkFilter.equals("null")) { //$NON-NLS-1$
             return null;
         }
 
@@ -481,29 +481,29 @@ public class Util {
 
         if (values.length >= 3) {
             WSWhereOperator operator = null;
-            if (values[1].equals("Contains")) {
+            if (values[1].equals("Contains")) { //$NON-NLS-1$
                 operator = WSWhereOperator.CONTAINS;
-            } else if (values[1].equals("Contains Text Of")) {
+            } else if (values[1].equals("Contains Text Of")) { //$NON-NLS-1$
                 operator = WSWhereOperator.JOIN;
-            } else if (values[1].equals("=")) {
+            } else if (values[1].equals("=")) { //$NON-NLS-1$
                 operator = WSWhereOperator.EQUALS;
-            } else if (values[1].equals(">")) {
+            } else if (values[1].equals(">")) { //$NON-NLS-1$
                 operator = WSWhereOperator.GREATER_THAN;
-            } else if (values[1].equals(">=")) {
+            } else if (values[1].equals(">=")) { //$NON-NLS-1$
                 operator = WSWhereOperator.GREATER_THAN_OR_EQUAL;
-            } else if (values[1].equals("<")) {
+            } else if (values[1].equals("<")) { //$NON-NLS-1$
                 operator = WSWhereOperator.LOWER_THAN;
-            } else if (values[1].equals("<=")) {
+            } else if (values[1].equals("<=")) { //$NON-NLS-1$
                 operator = WSWhereOperator.LOWER_THAN_OR_EQUAL;
-            } else if (values[1].equals("!=")) {
+            } else if (values[1].equals("!=")) { //$NON-NLS-1$
                 operator = WSWhereOperator.NOT_EQUALS;
-            } else if (values[1].equals("Starts With")) {
+            } else if (values[1].equals("Starts With")) { //$NON-NLS-1$
                 operator = WSWhereOperator.STARTSWITH;
-            } else if (values[1].equals("Strict Contains")) {
+            } else if (values[1].equals("Strict Contains")) { //$NON-NLS-1$
                 operator = WSWhereOperator.STRICTCONTAINS;
             }
             wc.setOperator(operator);
-            if (values[2] != null && values[2].matches("^\".*\"$")) {
+            if (values[2] != null && values[2].matches("^\".*\"$")) { //$NON-NLS-1$
                 values[2] = values[2].substring(1, values[2].length() - 1);
             }
             wc.setRightValueOrPath(values[2]);
@@ -511,21 +511,21 @@ public class Util {
 
         if (values.length >= 4) {
             WSStringPredicate predicate = null;
-            if (values[3].equals("")) {
+            if (values[3].equals("")) { //$NON-NLS-1$
                 predicate = WSStringPredicate.NONE;
-            } else if (values[3].equals("Or")) {
+            } else if (values[3].equals("Or")) { //$NON-NLS-1$
                 predicate = WSStringPredicate.OR;
             }
-            if (values[3].equals("And")) {
+            if (values[3].equals("And")) { //$NON-NLS-1$
                 predicate = WSStringPredicate.AND;
             }
-            if (values[3].equals("Strict And")) {
+            if (values[3].equals("Strict And")) { //$NON-NLS-1$
                 predicate = WSStringPredicate.STRICTAND;
             }
-            if (values[3].equals("Exactly")) {
+            if (values[3].equals("Exactly")) { //$NON-NLS-1$
                 predicate = WSStringPredicate.EXACTLY;
             }
-            if (values[3].equals("Not")) {
+            if (values[3].equals("Not")) { //$NON-NLS-1$
                 predicate = WSStringPredicate.NOT;
             }
             wc.setStringPredicate(predicate);
@@ -726,25 +726,25 @@ public class Util {
     }
 
     public static com.amalto.webapp.util.webservices.WSWhereOperator changeToWSOperator(String operator) {
-        if ("=".equals(operator)) {
+        if ("=".equals(operator)) { //$NON-NLS-1$
             return com.amalto.webapp.util.webservices.WSWhereOperator.EQUALS;
         }
-        if ("!=".equals(operator)) {
+        if ("!=".equals(operator)) { //$NON-NLS-1$
             return com.amalto.webapp.util.webservices.WSWhereOperator.NOT_EQUALS;
         }
-        if ("<".equals(operator)) {
+        if ("<".equals(operator)) { //$NON-NLS-1$
             return com.amalto.webapp.util.webservices.WSWhereOperator.LOWER_THAN;
         }
-        if ("<=".equals(operator)) {
+        if ("<=".equals(operator)) { //$NON-NLS-1$
             return com.amalto.webapp.util.webservices.WSWhereOperator.LOWER_THAN_OR_EQUAL;
         }
-        if (">".equals(operator)) {
+        if (">".equals(operator)) { //$NON-NLS-1$
             return com.amalto.webapp.util.webservices.WSWhereOperator.GREATER_THAN;
         }
-        if (">=".equals(operator)) {
+        if (">=".equals(operator)) { //$NON-NLS-1$
             return com.amalto.webapp.util.webservices.WSWhereOperator.GREATER_THAN_OR_EQUAL;
         }
-        if ("&=".equals(operator)) {
+        if ("&=".equals(operator)) { //$NON-NLS-1$
             return com.amalto.webapp.util.webservices.WSWhereOperator.CONTAINS;
         }
         return null;
@@ -899,13 +899,13 @@ public class Util {
         ;
 
         // test for hard-coded values
-        if (xPath.startsWith("\"") && xPath.endsWith("\"")) {
+        if (xPath.startsWith("\"") && xPath.endsWith("\"")) { //$NON-NLS-1$//$NON-NLS-2$
             return new String[] { xPath.substring(1, xPath.length() - 1) };
         }
 
         // test for incomplete path (elements missing /text())
-        if (!xPath.matches(".*@[^/\\]]+")) {
-            if (!xPath.endsWith(")")) {
+        if (!xPath.matches(".*@[^/\\]]+")) { //$NON-NLS-1$
+            if (!xPath.endsWith(")")) { //$NON-NLS-1$
                 xPath += "/text()"; //$NON-NLS-1$
             }
         }
@@ -1243,29 +1243,29 @@ public class Util {
      */
     public static WSWhereOperator getOperator(String option) {
         WSWhereOperator res = null;
-        if (option.equalsIgnoreCase("CONTAINS")) {
+        if (option.equalsIgnoreCase("CONTAINS")) { //$NON-NLS-1$
             res = WSWhereOperator.CONTAINS;
-        } else if (option.equalsIgnoreCase("EQUALS")) {
+        } else if (option.equalsIgnoreCase("EQUALS")) { //$NON-NLS-1$
             res = WSWhereOperator.EQUALS;
-        } else if (option.equalsIgnoreCase("GREATER_THAN")) {
+        } else if (option.equalsIgnoreCase("GREATER_THAN")) { //$NON-NLS-1$
             res = WSWhereOperator.GREATER_THAN;
-        } else if (option.equalsIgnoreCase("GREATER_THAN_OR_EQUAL")) {
+        } else if (option.equalsIgnoreCase("GREATER_THAN_OR_EQUAL")) { //$NON-NLS-1$
             res = WSWhereOperator.GREATER_THAN_OR_EQUAL;
-        } else if (option.equalsIgnoreCase("JOIN")) {
+        } else if (option.equalsIgnoreCase("JOIN")) { //$NON-NLS-1$
             res = WSWhereOperator.JOIN;
-        } else if (option.equalsIgnoreCase("LOWER_THAN")) {
+        } else if (option.equalsIgnoreCase("LOWER_THAN")) { //$NON-NLS-1$
             res = WSWhereOperator.LOWER_THAN;
-        } else if (option.equalsIgnoreCase("LOWER_THAN_OR_EQUAL")) {
+        } else if (option.equalsIgnoreCase("LOWER_THAN_OR_EQUAL")) { //$NON-NLS-1$
             res = WSWhereOperator.LOWER_THAN_OR_EQUAL;
-        } else if (option.equalsIgnoreCase("NOT_EQUALS")) {
+        } else if (option.equalsIgnoreCase("NOT_EQUALS")) { //$NON-NLS-1$
             res = WSWhereOperator.NOT_EQUALS;
-        } else if (option.equalsIgnoreCase("STARTSWITH")) {
+        } else if (option.equalsIgnoreCase("STARTSWITH")) { //$NON-NLS-1$
             res = WSWhereOperator.STARTSWITH;
-        } else if (option.equalsIgnoreCase("STRICTCONTAINS")) {
+        } else if (option.equalsIgnoreCase("STRICTCONTAINS")) { //$NON-NLS-1$
             res = WSWhereOperator.STRICTCONTAINS;
-        } else if (option.equalsIgnoreCase("FULLTEXTSEARCH")) {
+        } else if (option.equalsIgnoreCase("FULLTEXTSEARCH")) { //$NON-NLS-1$
             res = WSWhereOperator.FULLTEXTSEARCH;
-        } else if (option.equalsIgnoreCase("EMPTY_NULL")) {
+        } else if (option.equalsIgnoreCase("EMPTY_NULL")) { //$NON-NLS-1$
             res = WSWhereOperator.EMPTY_NULL;
         }
         return res;
@@ -1284,7 +1284,7 @@ public class Util {
             return false;
         }
         for (String[] temp : itemsBrowserContent) {
-            if (!temp[col].matches("^(-|)[0-9]+(\\.?)[0-9]*$")) {
+            if (!temp[col].matches("^(-|)[0-9]+(\\.?)[0-9]*$")) { //$NON-NLS-1$
                 return false;
             }
         }
@@ -1345,7 +1345,7 @@ public class Util {
     public static int getSortCol(String[] columns, String title) {
         int col = -1;
         for (int i = 0; i < columns.length; i++) {
-            if (("/" + columns[i]).equals(title)) {
+            if (("/" + columns[i]).equals(title)) { //$NON-NLS-1$
                 return i;
             }
         }
@@ -1402,7 +1402,7 @@ public class Util {
                 if (subCria.startsWith("(")) { //$NON-NLS-1$
                     subCria = subCria.substring(1);
                 }
-                if (subCria.endsWith(")")) {
+                if (subCria.endsWith(")")) { //$NON-NLS-1$
                     subCria = subCria.substring(0, subCria.length() - 1);
                 }
                 WSWhereItem whereItem = buildWhereItem(subCria);
@@ -1444,7 +1444,7 @@ public class Util {
             filterValues = sb.toString();
         }
 
-        if (filterXpaths == null || filterXpaths.trim().equals("")) {
+        if (filterXpaths == null || filterXpaths.trim().equals("")) { //$NON-NLS-1$
             return null;
         }
 
@@ -1470,7 +1470,7 @@ public class Util {
     public static String getFormatedFKInfo(String info, String conceptName) {
         info = info.substring(info.startsWith("/") ? 1 : 0); //$NON-NLS-1$
         String formatedInfo = info;
-        if (info.startsWith("./")) {
+        if (info.startsWith("./")) { //$NON-NLS-1$
             formatedInfo = info.replaceFirst("./", conceptName + "/"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return formatedInfo;
@@ -1751,7 +1751,7 @@ public class Util {
 
     public static boolean isCustomFilter(String fkFilter) {
         boolean isCustom = false;
-        if (fkFilter != null && fkFilter.startsWith("$CFFP:")) {
+        if (fkFilter != null && fkFilter.startsWith("$CFFP:")) { //$NON-NLS-1$
             isCustom = true;
         }
         return isCustom;
@@ -1854,17 +1854,17 @@ public class Util {
             Calendar dateTime = Calendar.getInstance();
             dateTime.setTime(sdf.parse(value.trim()));
             return dateTime;
-        } else if (type.equals("byte")) {
+        } else if (type.equals("byte")) { //$NON-NLS-1$
             return Byte.valueOf(value);
-        } else if (type.equals("short")) {
+        } else if (type.equals("short")) { //$NON-NLS-1$
             return Short.valueOf(value);
-        } else if (type.equals("int") || type.equals("integer")) {
+        } else if (type.equals("int") || type.equals("integer")) { //$NON-NLS-1$//$NON-NLS-2$
             return Integer.valueOf(value);
-        } else if (type.equals("long")) {
+        } else if (type.equals("long")) { //$NON-NLS-1$
             return Long.valueOf(value);
-        } else if (type.equals("float")) {
+        } else if (type.equals("float")) { //$NON-NLS-1$
             return Float.valueOf(value);
-        } else if (type.equals("double")) {
+        } else if (type.equals("double")) { //$NON-NLS-1$
             return Double.valueOf(value);
         }
         return null;
@@ -2096,7 +2096,7 @@ public class Util {
 
         String[] keys = copyKey.getFields();
         for (int i = 0; i < keys.length; i++) {
-            if (".".equals(key.getSelector())) {
+            if (".".equals(key.getSelector())) { //$NON-NLS-1$
                 keys[i] = concept + "/" + keys[i]; //$NON-NLS-1$ 
             } else {
                 keys[i] = key.getSelector() + keys[i];
@@ -2144,7 +2144,7 @@ public class Util {
 
     @Deprecated
     public static String getExceptionMessage(String message, String language) {
-        if (message == null || message.indexOf("<msg/>") != -1) {
+        if (message == null || message.indexOf("<msg/>") != -1) { //$NON-NLS-1$
             return ""; //$NON-NLS-1$
         }
         // Message tip : "<msg>[EN:validate error][FR:validate error]</msg>"
