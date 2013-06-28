@@ -22,6 +22,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 class ItemPKCriteriaResultsWriter implements DataRecordWriter {
 
     private final String typeName;
@@ -62,7 +64,7 @@ class ItemPKCriteriaResultsWriter implements DataRecordWriter {
             writer.write("<ids>"); //$NON-NLS-1$
             List<FieldMetadata> keyFields = itemType.getKeyFields();
             for (FieldMetadata keyField : keyFields) {
-                writer.write("<i>" + record.get(keyField) + "</i>"); //$NON-NLS-1$ //$NON-NLS-2$
+                writer.write("<i>" + StringEscapeUtils.escapeXml(String.valueOf(record.get(keyField))) + "</i>"); //$NON-NLS-1$ //$NON-NLS-2$
             }
             writer.write("</ids>"); //$NON-NLS-1$
         }
