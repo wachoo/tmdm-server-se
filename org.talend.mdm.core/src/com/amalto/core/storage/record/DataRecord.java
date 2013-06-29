@@ -65,7 +65,7 @@ public class DataRecord {
     public Object get(FieldMetadata field) {
         ComplexTypeMetadata containingType = field.getContainingType();
         if (containingType != this.getType() && !this.getType().isAssignableFrom(containingType)) {
-            Iterator<FieldMetadata> path = MetadataUtils.path(type, field).iterator();
+            Iterator<FieldMetadata> path = MetadataUtils.path(type, field, false).iterator();
             if (!path.hasNext()) {
                 Object value = get(field.getName());
                 if(value != null) { // Support explicit projection type fields

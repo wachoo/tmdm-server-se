@@ -296,7 +296,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         ComplexTypeMetadata mainType = mapping.getDatabase();
         String previousAlias = mapping.getUser().getName();
         String alias;
-        for (FieldMetadata next : MetadataUtils.path(mainType, databaseField)) {
+        for (FieldMetadata next : MetadataUtils.path(mainType, databaseField, false)) {
             if (next instanceof ReferenceFieldMetadata) {
                 alias = joinFieldsToAlias.get(next);
                 if (alias == null) {

@@ -105,7 +105,7 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
         if (condition != null) {
             ConditionChecks conditionChecks = new ConditionChecks(select);
             ConditionChecks.Result result = condition.accept(conditionChecks);
-            if (result.id) {
+            if (result.id && !select.isProjection()) { // TMDM-5965: IdQueryHandler has trouble with projections using reusable type's elements.
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Using \"get by id\" strategy");
                 }

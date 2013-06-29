@@ -90,6 +90,19 @@ public class MetadataUtils {
     }
 
     /**
+     * Similar to {@link #path(ComplexTypeMetadata, FieldMetadata, boolean)}
+     * but will remain in entity boundaries (won't follow FK to other MDM entities).
+     *
+     * @param origin Point of entry in the metadata graph.
+     * @param target Field to look for as end of path.
+     * @return A path <b>within</b> type <code>origin</code> to field <code>target</code>. Returns empty stack if no path could be found.
+     * @throws IllegalArgumentException If either <code>origin</code> or <code>path</code> is null.
+     */
+    public static List<FieldMetadata> path(ComplexTypeMetadata origin, FieldMetadata target) {
+        return path(origin, target, true);
+    }
+
+    /**
      * <p>
      * Find <b>a</b> path (<b>not necessarily the shortest</b>) from type <code>origin</code> to field <code>target</code>.
      * </p>
@@ -106,7 +119,7 @@ public class MetadataUtils {
      * @return A path from type <code>origin</code> to field <code>target</code>. Returns empty stack if no path could be found.
      * @throws IllegalArgumentException If either <code>origin</code> or <code>path</code> is null.
      */
-    public static List<FieldMetadata> path(ComplexTypeMetadata origin, FieldMetadata target) {
+    public static List<FieldMetadata> path(ComplexTypeMetadata origin, FieldMetadata target, boolean includeReferences) {
         if (origin == null) {
             throw new IllegalArgumentException("Origin can not be null");
         }
@@ -148,13 +161,39 @@ public class MetadataUtils {
             if (!processedFields.contains(current)) {
                 processedFields.add(current);
                 if (current instanceof ContainedTypeFieldMetadata) {
-                    processStack.addAll(((ContainedTypeFieldMetadata) current).getContainedType().getFields());
+                    ContainedComplexTypeMetadata containedType = ((ContainedTypeFieldMetadata) current).getContainedType();
+                    processStack.addAll(containedType.getFields());
+                    if (includeReferences) {
+                        processStack.addAll(containedType.getFields());
+                    } else {
+                        for (FieldMetadata fieldMetadata : containedType.getFields()) {
+                            if (includeFieldInPath(fieldMetadata, target)) {
+                                processStack.add(fieldMetadata);
+                            }
+                        }
+                    }
                 } else if (current instanceof ReferenceFieldMetadata) {
-                    processStack.addAll(((ReferenceFieldMetadata) current).getReferencedType().getFields());
+                    ComplexTypeMetadata referencedType = ((ReferenceFieldMetadata) current).getReferencedType();
+                    if (includeReferences) {
+                        processStack.addAll(referencedType.getFields());
+                    } else {
+                        for (FieldMetadata fieldMetadata : referencedType.getFields()) {
+                            if (includeFieldInPath(fieldMetadata, target)) {
+                                processStack.add(fieldMetadata);
+                            }
+                        }
+                    }
                 }
             }
         }
         return path;
+    }
+
+    private static boolean includeFieldInPath(FieldMetadata fieldMetadata, FieldMetadata target) {
+        Collection<FieldMetadata> keyFields = fieldMetadata.getContainingType().getKeyFields();
+        return fieldMetadata.equals(target)
+                        || !(fieldMetadata instanceof ReferenceFieldMetadata)
+                        || (!keyFields.isEmpty() && "x_talend_id".equals(keyFields.iterator().next().getName())); //$NON-NLS-1$
     }
 
     /**
