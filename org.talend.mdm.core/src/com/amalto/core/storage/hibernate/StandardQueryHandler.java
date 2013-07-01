@@ -252,10 +252,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
     @Override
     public StorageResults visit(final Field field) {
         final FieldMetadata userFieldMetadata = field.getFieldMetadata();
-        ComplexTypeMetadata containingType = userFieldMetadata.getContainingType();
-        if (!containingType.isInstantiable()) {
-            containingType = mainType;
-        }
+        ComplexTypeMetadata containingType = getContainingType(userFieldMetadata);
         final String alias = getAlias(containingType, userFieldMetadata);
         userFieldMetadata.accept(new DefaultMetadataVisitor<Void>() {
 
@@ -289,6 +286,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
             }
         });
         return null;
+    }
+
+    private ComplexTypeMetadata getContainingType(FieldMetadata userFieldMetadata) {
+        ComplexTypeMetadata containingType = userFieldMetadata.getContainingType();
+        if (!containingType.isInstantiable()) {
+            containingType = mainType;
+        }
+        return containingType;
     }
 
     private String getAlias(ComplexTypeMetadata type, FieldMetadata databaseField) {
@@ -416,7 +421,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (orderByExpression instanceof Field) {
             Field field = (Field) orderByExpression;
             FieldMetadata userFieldMetadata = field.getFieldMetadata();
-            String alias = getAlias(userFieldMetadata.getContainingType(), userFieldMetadata);
+            ComplexTypeMetadata containingType = getContainingType(userFieldMetadata);
+            String alias = getAlias(containingType, userFieldMetadata);
             condition.criterionFieldName = alias + '.' + userFieldMetadata.getName();
         }
         if (condition != null) {
