@@ -673,13 +673,13 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return storageAdmin;
     }
 
-    private Storage getStorage(String dataClusterName) {
+    protected Storage getStorage(String dataClusterName) {
         StorageAdmin admin = getStorageAdmin();
         Collection<Storage> storages = admin.get(dataClusterName);
         return new TransactionStorage(storages);
     }
 
-    private Storage getStorage(String dataClusterName, String revisionId) {
+    protected Storage getStorage(String dataClusterName, String revisionId) {
         StorageType storageType = dataClusterName.endsWith(StorageAdmin.STAGING_SUFFIX) ? StorageType.STAGING : StorageType.MASTER;
         StorageAdmin admin = getStorageAdmin();
         if (!admin.exist(revisionId, dataClusterName, storageType)) {
