@@ -252,10 +252,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
     @Override
     public StorageResults visit(final Field field) {
         final FieldMetadata userFieldMetadata = field.getFieldMetadata();
-        ComplexTypeMetadata containingType = field.getFieldMetadata().getContainingType();
-        if (!containingType.isInstantiable()) {
-            containingType = mainType;
-        }
+        ComplexTypeMetadata containingType = getContainingType(userFieldMetadata);
         TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(containingType);
         final FieldMetadata database = mapping.getDatabase(userFieldMetadata);
         final String alias = getAlias(mapping, database);
@@ -290,6 +287,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
             }
         });
         return null;
+    }
+
+    private ComplexTypeMetadata getContainingType(FieldMetadata userFieldMetadata) {
+        ComplexTypeMetadata containingType = userFieldMetadata.getContainingType();
+        if (!containingType.isInstantiable()) {
+            containingType = mainType;
+        }
+        return containingType;
     }
 
     private String getAlias(TypeMapping mapping, FieldMetadata databaseField) {
@@ -478,7 +483,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (orderByExpression instanceof Field) {
             Field field = (Field) orderByExpression;
             FieldMetadata userFieldMetadata = field.getFieldMetadata();
-            TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(field.getFieldMetadata().getContainingType());
+            ComplexTypeMetadata containingType = getContainingType(userFieldMetadata);
+            TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(containingType);
             FieldMetadata database = mapping.getDatabase(userFieldMetadata);
             String alias = getAlias(mapping, database);
             condition.criterionFieldName = alias + '.' + database.getName();
