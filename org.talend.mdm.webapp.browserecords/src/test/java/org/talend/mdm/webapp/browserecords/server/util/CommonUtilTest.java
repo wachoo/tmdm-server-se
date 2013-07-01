@@ -277,6 +277,37 @@ public class CommonUtilTest extends TestCase {
 
     }
 
+    public void testGetDefaultXML() throws Exception {
+        String datamodelName = "Test";
+        String concept = "e";
+        String[] ids = { "" };
+        String[] roles = { "System_Admin" };
+        InputStream stream = getClass().getResourceAsStream("TestReusableType.xsd");
+        String language = "en";
+        String xsd = inputStream2String(stream);
+
+        EntityModel testModel = new EntityModel();
+
+        PowerMockito.mockStatic(Util.class);
+        Mockito.when(Util.isEnterprise()).thenReturn(false);
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, testModel,
+                Arrays.asList(roles));
+
+        Map<String, TypeModel> types = testModel.getMetaDataTypes();
+        TypeModel rootModel = types.get("e");
+        assertNotNull(rootModel);
+        Document doc = CommonUtil.getSubXML(rootModel, null, null, language);
+        assertNotNull(doc);
+
+        org.dom4j.Document doc4j = XmlUtil.parseDocument(doc);
+        assertNotNull(doc4j);
+        String expectedXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                + "<e xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id/><b xsi:type=\"a2\"><subelement/></b></e>";
+        String actualXML = doc4j.asXML();
+        assertEquals(expectedXML, actualXML);
+    }
+
     private String inputStream2String(InputStream is) {
 
         BufferedReader in = new BufferedReader(new InputStreamReader(is));

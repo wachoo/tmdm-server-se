@@ -142,6 +142,9 @@ public class CommonUtil {
             for (Element node : itemNodes) {
                 if (realTypeModel != null) {
                     node.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xsi:type", realType); //$NON-NLS-1$ //$NON-NLS-2$
+                } else if (!model.isAbstract() && model.getType() != null && complexModel.getReusableComplexTypes().size() > 0) {
+                    // When create a record, if the node is reusable type(but not abstract type), it need to record the xsi:type value.
+                    node.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xsi:type", model.getType().getTypeName()); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 for (TypeModel typeModel : children) {
                     List<Element> els = _getDefaultXML(typeModel, model, realType, doc, map, language);
