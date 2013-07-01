@@ -54,7 +54,7 @@ import com.amalto.webapp.core.util.XmlUtil;
 public class CommonUtilTest extends TestCase {
 
     private static final Logger LOG = Logger.getLogger(CommonUtilTest.class);
-    
+
     @SuppressWarnings("unchecked")
     public static TestSuite suite() throws Exception {
         return new PowerMockSuite("Unit tests for " + CommonUtilTest.class.getSimpleName(), CommonUtilTest.class);
@@ -153,7 +153,7 @@ public class CommonUtilTest extends TestCase {
         assertNotNull(visibleItem);
         assertEquals(expectedValue, visibleItem.isVisible());
     }
-    
+
     public void testHandleProcessMessage() {
         String outputMessage = "<report><message/></report>";
         String language = "en";
@@ -167,7 +167,7 @@ public class CommonUtilTest extends TestCase {
         assertNotNull(map.get("typeCode"));
         assertTrue(map.get("typeCode").equalsIgnoreCase(""));
         assertNull(map.get("message"));
-        
+
         map.clear();
         outputMessage = "<report><message type=\"error\" /></report>";
         language = "en";
@@ -180,7 +180,7 @@ public class CommonUtilTest extends TestCase {
         assertNotNull(map.get("typeCode"));
         assertEquals("error", map.get("typeCode"));
         assertNull(map.get("message"));
-        
+
         map.clear();
         outputMessage = "<report><message type=\"info\" >[en:message_en][fr:message_fr]</message></report>";
         language = "en";
@@ -194,7 +194,7 @@ public class CommonUtilTest extends TestCase {
         assertEquals("info", map.get("typeCode"));
         assertNotNull(map.get("message"));
         assertEquals("message_en", map.get("message"));
-        
+
         map.clear();
         outputMessage = "<report><message type=\"info\" >Test_Message</message></report>";
         language = "en";
@@ -208,7 +208,7 @@ public class CommonUtilTest extends TestCase {
         assertEquals("info", map.get("typeCode"));
         assertNotNull(map.get("message"));
         assertEquals("Test_Message", map.get("message"));
-        
+
         map.clear();
         outputMessage = "<report><message type=\"info\" ><subMessage></subMessage></message></report>";
         language = "en";
@@ -221,7 +221,7 @@ public class CommonUtilTest extends TestCase {
         assertNotNull(map.get("typeCode"));
         assertEquals("info", map.get("typeCode"));
         assertNull(map.get("message"));
-        
+
         map.clear();
         outputMessage = "<report><message type=\"info\" ><subMessage>test_subMessage</subMessage></message></report>";
         language = "en";
@@ -235,7 +235,7 @@ public class CommonUtilTest extends TestCase {
         assertEquals("info", map.get("typeCode"));
         assertNotNull(map.get("message"));
         assertEquals("test_subMessage", map.get("message"));
-        
+
         map.clear();
         outputMessage = "<report><message type=\"info\" ><subMessage><subsub>subsub</subsub></subMessage></message></report>";
         language = "en";
@@ -249,7 +249,7 @@ public class CommonUtilTest extends TestCase {
         assertEquals("info", map.get("typeCode"));
         assertNull(map.get("message"));
     }
-    
+
     public void testGetDefaultTreeModel() throws SAXException {
         String datamodelName = "Polymorphism";
         String concept = "Assignment";
@@ -275,6 +275,37 @@ public class CommonUtilTest extends TestCase {
         assertEquals("", addressNodeModel.getRealType());
         assertEquals(0, addressNodeModel.getChildCount());
 
+    }
+
+    public void testGetDefaultXML() throws Exception {
+        String datamodelName = "Test";
+        String concept = "e";
+        String[] ids = { "" };
+        String[] roles = { "System_Admin" };
+        InputStream stream = getClass().getResourceAsStream("TestReusableType.xsd");
+        String language = "en";
+        String xsd = inputStream2String(stream);
+
+        EntityModel testModel = new EntityModel();
+
+        PowerMockito.mockStatic(Util.class);
+        Mockito.when(Util.isEnterprise()).thenReturn(false);
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, testModel,
+                Arrays.asList(roles));
+
+        Map<String, TypeModel> types = testModel.getMetaDataTypes();
+        TypeModel rootModel = types.get("e");
+        assertNotNull(rootModel);
+        Document doc = CommonUtil.getSubXML(rootModel, null, null, language);
+        assertNotNull(doc);
+
+        org.dom4j.Document doc4j = XmlUtil.parseDocument(doc);
+        assertNotNull(doc4j);
+        String expectedXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                + "<e xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id/><b xsi:type=\"a2\"><subelement/></b></e>";
+        String actualXML = doc4j.asXML();
+        assertEquals(expectedXML, actualXML);
     }
 
     private String inputStream2String(InputStream is) {
