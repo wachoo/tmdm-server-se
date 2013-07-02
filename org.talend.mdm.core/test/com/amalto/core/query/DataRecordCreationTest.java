@@ -181,7 +181,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         assertEquals(1, ((List) o).size());
         assertTrue(((DataRecord) ((List) o).get(0)) instanceof DataRecord);
         assertEquals("Supplier", ((DataRecord) ((List) o).get(0)).getType().getName());
-        assertEquals(1, ((DataRecord) ((List) o).get(0)).get("Id"));
+        assertEquals("1", ((DataRecord) ((List) o).get(0)).get("Id"));
 
         o = dataRecord.get("Family");
         assertNotNull(o);

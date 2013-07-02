@@ -38,6 +38,7 @@ import java.io.*;
 import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
 
 public class StorageWrapper implements IXmlServerSLWrapper {
 
@@ -64,11 +65,21 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 builder.append(currentId).append('.');
             }
             throw new IllegalArgumentException("Id '" + builder.toString() + "' does not contain all required values for key of type '" + type.getName() + "'.");
-        }
-
-        int currentIndex = 2;
-        for (FieldMetadata keyField : keyFields) {
-            qb.where(eq(keyField, splitUniqueId[currentIndex++]));
+        } else if (keyFields.size() == 1) {
+            // Split unique id > keyField: if # of key elements is 1, consider all remaining value as a single value (with '.' separators).
+            StringBuilder builder = new StringBuilder();
+            for (int i = 2; i < splitUniqueId.length; i++) {
+                builder.append(splitUniqueId[i]);
+                if (i < splitUniqueId.length - 1) {
+                    builder.append('.');
+                }
+            }
+            qb.where(eq(keyFields.iterator().next(), builder.toString()));
+        } else {
+            int currentIndex = 2;
+            for (FieldMetadata keyField : keyFields) {
+                qb.where(eq(keyField, splitUniqueId[currentIndex++]));
+            }
         }
         qb.getSelect().setRevisionId(revisionId);
         return qb.getSelect();
