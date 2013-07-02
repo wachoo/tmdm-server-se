@@ -158,14 +158,6 @@ public class UpdateReportDetailsServelt extends HttpServlet {
                                 if (newValue == null || newValue.equals("null")) //$NON-NLS-1$
                                     newValue = ""; //$NON-NLS-1$
 
-                                if (fkInstance.retireveFKInfo && !"".equals(oldValue) && fkInstance.getFkInfo() != null) { //$NON-NLS-1$
-                                    oldValue = getFKInfoByRetrieveConf(dataCluster, fkInstance.getFkInfo(), oldValue);
-                                }
-
-                                if (fkInstance.retireveFKInfo && !"".equals(newValue) && fkInstance.getFkInfo() != null) { //$NON-NLS-1$
-                                    newValue = getFKInfoByRetrieveConf(dataCluster, fkInstance.getFkInfo(), newValue);
-                                }
-
                                 JSONArray array = new JSONArray();
                                 JSONObject pathNode = new JSONObject();
                                 pathNode.put("id", "item" + i + "-path"); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$

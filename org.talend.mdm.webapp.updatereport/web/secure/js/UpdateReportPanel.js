@@ -814,6 +814,10 @@ Ext
 							regex : this.criteria
 						});
 					},
+					
+					refresh : function() {
+						this.doSearchList(false);
+					},
 
 					getCookie : function(cookieName) {
 

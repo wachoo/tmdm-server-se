@@ -57,9 +57,13 @@ Ext.extend(amalto.updatereport.DocumentHistoryPanel, Ext.Panel, {
                                             	fn:function(btn) {
                                             		if (btn == "ok") {
                                             			 var tabPanel = amalto.core.getTabPanel();
-                                                         var parentPanel=tabPanel.getItem(this.parentPanelId);
+                                                         var parentPanel=tabPanel.getItem(button.parentPanelId);
                                                          if(parentPanel) {
                                                              tabPanel.remove(parentPanel);
+                                                             var updateReportPanel = tabPanel.getItem('UpdateReportPanel');
+                                                             if (updateReportPanel) {
+                                                            	 updateReportPanel.refresh();
+                                                             }
                                                          }
                                             		}
                                             	}
@@ -74,9 +78,13 @@ Ext.extend(amalto.updatereport.DocumentHistoryPanel, Ext.Panel, {
                                             	fn:function(btn) {
                                             		if (btn == "ok") {
                                             			 var tabPanel = amalto.core.getTabPanel();
-                                                         var parentPanel=tabPanel.getItem(this.parentPanelId);
+                                                         var parentPanel=tabPanel.getItem(button.parentPanelId);
                                                          if(parentPanel) {
                                                              tabPanel.remove(parentPanel);
+                                                             var updateReportPanel = tabPanel.getItem('UpdateReportPanel');
+                                                             if (updateReportPanel) {
+                                                            	 updateReportPanel.refresh();
+                                                             }
                                                          }
                                             		}
                                             	}
