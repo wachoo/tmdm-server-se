@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -10,37 +10,80 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.recyclebin.server.actions;
+package com.amalto.webapp.core.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.rmi.RemoteException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
-
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.webapp.util.webservices.WSDataModel;
+import com.amalto.webapp.util.webservices.WSDataModelPK;
+import com.amalto.webapp.util.webservices.WSGetDataModel;
 
-public class Util {
 
-    private static final Logger LOG = Logger.getLogger(Util.class);
-
-    public static boolean checkReadAccess(String modelXSD, String conceptName) {
-        boolean result = false;
-
-        try {
-            String roles = com.amalto.webapp.core.util.Util.getPrincipalMember("Roles"); //$NON-NLS-1$
-            List<String> roleList = Arrays.asList(roles.split(",")); //$NON-NLS-1$
-            result = checkReadAccessHelper(modelXSD, conceptName, roleList);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+/**
+ * created by talend2 on 2013-6-13
+ * Detailled comment
+ *
+ */
+public class DataModelAccessor {
+    
+    private static final Logger LOG = Logger.getLogger(DataModelAccessor.class);
+    
+    private Map<String,String> xsdSchemaMap = new HashMap<String,String>();
+    
+    private static DataModelAccessor accessor;    
+    
+    public static synchronized DataModelAccessor getInstance(){    
+        if (accessor == null) {
+            accessor = new DataModelAccessor();
+        }             
+        return accessor;           
+    }
+    
+    public String getDataModelXSD(String dataModelName) throws RemoteException, XtentisWebappException {
+        if (dataModelName != null && !dataModelName.isEmpty()) {
+            if (xsdSchemaMap.get(dataModelName) == null) {
+                WSDataModel dataModel = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelName)));            
+                if (dataModel != null) {
+                    xsdSchemaMap.put(dataModelName, dataModel.getXsdSchema());
+                    return dataModel.getXsdSchema();
+                } else {
+                    return null;
+                }
+            } else {
+                return xsdSchemaMap.get(dataModelName);
+            }  
+        } else {
+            return null;
         }
-
-        return result;
+      
     }
 
-    public static boolean checkReadAccessHelper(String modelXSD, String conceptName, List<String> roles) {
+    public boolean checkReadAccess(String dataModelName, String conceptName) {
+        try {
+            if (dataModelName != null && conceptName != null) {
+                String roles = com.amalto.webapp.core.util.Util.getPrincipalMember("Roles"); //$NON-NLS-1$
+                List<String> roleList = Arrays.asList(roles.split(",")); //$NON-NLS-1$
+                String dataModelXSD = getDataModelXSD(dataModelName);
+                return dataModelXSD != null ? checkReadAccessHelper(dataModelXSD, conceptName, roleList) : false; 
+            } else {
+                return false;
+            }   
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public boolean checkReadAccessHelper(String modelXSD, String conceptName, List<String> roles) {
         boolean result = false;
 
         if (LOG.isDebugEnabled())
@@ -55,38 +98,40 @@ public class Util {
 
             if (metadata != null) {
                 List<String> noAccessRoles = metadata.getHideUsers();
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug("Roles without access " + noAccessRoles); //$NON-NLS-1$
+                }
                 noAccessRoles.retainAll(roles);
                 boolean userIsNoAccess = !noAccessRoles.isEmpty();
-
                 result = !userIsNoAccess;
             } else {
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug("Complex Type " + conceptName + " not found"); //$NON-NLS-1$ //$NON-NLS-2$
+                }
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
-
         return result;
     }
 
-    public static boolean checkRestoreAccess(String modelXSD, String conceptName) {
-        boolean result = false;
-
+    public boolean checkRestoreAccess(String dataModelName, String conceptName) {
         try {
-            String roles = com.amalto.webapp.core.util.Util.getPrincipalMember("Roles"); //$NON-NLS-1$
-            List<String> roleList = Arrays.asList(roles.split(",")); //$NON-NLS-1$
-            result = checkRestoreAccessHelper(modelXSD, conceptName, roleList);
+            if (dataModelName != null && conceptName != null) {
+                String roles = com.amalto.webapp.core.util.Util.getPrincipalMember("Roles"); //$NON-NLS-1$
+                List<String> roleList = Arrays.asList(roles.split(",")); //$NON-NLS-1$
+                String dataModelXSD = getDataModelXSD(dataModelName);
+                return dataModelXSD != null ? checkRestoreAccessHelper(dataModelXSD, conceptName, roleList) : false;
+            } else {
+                return false;
+            }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            return false;
         }
-
-        return result;
     }
 
-    public static boolean checkRestoreAccessHelper(String modelXSD, String conceptName, List<String> roles) {
+    public boolean checkRestoreAccessHelper(String modelXSD, String conceptName, List<String> roles) {
         boolean result = false;
 
         if (LOG.isDebugEnabled())
@@ -120,7 +165,6 @@ public class Util {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
-
         return result;
     }
 }

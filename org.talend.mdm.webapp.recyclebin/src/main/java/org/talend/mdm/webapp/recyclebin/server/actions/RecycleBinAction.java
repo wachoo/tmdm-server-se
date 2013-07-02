@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.recyclebin.server.actions;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -38,6 +41,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
+import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
@@ -45,17 +50,15 @@ import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
+import com.amalto.webapp.core.util.DataModelAccessor;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSDataModel;
-import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSDroppedItem;
 import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSDroppedItemPKArray;
 import com.amalto.webapp.util.webservices.WSExistsItem;
 import com.amalto.webapp.util.webservices.WSFindAllDroppedItemsPKs;
-import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSLoadDroppedItem;
 import com.amalto.webapp.util.webservices.WSRecoverDroppedItem;
@@ -84,6 +87,7 @@ public class RecycleBinAction implements RecycleBinService {
 
             WSDroppedItemPKArray pks = Util.getPort().findAllDroppedItemsPKs(new WSFindAllDroppedItemsPKs(regex));
             WSDroppedItemPK[] items = pks.getWsDroppedItemPK();
+            Map<String, MetadataRepository> repositoryMap = new HashMap<String, MetadataRepository>();
 
             for (WSDroppedItemPK pk : items) {
                 WSDroppedItem wsitem = Util.getPort().loadDroppedItem(new WSLoadDroppedItem(pk));
@@ -93,28 +97,17 @@ public class RecycleBinAction implements RecycleBinService {
                 String modelName = getModelNameFromConceptXML(conceptXML);
 
                 if (modelName != null) {
-                    WSDataModel model = null;
-                    String modelXSD = null;
-
                     // For enterprise version we check the user roles first, if one user don't have read permission on a
                     // DataModel Object, then ignore it
                     if (Webapp.INSTANCE.isEnterpriseVersion()
                             && !LocalUser.getLocalUser().userCanRead(DataModelPOJO.class, modelName))
                         continue;
 
-                    model = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(modelName)));
-
-                    if (model != null) {
-                        modelXSD = model.getXsdSchema();
-                    }
-
                     if (!Webapp.INSTANCE.isEnterpriseVersion()
-                            || (modelXSD != null && org.talend.mdm.webapp.recyclebin.server.actions.Util.checkReadAccess(
-                                    modelXSD, conceptName))) {
+                            || (DataModelAccessor.getInstance().checkReadAccess(modelName, conceptName))) {
                         ItemsTrashItem item = new ItemsTrashItem();
                         item = WS2POJO(wsitem);
                         li.add(item);
-
                     }
                 }
             }
@@ -226,7 +219,7 @@ public class RecycleBinAction implements RecycleBinService {
                 WSRemoveDroppedItem wsrdi = new WSRemoveDroppedItem(wddipk);
                 Util.getPort().removeDroppedItem(wsrdi);
 
-                String xml = createUpdateReport(ids1, conceptName, "PHYSICAL_DELETE", null); //$NON-NLS-1$
+                String xml = createUpdateReport(ids1, conceptName, UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE, null);
                 Util.persistentUpdateReport(xml, true);
 
                 if (message == null || message.equals("")) //$NON-NLS-1$
@@ -255,14 +248,10 @@ public class RecycleBinAction implements RecycleBinService {
             String ids) throws ServiceException {
         try {
             if (modelName != null) {
-                WSDataModel model = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(modelName)));
-                if (model != null) {
-                    String modelXSD = model.getXsdSchema();
-
-                    if (Webapp.INSTANCE.isEnterpriseVersion()
-                            && !org.talend.mdm.webapp.recyclebin.server.actions.Util.checkRestoreAccess(modelXSD, conceptName))
-                        throw new NoPermissionException();
-                }
+                if (Webapp.INSTANCE.isEnterpriseVersion()
+                        && !DataModelAccessor.getInstance().checkRestoreAccess(modelName, conceptName))
+                    throw new NoPermissionException();
+//                }
             }
 
             String[] ids1 = ids.split("\\.");//$NON-NLS-1$
@@ -273,7 +262,7 @@ public class RecycleBinAction implements RecycleBinService {
             Util.getPort().recoverDroppedItem(wsrdi);
 
             // put the restore into updatereport archive
-            String xml = createUpdateReport(ids1, conceptName, "RESTORED", null); //$NON-NLS-1$
+            String xml = createUpdateReport(ids1, conceptName, UpdateReportPOJO.OPERATION_TYPE_RESTORED, null);
             Util.persistentUpdateReport(xml, true);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -334,7 +323,7 @@ public class RecycleBinAction implements RecycleBinService {
                 .append(dataModelPK).append("</DataModel><Concept>").append(concept) //$NON-NLS-1$
                 .append("</Concept><Key>").append(key).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$ 
 
-        if ("UPDATE".equals(operationType)) { //$NON-NLS-1$
+        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)) { //$NON-NLS-1$
             Collection<UpdateReportItem> list = updatedPath.values();
             boolean isUpdate = false;
             for (UpdateReportItem item : list) {

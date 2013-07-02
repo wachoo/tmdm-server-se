@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -19,12 +20,14 @@ import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.history.DocumentHistoryFactory;
 import com.amalto.core.history.DocumentHistoryNavigator;
 import com.amalto.core.history.exception.UnsupportedUndoPhysicalDeleteException;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.json.JSONObject;
+import com.amalto.webapp.core.util.DataModelAccessor;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.util.webservices.WSBoolean;
@@ -188,9 +191,9 @@ public class UpdateReportDWR {
         }
 
         // parse data
-        DataChangeLog[] data = new DataChangeLog[results.length - 1];
-        for (int i = 0; i < data.length; i++) {
-            DataChangeLog item = new DataChangeLog();
+        List<DataChangeLog> resultList = new ArrayList<DataChangeLog>();
+        for (int i = 0; i < results.length - 1; i++) {
+            DataChangeLog item = null;
 
             String result = results[i + 1]; // Start from 2nd result (first one is the total count).
             if (result != null) {
@@ -208,6 +211,15 @@ public class UpdateReportDWR {
                 String concept = Util.getFirstTextNode(doc, "result/Update/Concept"); //$NON-NLS-1$
                 String key = Util.getFirstTextNode(doc, "result/Update/Key"); //$NON-NLS-1$
 
+                if (isEnterpriseVersion()) { 
+                    boolean canReadModel = LocalUser.getLocalUser().userCanRead(DataModelPOJO.class,dataModel);
+                    boolean canReadEntity = DataModelAccessor.getInstance().checkReadAccess(dataModel, concept); 
+                    if (!canReadModel || !canReadEntity) {
+                        continue; 
+                    } 
+                }   
+                
+                item = new DataChangeLog();
                 item.setUserName(userName);
                 item.setSource(source);
                 item.setTimeInMillis(timeInMillis);
@@ -221,17 +233,16 @@ public class UpdateReportDWR {
                 item.setIds(Util.joinStrings(new String[] { source, timeInMillis }, ".")); //$NON-NLS-1$
 
             }
-
-            data[i] = item;
+            resultList.add(item);
         }
 
-        if (data.length <= 0) {
-            listRange.setData(new DataChangeLog[0]);
+        if (resultList.size() <= 0) {
+            listRange.setData(resultList.toArray());
             listRange.setTotalSize(0);
             return listRange;
         }
         WSBoolean isPagingAccurate = Util.getPort().isPagingAccurate(new WSInt(totalSize));
-        listRange.setData(data);
+        listRange.setData(resultList.toArray());
         listRange.setTotalSize(totalSize);
         listRange.setPagingAccurate(isPagingAccurate.is_true());
         return listRange;

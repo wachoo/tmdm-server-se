@@ -86,6 +86,7 @@ import sun.misc.BASE64Encoder;
 
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
@@ -1982,7 +1983,7 @@ public class Util {
                 .append(dataModelPK).append("</DataModel><Concept>").append(StringEscapeUtils.escapeXml(concept)) //$NON-NLS-1$
                 .append("</Concept><Key>").append(StringEscapeUtils.escapeXml(key)).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        if ("UPDATE".equals(operationType)) { //$NON-NLS-1$
+        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)) { //$NON-NLS-1$
             Collection<UpdateReportItem> list = updatedPath.values();
             boolean isUpdate = false;
             for (UpdateReportItem item : list) {
