@@ -38,6 +38,7 @@ import java.util.Set;
 import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.user.*;
+import com.amalto.core.storage.StorageWrapper;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.io.output.NullOutputStream;
@@ -162,6 +163,10 @@ public class StorageQueryTest extends StorageTestCase {
                 + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
                 + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
                 + "</Supplier>"));
+        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>127.0.0.1</Id>\n"
+                        + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
+                        + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
+                        + "</Supplier>"));
         allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>2</Id>\n"
                 + "    <SupplierName>Starbucks Talend</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Cafe</Name>\n"
                 + "        <Phone>33234567890</Phone>\n" + "        <Email>test@testfactory.org</Email>\n" + "    </Contact>\n"
@@ -328,6 +333,54 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+    }
+
+    public void testSelectByIdIncludingDots() throws Exception {
+        Collection<FieldMetadata> keyFields = supplier.getKeyFields();
+        assertEquals(1, keyFields.size());
+        FieldMetadata keyField = keyFields.iterator().next();
+
+        UserQueryBuilder qb = from(supplier).where(eq(supplier.getField("Id"), "127.0.0.1"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get(keyField));
+            }
+        } finally {
+            results.close();
+        }
+        // Wrapper test
+        StorageWrapper wrapper = new StorageWrapper() {
+            @Override
+            protected Storage getStorage(String dataClusterName, String revisionId) {
+                return storage;
+            }
+
+            @Override
+            protected Storage getStorage(String dataClusterName) {
+                return storage;
+            }
+        };
+        // Get document by id
+        String documentAsString = wrapper.getDocumentAsString(null, "Test", "Test.Supplier.127.0.0.1");
+        assertNotNull(documentAsString);
+        // Get cluster ids
+        String[] ids = wrapper.getAllDocumentsUniqueID(null, "Test");
+        boolean found = false;
+        for (String id : ids) {
+            if("Test.Supplier.127.0.0.1".equals(id)) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found);
+        // Delete document
+        long result = wrapper.deleteDocument(null, "Test", "Test.Supplier.127.0.0.1", "");
+        assertTrue(result >= 0);
+        wrapper.getAllDocumentsUniqueID(null, "Test");
     }
 
     public void testSelectByIdExclusion() throws Exception {
