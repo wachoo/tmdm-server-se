@@ -86,11 +86,21 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 builder.append(currentId).append('.');
             }
             throw new IllegalArgumentException("Id '" + builder.toString() + "' does not contain all required values for key of type '" + type.getName() + "'.");
-        }
-
-        int currentIndex = 2;
-        for (FieldMetadata keyField : keyFields) {
-            qb.where(eq(keyField, splitUniqueId[currentIndex++]));
+        } else if (keyFields.size() == 1) {
+            // Split unique id > keyField: if # of key elements is 1, consider all remaining value as a single value (with '.' separators).
+            StringBuilder builder = new StringBuilder();
+            for (int i = 2; i < splitUniqueId.length; i++) {
+                builder.append(splitUniqueId[i]);
+                if (i < splitUniqueId.length - 1) {
+                    builder.append('.');
+                }
+            }
+            qb.where(eq(keyFields.iterator().next(), builder.toString()));
+        } else {
+            int currentIndex = 2;
+            for (FieldMetadata keyField : keyFields) {
+                qb.where(eq(keyField, splitUniqueId[currentIndex++]));
+            }
         }
         qb.getSelect().setRevisionId(revisionId);
         return qb.getSelect();
@@ -409,14 +419,28 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
         Storage storage = getStorage(clusterName, revisionId);
         MetadataRepository repository = storage.getMetadataRepository();
-        UserQueryBuilder qb = from(repository.getComplexType(conceptName));
-        qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
-        StorageResults results = storage.fetch(qb.getSelect());
-        try {
-            return results.getCount();
-        } finally {
-            results.close();
+        Collection<ComplexTypeMetadata> types;
+        if ("*".equals(conceptName)) { //$NON-NLS-1$
+            types = repository.getUserComplexTypes();
+        } else {
+            ComplexTypeMetadata type = repository.getComplexType(conceptName);
+            if (type == null) {
+                throw new IllegalArgumentException("Type '" + conceptName + "' does not exist.");
+            }
+            types = Collections.singletonList(type);
         }
+        int count = 0;
+        for (ComplexTypeMetadata type : types) {
+            UserQueryBuilder qb = from(type);
+            qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
+            StorageResults results = storage.fetch(qb.getSelect());
+            try {
+                count += results.getCount();
+            } finally {
+                results.close();
+            }
+        }
+        return count;
     }
 
     public long countXtentisObjects(HashMap<String, String> objectRootElementNameToRevisionID, HashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, IWhereItem whereItem) throws XmlServerException {
@@ -492,16 +516,34 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         int totalCount = 0;
         List<String> itemPKResults = new LinkedList<String>();
         String typeName = criteria.getConceptName();
-        if (typeName != null) {
-            // TODO: This is bad implementation (using parameter itemPKResults to get results).
-            totalCount += getTypeItems(criteria, itemPKResults, repository.getComplexType(typeName), storage);
+        if (typeName != null && !typeName.isEmpty()) {
+            totalCount += getTypeItemCount(criteria, repository.getComplexType(typeName), storage);
+            itemPKResults.addAll(getTypeItems(criteria, repository.getComplexType(typeName), storage));
         } else {
             // TMDM-4651: Returns type in correct dependency order.
-            Collection<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
+            Collection<ComplexTypeMetadata> types = getClusterTypes(clusterName, criteria.getRevisionId());
+            int maxCount = criteria.getMaxItems();
+            if(criteria.getSkip() < 0) { // MDM Studio may send negative values
+                criteria.setSkip(0);
+            }
+            List<String> currentInstanceResults;
             for (ComplexTypeMetadata type : types) {
-                if (itemPKResults.size() < criteria.getMaxItems()) {
-                    // TODO Lower skip as you iterate over types.
-                    totalCount += getTypeItems(criteria, itemPKResults, type, storage);
+                int count = getTypeItemCount(criteria, type, storage);
+                totalCount += count;
+                if(itemPKResults.size() < maxCount) {
+                    if(count > criteria.getSkip()) {
+                        currentInstanceResults = getTypeItems(criteria, type, storage);
+                        int n = maxCount - itemPKResults.size();
+                        if (n <= currentInstanceResults.size()){
+                            itemPKResults.addAll(currentInstanceResults.subList(0, n));
+                        } else {
+                            itemPKResults.addAll(currentInstanceResults);
+                        }
+                        criteria.setMaxItems(criteria.getMaxItems() - currentInstanceResults.size());
+                        criteria.setSkip(0);
+                    } else {
+                        criteria.setSkip(criteria.getSkip() - count);
+                    }
                 }
             }
         }
@@ -658,7 +700,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
         return results.getCount();
     }
-
+    
     public void clearCache() {
     }
 

@@ -13,23 +13,7 @@
 
 package com.amalto.core.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.alias;
-import static com.amalto.core.query.user.UserQueryBuilder.and;
-import static com.amalto.core.query.user.UserQueryBuilder.contains;
-import static com.amalto.core.query.user.UserQueryBuilder.emptyOrNull;
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
-import static com.amalto.core.query.user.UserQueryBuilder.gt;
-import static com.amalto.core.query.user.UserQueryBuilder.gte;
-import static com.amalto.core.query.user.UserQueryBuilder.isNull;
-import static com.amalto.core.query.user.UserQueryBuilder.lt;
-import static com.amalto.core.query.user.UserQueryBuilder.lte;
-import static com.amalto.core.query.user.UserQueryBuilder.neq;
-import static com.amalto.core.query.user.UserQueryBuilder.not;
-import static com.amalto.core.query.user.UserQueryBuilder.or;
-import static com.amalto.core.query.user.UserQueryBuilder.startsWith;
-import static com.amalto.core.query.user.UserQueryBuilder.taskId;
-import static com.amalto.core.query.user.UserQueryBuilder.timestamp;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -56,6 +40,7 @@ import java.util.regex.Pattern;
 import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.user.*;
+import com.amalto.core.storage.StorageWrapper;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.io.output.NullOutputStream;
@@ -78,6 +63,7 @@ import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.DataRecordWriter;
@@ -194,6 +180,10 @@ public class StorageQueryTest extends StorageTestCase {
                 + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
                 + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
                 + "</Supplier>"));
+        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>127.0.0.1</Id>\n"
+                        + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
+                        + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
+                        + "</Supplier>"));
         allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>2</Id>\n"
                 + "    <SupplierName>Starbucks Talend</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Cafe</Name>\n"
                 + "        <Phone>33234567890</Phone>\n" + "        <Email>test@testfactory.org</Email>\n" + "    </Contact>\n"
@@ -206,8 +196,8 @@ public class StorageQueryTest extends StorageTestCase {
                 + "    <Name>Product family #1</Name>\n" + "</ProductFamily>"));
         allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>2</Id>\n"
                 + "    <Name>Product family #2</Name>\n" + "</ProductFamily>"));
-        allRecords.add(factory.read("1", repository, store, "<Store>\n" + "    <Id>1</Id>\n"
-                        + "    <Name>Store #1</Name>\n" + "</Store>"));
+        allRecords.add(factory.read("1", repository, store, "<Store>\n" + "    <Id>1</Id>\n" + "    <Name>Store #1</Name>\n"
+                + "</Store>"));
         allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
                 + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
                 + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
@@ -362,6 +352,53 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testSelectByIdIncludingDots() throws Exception {
+        Collection<FieldMetadata> keyFields = supplier.getKeyFields();
+        assertEquals(1, keyFields.size());
+        FieldMetadata keyField = keyFields.iterator().next();
+
+        UserQueryBuilder qb = from(supplier).where(eq(supplier.getField("Id"), "127.0.0.1"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get(keyField));
+            }
+        } finally {
+            results.close();
+        }
+        // Wrapper test
+        StorageWrapper wrapper = new StorageWrapper() {
+            @Override
+            protected Storage getStorage(String dataClusterName, String revisionId) {
+                return storage;
+            }
+
+            @Override
+            protected Storage getStorage(String dataClusterName) {
+                return storage;
+            }
+        };
+        // Get document by id
+        String documentAsString = wrapper.getDocumentAsString(null, "Test", "Test.Supplier.127.0.0.1");
+        assertNotNull(documentAsString);
+        // Get cluster ids
+        String[] ids = wrapper.getAllDocumentsUniqueID(null, "Test");
+        boolean found = false;
+        for (String id : ids) {
+            if("Test.Supplier.127.0.0.1".equals(id)) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found);
+        // Delete document
+        long result = wrapper.deleteDocument(null, "Test", "Test.Supplier.127.0.0.1", "");
+        assertTrue(result >= 0);
+        wrapper.getAllDocumentsUniqueID(null, "Test");
+    }
 
     public void testSelectByIdExclusion() throws Exception {
         List<FieldMetadata> keyFields = person.getKeyFields();
@@ -1123,9 +1160,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testFKOrderBy() throws Exception {
-        UserQueryBuilder qb = from(address)
-                .selectId(address)
-                .select(address.getField("country"))
+        UserQueryBuilder qb = from(address).selectId(address).select(address.getField("country"))
                 .orderBy(address.getField("country"), OrderBy.Direction.ASC);
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -1140,9 +1175,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
 
-        qb = from(address)
-                .selectId(address)
-                .select(address.getField("country"))
+        qb = from(address).selectId(address).select(address.getField("country"))
                 .orderBy(address.getField("country"), OrderBy.Direction.DESC);
         results = storage.fetch(qb.getSelect());
         try {
@@ -1500,7 +1533,8 @@ public class StorageQueryTest extends StorageTestCase {
     public void testUpdateReportQueryOptimization() throws Exception {
         UpdateReportOptimizer optimizer = new UpdateReportOptimizer();
 
-        Condition condition = and(eq(updateReport.getField("Concept"), "Product"), eq(updateReport.getField("DataModel"), "metadata.xsd"));
+        Condition condition = and(eq(updateReport.getField("Concept"), "Product"),
+                eq(updateReport.getField("DataModel"), "metadata.xsd"));
         UserQueryBuilder qb = from(updateReport).where(condition);
         assertEquals(condition, qb.getSelect().getCondition());
         optimizer.optimize(qb.getSelect());
@@ -1518,13 +1552,8 @@ public class StorageQueryTest extends StorageTestCase {
         optimizer.optimize(qb.getSelect());
         assertNotSame(condition, qb.getSelect().getCondition()); // C has super type, so condition changed.
 
-        condition = and(
-                eq(updateReport.getField("Concept"), "C"),
-                and(
-                    eq(updateReport.getField("DataModel"), "metadata.xsd"),
-                    eq(updateReport.getField("TimeInMillis"), "0")
-                )
-        );
+        condition = and(eq(updateReport.getField("Concept"), "C"),
+                and(eq(updateReport.getField("DataModel"), "metadata.xsd"), eq(updateReport.getField("TimeInMillis"), "0")));
         qb = from(updateReport).where(condition);
         assertEquals(condition, qb.getSelect().getCondition());
         optimizer.optimize(qb.getSelect());
@@ -1991,19 +2020,14 @@ public class StorageQueryTest extends StorageTestCase {
     public void testValueCollectionSearchInNested() throws Exception {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords
-                .add(factory
-                        .read("1",
-                                repository,
-                                person,
-                                "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John" +
-                                        "</middlename><firstname>Juste</firstname><addresses><address>[3][false]" +
-                                        "</address><address>[1][false]</address></addresses><age>30</age>" +
-                                        "<knownAddresses><knownAddress><Street>Street 1</Street><City>City 1</City>" +
-                                        "<Phone>012345</Phone></knownAddress>" +
-                                        "<knownAddress><Street>Street 2</Street><City>City 2</City><Phone>567890" +
-                                        "</Phone></knownAddress></knownAddresses>" +
-                                        "<Status>Friend</Status></Person>"));
+        allRecords.add(factory.read("1", repository, person,
+                "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John"
+                        + "</middlename><firstname>Juste</firstname><addresses><address>[3][false]"
+                        + "</address><address>[1][false]</address></addresses><age>30</age>"
+                        + "<knownAddresses><knownAddress><Street>Street 1</Street><City>City 1</City>"
+                        + "<Phone>012345</Phone></knownAddress>"
+                        + "<knownAddress><Street>Street 2</Street><City>City 2</City><Phone>567890"
+                        + "</Phone></knownAddress></knownAddresses>" + "<Status>Friend</Status></Person>"));
         storage.begin();
         storage.update(allRecords);
         storage.commit();
@@ -2027,31 +2051,24 @@ public class StorageQueryTest extends StorageTestCase {
     public void testValueSelectInNested() throws Exception {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords
-                .add(factory
-                        .read("1",
-                                repository,
-                                person,
-                                "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John" +
-                                        "</middlename><firstname>Juste</firstname><addresses><address>[3][false]" +
-                                        "</address><address>[1][false]</address></addresses><age>30</age>" +
-                                        "<knownAddresses><knownAddress><Street>Street 1</Street><City>City 1</City>" +
-                                        "<Phone>012345</Phone></knownAddress>" +
-                                        "<knownAddress><Street>Street 2</Street><City>City 2</City><Phone>567890" +
-                                        "</Phone></knownAddress></knownAddresses>" +
-                                        "<Status>Friend</Status></Person>"));
+        allRecords.add(factory.read("1", repository, person,
+                "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John"
+                        + "</middlename><firstname>Juste</firstname><addresses><address>[3][false]"
+                        + "</address><address>[1][false]</address></addresses><age>30</age>"
+                        + "<knownAddresses><knownAddress><Street>Street 1</Street><City>City 1</City>"
+                        + "<Phone>012345</Phone></knownAddress>"
+                        + "<knownAddress><Street>Street 2</Street><City>City 2</City><Phone>567890"
+                        + "</Phone></knownAddress></knownAddresses>" + "<Status>Friend</Status></Person>"));
         storage.begin();
         storage.update(allRecords);
         storage.commit();
-        UserQueryBuilder qb = from(person)
-                .selectId(person)
-                .select(person.getField("knownAddresses/knownAddress/City"));
+        UserQueryBuilder qb = from(person).selectId(person).select(person.getField("knownAddresses/knownAddress/City"));
         StorageResults results = storage.fetch(qb.getSelect());
         List<String> expected = new LinkedList<String>();
         expected.add("City 1");
         expected.add("City 2");
         for (DataRecord result : results) {
-            assertTrue(expected.remove((String) result.get("City")));
+            assertTrue(expected.remove(result.get("City")));
         }
         assertTrue(expected.isEmpty());
     }
@@ -2315,12 +2332,14 @@ public class StorageQueryTest extends StorageTestCase {
                 + endRoot, resultsAsString.get(2).replaceAll("\\r|\\n|\\t", ""));
         assertEquals(startRoot + "<subelement>666</subelement><subelement1>777</subelement1><name>iuj</name><fk>[aaa][bbb]</fk>"
                 + endRoot, resultsAsString.get(3).replaceAll("\\r|\\n|\\t", ""));
-        assertEquals(startRoot+ "<subelement>6767</subelement><subelement1>7878</subelement1><name>ioiu</name><fk>[ccc][ddd]</fk>"
-                + endRoot, resultsAsString.get(4).replaceAll("\\r|\\n|\\t", ""));
-        assertEquals(startRoot + "<subelement>999</subelement><subelement1>888</subelement1><name>iuiiu</name><fk>[ccc][ddd]</fk>"
-                + endRoot, resultsAsString.get(5).replaceAll("\\r|\\n|\\t", ""));
-        assertEquals(startRoot + "<subelement>119</subelement><subelement1>120</subelement1><name>zhang</name>"
-                + endRoot,resultsAsString.get(6).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot
+                + "<subelement>6767</subelement><subelement1>7878</subelement1><name>ioiu</name><fk>[ccc][ddd]</fk>" + endRoot,
+                resultsAsString.get(4).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot
+                + "<subelement>999</subelement><subelement1>888</subelement1><name>iuiiu</name><fk>[ccc][ddd]</fk>" + endRoot,
+                resultsAsString.get(5).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot + "<subelement>119</subelement><subelement1>120</subelement1><name>zhang</name>" + endRoot,
+                resultsAsString.get(6).replaceAll("\\r|\\n|\\t", ""));
     }
 
     public void testStringFieldConstraint() throws Exception {
