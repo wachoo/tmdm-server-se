@@ -11,6 +11,8 @@
 
 package com.amalto.core.storage;
 
+import com.amalto.core.metadata.CompoundFieldMetadata;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
 import static com.amalto.core.query.user.UserQueryBuilder.alias;
 import static com.amalto.core.query.user.UserQueryBuilder.contains;
 import static com.amalto.core.query.user.UserQueryBuilder.eq;
@@ -551,15 +553,47 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return itemPKResults;
     }
 
-    private static int getTypeItems(ItemPKCriteria criteria, List<String> itemPKResults, ComplexTypeMetadata type, Storage storage) throws XmlServerException {
-        // Build base query
-        UserQueryBuilder qb = from(type)
-                .select(alias(timestamp(), "timestamp")) //$NON-NLS-1$
-                .select(alias(taskId(), "taskid")) //$NON-NLS-1$
-                .selectId(type)
-                .limit(criteria.getMaxItems())
-                .start(criteria.getSkip());
+    protected Collection<ComplexTypeMetadata> getClusterTypes(String clusterName, String revisionID) {
+        Storage storage = getStorage(clusterName, revisionID);
+        MetadataRepository repository = storage.getMetadataRepository();
+        return MetadataUtils.sortTypes(repository);
+    }
 
+    private int getTypeItemCount(ItemPKCriteria criteria, ComplexTypeMetadata type, Storage storage) {
+        StorageResults results = storage.fetch(buildQueryBuilder(from(type), criteria, type).getSelect());
+        try {
+            return results.getCount();
+        } finally {
+            results.close();
+        }
+    }
+
+    private List<String> getTypeItems(ItemPKCriteria criteria, ComplexTypeMetadata type, Storage storage) throws XmlServerException {
+            // Build base query
+            UserQueryBuilder qb = from(type)
+                    .select(alias(timestamp(), "timestamp")) //$NON-NLS-1$
+                    .select(alias(taskId(), "taskid")) //$NON-NLS-1$
+                    .selectId(type)
+                    .limit(criteria.getMaxItems())
+                    .start(criteria.getSkip());
+
+            List<String> list = new LinkedList<String>();
+            StorageResults results = storage.fetch(buildQueryBuilder(qb, criteria, type).getSelect());
+            DataRecordWriter writer = new ItemPKCriteriaResultsWriter(type.getName(), type);
+            ResettableStringWriter stringWriter = new ResettableStringWriter();
+            for (DataRecord result : results) {
+                try {
+                    writer.write(result, stringWriter);
+                } catch (IOException e) {
+                    throw new XmlServerException(e);
+                }
+                list.add(stringWriter.toString());
+                stringWriter.reset();
+            }
+            return list;
+        }
+
+    private UserQueryBuilder buildQueryBuilder(UserQueryBuilder qb, ItemPKCriteria criteria, ComplexTypeMetadata type) {
         // Filter by keys: expected format here: $EntityTypeName/Path/To/Field$[id_for_lookup]
         String keysKeywords = criteria.getKeysKeywords();
         if (keysKeywords != null && !keysKeywords.isEmpty()) {
@@ -598,21 +632,27 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 paths.add(currentPath.toString());
                 if (currentPath.toString().isEmpty()) {
                     // TODO Implement compound key support
-                    qb.where(eq(type.getKeyFields().get(0), id.toString()));
+                    qb.where(eq(type.getKeyFields().iterator().next(), id.toString()));
                 } else {
                     Condition globalCondition = UserQueryHelper.NO_OP_CONDITION;
                     for (String path : paths) {
                         Condition pathCondition = UserQueryHelper.NO_OP_CONDITION;
                         Set<FieldMetadata> candidateFields = Collections.singleton(type.getField(path));
                         for (FieldMetadata candidateField : candidateFields) {
-                            pathCondition = or(eq(candidateField, idForLookup.toString()), pathCondition);
+                            if (candidateField instanceof ReferenceFieldMetadata
+                                    && ((ReferenceFieldMetadata) candidateField).getReferencedField() instanceof CompoundFieldMetadata) {
+                                // composite key: fkValue of the form '[value1.value2.value3...]'
+                                pathCondition = or(eq(candidateField, StringUtils.replace(idForLookup.toString(), ".", "][")), pathCondition); //$NON-NLS-1$ //$NON-NLS-2$
+                            } else {
+                                pathCondition = or(eq(candidateField, idForLookup.toString()), pathCondition);
+                            }
                         }
                         globalCondition = or(globalCondition, pathCondition);
                     }
                     qb.where(globalCondition);
                 }
             } else {
-                List<FieldMetadata> keyFields = type.getKeyFields();
+                Collection<FieldMetadata> keyFields = type.getKeyFields();
                 if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && type.getName().equals("Update")) { //$NON-NLS-1$
                     // UpdateReport: Source.TimeInMillis is the key
                     String[] keys = keysKeywords.split("\\."); //$NON-NLS-1$
@@ -633,10 +673,10 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                     if (keyFields.size() > 1) {
                         throw new IllegalArgumentException("Expected type '" + type.getName() + "' to contain only 1 key field."); //$NON-NLS-1$ //$NON-NLS-2$
                     }
-                    String uniqueKeyFieldName = keyFields.get(0).getName();
-                    qb.where(eq(type.getField(uniqueKeyFieldName), keysKeywords));    
+                    String uniqueKeyFieldName = keyFields.iterator().next().getName();
+                    qb.where(eq(type.getField(uniqueKeyFieldName), keysKeywords));
                 }
-                
+
             }
         }
         // Filter by timestamp
@@ -654,26 +694,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             } else {
                 Condition condition = null;
                 for (FieldMetadata field : type.getFields()) {
-                    // isValueAssignable(contentKeyWords, typeName); this typeName should use the database column type
                     if (MetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
-                        // UpdateReport Repository: the TimeInMillis field is a long type on SQL Storage
-                        // So it need to check again, another workaround: change the field type to long type in the
-                        // UpdateReport.xsd(but it may affect other places)
-                        if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && type.getName().equals("Update")) { //$NON-NLS-1$
-                            if (field.getName().equals("TimeInMillis") && !MetadataUtils.isValueAssignable(contentKeywords, Timestamp.INSTANCE.getTypeName())) { //$NON-NLS-1$
-                                continue;
-                            }
-                            if (field.getName().equals("TimeInMillis") && NumberUtils.isNumber(contentKeywords)) { //$NON-NLS-1$
-                                // because TimeInMillis field is a String type on xsd, com.amalto.core.query.user.UserQueryBuilder.contains(TypedExpression, String)
-                                // can not change CONTAINS to EQUALS. so manually change contains to eq method.
-                                if (condition == null) {
-                                    condition = eq(field, contentKeywords);
-                                } else {
-                                    condition = or(condition, eq(field, contentKeywords));
-                                }
-                                continue;
-                            }
-                        }
                         if (!(field instanceof ContainedTypeFieldMetadata)) {
                             if (condition == null) {
                                 condition = contains(field, contentKeywords);
@@ -686,19 +707,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 qb.where(condition);
             }
         }
-        StorageResults results = storage.fetch(qb.getSelect());
-        DataRecordWriter writer = new ItemPKCriteriaResultsWriter(type.getName(), type);
-        ResettableStringWriter stringWriter = new ResettableStringWriter();
-        for (DataRecord result : results) {
-            try {
-                writer.write(result, stringWriter);
-            } catch (IOException e) {
-                throw new XmlServerException(e);
-            }
-            itemPKResults.add(stringWriter.toString());
-            stringWriter.reset();
-        }
-        return results.getCount();
+        return qb;
     }
     
     public void clearCache() {

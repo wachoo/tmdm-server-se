@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
 import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.user.*;
+import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageWrapper;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;

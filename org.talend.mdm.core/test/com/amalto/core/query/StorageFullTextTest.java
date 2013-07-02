@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.amalto.core.query.user.Expression;
 import org.apache.log4j.Logger;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
@@ -230,88 +229,6 @@ public class StorageFullTextTest extends StorageTestCase {
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getCount());
-        } finally {
-            results.close();
-        }
-    }
-
-    public void testSimpleSearchWithWildcard() throws Exception {
-        UserQueryBuilder qb = from(supplier).where(fullText("*"));
-        StorageResults results = storage.fetch(qb.getSelect());
-        try {
-            assertEquals(3, results.getCount());
-            int actualCount = 0;
-            for (DataRecord result : results) {
-                actualCount++;
-            }
-            assertEquals(3, actualCount);
-        } finally {
-            results.close();
-        }
-        //
-        qb = from(supplier).where(fullText("**"));
-        results = storage.fetch(qb.getSelect());
-        try {
-            assertEquals(3, results.getCount());
-            int actualCount = 0;
-            for (DataRecord result : results) {
-                actualCount++;
-            }
-            assertEquals(3, actualCount);
-        } finally {
-            results.close();
-        }
-    }
-
-    public void testSimpleSearchWithWildcardOnTypes() throws Exception {
-        UserQueryBuilder qb = from(supplier).and(product).where(fullText("*"));
-        StorageResults results = storage.fetch(qb.getSelect());
-        try {
-            assertEquals(5, results.getCount());
-            int actualCount = 0;
-            for (DataRecord result : results) {
-                actualCount++;
-            }
-            assertEquals(5, actualCount);
-        } finally {
-            results.close();
-        }
-        //
-        qb = from(supplier).and(product).where(fullText("**"));
-        results = storage.fetch(qb.getSelect());
-        try {
-            assertEquals(5, results.getCount());
-            int actualCount = 0;
-            for (DataRecord result : results) {
-                actualCount++;
-            }
-            assertEquals(5, actualCount);
-        } finally {
-            results.close();
-        }
-    }
-
-    public void testSimpleSearchWithSpace() throws Exception {
-        UserQueryBuilder qb = from(supplier).where(fullText(" "));
-        StorageResults results = storage.fetch(qb.getSelect());
-        try {
-            assertEquals(3, results.getCount());
-        } finally {
-            results.close();
-        }
-
-        qb = from(supplier).where(fullText("     "));
-        results = storage.fetch(qb.getSelect());
-        try {
-            assertEquals(3, results.getCount());
-        } finally {
-            results.close();
-        }
-
-        qb = from(supplier).and(product).where(fullText("     "));
-        results = storage.fetch(qb.getSelect());
-        try {
-            assertEquals(5, results.getCount());
         } finally {
             results.close();
         }
