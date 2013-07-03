@@ -251,6 +251,16 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                             nextRecord.set(aliasField, next.getRecordMetadata().getTaskId());
                             return null;
                         }
+
+                        @Override
+                        public Void visit(Type type) {
+                            FieldMetadata fieldMetadata = type.getField().getFieldMetadata();
+                            SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
+                            SimpleTypeFieldMetadata aliasField = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, aliasName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList());
+                            explicitProjectionType.addField(aliasField);
+                            nextRecord.set(aliasField, ((DataRecord) next.get(fieldMetadata.getName())).getType().getName());
+                            return null;
+                        }
                     };
                     for (TypedExpression selectedField : selectedFields) {
                         selectedField.accept(visitor);
@@ -311,6 +321,9 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                                 nextRecord.set(newField, ((StringConstant) typedExpression).getValue());
                             } else if(typedExpression instanceof Field) {
                                 nextRecord.set(newField, next.get(((Field) typedExpression).getFieldMetadata()));
+                            } else if(typedExpression instanceof Type) {
+                                FieldMetadata fieldMetadata = ((Type) typedExpression).getField().getFieldMetadata();
+                                nextRecord.set(newField, ((DataRecord) next.get(fieldMetadata.getName())).getType().getName());
                             } else {
                                 throw new IllegalArgumentException("Aliased expression '" + typedExpression + "' is not supported.");
                             }
