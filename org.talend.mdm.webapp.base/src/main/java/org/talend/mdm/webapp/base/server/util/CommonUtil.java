@@ -234,9 +234,25 @@ public class CommonUtil {
     }
 
     public static String buildCriteriaByIds(String[] keys, String[] ids) {
-        if(keys == null || ids == null)
+        if(keys == null || ids == null) {
             return null;
-        
+        }
+        if (keys.length < ids.length) {
+            // See TMDM-5943: Id may contain '.' characters
+            // (in this case: concatenate all ids[i] where i > keys.length into a single value separated with '.').
+            String[] newIds = new String[keys.length];
+            System.arraycopy(ids, 0, newIds, 0, keys.length - 1);
+            StringBuilder idConcatenation = new StringBuilder();
+            for (int i = keys.length - 1; i < ids.length; i++) {
+                idConcatenation.append(ids[i]);
+                if (i < ids.length - 1) {
+                    idConcatenation.append('.');
+                }
+            }
+            newIds[newIds.length - 1] = idConcatenation.toString();
+            ids = newIds; // Update ids with the newly computed id values.
+        }
+
         StringBuilder criteria = new StringBuilder();
         if(keys.length == 1 && ids.length == 1) {
             criteria.append(keys[0]).append(" ").append(EQUALS).append(" ").append(ids[0]); //$NON-NLS-1$ //$NON-NLS-2$
