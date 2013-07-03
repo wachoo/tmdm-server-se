@@ -181,7 +181,14 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
      */
     public DataClusterPOJO existsDataCluster(DataClusterPOJOPK pk) throws XtentisException {
         if (pk == null) {
-            throw new IllegalArgumentException("Data cluster PK cannot be null.");
+            throw new IllegalArgumentException("The Data Cluster should not be null!");
+        }
+        if (pk.getUniqueId() == null) {
+            throw new XtentisException("The Data cluster PK cannot be null.");
+        }
+        // Staging DataCluster should be changed to the Master DataCluster
+        if (pk.getUniqueId().endsWith(StorageAdmin.STAGING_SUFFIX)) {
+            pk = new DataClusterPOJOPK(StringUtils.substringBeforeLast(pk.getUniqueId(), "#")); //$NON-NLS-1$
         }
         try {
             ILocalUser user = LocalUser.getLocalUser();
