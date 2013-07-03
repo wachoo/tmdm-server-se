@@ -101,6 +101,8 @@
 			<path refid="compile.classpath" />
 			<pathelement path="${tom.location}/talend.mdm.libraries/lib/commons-logging.jar" />
             <pathelement path="${tom.location}/talend.mdm.libraries/lib/jboss-j2ee.jar" />
+			<pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-lang-2.1.jar" />
+			<pathelement path="${tom.location}/talend.mdm.libraries/lib/z.XmlSchema-1.4.5.jar" />
 		</path>
 
 		<copy todir="${basedir}/target/test-classes" verbose="true">
