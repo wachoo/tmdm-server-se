@@ -10,6 +10,10 @@ public class UpdateReportPOJO {
 
     public final static String SOURCE_DATA_SYNCHRONIZATION = "dataSynchronization"; //$NON-NLS-1$
 
+    public static final String DATA_CLUSTER = "UpdateReport"; //$NON-NLS-1$
+    
+    public static final String DATA_MODEL = "UpdateReport"; //$NON-NLS-1$
+    
     public static final String SOURCE_RESTORE = "restoreUI"; //$NON-NLS-1$
 
     public final static String OPERATION_TYPE_CREATE = "CREATE"; //$NON-NLS-1$
