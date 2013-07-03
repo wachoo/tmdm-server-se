@@ -342,6 +342,37 @@ public class InheritanceTest extends StorageTestCase {
         }
     }
 
+    public void testXsiTypeProjectionWithContains() throws Exception {
+        ComplexTypeMetadata subNested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "SubNested");
+        assertNotNull(subNested);
+        ComplexTypeMetadata nested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "Nested");
+        assertNotNull(nested);
+        // Test 1
+        UserQueryBuilder qb = UserQueryBuilder.from(a).select(alias(type(a.getField("nestedB")), "type"))
+                .where(contains(a.getField("textA"), "TextAC"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertEquals(subNested.getName(), result.get("type"));
+            }
+        } finally {
+            results.close();
+        }
+        // Test 2
+        qb = UserQueryBuilder.from(a).select(alias(type(a.getField("nestedB")), "type"))
+                .where(contains(a.getField("textA"), "TextAC")).start(0).limit(20);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertEquals(subNested.getName(), result.get("type"));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
     public void testXsiTypeProjectionWithOrderBy() throws Exception {
         ComplexTypeMetadata subNested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "SubNested");
         assertNotNull(subNested);
