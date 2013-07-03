@@ -162,12 +162,8 @@ public class DataRecordXmlWriter implements DataRecordWriter {
         }
 
         private void writeContainedField(ContainedTypeFieldMetadata containedField, DataRecord currentValue) throws IOException {
-            if (currentValue.getType().equals(containedField.getContainedType())) {
-                if (currentValue.getType() instanceof ContainedComplexTypeRef) {
-                    out.write("<" + containedField.getName() + " xmlns:xsi=\"" + XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI + "\" xsi:type=\"" + currentValue.getType().getName() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                } else {
-                    out.write("<" + containedField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$    
-                }
+            if (containedField.getContainedType().getSubTypes().size() == 0) {
+                out.write("<" + containedField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$    
             } else {
                 out.write("<" + containedField.getName() + " xmlns:xsi=\"" + XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI + "\" xsi:type=\"" + currentValue.getType().getName() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             }
