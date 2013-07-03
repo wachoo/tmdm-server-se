@@ -180,6 +180,9 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
             boolean isPivot = partialUpdatePivot.equals(getLeftPath());
             if (!inPivot && isPivot) {
                 inPivot = true;
+                if (!field.isMany()) {
+                    LOGGER.warn("Partial update pivot '" + partialUpdatePivot + "' is not a repeatable element (it might be a configuration issue).");
+                }
             }
             if (inPivot && field.isMany()) {
                 Accessor leftAccessor;
