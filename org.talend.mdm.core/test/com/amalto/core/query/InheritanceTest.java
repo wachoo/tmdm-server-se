@@ -18,6 +18,7 @@ import java.util.List;
 
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.TypedExpression;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
@@ -407,8 +408,11 @@ public class InheritanceTest extends StorageTestCase {
             results.close();
         }
         // Test 3
-        qb = UserQueryBuilder.from(a).select(alias(type(a.getField("nestedB")), "type"))
-                .orderBy(UserQueryHelper.getField(repository, "A", "nestedB/@xsi:type"), OrderBy.Direction.ASC);
+        qb = UserQueryBuilder.from(a).select(alias(type(a.getField("nestedB")), "type"));
+        List<TypedExpression> fields = UserQueryHelper.getFields(repository, "A", "nestedB/@xsi:type");
+        for (TypedExpression field : fields) {
+            qb.orderBy(field, OrderBy.Direction.ASC);
+        }
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getCount());
@@ -524,8 +528,11 @@ public class InheritanceTest extends StorageTestCase {
             results.close();
         }
         // Test 3
-        qb = UserQueryBuilder.from(ss).select(alias(type(ss.getField("nestedB")), "type"))
-                .orderBy(UserQueryHelper.getField(repository, "SS", "nestedB/@xsi:type"), OrderBy.Direction.ASC);
+        qb = UserQueryBuilder.from(ss).select(alias(type(ss.getField("nestedB")), "type"));
+        List<TypedExpression> fields = UserQueryHelper.getFields(repository, "SS", "nestedB/@xsi:type");
+        for (TypedExpression field : fields) {
+            qb.orderBy(field, OrderBy.Direction.ASC);
+        }
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getCount());

@@ -68,9 +68,8 @@ public class RecommendedIndexes {
                 fields.addAll(condition.accept(this));
             }
             // Order by
-            OrderBy orderBy = select.getOrderBy();
-            if (orderBy != null) {
-                fields.addAll(orderBy.accept(this));
+            for (OrderBy current : select.getOrderBy()) {
+                fields.addAll(current.accept(this));
             }
             return fields;
         }

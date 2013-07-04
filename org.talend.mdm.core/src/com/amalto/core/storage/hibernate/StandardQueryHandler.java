@@ -385,9 +385,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
             condition.accept(this);
         }
         // Order by
-        OrderBy orderBy = select.getOrderBy();
-        if (orderBy != null) {
-            orderBy.accept(this);
+        for (OrderBy current : select.getOrderBy()) {
+            current.accept(this);
         }
         return criteria;
     }

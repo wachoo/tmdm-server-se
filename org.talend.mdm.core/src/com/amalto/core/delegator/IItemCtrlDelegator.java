@@ -9,7 +9,6 @@ import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
@@ -42,9 +41,6 @@ import com.amalto.core.util.RoleSpecification;
 import com.amalto.core.util.RoleWhereCondition;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
-
-import javax.ejb.CreateException;
-import javax.naming.NamingException;
 
 public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDelegatorService {
 
@@ -218,8 +214,10 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 for (String viewableBusinessElement : viewableBusinessElements.getList()) {
                     String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
                     String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
-                    TypedExpression typeExpression = UserQueryHelper.getField(repository, viewableTypeName, viewablePath);
-                    qb.select(typeExpression);
+                    List<TypedExpression> typeExpressions = UserQueryHelper.getFields(repository, viewableTypeName, viewablePath);
+                    for (TypedExpression typeExpression : typeExpressions) {
+                        qb.select(typeExpression);
+                    }
                 }
                 // Condition and paging
                 qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
@@ -227,7 +225,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 qb.limit(limit);
                 // Order by
                 if (orderBy != null) {
-                    TypedExpression field = UserQueryHelper.getField(repository,
+                    List<TypedExpression> fields = UserQueryHelper.getFields(repository,
                             StringUtils.substringBefore(orderBy, "/"), //$NON-NLS-1$
                             StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
                     OrderBy.Direction queryDirection;
@@ -238,7 +236,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                     } else {
                         queryDirection = OrderBy.Direction.DESC;
                     }
-                    qb.orderBy(field, queryDirection);
+                    for (TypedExpression field : fields) {
+                        qb.orderBy(field, queryDirection);
+                    }
                 }
                 // Get records
                 StorageResults results = storage.fetch(qb.getSelect());
@@ -437,10 +437,10 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             qb.limit(limit);
             // Order by
             if (orderBy != null) {
-                TypedExpression field = UserQueryHelper.getField(repository,
+                List<TypedExpression> fields = UserQueryHelper.getFields(repository,
                         type.getName(),
                         StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
-                if (field == null) {
+                if (fields == null) {
                     throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
                 }
                 OrderBy.Direction queryDirection;
@@ -451,7 +451,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 } else {
                     queryDirection = OrderBy.Direction.DESC;
                 }
-                qb.orderBy(field, queryDirection);
+                for (TypedExpression typedExpression : fields) {
+                    qb.orderBy(typedExpression, queryDirection);
+                }
             }
             // Get records
             StorageResults results;

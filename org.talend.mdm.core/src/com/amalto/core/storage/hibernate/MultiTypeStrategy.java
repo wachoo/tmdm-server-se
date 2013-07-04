@@ -52,10 +52,9 @@ public class MultiTypeStrategy extends VisitorAdapter<StorageResults> {
         final Set<DataRecord> results = new ListOrderedSet();
         for (ComplexTypeMetadata type : types) {
             UserQueryBuilder qb = UserQueryBuilder.from(type);
-            OrderBy orderBy = select.getOrderBy();
             qb.where(select.getCondition()); // TODO Would be better to ensure condition applies to type.
-            if (orderBy != null) {
-                qb.orderBy(orderBy.getField(), orderBy.getDirection());
+            for (OrderBy current : select.getOrderBy()) {
+                qb.orderBy(current.getField(), current.getDirection());
             }
             StorageResults dataRecords = storage.fetch(qb.getSelect());
             try {

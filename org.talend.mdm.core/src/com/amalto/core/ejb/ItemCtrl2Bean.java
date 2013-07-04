@@ -520,8 +520,8 @@ public class ItemCtrl2Bean implements SessionBean {
                 qb.start(start);
                 qb.limit(limit);
                 if (orderBy != null) {
-                    TypedExpression field = UserQueryHelper.getField(repository, typeName, StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
-                    if (field == null) {
+                    List<TypedExpression> fields = UserQueryHelper.getFields(repository, typeName, StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
+                    if (fields == null) {
                         throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
                     }
                     OrderBy.Direction queryDirection;
@@ -530,7 +530,9 @@ public class ItemCtrl2Bean implements SessionBean {
                     } else {
                         queryDirection = OrderBy.Direction.DESC;
                     }
-                    qb.orderBy(field, queryDirection);
+                    for (TypedExpression field : fields) {
+                        qb.orderBy(field, queryDirection);
+                    }
                 }
                 // Select fields
                 for (String viewablePath : viewablePaths) {

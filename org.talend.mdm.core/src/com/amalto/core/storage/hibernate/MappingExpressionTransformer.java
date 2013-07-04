@@ -18,7 +18,7 @@ import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.Types;
 
-class MappingExpressionTransformer extends VisitorAdapter<Expression> {
+public class MappingExpressionTransformer extends VisitorAdapter<Expression> {
 
     private final MappingRepository mappingRepository;
 
@@ -75,9 +75,8 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
         if (condition != null) {
             builder.where((Condition) condition.accept(this));
         }
-        OrderBy orderBy = select.getOrderBy();
-        if (orderBy != null) {
-            builder.orderBy((TypedExpression) orderBy.getField().accept(this), orderBy.getDirection());
+        for (OrderBy current : select.getOrderBy()) {
+            builder.orderBy((TypedExpression) current.getField().accept(this), current.getDirection());
         }
         for (TypedExpression selectedField : select.getSelectedFields()) {
             builder.select((TypedExpression) selectedField.accept(this));

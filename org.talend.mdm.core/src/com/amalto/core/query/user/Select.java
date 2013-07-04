@@ -33,7 +33,7 @@ public class Select implements Expression {
 
     private String revisionId = "1"; //$NON-NLS-1$
 
-    private OrderBy orderBy;
+    private List<OrderBy> orderBy = new LinkedList<OrderBy>();
 
     private boolean isProjection;
 
@@ -62,12 +62,14 @@ public class Select implements Expression {
         this.condition = condition;
     }
 
-    public OrderBy getOrderBy() {
+    public List<OrderBy> getOrderBy() {
         return orderBy;
     }
 
-    public void setOrderBy(OrderBy orderBy) {
-        this.orderBy = orderBy;
+    public void addOrderBy(OrderBy orderBy) {
+        if (orderBy != null) {
+            this.orderBy.add(orderBy);
+        }
     }
 
     /**
@@ -130,7 +132,9 @@ public class Select implements Expression {
             copy.getSelectedFields().add(selectedField);
         }
         copy.setCondition(this.condition);
-        copy.setOrderBy(this.orderBy);
+        for (OrderBy currentOrderBy : this.orderBy) {
+            copy.addOrderBy(currentOrderBy);
+        }
         copy.setProjection(this.isProjection);
         for (Join join : joins) {
             copy.getJoins().add(join);
