@@ -33,7 +33,7 @@ public class MockUserManageImpl extends UserManage {
     }
 
     @Override
-    public boolean isActiveUser(User user) {
+    public boolean isActivatingUser(User user) {
         return false;
     }
 
