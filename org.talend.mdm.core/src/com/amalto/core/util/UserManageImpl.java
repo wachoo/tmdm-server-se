@@ -71,7 +71,7 @@ public class UserManageImpl extends UserManage {
      * @return
      */
     @Override
-    public boolean isActiveUser(User user) {
+    public boolean isActivatingUser(User user) {
         boolean result = false;
 
         if (!user.isEnabled()) {

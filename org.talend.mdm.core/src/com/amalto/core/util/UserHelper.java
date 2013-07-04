@@ -96,8 +96,8 @@ public final class UserHelper {
      * @param user
      * @return
      */
-    public boolean isActiveUser(User user) {
-        return um.isActiveUser(user);
+    public boolean isActivatingUser(User user) {
+        return um.isActivatingUser(user);
     }
 
     /**

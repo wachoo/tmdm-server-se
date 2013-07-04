@@ -38,7 +38,7 @@ public abstract class UserManage {
 
     public abstract boolean isExistUser(User user);
 
-    public abstract boolean isActiveUser(User user);
+    public abstract boolean isActivatingUser(User user);
 
     public abstract Set<String> getOriginalRole(User user);
 
