@@ -16,7 +16,10 @@ Ext.extend(amalto.updatereport.DataLogViewer, Ext.Panel, {
 				animate : "false",
 				layout : "fit",
 				loader : new Ext.tree.TreeLoader({
-					dataUrl : "/updatereport/secure/updateReportDetails?ids="+this.ids
+					dataUrl : "/updatereport/secure/updateReportDetails",
+					baseParams : {
+						ids : this.ids
+					} 
 				}),
 				xtype : "treepanel",
 				root : new Ext.tree.AsyncTreeNode({

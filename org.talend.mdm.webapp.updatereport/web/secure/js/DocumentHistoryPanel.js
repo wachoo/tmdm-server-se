@@ -47,7 +47,16 @@ Ext.extend(amalto.updatereport.DocumentHistoryPanel, Ext.Panel, {
                     		fn:function(btn) {
                         		if (btn == "yes") {
                                     Ext.Ajax.request({
-                                        url: "/updatereport/secure/documentRestore?date="+button.date+"&dataCluster="+button.dataCluster+"&dataModel="+button.dataModel+"&concept="+button.concept+"&revision=&action="+button.action+"&key="+button.key,
+                                        url: "/updatereport/secure/documentRestore",
+                                        params: {
+                                        	date: button.date,
+                                        	dataCluster: button.dataCluster,
+                                        	dataModel: button.dataModel,
+                                        	concept: button.concept,
+                                        	revision: "",
+                                        	action: button.action,
+                                        	key: button.key
+                                        },
                                         failure: function(response, opts) {
                                             Ext.MessageBox.show({
                                             	title:amalto.updatereport.bundle.getMsg('error_title'),
@@ -102,7 +111,17 @@ Ext.extend(amalto.updatereport.DocumentHistoryPanel, Ext.Panel, {
                     animate: false,
                     cls: 'document-history-panel-tree',
                     loader : new Ext.ux.XmlTreeLoader({
-                        dataUrl : "/updatereport/secure/documentHistory?date="+this.date+"&dataCluster="+this.dataCluster+"&dataModel="+this.dataModel+"&concept="+this.concept+"&revision=&action="+this.action+"&key="+this.key+"&ids="+this.ids,
+                        dataUrl : "/updatereport/secure/documentHistory",
+                        baseParams : {
+                        	date : this.date,
+                        	dataCluster : this.dataCluster,
+                        	dataModel : this.dataModel,
+                        	concept : this.concept,
+                        	revision : "",
+                        	action : this.action,
+                        	key : this.key,
+                        	ids : this.ids
+                        },
                         preloadChildren: true
                     }),
                     root : new Ext.tree.AsyncTreeNode({

@@ -666,10 +666,7 @@ Ext
 																	handler : function() {
 																		var curcriteria = this
 																				.getRequestParam();
-																		window.location.href = "/updatereport/secure/updateReportDetails?params="
-																				+ curcriteria
-																				+ "&language="
-																				+ language;
+																		window.location.href = "/updatereport/secure/updateReportDetails?" + Ext.urlEncode({params:curcriteria, language:language})
 																	}
 																			.createDelegate(this),
 																	text : amalto.updatereport.bundle
