@@ -134,9 +134,8 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         fullTextQuery.setSort(Sort.RELEVANCE); // Default sort (if no order by specified).
         query = EntityFinder.wrap(fullTextQuery, (HibernateStorage) storage, session); // ensures only MDM entity objects are returned.
         // Order by
-        OrderBy orderBy = select.getOrderBy();
-        if (orderBy != null) {
-            orderBy.accept(this);
+        for (OrderBy current : select.getOrderBy()) {
+            current.accept(this);
         }
         // Paging
         Paging paging = select.getPaging();

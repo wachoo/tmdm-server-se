@@ -421,6 +421,41 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testOrderByCompositeKey() throws Exception {
+        // Test ASC direction
+        FieldMetadata personLastName = person.getField("lastname");
+        FieldMetadata personId = person.getField("id");
+        UserQueryBuilder qb = from(person)
+                .orderBy(personLastName, OrderBy.Direction.ASC)
+                .orderBy(personId, OrderBy.Direction.DESC);
+        String[] ascExpectedValues = {"Dupond", "Dupont", "Leblanc"};
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getSize());
+            assertEquals(3, results.getCount());
+            int i = 0;
+            for (DataRecord result : results) {
+                assertEquals(ascExpectedValues[i++], result.get(personLastName));
+            }
+        } finally {
+            results.close();
+        }
+        //
+        qb = from(address).selectId(address);
+        List<TypedExpression> sortFields = UserQueryHelper.getFields(repository, "Address", "../../i");
+        for (TypedExpression sortField : sortFields) {
+            qb.orderBy(sortField, OrderBy.Direction.DESC);
+        }
+
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        String[] expected = {"4", "3", "2", "1", "1"};
+        int i = 0;
+        for (DataRecord result : storageResults) {
+            assertEquals(expected[i++], result.get("id"));
+        }
+    }
+
     public void testOrderByASC() throws Exception {
         // Test ASC direction
         FieldMetadata personLastName = person.getField("lastname");
@@ -1877,7 +1912,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testSortOnXPath() throws Exception {
         UserQueryBuilder qb = from(person).selectId(person);
-        TypedExpression sortField = UserQueryHelper.getField(repository, "Person", "../../i");
+        TypedExpression sortField = UserQueryHelper.getFields(repository, "Person", "../../i").get(0);
         qb.orderBy(sortField, OrderBy.Direction.DESC);
 
         StorageResults storageResults = storage.fetch(qb.getSelect());
@@ -2246,7 +2281,7 @@ public class StorageQueryTest extends StorageTestCase {
         for (String viewableBusinessElement : viewables) {
             String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
             String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
-            qb.select(UserQueryHelper.getField(repository, viewableTypeName, viewablePath));
+            qb.select(UserQueryHelper.getFields(repository, viewableTypeName, viewablePath).get(0));
         }
 
         StorageResults results = storage.fetch(qb.getSelect());
@@ -2279,11 +2314,19 @@ public class StorageQueryTest extends StorageTestCase {
         ComplexTypeMetadata type = repository.getComplexType("Product");
         UserQueryBuilder qb = UserQueryBuilder.from(type);
 
-        qb.select(UserQueryHelper.getField(repository, "Product", "Id"));
-        qb.select(UserQueryHelper.getField(repository, "Product", "Name"));
-        TypedExpression typeExpression = UserQueryHelper.getField(repository, "ProductFamily", "Name");
-        typeExpression = new Alias(typeExpression, "ProductFamily_Name");
-        qb.select(typeExpression);
+        List<TypedExpression> fields = UserQueryHelper.getFields(repository, "Product", "Id");
+        for (TypedExpression field : fields) {
+            qb.select(field);
+        }
+        fields = UserQueryHelper.getFields(repository, "Product", "Name");
+        for (TypedExpression field : fields) {
+            qb.select(field);
+        }
+        fields = UserQueryHelper.getFields(repository, "ProductFamily", "Name");
+        for (TypedExpression field : fields) {
+            TypedExpression typeExpression = new Alias(field, "ProductFamily_Name");
+            qb.select(typeExpression);
+        }
 
         ArrayList conditions = new ArrayList();
         WhereCondition cond = new WhereCondition("Product/Family", "JOINS", "ProductFamily/Id", "&", false);

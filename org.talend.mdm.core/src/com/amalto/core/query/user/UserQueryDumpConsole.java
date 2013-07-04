@@ -93,13 +93,13 @@ public class UserQueryDumpConsole implements Visitor<Void> {
             print("Order by"); //$NON-NLS-1$
             increaseIndent();
             {
-                OrderBy orderBy = select.getOrderBy();
-                if (orderBy != null) {
-                    orderBy.accept(this);
+                if (!select.getOrderBy().isEmpty()) {
+                    for (OrderBy current : select.getOrderBy()) {
+                        current.accept(this);
+                    }
                 } else {
                     print("<NONE>"); //$NON-NLS-1$
                 }
-
             }
             decreaseIndent();
 

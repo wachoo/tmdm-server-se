@@ -452,7 +452,7 @@ public class UserQueryBuilder {
             return join(field)
                     .orderBy(new Field(((ReferenceFieldMetadata) field).getReferencedField()), direction);
         } else {
-            expressionAsSelect().setOrderBy(new OrderBy(new Field(field), direction));
+            expressionAsSelect().addOrderBy(new OrderBy(new Field(field), direction));
         }
         return this;
     }
@@ -464,7 +464,7 @@ public class UserQueryBuilder {
         if (field instanceof Field) {
             orderBy(((Field) field).getFieldMetadata(), direction);
         } else {
-            expressionAsSelect().setOrderBy(new OrderBy(field, direction));
+            expressionAsSelect().addOrderBy(new OrderBy(field, direction));
         }
         return this;
     }

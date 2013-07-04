@@ -15,6 +15,8 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import com.amalto.core.query.user.*;
 
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 // TODO Instead of removing, it is possible to return arbitrary string value ("???", "###"...).
 class SecurityQueryCleaner extends VisitorAdapter<Expression> {
@@ -66,12 +68,15 @@ class SecurityQueryCleaner extends VisitorAdapter<Expression> {
             select.setCondition((Condition) condition.accept(this));
         }
 
-        OrderBy orderBy = select.getOrderBy();
-        if (orderBy != null) {
-            if (!orderBy.accept(checker)) {
-                select.setOrderBy(null);
+        List<OrderBy> orderBy = select.getOrderBy();
+        List<OrderBy> checkedOrderBy = new LinkedList<OrderBy>();
+        for (OrderBy current : orderBy) {
+            if (current.accept(checker)) {
+                checkedOrderBy.add(current);
             }
         }
+        select.getOrderBy().clear();
+        select.getOrderBy().addAll(checkedOrderBy);
 
         return select;
     }
