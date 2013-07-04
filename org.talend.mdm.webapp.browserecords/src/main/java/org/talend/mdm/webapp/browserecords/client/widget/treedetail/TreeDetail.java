@@ -270,32 +270,27 @@ public class TreeDetail extends ContentPanel {
         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(itemNode.getTypePath());
         boolean isAutoExpand = typeModel.isAutoExpand();
         if (itemNodeChildren != null && itemNodeChildren.size() > 0) {
-            if (isAutoExpand || itemNode.getParent() == null)
+            if (isAutoExpand || itemNode.getParent() == null) {
                 renderChildren(itemNode, item, withDefaultValue, operation);
-            else {
+            } else {
                 List<TypeModel> typeModels = ((ComplexTypeModel) typeModel).getSubTypes();
-                if (itemNode.getRealType() != null)
+                if (itemNode.getRealType() != null) {
                     typeModels = ((ComplexTypeModel) typeModel).getRealType(itemNode.getRealType()).getSubTypes();
-                boolean isOnlyExistFkDisplayedIntoTab = true;
-                for (TypeModel childTypeModel : typeModels) {
-                    if (childTypeModel.getForeignkey() == null
-                            || childTypeModel.getForeignkey().trim().length() == 0
-                            || (childTypeModel.getForeignkey() != null && childTypeModel.getForeignkey().trim().length() > 0 && childTypeModel
-                                    .isNotSeparateFk())) {
-                        isOnlyExistFkDisplayedIntoTab = false;
-                        break;
+                }
+                
+                final DynamicTreeItem parentItem = item; 
+                if (typeModels.size() == 1){
+                    TypeModel fkType = typeModels.get(0); 
+                    if (fkType.getForeignkey() != null && fkType.getForeignkey().trim().length() > 0 && !fkType.isNotSeparateFk()) { 
+                        item.getElement().setPropertyBoolean("EmptyFkContainer", true); //$NON-NLS-1$ 
                     }
                 }
-                final DynamicTreeItem parentItem = item;
-                if (isOnlyExistFkDisplayedIntoTab) {
-                    parentItem.getElement().setPropertyBoolean("EmptyFkContainer", false); //$NON-NLS-1$
+                if (item.getElement().getPropertyBoolean("EmptyFkContainer")) { //$NON-NLS-1$
                     Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-                        
                         public void execute() {
                             renderChildren(itemNode, parentItem, withDefaultValue, operation);
                         }
                     });
-                    
                 } else {
                     item.addItem(new GhostTreeItem());
                     item.setAutoExpandHandler(new AutoExpandHandler() {
