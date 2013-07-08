@@ -12,8 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.recyclebin.server.actions;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,11 +20,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
@@ -42,7 +40,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import com.amalto.core.ejb.UpdateReportPOJO;
-import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
@@ -87,7 +84,6 @@ public class RecycleBinAction implements RecycleBinService {
 
             WSDroppedItemPKArray pks = Util.getPort().findAllDroppedItemsPKs(new WSFindAllDroppedItemsPKs(regex));
             WSDroppedItemPK[] items = pks.getWsDroppedItemPK();
-            Map<String, MetadataRepository> repositoryMap = new HashMap<String, MetadataRepository>();
 
             for (WSDroppedItemPK pk : items) {
                 WSDroppedItem wsitem = Util.getPort().loadDroppedItem(new WSLoadDroppedItem(pk));
@@ -251,7 +247,6 @@ public class RecycleBinAction implements RecycleBinService {
                 if (Webapp.INSTANCE.isEnterpriseVersion()
                         && !DataModelAccessor.getInstance().checkRestoreAccess(modelName, conceptName))
                     throw new NoPermissionException();
-//                }
             }
 
             String[] ids1 = ids.split("\\.");//$NON-NLS-1$
@@ -321,9 +316,9 @@ public class RecycleBinAction implements RecycleBinService {
                 .append(operationType).append("</OperationType><RevisionID>").append(revisionId) //$NON-NLS-1$
                 .append("</RevisionID><DataCluster>").append(dataClusterPK).append("</DataCluster><DataModel>") //$NON-NLS-1$ //$NON-NLS-2$ 
                 .append(dataModelPK).append("</DataModel><Concept>").append(concept) //$NON-NLS-1$
-                .append("</Concept><Key>").append(key).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$ 
+                .append("</Concept><Key>").append(StringEscapeUtils.escapeXml(key)).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$ 
 
-        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)) { //$NON-NLS-1$
+        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)) {
             Collection<UpdateReportItem> list = updatedPath.values();
             boolean isUpdate = false;
             for (UpdateReportItem item : list) {
@@ -332,8 +327,8 @@ public class RecycleBinAction implements RecycleBinService {
                 if (newValue.equals(oldValue))
                     continue;
                 sb.append("<Item>   <path>").append(item.getPath()).append("</path>   <oldValue>")//$NON-NLS-1$ //$NON-NLS-2$
-                        .append(oldValue).append("</oldValue>   <newValue>")//$NON-NLS-1$
-                        .append(newValue).append("</newValue></Item>");//$NON-NLS-1$
+                        .append(StringEscapeUtils.escapeXml(oldValue)).append("</oldValue>   <newValue>")//$NON-NLS-1$
+                        .append(StringEscapeUtils.escapeXml(newValue)).append("</newValue></Item>");//$NON-NLS-1$
                 isUpdate = true;
             }
             if (!isUpdate)
