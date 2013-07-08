@@ -517,48 +517,69 @@ public class MetadataUtils {
         /*
         * Compute additional data for topological sorting
         */
-        final byte[][] dependencyGraph = new byte[types.size()][types.size()];
+        final int typeNumber = types.size();
+        byte[][] dependencyGraph = new byte[typeNumber][typeNumber];
         for (final ComplexTypeMetadata type : types) {
-            byte[] lineValue = new byte[types.size()];
-            dependencyGraph[getId(type, types)] = lineValue;
-            type.accept(new DefaultMetadataVisitor<Void>() {
+            dependencyGraph[getId(type, types)] = type.accept(new DefaultMetadataVisitor<byte[]>() {
+                Set<TypeMetadata> processedTypes = new HashSet<TypeMetadata>();
+
+                byte[] lineContent = new byte[typeNumber]; // Stores dependencies of current type
+
                 @Override
-                public Void visit(ComplexTypeMetadata complexType) {
+                public byte[] visit(ComplexTypeMetadata complexType) {
+                    if (processedTypes.contains(complexType)) {
+                        return lineContent;
+                    } else {
+                        processedTypes.add(complexType);
+                    }
                     if (isInstantiable == complexType.isInstantiable()) {
                         Collection<TypeMetadata> superTypes = complexType.getSuperTypes();
                         for (TypeMetadata superType : superTypes) {
                             if (superType instanceof ComplexTypeMetadata) {
-                                dependencyGraph[getId(type, types)][getId(((ComplexTypeMetadata) superType), types)]++;
+                                lineContent[getId(((ComplexTypeMetadata) superType), types)]++;
                             }
                         }
+                        super.visit(complexType);
                     }
-                    super.visit(complexType);
-                    return null;
+                    if (complexType.isInstantiable()) {
+                        processedTypes.clear();
+                    }
+                    return lineContent;
                 }
 
                 @Override
-                public Void visit(ContainedTypeFieldMetadata containedField) {
-                    ContainedComplexTypeMetadata containedType = containedField.getContainedType();
+                public byte[] visit(ContainedTypeFieldMetadata containedField) {
+                    ComplexTypeMetadata containedType = containedField.getContainedType();
+                    if (processedTypes.contains(containedType)) {
+                        return lineContent;
+                    } else {
+                        processedTypes.add(containedType);
+                    }
                     containedType.accept(this);
                     for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
-                        subType.accept(this);
+                        if (processedTypes.contains(subType)) {
+                            return lineContent;
+                        } else {
+                            processedTypes.add(subType);
+                            subType.accept(this);
+                        }
                     }
-                    return null;
+                    return lineContent;
                 }
 
                 @Override
-                public Void visit(ReferenceFieldMetadata referenceField) {
+                public byte[] visit(ReferenceFieldMetadata referenceField) {
                     ComplexTypeMetadata referencedType = referenceField.getReferencedType();
                     if (!type.equals(referencedType) && referenceField.isFKIntegrity()) { // Don't count a dependency to itself as a dependency.
                         if (isInstantiable == referencedType.isInstantiable()) {
-                            dependencyGraph[getId(type, types)][getId(referencedType, types)]++;
+                            lineContent[getId(referencedType, types)]++;
                             // Implicitly include reference to sub types of referenced type.
                             for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
-                                dependencyGraph[getId(type, types)][getId(subType, types)]++;
+                                lineContent[getId(subType, types)]++;
                             }
                         }
                     }
-                    return null;
+                    return lineContent;
                 }
             });
         }
@@ -576,77 +597,89 @@ public class MetadataUtils {
             }
             lineNumber++;
         }
-
         while (!noIncomingEdges.isEmpty()) {
             Iterator<ComplexTypeMetadata> iterator = noIncomingEdges.iterator();
             ComplexTypeMetadata type = iterator.next();
             iterator.remove();
-
             sortedTypes.add(type);
             int columnNumber = getId(type, types);
-            for (int i = 0; i < types.size(); i++) {
+            for (int i = 0; i < typeNumber; i++) {
                 int edge = dependencyGraph[i][columnNumber];
                 if (edge > 0) {
                     dependencyGraph[i][columnNumber] -= edge;
-
                     if (!hasIncomingEdges(dependencyGraph[i])) {
                         noIncomingEdges.add(getType(types, i));
                     }
                 }
             }
         }
-
-        lineNumber = 0;
-        for (byte[] line : dependencyGraph) {
-            for (int column : line) {
-                if (column != 0) { // unresolved dependency (means there is a cycle somewhere).
-                    int currentLineNumber = lineNumber;
+        // Check for cycles
+        if (sortedTypes.size() < dependencyGraph.length) {
+            lineNumber = 0;
+            List<List<ComplexTypeMetadata>> cycles = new LinkedList<List<ComplexTypeMetadata>>();
+            // use dependency graph matrix to get cyclic dependencies (if any).
+            for (byte[] line : dependencyGraph) {
+                if (hasIncomingEdges(line)) { // unresolved dependency (means this is a cycle start).
                     List<ComplexTypeMetadata> dependencyPath = new LinkedList<ComplexTypeMetadata>();
-                    // use dependency graph matrix to get cyclic dependency.
+                    int currentLineNumber = lineNumber;
                     do {
                         ComplexTypeMetadata type = getType(types, currentLineNumber);
-                        if (!dependencyPath.contains(type)) {
-                            dependencyPath.add(type);
-                        } else {
-                            dependencyPath.add(type); // Include cycle start to get a better exception message.
-                            break;
-                        }
-                        byte[] bytes = dependencyGraph[getId(type, types)];
-                        for (int currentByte = 0; currentByte < bytes.length; currentByte++) {
-                            if (bytes[currentByte] > 0) { // This gets the first unresolved dependency (but there might be more of them).
-                                currentLineNumber = currentByte;
+                        dependencyPath.add(type);
+                        ForeignKeyIntegrity incomingReferences = new ForeignKeyIntegrity(type);
+                        Set<ReferenceFieldMetadata> incomingFields = repository.accept(incomingReferences);
+                        boolean hasMetDependency = false;
+                        for (ReferenceFieldMetadata incomingField : incomingFields) {
+                            ComplexTypeMetadata containingType = repository.getComplexType(incomingField.<String>getData(ForeignKeyIntegrity.ATTRIBUTE_ROOTTYPE));
+                            int currentDependency = getId(containingType, types);
+                            if (hasIncomingEdges(dependencyGraph[currentDependency])) {
+                                dependencyGraph[currentLineNumber][currentDependency]--;
+                                currentLineNumber = currentDependency;
+                                hasMetDependency = true;
                                 break;
                             }
                         }
-                    } while (currentLineNumber != column);
-
-                    StringBuilder pathAsString = new StringBuilder();
-                    Iterator<ComplexTypeMetadata> dependencyPathIterator = dependencyPath.iterator();
+                        if (!hasMetDependency) {
+                            break;
+                        }
+                    } while (currentLineNumber != lineNumber);
+                    if (dependencyPath.size() > 1) {
+                        dependencyPath.add(getType(types, lineNumber)); // Include cycle start to get a better exception message.
+                        cycles.add(dependencyPath);
+                    }
+                }
+                lineNumber++;
+            }
+            if (!cycles.isEmpty()) { // Found cycle(s): report it/them as exception
+                StringBuilder cyclesAsString = new StringBuilder();
+                int i = 1;
+                Iterator<List<ComplexTypeMetadata>> cyclesIterator = cycles.iterator();
+                while (cyclesIterator.hasNext()) {
+                    cyclesAsString.append(i++).append(") ");
+                    Iterator<ComplexTypeMetadata> dependencyPathIterator = cyclesIterator.next().iterator();
                     ComplexTypeMetadata previous = null;
                     while (dependencyPathIterator.hasNext()) {
                         ComplexTypeMetadata currentType = dependencyPathIterator.next();
-                        pathAsString.append(currentType.getName());
+                        cyclesAsString.append(currentType.getName());
                         if (dependencyPathIterator.hasNext()) {
-                            pathAsString.append(" -> ");
+                            cyclesAsString.append(" -> ");
                         } else if (previous != null) {
-                            pathAsString.append(')');
-                            pathAsString.append('\n');
                             Set<ReferenceFieldMetadata> inboundReferences = repository.accept(new ForeignKeyIntegrity(currentType));
-                            pathAsString.append("(Possible fields: ");
+                            cyclesAsString.append(" ( possible fields: ");
                             for (ReferenceFieldMetadata inboundReference : inboundReferences) {
                                 String xPath = inboundReference.getData(ForeignKeyIntegrity.ATTRIBUTE_XPATH);
-                                pathAsString.append(xPath).append(' ');
+                                cyclesAsString.append(xPath).append(' ');
                             }
-                            pathAsString.append(')');
+                            cyclesAsString.append(')');
                         }
                         previous = currentType;
                     }
-                    throw new IllegalArgumentException("Data model has at least one circular dependency.\n(Hint: " + pathAsString);
+                    if (cyclesIterator.hasNext()) {
+                        cyclesAsString.append('\n');
+                    }
                 }
+                throw new IllegalArgumentException("Data model has circular dependencies:\n" + cyclesAsString);
             }
-            lineNumber++;
         }
-
         return sortedTypes;
     }
 
@@ -656,14 +689,12 @@ public class MetadataUtils {
 
     // internal method for sortTypes
     private static boolean hasIncomingEdges(byte[] line) {
-        boolean hasIncomingEdge = false;
         for (byte column : line) {
             if (column > 0) {
-                hasIncomingEdge = true;
-                break;
+                return true;
             }
         }
-        return hasIncomingEdge;
+        return false;
     }
 
     // internal method for sortTypes

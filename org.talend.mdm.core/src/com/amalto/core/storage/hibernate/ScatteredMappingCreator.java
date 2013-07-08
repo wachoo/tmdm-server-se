@@ -16,6 +16,8 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.xml.XMLConstants;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 
 class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
@@ -27,6 +29,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     private final MappingRepository mappings;
 
     private final Stack<ComplexTypeMetadata> currentType = new Stack<ComplexTypeMetadata>();
+
+    private final Set<TypeMetadata> processedTypes = new HashSet<TypeMetadata>();
 
     private TypeMapping mapping;
 
@@ -60,7 +64,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     }
 
     private String getFieldName(FieldMetadata field) {
-        return "x_" + field.getName().toLowerCase(); //$NON-NLS-1$
+        return "x_" + field.getName().replace('-', '_').toLowerCase(); //$NON-NLS-1$
     }
 
     @Override
@@ -69,9 +73,10 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         ComplexTypeMetadata fieldReferencedType = referenceField.getReferencedType();
         ComplexTypeMetadata referencedType;
         if (fieldReferencedType.isInstantiable()) {
+            String typeName = fieldReferencedType.getName().replace('-', '_');
             referencedType = new SoftTypeRef(internalRepository,
                     fieldReferencedType.getNamespace(),
-                    fieldReferencedType.getName(),
+                    typeName,
                     true);
         } else {
             referencedType = new SoftTypeRef(internalRepository,
@@ -80,7 +85,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     true);
         }
 
-        FieldMetadata referencedFieldCopy = new SoftIdFieldRef(internalRepository, referencedType.getName());
+        String referencedTypeName = referencedType.getName().replace('-', '_');
+        FieldMetadata referencedFieldCopy = new SoftIdFieldRef(internalRepository, referencedTypeName);
 
         ComplexTypeMetadata database = currentType.peek();
 
@@ -109,7 +115,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private String getNonInstantiableTypeName(String typeName) {
         if (!typeName.startsWith("X_")) { //$NON-NLS-1$
-            return "X_" + typeName; //$NON-NLS-1$
+            return "X_" + typeName.replace('-', '_'); //$NON-NLS-1$
         } else {
             return typeName;
         }
@@ -163,6 +169,11 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(ContainedTypeFieldMetadata containedField) {
+        if (processedTypes.contains(containedField.getContainedType())) {
+            return null;
+        } else {
+            processedTypes.add(containedField.getContainedType());
+        }
         String fieldName = getFieldName(containedField);
         String containedTypeName = newNonInstantiableTypeName(containedField.getContainedType());
         SoftTypeRef typeRef = new SoftTypeRef(internalRepository,
@@ -239,7 +250,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             }
             super.visit(complexType);
             for (FieldMetadata keyField : complexType.getKeyFields()) {
-                database.registerKey(database.getField("x_" + keyField.getName().toLowerCase()));
+                database.registerKey(database.getField("x_" + keyField.getName().replace('-', '_').toLowerCase()));
             }
         }
         currentType.pop();
