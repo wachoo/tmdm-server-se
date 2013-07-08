@@ -24,4 +24,21 @@ public class NativeQuery implements Expression {
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof NativeQuery)) {
+            return false;
+        }
+        NativeQuery that = (NativeQuery) o;
+        return !(nativeQuery != null ? !nativeQuery.equals(that.nativeQuery) : that.nativeQuery != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return nativeQuery != null ? nativeQuery.hashCode() : 0;
+    }
 }

@@ -45,4 +45,29 @@ public class OrderBy implements Expression {
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof OrderBy)) {
+            return false;
+        }
+        OrderBy orderBy = (OrderBy) o;
+        if (direction != orderBy.direction) {
+            return false;
+        }
+        if (field != null ? !field.equals(orderBy.field) : orderBy.field != null) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = field != null ? field.hashCode() : 0;
+        result = 31 * result + (direction != null ? direction.hashCode() : 0);
+        return result;
+    }
 }

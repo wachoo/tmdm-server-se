@@ -37,4 +37,33 @@ public class Range extends Condition {
     public Expression getEnd() {
         return end;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Range)) {
+            return false;
+        }
+        Range range = (Range) o;
+        if (end != null ? !end.equals(range.end) : range.end != null) {
+            return false;
+        }
+        if (expression != null ? !expression.equals(range.expression) : range.expression != null) {
+            return false;
+        }
+        if (start != null ? !start.equals(range.start) : range.start != null) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = expression != null ? expression.hashCode() : 0;
+        result = 31 * result + (start != null ? start.hashCode() : 0);
+        result = 31 * result + (end != null ? end.hashCode() : 0);
+        return result;
+    }
 }

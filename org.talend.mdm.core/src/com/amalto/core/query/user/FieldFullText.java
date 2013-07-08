@@ -31,4 +31,21 @@ public class FieldFullText extends FullText {
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof FieldFullText)) {
+            return false;
+        }
+        FieldFullText that = (FieldFullText) o;
+        return !(field != null ? !field.equals(that.field) : that.field != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return field != null ? field.hashCode() : 0;
+    }
 }

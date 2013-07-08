@@ -34,4 +34,21 @@ public class ShortConstant implements TypedExpression {
     public String getTypeName() {
         return "short"; // TODO Constants
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ShortConstant)) {
+            return false;
+        }
+        ShortConstant that = (ShortConstant) o;
+        return !(constant != null ? !constant.equals(that.constant) : that.constant != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return constant != null ? constant.hashCode() : 0;
+    }
 }

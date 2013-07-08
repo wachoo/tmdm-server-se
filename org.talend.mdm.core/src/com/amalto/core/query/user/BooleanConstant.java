@@ -39,4 +39,21 @@ public class BooleanConstant implements TypedExpression {
     public String getTypeName() {
         return "boolean"; // TODO Constants
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BooleanConstant)) {
+            return false;
+        }
+        BooleanConstant that = (BooleanConstant) o;
+        return value == that.value;
+    }
+
+    @Override
+    public int hashCode() {
+        return (value ? 1 : 0);
+    }
 }

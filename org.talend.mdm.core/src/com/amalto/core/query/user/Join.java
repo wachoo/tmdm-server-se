@@ -47,4 +47,33 @@ public class Join implements Expression {
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Join)) {
+            return false;
+        }
+        Join join = (Join) o;
+        if (joinType != join.joinType) {
+            return false;
+        }
+        if (leftField != null ? !leftField.equals(join.leftField) : join.leftField != null) {
+            return false;
+        }
+        if (rightField != null ? !rightField.equals(join.rightField) : join.rightField != null) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = leftField != null ? leftField.hashCode() : 0;
+        result = 31 * result + (rightField != null ? rightField.hashCode() : 0);
+        result = 31 * result + (joinType != null ? joinType.hashCode() : 0);
+        return result;
+    }
 }

@@ -56,4 +56,33 @@ public class Compare extends Condition {
         }
         return this;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Compare)) {
+            return false;
+        }
+        Compare compare = (Compare) o;
+        if (left != null ? !left.equals(compare.left) : compare.left != null) {
+            return false;
+        }
+        if (predicate != null ? !predicate.equals(compare.predicate) : compare.predicate != null) {
+            return false;
+        }
+        if (right != null ? !right.equals(compare.right) : compare.right != null) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = left != null ? left.hashCode() : 0;
+        result = 31 * result + (right != null ? right.hashCode() : 0);
+        result = 31 * result + (predicate != null ? predicate.hashCode() : 0);
+        return result;
+    }
 }

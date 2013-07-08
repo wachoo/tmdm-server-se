@@ -30,4 +30,21 @@ public class NotIsNull extends Condition {
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof NotIsNull)) {
+            return false;
+        }
+        NotIsNull notIsNull = (NotIsNull) o;
+        return !(field != null ? !field.equals(notIsNull.field) : notIsNull.field != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return field != null ? field.hashCode() : 0;
+    }
 }

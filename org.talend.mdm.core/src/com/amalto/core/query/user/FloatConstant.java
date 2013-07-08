@@ -34,4 +34,21 @@ public class FloatConstant implements TypedExpression {
     public String getTypeName() {
         return "float"; // TODO Constants
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof FloatConstant)) {
+            return false;
+        }
+        FloatConstant that = (FloatConstant) o;
+        return !(constant != null ? !constant.equals(that.constant) : that.constant != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return constant != null ? constant.hashCode() : 0;
+    }
 }

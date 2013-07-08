@@ -30,4 +30,21 @@ public class IsEmpty extends Condition {
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof IsEmpty)) {
+            return false;
+        }
+        IsEmpty isEmpty = (IsEmpty) o;
+        return !(field != null ? !field.equals(isEmpty.field) : isEmpty.field != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return field != null ? field.hashCode() : 0;
+    }
 }

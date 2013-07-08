@@ -27,13 +27,9 @@ public class RangeOptimizer extends Optimizer {
 
     private static class RangeOptimization extends VisitorAdapter<Condition> {
 
-        private boolean isRange;
-
         private Expression rangeStart;
 
         private Expression rangeEnd;
-
-        private TypedExpression rangeExpression;
 
         @Override
         public Condition visit(Select select) {
@@ -72,36 +68,23 @@ public class RangeOptimizer extends Optimizer {
 
         @Override
         public Condition visit(BinaryLogicOperator condition) {
-            if (condition.getPredicate() == Predicate.AND) {
-                return processCondition(condition);
-            } else if (condition.getPredicate() == Predicate.OR) {
-                // TODO OR is a (not(range())) is start and end does not intersect
-                condition.setLeft(condition.getLeft().accept(this));
-                condition.setRight(condition.getRight().accept(this));
+            // TODO OR is a (not(range())) is start and end does not intersect
+            if (condition.getLeft() instanceof Compare && condition.getRight() instanceof Compare) {
+                Compare left = (Compare) condition.getLeft();
+                Compare right = (Compare) condition.getRight();
+                // Only takes into account when left == right
+                if (condition.getPredicate() == Predicate.AND && left.getLeft().equals(right.getLeft())) {
+                    condition.getLeft().accept(this);
+                    condition.getRight().accept(this);
+                    if (rangeStart != null && rangeEnd != null) {
+                        return new Range(((TypedExpression) left.getLeft()), rangeStart, rangeEnd);
+                    } else {
+                        return condition;
+                    }
+                }
             } else {
                 condition.setLeft(condition.getLeft().accept(this));
                 condition.setRight(condition.getRight().accept(this));
-            }
-
-            return condition;
-        }
-
-        private Condition processCondition(BinaryLogicOperator condition) {
-            condition.getLeft().accept(this);
-            condition.getRight().accept(this);
-
-            if (isRange) {
-                isRange = false;
-                return new Range(rangeExpression, rangeStart, rangeEnd);
-            }
-
-            // TODO This is a bit ugly but works
-            // Try the other way in case lower than is declared before greater than
-            condition.getRight().accept(this);
-            condition.getLeft().accept(this);
-            if (isRange) {
-                isRange = false;
-                return new Range(rangeExpression, rangeStart, rangeEnd);
             }
             return condition;
         }
@@ -110,14 +93,11 @@ public class RangeOptimizer extends Optimizer {
         public Condition visit(Compare condition) {
             Predicate predicate = condition.getPredicate();
             if (predicate == Predicate.GREATER_THAN_OR_EQUALS) {
-                rangeExpression = (TypedExpression) condition.getLeft();  //TODO What if left isn't a TypedExpression?
                 rangeStart = condition.getRight();
             }
             if (predicate == Predicate.LOWER_THAN_OR_EQUALS) {
-                isRange = rangeExpression != null && rangeExpression.equals(condition.getLeft());
                 rangeEnd = condition.getRight();
             }
-
             return condition;
         }
 
@@ -142,7 +122,6 @@ public class RangeOptimizer extends Optimizer {
         }
 
         public void reset() {
-            rangeExpression = null;
             rangeStart = null;
             rangeEnd = null;
         }

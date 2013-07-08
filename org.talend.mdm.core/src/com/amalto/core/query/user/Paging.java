@@ -39,4 +39,29 @@ public class Paging implements Visitable {
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Paging)) {
+            return false;
+        }
+        Paging paging = (Paging) o;
+        if (limit != paging.limit) {
+            return false;
+        }
+        if (start != paging.start) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = start;
+        result = 31 * result + limit;
+        return result;
+    }
 }

@@ -41,4 +41,29 @@ public class Alias implements TypedExpression {
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Alias)) {
+            return false;
+        }
+        Alias alias1 = (Alias) o;
+        if (alias != null ? !alias.equals(alias1.alias) : alias1.alias != null) {
+            return false;
+        }
+        if (typedExpression != null ? !typedExpression.equals(alias1.typedExpression) : alias1.typedExpression != null) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = typedExpression != null ? typedExpression.hashCode() : 0;
+        result = 31 * result + (alias != null ? alias.hashCode() : 0);
+        return result;
+    }
 }
