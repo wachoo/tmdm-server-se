@@ -655,21 +655,20 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                                               RDBMSDataSource.DataSourceDialect dialect) {
         Document document = propertyElement.getOwnerDocument();
         Attr elementType = document.createAttribute("type"); //$NON-NLS-1$
-        String elementTypeName = getFieldType(field);
         TypeMetadata fieldType = field.getType();
-        while (!fieldType.getSuperTypes().isEmpty()) {
-            fieldType = fieldType.getSuperTypes().iterator().next();
-        }
-        if ("base64Binary".equals(fieldType.getName())) { //$NON-NLS-1$
+        String elementTypeName;
+        if ("MULTI_LINGUAL".equalsIgnoreCase(fieldType.getName()) //$NON-NLS-1$
+                || "base64Binary".equals(fieldType.getName())) { //$NON-NLS-1$
             elementTypeName = TEXT_TYPE_NAME;
-        } else if (field instanceof SimpleTypeFieldMetadata) {
-            Object sqlType = field.getData("SQL_TYPE"); //$NON-NLS-1$
-            if (sqlType != null) {
+        } else {
+            Object sqlType = field.getData(TypeMapping.SQL_TYPE);
+            if (sqlType != null) { // SQL Type may enforce use of "CLOB" iso. "LONG VARCHAR"
                 elementTypeName = String.valueOf(sqlType);
-            } else if("MULTI_LINGUAL".equalsIgnoreCase(fieldType.getName())) { //$NON-NLS-1$
-                elementTypeName = TEXT_TYPE_NAME;
-            } else if ("string".equals(fieldType.getName())) { //$NON-NLS-1$
-                Object maxLength = field.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
+            } else if (field.getData(MetadataRepository.DATA_MAX_LENGTH) != null || fieldType.getData(MetadataRepository.DATA_MAX_LENGTH) != null) {
+                Object maxLength = field.getData(MetadataRepository.DATA_MAX_LENGTH);
+                if (maxLength == null) {
+                    maxLength = fieldType.getData(MetadataRepository.DATA_MAX_LENGTH);
+                }
                 if (maxLength != null) {
                     int maxLengthInt = Integer.parseInt(String.valueOf(maxLength));
                     if (maxLengthInt > MAX_VARCHAR_TEXT_LIMIT) {
@@ -678,8 +677,13 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                         Attr length = document.createAttribute("length"); //$NON-NLS-1$
                         length.setValue(String.valueOf(maxLength));
                         propertyElement.getAttributes().setNamedItem(length);
+                        elementTypeName = MetadataUtils.getJavaType(fieldType);
                     }
+                } else {
+                    elementTypeName = MetadataUtils.getJavaType(fieldType);
                 }
+            } else {
+                elementTypeName = MetadataUtils.getJavaType(fieldType);
             }
         }
         // TMDM-4975: Oracle doesn't like when there's too much text columns.
@@ -691,9 +695,5 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         }
         elementType.setValue(elementTypeName);
         propertyElement.getAttributes().setNamedItem(elementType);
-    }
-
-    private static String getFieldType(FieldMetadata field) {
-        return MetadataUtils.getJavaType(field.getType());
     }
 }

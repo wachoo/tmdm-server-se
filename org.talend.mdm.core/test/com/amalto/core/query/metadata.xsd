@@ -11,7 +11,7 @@
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
     <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>
-    <xsd:simpleType name="MULTILINGUAL">
+    <xsd:simpleType name="MULTI_LINGUAL">
         <xsd:restriction base="xsd:string">
             <xsd:pattern value="(\[\w+\:[^\[\]]*\]){0,}"/>
         </xsd:restriction>
@@ -32,7 +32,7 @@
                 <xsd:element name="firstname" type="xsd:string"/>
                 <xsd:element name="middlename" type="xsd:string"/>
                 <xsd:element name="lastname" type="xsd:string"/>
-                <xsd:element maxOccurs="1" minOccurs="0" name="resume" type="MULTILINGUAL"/>
+                <xsd:element maxOccurs="1" minOccurs="0" name="resume" type="MULTI_LINGUAL"/>
                 <xsd:element name="age" type="xsd:positiveInteger"/>
                 <xsd:element name="score" type="xsd:decimal"/>
                 <xsd:element minOccurs="0" name="Available" type="xsd:boolean"/>

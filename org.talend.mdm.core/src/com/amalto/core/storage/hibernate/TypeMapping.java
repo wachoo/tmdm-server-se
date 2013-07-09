@@ -23,6 +23,8 @@ import java.util.List;
  * Represents type mapping between data model as specified by the user and data model as used by hibernate storage.
  */
 public abstract class TypeMapping {
+    
+    public static final String SQL_TYPE = "SQL_TYPE"; //$NON-NLS-1$
 
     protected final ComplexTypeMetadata user;
 
