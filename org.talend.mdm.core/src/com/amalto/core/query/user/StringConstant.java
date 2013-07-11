@@ -16,7 +16,7 @@ import org.talend.mdm.commmon.metadata.Types;
 /**
  *
  */
-public class StringConstant implements TypedExpression {
+public class StringConstant implements ConstantExpression<String> {
 
     private final String value;
 

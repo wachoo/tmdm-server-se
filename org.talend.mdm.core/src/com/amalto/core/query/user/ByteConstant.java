@@ -13,7 +13,7 @@ package com.amalto.core.query.user;
 
 import org.talend.mdm.commmon.metadata.Types;
 
-public class ByteConstant implements TypedExpression {
+public class ByteConstant implements ConstantExpression<Byte> {
 
     private final Byte constant;
 

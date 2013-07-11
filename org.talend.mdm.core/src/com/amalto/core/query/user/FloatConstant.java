@@ -13,7 +13,7 @@ package com.amalto.core.query.user;
 
 import org.talend.mdm.commmon.metadata.Types;
 
-public class FloatConstant implements TypedExpression {
+public class FloatConstant implements ConstantExpression<Float> {
 
     private final Float constant;
 

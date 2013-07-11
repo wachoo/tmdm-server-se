@@ -21,7 +21,7 @@ import java.util.Date;
 /**
  *
  */
-public class TimeConstant implements TypedExpression {
+public class TimeConstant implements ConstantExpression<Date> {
 
     public static final DateFormat TIME_FORMAT = new SimpleDateFormat("hh:mm:ss"); //$NON-NLS-1$
 

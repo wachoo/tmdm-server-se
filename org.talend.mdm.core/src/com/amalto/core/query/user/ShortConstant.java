@@ -13,7 +13,7 @@ package com.amalto.core.query.user;
 
 import org.talend.mdm.commmon.metadata.Types;
 
-public class ShortConstant implements TypedExpression {
+public class ShortConstant implements ConstantExpression<Short> {
 
     private final Short constant;
 

@@ -23,7 +23,7 @@ import java.util.Date;
 /**
  *
  */
-public class DateConstant implements TypedExpression {
+public class DateConstant implements ConstantExpression<Date> {
 
     public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
 

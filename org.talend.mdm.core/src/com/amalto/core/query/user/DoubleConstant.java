@@ -13,7 +13,7 @@ package com.amalto.core.query.user;
 
 import org.talend.mdm.commmon.metadata.Types;
 
-public class DoubleConstant implements TypedExpression {
+public class DoubleConstant implements ConstantExpression<Double> {
 
     private final Double constant;
 

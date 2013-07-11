@@ -18,7 +18,7 @@ import org.talend.mdm.commmon.metadata.Types;
 /**
  *
  */
-public class BooleanConstant implements TypedExpression {
+public class BooleanConstant implements ConstantExpression<Boolean> {
 
     private final boolean value;
 
@@ -26,7 +26,7 @@ public class BooleanConstant implements TypedExpression {
         this.value = value;
     }
 
-    public boolean getValue() {
+    public Boolean getValue() {
         return value;
     }
 

@@ -2,7 +2,7 @@ package com.amalto.core.query.user;
 
 import org.talend.mdm.commmon.metadata.Types;
 
-public class IntegerConstant implements TypedExpression {
+public class IntegerConstant implements ConstantExpression<Integer> {
 
     private final int constant;
 
@@ -18,7 +18,7 @@ public class IntegerConstant implements TypedExpression {
         return visitor.visit(this);
     }
 
-    public int getValue() {
+    public Integer getValue() {
         return constant;
     }
 

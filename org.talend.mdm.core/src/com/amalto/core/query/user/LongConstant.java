@@ -13,7 +13,7 @@ package com.amalto.core.query.user;
 
 import org.talend.mdm.commmon.metadata.Types;
 
-public class LongConstant implements TypedExpression {
+public class LongConstant implements ConstantExpression<Long> {
 
     private final Long constant;
 
