@@ -250,6 +250,10 @@ public class HibernateStorage implements Storage {
                     for (Expression optimizedExpression : optimizedExpressions) {
                         Collection<FieldMetadata> indexedFields = RecommendedIndexes.get(optimizedExpression);
                         for (FieldMetadata indexedField : indexedFields) {
+                            // TMDM-5896: Don't index Composite Key fields
+                            if (indexedField instanceof CompoundFieldMetadata) {
+                                continue;
+                            }
                             // TMDM-5311: Don't index TEXT fields
                             TypeMetadata indexedFieldType = indexedField.getType();
                             if (!isIndexable(indexedFieldType)) {
