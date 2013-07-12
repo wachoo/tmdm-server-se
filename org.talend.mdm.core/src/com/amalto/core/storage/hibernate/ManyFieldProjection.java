@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.CriteriaQuery;
@@ -28,10 +29,13 @@ class ManyFieldProjection extends SimpleProjection {
 
     private final TableResolver resolver;
 
-    ManyFieldProjection(String alias, FieldMetadata field, TableResolver resolver) {
+    private final RDBMSDataSource dataSource;
+
+    ManyFieldProjection(String alias, FieldMetadata field, TableResolver resolver, RDBMSDataSource dataSource) {
         this.alias = alias;
         this.field = field;
         this.resolver = resolver;
+        this.dataSource = dataSource;
     }
 
     @Override
@@ -42,26 +46,51 @@ class ManyFieldProjection extends SimpleProjection {
         String collectionTable = MappingGenerator.formatSQLName((containerTable + '_' + field.getName()).toUpperCase(), resolver.getNameMaxLength());
         String containerIdColumn = MappingGenerator.formatSQLName(containingType.getKeyFields().iterator().next().getName(), resolver.getNameMaxLength());
         StringBuilder sqlFragment = new StringBuilder();
-        sqlFragment.append("(select group_concat(") //$NON-NLS-1$
-                .append(collectionTable)
-                .append(".value separator ',') FROM ").append(containerTable); //$NON-NLS-1$
-        for (FieldMetadata currentKey : containingType.getKeyFields()) {
-            String keyName = currentKey.getName();
-            sqlFragment.append(" INNER JOIN ") //$NON-NLS-1$
+        // SQL Server doesn't support the group_concat function
+        if (dataSource.getDialectName() != RDBMSDataSource.DataSourceDialect.SQL_SERVER) {
+            sqlFragment.append("(select group_concat(") //$NON-NLS-1$
                     .append(collectionTable)
-                    .append(" on ") //$NON-NLS-1$
-                    .append(containerTable).append('.').append(keyName)
+                    .append(".value separator ',') FROM ").append(containerTable); //$NON-NLS-1$
+            for (FieldMetadata currentKey : containingType.getKeyFields()) {
+                String keyName = currentKey.getName();
+                sqlFragment.append(" INNER JOIN ") //$NON-NLS-1$
+                        .append(collectionTable)
+                        .append(" on ") //$NON-NLS-1$
+                        .append(containerTable).append('.').append(keyName)
+                        .append(" = ") //$NON-NLS-1$
+                        .append(collectionTable).append('.').append(keyName);
+            }
+            sqlFragment.append(" WHERE ") //$NON-NLS-1$
+                    .append(containerTable)
+                    .append('.')
+                    .append(containerIdColumn)
                     .append(" = ") //$NON-NLS-1$
-                    .append(collectionTable).append('.').append(keyName);
+                    .append(criteriaQuery.getSQLAlias(subCriteria))
+                    .append('.')
+                    .append(containerIdColumn).append(") as y").append(position).append('_'); //$NON-NLS-1$
+        } else {
+            // SQL Server doesn't support the group_concat function -> returns (value + '...')
+            sqlFragment.append("(select ") //$NON-NLS-1$
+                    .append(collectionTable)
+                    .append(".value + \'...\' FROM ").append(containerTable); //$NON-NLS-1$
+            for (FieldMetadata currentKey : containingType.getKeyFields()) {
+                String keyName = currentKey.getName();
+                sqlFragment.append(" INNER JOIN ") //$NON-NLS-1$
+                        .append(collectionTable)
+                        .append(" on ") //$NON-NLS-1$
+                        .append(containerTable).append('.').append(keyName)
+                        .append(" = ") //$NON-NLS-1$
+                        .append(collectionTable).append('.').append(keyName);
+            }
+            sqlFragment.append(" WHERE ") //$NON-NLS-1$
+                    .append(containerTable)
+                    .append('.')
+                    .append(containerIdColumn)
+                    .append(" = ") //$NON-NLS-1$
+                    .append(criteriaQuery.getSQLAlias(subCriteria))
+                    .append('.')
+                    .append(containerIdColumn).append(" and pos=0) as y").append(position).append('_'); //$NON-NLS-1$
         }
-        sqlFragment.append(" WHERE ") //$NON-NLS-1$
-                .append(containerTable)
-                .append('.')
-                .append(containerIdColumn)
-                .append(" = ") //$NON-NLS-1$
-                .append(criteriaQuery.getSQLAlias(subCriteria))
-                .append('.')
-                .append(containerIdColumn).append(") as y").append(position).append('_'); //$NON-NLS-1$
         return sqlFragment.toString();
     }
 
