@@ -424,26 +424,24 @@ class ScatteredTypeMapping extends TypeMapping {
     /**
      * "Freeze" both database and internal types.
      *
-     * @see TypeMetadata#freeze(ValidationHandler)
+     * @see TypeMetadata#freeze()
      */
     public void freeze() {
         if (!isFrozen) {
-            ValidationHandler handler = new DefaultValidationHandler();
             // Ensure mapped type are frozen.
-            database.freeze(handler);
-            user.freeze(handler);
+            database.freeze();
+            user.freeze();
             // Freeze field mappings.
             Map<String, FieldMetadata> frozen = new HashMap<String, FieldMetadata>();
             for (Map.Entry<String, FieldMetadata> entry : userToDatabase.entrySet()) {
-                frozen.put(entry.getKey(), entry.getValue().freeze(handler));
+                frozen.put(entry.getKey(), entry.getValue().freeze());
             }
             userToDatabase = frozen;
             frozen = new HashMap<String, FieldMetadata>();
             for (Map.Entry<String, FieldMetadata> entry : databaseToUser.entrySet()) {
-                frozen.put(entry.getKey(), entry.getValue().freeze(handler));
+                frozen.put(entry.getKey(), entry.getValue().freeze());
             }
             databaseToUser = frozen;
-            handler.end();
             isFrozen = true;
         }
     }

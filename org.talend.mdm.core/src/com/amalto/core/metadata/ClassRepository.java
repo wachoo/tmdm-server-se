@@ -64,7 +64,7 @@ public class ClassRepository extends MetadataRepository {
         embeddedXml.setData(MetadataRepository.DATA_MAX_LENGTH, String.valueOf(Integer.MAX_VALUE));
         internalMapType.addField(new SimpleTypeFieldMetadata(internalMapType, false, false, false, "key", STRING, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         internalMapType.addField(new SimpleTypeFieldMetadata(internalMapType, false, false, false, "value", embeddedXml, Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
-        MAP_TYPE = (ComplexTypeMetadata) internalMapType.freeze(new DefaultValidationHandler());
+        MAP_TYPE = (ComplexTypeMetadata) internalMapType.freeze();
         addTypeMetadata(MAP_TYPE);
         // Register known subclasses
         registeredSubClasses.put(IWhereItem.class, Arrays.<Class>asList(CustomWhereCondition.class,
@@ -81,11 +81,9 @@ public class ClassRepository extends MetadataRepository {
             loadClass(clazz);
         }
         // Freeze (and validate) types
-        DefaultValidationHandler handler = new DefaultValidationHandler();
         for (TypeMetadata typeMetadata : getTypes()) {
-            typeMetadata.freeze(handler);
+            typeMetadata.freeze();
         }
-        handler.end();
     }
 
     public Class getJavaClass(String entityTypeName) {

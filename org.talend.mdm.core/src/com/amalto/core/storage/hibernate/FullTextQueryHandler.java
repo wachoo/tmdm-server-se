@@ -328,9 +328,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                             }
                         }
                     }
-                    DefaultValidationHandler handler = new DefaultValidationHandler();
-                    explicitProjectionType.freeze(handler);
-                    handler.end();
+                    explicitProjectionType.freeze();
                     return nextRecord;
                 }
             };

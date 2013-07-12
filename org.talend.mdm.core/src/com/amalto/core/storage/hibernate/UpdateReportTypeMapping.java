@@ -152,19 +152,18 @@ class UpdateReportTypeMapping extends TypeMapping {
 
     /**
      * "Freeze" both database and internal types.
-     * @see TypeMetadata#freeze(ValidationHandler)
+     * @see TypeMetadata#freeze()
      */
     public void freeze() {
         if (!isFrozen) {
-            ValidationHandler handler = new DefaultValidationHandler();
             // Ensure mapped type are frozen.
             try {
-                database.freeze(handler);
+                database.freeze();
             } catch (Exception e) {
                 throw new RuntimeException("Could not process internal type '" + database.getName() + "'.", e);
             }
             try {
-                user.freeze(handler);
+                user.freeze();
             } catch (Exception e) {
                 throw new RuntimeException("Could not process user type '" + user.getName() + "'.", e);
             }
@@ -172,15 +171,14 @@ class UpdateReportTypeMapping extends TypeMapping {
             // Freeze field mappings.
             Map<String, FieldMetadata> frozen = new HashMap<String, FieldMetadata>();
             for (Map.Entry<String, FieldMetadata> entry : userToDatabase.entrySet()) {
-                frozen.put(entry.getKey(), entry.getValue().freeze(handler));
+                frozen.put(entry.getKey(), entry.getValue().freeze());
             }
             userToDatabase = frozen;
             frozen = new HashMap<String, FieldMetadata>();
             for (Map.Entry<String, FieldMetadata> entry : databaseToUser.entrySet()) {
-                frozen.put(entry.getKey(), entry.getValue().freeze(handler));
+                frozen.put(entry.getKey(), entry.getValue().freeze());
             }
             databaseToUser = frozen;
-            handler.end();
             isFrozen = true;
         }
     }
