@@ -166,9 +166,7 @@ class NativeQueryHandler extends AbstractQueryHandler {
                 explicitProjectionType.addField(colField);
                 nativeResult.set(colField, next);
             }
-            DefaultValidationHandler handler = new DefaultValidationHandler();
-            explicitProjectionType.freeze(handler);
-            handler.end();
+            explicitProjectionType.freeze();
             return nativeResult;
         }
 

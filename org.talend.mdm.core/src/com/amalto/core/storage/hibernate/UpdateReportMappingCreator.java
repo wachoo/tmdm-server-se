@@ -43,9 +43,7 @@ class UpdateReportMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         SimpleTypeFieldMetadata items_xml = new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_items_xml", longStringType, Collections.<String>emptyList(), Collections.<String>emptyList()); //$NON-NLS-1$
         items_xml.getType().setData(TypeMapping.SQL_TYPE, "text"); //$NON-NLS-1$
         databaseUpdateReportType.addField(items_xml);
-        DefaultValidationHandler handler = new DefaultValidationHandler();
-        DATABASE_UPDATE_REPORT_TYPE = (ComplexTypeMetadata) databaseUpdateReportType.freeze(handler);
-        handler.end();
+        DATABASE_UPDATE_REPORT_TYPE = (ComplexTypeMetadata) databaseUpdateReportType.freeze();
     }
 
     @Override
