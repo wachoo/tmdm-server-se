@@ -270,7 +270,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 if (!simpleField.isMany()) {
                     projectionList.add(Projections.property(alias + '.' + simpleField.getName()));
                 } else {
-                    projectionList.add(new ManyFieldProjection(alias, simpleField, resolver));
+                    projectionList.add(new ManyFieldProjection(alias,
+                            simpleField,
+                            resolver,
+                            (RDBMSDataSource) storage.getDataSource()));
                 }
                 return null;
             }
@@ -280,7 +283,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 if (!enumField.isMany()) {
                     projectionList.add(Projections.property(alias + '.' + enumField.getName()));
                 } else {
-                    projectionList.add(new ManyFieldProjection(alias, enumField, resolver));
+                    projectionList.add(new ManyFieldProjection(alias,
+                            enumField,
+                            resolver,
+                            (RDBMSDataSource) storage.getDataSource()));
                 }
                 return null;
             }
