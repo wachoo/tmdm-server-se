@@ -124,7 +124,7 @@ public class StorageQueryTest extends StorageTestCase {
                         .read("1",
                                 repository,
                                 address,
-                                "<Address><id>2</id><enterprise>true</enterprise><Street>Street2</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
+                                "<Address><id>2&amp;2</id><enterprise>true</enterprise><Street>Street2</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
         allRecords
                 .add(factory
                         .read("1",
@@ -142,13 +142,13 @@ public class StorageQueryTest extends StorageTestCase {
                         .read("1",
                                 repository,
                                 person,
-                                "<Person><id>1</id><score>130000.00</score><lastname>Dupond</lastname><resume>[EN:my splendid resume, splendid isn't it][FR:mon magnifique resume, n'est ce pas ?]</resume><middlename>John</middlename><firstname>Julien</firstname><addresses><address>[2][true]</address><address>[1][false]</address></addresses><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
+                                "<Person><id>1</id><score>130000.00</score><lastname>Dupond</lastname><resume>[EN:my splendid resume, splendid isn't it][FR:mon magnifique resume, n'est ce pas ?]</resume><middlename>John</middlename><firstname>Julien</firstname><addresses><address>[2&amp;2][true]</address><address>[1][false]</address></addresses><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
         allRecords
                 .add(factory
                         .read("1",
                                 repository,
                                 person,
-                                "<Person><id>2</id><score>170000.00</score><lastname>Dupont</lastname><middlename>John</middlename><firstname>Robert-Julien</firstname><addresses><address>[1][false]</address><address>[2][true]</address></addresses><age>20</age><Status>Customer</Status><Available>false</Available></Person>"));
+                                "<Person><id>2</id><score>170000.00</score><lastname>Dupont</lastname><middlename>John</middlename><firstname>Robert-Julien</firstname><addresses><address>[1][false]</address><address>[2&amp;2][true]</address></addresses><age>20</age><Status>Customer</Status><Available>false</Available></Person>"));
         allRecords
                 .add(factory
                         .read("1",
@@ -260,11 +260,11 @@ public class StorageQueryTest extends StorageTestCase {
         try {
             String expectedXml = "<Person><id>1</id><firstname>Julien</firstname><middlename>John</middlename><lastname>"
                     + "Dupond</lastname><resume>[EN:my splendid resume, splendid isn&apos;t it][FR:mon magnifique resume, n&apos;est ce pas ?]</resume>"
-                    + "<age>10</age><score>130000.00</score><Available>true</Available><addresses><address>[2][true]</address><address>"
+                    + "<age>10</age><score>130000.00</score><Available>true</Available><addresses><address>[2&amp;2][true]</address><address>"
                     + "[1][false]</address></addresses><Status>Employee</Status></Person>";
             String expectedXml2 = "<Person><id>1</id><firstname>Julien</firstname><middlename>John</middlename><lastname>"
                     + "Dupond</lastname><resume>[EN:my splendid resume, splendid isn&apos;t it][FR:mon magnifique resume, n&apos;est ce pas ?]</resume>"
-                    + "<age>10</age><score>130000</score><Available>true</Available><addresses><address>[2][true]</address><address>"
+                    + "<age>10</age><score>130000</score><Available>true</Available><addresses><address>[2&amp;2][true]</address><address>"
                     + "[1][false]</address></addresses><Status>Employee</Status></Person>";
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             for (DataRecord result : results) {
@@ -449,7 +449,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         StorageResults storageResults = storage.fetch(qb.getSelect());
-        String[] expected = {"4", "3", "2", "1", "1"};
+        String[] expected = {"4", "3", "2&2", "1", "1"};
         int i = 0;
         for (DataRecord result : storageResults) {
             assertEquals(expected[i++], result.get("id"));

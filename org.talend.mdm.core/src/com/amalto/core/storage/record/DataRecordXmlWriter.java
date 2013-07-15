@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.record;
 
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
@@ -248,8 +249,13 @@ public class DataRecordXmlWriter implements DataRecordWriter {
         private String getFK(DataRecord record) {
             StringBuilder builder = new StringBuilder();
             Collection<FieldMetadata> keyFields = record.getType().getKeyFields();
+            Object keyFieldValue = null;
             for (FieldMetadata keyField : keyFields) {
-                builder.append('[').append(record.get(keyField)).append(']');
+                keyFieldValue = record.get(keyField);
+                if (Types.STRING.equals(MetadataUtils.getSuperConcreteType(keyField.getType()).getName())){
+                    keyFieldValue = StringEscapeUtils.escapeXml((String)keyFieldValue);
+                }
+                builder.append('[').append(keyFieldValue).append(']');
             }
             return builder.toString();
         }
