@@ -350,7 +350,11 @@ public class MultiLanguageField extends TextField<String> {
                 model.set("language", "EN"); //$NON-NLS-1$//$NON-NLS-2$
                 model.set("value", ""); //$NON-NLS-1$//$NON-NLS-2$
                 model.set("isNewNode", true); //$NON-NLS-1$
-                re.stopEditing(false);
+                
+                if (re.isEditing()) {
+                    re.stopEditing(false);
+                }
+                
                 store.add(model);
                 re.startEditing(store.indexOf(model), true);
             } 
