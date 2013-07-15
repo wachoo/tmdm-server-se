@@ -67,15 +67,16 @@ public class MultiLanguageRowEditor extends RowEditor<BaseModel> {
 
     @Override
     public void stopEditing(boolean saveChanges) {
-        super.stopEditing(saveChanges);
         grid.getSelectionModel().setLocked(false);
         if (saveChanges) {
+            super.stopEditing(saveChanges);
             final BaseModel rowModel = grid.getStore().getAt(this.rowIndex);
             String selectedRowLanguage = rowModel.get("language"); //$NON-NLS-1$
             String selectedRowValue = rowModel.get("value"); //$NON-NLS-1$
             if (selectedRowValue == null || selectedRowValue.trim().length() == 0) {
                 MessageBox.alert(BaseMessagesFactory.getMessages().message_fail(), BaseMessagesFactory.getMessages()
                         .multiLanguage_edit_failure(), null);
+                grid.getStore().remove(this.rowIndex);
                 return;
             }
             List<String> values = new ArrayList<String>(languageValueMap.values());
@@ -84,6 +85,7 @@ public class MultiLanguageRowEditor extends RowEditor<BaseModel> {
                     && this.rowIndex != values.indexOf(languageValueMap.get(selectedRowLanguage))) {
                 MessageBox.alert(BaseMessagesFactory.getMessages().message_fail(), BaseMessagesFactory.getMessages()
                         .multiLangauge_language_duplicate(), null);
+                grid.getStore().remove(this.rowIndex);
                 return;
             }
             field.getMultiLanguageModel().setValueByLanguage(selectedRowLanguage, selectedRowValue);
@@ -102,6 +104,11 @@ public class MultiLanguageRowEditor extends RowEditor<BaseModel> {
                             }
                         }
                     });
+        } else {//for cancel editing or close
+            if (this.isEditing()) {
+                grid.getStore().remove(this.rowIndex); 
+            }
+            super.stopEditing(saveChanges);
         }
     }
 }
