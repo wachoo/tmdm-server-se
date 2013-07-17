@@ -23,6 +23,7 @@ import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.ToolBarFactory;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
@@ -157,7 +158,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.model = fkModel.getNodeModel();
         this.viewBean = fkModel.getViewBean();
         this.columnLayoutModel = viewBean.getColumnLayoutModel();
-        this.toolBar = new ItemDetailToolBar(fkModel.getItemBean(), isCreate ? ItemDetailToolBar.CREATE_OPERATION
+        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(fkModel.getItemBean(), isCreate ? ItemDetailToolBar.CREATE_OPERATION
                 : ItemDetailToolBar.VIEW_OPERATION, true, viewBean, itemsDetailPanel);
         this.setTopComponent(toolBar);
         itemsDetailPanel.clearContent();

@@ -169,10 +169,10 @@ import com.sun.xml.xsom.parser.XSOMParser;
  */
 public class BrowseRecordsAction implements BrowseRecordsService {
 
-    private static final Logger LOG = Logger.getLogger(BrowseRecordsAction.class);
+    protected final Logger LOG = Logger.getLogger(this.getClass());
 
-    private static final Messages MESSAGES = MessagesFactory.getMessages(
-            "org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages", BrowseRecordsAction.class.getClassLoader()); //$NON-NLS-1$
+    protected final Messages MESSAGES = MessagesFactory.getMessages(
+            "org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages", this.getClass().getClassLoader()); //$NON-NLS-1$
 
     private final List<String> dateTypeNames = Arrays.asList("date", "dateTime"); //$NON-NLS-1$//$NON-NLS-2$
 
@@ -1428,7 +1428,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
      * @param ids Expect a id like "value0.value1.value2"
      * @return Returns an array with ["value0", "value1", "value2"]
      */
-    private static String[] extractIdWithDots(String ids) {
+    protected String[] extractIdWithDots(String ids) {
         List<String> idList = new ArrayList<String>();
         StringTokenizer tokenizer = new StringTokenizer(ids, "."); //$NON-NLS-1$
         if (!tokenizer.hasMoreTokens()) {

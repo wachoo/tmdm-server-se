@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.browserecords.client.ToolBarFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
@@ -59,7 +60,7 @@ public class ItemPanel extends ContentPanel {
         this(itemsDetailPanel);
         this.viewBean = viewBean;
         this.item = item;
-        this.toolBar = new ItemDetailToolBar(item, operation, viewBean, itemsDetailPanel);
+        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(item, operation, viewBean, itemsDetailPanel);
         this.operation = operation;
         this.initUI(null);
     }
@@ -68,7 +69,7 @@ public class ItemPanel extends ContentPanel {
         this(itemsDetailPanel);
         this.viewBean = viewBean;
         this.item = item;
-        this.toolBar = new ItemDetailToolBar(item, operation, viewBean, itemsDetailPanel, openTab);
+        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(item, operation, viewBean, itemsDetailPanel, openTab);
         this.operation = operation;
         this.initUI(null);
     }
@@ -78,7 +79,7 @@ public class ItemPanel extends ContentPanel {
         tree = new TreeDetail(itemsDetailPanel);
         this.viewBean = viewBean;
         this.item = item;
-        this.toolBar = new ItemDetailToolBar(item, operation, viewBean, itemsDetailPanel);
+        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(item, operation, viewBean, itemsDetailPanel);
         this.operation = operation;
         this.isForeignKeyPanel = true;
         this.contenPanel = contenPanel;
@@ -90,7 +91,7 @@ public class ItemPanel extends ContentPanel {
         tree = new TreeDetail(itemsDetailPanel);
         this.viewBean = viewBean;
         this.item = item;
-        this.toolBar = new ItemDetailToolBar(item, operation, viewBean, itemsDetailPanel, openTab);
+        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(item, operation, viewBean, itemsDetailPanel, openTab);
         this.operation = operation;
         this.isForeignKeyPanel = true;
         this.contenPanel = contenPanel;
@@ -187,7 +188,7 @@ public class ItemPanel extends ContentPanel {
     public void initTreeDetail(ViewBean viewBean, ItemBean item, String operation) {
         this.viewBean = viewBean;
         this.item = item;
-        this.toolBar = new ItemDetailToolBar(item, operation, viewBean, tree.getItemsDetailPanel());
+        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(item, operation, viewBean, tree.getItemsDetailPanel());
         this.operation = operation;
         this.initUI(null);
     }

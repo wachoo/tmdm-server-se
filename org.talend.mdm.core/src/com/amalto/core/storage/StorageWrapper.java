@@ -251,7 +251,8 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 DataRecord result = iterator.next();
                 long timestamp = result.getRecordMetadata().getLastModificationTime();
                 String taskId = result.getRecordMetadata().getTaskId();
-                byte[] start = ("<ii><c>" + clusterName + "</c><dmn>" + clusterName + "</dmn><dmr/><sp/><t>" + timestamp + "</t><taskId>" + taskId + "</taskId><i>" + StringEscapeUtils.escapeXml(splitUniqueId[2]) + "</i><p>").getBytes(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+                String modelName = StringUtils.substringBeforeLast(clusterName, StorageAdmin.STAGING_SUFFIX);
+                byte[] start = ("<ii><c>" + clusterName + "</c><dmn>" + modelName + "</dmn><dmr/><sp/><t>" + timestamp + "</t><taskId>" + taskId + "</taskId><i>" + StringEscapeUtils.escapeXml(splitUniqueId[2]) + "</i><p>").getBytes(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
                 output.write(start);
                 dataRecordXmlWriter.write(result, output);
                 if (iterator.hasNext()) {

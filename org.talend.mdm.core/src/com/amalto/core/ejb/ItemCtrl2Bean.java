@@ -53,6 +53,7 @@ import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.SystemStorageWrapper;
@@ -271,9 +272,11 @@ public class ItemCtrl2Bean implements SessionBean {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Deleting " + dataClusterName + "." + Util.joinStrings(ids, "."));
         }
-        boolean allowDelete = FKIntegrityChecker.getInstance().allowDelete(dataClusterName, conceptName, ids, override);
-        if (!allowDelete) {
-            throw new RuntimeException("Cannot delete instance '" + pk.getUniqueID() + "' (concept name: " + conceptName + ") due to FK integrity constraints.");
+        if (!pk.getDataClusterPOJOPK().getUniqueId().endsWith(StorageAdmin.STAGING_SUFFIX)) {
+            boolean allowDelete = FKIntegrityChecker.getInstance().allowDelete(dataClusterName, conceptName, ids, override);
+            if (!allowDelete) {
+                throw new RuntimeException("Cannot delete instance '" + pk.getUniqueID() + "' (concept name: " + conceptName + ") due to FK integrity constraints.");
+            }
         }
         try {
             return ItemPOJO.remove(pk);

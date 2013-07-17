@@ -223,7 +223,7 @@ public class BrowseRecords implements EntryPoint {
 
     private native void registerPubService()/*-{
         var instance = this;
-        $wnd.amalto.browserecords = {};
+        $wnd.amalto.browserecords = $wnd.amalto.browserecords || {};
         $wnd.amalto.browserecords.BrowseRecords = function() {
 
             function initUI(stagingarea) {
@@ -262,7 +262,8 @@ public class BrowseRecords implements EntryPoint {
 
         var panel = tabPanel.getItem("Browse Records");
         if (panel == undefined) {
-            @org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer::generateContentPanel()();
+            var defaultTitle = @org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer::defaultTitle()();
+            @org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer::generateContentPanel(Ljava/lang/String;Ljava/lang/String;)("Browse Records", defaultTitle);
             panel = this.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::createPanel()();
             tabPanel.add(panel);
         }

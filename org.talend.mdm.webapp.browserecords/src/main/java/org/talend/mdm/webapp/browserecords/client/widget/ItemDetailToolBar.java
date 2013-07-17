@@ -125,13 +125,13 @@ public class ItemDetailToolBar extends ToolBar {
 
     private ComboBoxField<ItemBaseModel> workFlowCombo;
 
-    private ItemBean itemBean;
+    protected ItemBean itemBean;
 
-    private ViewBean viewBean;
+    protected ViewBean viewBean;
 
-    private String operation;
+    protected String operation;
 
-    private boolean isFkToolBar;
+    protected boolean isFkToolBar;
 
     private BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
@@ -145,13 +145,13 @@ public class ItemDetailToolBar extends ToolBar {
 
     private MenuItem delete_Delete;
 
-    private ItemsDetailPanel itemsDetailPanel;
+    protected ItemsDetailPanel itemsDetailPanel;
 
     private boolean isOutMost;
 
     private boolean isHierarchyCall;
 
-    private boolean openTab;
+    protected boolean openTab;
 
     public ItemDetailToolBar() {
         this.setBorders(false);
@@ -191,7 +191,7 @@ public class ItemDetailToolBar extends ToolBar {
         initToolBar();
     }
 
-    private void checkEntitlement(ViewBean viewBean) {
+    protected void checkEntitlement(ViewBean viewBean) {
         if (deleteButton == null)
             return;
         String concept = this.itemBean.getConcept();
@@ -211,7 +211,7 @@ public class ItemDetailToolBar extends ToolBar {
 
     private static int TOOLBAR_HEIGHT = 29;
 
-    private void initToolBar() {
+    protected void initToolBar() {
         this.setHeight(TOOLBAR_HEIGHT + "px"); //$NON-NLS-1$
         this.addStyleName("ItemDetailToolBar"); //$NON-NLS-1$       
         if (operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)
@@ -226,7 +226,7 @@ public class ItemDetailToolBar extends ToolBar {
         }
     }
 
-    private void initViewToolBar() {
+    protected void initViewToolBar() {
         if (!operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)) {
             addPersonalViewButton();
             this.addSeparator();
@@ -254,7 +254,7 @@ public class ItemDetailToolBar extends ToolBar {
         checkEntitlement(viewBean);
     }
 
-    private void initCreateToolBar() {
+    protected void initCreateToolBar() {
         this.addSaveButton();
         this.addSeparator();
         this.addSaveQuitButton();
@@ -264,7 +264,7 @@ public class ItemDetailToolBar extends ToolBar {
         this.addWorkFlosCombo();
     }
 
-    private boolean isUseRelations() {
+    protected boolean isUseRelations() {
         boolean isUseRelations = false;
         if (BrowseRecords.getSession().getAppHeader() != null) {
             isUseRelations = BrowseRecords.getSession().getAppHeader().isUseRelations();
@@ -320,7 +320,7 @@ public class ItemDetailToolBar extends ToolBar {
         }
     }
 
-    private void addSaveButton() {
+    protected void addSaveButton() {
         if (saveButton == null) {
             saveButton = new Button(MessagesFactory.getMessages().save_btn());
             saveButton.setId("saveButton"); //$NON-NLS-1$
@@ -350,7 +350,7 @@ public class ItemDetailToolBar extends ToolBar {
         add(saveButton);
     }
 
-    private void addSaveQuitButton() {
+    protected void addSaveQuitButton() {
         if (saveAndCloseButton == null) {
             saveAndCloseButton = new Button(MessagesFactory.getMessages().save_close_btn());
             saveAndCloseButton.setId("saveAndCloseButton"); //$NON-NLS-1$
@@ -381,7 +381,7 @@ public class ItemDetailToolBar extends ToolBar {
         add(saveAndCloseButton);
     }
 
-    private void addDeleteMenu() {
+    protected void addDeleteMenu() {
         if (deleteButton == null) {
             deleteButton = new Button(MessagesFactory.getMessages().delete_btn());
             deleteButton.setId("deleteButton"); //$NON-NLS-1$
@@ -441,7 +441,7 @@ public class ItemDetailToolBar extends ToolBar {
         add(deleteButton);
     }
 
-    private void addDuplicateButton() {
+    protected void addDuplicateButton() {
         if (duplicateButton == null) {
             duplicateButton = new Button(MessagesFactory.getMessages().duplicate_btn());
             duplicateButton.setId("duplicateButton"); //$NON-NLS-1$
@@ -474,7 +474,7 @@ public class ItemDetailToolBar extends ToolBar {
         add(duplicateButton);
     }
 
-    private void addJournalButton() {
+    protected void addJournalButton() {
         if (journalButton == null) {
             journalButton = new Button(MessagesFactory.getMessages().journal_btn());
             journalButton.setId("journalButton"); //$NON-NLS-1$
@@ -497,7 +497,7 @@ public class ItemDetailToolBar extends ToolBar {
         add(journalButton);
     }
 
-    private void addFreshButton() {
+    protected void addFreshButton() {
         if (refreshButton == null) {
             refreshButton = new Button();
             refreshButton.setId("refreshButton"); //$NON-NLS-1$
@@ -577,7 +577,7 @@ public class ItemDetailToolBar extends ToolBar {
         });
     }
 
-    private void addRelationButton() {
+    protected void addRelationButton() {
         @SuppressWarnings("unchecked")
         final Map<String, List<String>> lineageEntityMap = (Map<String, List<String>>) BrowseRecords.getSession().get(
                 UserSession.CURRENT_LINEAGE_ENTITY_LIST);
@@ -628,7 +628,7 @@ public class ItemDetailToolBar extends ToolBar {
         add(relationButton);
     }
 
-    private void addOpenTabButton(final boolean fromSmartView) {
+    protected void addOpenTabButton(final boolean fromSmartView) {
         openTabButton = new Button();
         openTabButton.setId("openTabButton"); //$NON-NLS-1$
         openTabButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTab()));
@@ -656,7 +656,7 @@ public class ItemDetailToolBar extends ToolBar {
         add(openTabButton);
     }
 
-    private void addWorkFlosCombo() {
+    protected void addWorkFlosCombo() {
         @SuppressWarnings("unchecked")
         final Map<String, List<ItemBaseModel>> runnableProcessListMap = (Map<String, List<ItemBaseModel>>) BrowseRecords
                 .getSession().get(UserSession.CURRENT_RUNNABLE_PROCESS_LIST);
@@ -747,7 +747,7 @@ public class ItemDetailToolBar extends ToolBar {
         add(launchProcessButton);
     }
 
-    private void addPersonalViewButton() {
+    protected void addPersonalViewButton() {
         personalviewButton = new Button(MessagesFactory.getMessages().personalview_btn());
         personalviewButton.setId("personalviewButton"); //$NON-NLS-1$
         personalviewButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -766,7 +766,7 @@ public class ItemDetailToolBar extends ToolBar {
         add(personalviewButton);
     }
 
-    private void addGeneratedViewButton() {
+    protected void addGeneratedViewButton() {
         generatedviewButton = new Button(MessagesFactory.getMessages().generatedview_btn());
         generatedviewButton.setId("generatedviewButton"); //$NON-NLS-1$
         generatedviewButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -785,7 +785,7 @@ public class ItemDetailToolBar extends ToolBar {
         add(generatedviewButton);
     }
 
-    private void addOpenTaskButton() {
+    protected void addOpenTaskButton() {
         if (taskButton == null && itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
                 && !"null".equalsIgnoreCase(itemBean.getTaskId().trim())) { //$NON-NLS-1$
             ItemDetailToolBar.this.addSeparator();
@@ -809,7 +809,7 @@ public class ItemDetailToolBar extends ToolBar {
 		return true;
     }-*/;
 
-    public void initSmartViewToolBar() {
+    protected void initSmartViewToolBar() {
         addGeneratedViewButton();
         addSeparator();
         addSmartViewCombo();
@@ -867,7 +867,7 @@ public class ItemDetailToolBar extends ToolBar {
         }
     }
 
-    private void addSmartViewCombo() {
+    protected void addSmartViewCombo() {
         final ListStore<ItemBaseModel> smartViewList = new ListStore<ItemBaseModel>();
         if (smartViewCombo == null) {
             smartViewCombo = new ComboBoxField<ItemBaseModel>();
@@ -910,7 +910,7 @@ public class ItemDetailToolBar extends ToolBar {
         add(smartViewCombo);
     }
     
-    private void addPrintButton() {
+    protected void addPrintButton() {
         Button printBtn = new Button(MessagesFactory.getMessages().print_btn());
         printBtn.setId("printBtn"); //$NON-NLS-1$
         printBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -934,7 +934,7 @@ public class ItemDetailToolBar extends ToolBar {
         add(printBtn);
     }
 
-    private void addSeparator() {
+    protected void addSeparator() {
         add(new SeparatorToolItem());
     }
 
@@ -1127,7 +1127,7 @@ public class ItemDetailToolBar extends ToolBar {
         }
     }
 
-    class ToolBarExLayout extends ToolBarLayout {
+    public class ToolBarExLayout extends ToolBarLayout {
 
         protected void onComponentShow(Component component) {
             if (component.isRendered()) {

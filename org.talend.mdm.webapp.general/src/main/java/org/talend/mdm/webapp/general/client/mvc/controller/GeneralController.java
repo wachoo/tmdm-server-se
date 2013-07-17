@@ -174,6 +174,7 @@ public class GeneralController extends Controller {
 
             public void onSuccess(Boolean support) {
                 AccordionMenus.getInstance().disabledMenuItem("stagingarea", "Stagingarea", !support); //$NON-NLS-1$//$NON-NLS-2$
+                AccordionMenus.getInstance().disabledMenuItem("browserecords", "BrowseRecordsInStaging", !support); //$NON-NLS-1$//$NON-NLS-2$
             }
         });
     }

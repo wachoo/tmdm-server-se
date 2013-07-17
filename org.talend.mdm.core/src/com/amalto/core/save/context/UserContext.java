@@ -14,12 +14,13 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.AbstractDocumentSaverContext;
 import com.amalto.core.save.UserAction;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import com.amalto.core.server.StorageAdmin;
 
 class UserContext extends AbstractDocumentSaverContext {
 
@@ -67,11 +68,13 @@ class UserContext extends AbstractDocumentSaverContext {
     @Override
     public DocumentSaver createSaver() {
         DocumentSaver saver = SaverContextFactory.invokeSaverExtension(new Save());
-        if (validate) {
-            saver = new Validation(saver);
-        }
-        if (invokeBeforeSaving) {
-            saver = new BeforeSaving(saver);
+        if (!dataCluster.endsWith(StorageAdmin.STAGING_SUFFIX)) {
+            if (validate) {
+                saver = new Validation(saver);
+            }
+            if (invokeBeforeSaving) {
+                saver = new BeforeSaving(saver);
+            }
         }
         saver = new ApplyActions(saver); // Apply actions is mandatory
         if (updateReport) {

@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget;
 
-import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 
 import com.extjs.gxt.ui.client.GXT;
@@ -23,7 +22,7 @@ public class GenerateContainer {
 
     private static ContentPanel instance;
 
-    public static void generateContentPanel() {
+    public static void generateContentPanel(String panelId, String heading) {
         if (instance != null) {
             instance.removeFromParent();
         }
@@ -41,8 +40,8 @@ public class GenerateContainer {
         };
         instance.setHeaderVisible(false);
         instance.setBorders(false);
-        instance.setId(BrowseRecords.BROWSERECORD_ID);
-        instance.setHeading(defaultTitle());
+        instance.setId(panelId);
+        instance.setHeading(heading);
     }
 
     public static ContentPanel getContentPanel() {

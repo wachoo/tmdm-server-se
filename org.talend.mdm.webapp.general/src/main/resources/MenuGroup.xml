@@ -7,6 +7,7 @@
  
  <groupitem en="Browse" fr="Consultation">
   <item>browserecords.BrowseRecords</item>
+  <item>browserecords.BrowseRecordsInStaging</item>
   <item>hierarchy.Hierarchy</item>
   <item>journal.Journal</item>
   <item>search.Search</item>
