@@ -169,7 +169,7 @@ import com.sun.xml.xsom.parser.XSOMParser;
  */
 public class BrowseRecordsAction implements BrowseRecordsService {
 
-    protected final Logger LOG = Logger.getLogger(this.getClass());
+    private final Logger LOG = Logger.getLogger(BrowseRecordsAction.class);
 
     protected final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages", this.getClass().getClassLoader()); //$NON-NLS-1$
@@ -199,7 +199,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     WSItemPK wsItem = CommonUtil.getPort().deleteItem(
                             new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), override));
                     if (wsItem != null) {
-                        pushUpdateReport(ids, concept,UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE);
+                        pushUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE);
                     } else {
                         throw new ServiceException(MESSAGES.getMessage("delete_record_failure")); //$NON-NLS-1$
                     }
@@ -659,7 +659,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         if (itemBean.getItemXml() != null) {
             org.dom4j.Document docXml = DocumentHelper.parseText(itemBean.getItemXml());
             int i = 0;
-            List els = docXml.getRootElement().elements();
+            List<?> els = docXml.getRootElement().elements();
             for (String path : viewBean.getViewableXpaths()) {
                 String leafPath = path.substring(path.lastIndexOf('/') + 1);
                 if (leafPath.startsWith("@")) { //$NON-NLS-1$
@@ -816,7 +816,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String errorMessage;
             if (WebCoreException.class.isInstance(exception.getCause())) {
                 errorMessage = getErrorMessageFromWebCoreException(((WebCoreException) exception.getCause()), item.getConcept(),
-                        item.getIds(), new Locale(com.amalto.core.util.Util.getDefaultSystemLocale()));
+                        item.getIds(), null);
             } else {
                 errorMessage = exception.getMessage();
             }
@@ -1446,7 +1446,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             LOG.trace("pushUpdateReport() concept " + concept + " operation " + operationType);//$NON-NLS-1$ //$NON-NLS-2$
         }
 
-        if (!(UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE.equals(operationType) || UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(operationType))) {
+        if (!(UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE.equals(operationType) || UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE
+                .equals(operationType))) {
             throw new UnsupportedOperationException();
         }
 
@@ -2328,7 +2329,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
             }
             String xmlStringFromProcess;
-            if (entrie.getWsTypedContent().getWsBytes().getBytes() != null
+            if (entrie != null && entrie.getWsTypedContent().getWsBytes().getBytes() != null
                     && entrie.getWsTypedContent().getWsBytes().getBytes().length != 0) {
                 xmlStringFromProcess = new String(entrie.getWsTypedContent().getWsBytes().getBytes(), "UTF-8"); //$NON-NLS-1$
             } else {

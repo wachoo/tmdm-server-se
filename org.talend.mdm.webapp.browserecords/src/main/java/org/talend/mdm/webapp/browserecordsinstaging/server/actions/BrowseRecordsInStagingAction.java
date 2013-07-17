@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
@@ -27,6 +28,8 @@ import org.talend.mdm.webapp.browserecordsinstaging.client.BrowseRecordsInStagin
 import com.amalto.core.server.StorageAdmin;
 
 public class BrowseRecordsInStagingAction extends BrowseRecordsAction implements BrowseRecordsInStagingService {
+
+    private final Logger LOG = Logger.getLogger(BrowseRecordsInStagingAction.class);
 
     @Override
     public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config, String language) throws ServiceException {
