@@ -82,6 +82,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Widget;
@@ -882,7 +883,7 @@ public class ItemDetailToolBar extends ToolBar {
                 public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
                     if (itemsDetailPanel.getFirstTabWidget() instanceof ItemPanel) {
                         ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getFirstTabWidget();
-                        String frameUrl = "/browserecords/secure/SmartViewServlet?ids=" + escapeAmp(itemBean.getIds()) + "&concept=" //$NON-NLS-1$ //$NON-NLS-2$
+                        String frameUrl = "/browserecords/secure/SmartViewServlet?ids=" + URL.encodeQueryString(itemBean.getIds()) + "&concept=" //$NON-NLS-1$ //$NON-NLS-2$
                                 + itemBean.getConcept() + "&language=" + Locale.getLanguage(); //$NON-NLS-1$
                         if (se.getSelectedItem().get("key") != null) //$NON-NLS-1$
                             frameUrl += ("&name=" + se.getSelectedItem().get("key"));//$NON-NLS-1$ //$NON-NLS-2$
@@ -908,10 +909,6 @@ public class ItemDetailToolBar extends ToolBar {
         });
         add(smartViewCombo);
     }
-
-    private String escapeAmp(String ids){
-        return ids.replaceAll("&", "%26"); //$NON-NLS-1$ //$NON-NLS-2$
-    }
     
     private void addPrintButton() {
         Button printBtn = new Button(MessagesFactory.getMessages().print_btn());
@@ -924,7 +921,7 @@ public class ItemDetailToolBar extends ToolBar {
 
                     StringBuilder url = new StringBuilder();
                     url.append("/browserecords/secure/SmartViewServlet?ids=") //$NON-NLS-1$
-                            .append(escapeAmp(itemBean.getIds())).append("&concept=") //$NON-NLS-1$
+                            .append(URL.encodeQueryString(itemBean.getIds())).append("&concept=") //$NON-NLS-1$
                             .append(itemBean.getConcept()).append("&language=") //$NON-NLS-1$
                             .append(Locale.getLanguage()).append("&name=") //$NON-NLS-1$
                             .append(smartViewCombo.getSelection().get(0).get("value")); //$NON-NLS-1$
