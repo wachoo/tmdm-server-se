@@ -19,7 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import com.amalto.core.save.context.StorageSaverSource;
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
@@ -27,6 +27,7 @@ import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserStagingQueryBuilder;
 import com.amalto.core.save.DefaultCommitter;
+import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
@@ -44,6 +45,8 @@ import com.amalto.core.util.XtentisException;
 
 public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
+    private static final Logger logger = Logger.getLogger(DefaultStagingTaskService.class);
+    
     private static final String EXECUTION_LOG_TYPE = "TALEND_TASK_EXECUTION"; //$NON-NLS-1$
 
     // SimpleDateFormat is not thread-safe
@@ -131,7 +134,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             StagingConfiguration stagingConfig = new StagingConfiguration(staging,
                     stagingRepository,
                     userRepository,
-                    new StorageSaverSource(userName),
+                    new DefaultSaverSource(userName),
                     new DefaultCommitter(),
                     user);
             Task stagingTask = TaskFactory.createStagingTask(stagingConfig);
