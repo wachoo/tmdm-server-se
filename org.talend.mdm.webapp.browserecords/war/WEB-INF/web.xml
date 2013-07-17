@@ -66,6 +66,11 @@
     </servlet-mapping>
 
     <servlet-mapping>
+        <servlet-name>browserecordsServlet</servlet-name>
+        <url-pattern>/browserecordsinstaging/BrowseRecordsService</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
         <servlet-name>baseRemoteServlet</servlet-name>
         <url-pattern>/browserecords/BaseRemoteService</url-pattern>
     </servlet-mapping>
