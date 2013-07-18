@@ -128,6 +128,8 @@ public class AccordionMenus extends ContentPanel {
             icon = "/imageserver/" + item.getIcon() + "?width=16&height=16"; //$NON-NLS-1$ //$NON-NLS-2$
         } else if ("itemsbrowser.ItemsBrowser".equals(toCheckMenuID) || "viewbrowser.ViewBrowser".equals(toCheckMenuID) || "itemsbrowser2.ItemsBrowser2".equals(toCheckMenuID) || "browserecords.BrowseRecords".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             icon = "/talendmdm/secure/img/menu/browse.png"; //$NON-NLS-1$
+        } else if ("browserecords.BrowseRecordsInStaging".equals(toCheckMenuID)) { //$NON-NLS-1$
+            icon = "/talendmdm/secure/img/menu/browsestaging.png"; //$NON-NLS-1$
         } else if ("crossreferencing.CrossReferencing".equals(toCheckMenuID) || "crossreference.CrossReference".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$
             icon = "/talendmdm/secure/img/menu/crossref.png"; //$NON-NLS-1$
         } else if ("hierarchical.GroupingHierarchy".equals(toCheckMenuID)) { //$NON-NLS-1$
