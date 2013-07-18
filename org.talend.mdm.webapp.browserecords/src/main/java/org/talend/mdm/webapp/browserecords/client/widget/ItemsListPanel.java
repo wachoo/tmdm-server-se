@@ -221,9 +221,9 @@ public class ItemsListPanel extends ContentPanel {
         }
     };
 
-    PagingLoader<PagingLoadResult<ModelData>> loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);
+    PagingLoader<PagingLoadResult<ModelData>> loader;
 
-    final ListStore<ItemBean> store = new ListStore<ItemBean>(loader);
+    ListStore<ItemBean> store;
 
     private Grid<ItemBean> grid;
 
@@ -268,39 +268,6 @@ public class ItemsListPanel extends ContentPanel {
         setLayout(new FitLayout());
         setHeaderVisible(false);
         initPanel();
-
-        store.setKeyProvider(keyProvidernew);
-
-        loader.setRemoteSort(true);
-        loader.addLoadListener(new LoadListener() {
-
-            @Override
-            public void loaderLoad(LoadEvent le) {
-                if (store.getModels().size() > 0) {
-                    if (selectedItems == null) {
-                        // search and create
-                        if (isCreate && createItemBean != null) {
-                            if (grid.getStore().findModel(createItemBean) != null) {
-                                grid.getSelectionModel().select(createItemBean, true);
-                            } else {
-                                grid.getSelectionModel().select(-1, false);
-                            }
-                        } else {
-                            grid.getSelectionModel().select(0, false);
-                        }
-                        isCreate = false;
-                        createItemBean = null;
-                    }
-                } else {
-                    ItemsToolBar.getInstance().searchBut.setEnabled(true);
-                    // ItemsMainTabPanel.getInstance().getCurrentViewTabItem().clearAll();
-
-                }
-                if (reLoad != null) {
-                    reLoad.onReLoadData();
-                }
-            }
-        });
         this.layout();
     }
 
@@ -327,6 +294,42 @@ public class ItemsListPanel extends ContentPanel {
         gridContainer = new ContentPanel(new FitLayout());
         gridContainer.setBodyBorder(false);
         gridContainer.setHeaderVisible(false);
+        
+        loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);
+        loader.setRemoteSort(true);
+        
+        store = new ListStore<ItemBean>(loader);
+        store.setKeyProvider(keyProvidernew);
+     
+        loader.addLoadListener(new LoadListener() {
+
+            @Override
+            public void loaderLoad(LoadEvent le) {
+                if (store.getModels().size() > 0) {
+                    if (selectedItems == null) {
+                        // search and create
+                        if (isCreate && createItemBean != null) {
+                            if (grid.getStore().findModel(createItemBean) != null) {
+                                grid.getSelectionModel().select(createItemBean, true);
+                            } else {
+                                grid.getSelectionModel().select(-1, false);
+                            }
+                        } else {
+                            grid.getSelectionModel().select(0, false);
+                        }
+                        isCreate = false;
+                        createItemBean = null;
+                    }
+                } else {
+                    ItemsToolBar.getInstance().searchBut.setEnabled(true);
+                    // ItemsMainTabPanel.getInstance().getCurrentViewTabItem().clearAll();
+                }
+                if (reLoad != null) {
+                    reLoad.onReLoadData();
+                }
+            }
+        });
+
         int usePageSize = PAGE_SIZE;
         if (Cookies.getCookie(PagingToolBarEx.BROWSERECORD_PAGESIZE) != null) {
             usePageSize = Integer.parseInt(Cookies.getCookie(PagingToolBarEx.BROWSERECORD_PAGESIZE));
@@ -677,7 +680,6 @@ public class ItemsListPanel extends ContentPanel {
     }
 
     public void resetGrid() {
-        store.removeAll();
         if (pagingBar != null) {
             grid.removeFromParent();
             pagingBar.removeAll();
