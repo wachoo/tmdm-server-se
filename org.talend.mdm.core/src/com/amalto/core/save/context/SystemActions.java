@@ -50,7 +50,7 @@ class SystemActions implements DocumentSaver {
         context.setActions(actions);
 
         // Get ID from the system document
-        Collection<FieldMetadata> keyFields = context.getType().getKeyFields();
+        Collection<FieldMetadata> keyFields = context.getUserDocument().getType().getKeyFields();
         String[] ids = new String[keyFields.size()];
         int i = 0;
         for (FieldMetadata keyField : keyFields) {

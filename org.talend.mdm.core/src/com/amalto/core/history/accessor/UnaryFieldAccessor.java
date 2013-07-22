@@ -12,6 +12,7 @@ package com.amalto.core.history.accessor;
 
 import javax.xml.XMLConstants;
 
+import com.amalto.core.history.DOMMutableDocument;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -20,7 +21,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
-import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 
@@ -33,9 +33,9 @@ class UnaryFieldAccessor implements DOMAccessor {
 
     private final String fieldName;
 
-    private final MutableDocument document;
+    private final DOMMutableDocument document;
 
-    public UnaryFieldAccessor(DOMAccessor parent, String fieldName, MutableDocument document) {
+    public UnaryFieldAccessor(DOMAccessor parent, String fieldName, DOMMutableDocument document) {
         this.parent = parent;
         this.fieldName = fieldName;
         this.document = document;

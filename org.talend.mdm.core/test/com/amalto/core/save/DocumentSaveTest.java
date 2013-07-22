@@ -21,12 +21,16 @@ import java.util.Set;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import com.amalto.core.save.context.NonCloseableInputStream;
+import com.amalto.core.save.context.SaverContextFactory;
+import com.amalto.core.server.*;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
@@ -47,7 +51,9 @@ import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.ValidateException;
-import com.amalto.core.util.XtentisException;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 @SuppressWarnings("nls")
 public class DocumentSaveTest extends TestCase {
@@ -55,6 +61,12 @@ public class DocumentSaveTest extends TestCase {
     private static Logger LOG = Logger.getLogger(DocumentSaveTest.class);
 
     private XPath xPath = XPathFactory.newInstance().newXPath();
+
+    static {
+        LOG.info("Setting up MDM server environment...");
+        ServerContext.INSTANCE.get(new MockServerLifecycle());
+        LOG.info("MDM server environment set.");
+    }
 
     @Override
     public void setUp() throws Exception {
@@ -68,8 +80,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testTypeCacheInvalidate() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test1_original.xml", "metadata1.xsd");
         assertNull(source.getLastInvalidatedTypeCache());
@@ -103,8 +116,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testCreate() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, false, "test1_original.xml", "metadata1.xsd");
 
@@ -124,8 +138,9 @@ public class DocumentSaveTest extends TestCase {
     }
     
     public void testCreateEntityByStandaloneProcessCallWorkflow() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, false, "", "metadata1.xsd");
 
@@ -145,8 +160,9 @@ public class DocumentSaveTest extends TestCase {
     }
     
     public void testUpdateEntityByStandaloneProcessCallWorkflow() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test57_original.xml", "metadata1.xsd");
 
@@ -168,6 +184,7 @@ public class DocumentSaveTest extends TestCase {
     public void testCreateWithInheritanceType() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata3.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Contract", repository);
 
         SaverSource source = new TestSaverSource(repository, false, "test22_original.xml", "metadata3.xsd");
 
@@ -189,6 +206,7 @@ public class DocumentSaveTest extends TestCase {
     public void testCreateSecurity() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, false, "", "metadata1.xsd");
 
@@ -210,6 +228,7 @@ public class DocumentSaveTest extends TestCase {
     public void testCreateWithUUIDOverwrite() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, false, "", "metadata1.xsd");
 
@@ -233,6 +252,7 @@ public class DocumentSaveTest extends TestCase {
     public void testCreateWithUUIDAndAUTOINCIgnore() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("Personne.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Vinci", repository);
 
         SaverSource source = new TestSaverSource(repository, false, "", "Personne.xsd");
         ((TestSaverSource) source).setUserName("System_Admin");
@@ -269,6 +289,7 @@ public class DocumentSaveTest extends TestCase {
     public void testCreateWithMultiOccurrenceUUID() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("MultiOccurrenceUUID.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("MultiOccurrenceUUID", repository);
 
         TestSaverSource source = new TestSaverSource(repository, false, "", "MultiOccurrenceUUID.xsd");
         source.setUserName("System_Admin");
@@ -304,6 +325,7 @@ public class DocumentSaveTest extends TestCase {
     public void testReplaceWithUUIDOverwrite() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test23_original.xml", "metadata1.xsd");
 
@@ -329,6 +351,7 @@ public class DocumentSaveTest extends TestCase {
     public void testCreateWithAutoIncrementOverwrite() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         TestSaverSource source = new TestSaverSource(repository, false, "", "metadata1.xsd");
 
@@ -352,6 +375,7 @@ public class DocumentSaveTest extends TestCase {
     public void testCreateFailure() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, false, "", "metadata1.xsd");
 
@@ -371,6 +395,7 @@ public class DocumentSaveTest extends TestCase {
     public void testCreateWithForeignKeyType() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata9.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, false, "", "metadata9.xsd");
 
@@ -392,6 +417,7 @@ public class DocumentSaveTest extends TestCase {
     public void testReplaceWithForeignKeyType() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata9.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test26_original.xml", "metadata9.xsd");
 
@@ -413,6 +439,7 @@ public class DocumentSaveTest extends TestCase {
     public void testPartialUpdate() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test1_original.xml", "metadata1.xsd");
 
@@ -436,6 +463,7 @@ public class DocumentSaveTest extends TestCase {
     public void testPartialUpdateWithOverwrite() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test1_original.xml", "metadata1.xsd");
 
@@ -461,6 +489,7 @@ public class DocumentSaveTest extends TestCase {
         // TODO Test for modification of id (this test modifies id but this is intentional).
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test1_original.xml", "metadata1.xsd");
         source.setUserName("System_Admin");
@@ -484,6 +513,7 @@ public class DocumentSaveTest extends TestCase {
     public void testUpdateOnNonExisting() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, false, "", "metadata1.xsd");
 
@@ -501,9 +531,10 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testUpdateConf() throws Exception {
-
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
+
         TestSaverSource source = new TestSaverSource(repository, true, "test1_original.xml", "metadata1.xsd");
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
@@ -517,6 +548,7 @@ public class DocumentSaveTest extends TestCase {
         assertFalse(source.hasCalledInitAutoIncrement);
 
         repository.load(DocumentSaveTest.class.getResourceAsStream("CONF.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("CONF", repository);
 
         source = new TestSaverSource(repository, true, "test_conf_original.xml", "CONF.xsd");
         source.setUserName("admin");
@@ -540,8 +572,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testWithClone() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata3.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Contract", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test13_original.xml", "metadata3.xsd");
 
@@ -563,8 +596,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testSubclassTypeChange() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata3.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Contract", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test14_original.xml", "metadata3.xsd");
 
@@ -584,8 +618,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testSubclassTypeChange2() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata3.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Contract", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test15_original.xml", "metadata3.xsd");
 
@@ -606,8 +641,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testUpdateSequence() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata3.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Contract", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test16_original.xml", "metadata3.xsd");
 
@@ -624,8 +660,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testSubclassTypeChange3() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata3.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Contract", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test16_original.xml", "metadata3.xsd");
 
@@ -646,8 +683,9 @@ public class DocumentSaveTest extends TestCase {
 
     public void testUpdateSecurity() throws Exception {
         // TODO Test for modification of id (this test modifies id but this is intentional).
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test8_original.xml", "metadata1.xsd");
 
@@ -689,8 +727,9 @@ public class DocumentSaveTest extends TestCase {
 
     public void testReplaceSecurity() throws Exception {
         // TODO Test for modification of id (this test modifies id but this is intentional).
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test8_original.xml", "metadata1.xsd");
 
@@ -709,8 +748,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testNoUpdate() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test4_original.xml", "metadata1.xsd");
 
@@ -727,8 +767,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testLegacyUpdate() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test5_original.xml", "metadata1.xsd");
 
@@ -750,8 +791,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testLegacyUpdate2() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test6_original.xml", "metadata1.xsd");
 
@@ -773,8 +815,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testLegacyUpdate3() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test7_original.xml", "metadata1.xsd");
 
@@ -794,8 +837,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testSchematronValidation() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test9_original.xml", "metadata1.xsd");
 
@@ -818,10 +862,11 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testSystemUpdate() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
-        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("updateReport.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("UpdateReport", repository);
 
-        SaverSource source = new TestSaverSource(repository, true, "test3_original.xml", "metadata1.xsd");
+        SaverSource source = new TestSaverSource(repository, true, "test3_original.xml", "updateReport.xsd");
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test3.xml");
@@ -838,10 +883,11 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testSystemCreate() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
-        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("updateReport.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("UpdateReport", repository);
 
-        SaverSource source = new TestSaverSource(repository, false, "", "metadata1.xsd");
+        SaverSource source = new TestSaverSource(repository, false, "", "updateReport.xsd");
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test3.xml");
@@ -858,8 +904,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testProductUpdate() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test2_original.xml", "metadata1.xsd");
         source.setUserName("admin");
@@ -881,8 +928,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testProductUpdate2() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test11_original.xml", "metadata1.xsd");
 
@@ -907,8 +955,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testProductPartialUpdate() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test11_original.xml", "metadata1.xsd");
         source.setUserName("admin");
@@ -929,8 +978,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testProductPartialUpdateWithIndex() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test11_original.xml", "metadata1.xsd");
         source.setUserName("admin");
@@ -952,8 +1002,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testProductPartialUpdate2() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test26_original.xml", "metadata1.xsd");
         source.setUserName("admin");
@@ -976,6 +1027,7 @@ public class DocumentSaveTest extends TestCase {
     public void testInheritance() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata2.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test12_original.xml", "metadata2.xsd");
 
@@ -994,6 +1046,7 @@ public class DocumentSaveTest extends TestCase {
     public void testBeforeSavingWithAlterRecord() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         //
         boolean isOK = true;
@@ -1096,6 +1149,7 @@ public class DocumentSaveTest extends TestCase {
     public void testBeforeSavingWithAutoIncrementPkRecord() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         boolean isOK = true;
         boolean newOutput = true;
@@ -1120,6 +1174,7 @@ public class DocumentSaveTest extends TestCase {
     public void testCreatePerformance() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         TestSaverSource source = new TestSaverSource(repository, false, "test1_original.xml", "metadata1.xsd");
         source.setUserName("admin");
@@ -1157,6 +1212,7 @@ public class DocumentSaveTest extends TestCase {
     public void testUpdatePerformance() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test1_original.xml", "metadata1.xsd");
         source.setUserName("admin");
@@ -1209,6 +1265,7 @@ public class DocumentSaveTest extends TestCase {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
         SaverSource source = new TestSaverSource(repository, true, "test1_original.xml", "metadata1.xsd");
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         Set<UpdateRunnable> updateRunnables = new HashSet<UpdateRunnable>();
         for (int i = 0; i < 10; i++) {
@@ -1231,8 +1288,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test18() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, false, "", "metadata1.xsd");
 
@@ -1249,8 +1307,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test19() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata3.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Contract", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test19_original.xml", "metadata3.xsd");
 
@@ -1271,6 +1330,7 @@ public class DocumentSaveTest extends TestCase {
     public void testAddComplexElementToSequence() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata4.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Artikel", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test20_original.xml", "metadata4.xsd");
 
@@ -1294,8 +1354,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testRemoveComplexElementFromSequence() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata4.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Artikel", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test21_original.xml", "metadata4.xsd");
 
@@ -1317,8 +1378,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test25() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata3.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Contract", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test25_original.xml", "metadata3.xsd");
 
@@ -1337,6 +1399,7 @@ public class DocumentSaveTest extends TestCase {
     public void test27() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata6.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("OM5", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test27_original.xml", "metadata6.xsd");
 
@@ -1355,6 +1418,7 @@ public class DocumentSaveTest extends TestCase {
     public void test28() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test28", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test28_original.xml", "metadata7.xsd");
         source.setUserName("admin");
@@ -1396,6 +1460,7 @@ public class DocumentSaveTest extends TestCase {
         // there's a small change in this model that differs from QA: ThirdEntity is a xsd:sequence (not a xsd:all)
         // so order of elements will be tested during XSD validation.
         repository.load(DocumentSaveTest.class.getResourceAsStream("CoreTestsModel.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test29_original.xml", "CoreTestsModel.xsd");
         source.setUserName("admin");
@@ -1418,6 +1483,7 @@ public class DocumentSaveTest extends TestCase {
     public void test30() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test28", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test30_original.xml", "metadata7.xsd");
         source.setUserName("admin");
@@ -1445,6 +1511,7 @@ public class DocumentSaveTest extends TestCase {
     public void test31() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test31", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test31_original.xml", "metadata7.xsd");
         source.setUserName("admin");
@@ -1469,6 +1536,7 @@ public class DocumentSaveTest extends TestCase {
     public void test32() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test32", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test32_original.xml", "metadata7.xsd");
         source.setUserName("admin");
@@ -1500,6 +1568,7 @@ public class DocumentSaveTest extends TestCase {
     public void test33() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test33", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test33_original.xml", "metadata7.xsd");
         source.setUserName("admin");
@@ -1535,6 +1604,7 @@ public class DocumentSaveTest extends TestCase {
     public void test34() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test34", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test34_original.xml", "metadata7.xsd");
         source.setUserName("admin");
@@ -1562,6 +1632,7 @@ public class DocumentSaveTest extends TestCase {
     public void test36() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test36", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test36_original.xml", "metadata7.xsd");
         source.setUserName("admin");
@@ -1593,6 +1664,7 @@ public class DocumentSaveTest extends TestCase {
     public void test37() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test37", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test37_original.xml", "metadata7.xsd");
         source.setUserName("admin");
@@ -1660,6 +1732,7 @@ public class DocumentSaveTest extends TestCase {
     public void test38() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test38", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test38_original.xml", "metadata7.xsd");
         source.setUserName("admin");
@@ -1684,6 +1757,7 @@ public class DocumentSaveTest extends TestCase {
     public void test39() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("CoreTestsModel.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("test39", repository);
 
         TestSaverSource source = new TestSaverSource(repository, false, "", "CoreTestsModel.xsd");
         source.setUserName("admin");
@@ -1706,6 +1780,7 @@ public class DocumentSaveTest extends TestCase {
     public void test40() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("CoreTestsModel.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("test40", repository);
 
         TestSaverSource source = new TestSaverSource(repository, false, "test40_original.xml", "CoreTestsModel.xsd");
         source.setUserName("admin");
@@ -1725,8 +1800,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test42() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("test42", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test42_original.xml", "metadata7.xsd");
         source.setUserName("admin");
@@ -1746,8 +1822,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test43() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("test43", repository);
 
         TestSaverSource source = new TestSaverSource(repository, false, "", "metadata1.xsd");
         source.setUserName("admin");
@@ -1767,8 +1844,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test44() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata8.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("test44", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test44_original.xml", "metadata8.xsd");
         source.setUserName("admin");
@@ -1789,8 +1867,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test45() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata8.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("test45", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test45_original.xml", "metadata8.xsd");
         source.setUserName("admin");
@@ -1811,8 +1890,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testPolymorphismForeignKey() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata10.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Product", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test46_original.xml", "metadata10.xsd");
         source.setUserName("Demo_Manager");
@@ -1833,8 +1913,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test46() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata11.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("test47", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test47_original.xml", "metadata11.xsd");
         source.setUserName("administrator");
@@ -1852,8 +1933,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test47() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata12.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("test48", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test48_original.xml", "metadata12.xsd");
         source.setUserName("administrator");
@@ -1871,8 +1953,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testPolymorphismForeignKeys() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata10.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Product", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test49_original.xml", "metadata10.xsd");
         source.setUserName("Demo_Manager");
@@ -1893,8 +1976,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testPolymorphismCache() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata10.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Individual", repository);
 
         TestSaverSource source = new TestSaverSource(repository, false, "", "metadata10.xsd");
         source.setUserName("Demo_User");
@@ -1915,6 +1999,7 @@ public class DocumentSaveTest extends TestCase {
     public void testPartialUpdateWithEmptyString() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test50", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test50_original.xml", "metadata7.xsd");
         source.setUserName("admin");
@@ -1934,8 +2019,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testSaveWithPolymorphismNode() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("Personne.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Vinci", repository);
 
         TestSaverSource source = new TestSaverSource(repository, false, "", "Personne.xsd");
         source.setUserName("System_Admin");
@@ -2005,6 +2091,7 @@ public class DocumentSaveTest extends TestCase {
     public void test50() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test50", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test50_original.xml", "metadata7.xsd");
         source.setUserName("admin");
@@ -2024,6 +2111,7 @@ public class DocumentSaveTest extends TestCase {
     public void test53() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata12.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test53", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test53_original.xml", "metadata12.xsd");
         source.setUserName("admin");
@@ -2044,6 +2132,7 @@ public class DocumentSaveTest extends TestCase {
     public void test58() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata14.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test58", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test58_original.xml", "metadata14.xsd");
         source.setUserName("admin");
@@ -2064,8 +2153,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test59() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test59", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test59_original.xml", "metadata7.xsd");
         source.setUserName("admin");
@@ -2091,8 +2181,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test60() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7_vinci.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test60", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test60_original.xml", "metadata7_vinci.xsd");
         source.setUserName("admin");
@@ -2122,6 +2213,7 @@ public class DocumentSaveTest extends TestCase {
     public void test60Ex1() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7_vinci.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test60Ex1", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test60_originalEx1.xml", "metadata7_vinci.xsd");
         source.setUserName("admin");
@@ -2146,8 +2238,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test60Ex2() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7_vinci.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Test60Ex2", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test60_originalEx2.xml", "metadata7_vinci.xsd");
         source.setUserName("admin");
@@ -2174,8 +2267,9 @@ public class DocumentSaveTest extends TestCase {
     }
     
     public void testRemoveSimpleTypeNodeWithOccurrence() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test52_original.xml", "metadata1.xsd");
 
@@ -2197,8 +2291,9 @@ public class DocumentSaveTest extends TestCase {
     }
     
     public void testRemoveComplexTypeNodeWithOccurrence() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata13.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test55_original.xml", "metadata13.xsd");
         ((TestSaverSource) source).setUserName("System_Admin");
@@ -2222,8 +2317,9 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testProductFamilyUpdate() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test54_original.xml", "metadata1.xsd");
 
@@ -2244,8 +2340,9 @@ public class DocumentSaveTest extends TestCase {
     }
     
     public void testUserPartialUpdate() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("PROVISIONING.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("PROVISIONING", repository);
 
         TestSaverSource source = new TestSaverSource(repository, true, "test56_original.xml", "PROVISIONING.xsd");
         source.setUserName("admin");
@@ -2293,28 +2390,11 @@ public class DocumentSaveTest extends TestCase {
         }
 
         @Override
-        public void save(ItemPOJO item, ComplexTypeMetadata type, String revisionId) {
+        public void save(com.amalto.core.history.Document item) {
             hasSaved = true;
-            try {
-                if (type != null && type.getSuperTypes().isEmpty() && type.getSubTypes().isEmpty()) {
-                    String idAsString = "";
-                    for (String idValue : item.getItemIds()) {
-                        idAsString += idValue;
-                    }
-                    ItemCacheKey itemCacheKey = new ItemCacheKey(revisionId, idAsString, item.getDataClusterPOJOPK()
-                            .getUniqueId());
-                    ItemPOJO.getCache().put(itemCacheKey, "Cached");
-                }
-                committedElement = item.getProjection();
-            } catch (XtentisException e) {
-                throw new RuntimeException(e);
-            }
+            committedElement = ((DOMDocument) item).asDOM().getDocumentElement();
             if (LOG.isDebugEnabled()) {
-                try {
-                    LOG.debug(item.getProjectionAsString());
-                } catch (XtentisException e) {
-                    throw new RuntimeException(e);
-                }
+                LOG.debug(item.exportToString());
             }
         }
 
@@ -2357,7 +2437,7 @@ public class DocumentSaveTest extends TestCase {
         private int currentId = 0;
 
         public TestSaverSource(MetadataRepository repository, boolean exist, String originalDocumentFileName,
-                String schemaFileName) {
+                               String schemaFileName) {
             this.repository = repository;
             this.exist = exist;
             this.originalDocumentFileName = originalDocumentFileName;
@@ -2365,9 +2445,53 @@ public class DocumentSaveTest extends TestCase {
         }
 
         @Override
-        public InputStream get(String dataClusterName, String typeName, String revisionId, String[] key) {
-            return DocumentSaveTest.class.getResourceAsStream(originalDocumentFileName);
+        public Documents get(String dataClusterName, String typeName, String revisionId, String[] key) {
+            try {
+                ComplexTypeMetadata type = repository.getComplexType(typeName);
+                DocumentBuilder documentBuilder;
+                DocumentBuilder validationDocumentBuilder;
+                documentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOCUMENT_BUILDER, false);
+                validationDocumentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOCUMENT_BUILDER, true);
+                NonCloseableInputStream nonCloseableInputStream = new NonCloseableInputStream(DocumentSaveTest.class.getResourceAsStream(originalDocumentFileName));
+                Documents documents = new Documents();
+                try {
+                    nonCloseableInputStream.mark(-1);
+
+                    Document databaseDomDocument = documentBuilder.parse(nonCloseableInputStream);
+                    Element userXmlElement = getUserXmlElement(databaseDomDocument);
+                    MutableDocument databaseDocument = new DOMDocument(userXmlElement, type, revisionId, dataClusterName);
+
+                    nonCloseableInputStream.reset();
+
+                    Document databaseValidationDomDocument = validationDocumentBuilder.parse(new InputSource(nonCloseableInputStream));
+                    userXmlElement = getUserXmlElement(databaseValidationDomDocument);
+                    MutableDocument databaseValidationDocument = new DOMDocument(userXmlElement, type, revisionId, dataClusterName);
+                    documents.databaseDocument = databaseDocument;
+                    documents.databaseValidationDocument = databaseValidationDocument;
+                    return documents;
+                } finally {
+                    nonCloseableInputStream.forceClose();
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
+
+        private static Element getUserXmlElement(Document databaseDomDocument) {
+            NodeList userXmlPayloadElement = databaseDomDocument.getElementsByTagName("p"); //$NON-NLS-1$
+            if (userXmlPayloadElement.getLength() > 1) {
+                throw new IllegalStateException("Document has multiple payload elements.");
+            }
+            Node current = userXmlPayloadElement.item(0).getFirstChild();
+            while (current != null) {
+                if (current instanceof Element) {
+                    return (Element) current;
+                }
+                current = current.getNextSibling();
+            }
+            throw new IllegalStateException("Element 'p' is expected to have an XML element as child.");
+        }
+
 
         @Override
         public boolean exist(String dataCluster, String typeName, String revisionId, String[] key) {
@@ -2420,7 +2544,7 @@ public class DocumentSaveTest extends TestCase {
         public String getLegitimateUser() {
             return getUserName();
         }
-        
+
         @Override
         public boolean existCluster(String revisionID, String dataClusterName) {
             return true;

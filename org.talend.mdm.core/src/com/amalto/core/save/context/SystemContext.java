@@ -88,11 +88,6 @@ class SystemContext extends AbstractDocumentSaverContext {
     }
 
     @Override
-    public ComplexTypeMetadata getType() {
-        return type;
-    }
-
-    @Override
     public String getDataCluster() {
         return dataCluster;
     }
@@ -120,11 +115,6 @@ class SystemContext extends AbstractDocumentSaverContext {
     @Override
     public void setRevisionId(String revisionID) {
         this.revisionId = revisionID;
-    }
-
-    @Override
-    public void setType(ComplexTypeMetadata type) {
-        this.type = type;
     }
 
     @Override

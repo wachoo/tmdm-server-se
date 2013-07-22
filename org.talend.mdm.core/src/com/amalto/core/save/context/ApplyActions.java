@@ -56,6 +56,9 @@ class ApplyActions implements DocumentSaver {
     }
 
     private void clean(Element element, Cleaner cleaner, boolean removeTalendAttributes) {
+        if (element == null) {
+            return;
+        }
         if (removeTalendAttributes) {
             element.removeAttributeNS(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type"); //$NON-NLS-1$
         }

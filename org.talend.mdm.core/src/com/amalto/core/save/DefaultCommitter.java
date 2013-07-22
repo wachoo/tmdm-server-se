@@ -12,6 +12,8 @@
 package com.amalto.core.save;
 
 import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.history.Document;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.server.XmlServer;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -49,10 +51,16 @@ public class DefaultCommitter implements SaverSession.Committer {
         }
     }
 
-    public void save(ItemPOJO item, ComplexTypeMetadata type, String revisionId) {
+    public void save(Document document) {
         try {
-            boolean putInCache = type != null && type.getSuperTypes().isEmpty() && type.getSubTypes().isEmpty();
-            item.store(revisionId, putInCache);
+            ComplexTypeMetadata type = document.getType();
+            boolean putInCache = type.getSuperTypes().isEmpty() && type.getSubTypes().isEmpty();
+            ItemPOJO item = new ItemPOJO(new DataClusterPOJOPK(document.getDataModelName()),
+                    type.getName(),
+                    new String[0],
+                    System.currentTimeMillis(),
+                    document.exportToString());
+            item.store(document.getRevision(), putInCache);
         } catch (XtentisException e) {
             throw new RuntimeException(e);
         }

@@ -31,7 +31,7 @@ public class AutoCommit implements DocumentSaver {
     public void save(SaverSession session, DocumentSaverContext context) {
         saver.save(session, context);
         try {
-            typeName = context.getType().getName();
+            typeName = context.getUserDocument().getType().getName();
             id = context.getId();
             session.end();
             session.begin(context.getDataCluster());

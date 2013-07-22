@@ -42,7 +42,7 @@ public class MockServerLifecycle implements ServerLifecycle {
 
     @Override
     public MetadataRepositoryAdmin createMetadataRepositoryAdmin() {
-        return new MockMetadataRepositoryAdmin();
+        return MockMetadataRepositoryAdmin.INSTANCE;
     }
 
     @Override

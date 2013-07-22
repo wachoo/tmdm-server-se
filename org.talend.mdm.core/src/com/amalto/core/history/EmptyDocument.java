@@ -14,7 +14,7 @@ package com.amalto.core.history;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.accessor.DOMAccessorFactory;
 import org.apache.commons.lang.StringUtils;
-import org.w3c.dom.Node;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -62,6 +62,21 @@ public class EmptyDocument implements MutableDocument {
     public void restore() {
     }
 
+    @Override
+    public ComplexTypeMetadata getType() {
+        return null;
+    }
+
+    @Override
+    public String getDataModelName() {
+        return StringUtils.EMPTY;
+    }
+
+    @Override
+    public String getRevision() {
+        return StringUtils.EMPTY;
+    }
+
     public MutableDocument setField(String field, String newValue) {
         return this;
     }
@@ -92,13 +107,6 @@ public class EmptyDocument implements MutableDocument {
 
     public Document applyChanges() {
         return this;
-    }
-
-    public Node getLastAccessedNode() {
-        return null;
-    }
-
-    public void setLastAccessedNode(Node lastAccessedNode) {
     }
 
     public MutableDocument copy() {

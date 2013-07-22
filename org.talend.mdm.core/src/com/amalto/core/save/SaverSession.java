@@ -11,7 +11,8 @@
 
 package com.amalto.core.save;
 
-import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.history.Document;
+import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
@@ -32,7 +33,7 @@ public class SaverSession {
 
     private final SaverContextFactory contextFactory = new SaverContextFactory();
 
-    private final Map<String, Set<ItemPOJO>> itemsPerDataCluster = new HashMap<String, Set<ItemPOJO>>();
+    private final Map<String, Set<Document>> itemsPerDataCluster = new HashMap<String, Set<Document>>();
 
     private final SaverSource dataSource;
 
@@ -59,7 +60,7 @@ public class SaverSession {
      */
     public static synchronized SaverSession newSession() {
         if (defaultSaverSource == null) {
-            defaultSaverSource = new DefaultSaverSource();
+            defaultSaverSource = DefaultSaverSource.getDefault();
         }
         return new SaverSession(defaultSaverSource);
     }
@@ -71,7 +72,7 @@ public class SaverSession {
     public static SaverSession newUserSession(String userName) {
         SaverSource saverSource = saverSourcePerUser.get(userName);
         if (saverSource == null) {
-            saverSource = new DefaultSaverSource(userName);
+            saverSource = DefaultSaverSource.getDefault(userName);
             saverSourcePerUser.put(userName, saverSource);
         }
         SaverSource dataSource = saverSource;
@@ -108,7 +109,7 @@ public class SaverSession {
         synchronized (itemsPerDataCluster) {
             committer.begin(dataCluster);
             if (!itemsPerDataCluster.containsKey(dataCluster)) {
-                itemsPerDataCluster.put(dataCluster, new HashSet<ItemPOJO>());
+                itemsPerDataCluster.put(dataCluster, new HashSet<Document>());
             }
         }
     }
@@ -131,31 +132,35 @@ public class SaverSession {
             boolean needResetAutoIncrement = false;
             MetadataRepository repository = null;
             ComplexTypeMetadata type = null;
-            for (Map.Entry<String, Set<ItemPOJO>> currentTransaction : itemsPerDataCluster.entrySet()) {
+            for (Map.Entry<String, Set<Document>> currentTransaction : itemsPerDataCluster.entrySet()) {
                 String dataCluster = currentTransaction.getKey();
-                // No need to call 'begin(dataCluster, committer)' -> this was already done
-                for (ItemPOJO currentItemToCommit : currentTransaction.getValue()) {
+                committer.begin(dataCluster);
+                for (Document currentItemToCommit : currentTransaction.getValue()) {
                     if (repository == null || type == null) {
                         String dataModelName = currentItemToCommit.getDataModelName();
                         if (dataModelName != null) { // TODO Every item should have a data mode name (but UpdateReport doesn't)
                             repository = saverSource.getMetadataRepository(dataModelName);
-                            type = repository.getComplexType(currentItemToCommit.getConceptName());
+                            type = currentItemToCommit.getType();
                         }
                     }
                     if (!needResetAutoIncrement) {
                         needResetAutoIncrement = isAutoIncrementItem(currentItemToCommit);
                     }
-                    committer.save(currentItemToCommit, type, currentItemToCommit.getDataModelRevision()); // TODO Use data model revision for revision id?
+                    committer.save(currentItemToCommit); // TODO Use data model revision for revision id?
                 }
                 committer.commit(dataCluster);
                 repository = null;
                 type = null;
             }
             // If any change was made to data cluster "UpdateReport", route committed update reports.
-            Set<ItemPOJO> updateReport = itemsPerDataCluster.get("UpdateReport"); //$NON-NLS-1$
+            Set<Document> updateReport = itemsPerDataCluster.get("UpdateReport"); //$NON-NLS-1$
             if (updateReport != null) {
-                for (ItemPOJO updateReportPOJO : updateReport) {
-                    saverSource.routeItem(updateReportPOJO.getDataClusterPOJOPK().getUniqueId(), updateReportPOJO.getConceptName(), updateReportPOJO.getItemIds());
+                for (Document updateReportDocument : updateReport) {
+                    MutableDocument document = (MutableDocument) updateReportDocument;
+                    String dataCluster = document.createAccessor("DataCluster").get(); //$NON-NLS-1$
+                    String typeName = document.createAccessor("DataModel").get(); //$NON-NLS-1$
+                    String[] itemsId = document.createAccessor("Key").get().split("."); //$NON-NLS-1$ //$NON-NLS-2$
+                    saverSource.routeItem(dataCluster, typeName, itemsId);
                 }
             }
             // reset the AutoIncrement
@@ -184,35 +189,29 @@ public class SaverSession {
      * @param item The item to be checked.
      * @return <code>true</code> if item is an AutoIncrement document, <code>false</code> otherwise.
      */
-    private static boolean isAutoIncrementItem(ItemPOJO item) {
-        if (item == null || item.getDataModelName() == null || item.getConceptName() == null) {
-            return false;
-        } else if (item.getDataModelName().equals(XSystemObjects.DC_CONF.getName())
-                && item.getConceptName().equals(AUTO_INCREMENT_TYPE_NAME)) {
-            return true;
-        }
-        return false;
+    private static boolean isAutoIncrementItem(Document item) {
+        return item.getType().getName().equals(AUTO_INCREMENT_TYPE_NAME);
     }
 
     /**
      * Adds a new record to be saved in this session.
      *
      * @param dataCluster         Data cluster where the record should be saved.
-     * @param itemToSave          The item to save.
+     * @param document          The item to save.
      * @param hasMetAutoIncrement <code>true</code> if AUTO_INCREMENT type has been met during save of <code>item</code>,
      *                            <code>false</code> otherwise.
      */
-    public void save(String dataCluster, ItemPOJO itemToSave, boolean hasMetAutoIncrement) {
+    public void save(String dataCluster, Document document, boolean hasMetAutoIncrement) {
         synchronized (itemsPerDataCluster) {
             if (!this.hasMetAutoIncrement) {
                 this.hasMetAutoIncrement = hasMetAutoIncrement;
             }
-            Set<ItemPOJO> itemsToSave = itemsPerDataCluster.get(dataCluster);
-            if (itemsToSave == null) {
-                itemsToSave = new HashSet<ItemPOJO>();
-                itemsPerDataCluster.put(dataCluster, itemsToSave);
+            Set<Document> documentsToSave = itemsPerDataCluster.get(dataCluster);
+            if (documentsToSave == null) {
+                documentsToSave = new HashSet<Document>();
+                itemsPerDataCluster.put(dataCluster, documentsToSave);
             }
-            itemsToSave.add(itemToSave);
+            documentsToSave.add(document);
         }
     }
 
@@ -237,7 +236,7 @@ public class SaverSession {
      */
     public void abort(Committer committer) {
         synchronized (itemsPerDataCluster) {
-            for (Map.Entry<String, Set<ItemPOJO>> currentTransaction : itemsPerDataCluster.entrySet()) {
+            for (Map.Entry<String, Set<Document>> currentTransaction : itemsPerDataCluster.entrySet()) {
                 String dataCluster = currentTransaction.getKey();
                 committer.rollback(dataCluster);
             }
@@ -273,10 +272,9 @@ public class SaverSession {
          * Saves a MDM record for a given revision.
          *
          * @param item       The item to save.
-         * @param type       Type of the record to save. Parameter may be null if type is unknown (system type).
-         * @param revisionId A revision id.
+         *
          */
-        void save(ItemPOJO item, ComplexTypeMetadata type, String revisionId);
+        void save(Document item);
 
         /**
          * Rollbacks changes done on a data cluster.

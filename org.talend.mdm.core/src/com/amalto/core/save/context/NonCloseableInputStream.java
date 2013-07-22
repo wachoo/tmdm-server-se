@@ -14,7 +14,7 @@ package com.amalto.core.save.context;
 import java.io.IOException;
 import java.io.InputStream;
 
-class NonCloseableInputStream extends InputStream {
+public class NonCloseableInputStream extends InputStream {
 
     private final InputStream delegate;
 

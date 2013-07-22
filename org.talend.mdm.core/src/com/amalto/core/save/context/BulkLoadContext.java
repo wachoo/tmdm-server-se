@@ -19,7 +19,6 @@ import org.apache.commons.lang.StringUtils;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.load.action.LoadAction;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import com.amalto.core.save.AbstractDocumentSaverContext;
 import com.amalto.core.save.UserAction;
 import com.amalto.core.util.XSDKey;
@@ -67,10 +66,6 @@ class BulkLoadContext extends AbstractDocumentSaverContext {
         throw new UnsupportedOperationException();
     }
 
-    public ComplexTypeMetadata getType() {
-        throw new UnsupportedOperationException();
-    }
-
     public String[] getId() {
         throw new UnsupportedOperationException();
     }
@@ -100,10 +95,6 @@ class BulkLoadContext extends AbstractDocumentSaverContext {
     }
 
     public void setRevisionId(String revisionID) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setType(ComplexTypeMetadata type) {
         throw new UnsupportedOperationException();
     }
 

@@ -64,11 +64,6 @@ public interface DocumentSaverContext {
     void setActions(List<Action> actions);
 
     /**
-     * @return {@link ComplexTypeMetadata} of the entity being saved.
-     */
-    ComplexTypeMetadata getType();
-
-    /**
      * @return Id of the document being saved.
      */
     String[] getId();
@@ -100,8 +95,6 @@ public interface DocumentSaverContext {
     void setDatabaseValidationDocument(MutableDocument databaseValidationDocument);
 
     void setRevisionId(String revisionID);
-
-    void setType(ComplexTypeMetadata type);
 
     boolean hasMetAutoIncrement();
 

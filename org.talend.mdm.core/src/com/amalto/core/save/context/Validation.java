@@ -47,7 +47,7 @@ class Validation implements DocumentSaver {
                     session.getSaverSource().getSchema(context.getDataModelName()),
                     Validator.NO_OP_VALIDATOR);
             if (useSchematron) {
-                String schematron = context.getType().getSchematron();
+                String schematron = context.getUserDocument().getType().getSchematron();
                 if (!schematron.isEmpty()) {
                     Constructor<?> constructor = schematronValidator.getConstructor(com.amalto.core.schema.validation.Validator.class, String.class);
                     validator = (Validator) constructor.newInstance(validator, schematron);

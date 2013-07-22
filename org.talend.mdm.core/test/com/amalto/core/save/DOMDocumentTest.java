@@ -19,6 +19,7 @@ import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.util.Util;
 
 import junit.framework.TestCase;
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -30,11 +31,11 @@ public class DOMDocumentTest extends TestCase {
     
     public void testExportToString() throws Exception {
         BufferedReader in = new BufferedReader(new InputStreamReader(DOMDocumentTest.class.getResourceAsStream("test1.xml")));
-        String line = null;
+        String line;
         String xml = "";
         while ((line = in.readLine()) != null)
             xml += line;
-        DOMDocument doc = new DOMDocument(Util.parse(xml));
+        DOMDocument doc = new DOMDocument(Util.parse(xml), null, StringUtils.EMPTY, StringUtils.EMPTY);
         assertNotNull(doc);
         assertNotNull(doc.exportToString());
         assertFalse(doc.exportToString().contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
@@ -54,7 +55,7 @@ public class DOMDocumentTest extends TestCase {
             DocumentBuilder documentBuilder = new SkipAttributeDocumentBuilder(DOM_PARSER_FACTORY.newDocumentBuilder(), false);
             InputSource source = new InputSource(documentStream);
             Document userDomDocument = documentBuilder.parse(source);
-            userDocument = new DOMDocument(userDomDocument);
+            userDocument = new DOMDocument(userDomDocument, null, StringUtils.EMPTY, StringUtils.EMPTY);
         } catch (Exception e) {
             throw new RuntimeException("Unable to parse document to save.", e);
         }

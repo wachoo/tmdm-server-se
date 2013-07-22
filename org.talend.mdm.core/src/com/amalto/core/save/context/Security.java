@@ -17,6 +17,7 @@ import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.UserAction;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -48,7 +49,8 @@ class Security implements DocumentSaver {
 
         if (!bypassSecurityChecks) {
             // First check rights on the type
-            List<String> typeWriteUsers = context.getType().getWriteUsers();
+            ComplexTypeMetadata type = context.getUserDocument().getType();
+            List<String> typeWriteUsers = type.getWriteUsers();
             boolean isAllowed = false;
             for (String currentUserRole : currentUserRoles) {
                 if (typeWriteUsers.contains(currentUserRole)) {
@@ -57,7 +59,7 @@ class Security implements DocumentSaver {
                 }
             }
             if (!isAllowed) {
-                throw new RuntimeException("User '" + saverSource.getUserName() + "' is not allowed to write to type '" + context.getType().getName() + "'.");
+                throw new RuntimeException("User '" + saverSource.getUserName() + "' is not allowed to write to type '" + type.getName() + "'.");
             }
 
             // Then check security on all actions (updates...)

@@ -11,6 +11,8 @@
 
 package com.amalto.core.save.context;
 
+import com.amalto.core.history.DOMMutableDocument;
+import com.amalto.core.save.DOMDocument;
 import org.w3c.dom.Node;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
@@ -117,7 +119,9 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                     Accessor accessor = newDocument.createAccessor(usedPath);
                     if (accessor.exist()){
                         accessor.touch();
-                        nodes.add(newDocument.getLastAccessedNode());
+                        if (newDocument instanceof DOMMutableDocument) {
+                            nodes.add(((DOMMutableDocument) newDocument).getLastAccessedNode());
+                        }
                     }
                 }
                 for (Node node : nodes) {

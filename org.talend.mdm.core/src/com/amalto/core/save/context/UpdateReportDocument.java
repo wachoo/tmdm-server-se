@@ -5,7 +5,9 @@ import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.save.DOMDocument;
+import com.amalto.core.server.ServerContext;
 import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -27,7 +29,7 @@ class UpdateReportDocument extends DOMDocument {
     private boolean isCreated = false;
 
     public UpdateReportDocument(Document updateReportDocument, MutableDocument savedDocument) {
-        super(updateReportDocument);
+        super(updateReportDocument, internalGetType(), StringUtils.EMPTY, UpdateReport.UPDATE_REPORT_DATA_MODEL);
         this.updateReportDocument = updateReportDocument;
         this.savedDocument = savedDocument;
     }
@@ -156,6 +158,20 @@ class UpdateReportDocument extends DOMDocument {
             // return new FieldChangeRecorder(path, this);
             return NO_OP_ACCESSOR;
         }
+    }
+
+    @Override
+    public String getDataModelName() {
+        return "UpdateReport"; //$NON-NLS-1$
+    }
+
+    @Override
+    public ComplexTypeMetadata getType() {
+        return internalGetType();
+    }
+
+    private static ComplexTypeMetadata internalGetType() {
+        return ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get("UpdateReport").getComplexType("Update");
     }
 
     private static class FieldChangeRecorder implements Accessor {

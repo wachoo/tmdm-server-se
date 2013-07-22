@@ -34,18 +34,8 @@ class Init implements DocumentSaver {
         SaverSource saverSource = session.getSaverSource();
         String dataClusterName = context.getDataCluster();
         String dataModelName = context.getDataModelName();
-
         // Get type name
-        String typeName = context.getUserDocument().asDOM().getDocumentElement().getNodeName();
-        if (saverSource.getMetadataRepository(dataModelName) == null) {
-            throw new IllegalArgumentException("Could not find the Data Model '" + dataModelName + "'"); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-        ComplexTypeMetadata type = saverSource.getMetadataRepository(dataModelName).getComplexType(typeName);
-        if (type == null) {
-            throw new IllegalArgumentException("Type '" + typeName + "' is unknown in data model '" + dataModelName + "'.");
-        }
-        context.setType(type);
-
+        ComplexTypeMetadata type = context.getUserDocument().getType();
         // check cluster exist or not
         if (!XSystemObjects.isExist(XObjectType.DATA_CLUSTER, dataClusterName)) {
             // get the universe and revision ID
@@ -53,14 +43,12 @@ class Init implements DocumentSaver {
             if (universe == null) {
                 throw new RuntimeException("No universe set for user '" + saverSource.getUserName() + "'");
             }
-
-            String revisionID = saverSource.getConceptRevisionID(typeName);
+            String revisionID = saverSource.getConceptRevisionID(type.getName());
             context.setRevisionId(revisionID);
             if (!saverSource.existCluster(revisionID, dataClusterName)) {
                 throw new RuntimeException("Data container '" + dataClusterName + "' does not exist in revision '" + revisionID + "'.");
             }
         }
-
         // Continue save
         try {
             next.save(session, context);
@@ -77,11 +65,10 @@ class Init implements DocumentSaver {
             }
             throw new com.amalto.core.save.SaveException(getBeforeSavingMessage(), e);
         }
-
+        // Reset user cache if save applied to a user.
         if (XSystemObjects.DC_PROVISIONING.getName().equals(dataModelName)) {
             saverSource.resetLocalUsers();
         }
-
     }
 
     public String[] getSavedId() {

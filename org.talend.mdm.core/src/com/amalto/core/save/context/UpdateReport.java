@@ -51,7 +51,7 @@ class UpdateReport implements DocumentSaver {
             }
         }
 
-        ComplexTypeMetadata type = context.getType();
+        ComplexTypeMetadata type = context.getUserDocument().getType();
         List<Action> actions = context.getActions();
         boolean hasHeader = false;
         for (Action action : actions) {

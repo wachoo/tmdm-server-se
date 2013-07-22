@@ -11,7 +11,7 @@
 
 package com.amalto.core.history.accessor;
 
-import com.amalto.core.history.MutableDocument;
+import com.amalto.core.history.DOMMutableDocument;
 import com.amalto.core.history.action.FieldUpdateAction;
 
 import org.apache.commons.lang.StringUtils;
@@ -30,11 +30,11 @@ class ManyFieldAccessor implements DOMAccessor {
 
     private final int index;
 
-    private final MutableDocument document;
+    private final DOMMutableDocument document;
 
     private Element cachedCollectionItemNode;
 
-    public ManyFieldAccessor(DOMAccessor parent, String fieldName, int index, MutableDocument document) {
+    public ManyFieldAccessor(DOMAccessor parent, String fieldName, int index, DOMMutableDocument document) {
         this.parent = parent;
         this.fieldName = fieldName;
         this.index = index;

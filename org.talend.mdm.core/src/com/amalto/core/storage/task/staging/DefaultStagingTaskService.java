@@ -19,7 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import org.apache.log4j.Logger;
+import com.amalto.core.save.context.DefaultSaverSource;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
@@ -27,7 +27,6 @@ import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserStagingQueryBuilder;
 import com.amalto.core.save.DefaultCommitter;
-import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
@@ -45,8 +44,6 @@ import com.amalto.core.util.XtentisException;
 
 public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
-    private static final Logger logger = Logger.getLogger(DefaultStagingTaskService.class);
-    
     private static final String EXECUTION_LOG_TYPE = "TALEND_TASK_EXECUTION"; //$NON-NLS-1$
 
     // SimpleDateFormat is not thread-safe
@@ -134,7 +131,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             StagingConfiguration stagingConfig = new StagingConfiguration(staging,
                     stagingRepository,
                     userRepository,
-                    new DefaultSaverSource(userName),
+                    DefaultSaverSource.getDefault(userName),
                     new DefaultCommitter(),
                     user);
             Task stagingTask = TaskFactory.createStagingTask(stagingConfig);
@@ -248,7 +245,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         ComplexTypeMetadata executionType = stagingRepository.getComplexType(EXECUTION_LOG_TYPE);
         UserQueryBuilder qb = from(executionType)
                 .where(eq(executionType.getField("id"), executionId)); //$NON-NLS-1$
-        StorageResults results = staging.fetch(qb.getSelect());
+        StorageResults results = staging.fetch(qb.getSelect()); // Expects an active transaction here
         ExecutionStatistics status = new ExecutionStatistics();
         try {
             for (DataRecord result : results) {
@@ -277,7 +274,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             if (currentType.isInstantiable() && !EXECUTION_LOG_TYPE.equals(currentType.getName())) {  //$NON-NLS-1$
                 UserQueryBuilder qb = from(currentType)
                         .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
-                StorageResults results = storage.fetch(qb.getSelect());
+                StorageResults results = storage.fetch(qb.getSelect()); // Expects an active transaction here
                 try {
                     for (DataRecord result : results) {
                         totalCount += (Long) result.get("count"); //$NON-NLS-1$

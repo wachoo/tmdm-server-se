@@ -11,6 +11,7 @@
 
 package com.amalto.core.history.accessor;
 
+import com.amalto.core.history.DOMMutableDocument;
 import com.amalto.core.history.MutableDocument;
 
 import java.util.StringTokenizer;
@@ -44,9 +45,9 @@ public class DOMAccessorFactory {
                 }
                 String fieldName = element.substring(0, indexStart);
                 int index = Integer.parseInt(element.substring(indexStart + 1, indexEnd)) - 1;
-                current = new ManyFieldAccessor(current, fieldName, index, document);
+                current = new ManyFieldAccessor(current, fieldName, index, (DOMMutableDocument) document);
             } else {
-                current = new UnaryFieldAccessor(current, element, document);
+                current = new UnaryFieldAccessor(current, element, (DOMMutableDocument) document);
             }
         }
 

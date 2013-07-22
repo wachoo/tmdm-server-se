@@ -11,22 +11,20 @@
 
 package com.amalto.core.save;
 
-import com.amalto.core.history.DeleteType;
+import com.amalto.core.history.*;
 import com.amalto.core.history.Document;
-import com.amalto.core.history.DocumentTransformer;
-import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.accessor.DOMAccessorFactory;
 import com.amalto.core.save.context.SaverContextFactory;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import java.io.StringWriter;
 
-public class DOMDocument implements MutableDocument {
+public class DOMDocument implements DOMMutableDocument {
 
     private org.w3c.dom.Document domDocument;
 
@@ -34,13 +32,24 @@ public class DOMDocument implements MutableDocument {
 
     private String rootElementName;
 
-    public DOMDocument(org.w3c.dom.Document domDocument) {
+    private ComplexTypeMetadata type;
+
+    private final String revisionId;
+
+    private final String dataModelName;
+
+    public DOMDocument(org.w3c.dom.Document domDocument, ComplexTypeMetadata type, String revisionId, String dataModelName) {
+        this.type = type;
+        this.revisionId = revisionId;
+        this.dataModelName = dataModelName;
         init(domDocument);
     }
 
-    public DOMDocument(Node node) {
-        DocumentBuilder documentBuilder;
-        documentBuilder = SaverContextFactory.DOCUMENT_BUILDER;
+    public DOMDocument(Node node, ComplexTypeMetadata type, String revisionId, String dataModelName) {
+        this.type = type;
+        this.revisionId = revisionId;
+        this.dataModelName = dataModelName;
+        DocumentBuilder documentBuilder = SaverContextFactory.DOCUMENT_BUILDER;
         org.w3c.dom.Document document = documentBuilder.newDocument();
         document.adoptNode(node);
         document.appendChild(node);
@@ -58,16 +67,18 @@ public class DOMDocument implements MutableDocument {
         }
     }
 
+    @Override
     public Node getLastAccessedNode() {
         return lastAccessedNode;
     }
 
+    @Override
     public void setLastAccessedNode(Node lastAccessedNode) {
         this.lastAccessedNode = lastAccessedNode;
     }
 
     public MutableDocument copy() {
-        return new DOMDocument(domDocument.getDocumentElement().cloneNode(true));
+        return new DOMDocument((org.w3c.dom.Document) domDocument.cloneNode(true), type, revisionId, dataModelName);
     }
 
     public String exportToString() {
@@ -92,6 +103,21 @@ public class DOMDocument implements MutableDocument {
 
     public void restore() {
         throw new UnsupportedOperationException("Restore not supported.");
+    }
+
+    @Override
+    public ComplexTypeMetadata getType() {
+        return type;
+    }
+
+    @Override
+    public String getDataModelName() {
+        return dataModelName;
+    }
+
+    @Override
+    public String getRevision() {
+        return revisionId;
     }
 
     public Accessor createAccessor(String path) {

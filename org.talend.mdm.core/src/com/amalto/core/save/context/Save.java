@@ -19,12 +19,9 @@ import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.w3c.dom.Element;
 
-import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 
@@ -33,21 +30,12 @@ class Save implements DocumentSaver {
     private String[] savedId = new String[0];
 
     public void save(SaverSession session, DocumentSaverContext context) {
-        DataClusterPOJOPK dataCluster = new DataClusterPOJOPK(context.getDataCluster());
-        String typeName = context.getType().getName();
+        String typeName = context.getUserDocument().getType().getName();
         savedId = context.getId();
         if (savedId.length == 0) {
             throw new IllegalStateException("No ID information to save instance of '" + typeName + "'");
         }
-        Element documentElement = context.getDatabaseDocument().asDOM().getDocumentElement();
-        // We can keep "System.currentTimeMillis()" -> modification time has no 'collision' issue on master records
-        // (2+ records can share same timestamp).
-        ItemPOJO item = new ItemPOJO(dataCluster, typeName, savedId, System.currentTimeMillis(), documentElement);
-        item.setTaskId(context.getTaskId());
-        // Data model name is rather important! (used by FK integrity checks for instance).
-        item.setDataModelName(context.getDataModelName());
-        item.setDataModelRevision(context.getRevisionID()); // TODO Is data model revision ok?
-        session.save(context.getDataCluster(), item, context.hasMetAutoIncrement());
+        session.save(context.getDataCluster(), context.getDatabaseDocument(), context.hasMetAutoIncrement());
         context.getAutoIncrementFieldMap().clear(); // Removes generated auto_inc in this save.
         // Save update report (if any)
         MutableDocument updateReportDocument = context.getUpdateReportDocument();
@@ -80,16 +68,8 @@ class Save implements DocumentSaver {
         if (updateReportTime < 1) { // This is unexpected (would mean update report "TimeInMillis" is not present).
             throw new IllegalStateException("Missing update report time value.");
         }
-        String[] idAsArray = ids.toArray(new String[ids.size()]);
-        ItemPOJO updateReport = new ItemPOJO(new DataClusterPOJOPK(UpdateReport.UPDATE_REPORT_DATA_MODEL),
-                UpdateReport.UPDATE_REPORT_TYPE,
-                idAsArray,
-                updateReportTime,
-                updateReportDocument.asDOM().getDocumentElement());
-        updateReport.setDataModelName(UpdateReport.UPDATE_REPORT_DATA_MODEL);
-        updateReport.setDataModelRevision(saverSource.getConceptRevisionID(updateReport.getConceptName()));
         // Call session's save to save all items in correct order (one transaction per data cluster for the XML db).
-        session.save(UpdateReport.UPDATE_REPORT_DATA_MODEL, updateReport, false);
+        session.save(UpdateReport.UPDATE_REPORT_DATA_MODEL, updateReportDocument, false);
     }
 
 

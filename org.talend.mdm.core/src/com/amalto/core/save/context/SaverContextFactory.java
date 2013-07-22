@@ -15,10 +15,15 @@ import com.amalto.core.history.MutableDocument;
 import com.amalto.core.load.action.LoadAction;
 import com.amalto.core.save.*;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
+import com.amalto.core.server.Server;
+import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.XmlServer;
+import com.amalto.core.storage.Storage;
 import com.amalto.core.util.XSDKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
@@ -147,6 +152,7 @@ public class SaverContextFactory {
         if (invokeBeforeSaving && !updateReport) {
             throw new IllegalArgumentException("Must generate update report to invoke before saving.");
         }
+        Server server = ServerContext.INSTANCE.get();
         // Parsing
         MutableDocument userDocument;
         try {
@@ -154,7 +160,13 @@ public class SaverContextFactory {
             DocumentBuilder documentBuilder = new SkipAttributeDocumentBuilder(DOCUMENT_BUILDER, false);
             InputSource source = new InputSource(documentStream);
             Document userDomDocument = documentBuilder.parse(source);
-            userDocument = new DOMDocument(userDomDocument);
+            MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataModelName);
+            String typeName = userDomDocument.getDocumentElement().getNodeName();
+            ComplexTypeMetadata type = repository.getComplexType(typeName);
+            if (type == null) {
+                throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data model '" + dataModelName + "'.");
+            }
+            userDocument = new DOMDocument(userDomDocument.getDocumentElement(), type, StringUtils.EMPTY, dataModelName);
         } catch (Exception e) {
             throw new RuntimeException("Unable to parse document to save.", e);
         }
@@ -169,11 +181,17 @@ public class SaverContextFactory {
         }
         // Choose right context implementation
         DocumentSaverContext context;
-        if (dataCluster.startsWith(SYSTEM_CONTAINER_PREFIX)
-                || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, dataCluster)) {
-            context = new SystemContext(dataCluster, dataModelName, userDocument, userAction);
+        Storage storage = server.getStorageAdmin().get(dataCluster, null);
+        if (storage != null) {
+            context = new StorageSaver(storage, userDocument, userAction, invokeBeforeSaving, updateReport, validate);
         } else {
-            context = new UserContext(dataCluster, dataModelName, userDocument, userAction, validate, updateReport, invokeBeforeSaving);
+            // Deprecated code here (keep it for XML database).
+            if (dataCluster.startsWith(SYSTEM_CONTAINER_PREFIX)
+                    || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, dataCluster)) {
+                context = new SystemContext(dataCluster, dataModelName, userDocument, userAction);
+            } else {
+                context = new UserContext(dataCluster, dataModelName, userDocument, userAction, validate, updateReport, invokeBeforeSaving);
+            }
         }
         // Additional options (update report, auto commit).
         if (updateReport) {

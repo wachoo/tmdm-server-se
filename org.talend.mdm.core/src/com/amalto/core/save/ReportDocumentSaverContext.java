@@ -16,7 +16,6 @@ import org.apache.commons.lang.StringUtils;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import com.amalto.core.save.context.DocumentSaver;
 
 public class ReportDocumentSaverContext extends AbstractDocumentSaverContext {
@@ -106,11 +105,6 @@ public class ReportDocumentSaverContext extends AbstractDocumentSaverContext {
     }
 
     @Override
-    public ComplexTypeMetadata getType() {
-        return delegate.getType();
-    }
-
-    @Override
     public String getDataCluster() {
         return delegate.getDataCluster();
     }
@@ -138,11 +132,6 @@ public class ReportDocumentSaverContext extends AbstractDocumentSaverContext {
     @Override
     public void setRevisionId(String revisionID) {
         delegate.setRevisionId(revisionID);
-    }
-
-    @Override
-    public void setType(ComplexTypeMetadata type) {
-        delegate.setType(type);
     }
 
     @Override

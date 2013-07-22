@@ -21,11 +21,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-class MockMetadataRepositoryAdmin implements MetadataRepositoryAdmin {
+public class MockMetadataRepositoryAdmin implements MetadataRepositoryAdmin {
+
+    public static MockMetadataRepositoryAdmin INSTANCE = new MockMetadataRepositoryAdmin();
 
     private static final Logger LOGGER = Logger.getLogger(MockMetadataRepositoryAdmin.class);
 
     private final Map<String, MetadataRepository> metadataRepository = new HashMap<String, MetadataRepository>();
+
+    protected MockMetadataRepositoryAdmin() {
+    }
+
+    public void register(String metadataRepositoryId, MetadataRepository repository) {
+        synchronized (metadataRepository) {
+            metadataRepository.put(metadataRepositoryId, repository);
+        }
+    }
 
     public MetadataRepository get(String metadataRepositoryId) {
         synchronized (metadataRepository) {

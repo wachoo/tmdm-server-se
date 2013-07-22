@@ -70,7 +70,7 @@ class GenerateActions implements DocumentSaver {
         SaverSource saverSource = session.getSaverSource();
         String userName = saverSource.getUserName();
 
-        ComplexTypeMetadata type = context.getType();
+        ComplexTypeMetadata type = context.getUserDocument().getType();
         String universe = saverSource.getUniverse();
         List<Action> actions;
         MetadataRepository metadataRepository = saverSource.getMetadataRepository(context.getDataModelName());
@@ -82,7 +82,7 @@ class GenerateActions implements DocumentSaver {
         case CREATE:
             CreateActions createActions = new CreateActions(userDocument, date, source, userName, context.getDataCluster(),
                     universe, saverSource, context.getAutoIncrementFieldMap());
-            Action createAction = new OverrideCreateAction(date, source, userName, userDocument, context.getType());
+            Action createAction = new OverrideCreateAction(date, source, userName, userDocument, type);
             // Builds action list (be sure to include actual creation as first action).
             actions = new LinkedList<Action>();
             actions.add(createAction);
@@ -114,7 +114,7 @@ class GenerateActions implements DocumentSaver {
             // "Is replace" (similar to creation but without clean up of empty elements).
             // Builds action list (be sure to include actual creation as first action).
             actions = new LinkedList<Action>();
-            Action replaceAction = new OverrideReplaceAction(date, source, userName, userDocument, context.getType());
+            Action replaceAction = new OverrideReplaceAction(date, source, userName, userDocument, type);
             actions.add(replaceAction);
             actions.addAll(type.accept(updateActions));
             break;
