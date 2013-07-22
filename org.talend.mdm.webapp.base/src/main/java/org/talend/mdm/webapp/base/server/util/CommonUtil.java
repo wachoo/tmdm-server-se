@@ -237,7 +237,7 @@ public class CommonUtil {
         if(keys == null || ids == null) {
             return null;
         }
-        if (keys.length < ids.length) {
+        if (keys.length > 0 && keys.length < ids.length) {
             // See TMDM-5943: Id may contain '.' characters
             // (in this case: concatenate all ids[i] where i > keys.length into a single value separated with '.').
             String[] newIds = new String[keys.length];

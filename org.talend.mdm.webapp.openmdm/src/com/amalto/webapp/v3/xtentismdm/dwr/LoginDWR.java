@@ -28,51 +28,44 @@ import com.amalto.webapp.util.webservices.WSUniversePKArray;
 import com.amalto.webapp.util.webservices.XtentisPort;
 
 public class LoginDWR {
-    
-    /**
-     * if the session of login page invalidate
-     */
-    public boolean isTimeOut() {
-       boolean timeout = false;
-       WebContext ctx = WebContextFactory.get();
-       
-       if(ctx.getSession(false) == null) {
-          return true;
-       }
-       
-       return timeout;
-    }
-    
-    public String[] getUniverseNames() throws XtentisWebappException {
 
+    private static final String SESSION_TIME_OUT = "sessionTimeOut"; //$NON-NLS-1$
+
+    private static final String HEAD = "HEAD"; //$NON-NLS-1$
+
+    private static final String REGEX = ".*"; //$NON-NLS-1$
+
+    public boolean isTimeOut() {
+        boolean timeout = false;
+        WebContext ctx = WebContextFactory.get();
+        return ctx.getSession(false) == null || timeout;
+    }
+
+    public String[] getUniverseNames() throws XtentisWebappException {
         List<String> universeNames = new ArrayList<String>();
-        universeNames.add("HEAD"); //$NON-NLS-1$
+        universeNames.add(HEAD);
         try {
             if (com.amalto.core.util.Util.isEnterprise()) {
                 XtentisPort port = Util.getPort(null, null);
-                WSUniversePKArray pks = port.getUniversePKs(new WSGetUniversePKs(".*")); //$NON-NLS-1$
+                WSUniversePKArray pks = port.getUniversePKs(new WSGetUniversePKs(REGEX));
                 if (pks != null) {
                     WSUniversePK[] wsUniversePKs = pks.getWsUniversePK();
                     if (wsUniversePKs != null && wsUniversePKs.length > 0) {
-                        for (int i = 0; i < wsUniversePKs.length; i++) {
-                            universeNames.add(wsUniversePKs[i].getPk());
+                        for (WSUniversePK wsUniversePK : wsUniversePKs) {
+                            universeNames.add(wsUniversePK.getPk());
                         }
                     }
                 }
             }
-
         } catch (Exception e) {
-            e.printStackTrace();
             throw new XtentisWebappException(e);
         }
         WebContext ctx = WebContextFactory.get();
         HttpSession session = ctx.getSession(false);
         if (session != null) {
-            session.setAttribute("sessionTimeOut", session.getMaxInactiveInterval()); //$NON-NLS-1$
+            session.setAttribute(SESSION_TIME_OUT, session.getMaxInactiveInterval());
             session.setMaxInactiveInterval(-1);
         }
-
         return universeNames.toArray(new String[universeNames.size()]);
-
     }
 }
