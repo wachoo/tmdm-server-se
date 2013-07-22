@@ -11,6 +11,8 @@
 
 package com.amalto.core.storage.task;
 
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.transaction.Transaction;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -69,8 +71,14 @@ public class MDMValidationTask extends MetadataRepositoryTask {
         COMMIT_SIZE = value == null ? 1000 : Integer.valueOf(value);
     }
 
-    public MDMValidationTask(Storage storage, Storage destinationStorage, MetadataRepository repository, SaverSource source, SaverSession.Committer committer, ClosureExecutionStats stats) {
-        super(storage, repository, stats);
+    public MDMValidationTask(Storage storage,
+                             Storage destinationStorage,
+                             Transaction transaction,
+                             MetadataRepository repository,
+                             SaverSource source,
+                             SaverSession.Committer committer,
+                             ClosureExecutionStats stats) {
+        super(transaction, storage, repository, stats);
         this.source = source;
         this.committer = committer;
         this.destinationStorage = destinationStorage;
@@ -90,13 +98,18 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                                 or(isNull(status()),
                                         or(eq(status(), StagingConstants.FAIL_VALIDATE_CONSTRAINTS),
                                                 eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)))))).getSelect();
-        StorageResults records = storage.fetch(select);
+        StorageResults records = storage.fetch(select); // Expects an active transaction here
         try {
             recordsCount += records.getCount();
         } finally {
             records.close();
         }
-        return new MultiThreadedTask(type.getName(), storage, select, CONSUMER_POOL_SIZE, closure, stats);
+        return new MultiThreadedTask(ServerContext.INSTANCE.get().getTransactionManager().currentTransaction(), type.getName(),
+                storage,
+                select,
+                CONSUMER_POOL_SIZE,
+                closure,
+                stats);
     }
 
     @Override
@@ -138,7 +151,6 @@ public class MDMValidationTask extends MetadataRepositoryTask {
         public synchronized void begin() {
             session = SaverSession.newSession(source);
             session.begin(destinationStorage.getName(), committer);
-            storage.begin();
         }
 
         public void execute(DataRecord stagingRecord, ClosureExecutionStats stats) {
@@ -225,8 +237,6 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                 LOGGER.error("Could not commit changes.", e);
                 session.abort(committer);
             }
-            storage.commit();
-            storage.end();
         }
 
         public Closure copy() {

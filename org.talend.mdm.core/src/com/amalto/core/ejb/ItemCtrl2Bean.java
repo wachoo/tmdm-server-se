@@ -138,7 +138,7 @@ public class ItemCtrl2Bean implements SessionBean {
     public ItemPOJOPK putItem(ItemPOJO item, DataModelPOJO dataModel) throws XtentisException {
         String schema = dataModel == null ? null : dataModel.getSchema();
         String dataModelName = dataModel == null ? null : dataModel.getName();
-        return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().putItem(item, schema, dataModelName);
+        return BeanDelegatorContainer.getInstance().getItemCtrlDelegator().putItem(item, schema, dataModelName);
     }
 
     /**
@@ -152,7 +152,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @ejb.facade-method
      */
     public ItemPOJOPK updateItemMetadata(ItemPOJO item) throws XtentisException {
-        return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().putItem(item, null, null);
+        return BeanDelegatorContainer.getInstance().getItemCtrlDelegator().putItem(item, null, null);
     }
 
     /**
@@ -417,7 +417,7 @@ public class ItemCtrl2Bean implements SessionBean {
      */
     public ArrayList<String> viewSearch(DataClusterPOJOPK dataClusterPOJOPK, ViewPOJOPK viewPOJOPK, IWhereItem whereItem,
             int spellThreshold, String orderBy, String direction, int start, int limit) throws XtentisException {
-        return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator()
+        return BeanDelegatorContainer.getInstance().getItemCtrlDelegator()
                 .viewSearch(dataClusterPOJOPK, viewPOJOPK, whereItem, spellThreshold, orderBy, direction, start, limit);
 
     }
@@ -547,24 +547,31 @@ public class ItemCtrl2Bean implements SessionBean {
                         qb.selectId(repository.getComplexType(viewableTypeName)); // Select id if xPath is 'typeName' and not 'typeName/field'
                     }
                 }
-                StorageResults results;
                 ArrayList<String> resultsAsString = new ArrayList<String>();
-                if (returnCount) {
-                    results = storage.fetch(qb.getSelect());
-                    resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
-                }
-                results = storage.fetch(qb.getSelect());
-                DataRecordWriter writer = new DataRecordDefaultWriter(); 
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-                for (DataRecord result : results) {
-                    try {
-                        writer.write(result, output);
-                    } catch (IOException e) {
-                        throw new XmlServerException(e);
+                StorageResults results;
+                try {
+                    storage.begin();
+                    if (returnCount) {
+                        results = storage.fetch(qb.getSelect());
+                        resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
                     }
-                    String document = new String(output.toByteArray());
-                    resultsAsString.add(document);
-                    output.reset();
+                    results = storage.fetch(qb.getSelect());
+                    DataRecordWriter writer = new DataRecordDefaultWriter();
+                    ByteArrayOutputStream output = new ByteArrayOutputStream();
+                    for (DataRecord result : results) {
+                        try {
+                            writer.write(result, output);
+                        } catch (IOException e) {
+                            throw new XmlServerException(e);
+                        }
+                        String document = new String(output.toByteArray());
+                        resultsAsString.add(document);
+                        output.reset();
+                    }
+                    storage.commit();
+                } catch (Exception e) {
+                    storage.rollback();
+                    throw new XmlServerException(e);
                 }
                 return resultsAsString;
             }
@@ -601,7 +608,7 @@ public class ItemCtrl2Bean implements SessionBean {
             LinkedHashMap<String, String[]> pivotWithKeys, String[] indexPaths, IWhereItem whereItem, String[] pivotDirections,
             String[] indexDirections, int start, int limit) throws XtentisException {
         return BeanDelegatorContainer
-                .getUniqueInstance()
+                .getInstance()
                 .getItemCtrlDelegator()
                 .getItemsPivotIndex(clusterName, mainPivotName, pivotWithKeys, indexPaths, whereItem, pivotDirections,
                         indexDirections, start, limit);
@@ -618,7 +625,7 @@ public class ItemCtrl2Bean implements SessionBean {
      */
     public ArrayList<String> getChildrenItems(String clusterName, String conceptName, String PKXpaths[], String FKXpath,
             String labelXpath, String fatherPK, IWhereItem whereItem, int start, int limit) throws XtentisException {
-        return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator()
+        return BeanDelegatorContainer.getInstance().getItemCtrlDelegator()
                 .getChildrenItems(clusterName, conceptName, PKXpaths, FKXpath, labelXpath, fatherPK, whereItem, start, limit);
     }
 
@@ -670,17 +677,24 @@ public class ItemCtrl2Bean implements SessionBean {
                     types = Collections.singletonList(repository.getComplexType(conceptName));
                 }
                 long count = 0;
-                for (ComplexTypeMetadata type : types) {
-                    if (!type.getKeyFields().isEmpty()) { // Don't try to count types that don't have any PK.
-                        UserQueryBuilder qb = from(type);
-                        qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
-                        StorageResults result = storage.fetch(qb.getSelect());
-                        try {
-                            count += result.getCount();
-                        } finally {
-                            result.close();
+                try {
+                    storage.begin();
+                    for (ComplexTypeMetadata type : types) {
+                        if (!type.getKeyFields().isEmpty()) { // Don't try to count types that don't have any PK.
+                            UserQueryBuilder qb = from(type);
+                            qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
+                            StorageResults result = storage.fetch(qb.getSelect());
+                            try {
+                                count += result.getCount();
+                            } finally {
+                                result.close();
+                            }
                         }
                     }
+                    storage.commit();
+                } catch (Exception e) {
+                    storage.rollback();
+                    throw new XtentisException(e);
                 }
                 return count;
             }
@@ -1221,7 +1235,7 @@ public class ItemCtrl2Bean implements SessionBean {
     public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
             int spellThreshold, String orderBy, String direction, int start, int limit, boolean totalCountOnFirstRow)
             throws XtentisException {
-    	return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().getItems(dataClusterPOJOPK, conceptName, whereItem, spellThreshold, orderBy, direction, start, limit, totalCountOnFirstRow);
+    	return BeanDelegatorContainer.getInstance().getItemCtrlDelegator().getItems(dataClusterPOJOPK, conceptName, whereItem, spellThreshold, orderBy, direction, start, limit, totalCountOnFirstRow);
     }
 
     public FKIntegrityCheckResult checkFKIntegrity(String dataCluster, String concept, String[] ids) throws XtentisException {

@@ -12,9 +12,12 @@
 package com.amalto.core.storage.task;
 
 import com.amalto.core.query.user.Expression;
+import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.transaction.Transaction;
+import com.amalto.core.storage.transaction.TransactionManager;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
@@ -29,6 +32,8 @@ public class MultiThreadedTask implements Task {
     private final String name;
 
     private final Storage storage;
+
+    private final Transaction transaction;
 
     private final Expression expression;
 
@@ -50,7 +55,8 @@ public class MultiThreadedTask implements Task {
 
     private boolean isFinished;
 
-    public MultiThreadedTask(String name,
+    public MultiThreadedTask(Transaction transaction,
+                             String name,
                              Storage storage,
                              Expression expression,
                              int threadNumber,
@@ -58,6 +64,7 @@ public class MultiThreadedTask implements Task {
                              ClosureExecutionStats stats) {
         this.name = name;
         this.storage = storage;
+        this.transaction = transaction;
         this.expression = expression;
         this.stats = stats;
         this.closure = new ThreadDispatcher(threadNumber, closure, stats);
@@ -78,9 +85,11 @@ public class MultiThreadedTask implements Task {
             startLock.notifyAll();
         }
 
+        TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         try {
+            transactionManager.associate(transaction);
             taskStartTime = System.currentTimeMillis();
-            StorageResults records = storage.fetch(expression);
+            StorageResults records = storage.fetch(expression); // Expects an active transaction here
             if (records.getCount() > 0) {
                 closure.begin();
                 for (DataRecord record : records) {
@@ -95,6 +104,7 @@ public class MultiThreadedTask implements Task {
             }
             isFinished = true;
         } finally {
+            transactionManager.dissociate(transaction);
             synchronized (executionLock) {
                 executionLock.set(true);
                 executionLock.notifyAll();

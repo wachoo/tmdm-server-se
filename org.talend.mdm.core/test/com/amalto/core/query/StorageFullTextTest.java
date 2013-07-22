@@ -119,6 +119,7 @@ public class StorageFullTextTest extends StorageTestCase {
     @Override
     public void setUp() throws Exception {
         populateData();
+        super.setUp();
     }
 
     public void testSimpleSearch() throws Exception {

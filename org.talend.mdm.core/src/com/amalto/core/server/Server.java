@@ -15,8 +15,7 @@ package com.amalto.core.server;
 
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
-
-import javax.management.MBeanServer;
+import com.amalto.core.storage.transaction.TransactionManager;
 
 public interface Server {
 
@@ -33,4 +32,6 @@ public interface Server {
     void close();
 
     void init();
+
+    TransactionManager getTransactionManager();
 }

@@ -1,5 +1,6 @@
 package com.amalto.core.storage.task;
 
+import com.amalto.core.storage.transaction.Transaction;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.query.user.Select;
@@ -18,8 +19,8 @@ public class ClusterTask extends MetadataRepositoryTask {
 
     private int recordsCount;
 
-    ClusterTask(Storage storage, MetadataRepository repository, ClosureExecutionStats stats) {
-        super(storage, repository, stats);
+    ClusterTask(Storage storage, Transaction transaction, MetadataRepository repository, ClosureExecutionStats stats) {
+        super(transaction, storage, repository, stats);
     }
 
     @Override
@@ -30,13 +31,18 @@ public class ClusterTask extends MetadataRepositoryTask {
     @Override
     protected Task createTypeTask(ComplexTypeMetadata type) {
         Select query = from(type).where(or(eq(status(), "0"), isNull(status()))).getSelect();
-        StorageResults records = storage.fetch(query);
+        StorageResults records = storage.fetch(query); // Expects an active transaction here
         try {
             recordsCount += records.getCount();
         } finally {
             records.close();
         }
-        return new SingleThreadedTask(type.getName(), storage, query, new ClusterClosure(storage), stats);
+        return new SingleThreadedTask(transaction,
+                type.getName(),
+                storage,
+                query,
+                new ClusterClosure(storage),
+                stats);
     }
 
     @Override
@@ -58,7 +64,6 @@ public class ClusterTask extends MetadataRepositoryTask {
         }
 
         public void begin() {
-            storage.begin();
         }
 
         public void execute(DataRecord stagingRecord, ClosureExecutionStats stats) {
@@ -75,7 +80,6 @@ public class ClusterTask extends MetadataRepositoryTask {
         }
 
         public void end(ClosureExecutionStats stats) {
-            storage.commit();
         }
 
         public Closure copy() {

@@ -13,12 +13,18 @@ package com.amalto.core.storage.task;
 
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.transaction.Transaction;
 
 /**
  *
  */
 class SingleThreadedTask extends MultiThreadedTask {
-    public SingleThreadedTask(String name, Storage storage, Expression expression, Closure closure, ClosureExecutionStats stats) {
-        super(name, storage, expression, 1, closure, stats);
+    public SingleThreadedTask(Transaction transaction,
+                              String name,
+                              Storage storage,
+                              Expression expression,
+                              Closure closure,
+                              ClosureExecutionStats stats) {
+        super(transaction, name, storage, expression, 1, closure, stats);
     }
 }

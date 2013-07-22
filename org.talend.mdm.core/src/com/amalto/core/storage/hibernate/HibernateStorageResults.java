@@ -56,7 +56,7 @@ class HibernateStorageResults implements StorageResults {
             paging.setStart(0);
             countSelect.setProjection(true);
             countSelect.getOrderBy().clear();
-            StorageResults countResult = storage.fetch(countSelect);
+            StorageResults countResult = storage.fetch(countSelect); // Expects an active transaction here
             Iterator<DataRecord> resultIterator = countResult.iterator();
             if (!resultIterator.hasNext()) {
                 return 0;

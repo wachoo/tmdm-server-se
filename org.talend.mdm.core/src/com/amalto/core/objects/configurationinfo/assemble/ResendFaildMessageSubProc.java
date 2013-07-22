@@ -11,6 +11,6 @@ public class ResendFaildMessageSubProc extends AssembleSubProc{
 
 	@Override
 	public void run() throws Exception {
-		BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().resendFailtSvnMessage();
+		BeanDelegatorContainer.getInstance().getItemCtrlDelegator().resendFailtSvnMessage();
 	}
 }

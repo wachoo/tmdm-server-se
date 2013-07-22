@@ -202,16 +202,23 @@ public class SystemStorageWrapper extends StorageWrapper {
         if (type != null) {
             FieldMetadata keyField = type.getKeyFields().iterator().next();
             UserQueryBuilder qb = from(type).select(keyField);
-            StorageResults results = storage.fetch(qb.getSelect());
             try {
-                String[] ids = new String[results.getCount()];
-                int i = 0;
-                for (DataRecord result : results) {
-                    ids[i++] = String.valueOf(result.get(keyField));
+                storage.begin();
+                StorageResults results = storage.fetch(qb.getSelect());
+                try {
+                    String[] ids = new String[results.getCount()];
+                    int i = 0;
+                    for (DataRecord result : results) {
+                        ids[i++] = String.valueOf(result.get(keyField));
+                    }
+                    storage.commit();
+                    return ids;
+                } finally {
+                    results.close();
                 }
-                return ids;
-            } finally {
-                results.close();
+            } catch (Exception e) {
+                storage.rollback();
+                throw new XmlServerException(e);
             }
         } else {
             return new String[0];
@@ -320,9 +327,11 @@ public class SystemStorageWrapper extends StorageWrapper {
             }
             qb = from(type).where(eq(type.getKeyFields().iterator().next(), documentUniqueId));
         }
-        StorageResults records = storage.fetch(qb.getSelect());
-        ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
+        StorageResults records = null;
         try {
+            storage.begin();
+            records = storage.fetch(qb.getSelect());
+            ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
             Iterator<DataRecord> iterator = records.iterator();
             // Enforce root element name in case query returned instance of a subtype.
             DataRecordWriter dataRecordXmlWriter = isUserFormat ?  new DataRecordXmlWriter(type) : new SystemDataRecordXmlWriter((ClassRepository) storage.getMetadataRepository(), type);
@@ -345,14 +354,19 @@ public class SystemStorageWrapper extends StorageWrapper {
                     output.write(end);
                 }
                 output.flush();
+                storage.commit(); // TODO Duplicated code
                 return new String(output.toByteArray(), encoding);
             } else {
+                storage.commit(); // TODO Duplicated code
                 return null;
             }
         } catch (IOException e) {
+            storage.rollback();
             throw new XmlServerException(e);
         } finally {
-            records.close();
+            if (records != null) {
+                records.close();
+            }
         }
     }
 

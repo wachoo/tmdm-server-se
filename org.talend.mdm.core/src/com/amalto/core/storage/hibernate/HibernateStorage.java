@@ -13,6 +13,9 @@ package com.amalto.core.storage.hibernate;
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.optimization.*;
 import com.amalto.core.query.user.*;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.transaction.StorageTransaction;
+import com.amalto.core.storage.transaction.TransactionManager;
 import org.apache.log4j.Level;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.Storage;
@@ -74,15 +77,6 @@ public class HibernateStorage implements Storage {
     private static final boolean autoPrepare = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty(
             "db.autoPrepare", "true")); //$NON-NLS-1$ //$NON-NLS-2$
 
-    // Thread local to keep track of transactions explicitly started by MDM (prevents close() on Session during update
-    // when initial record is read).
-    public static final ThreadLocal<Boolean> isMDMTransaction = new ThreadLocal<Boolean>() {
-        @Override
-        protected Boolean initialValue() {
-            return false;
-        }
-    };
-
     private static final Boolean FLUSH_ON_LOAD = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("db.flush.on.load", "false")); //$NON-NLS-1$ //$NON-NLS-2$
 
     private final String storageName;
@@ -138,6 +132,11 @@ public class HibernateStorage implements Storage {
             capabilities |= CAP_FULL_TEXT;
         }
         return capabilities;
+    }
+
+    @Override
+    public StorageTransaction newStorageTransaction() {
+        return new HibernateStorageTransaction(this, factory.openSession());
     }
 
     @Override
@@ -431,6 +430,7 @@ public class HibernateStorage implements Storage {
                 // started
                 // (wait for Hibernate Search 4.1 to be ready before considering changing this).
                 factory = configuration.buildSessionFactory();
+                MDMTransactionSessionContext.declareStorage(this, factory);
             } catch (Exception e) {
                 throw new RuntimeException("Exception occurred during Hibernate initialization.", e);
             }
@@ -546,25 +546,14 @@ public class HibernateStorage implements Storage {
         final ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(storageClassLoader);
-
-            final Session session = factory.getCurrentSession();
-            Transaction transaction = session.getTransaction();
-            if (!transaction.isActive()) {
-                // Implicitly start a transaction
-                transaction.begin();
+            if (!ServerContext.INSTANCE.get().getTransactionManager().hasTransaction()) {
+                throw new IllegalStateException("Transaction must be active during fetch operation.");
             }
+            Session session = factory.getCurrentSession();
             // Call back closes session once calling code has consumed all results.
             Set<EndOfResultsCallback> callbacks = Collections.<EndOfResultsCallback>singleton(new EndOfResultsCallback() {
-
                 @Override
                 public void onEndOfResults() {
-                    if (!isMDMTransaction.get() && session.isOpen()) { // Prevent any problem if anyone (Hibernate...) already closed session.
-                        session.close();
-                    } else {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Attempted to close session on end of query result, but it has already been done.");
-                        }
-                    }
                     Thread.currentThread().setContextClassLoader(previousClassLoader);
                 }
             });
@@ -632,90 +621,27 @@ public class HibernateStorage implements Storage {
     @Override
     public void begin() {
         assertPrepared();
-        Session session = factory.getCurrentSession();
-        // TMDM-5794: Clean up transaction in case previous operation did not clean up a failed transaction
-        try {
-            Transaction transaction = session.getTransaction();
-            if (transaction.isActive() && session.getStatistics().getEntityCount() > 0) { // Not expecting active transaction here in begin().
-                LOGGER.warn("Transaction #" + transaction.hashCode() + " should not be active.");
-                try {
-                    transaction.commit();
-                } catch (Exception e) {
-                    LOGGER.warn("Transaction #" + transaction.hashCode() + " was rolled back due to previous errors.");
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Failed commit exception for Transaction #" + transaction.hashCode(), e);
-                    }
-                    transaction.rollback();
-                }
-                session = factory.getCurrentSession();
-            }
-        } catch (HibernateException e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Error occurred during automatic transaction clean up.", e);
-            }
-        }
-        session.beginTransaction();
-        session.setFlushMode(FlushMode.AUTO);
-        isMDMTransaction.set(true);
+        TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
+        transactionManager.currentTransaction().include(this).begin();
     }
 
     @Override
     public void commit() {
         assertPrepared();
-        isMDMTransaction.remove();
-        Session session = factory.getCurrentSession();
-        Transaction transaction = session.getTransaction();
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("[" + this + "] Transaction #" + transaction.hashCode() + " -> Commit "
-                    + session.getStatistics().getEntityCount() + " record(s).");
-        }
-        if (!transaction.isActive()) {
-            throw new IllegalStateException("Can not commit transaction, no transaction is active.");
-        }
-        try {
-            if (!transaction.wasCommitted()) {
-                transaction.commit();
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[" + this + "] Transaction #" + transaction.hashCode() + " -> Commit done.");
-                }
-            } else {
-                LOGGER.warn("Transaction was already committed.");
-            }
-        } catch (ConstraintViolationException e) {
-            throw new com.amalto.core.storage.exception.ConstraintViolationException(e);
-        }
+        TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
+        transactionManager.currentTransaction().include(this).commit();
     }
 
     @Override
     public void rollback() {
         assertPrepared();
-        isMDMTransaction.remove();
-        Session session = factory.getCurrentSession();
-        Transaction transaction = session.getTransaction();
-        if (!transaction.isActive()) {
-            LOGGER.warn("Can not rollback transaction, no transaction is active.");
-            return;
-        }
-        session.clear();
-        if (!transaction.wasRolledBack()) {
-            transaction.rollback();
-        } else {
-            LOGGER.warn("Transaction was already rollbacked.");
-        }
+        TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
+        transactionManager.currentTransaction().include(this).rollback();
     }
 
     @Override
     public synchronized void end() {
-        assertPrepared();
-        Session session = factory.getCurrentSession();
-        if (session.getTransaction().isActive()) {
-            LOGGER.warn("Current session has not been ended by either a commit or a rollback. Rolling back transaction.");
-            session.getTransaction().rollback();
-            if (session.isOpen()) {
-                session.close();
-                session.disconnect();
-            }
-        }
+        // TODO Remove
     }
 
     @Override
@@ -729,14 +655,11 @@ public class HibernateStorage implements Storage {
         indexer.optimizeOnFinish(true);
         indexer.optimizeAfterPurge(true);
         try {
-            session.getTransaction().begin();
             indexer.threadsForSubsequentFetching(2);
             indexer.threadsToLoadObjects(2);
             indexer.batchSizeToLoadObjects(batchSize);
             indexer.startAndWait();
-            session.getTransaction().commit();
         } catch (InterruptedException e) {
-            session.getTransaction().rollback();
             throw new RuntimeException(e);
         }
     }

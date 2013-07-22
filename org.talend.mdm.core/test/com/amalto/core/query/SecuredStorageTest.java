@@ -62,11 +62,13 @@ public class SecuredStorageTest extends StorageTestCase {
     @Override
     public void setUp() throws Exception {
         populateData();
+        super.setUp();
         userSecurity.setActive(true); // This test is about security...
     }
 
     @Override
     public void tearDown() throws Exception {
+        super.tearDown();
         try {
             storage.begin();
             {

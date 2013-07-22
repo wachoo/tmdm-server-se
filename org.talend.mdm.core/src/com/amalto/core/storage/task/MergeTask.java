@@ -1,5 +1,6 @@
 package com.amalto.core.storage.task;
 
+import com.amalto.core.storage.transaction.Transaction;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.query.user.OrderBy;
@@ -20,8 +21,8 @@ public class MergeTask extends MetadataRepositoryTask {
 
     private int recordsCount;
 
-    MergeTask(Storage storage, MetadataRepository repository, ClosureExecutionStats stats) {
-        super(storage, repository, stats);
+    MergeTask(Storage storage, Transaction transaction, MetadataRepository repository, ClosureExecutionStats stats) {
+        super(transaction, storage, repository, stats);
     }
 
     @Override
@@ -35,13 +36,18 @@ public class MergeTask extends MetadataRepositoryTask {
                 .where(eq(status(), StagingConstants.SUCCESS_IDENTIFIED_CLUSTERS))
                 .orderBy(taskId(), OrderBy.Direction.ASC)
                 .getSelect();
-        StorageResults records = storage.fetch(query);
+        StorageResults records = storage.fetch(query); // Expects an active transaction here
         try {
             recordsCount += records.getCount();
         } finally {
             records.close();
         }
-        return new SingleThreadedTask(type.getName(), storage, query, new MergeClosure(storage), stats);
+        return new SingleThreadedTask(transaction,
+                type.getName(),
+                storage,
+                query,
+                new MergeClosure(storage),
+                stats);
     }
 
     @Override
@@ -65,7 +71,6 @@ public class MergeTask extends MetadataRepositoryTask {
         }
 
         public void begin() {
-            storage.begin();
         }
 
         public void execute(DataRecord stagingRecord, ClosureExecutionStats stats) {
@@ -105,7 +110,6 @@ public class MergeTask extends MetadataRepositoryTask {
             if (!groupRecord.isEmpty()) {
                 setGoldenRecord(groupRecord);
             }
-            storage.commit();
         }
 
         public Closure copy() {

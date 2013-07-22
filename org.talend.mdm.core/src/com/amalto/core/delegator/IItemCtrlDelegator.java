@@ -241,20 +241,27 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                     }
                 }
                 // Get records
-                StorageResults results = storage.fetch(qb.getSelect());
                 ArrayList<String> resultsAsString = new ArrayList<String>();
-                resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
-                DataRecordWriter writer = new ViewSearchResultsWriter();
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-                for (DataRecord result : results) {
-                    try {
-                        writer.write(result, output);
-                    } catch (IOException e) {
-                        throw new XmlServerException(e);
+                try {
+                    storage.begin();
+                    StorageResults results = storage.fetch(qb.getSelect());
+                    resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
+                    DataRecordWriter writer = new ViewSearchResultsWriter();
+                    ByteArrayOutputStream output = new ByteArrayOutputStream();
+                    for (DataRecord result : results) {
+                        try {
+                            writer.write(result, output);
+                        } catch (IOException e) {
+                            throw new XmlServerException(e);
+                        }
+                        String document = new String(output.toByteArray(), Charset.forName("UTF-8"));
+                        resultsAsString.add(document);
+                        output.reset();
                     }
-                    String document = new String(output.toByteArray(), Charset.forName("UTF-8"));
-                    resultsAsString.add(document);
-                    output.reset();
+                    storage.commit();
+                } catch (Exception e) {
+                    storage.rollback();
+                    throw new XmlServerException(e);
                 }
                 return resultsAsString;
             } else {
@@ -456,30 +463,37 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 }
             }
             // Get records
-            StorageResults results;
             ArrayList<String> resultsAsString = new ArrayList<String>();
-            if (totalCountOnFirstRow) {
-                results = storage.fetch(qb.getSelect());
-                resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
-            }
-            results = storage.fetch(qb.getSelect());
-            DataRecordWriter writer = new DataRecordXmlWriter(type);
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            for (DataRecord result : results) {
-                try {
-                    if (totalCountOnFirstRow) {
-                        output.write("<result>".getBytes()); //$NON-NLS-1$
-                    }
-                    writer.write(result, output);
-                    if (totalCountOnFirstRow) {
-                        output.write("</result>".getBytes()); //$NON-NLS-1$
-                    }
-                } catch (IOException e) {
-                    throw new XtentisException(e);
+            StorageResults results;
+            try {
+                storage.begin();
+                if (totalCountOnFirstRow) {
+                    results = storage.fetch(qb.getSelect());
+                    resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
                 }
-                String document = new String(output.toByteArray());
-                resultsAsString.add(document);
-                output.reset();
+                results = storage.fetch(qb.getSelect());
+                DataRecordWriter writer = new DataRecordXmlWriter(type);
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                for (DataRecord result : results) {
+                    try {
+                        if (totalCountOnFirstRow) {
+                            output.write("<result>".getBytes()); //$NON-NLS-1$
+                        }
+                        writer.write(result, output);
+                        if (totalCountOnFirstRow) {
+                            output.write("</result>".getBytes()); //$NON-NLS-1$
+                        }
+                    } catch (IOException e) {
+                        throw new XtentisException(e);
+                    }
+                    String document = new String(output.toByteArray());
+                    resultsAsString.add(document);
+                    output.reset();
+                }
+                storage.commit();
+            } catch (Exception e) {
+                storage.rollback();
+                throw new XtentisException(e);
             }
             return resultsAsString;
         } else {

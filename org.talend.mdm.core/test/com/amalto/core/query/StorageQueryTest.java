@@ -223,6 +223,7 @@ public class StorageQueryTest extends StorageTestCase {
     @Override
     public void setUp() throws Exception {
         populateData();
+        super.setUp();
         userSecurity.setActive(false); // Not testing security here
     }
 
@@ -1776,6 +1777,7 @@ public class StorageQueryTest extends StorageTestCase {
 
         UserQueryBuilder qb = from(updateReport).where(
                 and(eq(updateReport.getField("Source"), "genericUI"), eq(updateReport.getField("TimeInMillis"), String.valueOf(1307525701796L))));
+        storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         StringWriter storedDocument = new StringWriter();
         try {
@@ -1787,6 +1789,7 @@ public class StorageQueryTest extends StorageTestCase {
             assertEquals(builder.toString(), storedDocument.toString());
         } finally {
             results.close();
+            storage.commit();
         }
 
         storage.begin();
@@ -2080,6 +2083,7 @@ public class StorageQueryTest extends StorageTestCase {
         storage.commit();
 
         UserQueryBuilder qb = from(a1).selectId(a1).select(a1.getField("b1")).select(a1.getField("b2"));
+        storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
@@ -2091,6 +2095,7 @@ public class StorageQueryTest extends StorageTestCase {
                 assertEquals("10", b2Values[1]);
             }
         } finally {
+            storage.commit();
             results.close();
         }
     }
@@ -2475,11 +2480,13 @@ public class StorageQueryTest extends StorageTestCase {
         storage.commit(); // This one should work.
 
         UserQueryBuilder qb = from(product).select(product.getField("Name")).where(eq(product.getField("Id"), "3"));
+        storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         assertEquals(1, results.getCount());
         for (DataRecord result : results) {
             assertEquals("A long nam", result.get("Name"));
         }
+        storage.commit();
 
     }
 

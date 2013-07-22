@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage;
 
+import com.amalto.core.storage.transaction.StorageTransaction;
 import org.talend.mdm.commmon.metadata.ConsoleDumpMetadataVisitor;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.query.user.Expression;
@@ -34,6 +35,11 @@ public class StorageLogger implements Storage {
     @Override
     public int getCapabilities() {
         return delegate.getCapabilities();
+    }
+
+    @Override
+    public StorageTransaction newStorageTransaction() {
+        return delegate.newStorageTransaction();
     }
 
     public void init(DataSource dataSource) {

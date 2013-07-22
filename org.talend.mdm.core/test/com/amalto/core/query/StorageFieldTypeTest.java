@@ -79,6 +79,7 @@ public class StorageFieldTypeTest extends StorageTestCase {
     @Override
     public void setUp() throws Exception {
         populateData();
+        super.setUp();
     }
 
     @Override

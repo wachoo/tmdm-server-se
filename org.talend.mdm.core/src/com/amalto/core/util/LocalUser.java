@@ -24,7 +24,7 @@ public class LocalUser {
 
     private static ILocalUser findLocalUser() {
         if (localUser == null) {
-            localUser = BeanDelegatorContainer.getUniqueInstance().getLocalUserDelegator();
+            localUser = BeanDelegatorContainer.getInstance().getLocalUserDelegator();
         }
         return localUser;
     }

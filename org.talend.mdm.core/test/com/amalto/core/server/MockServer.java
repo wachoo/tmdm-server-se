@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 
+import com.amalto.core.storage.transaction.TransactionManager;
 import org.apache.commons.lang.NotImplementedException;
 
 import com.amalto.core.storage.StorageType;
@@ -29,6 +30,8 @@ public class MockServer implements Server {
 
     private final DataSourceFactory dataSourceFactory = DataSourceFactory.getInstance();
 
+    private final MDMTransactionManager transactionManager;
+
     private StorageAdmin storageAdmin;
 
     private MetadataRepositoryAdmin metadataRepositoryAdmin;
@@ -36,6 +39,7 @@ public class MockServer implements Server {
     private static final String DATASOURCES_FILE = "com/amalto/core/server/datasources-test.xml";
 
     public MockServer() {
+        transactionManager = new MDMTransactionManager();
     }
 
     static String getDatasourcesFilePath() {
@@ -119,5 +123,10 @@ public class MockServer implements Server {
     @Override
     public void init() {
         // nothing to do
+    }
+
+    @Override
+    public TransactionManager getTransactionManager() {
+        return transactionManager;
     }
 }

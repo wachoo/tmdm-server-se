@@ -359,7 +359,7 @@ public class Util {
     }
 
     public static Document validate(Element element, String schema) throws Exception {
-        return BeanDelegatorContainer.getUniqueInstance().getValidationDelegator().validation(element, schema);
+        return BeanDelegatorContainer.getInstance().getValidationDelegator().validation(element, schema);
     }
 
     public static void removeXpathFromDocument(Document document, String xpath, boolean reservedRoot) throws Exception {

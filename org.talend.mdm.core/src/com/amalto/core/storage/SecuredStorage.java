@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage;
 
+import com.amalto.core.storage.transaction.StorageTransaction;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -51,6 +52,11 @@ public class SecuredStorage implements Storage {
     @Override
     public int getCapabilities() {
         return delegate.getCapabilities();
+    }
+
+    @Override
+    public StorageTransaction newStorageTransaction() {
+        return delegate.newStorageTransaction();
     }
 
     public void init(DataSource dataSource) {

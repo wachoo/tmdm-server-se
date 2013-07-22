@@ -105,7 +105,7 @@ class InMemoryJoinResults implements StorageResults {
     private static int computeConditionCost(Storage storage, InMemoryJoinNode node) {
         int size = 0;
         if(node.expression != null) {
-            StorageResults results = storage.fetch(node.expression);
+            StorageResults results = storage.fetch(node.expression); // Expects an active transaction here
             try {
                 size += results.getCount();
             } finally {
@@ -191,7 +191,7 @@ class InMemoryJoinResults implements StorageResults {
     static Set<Object> _evaluateConditions(Storage storage, InMemoryJoinNode node) {
         if (node.expression != null) {
             Set<Object> expressionIds = new HashSet<Object>();
-            StorageResults results = storage.fetch(node.expression);
+            StorageResults results = storage.fetch(node.expression); // Expects an active transaction here
             try {
                 for (DataRecord result : results) {
                     for (FieldMetadata field : result.getSetFields()) {
@@ -236,7 +236,7 @@ class InMemoryJoinResults implements StorageResults {
                             .selectId(node.type)
                             .where(buildConditionFromValues(null, node.childProperty, ids));
                     node.expression = qb.getSelect();
-                    StorageResults results = storage.fetch(qb.getSelect());
+                    StorageResults results = storage.fetch(qb.getSelect()); // Expects an active transaction here
                     try {
                         for (DataRecord result : results) {
                             for (FieldMetadata field : result.getSetFields()) {

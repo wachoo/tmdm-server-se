@@ -1,5 +1,8 @@
 package com.amalto.core.storage.task;
 
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.transaction.Transaction;
+import com.amalto.core.storage.transaction.TransactionManager;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.metadata.MetadataUtils;
@@ -24,6 +27,8 @@ abstract class MetadataRepositoryTask implements Task {
 
     private final AtomicBoolean startLock = new AtomicBoolean();
 
+    protected final Transaction transaction;
+
     private final MetadataRepository repository;
 
     private final AtomicBoolean executionLock = new AtomicBoolean();
@@ -46,8 +51,12 @@ abstract class MetadataRepositoryTask implements Task {
 
     final Storage storage;
 
-    MetadataRepositoryTask(Storage storage, MetadataRepository repository, ClosureExecutionStats stats) {
+    MetadataRepositoryTask(Transaction transaction,
+                           Storage storage,
+                           MetadataRepository repository,
+                           ClosureExecutionStats stats) {
         this.storage = storage;
+        this.transaction = transaction;
         this.repository = repository;
         this.stats = stats;
     }
@@ -70,7 +79,9 @@ abstract class MetadataRepositoryTask implements Task {
             startLock.notifyAll();
         }
 
+        TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         try {
+            transactionManager.associate(transaction);
             List<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
             for (ComplexTypeMetadata type : types) {
                 if (type.isInstantiable() && processType(type)) {
@@ -92,6 +103,7 @@ abstract class MetadataRepositoryTask implements Task {
             endTime = System.currentTimeMillis();
             LOGGER.info("Staging migration done @" + getPerformance() + " doc/s.");
         } finally {
+            transactionManager.dissociate(transaction);
             synchronized (executionLock) {
                 executionLock.set(true);
                 executionLock.notifyAll();

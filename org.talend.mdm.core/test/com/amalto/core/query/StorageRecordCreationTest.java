@@ -78,6 +78,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
     @Override
     public void setUp() throws Exception {
         populateData();
+        super.setUp();
     }
 
     @Override

@@ -78,6 +78,7 @@ public class InheritanceTest extends StorageTestCase {
     @Override
     public void setUp() throws Exception {
         populateData();
+        super.setUp();
         userSecurity.setActive(false); // Not testing security here
     }
 

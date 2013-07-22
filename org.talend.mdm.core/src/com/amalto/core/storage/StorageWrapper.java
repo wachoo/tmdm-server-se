@@ -19,6 +19,7 @@ import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.record.*;
+import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
@@ -241,12 +242,15 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         String typeName = splitUniqueId[1];
         ComplexTypeMetadata type = repository.getComplexType(typeName);
         Select select = getSelectTypeById(type, revisionID, splitUniqueId);
-        StorageResults records = storage.fetch(select);
-        ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
+        StorageResults records = null;
         try {
+            storage.begin();
+            records = storage.fetch(select);
+            ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
             Iterator<DataRecord> iterator = records.iterator();
             // Enforce root element name in case query returned instance of a subtype.
             DataRecordXmlWriter dataRecordXmlWriter = new DataRecordXmlWriter(type);
+            String xmlString = null;
             if (iterator.hasNext()) {
                 DataRecord result = iterator.next();
                 long timestamp = result.getRecordMetadata().getLastModificationTime();
@@ -261,14 +265,17 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 byte[] end = ("</p></ii>").getBytes(); //$NON-NLS-1$
                 output.write(end);
                 output.flush();
-                return new String(output.toByteArray(), encoding);
-            } else {
-                return null;
+                xmlString = new String(output.toByteArray(), encoding);
             }
+            storage.commit();
+            return xmlString;
         } catch (IOException e) {
+            storage.rollback();
             throw new XmlServerException(e);
         } finally {
-            records.close();
+            if (records != null) {
+                records.close();
+            }
         }
     }
 
@@ -295,23 +302,30 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         } else {
             typeToQuery = getClusterTypes(clusterName, revisionID);
         }
-        for (ComplexTypeMetadata currentType : typeToQuery) {
-            UserQueryBuilder qb = from(currentType).selectId(currentType);
-            StorageResults results = storage.fetch(qb.getSelect());
-            for (DataRecord result : results) {
-                Iterator<FieldMetadata> setFields = result.getSetFields().iterator();
-                StringBuilder builder = new StringBuilder();
-                builder.append(clusterName).append('.').append(currentType.getName()).append('.');
-                while (setFields.hasNext()) {
-                    builder.append(String.valueOf(result.get(setFields.next())));
-                    if (setFields.hasNext()) {
-                        builder.append('.');
+        try {
+            storage.begin();
+            for (ComplexTypeMetadata currentType : typeToQuery) {
+                UserQueryBuilder qb = from(currentType).selectId(currentType);
+                StorageResults results = storage.fetch(qb.getSelect());
+                for (DataRecord result : results) {
+                    Iterator<FieldMetadata> setFields = result.getSetFields().iterator();
+                    StringBuilder builder = new StringBuilder();
+                    builder.append(clusterName).append('.').append(currentType.getName()).append('.');
+                    while (setFields.hasNext()) {
+                        builder.append(String.valueOf(result.get(setFields.next())));
+                        if (setFields.hasNext()) {
+                            builder.append('.');
+                        }
                     }
+                    uniqueIds.add(builder.toString());
                 }
-                uniqueIds.add(builder.toString());
             }
+            storage.commit();
+            return uniqueIds.toArray(new String[uniqueIds.size()]);
+        } catch (Exception e) {
+            storage.rollback();
+            throw new XmlServerException(e);
         }
-        return uniqueIds.toArray(new String[uniqueIds.size()]);
     }
 
     public long deleteDocument(String revisionID, String clusterName, final String uniqueID, String documentType) throws XmlServerException {
@@ -370,15 +384,15 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
         UserQueryBuilder qb = from(type);
         qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
-        StorageResults records = storage.fetch(qb.getSelect());
-        int count;
-        try {
-            count = records.getCount();
-        } finally {
-            records.close();
-        }
         try {
             storage.begin();
+            StorageResults records = storage.fetch(qb.getSelect());
+            int count;
+            try {
+                count = records.getCount();
+            } finally {
+                records.close();
+            }
             storage.delete(qb.getSelect());
             storage.commit();
             return count;
@@ -428,15 +442,24 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             types = Collections.singletonList(type);
         }
         int count = 0;
-        for (ComplexTypeMetadata type : types) {
-            UserQueryBuilder qb = from(type);
-            qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
-            StorageResults results = storage.fetch(qb.getSelect());
-            try {
-                count += results.getCount();
-            } finally {
-                results.close();
+        try {
+            storage.begin();
+            for (ComplexTypeMetadata type : types) {
+                UserQueryBuilder qb = from(type);
+                qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
+
+                StorageResults results = storage.fetch(qb.getSelect());
+                try {
+                    count += results.getCount();
+                } finally {
+                    results.close();
+                }
+
             }
+            storage.commit();
+        } catch (Exception e) {
+            storage.rollback();
+            throw new XmlServerException(e);
         }
         return count;
     }
@@ -490,19 +513,24 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             }
         }
         UserQueryBuilder qb = from(query);
-        StorageResults results = storage.fetch(qb.getExpression());
-        ArrayList<String> resultsAsString = new ArrayList<String>(results.getSize() + 1);
-        ResettableStringWriter writer = new ResettableStringWriter();
-        DataRecordWriter xmlWriter = new DataRecordXmlWriter("result"); //$NON-NLS-1$
-        try {
-            for (DataRecord result : results) {
-                xmlWriter.write(result, writer);
-                resultsAsString.add(writer.toString());
-                writer.reset();
+        storage.begin();
+        ArrayList<String> resultsAsString;
+        {
+            StorageResults results = storage.fetch(qb.getExpression());
+            resultsAsString = new ArrayList<String>(results.getSize() + 1);
+            ResettableStringWriter writer = new ResettableStringWriter();
+            DataRecordWriter xmlWriter = new DataRecordXmlWriter("result"); //$NON-NLS-1$
+            try {
+                for (DataRecord result : results) {
+                    xmlWriter.write(result, writer);
+                    resultsAsString.add(writer.toString());
+                    writer.reset();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Could not create query results", e);
             }
-        } catch (IOException e) {
-            throw new RuntimeException("Could not create query results", e);
         }
+        storage.commit();
         return resultsAsString;
     }
 
@@ -794,6 +822,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             qb.start(start);
             qb.limit(end);
             List<String> resultsAsXmlStrings = new LinkedList<String>();
+            storage.begin();
             StorageResults results = storage.fetch(qb.getSelect());
             DataRecordWriter writer = new FullTextResultsWriter(keyword);
             try {
@@ -804,8 +833,10 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                     output.flush();
                     resultsAsXmlStrings.add(output.toString());
                 }
+                storage.commit();
                 return resultsAsXmlStrings;
             } catch (IOException e) {
+                storage.rollback();
                 throw new XmlServerException(e);
             }
         } else {
@@ -829,6 +860,11 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         @Override
         public int getCapabilities() {
             return CAP_TRANSACTION;
+        }
+
+        @Override
+        public StorageTransaction newStorageTransaction() {
+            throw new UnsupportedOperationException();
         }
 
         public void init(DataSource dataSource) {

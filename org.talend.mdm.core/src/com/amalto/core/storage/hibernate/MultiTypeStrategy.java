@@ -56,7 +56,7 @@ public class MultiTypeStrategy extends VisitorAdapter<StorageResults> {
             for (OrderBy current : select.getOrderBy()) {
                 qb.orderBy(current.getField(), current.getDirection());
             }
-            StorageResults dataRecords = storage.fetch(qb.getSelect());
+            StorageResults dataRecords = storage.fetch(qb.getSelect()); // Expects an active transaction here
             try {
                 count += dataRecords.getCount();
                 for (DataRecord result : dataRecords) {

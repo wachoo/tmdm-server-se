@@ -123,20 +123,24 @@ public class StorageIsolationTest extends TestCase {
                 storage.end();
 
                 UserQueryBuilder qb = from(type).select(type.getField("field"));
-                StorageResults results = storage.fetch(qb.getSelect());
-                try {
-                    actualInstanceNumber = results.getCount();
-                } finally {
-                    results.close();
-                }
+                storage.begin();
+                {
+                    StorageResults results = storage.fetch(qb.getSelect());
+                    try {
+                        actualInstanceNumber = results.getCount();
+                    } finally {
+                        results.close();
+                    }
 
-                qb = from(type).where(contains(type.getField("field"), valueNotToBeFound));
-                results = storage.fetch(qb.getSelect());
-                try {
-                    actualFullTextResults = results.getCount();
-                } finally {
-                    results.close();
+                    qb = from(type).where(contains(type.getField("field"), valueNotToBeFound));
+                    results = storage.fetch(qb.getSelect());
+                    try {
+                        actualFullTextResults = results.getCount();
+                    } finally {
+                        results.close();
+                    }
                 }
+                storage.commit();
             } catch (Exception e) {
                 e.printStackTrace();
                 actualInstanceNumber = -1;

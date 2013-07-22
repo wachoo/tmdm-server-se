@@ -1,6 +1,8 @@
 package com.amalto.core.storage.task;
 
 import com.amalto.core.load.io.ResettableStringWriter;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.transaction.Transaction;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserStagingQueryBuilder;
@@ -37,8 +39,12 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
 
     private int recordsCount;
 
-    DSCUpdaterTask(Storage origin, Storage destination, MetadataRepository repository, ClosureExecutionStats stats) {
-        super(origin, repository, stats);
+    DSCUpdaterTask(Storage origin,
+                   Storage destination,
+                   Transaction transaction,
+                   MetadataRepository repository,
+                   ClosureExecutionStats stats) {
+        super(transaction, origin, repository, stats);
         this.origin = origin;
         this.destination = destination;
         xmlOutputFactory = XMLOutputFactory.newInstance();
@@ -49,13 +55,16 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
         Select select = from(type)
                 .where(eq(UserStagingQueryBuilder.status(), StagingConstants.SUCCESS_MERGE_CLUSTER_TO_RESOLVE))
                 .getSelect();
-        StorageResults records = storage.fetch(select);
+        StorageResults records = storage.fetch(select); // Expects an active transaction here
         try {
             recordsCount += records.getCount();
         } finally {
             records.close();
         }
-        return new SingleThreadedTask(type.getName(), destination, select, new DSCTaskClosure(origin, xmlOutputFactory), stats);
+        return new SingleThreadedTask(ServerContext.INSTANCE.get().getTransactionManager().currentTransaction(), type.getName(),
+                destination,
+                select,
+                new DSCTaskClosure(origin, xmlOutputFactory), stats);
     }
 
     @Override

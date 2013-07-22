@@ -13,6 +13,7 @@ package com.amalto.core.storage;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.transaction.StorageTransaction;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import java.util.Set;
@@ -73,6 +74,12 @@ public interface Storage {
      * varies from one query to another (if selected fields in query changed).
      */
     String PROJECTION_TYPE = "$ExplicitProjection$"; //$NON-NLS-1$
+
+    /**
+     * @return An implementation of {@link StorageTransaction} ready for usage. Implementations are always expected
+     * to return a new transaction instance.
+     */
+    StorageTransaction newStorageTransaction();
 
     /**
      * Early initialization (i.e. might create pools): performs all actions that do not need to know what kind of types
@@ -177,7 +184,7 @@ public interface Storage {
      * Starts a transaction for current thread. If a previous call to this method has been made without calling any end
      * of transaction method (e.g. {@link #commit()}), calling this method has no effect.
      * </p>
-     * 
+     *
      * @throws IllegalStateException If a transaction was already started for the current thread.
      * @see #commit()
      * @see #rollback()

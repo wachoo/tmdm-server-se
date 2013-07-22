@@ -17,11 +17,14 @@ import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.datasource.DataSourceFactory;
+import com.amalto.core.storage.transaction.TransactionManager;
 import org.apache.commons.lang.NotImplementedException;
 
 class ServerImpl implements Server {
 
     private final DataSourceFactory dataSourceFactory = DataSourceFactory.getInstance();
+
+    private MDMTransactionManager transactionManager;
 
     private StorageAdmin storageAdmin;
 
@@ -95,5 +98,13 @@ class ServerImpl implements Server {
     }
 
     public void init() {
+        transactionManager = new MDMTransactionManager();
+        transactionManager.init();
     }
+
+    @Override
+    public TransactionManager getTransactionManager() {
+        return transactionManager;
+    }
+
 }

@@ -94,20 +94,8 @@ public class InClauseOptimization extends StandardQueryHandler {
                 } else {
                     constants = new LinkedList<String[]>();
                 }
-                // TODO Prevent session close (DO NOT REMOVE).
-                if (!HibernateStorage.isMDMTransaction.get()) {
-                    storage.begin();
-                    Set<EndOfResultsCallback> newCallbacks = new HashSet<EndOfResultsCallback>(callbacks);
-                    newCallbacks.add(new EndOfResultsCallback() {
-                        @Override
-                        public void onEndOfResults() {
-                            storage.rollback();
-                        }
-                    });
-                    callbacks = newCallbacks;
-                }
                 // Get ids for constant list
-                StorageResults records = storage.fetch(qb.getSelect());
+                StorageResults records = storage.fetch(qb.getSelect()); // Expects an active transaction here
                 for (DataRecord record : records) {
                     Set<FieldMetadata> setFields = record.getSetFields();
                     String[] constant = new String[setFields.size()];
