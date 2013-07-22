@@ -10,8 +10,10 @@
 
 package com.amalto.core.query;
 
-import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.history.Document;
 import com.amalto.core.history.MutableDocument;
+import com.amalto.core.save.context.StorageDocument;
+import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -35,7 +37,6 @@ import com.amalto.core.storage.task.*;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.UserHelper;
 import com.amalto.core.util.UserManage;
-import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
@@ -43,9 +44,6 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.*;
@@ -80,9 +78,6 @@ public class StagingAreaTest extends TestCase {
 
     private Map<String, Storage> storages;
     
-    private UserManage userManage;
-
-
     @Override
     public void setUp() throws Exception {
         super.setUp();
@@ -117,7 +112,7 @@ public class StagingAreaTest extends TestCase {
         destination.init(ServerContext.INSTANCE.get().getDataSource("H2-DS2", "MDM", StorageType.MASTER));
         destination.prepare(repository, true);
         
-        userManage = new MockUserManageImpl();
+        UserManage userManage = new MockUserManageImpl();
         UserHelper.getInstance().overrideUserManage(userManage);
     }
 
@@ -184,10 +179,12 @@ public class StagingAreaTest extends TestCase {
 
         Select select = UserQueryBuilder.from(person).getSelect();
         Select selectEmptyTaskId = UserQueryBuilder.from(person).where(isEmpty(taskId())).getSelect();
+        destination.begin();
         assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
         assertEquals(0, destination.fetch(select).getCount());
         assertEquals(0, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
         assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
+        destination.commit();
 
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
         SaverSession.Committer committer = new TestCommitter(storages);
@@ -205,6 +202,8 @@ public class StagingAreaTest extends TestCase {
         assertEquals(COUNT * 3, stagingTask.getRecordCount());
         assertTrue(Math.abs(stagingTask.getStartDate() - now) < 1000);
 
+        destination.begin();
+        origin.begin();
         assertEquals(50, destination.fetch(selectEmptyTaskId).getCount());
         assertEquals(COUNT, destination.fetch(select).getCount());
         assertEquals(COUNT, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
@@ -232,6 +231,9 @@ public class StagingAreaTest extends TestCase {
         item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition("Person/$staging_status$", WhereCondition.GREATER_THAN_OR_EQUAL, StagingConstants.FAIL, WhereCondition.NO_OPERATOR)));
         qb.where(UserQueryHelper.buildCondition(qb, item, stagingRepository));
         assertEquals(0, origin.fetch(qb.getSelect()).getCount());
+
+        destination.commit();
+        origin.commit();
     }
 
     public void testCancel() throws Exception {
@@ -510,25 +512,22 @@ public class StagingAreaTest extends TestCase {
         }
 
         @Override
-        public InputStream get(String dataClusterName, String typeName, String revisionId, String[] key) {
+        public Documents get(String dataClusterName, String typeName, String revisionId, String[] key) {
             Select select = selectById(typeName, key);
+            Documents documents = new Documents();
             StorageResults dataRecords = storage.fetch(select);
             try {
                 if (dataRecords.getCount() > 0) {
-                    DataRecordWriter writer = new DataRecordXmlWriter();
-                    ByteArrayOutputStream output = new ByteArrayOutputStream();
-                    try {
-                        writer.write(dataRecords.iterator().next(), output);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    return new ByteArrayInputStream(output.toByteArray());
+                    DataRecord record = dataRecords.iterator().next();
+                    documents.databaseDocument = new StorageDocument(StringUtils.EMPTY, record);
+                    documents.databaseValidationDocument = new StorageDocument(StringUtils.EMPTY, record);
                 } else {
                     return null;
                 }
             } finally {
                 dataRecords.close();
             }
+            return documents;
         }
 
         private Select selectById(String typeName, String[] key) {
@@ -635,13 +634,13 @@ public class StagingAreaTest extends TestCase {
 
         private final Map<String, Storage> storages;
 
-        private final XmlDOMDataRecordReader reader;
+        private final XmlStringDataRecordReader reader;
 
         private Storage currentStorage;
 
         private TestCommitter(Map<String, Storage> storages) {
             this.storages = storages;
-            reader = new XmlDOMDataRecordReader();
+            reader = new XmlStringDataRecordReader();
         }
 
         @Override
@@ -657,17 +656,12 @@ public class StagingAreaTest extends TestCase {
         }
 
         @Override
-        public void save(ItemPOJO item, ComplexTypeMetadata type, String revisionId) {
-            try {
-                ComplexTypeMetadata complexType = repository.getComplexType(item.getProjection().getTagName());
-                DataRecord dataRecord = reader.read("1", repository, complexType, item.getProjection());
-                DataRecordMetadata recordMetadata = dataRecord.getRecordMetadata();
-                recordMetadata.setLastModificationTime(item.getInsertionTime());
-                recordMetadata.setTaskId(item.getTaskId());
-                currentStorage.update(dataRecord);
-            } catch (XtentisException e) {
-                throw new RuntimeException(e);
-            }
+        public void save(Document item) {
+            DataRecord dataRecord = reader.read("1", repository, item.getType(), item.exportToString());
+            DataRecordMetadata recordMetadata = dataRecord.getRecordMetadata();
+            recordMetadata.setLastModificationTime(System.currentTimeMillis());
+            recordMetadata.setTaskId(null);
+            currentStorage.update(dataRecord);
         }
 
         @Override
