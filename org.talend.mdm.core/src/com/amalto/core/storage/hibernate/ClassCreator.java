@@ -103,6 +103,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             if (superTypesIterator.hasNext()) {
                 TypeMetadata superType = superTypesIterator.next();
                 if (superType instanceof ComplexTypeMetadata) {
+                    superType.accept(this); // TMDM-6079: Ensure super type class exists.
                     newClass.setSuperclass(classPool.get(getClassName(superType.getName())));
                 }
             }
