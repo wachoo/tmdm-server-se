@@ -1,5 +1,7 @@
 package com.amalto.core.storage.task;
 
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.transaction.Transaction;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.save.SaverSession;
@@ -28,12 +30,13 @@ public class StagingTask implements Task {
     private final TaskSubmitter taskSubmitter;
 
     private final Storage stagingStorage;
+    private final Storage destinationStorage;
 
     private final String executionId;
 
     private boolean isCancelled = false;
 
-    private final List<MetadataRepositoryTask> tasks;
+    private final List<Task> tasks;
 
     private final AtomicBoolean startLock = new AtomicBoolean();
 
@@ -47,11 +50,13 @@ public class StagingTask implements Task {
 
     private final ClosureExecutionStats stats = new ClosureExecutionStats();
 
-    private MetadataRepositoryTask currentTask;
+    private Task currentTask;
 
     private long startTime;
 
     private boolean isFinished;
+
+    private final Transaction transaction;
 
     public StagingTask(TaskSubmitter taskSubmitter,
                        Storage stagingStorage,
@@ -62,16 +67,14 @@ public class StagingTask implements Task {
                        Storage destinationStorage) {
         this.taskSubmitter = taskSubmitter;
         this.stagingStorage = stagingStorage;
+        this.destinationStorage = destinationStorage;
         this.executionId = UUID.randomUUID().toString();
-        this.executionType = stagingRepository.getComplexType("TALEND_TASK_EXECUTION");
-        tasks = Arrays.<MetadataRepositoryTask>asList(new MDMValidationTask(stagingStorage, destinationStorage, userRepository, source, committer, stats));
+        this.executionType = stagingRepository.getComplexType("TALEND_TASK_EXECUTION"); //$NON-NLS-1$
+        this.transaction = ServerContext.INSTANCE.get().getTransactionManager().create(Transaction.Lifetime.AD_HOC);
+        tasks = Arrays.<Task>asList(new MDMValidationTask(stagingStorage, destinationStorage, transaction, userRepository, source, committer, stats));
         // Below: an actual validation chain.
-        /*
-        tasks = Arrays.asList(new ClusterTask(stagingStorage, userRepository, stats),
-                new MergeTask(stagingStorage, userRepository, stats),
-                new MDMValidationTask(stagingStorage, destinationStorage, userRepository, source, committer, stats),
-                new DSCUpdaterTask(stagingStorage, destinationStorage, userRepository));
-        */
+        /*tasks = Arrays.asList(new MatchMergeTask(stagingStorage, userRepository, stats),
+                new MDMValidationTask(stagingStorage, destinationStorage, userRepository, source, committer, stats));*/
     }
 
     public String getId() {
@@ -158,25 +161,33 @@ public class StagingTask implements Task {
         }
 
         try {
+            ServerContext.INSTANCE.get().getTransactionManager().associate(transaction);
             if (executionType == null) {
                 throw new IllegalStateException("Can not find internal type information for execution logging.");
             }
-            // Start recording the execution
-            recordExecutionStart();
-            recordCount.set(0);
-            for (MetadataRepositoryTask task : tasks) {
-                synchronized (currentTaskMonitor) {
-                    if (isCancelled) {
-                        break;
+            stagingStorage.begin();
+            destinationStorage.begin();
+            {
+                // Start recording the execution
+                recordExecutionStart();
+                recordCount.set(0);
+                for (Task task : tasks) {
+                    synchronized (currentTaskMonitor) {
+                        if (isCancelled) {
+                            break;
+                        }
+                        currentTask = task;
                     }
-                    currentTask = task;
+                    LOGGER.info("--> " + task.toString());
+                    taskSubmitter.submitAndWait(currentTask);
+                    LOGGER.info("<-- DONE " + task.toString());
                 }
-                LOGGER.info("--> " + task.toString());
-                taskSubmitter.submitAndWait(currentTask);
-                LOGGER.info("<-- DONE " + task.toString());
+                recordExecutionEnd();
             }
-            recordExecutionEnd();
+            stagingStorage.commit();
+            destinationStorage.commit();
         } finally {
+            transaction.commit();
             synchronized (executionLock) {
                 executionLock.set(true);
                 executionLock.notifyAll();
@@ -190,28 +201,20 @@ public class StagingTask implements Task {
 
     private void recordExecutionStart() {
         DataRecord execution = new DataRecord(executionType, UnsupportedDataRecordMetadata.INSTANCE);
-        stagingStorage.begin();
-        {
-            execution.set(executionType.getField("id"), executionId); //$NON-NLS-1$
-            startTime = System.currentTimeMillis();
-            execution.set(executionType.getField("start_time"), startTime); //$NON-NLS-1$
-            stagingStorage.update(execution);
-        }
-        stagingStorage.commit();
+        execution.set(executionType.getField("id"), executionId); //$NON-NLS-1$
+        startTime = System.currentTimeMillis();
+        execution.set(executionType.getField("start_time"), startTime); //$NON-NLS-1$
+        stagingStorage.update(execution);
     }
 
     private void recordExecutionEnd() {
         DataRecord execution = new DataRecord(executionType, UnsupportedDataRecordMetadata.INSTANCE);
-        stagingStorage.begin();
-        {
-            execution.set(executionType.getField("id"), executionId); //$NON-NLS-1$
-            execution.set(executionType.getField("start_time"), startTime); //$NON-NLS-1$
-            execution.set(executionType.getField("end_time"), System.currentTimeMillis()); //$NON-NLS-1$
-            execution.set(executionType.getField("error_count"), new BigDecimal(getErrorCount())); //$NON-NLS-1$
-            execution.set(executionType.getField("record_count"), new BigDecimal(getProcessedRecords())); //$NON-NLS-1$
-            execution.set(executionType.getField("completed"), Boolean.TRUE); //$NON-NLS-1$
-            stagingStorage.update(execution);
-        }
-        stagingStorage.commit();
+        execution.set(executionType.getField("id"), executionId); //$NON-NLS-1$
+        execution.set(executionType.getField("start_time"), startTime); //$NON-NLS-1$
+        execution.set(executionType.getField("end_time"), System.currentTimeMillis()); //$NON-NLS-1$
+        execution.set(executionType.getField("error_count"), new BigDecimal(getErrorCount())); //$NON-NLS-1$
+        execution.set(executionType.getField("record_count"), new BigDecimal(getProcessedRecords())); //$NON-NLS-1$
+        execution.set(executionType.getField("completed"), Boolean.TRUE); //$NON-NLS-1$
+        stagingStorage.update(execution);
     }
 }
