@@ -6,7 +6,7 @@
         </descriptions>
         <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
             <key xsi:type="java:java.lang.String">fr</key>
-            <value xsi:type="java:java.lang.String">Exploreur des données Master</value>
+            <value xsi:type="java:java.lang.String">Explorateur des données Master</value>
         </descriptions>
         <application>BrowseRecords</application>
         <context>browserecords</context>
