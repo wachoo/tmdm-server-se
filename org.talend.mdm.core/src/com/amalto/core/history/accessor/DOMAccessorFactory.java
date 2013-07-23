@@ -36,7 +36,7 @@ public class DOMAccessorFactory {
             String element = (String) tokenizer.nextElement();
 
             if (element.startsWith("@")) { //$NON-NLS-1$
-                current = new AttributeAccessor(current, element.substring(1), document);
+                current = new AttributeAccessor(current, xpath, document);
             } else if (element.contains("[")) { //$NON-NLS-1$
                 int indexStart = element.indexOf('[');
                 int indexEnd = element.indexOf(']');

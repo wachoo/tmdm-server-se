@@ -20,9 +20,12 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.action.FieldUpdateAction;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
 
 /**
  *
@@ -34,12 +37,15 @@ class AttributeAccessor implements DOMAccessor {
     private final DOMAccessor parent;
 
     private final String attributeName;
+    
+    private final String xpath;
 
     private final MutableDocument document;
 
-    public AttributeAccessor(DOMAccessor parent, String attributeName, MutableDocument document) {
+    public AttributeAccessor(DOMAccessor parent, String xpath, MutableDocument document) {
         this.parent = parent;
-        this.attributeName = attributeName;
+        this.xpath = StringUtils.substringBefore(xpath, "/@"); //$NON-NLS-1$
+        this.attributeName = StringUtils.substringAfter(xpath, "@"); //$NON-NLS-1$
         this.document = document;
     }
 
@@ -78,15 +84,43 @@ class AttributeAccessor implements DOMAccessor {
 
     private QName getQName(Document domDocument) {
         QName qName;
+        String attributeNamespaceURI = ""; //$NON-NLS-1$
         String prefix = StringUtils.substringBefore(attributeName, ":"); //$NON-NLS-1$
         String name = StringUtils.substringAfter(attributeName, ":"); //$NON-NLS-1$
         if (name.isEmpty()) {
             // No prefix (so prefix is attribute name due to substring calls).
-            qName = new QName(domDocument.getNamespaceURI(), prefix);
+            attributeNamespaceURI = domDocument.getDocumentURI();
+            if (attributeNamespaceURI == null || attributeNamespaceURI.isEmpty()) {
+                Node attributeNode = getAttributeNode(domDocument);
+                if (attributeNode != null) {
+                    attributeNamespaceURI = attributeNode.getNamespaceURI();
+                }
+            }
+            qName = new QName(attributeNamespaceURI,prefix);
         } else {
-            qName = new QName(domDocument.lookupNamespaceURI(prefix), name, prefix);
+            attributeNamespaceURI = domDocument.lookupNamespaceURI(prefix);
+            if (attributeNamespaceURI == null || attributeNamespaceURI.isEmpty()) {
+                Node attributeNode = getAttributeNode(domDocument);
+                if (attributeNode != null) {
+                    attributeNamespaceURI = attributeNode.lookupNamespaceURI(prefix);
+                }
+            }
+            qName = new QName(attributeNamespaceURI, name, prefix);
         }
         return qName;
+    }
+    
+    private Node getAttributeNode(Document domDocument) {
+        Node attributeNode = null;
+        try {
+            NodeList attributeNodeList = Util.getNodeList(domDocument, xpath);
+            if (attributeNodeList.getLength() > 0) {
+                attributeNode = attributeNodeList.item(0);                
+            }
+        } catch (XtentisException e) {
+            logger.error(e);            
+        }
+        return attributeNode;
     }
 
     public void set(String value) {
