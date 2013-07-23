@@ -270,18 +270,22 @@ public class Configuration {
 
             }
         }
-        boolean needToStoreAgain = false;
+        boolean attemptToStoreAgain = false;
         if (configuration.getCluster() == null && CommonDWR.getClusters().length > 0) {
             configuration.setCluster(CommonDWR.getClusters()[0]);
-            needToStoreAgain = true;
+            attemptToStoreAgain = true;
         }
         if (configuration.getModel() == null && CommonDWR.getModels().length > 0) {
             configuration.setModel(CommonDWR.getModels()[0]);
-            needToStoreAgain = true;
+            attemptToStoreAgain = true;
         }
 
-        if (needToStoreAgain) {
-            store(configuration.getCluster(), configuration.getModel());
+        if (attemptToStoreAgain) {
+            try {
+                store(configuration.getCluster(), configuration.getModel());
+            } catch (Exception e) {
+                LOG.error("Unable to store updated configuration", e); //$NON-NLS-1$
+            }
         }
 
         return configuration;

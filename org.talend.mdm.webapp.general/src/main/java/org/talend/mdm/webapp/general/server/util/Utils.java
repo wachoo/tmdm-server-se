@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -15,7 +15,6 @@ package org.talend.mdm.webapp.general.server.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -48,8 +47,8 @@ public class Utils {
     private static final String GXT_PROPERTIES = "gxt.properties"; //$NON-NLS-1$
 
     private static final String EXCLUDING_PROPERTIES = "excluding.properties"; //$NON-NLS-1$
-    
-    private static final String GXT_CSS_RESOURCES = "gxt_css_resource.xml";
+
+    private static final String GXT_CSS_RESOURCES = "gxt_css_resource.xml"; //$NON-NLS-1$
 
     private static final String WELCOMECONTEXT = "welcomeportal", WELCOMEAPP = "WelcomePortal";//$NON-NLS-1$ //$NON-NLS-2$
 
@@ -70,12 +69,11 @@ public class Utils {
     }
 
     public static int getSubMenus(Menu menu, String language, List<MenuBean> rows, int level, int i) {
-        for (Iterator<String> iter = menu.getSubMenus().keySet().iterator(); iter.hasNext();) {
-            String key = iter.next();
+        for (String key : menu.getSubMenus().keySet()) {
             Menu subMenu = menu.getSubMenus().get(key);
             String context = subMenu.getContext();
             String application = subMenu.getApplication();
-            if ("updatereport".equals(context) && "UpdateReport".equals(application)){  //$NON-NLS-1$//$NON-NLS-2$
+            if ("updatereport".equals(context) && "UpdateReport".equals(application)) { //$NON-NLS-1$//$NON-NLS-2$
                 context = "journal"; //$NON-NLS-1$
                 application = "Journal"; //$NON-NLS-1$
             }
@@ -96,8 +94,9 @@ public class Utils {
             disabledMenuItemIf(subMenu, item, language);
             rows.add(item);
             i++;
-            if (subMenu.getSubMenus().size() > 0)
+            if (subMenu.getSubMenus().size() > 0) {
                 i = getSubMenus(subMenu, language, rows, level + 1, i);
+            }
         }
         return i;
     }
@@ -105,35 +104,34 @@ public class Utils {
     private static void disabledMenuItemIf(Menu menu, MenuBean menuBean, String language) {
         if ("stagingarea".equals(menu.getContext()) && "Stagingarea".equals(menu.getApplication())) { //$NON-NLS-1$ //$NON-NLS-2$
             menuBean.setDisabledDesc(MESSAGES.getMessage(new Locale(language), "stagingarea_unavailable")); //$NON-NLS-1$
+            boolean disabled = true;
             try {
-                if (!Util.getPort().supportStaging().is_true()) {
-                    menuBean.setDisabled(true);
-                }
+                disabled = !Util.getPort().supportStaging().is_true();
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                LOG.error(e.getMessage(), e);
             }
+            menuBean.setDisabled(disabled);
         }
     }
 
     public static ArrayList<String> getCssImport() throws Exception {
-    	ArrayList<String> imports = new ArrayList<String>();
+        ArrayList<String> imports = new ArrayList<String>();
         getCssImportDetail(Menu.getRootMenu(), imports, 1, 1);
         return imports;
     }
-    
+
     public static ArrayList<String> getJavascriptImport() throws Exception {
         ArrayList<String> imports = new ArrayList<String>();
         getJavascriptImportDetail(Menu.getRootMenu(), imports, 1, 1);
         // FIXME: This is a workaround for 4.2 only
-//        complementItemsbrowser(imports);
+        // complementItemsbrowser(imports);
         completeThirdPartJS(imports);
         return imports;
     }
 
     private static int getCssImportDetail(Menu menu, List<String> imports, int level, int i) throws Exception {
 
-        for (Iterator<String> iter = menu.getSubMenus().keySet().iterator(); iter.hasNext();) {
-            String key = iter.next();
+        for (String key : menu.getSubMenus().keySet()) {
             Menu subMenu = menu.getSubMenus().get(key);
 
             if (subMenu.getContext() != null) {
@@ -141,22 +139,23 @@ public class Utils {
                     continue;
                 }
                 GxtProjectModel gxtPro = gxtFactory.getGxtCss(subMenu.getContext(), subMenu.getApplication());
-                if (gxtPro != null){
-	        		List<String> csses = gxtPro.getCss_addresses();
-	        		if (csses != null){
-	        			for (String css : csses){
-	        				imports.add("<link rel='stylesheet' type='text/css' href='" + css + "'/>\n");
-	        			}
-	        		}
+                if (gxtPro != null) {
+                    List<String> csses = gxtPro.getCss_addresses();
+                    if (csses != null) {
+                        for (String css : csses) {
+                            imports.add("<link rel='stylesheet' type='text/css' href='" + css + "'/>\n"); //$NON-NLS-1$ //$NON-NLS-2$
+                        }
+                    }
                 }
                 i++;
             }
-            if (subMenu.getSubMenus().size() > 0)
+            if (subMenu.getSubMenus().size() > 0) {
                 i = getJavascriptImportDetail(subMenu, imports, level + 1, i);
+            }
         }
         return i;
     }
-    
+
     private static int getJavascriptImportDetail(Menu menu, List<String> imports, int level, int i) throws Exception {
         if (menu.getParent() == null) {
             // add welcome by default
@@ -166,14 +165,13 @@ public class Utils {
             menu.getSubMenus().put(WELCOMECONTEXT, welMenu);
         }
 
-        for (Iterator<String> iter = menu.getSubMenus().keySet().iterator(); iter.hasNext();) {
-            String key = iter.next();
+        for (String key : menu.getSubMenus().keySet()) {
             Menu subMenu = menu.getSubMenus().get(key);
 
             if (subMenu.getContext() != null) {
                 String context = subMenu.getContext();
                 String application = subMenu.getApplication();
-                if ("updatereport".equals(context) && "UpdateReport".equals(application)){  //$NON-NLS-1$//$NON-NLS-2$
+                if ("updatereport".equals(context) && "UpdateReport".equals(application)) { //$NON-NLS-1$//$NON-NLS-2$
                     context = "journal"; //$NON-NLS-1$
                     application = "Journal"; //$NON-NLS-1$
                 }
@@ -185,12 +183,14 @@ public class Utils {
                 if (gxtEntryModule == null || context.equals("itemsbrowser2")) { //$NON-NLS-1$
                     String tmp = "<script type=\"text/javascript\" src=\"/" + context + "/secure/dwr/interface/" //$NON-NLS-1$ //$NON-NLS-2$
                             + application + "Interface.js\"></script>\n"; //$NON-NLS-1$
-                    if (!imports.contains(tmp))
+                    if (!imports.contains(tmp)) {
                         imports.add(tmp);
+                    }
                     tmp = "<script type=\"text/javascript\" src=\"/" + context + "/secure/js/" //$NON-NLS-1$ //$NON-NLS-2$
                             + application + ".js\"></script>\n"; //$NON-NLS-1$
-                    if (!imports.contains(tmp))
+                    if (!imports.contains(tmp)) {
                         imports.add(tmp);
+                    }
                     if (context.equals("itemsbrowser2")) { //$NON-NLS-1$
                         tmp = "<script type=\"text/javascript\" src=\"/" + context + "/" + gxtEntryModule + "/" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                                 + gxtEntryModule + ".nocache.js\"></script>\n"; //$NON-NLS-1$
@@ -204,8 +204,9 @@ public class Utils {
                         imports.add("<script type=\"text/javascript\" src=\"/" + context + "/secure/js/ImprovedDWRProxy.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
                         imports.add("<script type=\"text/javascript\" src=\"/" + context + "/secure/js/SearchEntityPanel.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
                     }
-                    if (!imports.contains(tmp))
+                    if (!imports.contains(tmp)) {
                         imports.add(tmp);
+                    }
                 }
                 if (context.equals("stagingarea")) { //$NON-NLS-1$
                     String tmp = "<script type=\"text/javascript\" src=\"/stagingarea/stagingareabrowse/stagingareabrowse.nocache.js\"></script>"; //$NON-NLS-1$
@@ -213,8 +214,9 @@ public class Utils {
                 }
                 i++;
             }
-            if (subMenu.getSubMenus().size() > 0)
+            if (subMenu.getSubMenus().size() > 0) {
                 i = getJavascriptImportDetail(subMenu, imports, level + 1, i);
+            }
         }
         return i;
     }
@@ -276,13 +278,14 @@ public class Utils {
             lang.setDateTimeFormat(systemLocale.getDateTimeFormat());
             if (lang.getValue().equals(selectedLang)) {
                 lang.setSelected(true);
-            }                        
+            }
             languages.add(lang);
         }
-        
-        if (selectedLang == null)
+
+        if (selectedLang == null) {
             languages.get(0).setSelected(true);
-            
+        }
+
         return languages;
     }
 
@@ -316,8 +319,8 @@ public class Utils {
                     giNew.setMenuItems(menuItems);
                     giList.add(giNew);
                 }
-                }
             }
+        }
 
         return giList;
     }
