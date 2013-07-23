@@ -55,6 +55,7 @@ public class ServerTest extends TestCase {
         assertNotNull(person);
 
         UserQueryBuilder qb = UserQueryBuilder.from(person);
+        storage.begin();
         StorageResults fetch = storage.fetch(qb.getSelect());
         assertNotNull(fetch);
 
@@ -63,6 +64,7 @@ public class ServerTest extends TestCase {
         } finally {
             fetch.close();
         }
+        storage.commit();
     }
 
     public void testStorageRestart() throws Exception {
@@ -171,12 +173,14 @@ public class ServerTest extends TestCase {
         ComplexTypeMetadata person = metadataRepository.getComplexType("Person");
         assertNotNull(person);
         UserQueryBuilder qb = UserQueryBuilder.from(person);
+        storage.begin();
         StorageResults fetch = storage.fetch(qb.getSelect());
         assertNotNull(fetch);
         try {
             assertTrue(fetch.getCount() >= 0); // Execute this just to check initialization was ok.
         } finally {
             fetch.close();
+            storage.commit();
         }
         // Destroy storage (and data).
         storageAdmin.delete(null, "Storage", true);
@@ -184,12 +188,14 @@ public class ServerTest extends TestCase {
         storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1", null);
         assertNotNull(storage);
         qb = UserQueryBuilder.from(person);
+        storage.begin();
         fetch = storage.fetch(qb.getSelect());
         assertNotNull(fetch);
         try {
             assertTrue(fetch.getCount() >= 0); // Execute this just to check initialization was ok.
         } finally {
             fetch.close();
+            storage.commit();
         }
     }
 

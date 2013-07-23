@@ -13,6 +13,9 @@
 
 package com.amalto.core.query;
 
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.transaction.Transaction;
+import com.amalto.core.storage.transaction.TransactionManager;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -123,6 +126,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
 
     public void testGet() throws Exception {
         UserQueryBuilder qb = from(product).where(eq(product.getField("Id"), "1"));
+        storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
@@ -139,16 +143,19 @@ public class StorageRecordCreationTest extends StorageTestCase {
             }
         } finally {
             results.close();
+            storage.commit();
         }
     }
 
     public void testInsert() throws Exception {
         UserQueryBuilder qb = from(person).where(eq(person.getField("id"), "1001"));
+        storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getCount());
         } finally {
             results.close();
+            storage.commit();
         }
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
@@ -165,21 +172,25 @@ public class StorageRecordCreationTest extends StorageTestCase {
             storage.end();
         }
 
+        storage.begin();
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
         } finally {
             results.close();
+            storage.commit();
         }
     }
 
     public void testFailInsert() throws Exception {
         UserQueryBuilder qb = from(person).where(eq(person.getField("id"), "1002"));
+        storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getCount());
         } finally {
             results.close();
+            storage.commit();
         }
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
@@ -200,29 +211,35 @@ public class StorageRecordCreationTest extends StorageTestCase {
             storage.end();
         }
 
+        storage.begin();
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getCount());
         } finally {
             results.close();
+            storage.commit();
         }
     }
 
     public void testFailTransaction() throws Exception {
         UserQueryBuilder failQuery = from(person).where(eq(person.getField("id"), "1002"));
+        storage.begin();
         StorageResults results = storage.fetch(failQuery.getSelect());
         try {
             assertEquals(0, results.getCount());
         } finally {
             results.close();
+            storage.commit();
         }
 
         UserQueryBuilder successQuery = from(person).where(eq(person.getField("id"), "1003"));
+        storage.begin();
         results = storage.fetch(successQuery.getSelect());
         try {
             assertEquals(0, results.getCount());
         } finally {
             results.close();
+            storage.commit();
         }
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
@@ -252,17 +269,21 @@ public class StorageRecordCreationTest extends StorageTestCase {
             storage.end();
         }
 
+        storage.begin();
         results = storage.fetch(failQuery.getSelect());
         try {
             assertEquals(0, results.getCount());
         } finally {
             results.close();
+            storage.commit();
         }
+        storage.begin();
         results = storage.fetch(successQuery.getSelect());
         try {
             assertEquals(0, results.getCount());
         } finally {
             results.close();
+            storage.commit();
         }
     }
 
@@ -278,11 +299,13 @@ public class StorageRecordCreationTest extends StorageTestCase {
         storage.commit();
 
         Select select = from(type).getSelect();
+        storage.begin();
         StorageResults results = storage.fetch(select);
         try {
             assertEquals(1, results.getCount());
         } finally {
             results.close();
+            storage.commit();
         }
     }
 
@@ -305,11 +328,13 @@ public class StorageRecordCreationTest extends StorageTestCase {
         UserQueryBuilder qb = from(address)
                 .select(address.getField("country"))
                 .where(eq(address.getField("country"), "1000"));
+        storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getCount());
         } finally {
             results.close();
+            storage.commit();
         }
     }
 
@@ -328,11 +353,13 @@ public class StorageRecordCreationTest extends StorageTestCase {
             throw e;
         }
         UserQueryBuilder qb = from(ff);
+        storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
         } finally {
             results.close();
+            storage.commit();
         }
     }
 
@@ -356,14 +383,19 @@ public class StorageRecordCreationTest extends StorageTestCase {
             throw e;
         }
         UserQueryBuilder qb = from(address).where(eq(address.getField("id"), "1111"));
-        StorageResults results = storage.fetch(qb.getSelect());
-        assertEquals(1, results.getCount());
-        for (DataRecord result : results) {
-            Object optionalCity = result.get("Remark");
-            assertTrue(optionalCity instanceof List);
-            List optionalCities = (List) optionalCity;
-            assertEquals("City1", optionalCities.get(0));
-            assertEquals("City2", optionalCities.get(1));
+        storage.begin();
+        try {
+            StorageResults results = storage.fetch(qb.getSelect());
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                Object optionalCity = result.get("Remark");
+                assertTrue(optionalCity instanceof List);
+                List optionalCities = (List) optionalCity;
+                assertEquals("City1", optionalCities.get(0));
+                assertEquals("City2", optionalCities.get(1));
+            }
+        } finally {
+            storage.commit();
         }
     }
 

@@ -10,7 +10,6 @@
 
 package com.amalto.core.query;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +31,6 @@ import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
 import static com.amalto.core.query.user.UserQueryBuilder.isNull;
 
 @SuppressWarnings("nls")
@@ -136,6 +134,16 @@ public class StorageTestCase extends TestCase {
 
     public void test() throws Exception {
         // Just there so JUnit does not complain about a test case that has no test.
+    }
+
+    @Override
+    public void setUp() throws Exception {
+        storage.begin();
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        storage.commit();
     }
 
     protected static class TestUserDelegator implements SecuredStorage.UserDelegator {

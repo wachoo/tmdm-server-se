@@ -486,6 +486,10 @@
             <groupId>jboss</groupId>
             <artifactId>jboss-jmx</artifactId>
         </dependency>
+        <dependency>
+            <groupId>jboss.jbossws</groupId>
+            <artifactId>jboss-jaxrpc</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

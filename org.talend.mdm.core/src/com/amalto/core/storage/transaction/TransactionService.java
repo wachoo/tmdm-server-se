@@ -15,7 +15,7 @@ import com.amalto.core.server.ServerContext;
 
 import javax.ws.rs.*;
 
-@Path("/transaction") //$NON-NLS-1$
+@Path("/transactions") //$NON-NLS-1$
 public class TransactionService {
 
     /**
@@ -39,7 +39,9 @@ public class TransactionService {
     public void resume(@PathParam("id") String transactionId) { //$NON-NLS-1$
         TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         Transaction transaction = transactionManager.get(transactionId);
-        transactionManager.associate(transaction);
+        if (transaction != null) {
+            transactionManager.associate(transaction);
+        }
     }
 
     /**
@@ -51,7 +53,9 @@ public class TransactionService {
     public void commit(@PathParam("id") String transactionId) { //$NON-NLS-1$
         TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         Transaction transaction = transactionManager.get(transactionId);
-        transaction.commit();
+        if (transaction != null) {
+            transaction.commit();
+        }
     }
 
     /**
@@ -63,6 +67,8 @@ public class TransactionService {
     public void rollback(@PathParam("id") String transactionId) { //$NON-NLS-1$
         TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         Transaction transaction = transactionManager.get(transactionId);
-        transaction.rollback();
+        if (transaction != null) {
+            transaction.rollback();
+        }
     }
 }

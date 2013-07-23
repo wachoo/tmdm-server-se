@@ -1,28 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<webservices  
- xmlns="http://java.sun.com/xml/ns/j2ee"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://www.ibm.com/webservices/xsd/j2ee_web_services_1_1.xsd"
- xmlns:tns="urn-com-amalto-xtentis-webservice"
- version="1.1">
+<webservices
+        xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://www.ibm.com/webservices/xsd/j2ee_web_services_1_1.xsd"
+        xmlns:tns="urn-com-amalto-xtentis-webservice"
+        version="1.1">
     <webservice-description>
-     <icon>
-     </icon>     
-     <webservice-description-name>Talend MDM Service</webservice-description-name>
-     <wsdl-file>META-INF/wsdl/webservices.wsdl</wsdl-file>
-     <jaxrpc-mapping-file>META-INF/mapping.xml</jaxrpc-mapping-file>
-     <port-component>
-        <description><![CDATA[The Xtentis Port]]></description>
         <icon>
         </icon>
-     	<port-component-name>XtentisPort</port-component-name>        
-        <wsdl-port>tns:XtentisPort</wsdl-port>
-        <service-endpoint-interface>com.amalto.core.webservice.XtentisPort</service-endpoint-interface>
-        <service-impl-bean>
-        	<ejb-link>XtentisWS</ejb-link>
-        </service-impl-bean>
-     </port-component>
-    </webservice-description> 
+        <webservice-description-name>Talend MDM Service</webservice-description-name>
+        <wsdl-file>META-INF/wsdl/webservices.wsdl</wsdl-file>
+        <jaxrpc-mapping-file>META-INF/mapping.xml</jaxrpc-mapping-file>
+        <port-component>
+            <description><![CDATA[The Xtentis Port]]></description>
+            <icon/>
+            <port-component-name>XtentisPort</port-component-name>
+            <wsdl-port>tns:XtentisPort</wsdl-port>
+            <service-endpoint-interface>com.amalto.core.webservice.XtentisPort</service-endpoint-interface>
+            <service-impl-bean>
+                <ejb-link>XtentisWS</ejb-link>
+            </service-impl-bean>
+            <handler>
+                <handler-name>transactionHandler</handler-name>
+                <handler-class>com.amalto.core.storage.transaction.TransactionHandler</handler-class>
+            </handler>
+        </port-component>
+    </webservice-description>
 </webservices>
 

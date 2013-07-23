@@ -1127,6 +1127,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         qb = from(person).where(eq(person.getField("Status"), "Friend"));
+        storage.begin();
         results = storage.fetch(qb.getSelect());
         long lastModificationTime2;
         try {
@@ -1141,6 +1142,7 @@ public class StorageQueryTest extends StorageTestCase {
             assertNotSame("0", lastModificationTime2);
         } finally {
             results.close();
+            storage.commit();
         }
 
         // Now the actual timestamp test
@@ -1443,6 +1445,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         UserQueryBuilder qb = from(product).where(eq(product.getField("Id"), "1"));
+        storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
@@ -1453,6 +1456,7 @@ public class StorageQueryTest extends StorageTestCase {
             }
         } finally {
             results.close();
+            storage.commit();
         }
 
         productInstance = factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
@@ -1470,6 +1474,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         qb = from(product).where(eq(product.getField("Id"), "1"));
+        storage.begin();
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
@@ -1480,6 +1485,7 @@ public class StorageQueryTest extends StorageTestCase {
             }
         } finally {
             results.close();
+            storage.commit();
         }
 
         productInstance = factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
@@ -1498,6 +1504,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         qb = from(product).where(eq(product.getField("Id"), "1"));
+        storage.begin();
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
@@ -1508,6 +1515,7 @@ public class StorageQueryTest extends StorageTestCase {
             }
         } finally {
             results.close();
+            storage.commit();
         }
     }
 
@@ -1532,6 +1540,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         UserQueryBuilder qb = from(updateReport);
+        storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         StringWriter storedDocument = new StringWriter();
         try {
@@ -1542,6 +1551,7 @@ public class StorageQueryTest extends StorageTestCase {
             assertEquals(builder.toString(), storedDocument.toString());
         } finally {
             results.close();
+            storage.commit();
         }
 
         storage.begin();
@@ -1601,6 +1611,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         UserQueryBuilder qb = from(updateReport);
+        storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         StringWriter storedDocument = new StringWriter();
         try {
@@ -1612,6 +1623,7 @@ public class StorageQueryTest extends StorageTestCase {
             assertNotSame(builder.toString(), storedDocument.toString());
         } finally {
             results.close();
+            storage.commit();
         }
 
         storage.begin();
@@ -1639,11 +1651,13 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         UserQueryBuilder qb = from(updateReport).where(gt(timestamp(), "0"));
+        storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
         } finally {
             results.close();
+            storage.commit();
         }
 
         storage.begin();
@@ -1691,11 +1705,13 @@ public class StorageQueryTest extends StorageTestCase {
         }
         qb.where(condition);
         assertEquals(condition, qb.getSelect().getCondition());
+        storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
         } finally {
             results.close();
+            storage.commit();
         }
 
         storage.begin();
@@ -1743,11 +1759,13 @@ public class StorageQueryTest extends StorageTestCase {
         }
         qb.where(condition);
         assertEquals(condition, qb.getSelect().getCondition());
+        storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
         } finally {
             results.close();
+            storage.commit();
         }
 
         storage.begin();
@@ -1817,11 +1835,13 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         UserQueryBuilder qb = from(updateReport).where(isNull(taskId()));
+        storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
         } finally {
             results.close();
+            storage.commit();
         }
 
         storage.begin();
@@ -2028,18 +2048,22 @@ public class StorageQueryTest extends StorageTestCase {
         storage.commit();
         UserQueryBuilder qb = from(person).selectId(person).where(
                 eq(person.getField("knownAddresses/knownAddress/City"), "City 1"));
+        storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
         } finally {
             results.close();
+            storage.commit();
         }
         qb = from(person).selectId(person).where(eq(person.getField("knownAddresses/knownAddress/City"), "City 0"));
+        storage.begin();
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getCount());
         } finally {
             results.close();
+            storage.commit();
         }
     }
 
@@ -2058,14 +2082,19 @@ public class StorageQueryTest extends StorageTestCase {
         storage.update(allRecords);
         storage.commit();
         UserQueryBuilder qb = from(person).selectId(person).select(person.getField("knownAddresses/knownAddress/City"));
-        StorageResults results = storage.fetch(qb.getSelect());
-        List<String> expected = new LinkedList<String>();
-        expected.add("City 1");
-        expected.add("City 2");
-        for (DataRecord result : results) {
-            assertTrue(expected.remove(result.get("City")));
+        storage.begin();
+        try {
+            StorageResults results = storage.fetch(qb.getSelect());
+            List<String> expected = new LinkedList<String>();
+            expected.add("City 1");
+            expected.add("City 2");
+            for (DataRecord result : results) {
+                assertTrue(expected.remove(result.get("City")));
+            }
+            assertTrue(expected.isEmpty());
+        } finally {
+            storage.commit();
         }
-        assertTrue(expected.isEmpty());
     }
 
     public void testSelectCompositeFK() throws Exception {

@@ -264,31 +264,36 @@ public class SystemStorageTest extends TestCase {
         storage.commit();
 
         int total = 0;
-        for (ComplexTypeMetadata presentType : presentTypes) {
-            UserQueryBuilder qb = UserQueryBuilder.from(presentType);
-            StorageResults results = storage.fetch(qb.getSelect());
-            try {
-                total += results.getCount();
-                SystemDataRecordXmlWriter writer = new SystemDataRecordXmlWriter((ClassRepository) storage.getMetadataRepository(), presentType);
-                for (DataRecord result : results) {
-                    StringWriter stringWriter = new StringWriter();
-                    if ("menu-pOJO".equals(presentType.getName())) {
-                        writer.write(result, stringWriter);
-                        MenuPOJO menuPOJO = ObjectPOJO.unmarshal(MenuPOJO.class, stringWriter.toString());
-                        assertNotNull(menuPOJO);
-                        for (MenuEntryPOJO menuEntry : menuPOJO.getMenuEntries()) {
-                            assertNotNull(menuEntry.getApplication());
+        storage.begin();
+        try {
+            for (ComplexTypeMetadata presentType : presentTypes) {
+                UserQueryBuilder qb = UserQueryBuilder.from(presentType);
+                StorageResults results = storage.fetch(qb.getSelect());
+                try {
+                    total += results.getCount();
+                    SystemDataRecordXmlWriter writer = new SystemDataRecordXmlWriter((ClassRepository) storage.getMetadataRepository(), presentType);
+                    for (DataRecord result : results) {
+                        StringWriter stringWriter = new StringWriter();
+                        if ("menu-pOJO".equals(presentType.getName())) {
+                            writer.write(result, stringWriter);
+                            MenuPOJO menuPOJO = ObjectPOJO.unmarshal(MenuPOJO.class, stringWriter.toString());
+                            assertNotNull(menuPOJO);
+                            for (MenuEntryPOJO menuEntry : menuPOJO.getMenuEntries()) {
+                                assertNotNull(menuEntry.getApplication());
+                            }
+                        }
+                        if ("data-model-pOJO".equals(presentType.getName())) {
+                            writer.write(result, stringWriter);
+                            DataModelPOJO dataModelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, stringWriter.toString());
+                            assertNotNull(dataModelPOJO.getSchema());
                         }
                     }
-                    if ("data-model-pOJO".equals(presentType.getName())) {
-                        writer.write(result, stringWriter);
-                        DataModelPOJO dataModelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, stringWriter.toString());
-                        assertNotNull(dataModelPOJO.getSchema());
-                    }
+                } finally {
+                    results.close();
                 }
-            } finally {
-                results.close();
             }
+        } finally {
+            storage.commit();
         }
         assertEquals(files.size() - ignore, total);
     }

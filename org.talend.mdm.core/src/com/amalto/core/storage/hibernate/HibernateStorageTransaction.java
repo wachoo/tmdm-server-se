@@ -48,32 +48,29 @@ public class HibernateStorageTransaction implements StorageTransaction {
     @Override
     public void commit() {
         if (isAutonomous) {
-            try {
-                Transaction transaction = session.getTransaction();
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[" + this + "] Transaction #" + transaction.hashCode() + " -> Commit "
-                            + session.getStatistics().getEntityCount() + " record(s).");
-                }
-                if (!transaction.isActive()) {
-                    throw new IllegalStateException("Can not commit transaction, no transaction is active.");
-                }
-                try {
-                    if (!transaction.wasCommitted()) {
-                        transaction.commit();
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("[" + this + "] Transaction #" + transaction.hashCode() + " -> Commit done.");
-                        }
-                    } else {
-                        LOGGER.warn("Transaction was already committed.");
-                    }
-                } catch (ConstraintViolationException e) {
-                    throw new ConstraintViolationException(e);
-                }
-            } finally {
-                TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-                transactionManager.currentTransaction().exclude(storage);
-                session.close();
+            Transaction transaction = session.getTransaction();
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[" + this + "] Transaction #" + transaction.hashCode() + " -> Commit "
+                        + session.getStatistics().getEntityCount() + " record(s).");
             }
+            if (!transaction.isActive()) {
+                throw new IllegalStateException("Can not commit transaction, no transaction is active.");
+            }
+            try {
+                if (!transaction.wasCommitted()) {
+                    transaction.commit();
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("[" + this + "] Transaction #" + transaction.hashCode() + " -> Commit done.");
+                    }
+                } else {
+                    LOGGER.warn("Transaction was already committed.");
+                }
+            } catch (ConstraintViolationException e) {
+                throw new ConstraintViolationException(e);
+            }
+            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
+            transactionManager.currentTransaction().exclude(storage);
+            session.close();
         }
     }
 

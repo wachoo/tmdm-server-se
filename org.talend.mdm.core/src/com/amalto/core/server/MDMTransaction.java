@@ -17,9 +17,7 @@ import com.amalto.core.storage.transaction.Transaction;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 class MDMTransaction implements Transaction {
 
@@ -46,7 +44,8 @@ class MDMTransaction implements Transaction {
 
     @Override
     public void begin() {
-        for (StorageTransaction storageTransaction : storageTransactions.values()) {
+        Collection<StorageTransaction> values = new ArrayList<StorageTransaction>(storageTransactions.values());
+        for (StorageTransaction storageTransaction : values) {
             storageTransaction.autonomous().begin();
         }
     }
@@ -54,7 +53,8 @@ class MDMTransaction implements Transaction {
     @Override
     public void commit() {
         try {
-            for (StorageTransaction storageTransaction : storageTransactions.values()) {
+            Collection<StorageTransaction> values = new ArrayList<StorageTransaction>(storageTransactions.values());
+            for (StorageTransaction storageTransaction : values) {
                 storageTransaction.autonomous().commit();
             }
         } finally {
@@ -65,7 +65,8 @@ class MDMTransaction implements Transaction {
     @Override
     public void rollback() {
         try {
-            for (StorageTransaction storageTransaction : storageTransactions.values()) {
+            Collection<StorageTransaction> values = new ArrayList<StorageTransaction>(storageTransactions.values());
+            for (StorageTransaction storageTransaction : values) {
                 storageTransaction.autonomous().rollback();
             }
         } finally {
