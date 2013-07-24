@@ -542,38 +542,44 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         int totalCount = 0;
         List<String> itemPKResults = new LinkedList<String>();
         String typeName = criteria.getConceptName();
-        if (typeName != null && !typeName.isEmpty()) {
-            totalCount += getTypeItemCount(criteria, repository.getComplexType(typeName), storage);
-            itemPKResults.addAll(getTypeItems(criteria, repository.getComplexType(typeName), storage));
-        } else {
-            // TMDM-4651: Returns type in correct dependency order.
-            Collection<ComplexTypeMetadata> types = getClusterTypes(clusterName, criteria.getRevisionId());
-            int maxCount = criteria.getMaxItems();
-            if(criteria.getSkip() < 0) { // MDM Studio may send negative values
-                criteria.setSkip(0);
-            }
-            List<String> currentInstanceResults;
-            for (ComplexTypeMetadata type : types) {
-                int count = getTypeItemCount(criteria, type, storage);
-                totalCount += count;
-                if(itemPKResults.size() < maxCount) {
-                    if(count > criteria.getSkip()) {
-                        currentInstanceResults = getTypeItems(criteria, type, storage);
-                        int n = maxCount - itemPKResults.size();
-                        if (n <= currentInstanceResults.size()){
-                            itemPKResults.addAll(currentInstanceResults.subList(0, n));
+
+        try {
+            storage.begin();
+            if (typeName != null && !typeName.isEmpty()) {
+                totalCount += getTypeItemCount(criteria, repository.getComplexType(typeName), storage);
+                itemPKResults.addAll(getTypeItems(criteria, repository.getComplexType(typeName), storage));
+            } else {
+                // TMDM-4651: Returns type in correct dependency order.
+                Collection<ComplexTypeMetadata> types = getClusterTypes(clusterName, criteria.getRevisionId());
+                int maxCount = criteria.getMaxItems();
+                if(criteria.getSkip() < 0) { // MDM Studio may send negative values
+                    criteria.setSkip(0);
+                }
+                List<String> currentInstanceResults;
+                for (ComplexTypeMetadata type : types) {
+                    int count = getTypeItemCount(criteria, type, storage);
+                    totalCount += count;
+                    if(itemPKResults.size() < maxCount) {
+                        if(count > criteria.getSkip()) {
+                            currentInstanceResults = getTypeItems(criteria, type, storage);
+                            int n = maxCount - itemPKResults.size();
+                            if (n <= currentInstanceResults.size()){
+                                itemPKResults.addAll(currentInstanceResults.subList(0, n));
+                            } else {
+                                itemPKResults.addAll(currentInstanceResults);
+                            }
+                            criteria.setMaxItems(criteria.getMaxItems() - currentInstanceResults.size());
+                            criteria.setSkip(0);
                         } else {
-                            itemPKResults.addAll(currentInstanceResults);
+                            criteria.setSkip(criteria.getSkip() - count);
                         }
-                        criteria.setMaxItems(criteria.getMaxItems() - currentInstanceResults.size());
-                        criteria.setSkip(0);
-                    } else {
-                        criteria.setSkip(criteria.getSkip() - count);
                     }
                 }
             }
+            itemPKResults.add(0, "<totalCount>" + totalCount + "</totalCount>");  //$NON-NLS-1$ //$NON-NLS-2$
+        } finally {
+            storage.commit();
         }
-        itemPKResults.add(0, "<totalCount>" + totalCount + "</totalCount>");  //$NON-NLS-1$ //$NON-NLS-2$
         return itemPKResults;
     }
 
