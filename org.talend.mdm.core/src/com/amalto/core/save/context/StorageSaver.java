@@ -25,6 +25,8 @@ import java.util.Map;
 
 public class StorageSaver extends AbstractDocumentSaverContext {
 
+    public static final boolean USE_STORAGE_BASED_API = false; // TODO temp property
+
     private final Storage storage;
 
     private final Map<String, String> autoIncrementFieldMap = new HashMap<String, String>();

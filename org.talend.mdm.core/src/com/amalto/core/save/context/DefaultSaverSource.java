@@ -75,15 +75,19 @@ public class DefaultSaverSource implements SaverSource {
     }
 
     public static SaverSource getDefault() {
-        return new DefaultSaverSource();
-        // TODO To activate storage-API based save, uncomment line below.
-        // return new StorageSaverSource();
+        if (StorageSaver.USE_STORAGE_BASED_API) {
+            return new StorageSaverSource();
+        } else {
+            return new DefaultSaverSource();
+        }
     }
 
     public static SaverSource getDefault(String userName) {
-        return new DefaultSaverSource(userName);
-        // TODO To activate storage-API based save, uncomment line below.
-        // return new StorageSaverSource(userName);
+        if (StorageSaver.USE_STORAGE_BASED_API) {
+            return new StorageSaverSource(userName);
+        } else {
+            return new DefaultSaverSource(userName);
+        }
     }
 
     public Documents get(String dataClusterName, String typeName, String revisionId, String[] key) {

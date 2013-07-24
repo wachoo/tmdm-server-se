@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.amalto.core.server.StorageAdmin;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
@@ -105,6 +106,7 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
             }
             Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
             return XSystemObjects.isXSystemObject(xDataClustersMap, clusterName)
+                    || StorageAdmin.SYSTEM_STORAGE.equals(clusterName)
                     || clusterName.startsWith("amalto") //$NON-NLS-1$
                     || "MDMDomainObjects".equals(clusterName) //$NON-NLS-1$
                     || XSystemObjects.DC_MDMITEMSTRASH.getName().equals(clusterName)

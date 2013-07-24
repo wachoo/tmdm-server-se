@@ -34,10 +34,7 @@ import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.eq;
 import static com.amalto.core.query.user.UserQueryBuilder.from;
@@ -80,7 +77,11 @@ public class StorageSaverSource implements SaverSource {
         Storage storage = getStorage(dataClusterName, revisionId);
         StorageResults results = storage.fetch(buildQueryByID(storage, typeName, key));
         try {
-            DataRecord record = results.iterator().next();
+            Iterator<DataRecord> iterator = results.iterator();
+            if (!iterator.hasNext()) {
+                return null;
+            }
+            DataRecord record = iterator.next();
             documents.databaseDocument = new StorageDocument(dataClusterName, record);
             documents.databaseValidationDocument = new StorageDocument(dataClusterName, record);
         } finally {
@@ -97,7 +98,16 @@ public class StorageSaverSource implements SaverSource {
     @Override
     public boolean exist(String dataCluster, String typeName, String revisionId, String[] key) {
         Storage storage = getStorage(dataCluster, revisionId);
-        return storage != null;
+        if (storage == null) {
+            return false;
+        }
+        StorageResults results = storage.fetch(buildQueryByID(storage, typeName, key));
+        try {
+            Iterator<DataRecord> iterator = results.iterator();
+            return iterator.hasNext();
+        } finally {
+            results.close();
+        }
     }
 
     @Override
