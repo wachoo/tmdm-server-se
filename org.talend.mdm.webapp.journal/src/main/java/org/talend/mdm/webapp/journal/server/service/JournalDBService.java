@@ -29,13 +29,10 @@ import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.base.server.util.Constants;
-import org.talend.mdm.webapp.journal.shared.FKInstance;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
@@ -47,13 +44,7 @@ import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.extjs.gxt.ui.client.Style.SortDir;
-import com.sun.xml.xsom.XSAnnotation;
-import com.sun.xml.xsom.XSComplexType;
-import com.sun.xml.xsom.XSContentType;
 import com.sun.xml.xsom.XSElementDecl;
-import com.sun.xml.xsom.XSParticle;
-import com.sun.xml.xsom.XSTerm;
-import com.sun.xml.xsom.XSType;
 
 /**
  * The server side implementation of the RPC service.
@@ -103,7 +94,7 @@ public class JournalDBService {
         }
 
         Object[] resArr = new Object[2];
-        resArr[0] = list.size();
+        resArr[0] = totalSize;
         resArr[1] = list;
         return resArr;
     }
@@ -150,8 +141,6 @@ public class JournalDBService {
                 for (int i = 0; i < ls.getLength(); i++) {
                     List<JournalTreeModel> list = new ArrayList<JournalTreeModel>();
                     String path = Util.getFirstTextNode(doc, "/Update/Item[" + (i + 1) + "]/path"); //$NON-NLS-1$//$NON-NLS-2$
-                    String elementPath = path.replaceAll("\\[\\d+\\]$", ""); //$NON-NLS-1$//$NON-NLS-2$
-                    FKInstance fkInstance = getRetrieveConf(decl, elementPath);
 
                     String oldValue = checkNull(Util.getFirstTextNode(doc, "/Update/Item[" + (i + 1) + "]/oldValue")); //$NON-NLS-1$//$NON-NLS-2$
                     String newValue = checkNull(Util.getFirstTextNode(doc, "/Update/Item[" + (i + 1) + "]/newValue")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -229,33 +218,6 @@ public class JournalDBService {
         return model;
     }
 
-    private String getFKInfoByRetrieveConf(String dataCluster, String fkInfo, String rightValueOrPath) {
-        String fkInfoValue = ""; //$NON-NLS-1$
-        String conceptName = fkInfo.substring(0, fkInfo.indexOf("/")); //$NON-NLS-1$
-        String value = rightValueOrPath;
-
-        if (rightValueOrPath.indexOf("[") == 0 && rightValueOrPath.lastIndexOf("]") == rightValueOrPath.length() - 1) { //$NON-NLS-1$ //$NON-NLS-2$
-            value = rightValueOrPath.subSequence(1, rightValueOrPath.length() - 1).toString();
-        }
-
-        String ids[] = { value };
-
-        try {
-            WSItem wsItem = webService.getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(dataCluster), conceptName, ids)));
-            Document document = Util.parse(wsItem.getContent());
-            NodeList list = Util.getNodeList(document, "/" + fkInfo); //$NON-NLS-1$
-            Node it = list.item(0);
-
-            if (it != null) {
-                fkInfoValue = it.getTextContent();
-            }
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
-
-        return fkInfoValue;
-    }
-
     private JournalGridModel parseString2Model(String xmlStr) throws Exception {
         JournalGridModel model = new JournalGridModel();
         Document doc = Util.parse(xmlStr);
@@ -300,52 +262,6 @@ public class JournalDBService {
             }
         }
         return model;
-    }
-
-    private FKInstance getRetrieveConf(XSElementDecl decl, String path) throws Exception {
-        FKInstance fkInstance = new FKInstance();
-        XSType type = decl.getType();
-
-        if (type instanceof XSComplexType) {
-            XSComplexType cmpxType = (XSComplexType) type;
-            XSContentType conType = cmpxType.getContentType();
-            XSParticle[] children = conType.asParticle().getTerm().asModelGroup().getChildren();
-
-            for (XSParticle child : children) {
-                XSTerm term = child.getTerm();
-
-                if (term instanceof XSElementDecl && ((XSElementDecl) term).getName().equals(path)) {
-                    XSElementDecl childElem = (XSElementDecl) child.getTerm();
-                    XSAnnotation xsa = childElem.getAnnotation();
-                    if (xsa == null) {
-                        continue;
-                    }
-                    Element el = (Element) xsa.getAnnotation();
-                    NodeList annotList = el.getChildNodes();
-
-                    for (int k = 0; k < annotList.getLength(); k++) {
-                        if ("appinfo".equals(annotList.item(k).getLocalName())) { //$NON-NLS-1$
-                            Node source1 = annotList.item(k).getAttributes().getNamedItem("source"); //$NON-NLS-1$
-
-                            if (source1 == null) {
-                                continue;
-                            }
-                            String appinfoSource = annotList.item(k).getAttributes().getNamedItem("source").getNodeValue(); //$NON-NLS-1$
-
-                            if ("X_ForeignKeyInfo".equals(appinfoSource)) { //$NON-NLS-1$
-                                fkInstance.setFkInfo(annotList.item(k).getFirstChild().getNodeValue());
-                            }
-
-                            if ("X_Retrieve_FKinfos".equals(appinfoSource)) { //$NON-NLS-1$
-                                fkInstance.setRetireveFKInfo("true".equals(annotList.item(k).getFirstChild().getNodeValue())); //$NON-NLS-1$
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return fkInstance;
     }
 
     private String checkNull(String str) {
