@@ -16,6 +16,7 @@ import com.amalto.core.storage.Storage;
 /**
  * A MDM transaction: it composed of multiple underlying {@link StorageTransaction}, each of them handles {@link Storage}
  * specific transaction operations.
+ * @see StorageTransaction
  */
 public interface Transaction {
     /**

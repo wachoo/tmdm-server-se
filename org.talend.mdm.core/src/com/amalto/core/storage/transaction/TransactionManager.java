@@ -12,11 +12,19 @@
 package com.amalto.core.storage.transaction;
 
 /**
- *
+ * The MDM transaction manager: provides all methods relative to MDM transactions.
+ * @see Transaction
  */
 public interface TransactionManager {
+    /**
+     * Initializes all needed resources for transaction management. Calling multiple times this method should only
+     * initialize once.
+     */
     void init();
 
+    /**
+     * Clean up all resources and rollbacks any pending transactions.
+     */
     void close();
 
     /**

@@ -26,6 +26,8 @@ class MDMTransactionManager implements TransactionManager {
 
     private static final Map<String, Transaction> activeTransactions = new HashMap<String, Transaction>();
 
+    private boolean isInitialized = false;
+
     @Override
     public Transaction create(Transaction.Lifetime lifetime) {
         MDMTransaction transaction = new MDMTransaction(lifetime);
@@ -60,24 +62,30 @@ class MDMTransactionManager implements TransactionManager {
 
     @Override
     public void init() {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (true) {
-                        Thread.sleep(20000);
-                        // TODO Log
-                        System.out.println("Active transaction(s) (" + activeTransactions.size() + ")");
-                        for (Map.Entry<String, Transaction> currentTransaction : activeTransactions.entrySet()) {
-                            System.out.println(currentTransaction.getKey());
+        if (!isInitialized) {
+            if (LOGGER.isDebugEnabled()) {
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            while (true) {
+                                StringBuilder builder = new StringBuilder();
+                                builder.append("Active transaction(s) (").append(activeTransactions.size()).append(")");
+                                for (Map.Entry<String, Transaction> currentTransaction : activeTransactions.entrySet()) {
+                                    builder.append(currentTransaction.getKey()).append('\n');
+                                }
+                                LOGGER.debug(builder.toString());
+                                Thread.sleep(20000);
+                            }
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
                         }
                     }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                });
+                t.start();
             }
-        });
-        t.start();
+            isInitialized = true;
+        }
     }
 
     @Override
