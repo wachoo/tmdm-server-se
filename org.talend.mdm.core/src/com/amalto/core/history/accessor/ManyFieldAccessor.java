@@ -130,7 +130,7 @@ class ManyFieldAccessor implements DOMAccessor {
                                 parentNode.insertBefore(node, parentNode.getFirstChild());
                             else
                                 parentNode.appendChild(node);
-                        } else if (refNode != null) {
+                        } else if (refNode != null && refNode.getParentNode() == parentNode) {
                             parentNode.insertBefore(node, refNode);
                         } else {
                             parentNode.appendChild(node);
