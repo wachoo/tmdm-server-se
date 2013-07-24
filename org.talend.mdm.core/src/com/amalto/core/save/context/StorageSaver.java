@@ -51,7 +51,7 @@ public class StorageSaver extends AbstractDocumentSaverContext {
 
     private MutableDocument databaseValidationDocument;
 
-    private String[] ids;
+    private String[] ids = new String[0];
 
     private boolean validate;
 
