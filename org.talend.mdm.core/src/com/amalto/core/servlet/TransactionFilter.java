@@ -22,7 +22,7 @@ import java.io.IOException;
 
 public class TransactionFilter implements Filter {
 
-    public static final String TRANSACTION_ID = "transaction_id"; //$NON-NLS-1$
+    public static final String TRANSACTION_ID = "transaction-id"; //$NON-NLS-1$
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
