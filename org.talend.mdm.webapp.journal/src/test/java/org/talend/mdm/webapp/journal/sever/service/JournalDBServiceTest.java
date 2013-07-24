@@ -39,6 +39,7 @@ public class JournalDBServiceTest extends TestCase{
 
     JournalDBService journalDBService = new JournalDBService(mock);
     
+    @SuppressWarnings("unchecked")
     public void testGetResultListByCriteria () throws Exception {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  //$NON-NLS-1$
         JournalSearchCriteria criteria = new JournalSearchCriteria();
@@ -54,13 +55,14 @@ public class JournalDBServiceTest extends TestCase{
         JournalGridModel journalGridModel = null;
         
         mock.setEnterpriseVersion(true);
-        result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$   
-        assertEquals(20, result[0]);
+        result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$
+        journalGridModelList = (List<JournalGridModel>)result[1];
+        assertEquals(20, journalGridModelList.size());
 
         mock.setForbiddenDataModelName("Product"); //$NON-NLS-1$
-        result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$   
-        assertEquals(6, result[0]);
+        result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$        
         journalGridModelList = (List<JournalGridModel>)result[1];
+        assertEquals(6, journalGridModelList.size());
         journalGridModel = journalGridModelList.get(0);
         assertEquals("T", journalGridModel.getDataContainer()); //$NON-NLS-1$
         assertEquals("T", journalGridModel.getDataModel()); //$NON-NLS-1$
@@ -71,8 +73,8 @@ public class JournalDBServiceTest extends TestCase{
 
         mock.setForbiddenDataModelName("T"); //$NON-NLS-1$
         result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$   
-        assertEquals(14, result[0]);
         journalGridModelList = (List<JournalGridModel>)result[1];
+        assertEquals(14, journalGridModelList.size());
         journalGridModel = journalGridModelList.get(0);
         assertEquals("Product", journalGridModel.getDataContainer()); //$NON-NLS-1$
         assertEquals("Product", journalGridModel.getDataModel()); //$NON-NLS-1$
@@ -83,8 +85,8 @@ public class JournalDBServiceTest extends TestCase{
 
         mock.setForbiddenconceptName("Product"); //$NON-NLS-1$
         result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$   
-        assertEquals(2, result[0]);
         journalGridModelList = (List<JournalGridModel>)result[1];
+        assertEquals(2, journalGridModelList.size());
         journalGridModel = journalGridModelList.get(0);
         assertEquals("Product", journalGridModel.getDataContainer()); //$NON-NLS-1$
         assertEquals("Product", journalGridModel.getDataModel()); //$NON-NLS-1$
@@ -97,8 +99,8 @@ public class JournalDBServiceTest extends TestCase{
 
         mock.setForbiddenconceptName("ProductFamily"); //$NON-NLS-1$
         result = journalDBService.getResultListByCriteria(criteria, 0, 20, "ASC", "key"); //$NON-NLS-1$ //$NON-NLS-2$   
-        assertEquals(12, result[0]);
         journalGridModelList = (List<JournalGridModel>)result[1];
+        assertEquals(12, journalGridModelList.size());
         journalGridModel = journalGridModelList.get(0);
         assertEquals("Product", journalGridModel.getDataContainer()); //$NON-NLS-1$
         assertEquals("Product", journalGridModel.getDataModel()); //$NON-NLS-1$
@@ -208,14 +210,6 @@ public class JournalDBServiceTest extends TestCase{
         assertEquals("Product:text_value", journalTreeModel.getName()); //$NON-NLS-1$
         assertEquals("/Product", journalTreeModel.getPath()); //$NON-NLS-1$
         assertEquals("tree-node-update", journalTreeModel.getCls()); //$NON-NLS-1$ 
-    }
-    
-    public void testGetFKInfoByRetrieveConf() throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        Method method = journalDBService.getClass().getDeclaredMethod("getFKInfoByRetrieveConf", String.class,String.class,String.class); //$NON-NLS-1$
-        method.setAccessible(true);
-        Object returnValue = method.invoke(journalDBService, new Object[] { "Product","ProductFamily/Name","[1]" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$            
-        method.setAccessible(false);   
-        assertEquals("Test_Product_FKInfo", returnValue); //$NON-NLS-1$                  
     }
     
     public void testParseString2Model() throws NoSuchMethodException,InvocationTargetException,IllegalArgumentException,IllegalAccessException {
