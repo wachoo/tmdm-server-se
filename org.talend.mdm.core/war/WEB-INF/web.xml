@@ -71,7 +71,10 @@
         <servlet-class>org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet</servlet-class>
         <init-param>
             <param-name>jaxrs.serviceClasses</param-name>
-            <param-value>com.amalto.core.storage.task.staging.StagingTaskService</param-value>
+            <param-value>
+                com.amalto.core.storage.task.staging.StagingTaskService
+                com.amalto.core.storage.transaction.TransactionService
+            </param-value>
         </init-param>
         <init-param>
             <param-name>jaxrs.providers</param-name>
