@@ -98,11 +98,18 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                                 or(isNull(status()),
                                         or(eq(status(), StagingConstants.FAIL_VALIDATE_CONSTRAINTS),
                                                 eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)))))).getSelect();
-        StorageResults records = storage.fetch(select); // Expects an active transaction here
         try {
-            recordsCount += records.getCount();
-        } finally {
-            records.close();
+            storage.begin();
+            StorageResults records = storage.fetch(select); // Expects an active transaction here
+            try {
+                recordsCount += records.getCount();
+            } finally {
+                records.close();
+            }
+            storage.commit();
+        } catch (Exception e) {
+            storage.rollback();
+            throw new RuntimeException(e);
         }
         return new MultiThreadedTask(ServerContext.INSTANCE.get().getTransactionManager().currentTransaction(), type.getName(),
                 storage,
@@ -151,6 +158,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
         public synchronized void begin() {
             session = SaverSession.newSession(source);
             session.begin(destinationStorage.getName(), committer);
+            storage.begin();
         }
 
         public void execute(DataRecord stagingRecord, ClosureExecutionStats stats) {
@@ -231,10 +239,16 @@ public class MDMValidationTask extends MetadataRepositoryTask {
 
         public synchronized void end(ClosureExecutionStats stats) {
             try {
+                storage.commit();
+            } catch (Exception e) {
+                storage.rollback();
+                LOGGER.error("Could not commit " + storage.getName() + ".", e);  //$NON-NLS-1$//$NON-NLS-2$
+            }
+            try {
                 session.end(committer);
             } catch (Exception e) {
                 // This is unexpected (session should only contain records that won't fail commit).
-                LOGGER.error("Could not commit changes.", e);
+                LOGGER.error("Could not commit changes.", e); //$NON-NLS-1$
                 session.abort(committer);
             }
         }
