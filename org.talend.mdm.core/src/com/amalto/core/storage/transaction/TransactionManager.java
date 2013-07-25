@@ -28,11 +28,14 @@ public interface TransactionManager {
     void close();
 
     /**
-     * Creates a new {@link Transaction} with a expected life time.
+     * Creates a new {@link Transaction} with a expected life time. This method also associate the newly created
+     * transaction with calling thread.
      *
      * @param lifetime The expected life time of the new transaction.
      * @return A new transaction ready to be used.
      * @see Transaction#include(com.amalto.core.storage.Storage)
+     * @see #associate(Transaction)
+     * @throws IllegalArgumentException If <code>lifetime</code> parameter is <code>null</code>.
      */
     Transaction create(Transaction.Lifetime lifetime);
 
@@ -40,6 +43,7 @@ public interface TransactionManager {
      * @param transactionId A transaction id (see {@link Transaction#getId()}.
      * @return The transaction with given id, or <code>null</code> if not found, or <code>null</code> if transaction
      *         is no longer managed by this transaction manager (i.e. it was committed or rollbacked).
+     * @throws IllegalArgumentException If <code>transactionId</code> parameter is <code>null</code>.
      */
     Transaction get(String transactionId);
 
@@ -47,6 +51,7 @@ public interface TransactionManager {
      * Removes a transaction from the scope of this transaction manager.
      *
      * @param transaction The transaction to remove.
+     * @throws IllegalArgumentException If <code>transaction</code> parameter is <code>null</code>.
      */
     void remove(Transaction transaction);
 
@@ -62,6 +67,7 @@ public interface TransactionManager {
      * will return the <code>transaction</code> parameter.
      * @param transaction A transaction to link to {@link Thread#currentThread()}
      * @return The associated transaction.
+     * @throws IllegalArgumentException If <code>transaction</code> parameter is <code>null</code>.
      */
     Transaction associate(Transaction transaction);
 
@@ -74,6 +80,7 @@ public interface TransactionManager {
      * If <code>transaction</code> is not associated with current thread, calling this method has no effect.
      * </p>
      * @param transaction A transaction linked to {@link Thread#currentThread()}
+     * @throws IllegalArgumentException If <code>transaction</code> parameter is <code>null</code>.
      */
     void dissociate(Transaction transaction);
 

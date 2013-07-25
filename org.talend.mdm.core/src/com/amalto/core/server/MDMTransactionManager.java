@@ -30,9 +30,17 @@ class MDMTransactionManager implements TransactionManager {
 
     @Override
     public Transaction create(Transaction.Lifetime lifetime) {
+        if (lifetime == null) {
+            throw new IllegalArgumentException("Life time argument cannot be null.");
+        }
         MDMTransaction transaction = new MDMTransaction(lifetime);
         synchronized (activeTransactions) {
             activeTransactions.put(transaction.getId(), transaction);
+        }
+        synchronized (currentTransactions) {
+            if (!currentTransactions.containsKey(Thread.currentThread())) {
+                associate(transaction);
+            }
         }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("New transaction: " + transaction.toString());
@@ -42,6 +50,9 @@ class MDMTransactionManager implements TransactionManager {
 
     @Override
     public Transaction get(String transactionId) {
+        if (transactionId == null) {
+            throw new IllegalArgumentException("Transaction id cannot be null.");
+        }
         synchronized (activeTransactions) {
             return activeTransactions.get(transactionId);
         }
@@ -49,6 +60,9 @@ class MDMTransactionManager implements TransactionManager {
 
     @Override
     public void remove(Transaction transaction) {
+        if (transaction == null) {
+            throw new IllegalArgumentException("Transaction cannot be null.");
+        }
         synchronized (currentTransactions) {
             currentTransactions.remove(Thread.currentThread());
         }
@@ -110,6 +124,9 @@ class MDMTransactionManager implements TransactionManager {
 
     @Override
     public Transaction associate(Transaction transaction) {
+        if (transaction == null) {
+            throw new IllegalArgumentException("Transaction cannot be null.");
+        }
         synchronized (currentTransactions) {
             currentTransactions.put(Thread.currentThread(), transaction);
         }
@@ -118,6 +135,9 @@ class MDMTransactionManager implements TransactionManager {
 
     @Override
     public void dissociate(Transaction transaction) {
+        if (transaction == null) {
+            throw new IllegalArgumentException("Transaction cannot be null.");
+        }
         synchronized (currentTransactions) {
             if (transaction == currentTransactions.get(Thread.currentThread())) {
                 currentTransactions.remove(Thread.currentThread());

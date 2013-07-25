@@ -40,6 +40,9 @@ public interface Storage {
 
     /**
      * @return A bit mask of capabilities for this storage implementation.
+     * @see #CAP_TRANSACTION
+     * @see #CAP_INTEGRITY
+     * @see #CAP_FULL_TEXT
      */
     int getCapabilities();
 

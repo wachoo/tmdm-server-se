@@ -11,17 +11,15 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.exception.ConstraintViolationException;
 import com.amalto.core.storage.transaction.StorageTransaction;
-import com.amalto.core.storage.transaction.TransactionManager;
 import org.apache.log4j.Logger;
 import org.hibernate.FlushMode;
 import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
 
-public class HibernateStorageTransaction implements StorageTransaction {
+class HibernateStorageTransaction extends StorageTransaction {
 
     private static final Logger LOGGER = Logger.getLogger(HibernateStorageTransaction.class);
 
@@ -29,11 +27,14 @@ public class HibernateStorageTransaction implements StorageTransaction {
 
     private final Session session;
 
-    private boolean isAutonomous;
-
     public HibernateStorageTransaction(Storage storage, Session session) {
         this.storage = storage;
         this.session = session;
+    }
+
+    @Override
+    public Storage getStorage() {
+        return storage;
     }
 
     @Override
@@ -68,8 +69,7 @@ public class HibernateStorageTransaction implements StorageTransaction {
             } catch (ConstraintViolationException e) {
                 throw new ConstraintViolationException(e);
             }
-            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-            transactionManager.currentTransaction().exclude(storage);
+            super.commit();
             session.close();
         }
     }
@@ -90,23 +90,10 @@ public class HibernateStorageTransaction implements StorageTransaction {
                     LOGGER.warn("Transaction was already rollbacked.");
                 }
             } finally {
-                TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-                transactionManager.currentTransaction().exclude(storage);
+                super.rollback();
                 session.close();
             }
         }
-    }
-
-    @Override
-    public StorageTransaction autonomous() {
-        isAutonomous = true;
-        return this;
-    }
-
-    @Override
-    public StorageTransaction dependent() {
-        isAutonomous = false;
-        return this;
     }
 
     public Session getSession() {

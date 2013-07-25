@@ -87,6 +87,9 @@ class MDMTransaction implements Transaction {
     }
 
     public StorageTransaction include(Storage storage) {
+        if ((storage.getCapabilities() & Storage.CAP_TRANSACTION) != Storage.CAP_TRANSACTION) {
+            throw new IllegalArgumentException("Storage '" + storage.getName() + "' does not support transactions.");
+        }
         StorageTransaction storageTransaction = storageTransactions.get(storage);
         if (storageTransaction == null) {
             storageTransaction = storage.newStorageTransaction();

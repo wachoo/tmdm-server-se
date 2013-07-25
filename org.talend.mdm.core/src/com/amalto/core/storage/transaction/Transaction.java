@@ -61,6 +61,8 @@ public interface Transaction {
      * @return The {@link StorageTransaction} instance that handles all operations relative to the <code>storage</code>
      *         in this transaction.
      * @see #exclude(com.amalto.core.storage.Storage)
+     * @throws IllegalArgumentException If <code>storage</code> parameter does not support transactions.
+     * @see com.amalto.core.storage.Storage#getCapabilities()
      */
     StorageTransaction include(Storage storage);
 
