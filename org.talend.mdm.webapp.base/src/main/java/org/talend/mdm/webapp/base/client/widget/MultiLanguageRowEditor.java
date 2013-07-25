@@ -70,6 +70,9 @@ public class MultiLanguageRowEditor extends RowEditor<BaseModel> {
         grid.getSelectionModel().setLocked(false);
         if (saveChanges) {
             super.stopEditing(saveChanges);
+            if (field.isAdding()) {
+                field.setAdding(false);
+            }
             final BaseModel rowModel = grid.getStore().getAt(this.rowIndex);
             String selectedRowLanguage = rowModel.get("language"); //$NON-NLS-1$
             String selectedRowValue = rowModel.get("value"); //$NON-NLS-1$
@@ -104,9 +107,10 @@ public class MultiLanguageRowEditor extends RowEditor<BaseModel> {
                             }
                         }
                     });
-        } else {//for cancel editing or close
-            if (this.isEditing()) {
-                grid.getStore().remove(this.rowIndex); 
+        } else {//for cancel or close
+            if (this.isEditing() && field.isAdding()) {
+                grid.getStore().remove(this.rowIndex);
+                field.setAdding(false);
             }
             super.stopEditing(saveChanges);
         }

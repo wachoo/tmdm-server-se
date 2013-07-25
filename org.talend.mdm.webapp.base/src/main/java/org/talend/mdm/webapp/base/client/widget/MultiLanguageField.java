@@ -78,6 +78,8 @@ public class MultiLanguageField extends TextField<String> {
     private LinkedHashMap<String, ItemBaseModel> languageColumnMap = new LinkedHashMap<String, ItemBaseModel>();
 
     private boolean isFormInput;
+    
+    private boolean isAdding;
 
     private BaseRemoteServiceAsync service = GWT.create(BaseRemoteService.class);
 
@@ -92,6 +94,14 @@ public class MultiLanguageField extends TextField<String> {
     public MultiLanguageField(MultiLanguageModel _multiLanguageModel) {
         this();
         this.multiLanguageModel = _multiLanguageModel;
+    }
+
+    public boolean isAdding() {
+        return this.isAdding;
+    }
+
+    public void setAdding(boolean isAdding) {
+        this.isAdding = isAdding;
     }
 
     protected void onRender(Element target, int index) {
@@ -346,6 +356,7 @@ public class MultiLanguageField extends TextField<String> {
         addButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
            @Override
             public void componentSelected(ButtonEvent ce) {
+                setAdding(true);
                 ItemBaseModel model = new ItemBaseModel();
                 model.set("language", "EN"); //$NON-NLS-1$//$NON-NLS-2$
                 model.set("value", ""); //$NON-NLS-1$//$NON-NLS-2$
