@@ -251,6 +251,10 @@ public class ItemsListPanel extends ContentPanel {
 
     private static ItemsListPanel instance;
 
+    public static void initialize(ItemsListPanel instanceImpl) {
+        ItemsListPanel.instance = instanceImpl;
+    }
+    
     public static ItemsListPanel getInstance() {
         if (instance == null) {
             instance = new ItemsListPanel();
@@ -264,7 +268,7 @@ public class ItemsListPanel extends ContentPanel {
         instance = null;
     }
 
-    private ItemsListPanel() {
+    protected ItemsListPanel() {
         setLayout(new FitLayout());
         setHeaderVisible(false);
         initPanel();

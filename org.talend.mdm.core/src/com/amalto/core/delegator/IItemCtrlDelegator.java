@@ -29,6 +29,7 @@ import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
@@ -218,6 +219,11 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                     for (TypedExpression typeExpression : typeExpressions) {
                         qb.select(typeExpression);
                     }
+                }
+                if (dataClusterPOJOPK.getUniqueId().endsWith(StorageAdmin.STAGING_SUFFIX)) {
+                    qb.select(repository.getComplexType(typeName), "$staging_status$"); //$NON-NLS-1$
+                    qb.select(repository.getComplexType(typeName), "$staging_error$"); //$NON-NLS-1$
+                    qb.select(repository.getComplexType(typeName), "$staging_source$"); //$NON-NLS-1$
                 }
                 // Condition and paging
                 qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));

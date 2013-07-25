@@ -171,7 +171,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     private final Logger LOG = Logger.getLogger(BrowseRecordsAction.class);
 
-    protected final Messages MESSAGES = MessagesFactory.getMessages(
+    private final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages", this.getClass().getClassLoader()); //$NON-NLS-1$
 
     private final List<String> dateTypeNames = Arrays.asList("date", "dateTime"); //$NON-NLS-1$//$NON-NLS-2$
@@ -597,7 +597,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
      * @param language
      * @throws Exception
      */
-    private void dynamicAssemble(ItemBean itemBean, EntityModel entityModel, String language) throws Exception {
+    protected void dynamicAssemble(ItemBean itemBean, EntityModel entityModel, String language) throws Exception {
         if (itemBean.getItemXml() != null) {
             Document docXml = Util.parse(itemBean.getItemXml());
             Map<String, TypeModel> types = entityModel.getMetaDataTypes();
@@ -656,11 +656,17 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel,
             Map<String, EntityModel> map, String language) throws Exception {
+        dynamicAssembleByResultOrder(itemBean, viewBean.getViewableXpaths(), entityModel, map, language);
+    }
+    
+    protected void dynamicAssembleByResultOrder(ItemBean itemBean, List<String> ViewableXpaths, EntityModel entityModel,
+            Map<String, EntityModel> map, String language) throws Exception {
+
         if (itemBean.getItemXml() != null) {
             org.dom4j.Document docXml = DocumentHelper.parseText(itemBean.getItemXml());
             int i = 0;
             List<?> els = docXml.getRootElement().elements();
-            for (String path : viewBean.getViewableXpaths()) {
+            for (String path : ViewableXpaths) {
                 String leafPath = path.substring(path.lastIndexOf('/') + 1);
                 if (leafPath.startsWith("@")) { //$NON-NLS-1$
                     String[] xsiType = leafPath.substring(leafPath.indexOf("@") + 1).split(":"); //$NON-NLS-1$//$NON-NLS-2$
@@ -686,6 +692,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 i++;
             }
         }
+    
     }
 
     private void migrationMultiLingualFieldValue(ItemBean itemBean, TypeModel typeModel, Node node, String path,

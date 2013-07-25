@@ -17,4 +17,31 @@ import com.google.gwt.i18n.client.Messages;
 public interface BrowseRecordsInStagingMessages extends Messages {
 
     String staging_browse_record_title();
+
+    String source();
+
+    String status();
+
+    String error();
+
+    String status_000();
+
+    String status_201(String dataCluser);
+
+    String status_202(String dataContainer);
+
+    String status_203(String dataCluser);
+
+    String status_204(String dataCluser);
+
+    String status_205();
+
+    String status_401(String dataCluser);
+
+    String status_402(String dataCluser);
+
+    String status_403();
+
+    String status_404();
+
 }

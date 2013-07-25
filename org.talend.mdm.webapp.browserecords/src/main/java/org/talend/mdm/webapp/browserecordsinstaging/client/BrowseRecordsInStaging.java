@@ -28,9 +28,11 @@ import org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecordsinstaging.client.widget.ItemsListPanel4Staging;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
@@ -108,12 +110,12 @@ public class BrowseRecordsInStaging implements EntryPoint {
      */
     @Override
     public void onModuleLoad() {
-        initToolBarFactory();
-        initCurrentStateProvicer();
-        registerPubService();
         ServiceDefTarget service = GWT.create(BrowseRecordsInStagingService.class);
         ServiceEnhancer.customizeService(service);
         Registry.register(BrowseRecords.BROWSERECORDS_SERVICE, service);
+
+        initCurrentStateProvicer();
+        registerPubService();
 
         // register user session
         Registry.register(BrowseRecords.USER_SESSION, new UserSession());
@@ -126,8 +128,9 @@ public class BrowseRecordsInStaging implements EntryPoint {
         Log.setUncaughtExceptionHandler();
     }
 
-    private void initToolBarFactory() {
+    private void initExtendedEnviroment() {
         ToolBarFactory.initialize(new ToolBarFactory4Staging());
+        ItemsListPanel.initialize(new ItemsListPanel4Staging());
     }
 
     private void initCurrentStateProvicer() {
@@ -311,7 +314,7 @@ public class BrowseRecordsInStaging implements EntryPoint {
 
     public void renderContent(final String contentId) {
         onModuleRender();
-
+        initExtendedEnviroment();
         final ContentPanel content = GenerateContainer.getContentPanel();
         if (GWT.isScript()) {
             RootPanel panel = RootPanel.get(contentId);

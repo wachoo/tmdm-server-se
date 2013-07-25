@@ -12,24 +12,66 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecordsinstaging.server.actions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.base.shared.EntityModel;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.server.actions.BrowseRecordsAction;
+import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
+import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecordsinstaging.client.BrowseRecordsInStagingService;
+import org.talend.mdm.webapp.browserecordsinstaging.client.util.StagingConstant;
 
 import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
 
 public class BrowseRecordsInStagingAction extends BrowseRecordsAction implements BrowseRecordsInStagingService {
 
     private final Logger LOG = Logger.getLogger(BrowseRecordsInStagingAction.class);
+
+    private final Messages MESSAGES = MessagesFactory
+            .getMessages(
+                    "org.talend.mdm.webapp.browserecordsinstaging.client.i18n.BrowseRecordsInStagingMessages", this.getClass().getClassLoader()); //$NON-NLS-1$
+
+    @Override
+    public ViewBean getView(String viewPk, String language) throws ServiceException {
+        ViewBean view = super.getView(viewPk, language);
+        String concept = ViewHelper.getConceptFromDefaultViewName(viewPk);
+        EntityModel em = view.getBindingEntityModel();
+        Map<String, TypeModel> metadatas = em.getMetaDataTypes();
+
+        SimpleTypeModel stagingStatusType = new SimpleTypeModel(StagingConstant.STAGING_STATUS, DataTypeConstants.INT);
+        stagingStatusType.setXpath(concept + StagingConstant.STAGING_STATUS);
+        SimpleTypeModel stagingErrorType = new SimpleTypeModel(StagingConstant.STAGING_ERROR, DataTypeConstants.STRING);
+        stagingErrorType.setXpath(concept + StagingConstant.STAGING_ERROR);
+        SimpleTypeModel stagingSourceType = new SimpleTypeModel(StagingConstant.STAGING_SOURCE, DataTypeConstants.STRING);
+        stagingSourceType.setXpath(concept + StagingConstant.STAGING_SOURCE);
+
+        metadatas.put(concept + StagingConstant.STAGING_STATUS, stagingStatusType);
+        metadatas.put(concept + StagingConstant.STAGING_ERROR, stagingErrorType);
+        metadatas.put(concept + StagingConstant.STAGING_SOURCE, stagingSourceType);
+
+        Map<String, String> searchables = view.getSearchables();
+        Locale locale = new Locale(language);
+
+        searchables.put(concept + StagingConstant.STAGING_STATUS, MESSAGES.getMessage(locale, "status")); //$NON-NLS-1$
+        searchables.put(concept + StagingConstant.STAGING_ERROR, MESSAGES.getMessage(locale, "error")); //$NON-NLS-1$ 
+        searchables.put(concept + StagingConstant.STAGING_SOURCE, MESSAGES.getMessage(locale, "source")); //$NON-NLS-1$ 
+        return view;
+    }
 
     @Override
     public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config, String language) throws ServiceException {
@@ -62,4 +104,23 @@ public class BrowseRecordsInStagingAction extends BrowseRecordsAction implements
         }
     }
 
+    @Override
+    protected void dynamicAssemble(ItemBean itemBean, EntityModel entityModel, String language) throws Exception {
+        Map<String, TypeModel> metadatas = entityModel.getMetaDataTypes();
+        String concept = entityModel.getConceptName();
+        metadatas.remove(concept + StagingConstant.STAGING_STATUS);
+        metadatas.remove(concept + StagingConstant.STAGING_ERROR);
+        metadatas.remove(concept + StagingConstant.STAGING_SOURCE);
+        super.dynamicAssemble(itemBean, entityModel, language);
+    }
+
+    @Override
+    public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel,
+            Map<String, EntityModel> map, String language) throws Exception {
+        List<String> viewableXpaths = new ArrayList<String>(viewBean.getViewableXpaths());
+        viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_STATUS);
+        viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_ERROR);
+        viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_SOURCE);
+        super.dynamicAssembleByResultOrder(itemBean, viewableXpaths, entityModel, map, language);
+    }
 }
