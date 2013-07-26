@@ -35,7 +35,7 @@ public class DOMDocumentTest extends TestCase {
         String xml = "";
         while ((line = in.readLine()) != null)
             xml += line;
-        DOMDocument doc = new DOMDocument(Util.parse(xml), null, StringUtils.EMPTY, StringUtils.EMPTY);
+        DOMDocument doc = new DOMDocument(Util.parse(xml), null, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY);
         assertNotNull(doc);
         assertNotNull(doc.exportToString());
         assertFalse(doc.exportToString().contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
@@ -55,7 +55,7 @@ public class DOMDocumentTest extends TestCase {
             DocumentBuilder documentBuilder = new SkipAttributeDocumentBuilder(DOM_PARSER_FACTORY.newDocumentBuilder(), false);
             InputSource source = new InputSource(documentStream);
             Document userDomDocument = documentBuilder.parse(source);
-            userDocument = new DOMDocument(userDomDocument, null, StringUtils.EMPTY, StringUtils.EMPTY);
+            userDocument = new DOMDocument(userDomDocument, null, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY);
         } catch (Exception e) {
             throw new RuntimeException("Unable to parse document to save.", e);
         }

@@ -515,22 +515,20 @@ public class StagingAreaTest extends TestCase {
         }
 
         @Override
-        public Documents get(String dataClusterName, String typeName, String revisionId, String[] key) {
+        public MutableDocument get(String dataClusterName, String typeName, String revisionId, String[] key) {
             Select select = selectById(typeName, key);
-            Documents documents = new Documents();
             StorageResults dataRecords = storage.fetch(select);
             try {
                 if (dataRecords.getCount() > 0) {
                     DataRecord record = dataRecords.iterator().next();
-                    documents.databaseDocument = new StorageDocument(StringUtils.EMPTY, record);
-                    documents.databaseValidationDocument = new StorageDocument(StringUtils.EMPTY, record);
+                    return new StorageDocument(StringUtils.EMPTY, repository, record);
                 } else {
                     return null;
                 }
             } finally {
                 dataRecords.close();
             }
-            return documents;
+
         }
 
         private Select selectById(String typeName, String[] key) {

@@ -26,42 +26,15 @@ public interface MutableDocument extends Document {
     Accessor createAccessor(String path);
 
     /**
-     * @return Returns this document as a DOM tree. This method must be used with extra caution: it gives direct access
-     * to the underlying representation of the {@link MutableDocument}.
+     * @return Returns this document as a DOM tree. This method must be used with extra caution: it <b>might</b> give
+     * direct access to the underlying representation of the {@link MutableDocument}.
      */
     org.w3c.dom.Document asDOM();
 
     /**
-     * <p>
-     * Change value of a field in the document.
-     * </p>
-     *
-     * @param field    XPath to the field in the document.
-     * @param newValue New value to be set.
-     * @return A mutable document ready to be used (might be the same instance).
+     * @return A DOM document similar to {@link #asDOM()} but without Talend MDM specific attributes.
      */
-    MutableDocument setField(String field, String newValue);
-
-    /**
-     * <p>
-     * Delete a field in the document
-     * </p>
-     *
-     * @param field XPath to the field in the document.
-     * @return The document with the field deleted.
-     */
-    MutableDocument deleteField(String field);
-
-    /**
-     * <p>
-     * Adds a field in the document.
-     * </p>
-     *
-     * @param field XPath to the field in the document.
-     * @param value Field value
-     * @return The document with a new field added with the value passed as parameter.
-     */
-    MutableDocument addField(String field, String value);
+    org.w3c.dom.Document asValidationDOM();
 
     /**
      * @return Returns a document with created status.
@@ -106,4 +79,6 @@ public interface MutableDocument extends Document {
      * implementation, this require a (deep) copy of the DOM tree, so use this method carefully.
      */
     MutableDocument copy();
+
+    void clean();
 }

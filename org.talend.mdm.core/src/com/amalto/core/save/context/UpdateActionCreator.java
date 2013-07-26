@@ -13,7 +13,6 @@ package com.amalto.core.save.context;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
-import com.amalto.core.history.action.FieldInsertAction;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.metadata.MetadataUtils;
 import org.talend.mdm.commmon.metadata.*;
@@ -23,7 +22,6 @@ import org.apache.log4j.Logger;
 
 import java.util.*;
 
-// TODO Clean up: preserveCollectionOldValues is dedicated to partial update only!
 class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private static final Logger LOGGER = Logger.getLogger(UpdateActionCreator.class);
@@ -50,10 +48,6 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private final Set<String> touchedPaths = new HashSet<String>();
 
-    private final Map<FieldMetadata, Integer> originalFieldToLastIndex = new HashMap<FieldMetadata, Integer>();
-
-    protected boolean preserveCollectionOldValues;
-
     private String lastMatchPath;
 
     private boolean isDeletingContainedElement = false;
@@ -61,22 +55,19 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     public UpdateActionCreator(MutableDocument originalDocument,
                                MutableDocument newDocument,
                                Date date,
-                               boolean preserveCollectionOldValues,
                                String source,
                                String userName,
                                MetadataRepository repository) {
-        this(originalDocument, newDocument, date, preserveCollectionOldValues, -1, source, userName, repository);
+        this(originalDocument, newDocument, date, -1, source, userName, repository);
     }
 
     public UpdateActionCreator(MutableDocument originalDocument,
                                MutableDocument newDocument,
                                Date date,
-                               boolean preserveCollectionOldValues,
                                int insertIndex,
                                String source,
                                String userName,
                                MetadataRepository repository) {
-        this.preserveCollectionOldValues = preserveCollectionOldValues;
         this.originalDocument = originalDocument;
         this.newDocument = newDocument;
         this.insertIndex = insertIndex;
@@ -200,22 +191,18 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         Accessor originalAccessor = originalDocument.createAccessor(path);
         Accessor newAccessor = newDocument.createAccessor(path);
         if (!originalAccessor.exist()) {
-            if (!newAccessor.exist()) {
-                // No op
-            } else { // new accessor exist
+            if (newAccessor.exist()) { // new accessor exist
                 if (newAccessor.get() != null && !newAccessor.get().isEmpty()) { // Empty accessor means no op to ensure legacy behavior
                     generateNoOp(lastMatchPath);
                     actions.add(new FieldUpdateAction(date, source, userName, path, StringUtils.EMPTY, newAccessor.get(), comparedField));
                     generateNoOp(path);
-                } else {
-                    // No op.
                 }
             }
         } else { // original accessor exist
             String oldValue = originalAccessor.get();
             lastMatchPath = path;
             if (!newAccessor.exist()) {
-                if (comparedField.isMany() && !preserveCollectionOldValues) {
+                if (comparedField.isMany()) {
                     // TMDM-5216: Visit sub fields include old/new values for sub elements.
                     if (comparedField instanceof ContainedTypeFieldMetadata) {
                         isDeletingContainedElement = true;
@@ -236,18 +223,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             } else { // new accessor exist
                 String newValue = newAccessor.get();
                 if (newAccessor.get() != null && !(comparedField instanceof ContainedTypeFieldMetadata)) {
-                    if (comparedField.isMany() && preserveCollectionOldValues) {
-                        // Append at the end of the collection
-                        if (!originalFieldToLastIndex.containsKey(comparedField)) {
-                            originalFieldToLastIndex.put(comparedField, originalAccessor.size());
-                        }
-                        String previousPathElement = this.path.pop();
-                        int insertIndex = getInsertIndex(comparedField);
-                        this.path.push(comparedField.getName() + "[" + insertIndex + "]");
-                        actions.add(new FieldInsertAction(date, source, userName, getLeftPath(), StringUtils.EMPTY, newValue, comparedField));
-                        this.path.pop();
-                        this.path.push(previousPathElement);
-                    } else if (oldValue != null && !oldValue.equals(newValue)) {
+                    if (oldValue != null && !oldValue.equals(newValue)) {
                         if (!Types.STRING.equals(comparedField.getType().getName()) && !(comparedField instanceof ReferenceFieldMetadata)) {
                             // Field is not string. To ensure false positive difference detection, creates a typed value.
                             Object oldObject = MetadataUtils.convert(oldValue, comparedField);
@@ -265,25 +241,12 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                                 }
                             }
                         }
-
                         actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newAccessor.get(), comparedField));
-
                     } else if (oldValue != null && oldValue.equals(newValue)) {
                         generateNoOp(path);
                     }
                 }
             }
-        }
-    }
-
-    private int getInsertIndex(FieldMetadata comparedField) {
-        if (insertIndex < 0) {
-            int newIndex = originalFieldToLastIndex.get(comparedField);
-            newIndex = newIndex + 1;
-            originalFieldToLastIndex.put(comparedField, newIndex);
-            return newIndex;
-        } else {
-            return insertIndex;
         }
     }
 

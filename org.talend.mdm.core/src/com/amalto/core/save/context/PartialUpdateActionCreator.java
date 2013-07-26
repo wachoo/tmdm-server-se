@@ -12,7 +12,6 @@
 package com.amalto.core.save.context;
 
 import com.amalto.core.history.DOMMutableDocument;
-import com.amalto.core.save.DOMDocument;
 import org.w3c.dom.Node;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
@@ -46,6 +45,8 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
 
     private final Closure closure;
 
+    private boolean preserveCollectionOldValues;
+
     private String lastMatchPath;
 
     private boolean inPivot;
@@ -62,7 +63,8 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                                       String source,
                                       String userName,
                                       MetadataRepository repository) {
-        super(originalDocument, newDocument, date, preserveCollectionOldValues, insertIndex, source, userName, repository);
+        super(originalDocument, newDocument, date, insertIndex, source, userName, repository);
+        this.preserveCollectionOldValues = preserveCollectionOldValues;
         // Pivot MUST NOT end with '/' and key MUST start with '/' (see TMDM-4381).
         if (pivot.charAt(pivot.length() - 1) == '/') {
             partialUpdatePivot = pivot.substring(0, pivot.length() - 1);

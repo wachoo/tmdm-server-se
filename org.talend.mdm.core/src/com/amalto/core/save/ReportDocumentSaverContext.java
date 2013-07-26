@@ -80,11 +80,6 @@ public class ReportDocumentSaverContext extends AbstractDocumentSaverContext {
     }
 
     @Override
-    public MutableDocument getDatabaseValidationDocument() {
-        return delegate.getDatabaseValidationDocument();
-    }
-
-    @Override
     public MutableDocument getUserDocument() {
         return delegate.getUserDocument();
     }
@@ -122,11 +117,6 @@ public class ReportDocumentSaverContext extends AbstractDocumentSaverContext {
     @Override
     public void setDatabaseDocument(MutableDocument databaseDocument) {
         delegate.setDatabaseDocument(databaseDocument);
-    }
-
-    @Override
-    public void setDatabaseValidationDocument(MutableDocument databaseValidationDocument) {
-        delegate.setDatabaseValidationDocument(databaseValidationDocument);
     }
 
     @Override

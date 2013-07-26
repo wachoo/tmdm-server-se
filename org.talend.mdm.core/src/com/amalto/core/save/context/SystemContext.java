@@ -62,11 +62,6 @@ class SystemContext extends AbstractDocumentSaverContext {
     }
 
     @Override
-    public MutableDocument getDatabaseValidationDocument() {
-        return databaseValidationDocument;
-    }
-
-    @Override
     public MutableDocument getUserDocument() {
         return userDocument;
     }
@@ -105,11 +100,6 @@ class SystemContext extends AbstractDocumentSaverContext {
     @Override
     public void setDatabaseDocument(MutableDocument databaseDocument) {
         this.databaseDocument = databaseDocument;
-    }
-
-    @Override
-    public void setDatabaseValidationDocument(MutableDocument databaseValidationDocument) {
-        this.databaseValidationDocument = databaseValidationDocument;
     }
 
     @Override

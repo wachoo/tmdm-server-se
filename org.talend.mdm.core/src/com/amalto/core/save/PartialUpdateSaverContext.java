@@ -72,10 +72,6 @@ public class PartialUpdateSaverContext extends AbstractDocumentSaverContext {
         return delegate.getDatabaseDocument();
     }
 
-    public MutableDocument getDatabaseValidationDocument() {
-        return delegate.getDatabaseValidationDocument();
-    }
-
     public MutableDocument getUserDocument() {
         return delegate.getUserDocument();
     }
@@ -112,11 +108,6 @@ public class PartialUpdateSaverContext extends AbstractDocumentSaverContext {
         String localName = databaseDocument.asDOM().getDocumentElement().getLocalName();
         pivot = StringUtils.substringAfter(pivot, localName + '/');
         delegate.setDatabaseDocument(databaseDocument);
-    }
-
-    @Override
-    public void setDatabaseValidationDocument(MutableDocument databaseValidationDocument) {
-        delegate.setDatabaseValidationDocument(databaseValidationDocument);
     }
 
     @Override

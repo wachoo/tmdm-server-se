@@ -54,8 +54,8 @@ class Init implements DocumentSaver {
             next.save(session, context);
         } catch (Exception e) {
             // TMDM-3638: Don't log error if there's a before saving error.
-            if (getBeforeSavingMessage().isEmpty()) {
-                if (LOGGER.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled()) {
+                if (getBeforeSavingMessage().isEmpty()) {
                     LOGGER.debug("Exception occurred during save.", e);
                 }
             }

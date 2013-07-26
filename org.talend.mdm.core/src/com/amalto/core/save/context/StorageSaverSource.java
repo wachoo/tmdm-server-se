@@ -72,8 +72,7 @@ public class StorageSaverSource implements SaverSource {
     }
 
     @Override
-    public Documents get(String dataClusterName, String typeName, String revisionId, String[] key) {
-        Documents documents = new Documents();
+    public MutableDocument get(String dataClusterName, String typeName, String revisionId, String[] key) {
         Storage storage = getStorage(dataClusterName, revisionId);
         StorageResults results = storage.fetch(buildQueryByID(storage, typeName, key));
         try {
@@ -82,12 +81,11 @@ public class StorageSaverSource implements SaverSource {
                 return null;
             }
             DataRecord record = iterator.next();
-            documents.databaseDocument = new StorageDocument(dataClusterName, record);
-            documents.databaseValidationDocument = new StorageDocument(dataClusterName, record);
+            MetadataRepository repository = storage.getMetadataRepository();
+            return new StorageDocument(dataClusterName, repository, record);
         } finally {
             results.close();
         }
-        return documents;
     }
 
     private Storage getStorage(String dataClusterName, String revisionId) {
@@ -101,7 +99,8 @@ public class StorageSaverSource implements SaverSource {
         if (storage == null) {
             return false;
         }
-        StorageResults results = storage.fetch(buildQueryByID(storage, typeName, key));
+        storage.begin();
+        StorageResults results = storage.fetch(buildQueryByID(storage, typeName, key)); // Expect a transaction to be active
         try {
             Iterator<DataRecord> iterator = results.iterator();
             return iterator.hasNext();

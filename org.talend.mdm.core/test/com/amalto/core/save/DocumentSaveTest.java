@@ -28,7 +28,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import com.amalto.core.save.context.NonCloseableInputStream;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.server.*;
 import junit.framework.TestCase;
@@ -53,7 +52,6 @@ import com.amalto.core.util.Util;
 import com.amalto.core.util.ValidateException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 @SuppressWarnings("nls")
 public class DocumentSaveTest extends TestCase {
@@ -2445,33 +2443,14 @@ public class DocumentSaveTest extends TestCase {
         }
 
         @Override
-        public Documents get(String dataClusterName, String typeName, String revisionId, String[] key) {
+        public MutableDocument get(String dataClusterName, String typeName, String revisionId, String[] key) {
             try {
                 ComplexTypeMetadata type = repository.getComplexType(typeName);
                 DocumentBuilder documentBuilder;
-                DocumentBuilder validationDocumentBuilder;
                 documentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOCUMENT_BUILDER, false);
-                validationDocumentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOCUMENT_BUILDER, true);
-                NonCloseableInputStream nonCloseableInputStream = new NonCloseableInputStream(DocumentSaveTest.class.getResourceAsStream(originalDocumentFileName));
-                Documents documents = new Documents();
-                try {
-                    nonCloseableInputStream.mark(-1);
-
-                    Document databaseDomDocument = documentBuilder.parse(nonCloseableInputStream);
-                    Element userXmlElement = getUserXmlElement(databaseDomDocument);
-                    MutableDocument databaseDocument = new DOMDocument(userXmlElement, type, revisionId, dataClusterName);
-
-                    nonCloseableInputStream.reset();
-
-                    Document databaseValidationDomDocument = validationDocumentBuilder.parse(new InputSource(nonCloseableInputStream));
-                    userXmlElement = getUserXmlElement(databaseValidationDomDocument);
-                    MutableDocument databaseValidationDocument = new DOMDocument(userXmlElement, type, revisionId, dataClusterName);
-                    documents.databaseDocument = databaseDocument;
-                    documents.databaseValidationDocument = databaseValidationDocument;
-                    return documents;
-                } finally {
-                    nonCloseableInputStream.forceClose();
-                }
+                Document databaseDomDocument = documentBuilder.parse(DocumentSaveTest.class.getResourceAsStream(originalDocumentFileName));
+                Element userXmlElement = getUserXmlElement(databaseDomDocument);
+                return new DOMDocument(userXmlElement, type, revisionId, dataClusterName, dataClusterName);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

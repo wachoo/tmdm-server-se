@@ -15,7 +15,6 @@ import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.DOMDocument;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
-import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
@@ -33,19 +32,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class DefaultSaverSource implements SaverSource {
-
-    private static final Logger LOGGER = Logger.getLogger(DefaultSaverSource.class);
 
     private final XmlServer database;
 
@@ -90,7 +85,7 @@ public class DefaultSaverSource implements SaverSource {
         }
     }
 
-    public Documents get(String dataClusterName, String typeName, String revisionId, String[] key) {
+    public MutableDocument get(String dataClusterName, String typeName, String revisionId, String[] key) {
         try {
             StringBuilder builder = new StringBuilder();
             builder.append(dataClusterName).append('.').append(typeName).append('.');
@@ -106,34 +101,11 @@ public class DefaultSaverSource implements SaverSource {
                 return null;
             }
             DocumentBuilder documentBuilder;
-            DocumentBuilder validationDocumentBuilder;
             documentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOCUMENT_BUILDER, false);
-            validationDocumentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOCUMENT_BUILDER, true);
-            NonCloseableInputStream nonCloseableInputStream = new NonCloseableInputStream(new ByteArrayInputStream(documentAsString.getBytes("UTF-8"))); //$NON-NLS-1$
             ComplexTypeMetadata type = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(dataClusterName).getComplexType(typeName);
-            Documents documents = new Documents();
-            try {
-                nonCloseableInputStream.mark(-1);
-
-                Document databaseDomDocument = documentBuilder.parse(nonCloseableInputStream);
-                Element userXmlElement = getUserXmlElement(databaseDomDocument);
-                MutableDocument databaseDocument = new DOMDocument(userXmlElement, type, revisionId, dataClusterName);
-
-                nonCloseableInputStream.reset();
-
-                Document databaseValidationDomDocument = validationDocumentBuilder.parse(new InputSource(nonCloseableInputStream));
-                userXmlElement = getUserXmlElement(databaseValidationDomDocument);
-                MutableDocument databaseValidationDocument = new DOMDocument(userXmlElement, type, revisionId, dataClusterName);
-                documents.databaseDocument = databaseDocument;
-                documents.databaseValidationDocument = databaseValidationDocument;
-                return documents;
-            } finally {
-                try {
-                    nonCloseableInputStream.forceClose();
-                } catch (IOException e) {
-                    LOGGER.error("Exception occurred during close of stream.", e);
-                }
-            }
+            Document databaseDomDocument = documentBuilder.parse(new ByteArrayInputStream(documentAsString.getBytes("UTF-8")));
+            Element userXmlElement = getUserXmlElement(databaseDomDocument);
+            return new DOMDocument(userXmlElement, type, revisionId, dataClusterName, dataClusterName);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

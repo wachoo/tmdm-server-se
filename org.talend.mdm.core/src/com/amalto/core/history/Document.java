@@ -44,10 +44,17 @@ public interface Document {
      * <b>MUST</b> return a non-null value.
      * @see com.amalto.core.server.MetadataRepositoryAdmin
      */
-    String getDataModelName();
+    String getDataModel();
 
     /**
      * @return Returns the revision name (or <code>null</code> if HEAD revision).
      */
     String getRevision();
+
+    /**
+     * @return The name of the data cluster for this document. If document comes from staging area it <b>MUST</b> include
+     * the staging suffix.
+     * @see com.amalto.core.server.StorageAdmin#STAGING_SUFFIX
+     */
+    String getDataCluster();
 }

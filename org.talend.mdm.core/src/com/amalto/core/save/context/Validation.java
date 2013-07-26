@@ -53,9 +53,8 @@ class Validation implements DocumentSaver {
                     validator = (Validator) constructor.newInstance(validator, schematron);
                 }
             }
-            Element element = context.getDatabaseValidationDocument().asDOM().getDocumentElement();
+            Element element = context.getDatabaseDocument().asValidationDOM().getDocumentElement();
             validator.validate(element);
-
             next.save(session, context);
         } catch (ValidateException e) {
             throw e;

@@ -24,12 +24,7 @@ import java.util.Set;
  */
 public interface SaverSource {
 
-    class Documents {
-        public MutableDocument databaseDocument;
-        public MutableDocument databaseValidationDocument;
-    }
-
-    Documents get(String dataClusterName, String typeName, String revisionId, String[] key);
+    MutableDocument get(String dataClusterName, String typeName, String revisionId, String[] key);
 
     boolean exist(String dataCluster, String typeName, String revisionId, String[] key);
 

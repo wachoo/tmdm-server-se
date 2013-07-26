@@ -46,7 +46,6 @@ class ID implements DocumentSaver {
         Collection<FieldMetadata> keyFields = type.getKeyFields();
         SaverSource database = session.getSaverSource();
         String dataCluster = context.getDataCluster();
-
         MutableDocument userDocument = context.getUserDocument();
         String typeName = type.getName();
         for (FieldMetadata keyField : keyFields) {
@@ -78,7 +77,6 @@ class ID implements DocumentSaver {
                 throw new IllegalArgumentException("Expected id '" + keyField.getName() + "' to be set.");
             }
         }
-
         // now has an id, so load database document
         String[] xmlDocumentId = ids.toArray(new String[ids.size()]);
         String revisionID = context.getRevisionID();
@@ -87,9 +85,7 @@ class ID implements DocumentSaver {
                 context.setUserAction(UserAction.UPDATE);
             }
             context.setId(xmlDocumentId);
-            SaverSource.Documents documents = database.get(dataCluster, typeName, revisionID, xmlDocumentId);
-            context.setDatabaseDocument(documents.databaseDocument);
-            context.setDatabaseValidationDocument(documents.databaseValidationDocument);
+            context.setDatabaseDocument(database.get(dataCluster, typeName, revisionID, xmlDocumentId));
         } else {
             // Throw an exception if trying to update a document that does not exist.
             switch (context.getUserAction()) {
@@ -107,10 +103,8 @@ class ID implements DocumentSaver {
             }
             // Creation... so mark context
             context.setUserAction(UserAction.CREATE);
-            context.setDatabaseDocument(new DOMDocument(SaverContextFactory.DOCUMENT_BUILDER.newDocument(), type, context.getRevisionID(), context.getDataModelName()));
-            context.setDatabaseValidationDocument(new DOMDocument(SaverContextFactory.DOCUMENT_BUILDER.newDocument(), type, context.getRevisionID(), context.getDataModelName()));
+            context.setDatabaseDocument(new DOMDocument(SaverContextFactory.DOCUMENT_BUILDER.newDocument(), type, context.getRevisionID(), dataCluster, context.getDataModelName()));
         }
-
         // Continue save
         savedTypeName = type.getName();
         next.save(session, context);

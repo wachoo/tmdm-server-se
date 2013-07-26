@@ -35,11 +35,6 @@ public interface DocumentSaverContext {
     MutableDocument getDatabaseDocument();
 
     /**
-     * @return Document to be used for XML schema validation (doesn't contain MDM internal technical annotations).
-     */
-    MutableDocument getDatabaseValidationDocument();
-
-    /**
      * @return Document provided by user for save
      */
     MutableDocument getUserDocument();
@@ -91,8 +86,6 @@ public interface DocumentSaverContext {
     String getRevisionID();
 
     void setDatabaseDocument(MutableDocument databaseDocument);
-
-    void setDatabaseValidationDocument(MutableDocument databaseValidationDocument);
 
     void setRevisionId(String revisionID);
 

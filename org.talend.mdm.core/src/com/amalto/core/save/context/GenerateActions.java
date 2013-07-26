@@ -18,7 +18,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -33,8 +32,6 @@ import com.amalto.core.save.UserAction;
 import com.amalto.core.util.SynchronizedNow;
 
 class GenerateActions implements DocumentSaver {
-
-    private static final Logger LOGGER = Logger.getLogger(GenerateActions.class);
 
     private final DocumentSaver next;
 
@@ -75,8 +72,12 @@ class GenerateActions implements DocumentSaver {
         List<Action> actions;
         MetadataRepository metadataRepository = saverSource.getMetadataRepository(context.getDataModelName());
         // Generate field update actions for UUID and AutoIncrement elements.
-        UpdateActionCreator updateActions = new UpdateActionCreator(databaseDocument, userDocument, date,
-                context.preserveOldCollectionValues(), source, userName, metadataRepository);
+        UpdateActionCreator updateActions = new UpdateActionCreator(databaseDocument,
+                userDocument,
+                date,
+                source,
+                userName,
+                metadataRepository);
         UserAction userAction = context.getUserAction();
         switch (userAction) {
         case CREATE:

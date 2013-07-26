@@ -35,12 +35,10 @@ class UpdateReport implements DocumentSaver {
 
     @Override
     public void save(SaverSession session, DocumentSaverContext context) {
-        MutableDocument databaseDocument = context.getDatabaseDocument();
-
         UpdateReportDocument updateReportDocument;
         Document updateReportAsDOM = SaverContextFactory.DOCUMENT_BUILDER.newDocument();
         updateReportAsDOM.appendChild(updateReportAsDOM.createElement(UPDATE_REPORT_TYPE));
-        updateReportDocument = new UpdateReportDocument(updateReportAsDOM, databaseDocument);
+        updateReportDocument = new UpdateReportDocument(updateReportAsDOM);
 
         StringBuilder key = new StringBuilder();
         String[] id = context.getId();

@@ -16,6 +16,7 @@ import com.amalto.core.history.Document;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.accessor.DOMAccessorFactory;
 import com.amalto.core.save.context.SaverContextFactory;
+import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -38,16 +39,20 @@ public class DOMDocument implements DOMMutableDocument {
 
     private final String dataModelName;
 
-    public DOMDocument(org.w3c.dom.Document domDocument, ComplexTypeMetadata type, String revisionId, String dataModelName) {
+    private final String dataCluster;
+
+    public DOMDocument(org.w3c.dom.Document domDocument, ComplexTypeMetadata type, String revisionId, String dataCluster, String dataModelName) {
         this.type = type;
         this.revisionId = revisionId;
+        this.dataCluster = dataCluster;
         this.dataModelName = dataModelName;
         init(domDocument);
     }
 
-    public DOMDocument(Node node, ComplexTypeMetadata type, String revisionId, String dataModelName) {
+    public DOMDocument(Node node, ComplexTypeMetadata type, String revisionId, String dataCluster, String dataModelName) {
         this.type = type;
         this.revisionId = revisionId;
+        this.dataCluster = dataCluster;
         this.dataModelName = dataModelName;
         DocumentBuilder documentBuilder = SaverContextFactory.DOCUMENT_BUILDER;
         org.w3c.dom.Document document = documentBuilder.newDocument();
@@ -78,7 +83,68 @@ public class DOMDocument implements DOMMutableDocument {
     }
 
     public MutableDocument copy() {
-        return new DOMDocument((org.w3c.dom.Document) domDocument.cloneNode(true), type, revisionId, dataModelName);
+        return new DOMDocument((org.w3c.dom.Document) domDocument.cloneNode(true), type, revisionId, dataCluster, dataModelName);
+    }
+
+    @Override
+    public void clean() {
+        clean(domDocument.getDocumentElement(), EmptyElementCleaner.INSTANCE, false);
+    }
+
+    private void clean(Element element, Cleaner cleaner, boolean removeTalendAttributes) {
+        if (element == null) {
+            return;
+        }
+        if (removeTalendAttributes) {
+            element.removeAttributeNS(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type"); //$NON-NLS-1$
+        }
+        Node current = element.getLastChild();
+        while (current != null) {
+            Node next = current.getPreviousSibling();
+            if (current.getNodeType() == Node.ELEMENT_NODE) {
+                Element currentElement = (Element) current;
+                clean(currentElement, cleaner, removeTalendAttributes);
+            }
+            current = next;
+        }
+        if (cleaner.clean(element)) {
+            element.getParentNode().removeChild(element);
+        }
+    }
+
+    interface Cleaner {
+        /**
+         * Indicates to the caller whether <code>element</code> should be deleted or not.<br/>
+         *
+         * @param element An element to clean
+         * @return <code>true</code> if element should be removed by caller, <code>false</code> otherwise.
+         */
+        boolean clean(Element element);
+    }
+
+    private static class EmptyElementCleaner implements Cleaner {
+
+        static Cleaner INSTANCE = new EmptyElementCleaner();
+
+        public boolean clean(Element element) {
+            if (element == null) {
+                return true;
+            }
+            if (element.hasChildNodes()) {
+                return false;
+            }
+            if (element.hasAttributes()) {
+                // Returns true (isEmpty) if all attributes are empty.
+                NamedNodeMap attributes = element.getAttributes();
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    String attributeValue = attributes.item(i).getNodeValue();
+                    if (attributeValue != null && !attributeValue.trim().isEmpty()) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
     }
 
     public String exportToString() {
@@ -111,13 +177,18 @@ public class DOMDocument implements DOMMutableDocument {
     }
 
     @Override
-    public String getDataModelName() {
+    public String getDataModel() {
         return dataModelName;
     }
 
     @Override
     public String getRevision() {
         return revisionId;
+    }
+
+    @Override
+    public String getDataCluster() {
+        return dataCluster;
     }
 
     public Accessor createAccessor(String path) {
@@ -132,20 +203,11 @@ public class DOMDocument implements DOMMutableDocument {
         return domDocument;
     }
 
-    public MutableDocument setField(String field, String newValue) {
-        createAccessor(field).set(newValue);
-        return this;
-    }
-
-    public MutableDocument deleteField(String field) {
-        createAccessor(field).delete();
-        return this;
-    }
-
-    public MutableDocument addField(String field, String value) {
-        Accessor accessor = createAccessor(field);
-        accessor.createAndSet(value);
-        return this;
+    @Override
+    public org.w3c.dom.Document asValidationDOM() {
+        org.w3c.dom.Document validationDOM = (org.w3c.dom.Document) domDocument.cloneNode(true);
+        clean(validationDOM.getDocumentElement(), EmptyElementCleaner.INSTANCE, true);
+        return validationDOM;
     }
 
     public MutableDocument create(MutableDocument content) {

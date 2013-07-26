@@ -23,8 +23,6 @@ public class DefaultCommitter implements SaverSession.Committer {
 
     private final XmlServer xmlServerCtrlLocal;
 
-    private String dataCluster;
-    
     public DefaultCommitter() {
         try {
             xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
@@ -38,7 +36,6 @@ public class DefaultCommitter implements SaverSession.Committer {
             if (xmlServerCtrlLocal.supportTransaction()) {
                 xmlServerCtrlLocal.start(dataCluster);
             }
-            this.dataCluster = dataCluster;
         } catch (XtentisException e) {
             throw new RuntimeException(e);
         }
@@ -49,22 +46,6 @@ public class DefaultCommitter implements SaverSession.Committer {
             if (xmlServerCtrlLocal.supportTransaction()) {
                 xmlServerCtrlLocal.commit(dataCluster);
             }
-            this.dataCluster = null;
-        } catch (XtentisException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void save(Document document) {
-        try {
-            ComplexTypeMetadata type = document.getType();
-            boolean putInCache = type.getSuperTypes().isEmpty() && type.getSubTypes().isEmpty();
-            ItemPOJO item = new ItemPOJO(new DataClusterPOJOPK(dataCluster),
-                    type.getName(),
-                    new String[0],
-                    System.currentTimeMillis(),
-                    document.exportToString());
-            item.store(document.getRevision(), putInCache);
         } catch (XtentisException e) {
             throw new RuntimeException(e);
         }
@@ -75,7 +56,21 @@ public class DefaultCommitter implements SaverSession.Committer {
             if (xmlServerCtrlLocal.supportTransaction()) {
                 xmlServerCtrlLocal.rollback(dataCluster);
             }
-            this.dataCluster = null;
+        } catch (XtentisException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void save(Document document) {
+        try {
+            ComplexTypeMetadata type = document.getType();
+            boolean putInCache = type.getSuperTypes().isEmpty() && type.getSubTypes().isEmpty();
+            ItemPOJO item = new ItemPOJO(new DataClusterPOJOPK(document.getDataCluster()),
+                    type.getName(),
+                    new String[0], // TODO
+                    System.currentTimeMillis(),
+                    document.exportToString());
+            item.store(document.getRevision(), putInCache);
         } catch (XtentisException e) {
             throw new RuntimeException(e);
         }

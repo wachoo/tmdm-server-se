@@ -19,14 +19,13 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.UUID;
 
+import com.amalto.core.history.accessor.DOMAccessor;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
-import org.w3c.dom.Node;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
-import com.amalto.core.history.accessor.DOMAccessor;
 import com.amalto.core.history.action.FieldUpdateAction;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
@@ -35,6 +34,7 @@ import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.w3c.dom.Node;
 
 /**
  * Generate actions on creation (like setting UUID and AUTO_INCREMENT fields that <b>are not</b> part of the saved
@@ -82,8 +82,14 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
         }
     }
 
-    CreateActions(MutableDocument document, Date date, String source, String userName, String dataCluster, String universe,
-            SaverSource saverSource, Map<String, String> autoIncrementFieldMap) {
+    CreateActions(MutableDocument document,
+                  Date date,
+                  String source,
+                  String userName,
+                  String dataCluster,
+                  String universe,
+                  SaverSource saverSource,
+                  Map<String, String> autoIncrementFieldMap) {
         this.document = document;
         this.date = date;
         this.source = source;

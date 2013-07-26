@@ -90,10 +90,6 @@ class BulkLoadContext extends AbstractDocumentSaverContext {
         throw new UnsupportedOperationException();
     }
 
-    public void setDatabaseValidationDocument(MutableDocument databaseValidationDocument) {
-        throw new UnsupportedOperationException();
-    }
-
     public void setRevisionId(String revisionID) {
         throw new UnsupportedOperationException();
     }

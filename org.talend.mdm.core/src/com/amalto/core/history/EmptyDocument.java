@@ -22,7 +22,6 @@ import javax.xml.parsers.ParserConfigurationException;
 /**
 *
 */
-// TODO Make it singleton (no need for new instances of this).
 public class EmptyDocument implements MutableDocument {
 
     public static final MutableDocument INSTANCE = new EmptyDocument();
@@ -52,6 +51,11 @@ public class EmptyDocument implements MutableDocument {
         return EMPTY_DOCUMENT;
     }
 
+    @Override
+    public org.w3c.dom.Document asValidationDOM() {
+        return EMPTY_DOCUMENT;
+    }
+
     public Document transform(DocumentTransformer transformer) {
         if (transformer == null) {
             throw new IllegalArgumentException("Transformer argument cannot be null");
@@ -68,7 +72,7 @@ public class EmptyDocument implements MutableDocument {
     }
 
     @Override
-    public String getDataModelName() {
+    public String getDataModel() {
         return StringUtils.EMPTY;
     }
 
@@ -77,16 +81,9 @@ public class EmptyDocument implements MutableDocument {
         return StringUtils.EMPTY;
     }
 
-    public MutableDocument setField(String field, String newValue) {
-        return this;
-    }
-
-    public MutableDocument deleteField(String field) {
-        return this;
-    }
-
-    public MutableDocument addField(String field, String value) {
-        return this;
+    @Override
+    public String getDataCluster() {
+        return StringUtils.EMPTY;
     }
 
     public MutableDocument create(MutableDocument content) {
@@ -111,5 +108,9 @@ public class EmptyDocument implements MutableDocument {
 
     public MutableDocument copy() {
         return this;
+    }
+
+    @Override
+    public void clean() {
     }
 }

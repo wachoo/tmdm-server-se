@@ -8,6 +8,7 @@ import com.amalto.core.save.DOMDocument;
 import com.amalto.core.server.ServerContext;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -18,8 +19,6 @@ class UpdateReportDocument extends DOMDocument {
 
     private final Document updateReportDocument;
 
-    private final MutableDocument savedDocument;
-
     private boolean isRecordingFieldChange;
 
     private int index = 0;
@@ -28,14 +27,16 @@ class UpdateReportDocument extends DOMDocument {
 
     private boolean isCreated = false;
 
-    public UpdateReportDocument(Document updateReportDocument, MutableDocument savedDocument) {
-        super(updateReportDocument, internalGetType(), StringUtils.EMPTY, UpdateReport.UPDATE_REPORT_DATA_MODEL);
+    public UpdateReportDocument(Document updateReportDocument) {
+        super(updateReportDocument,
+                internalGetType(),
+                StringUtils.EMPTY,
+                XSystemObjects.DC_UPDATE_PREPORT.getName(),
+                UpdateReport.UPDATE_REPORT_DATA_MODEL);
         this.updateReportDocument = updateReportDocument;
-        this.savedDocument = savedDocument;
     }
 
-    @Override
-    public MutableDocument setField(String field, String value) {
+    private MutableDocument setField(String field, String value) {
         if (index++ % 2 == 0) {
             currentNewValue = value;
         } else {
@@ -61,52 +62,6 @@ class UpdateReportDocument extends DOMDocument {
             updateReportDocument.getDocumentElement().appendChild(item);
             currentNewValue = null;
         }
-
-        return this;
-    }
-
-    @Override
-    public MutableDocument deleteField(String field) {
-        Element item = updateReportDocument.createElement("Item"); //$NON-NLS-1$
-        {
-            // Path
-            Node pathNode = updateReportDocument.createElement("path"); //$NON-NLS-1$
-            pathNode.appendChild(updateReportDocument.createTextNode(field));
-            item.appendChild(pathNode);
-
-            // Old value
-            Node oldValueNode = updateReportDocument.createElement("oldValue"); //$NON-NLS-1$
-            oldValueNode.appendChild(updateReportDocument.createTextNode(savedDocument.createAccessor(field).get()));
-            item.appendChild(oldValueNode);
-
-            // New value
-            Node newValueNode = updateReportDocument.createElement("newValue"); //$NON-NLS-1$
-            item.appendChild(newValueNode);
-        }
-        updateReportDocument.getDocumentElement().appendChild(item);
-
-        return this;
-    }
-
-    @Override
-    public MutableDocument addField(String field, String value) {
-        Element item = updateReportDocument.createElement("Item"); //$NON-NLS-1$
-        {
-            // Path node
-            Node pathNode = updateReportDocument.createElement("path"); //$NON-NLS-1$
-            pathNode.appendChild(updateReportDocument.createTextNode(field));
-            item.appendChild(pathNode);
-
-            // Old value
-            Node oldValueNode = updateReportDocument.createElement("oldValue"); //$NON-NLS-1$
-            oldValueNode.appendChild(updateReportDocument.createTextNode(savedDocument.createAccessor(field).get()));
-            item.appendChild(oldValueNode);
-
-            // New value
-            Node newValueNode = updateReportDocument.createElement("newValue"); //$NON-NLS-1$
-            item.appendChild(newValueNode);
-        }
-        updateReportDocument.getDocumentElement().appendChild(item);
 
         return this;
     }
@@ -161,7 +116,7 @@ class UpdateReportDocument extends DOMDocument {
     }
 
     @Override
-    public String getDataModelName() {
+    public String getDataModel() {
         return "UpdateReport"; //$NON-NLS-1$
     }
 

@@ -15,7 +15,9 @@ import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.AbstractDocumentSaverContext;
 import com.amalto.core.save.UserAction;
+import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageType;
 import org.apache.commons.lang.NotImplementedException;
 
 import java.util.HashMap;
@@ -50,8 +52,6 @@ public class StorageSaver extends AbstractDocumentSaverContext {
     private MutableDocument userDocument;
 
     private MutableDocument databaseDocument;
-
-    private MutableDocument databaseValidationDocument;
 
     private String[] ids = new String[0];
 
@@ -105,11 +105,6 @@ public class StorageSaver extends AbstractDocumentSaverContext {
     }
 
     @Override
-    public MutableDocument getDatabaseValidationDocument() {
-        return databaseValidationDocument;
-    }
-
-    @Override
     public MutableDocument getUserDocument() {
         return userDocument;
     }
@@ -141,7 +136,16 @@ public class StorageSaver extends AbstractDocumentSaverContext {
 
     @Override
     public String getDataCluster() {
-        return storage.getName();
+        StorageType storageType = storage.getType();
+        switch (storageType) {
+            case SYSTEM:
+            case MASTER:
+                return storage.getName();
+            case STAGING:
+                return storage.getName() + StorageAdmin.STAGING_SUFFIX;
+            default:
+                throw new UnsupportedOperationException("No support for type '" + storageType + "'.");
+        }
     }
 
     @Override
@@ -157,11 +161,6 @@ public class StorageSaver extends AbstractDocumentSaverContext {
     @Override
     public void setDatabaseDocument(MutableDocument databaseDocument) {
         this.databaseDocument = databaseDocument;
-    }
-
-    @Override
-    public void setDatabaseValidationDocument(MutableDocument databaseValidationDocument) {
-        this.databaseValidationDocument= databaseValidationDocument;
     }
 
     @Override

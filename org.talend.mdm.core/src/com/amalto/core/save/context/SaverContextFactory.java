@@ -166,7 +166,7 @@ public class SaverContextFactory {
             if (type == null) {
                 throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data model '" + dataModelName + "'.");
             }
-            userDocument = new DOMDocument(userDomDocument.getDocumentElement(), type, StringUtils.EMPTY, dataModelName);
+            userDocument = new DOMDocument(userDomDocument.getDocumentElement(), type, StringUtils.EMPTY, dataCluster, dataModelName);
         } catch (Exception e) {
             throw new RuntimeException("Unable to parse document to save.", e);
         }
