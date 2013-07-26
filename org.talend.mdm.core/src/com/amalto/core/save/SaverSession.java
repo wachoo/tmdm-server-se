@@ -21,6 +21,7 @@ import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -134,7 +135,9 @@ public class SaverSession {
             for (Map.Entry<String, Set<ItemPOJO>> currentTransaction : itemsPerDataCluster.entrySet()) {
                 String dataCluster = currentTransaction.getKey();
                 begin(dataCluster, committer);
-                for (ItemPOJO currentItemToCommit : currentTransaction.getValue()) {
+                Iterator<ItemPOJO> iterator = currentTransaction.getValue().iterator();
+                while (iterator.hasNext()) {
+                    ItemPOJO currentItemToCommit = iterator.next();
                     if (repository == null || type == null) {
                         String dataModelName = currentItemToCommit.getDataModelName();
                         if (dataModelName != null) { // TODO Every item should have a data mode name (but UpdateReport doesn't)
@@ -145,17 +148,25 @@ public class SaverSession {
                     if (!needResetAutoIncrement) {
                         needResetAutoIncrement = isAutoIncrementItem(currentItemToCommit);
                     }
-                    committer.save(currentItemToCommit, type, currentItemToCommit.getDataModelRevision()); // TODO Use data model revision for revision id?
+                    // Don't do clean up in case of exception here: rollback (abort()) takes care of the clean up.
+                    committer.save(currentItemToCommit, type, currentItemToCommit.getDataModelRevision());
+                    // Keep update reports for routeItem (see below).
+                    if (!XSystemObjects.DC_UPDATE_PREPORT.getName().equals(dataCluster)) {
+                        iterator.remove();
+                    }
                 }
                 committer.commit(dataCluster);
-                repository = null;
-                type = null;
             }
             // If any change was made to data cluster "UpdateReport", route committed update reports.
-            Set<ItemPOJO> updateReport = itemsPerDataCluster.get("UpdateReport"); //$NON-NLS-1$
+            Set<ItemPOJO> updateReport = itemsPerDataCluster.get(XSystemObjects.DC_UPDATE_PREPORT.getName());
             if (updateReport != null) {
-                for (ItemPOJO updateReportPOJO : updateReport) {
-                    saverSource.routeItem(updateReportPOJO.getDataClusterPOJOPK().getUniqueId(), updateReportPOJO.getConceptName(), updateReportPOJO.getItemIds());
+                Iterator<ItemPOJO> iterator = updateReport.iterator();
+                while (iterator.hasNext()) {
+                    ItemPOJO updateReportPOJO = iterator.next();
+                    saverSource.routeItem(updateReportPOJO.getDataClusterPOJOPK().getUniqueId(),
+                            updateReportPOJO.getConceptName(),
+                            updateReportPOJO.getItemIds());
+                    iterator.remove();
                 }
             }
             // reset the AutoIncrement
