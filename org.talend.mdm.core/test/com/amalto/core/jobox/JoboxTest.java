@@ -54,7 +54,7 @@ public class JoboxTest extends TestCase {
 
         undeployAllFiles();
 
-        jobContainer = null; // TODO shut down method?
+        jobContainer.close();
         System.setProperties(previousProperties);
     }
 

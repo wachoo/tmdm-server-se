@@ -5,6 +5,7 @@ import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.save.DOMDocument;
+import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -46,12 +47,10 @@ class UpdateReportDocument extends DOMDocument {
                 Node pathNode = updateReportDocument.createElement("path"); //$NON-NLS-1$
                 pathNode.appendChild(updateReportDocument.createTextNode(field));
                 item.appendChild(pathNode);
-
                 // Old value
                 Node oldValueNode = updateReportDocument.createElement("oldValue"); //$NON-NLS-1$
                 oldValueNode.appendChild(updateReportDocument.createTextNode(value));
                 item.appendChild(oldValueNode);
-
                 // New value
                 Node newValueNode = updateReportDocument.createElement("newValue"); //$NON-NLS-1$
                 if (currentNewValue != null) {
@@ -62,7 +61,6 @@ class UpdateReportDocument extends DOMDocument {
             updateReportDocument.getDocumentElement().appendChild(item);
             currentNewValue = null;
         }
-
         return this;
     }
 
@@ -94,7 +92,7 @@ class UpdateReportDocument extends DOMDocument {
 
     public void disableRecordFieldChange() {
         if (!isCreated) {
-            // TODO Doing so add the OperationType element to the end of the document... not very human readable but works for an XML parser.
+            // Doing so add the OperationType element to the end of the document... not very human readable but works for an XML parser.
             Element item = updateReportDocument.createElement("OperationType"); //$NON-NLS-1$
             item.appendChild(updateReportDocument.createTextNode(UpdateReportPOJO.OPERATION_TYPE_UPDATE));
             updateReportDocument.getDocumentElement().appendChild(item);
@@ -117,7 +115,7 @@ class UpdateReportDocument extends DOMDocument {
 
     @Override
     public String getDataModel() {
-        return "UpdateReport"; //$NON-NLS-1$
+        return UpdateReport.UPDATE_REPORT_DATA_MODEL;
     }
 
     @Override
@@ -126,7 +124,8 @@ class UpdateReportDocument extends DOMDocument {
     }
 
     private static ComplexTypeMetadata internalGetType() {
-        return ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get("UpdateReport").getComplexType("Update");
+        MetadataRepositoryAdmin admin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
+        return admin.get(UpdateReport.UPDATE_REPORT_DATA_MODEL).getComplexType("Update"); //$NON-NLS-1$
     }
 
     private static class FieldChangeRecorder implements Accessor {

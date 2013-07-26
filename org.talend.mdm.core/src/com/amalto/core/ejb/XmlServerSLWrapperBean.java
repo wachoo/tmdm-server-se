@@ -84,9 +84,6 @@ public class XmlServerSLWrapperBean implements SessionBean, XmlServer {
         }
     }
 
-
-    //The underlying server
-    //TODO: the underlying server is not serializable.....
     IXmlServerSLWrapper server = null;
 
     /**

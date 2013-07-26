@@ -103,12 +103,12 @@ public class JobContainer {
         File joboxWorkPath = new File(joboxConfig.getWorkPath());
         if (!joboxDeployPath.exists()) {
             if (!joboxDeployPath.mkdirs()) {
-                // TODO Exception
+                LOGGER.error("Create folder failed for '" + joboxDeployPath.getAbsolutePath() + "'.");
             }
         }
         if (!joboxWorkPath.exists()) {
             if (!joboxWorkPath.mkdirs()) {
-                // TODO Exception
+                LOGGER.error("Create folder failed for '" + joboxWorkPath.getAbsolutePath() + "'.");
             }
         }
 
@@ -408,4 +408,7 @@ public class JobContainer {
         }
     }
 
+    public void close() {
+        jobLoadersPool.clear();
+    }
 }

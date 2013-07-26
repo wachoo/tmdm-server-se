@@ -198,7 +198,10 @@ public class UserQueryHelper {
         }
         int position = -1;
         if (fieldName.indexOf('[') > 0) {
-            // TODO Check if there's multiple [] in path (unsupported).
+            // Check if there's multiple [] in path (unsupported).
+            if (fieldName.indexOf('[', fieldName.indexOf('[') + 1) > 0) {
+                throw new IllegalArgumentException("Does not support multiple index in path.");
+            }
             position = Integer.parseInt(fieldName.substring(fieldName.indexOf('[') + 1, fieldName.indexOf(']'))) - 1;
             fieldName = fieldName.substring(0, fieldName.indexOf('['));
         }

@@ -19,7 +19,20 @@ import com.amalto.core.storage.StorageWrapper;
 @SuppressWarnings("nls")
 public class Main {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
+        String fieldName = "/home[1]/child[0]";
+        System.out.println("wrong = " + isWrong(fieldName));
+        fieldName = "/home/child[0]";
+        System.out.println("wrong = " + isWrong(fieldName));
+        fieldName = "/home/child";
+        System.out.println("wrong = " + isWrong(fieldName));
+    }
+
+    private static boolean isWrong(String fieldName) {
+        return fieldName.indexOf('[', fieldName.indexOf('[') + 1) > 0;
+    }
+
+    public static void main2(String[] args) throws Exception {
         Server server = ServerContext.INSTANCE.get(new MockServerLifecycle());
         server.getMetadataRepositoryAdmin().get("metadata.xsd");
 

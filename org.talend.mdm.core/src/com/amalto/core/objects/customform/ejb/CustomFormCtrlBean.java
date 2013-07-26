@@ -32,6 +32,7 @@ import com.amalto.core.objects.role.ejb.RolePOJOPK;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.RoleSpecification;
 import com.amalto.core.util.XtentisException;
+import org.apache.log4j.Logger;
 
 /**
  * @author achen
@@ -49,44 +50,18 @@ import com.amalto.core.util.XtentisException;
 public class CustomFormCtrlBean implements SessionBean {
 
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.ejb.SessionBean#ejbActivate()
-     */
+    public static final Logger LOGGER = Logger.getLogger(CustomFormCtrlBean.class);
+
     public void ejbActivate() throws EJBException, RemoteException {
-        // TODO Auto-generated method stub
-
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.ejb.SessionBean#ejbPassivate()
-     */
     public void ejbPassivate() throws EJBException, RemoteException {
-        // TODO Auto-generated method stub
-
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.ejb.SessionBean#ejbRemove()
-     */
     public void ejbRemove() throws EJBException, RemoteException {
-        // TODO Auto-generated method stub
-
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.ejb.SessionBean#setSessionContext(javax.ejb.SessionContext)
-     */
     public void setSessionContext(SessionContext arg0) throws EJBException, RemoteException {
-        // TODO Auto-generated method stub
-
     }
 
     /**
@@ -98,14 +73,14 @@ public class CustomFormCtrlBean implements SessionBean {
      * @ejb.facade-method
      */
     public CustomFormPOJOPK putCustomForm(CustomFormPOJO customForm) throws XtentisException {
-        org.apache.log4j.Logger.getLogger(this.getClass()).trace("putCustomForm() ");
-
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("putCustomForm() ");
+        }
         try {
-
             ObjectPOJOPK pk = customForm.store();
-            if (pk == null)
+            if (pk == null) {
                 throw new XtentisException("Check the XML Server logs");
-
+            }
             return (CustomFormPOJOPK) pk;
         } catch (XtentisException e) {
             throw (e);
@@ -113,10 +88,9 @@ public class CustomFormCtrlBean implements SessionBean {
             String err = "Unable to create/update the CustomForm " + customForm.getPK().getUniqueId() + ": "
                     + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-            throw new XtentisException(err);
+            LOGGER.error(err);
+            throw new XtentisException(err, e);
         }
-
     }
 
     /**
@@ -128,12 +102,11 @@ public class CustomFormCtrlBean implements SessionBean {
      * @ejb.facade-method
      */
     public CustomFormPOJO getCustomForm(CustomFormPOJOPK pk) throws XtentisException {
-
         try {
             CustomFormPOJO sp = ObjectPOJO.load(CustomFormPOJO.class, pk);
             if (sp == null) {
                 String err = "The CustomForm " + pk.getUniqueId() + " does not exist.";
-                org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+                LOGGER.error(err);
                 throw new XtentisException(err);
             }
             return sp;
@@ -142,8 +115,8 @@ public class CustomFormCtrlBean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to get the CustomForm " + pk.toString() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-            throw new XtentisException(err);
+            LOGGER.error(err);
+            throw new XtentisException(err, e);
         }
     }
 
@@ -156,23 +129,22 @@ public class CustomFormCtrlBean implements SessionBean {
      * @ejb.facade-method
      */
     public CustomFormPOJO getUserCustomForm(CustomFormPOJOPK cpk) throws XtentisException {
-
-        try {            
+        try {
             List<String> ids= new ArrayList<String>();
-            String objectType = "Custom Layout";//$NON-NLS-1$
+            String objectType = "Custom Layout"; //$NON-NLS-1$
             ILocalUser user = LocalUser.getLocalUser();
             HashSet<String> roleNames = user.getRoles();
-            for (Iterator<String> iter = roleNames.iterator(); iter.hasNext(); ) {
-                String roleName = iter.next();
-                if ("administration".equals(roleName)||"authenticated".equals(roleName)) continue; //$NON-NLS-1$ //$NON-NLS-2$
-                
+            for (String roleName : roleNames) {
+                if ("administration".equals(roleName) || "authenticated".equals(roleName)) { //$NON-NLS-1$ //$NON-NLS-2$
+                    continue;
+                }
                 //load Role
                 RolePOJO role = ObjectPOJO.load(RolePOJO.class, new RolePOJOPK(roleName));
                 //get Specifications for the View Object
                 RoleSpecification specification = role.getRoleSpecifications().get(objectType);
-                if(specification!=null){
-                    Set<String> keys=specification.getInstances().keySet();
-                    for(String id:keys){
+                if (specification != null) {
+                    Set<String> keys = specification.getInstances().keySet();
+                    for (String id : keys) {
                         ids.add(id);
                     }
                 }
@@ -189,14 +161,13 @@ public class CustomFormCtrlBean implements SessionBean {
                 return list.get(0);
             }
             return null;
-            // return ObjectPOJO.load(CustomFormPOJO.class, cpk);
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
             String err = "Unable to get the CustomForm associated to the current user's Role: "
                     + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-            throw new XtentisException(err);
+            LOGGER.error(err);
+            throw new XtentisException(err, e);
         }
     }
 
@@ -209,7 +180,6 @@ public class CustomFormCtrlBean implements SessionBean {
      * @ejb.facade-method
      */
     public CustomFormPOJO existsCustomForm(CustomFormPOJOPK pk) throws XtentisException {
-
         try {
             return ObjectPOJO.load(CustomFormPOJO.class, pk);
         } catch (XtentisException e) {
@@ -217,7 +187,9 @@ public class CustomFormCtrlBean implements SessionBean {
         } catch (Exception e) {
             String info = "Could not check whether this CustomForm exists:  " + pk.getUniqueId() + ": " + e.getClass().getName()
                     + ": " + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(info, e);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(info, e);
+            }
             return null;
         }
     }
@@ -231,8 +203,9 @@ public class CustomFormCtrlBean implements SessionBean {
      * @ejb.facade-method
      */
     public CustomFormPOJOPK removeCustomForm(CustomFormPOJOPK pk) throws XtentisException {
-        org.apache.log4j.Logger.getLogger(this.getClass()).trace("Removing " + pk.getUniqueId());
-
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Removing " + pk.getUniqueId());
+        }
         try {
             return new CustomFormPOJOPK(ObjectPOJO.remove(CustomFormPOJO.class, pk));
         } catch (XtentisException e) {
@@ -240,8 +213,8 @@ public class CustomFormCtrlBean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to remove the CustomForm " + pk.toString() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-            throw new XtentisException(err);
+            LOGGER.error(err);
+            throw new XtentisException(err, e);
         }
     }
 
@@ -256,10 +229,9 @@ public class CustomFormCtrlBean implements SessionBean {
     public Collection<CustomFormPOJOPK> getCustomFormPKs(String regex) throws XtentisException {
         Collection<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(CustomFormPOJO.class, regex);
         ArrayList<CustomFormPOJOPK> l = new ArrayList<CustomFormPOJOPK>();
-        for (Iterator<ObjectPOJOPK> iter = c.iterator(); iter.hasNext();) {
-            l.add(new CustomFormPOJOPK(iter.next()));
+        for (ObjectPOJOPK customFormPK : c) {
+            l.add(new CustomFormPOJOPK(customFormPK));
         }
         return l;
     }
-
 }

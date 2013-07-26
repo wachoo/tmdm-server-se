@@ -39,7 +39,6 @@ public class ConfigurableContainsOptimizer implements Optimizer {
 
     @Override
     public void optimize(Select select) {
-        // TODO Disable when using GT, LT... in query
         if (select.getCondition() != null) {
             Condition condition = select.getCondition();
             RDBMSDataSource.ContainsOptimization containsOptimization = dataSource.getContainsOptimization();

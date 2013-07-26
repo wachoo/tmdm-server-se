@@ -1586,8 +1586,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 } catch (Exception e1) {
                     LOG.error("Could not abort save session.", e1);
                 }
-                wsPutItemWithReport.setSource(e.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the
-                                                                           // before saving message as source.
+                // Expected (legacy) behavior: set the before saving message as source.
+                wsPutItemWithReport.setSource(e.getBeforeSavingMessage());
                 throw new RemoteException("Could not save record.", e);
             }
             String[] savedId = saver.getSavedId();

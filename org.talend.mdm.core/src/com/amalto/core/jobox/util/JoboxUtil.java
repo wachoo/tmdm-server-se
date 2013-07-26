@@ -44,7 +44,7 @@ public class JoboxUtil {
             delAllFile(folderPath);
             File myFilePath = new File(folderPath);
             if (!myFilePath.delete()) {
-                // TODO Exception
+                LOGGER.error("Delete folder failed for '" + folderPath + "'.");
             }
         } catch (Exception e) {
             throw new JoboxException(e);
@@ -65,7 +65,7 @@ public class JoboxUtil {
             return;
         }
         if (!file.isDirectory()) {
-            // TODO Exception
+            LOGGER.warn("Expected a folder '" + path + "' but was a file.");
         }
         String[] tempList = file.list();
         File temp;
@@ -77,7 +77,7 @@ public class JoboxUtil {
             }
             if (temp.isFile()) {
                 if (!temp.delete()) {
-                    // TODO Exception
+                    LOGGER.error("Delete folder failed for '" + currentTempFile + "'.");
                 }
             }
             if (temp.isDirectory()) {
@@ -110,14 +110,14 @@ public class JoboxUtil {
                 if (ze.isDirectory()) {
                     if (!zipFile.exists()) {
                         if (!zipFile.mkdirs()) {
-                            // TODO Exception
+                            LOGGER.error("Create folder failed for '" + zipFile.getAbsolutePath() + "'.");
                         }
                     }
                     zipInputStream.closeEntry();
                 } else {
                     if (!zipFilePath.exists()) {
                         if (!zipFilePath.mkdirs()) {
-                            // TODO Exception
+                            LOGGER.error("Create folder failed for '" + zipFilePath.getAbsolutePath() + "'.");
                         }
                     }
                     FileOutputStream fileOutputStream = new FileOutputStream(zipFile);

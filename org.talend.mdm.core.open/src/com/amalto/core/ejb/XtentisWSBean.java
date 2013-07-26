@@ -18,7 +18,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.ejb.CreateException;
@@ -39,7 +38,6 @@ import sun.misc.BASE64Decoder;
 import com.amalto.connector.jca.InteractionSpecImpl;
 import com.amalto.connector.jca.RecordFactoryImpl;
 import com.amalto.core.delegator.BeanDelegatorContainer;
-import com.amalto.core.delegator.impl.DefaultXtentisWSDelegator;
 import com.amalto.core.webservice.*;
 
 /**
@@ -67,41 +65,21 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
         super();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.ejb.SessionBean#setSessionContext(javax.ejb.SessionContext)
-     */
     @Override
     public void setSessionContext(SessionContext ctx) throws EJBException, RemoteException {
         // do nothing
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.ejb.essionBean#ejbRemove()
-     */
     @Override
     public void ejbRemove() throws EJBException, RemoteException {
         // do nothing
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.ejb.SessionBean#ejbActivate()
-     */
     @Override
     public void ejbActivate() throws EJBException, RemoteException {
         // do nothing
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.ejb.SessionBean#ejbPassivate()
-     */
     @Override
     public void ejbPassivate() throws EJBException, RemoteException {
         // do nothing
@@ -868,8 +846,8 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
             WSBase64KeyValue[] keyValues = new WSBase64KeyValue[params.size()];
             Set keys = params.keySet();
             int i = 0;
-            for (Iterator iter = keys.iterator(); iter.hasNext();) {
-                String key = (String) iter.next();
+            for (Object currentKeyObject : keys) {
+                String key = (String) currentKeyObject;
                 Object value = params.get(key);
                 if (value != null) {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -1476,17 +1454,13 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
      * **********************JOB***************************************
      */
 
-    public static final String MDMTISJOB = "MDMTISJOB"; //$NON-NLS-1$
-
-    public static final String JOB = "JOB"; //$NON-NLS-1$
-
     /**
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
     @Override
     public WSBoolean putMDMJob(WSPUTMDMJob job) throws RemoteException {
-        return ((DefaultXtentisWSDelegator) BeanDelegatorContainer.getInstance().getXtentisWSDelegator()).putMDMJob(job);
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putMDMJob(job);
     }
 
     /**
@@ -1495,17 +1469,16 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
      */
     @Override
     public WSBoolean deleteMDMJob(WSDELMDMJob job) throws RemoteException {
-        return ((DefaultXtentisWSDelegator) BeanDelegatorContainer.getInstance().getXtentisWSDelegator()).deleteMDMJob(job);
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteMDMJob(job);
     }
 
     /**
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
-
     @Override
     public WSMDMJobArray getMDMJob(WSMDMNULL job) {
-        return ((DefaultXtentisWSDelegator) BeanDelegatorContainer.getInstance().getXtentisWSDelegator()).getMDMJob(job);
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getMDMJob(job);
     }
 
     /**
@@ -1514,9 +1487,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
      */
     @Override
     public WSAutoIncrement getAutoIncrement(WSAutoIncrement wsAutoIncrementRequest) throws RemoteException {
-        // TODO Auto-generated method stub
-        return ((DefaultXtentisWSDelegator) BeanDelegatorContainer.getInstance().getXtentisWSDelegator())
-                .getAutoIncrement(wsAutoIncrementRequest);
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getAutoIncrement(wsAutoIncrementRequest);
     }
 
     /**
@@ -1525,10 +1496,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
      */
     @Override
     public WSBoolean isItemModifiedByOther(WSIsItemModifiedByOther wsItem) throws RemoteException {
-        // TODO Auto-generated method stub
-        return ((DefaultXtentisWSDelegator) BeanDelegatorContainer.getInstance().getXtentisWSDelegator())
-                .isItemModifiedByOther(wsItem.getWsItem());
-
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().isItemModifiedByOther(wsItem.getWsItem());
     }
 
     /**
@@ -1568,8 +1536,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
      */
     @Override
     public WSItemPK partialPutItem(WSPartialPutItem wsPartialPutItem) throws RemoteException {
-        return ((DefaultXtentisWSDelegator) BeanDelegatorContainer.getInstance().getXtentisWSDelegator())
-                .partialPutItem(wsPartialPutItem);
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().partialPutItem(wsPartialPutItem);
     }
 
     /**

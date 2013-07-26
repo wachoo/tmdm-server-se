@@ -52,20 +52,12 @@ public class TransformerPluginContext extends TransformerContext {
         put(PLUGINS_CALLBACK, callback);
     }
 
-    public void setProjectedPKToGlobalContext(ItemPOJOPK projectedPK) {
-
+    public synchronized void setProjectedPKToGlobalContext(ItemPOJOPK projectedPK) {
         SortedSet<ItemPOJOPK> itemPOJOPKs = this.getTransformerGlobalContext().getProjectedPKs();
         if (itemPOJOPKs == null) {
             itemPOJOPKs = Collections.synchronizedSortedSet(new TreeSet<ItemPOJOPK>());
         }
-
-        // TODO A synchronized block on a method local variable?
-        synchronized (itemPOJOPKs) {
-            itemPOJOPKs.add(projectedPK);
-        }
-
+        itemPOJOPKs.add(projectedPK);
         this.getTransformerGlobalContext().setProjectedPKs(itemPOJOPKs);
     }
-
-
 }
