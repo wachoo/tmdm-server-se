@@ -177,7 +177,7 @@ public class StagingAreaTest extends TestCase {
     public void test() throws Exception {
     }
 
-    public void __testStaging() throws Exception {
+    public void testStaging() throws Exception {
         generateData(true);
 
         Select select = UserQueryBuilder.from(person).getSelect();
@@ -239,15 +239,20 @@ public class StagingAreaTest extends TestCase {
         origin.commit();
     }
 
-    public void __testCancel() throws Exception {
+    public void testCancel() throws Exception {
         generateData(true);
 
         Select select = UserQueryBuilder.from(person).getSelect();
         Select selectEmptyTaskId = UserQueryBuilder.from(person).where(isEmpty(taskId())).getSelect();
-        assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
-        assertEquals(0, destination.fetch(select).getCount());
-        assertEquals(0, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
-        assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
+        try {
+            destination.begin();
+            assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
+            assertEquals(0, destination.fetch(select).getCount());
+            assertEquals(0, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
+            assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
+        } finally {
+            destination.end();
+        }
 
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
         SaverSession.Committer committer = new TestCommitter(storages);
@@ -259,26 +264,36 @@ public class StagingAreaTest extends TestCase {
         stagingTask.cancel();
 
         UserQueryBuilder qb = UserQueryBuilder.from(stagingRepository.getComplexType("TALEND_TASK_EXECUTION"));
-        StorageResults results = origin.fetch(qb.getSelect());
+        StorageResults results = null;
         try {
+            origin.begin();
+            results = origin.fetch(qb.getSelect());
             assertEquals(1, results.getCount());
             for (DataRecord result : results) {
                 assertNotNull(result.get("end_time"));
             }
         } finally {
-            results.close();
+            if (results != null) {
+                results.close();
+            }
+            origin.commit();
         }
     }
 
-    public void __testWithValidationErrors() throws Exception {
+    public void testWithValidationErrors() throws Exception {
         generateData(false);
 
         Select select = UserQueryBuilder.from(person).getSelect();
         Select selectEmptyTaskId = UserQueryBuilder.from(person).where(isEmpty(taskId())).getSelect();
-        assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
-        assertEquals(0, destination.fetch(select).getCount());
-        assertEquals(0, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
-        assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
+        try {
+            destination.begin();
+            assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
+            assertEquals(0, destination.fetch(select).getCount());
+            assertEquals(0, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
+            assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
+        } finally {
+            destination.commit();
+        }
 
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
         SaverSession.Committer committer = new TestCommitter(storages);
@@ -286,38 +301,48 @@ public class StagingAreaTest extends TestCase {
         Task stagingTask = new StagingTask(submitter, origin, stagingRepository, repository, source, committer, destination);
         submitter.submitAndWait(stagingTask);
 
-        assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
-        assertEquals(0, destination.fetch(select).getCount());
-        assertEquals(COUNT, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
-        assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
-        assertEquals(COUNT, origin.fetch(UserQueryBuilder.from(person).getSelect()).getCount());
-        int count = origin.fetch(
-                UserQueryBuilder.from(person).where(eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)).getSelect())
-                .getCount();
-        assertEquals(COUNT, count);
-        assertEquals(100, stagingTask.getErrorCount());
+        try {
+            destination.begin();
+            assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
+            assertEquals(0, destination.fetch(select).getCount());
+            assertEquals(COUNT, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
+            assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
+            assertEquals(COUNT, origin.fetch(UserQueryBuilder.from(person).getSelect()).getCount());
+            int count = origin.fetch(
+                    UserQueryBuilder.from(person).where(eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)).getSelect())
+                    .getCount();
+            assertEquals(COUNT, count);
+            assertEquals(100, stagingTask.getErrorCount());
+        } finally {
+            destination.commit();
+        }
     }
 
-    public void __testQuerySource() throws Exception {
+    public void testQuerySource() throws Exception {
         generateData(true);
 
-        Select selectSource = UserQueryBuilder.from(person)
-                .select(alias(UserStagingQueryBuilder.source(), UserQueryBuilder.STAGING_SOURCE_ALIAS)).getSelect();
-        StorageResults results = origin.fetch(selectSource);
-        for (DataRecord result : results) {
-            assertTrue(result.getType().hasField(UserQueryBuilder.STAGING_SOURCE_ALIAS));
-            assertNull(result.get(UserQueryBuilder.STAGING_SOURCE_ALIAS));
-        }
+        origin.begin();
+        try {
+            Select selectSource = UserQueryBuilder.from(person)
+                    .select(alias(UserStagingQueryBuilder.source(), UserQueryBuilder.STAGING_SOURCE_ALIAS)).getSelect();
+            StorageResults results = origin.fetch(selectSource);
+            for (DataRecord result : results) {
+                assertTrue(result.getType().hasField(UserQueryBuilder.STAGING_SOURCE_ALIAS));
+                assertNull(result.get(UserQueryBuilder.STAGING_SOURCE_ALIAS));
+            }
 
-        selectSource = UserQueryBuilder.from(person).select(person, UserQueryBuilder.STAGING_SOURCE_FIELD).getSelect();
-        results = origin.fetch(selectSource);
-        for (DataRecord result : results) {
-            assertTrue(result.getType().hasField(UserQueryBuilder.STAGING_SOURCE_ALIAS));
-            assertNull(result.get(UserQueryBuilder.STAGING_SOURCE_ALIAS));
+            selectSource = UserQueryBuilder.from(person).select(person, UserQueryBuilder.STAGING_SOURCE_FIELD).getSelect();
+            results = origin.fetch(selectSource);
+            for (DataRecord result : results) {
+                assertTrue(result.getType().hasField(UserQueryBuilder.STAGING_SOURCE_ALIAS));
+                assertNull(result.get(UserQueryBuilder.STAGING_SOURCE_ALIAS));
+            }
+        } finally {
+            origin.commit();
         }
     }
 
-    public void __testQueryError() throws Exception {
+    public void testQueryError() throws Exception {
         generateData(true);
 
         Select selectSource = UserQueryBuilder.from(person)
@@ -336,7 +361,7 @@ public class StagingAreaTest extends TestCase {
         }
     }
 
-    public void __testQueryStatus() throws Exception {
+    public void testQueryStatus() throws Exception {
         generateData(true);
 
         Select selectSource = UserQueryBuilder.from(person)
@@ -355,7 +380,7 @@ public class StagingAreaTest extends TestCase {
         }
     }
 
-    public void __testQueryStatusWithId() throws Exception {
+    public void testQueryStatusWithId() throws Exception {
         generateData(true);
 
         Select selectSource = UserQueryBuilder.from(person)
@@ -378,7 +403,7 @@ public class StagingAreaTest extends TestCase {
         }
     }
     
-    public void __testValidationWithEmptyData() throws Exception {
+    public void testValidationWithEmptyData() throws Exception {
         Select select = UserQueryBuilder.from(person).getSelect();
         Select selectEmptyTaskId = UserQueryBuilder.from(person).where(isEmpty(taskId())).getSelect();
         assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
@@ -418,15 +443,20 @@ public class StagingAreaTest extends TestCase {
         }
     }
     
-    public void __testStagingAuthorization() throws Exception {
+    public void testStagingAuthorization() throws Exception {
         generateData(true);
     
         Select select = UserQueryBuilder.from(person).getSelect();
         Select selectEmptyTaskId = UserQueryBuilder.from(person).where(isEmpty(taskId())).getSelect();
-        assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
-        assertEquals(0, destination.fetch(select).getCount());
-        assertEquals(0, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
-        assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
+        try {
+            destination.begin();
+            assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
+            assertEquals(0, destination.fetch(select).getCount());
+            assertEquals(0, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
+            assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
+        } finally {
+            destination.commit();
+        }
         String userName = "UserA";
         // 1. Authorization failure
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd", userName);
@@ -436,30 +466,37 @@ public class StagingAreaTest extends TestCase {
         assertEquals(0, stagingTask.getProcessedRecords());
         assertEquals(0, stagingTask.getRecordCount()); // Record count only get a value when task is started.
         TaskSubmitterFactory.getSubmitter().submitAndWait(stagingTask);
-         
-        assertEquals(COUNT * 3, stagingTask.getProcessedRecords());        
+
+        assertEquals(COUNT * 3, stagingTask.getProcessedRecords());
         assertEquals(COUNT * 3, stagingTask.getRecordCount());
         assertEquals(COUNT * 3, stagingTask.getErrorCount());
-        StorageResults errorResults = origin.fetch(UserQueryBuilder.from(person).select(person, UserQueryBuilder.STAGING_ERROR_FIELD).
-                where(eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)).getSelect());
+        UserQueryBuilder qb;
+        StorageResults results;
         try {
-            assertEquals(COUNT, errorResults.getCount());
-            String errorMessage = "User 'UserA' is not allowed to write 'Person' .";
-            for (DataRecord result : errorResults) {
-                assertNotNull(result.get(UserQueryBuilder.STAGING_ERROR_ALIAS));
-                assertEquals(errorMessage, result.get(UserQueryBuilder.STAGING_ERROR_ALIAS));
+            origin.begin();
+            StorageResults errorResults = origin.fetch(UserQueryBuilder.from(person).select(person, UserQueryBuilder.STAGING_ERROR_FIELD).
+                    where(eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)).getSelect());
+            try {
+                assertEquals(COUNT, errorResults.getCount());
+                String errorMessage = "User 'UserA' is not allowed to write 'Person' .";
+                for (DataRecord result : errorResults) {
+                    assertNotNull(result.get(UserQueryBuilder.STAGING_ERROR_ALIAS));
+                    assertEquals(errorMessage, result.get(UserQueryBuilder.STAGING_ERROR_ALIAS));
+                }
+            } finally {
+                errorResults.close();
+            }
+            qb = UserQueryBuilder.from(stagingRepository.getComplexType("TALEND_TASK_EXECUTION"));
+            results = origin.fetch(qb.getSelect());
+            try {
+                assertEquals(1, results.getCount());
+            } finally {
+                results.close();
             }
         } finally {
-            errorResults.close();
+            origin.commit();
         }
-        UserQueryBuilder qb = UserQueryBuilder.from(stagingRepository.getComplexType("TALEND_TASK_EXECUTION"));
-        StorageResults results = origin.fetch(qb.getSelect());
-        try {
-            assertEquals(1, results.getCount());
-        } finally {
-            results.close();
-        }
-        
+
         // 2. Authorization success
         userName = "administrator";
         source = new TestSaverSource(destination, repository, "metadata.xsd", userName);
@@ -473,23 +510,30 @@ public class StagingAreaTest extends TestCase {
         assertEquals(COUNT * 3, stagingTask.getProcessedRecords());        
         assertEquals(COUNT * 3, stagingTask.getRecordCount());
         assertEquals(0, stagingTask.getErrorCount());
-        
-        assertEquals(COUNT, destination.fetch(selectEmptyTaskId).getCount());
-        assertEquals(COUNT, destination.fetch(select).getCount());
-        assertEquals(COUNT, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
-        assertEquals(COUNT, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
-        assertEquals(COUNT * 3, destination.fetch(UserQueryBuilder.from(update).getSelect()).getCount());
-        assertEquals(COUNT, origin.fetch(UserQueryBuilder.from(person).getSelect()).getCount());
-        assertEquals(COUNT,
-                origin.fetch(UserQueryBuilder.from(person).where(eq(status(), StagingConstants.SUCCESS_VALIDATE)).getSelect())
-                        .getCount());
-    
-        qb = UserQueryBuilder.from(stagingRepository.getComplexType("TALEND_TASK_EXECUTION"));
-        results = origin.fetch(qb.getSelect());
+
         try {
-            assertEquals(2, results.getCount());
+            destination.begin();
+            origin.begin();
+            assertEquals(COUNT, destination.fetch(selectEmptyTaskId).getCount());
+            assertEquals(COUNT, destination.fetch(select).getCount());
+            assertEquals(COUNT, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
+            assertEquals(COUNT, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
+            assertEquals(COUNT * 3, destination.fetch(UserQueryBuilder.from(update).getSelect()).getCount());
+            assertEquals(COUNT, origin.fetch(UserQueryBuilder.from(person).getSelect()).getCount());
+            assertEquals(COUNT,
+                    origin.fetch(UserQueryBuilder.from(person).where(eq(status(), StagingConstants.SUCCESS_VALIDATE)).getSelect())
+                            .getCount());
+
+            qb = UserQueryBuilder.from(stagingRepository.getComplexType("TALEND_TASK_EXECUTION"));
+            results = origin.fetch(qb.getSelect());
+            try {
+                assertEquals(2, results.getCount());
+            } finally {
+                results.close();
+            }
         } finally {
-            results.close();
+            origin.commit();
+            destination.commit();
         }
     }
 
