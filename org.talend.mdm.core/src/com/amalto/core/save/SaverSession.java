@@ -11,15 +11,19 @@
 
 package com.amalto.core.save;
 
+import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.history.Document;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -131,19 +135,27 @@ public class SaverSession {
             for (Map.Entry<String, Set<Document>> currentTransaction : itemsPerDataCluster.entrySet()) {
                 String dataCluster = currentTransaction.getKey();
                 committer.begin(dataCluster);
-                for (Document currentItemToCommit : currentTransaction.getValue()) {
+                Iterator<Document> iterator = currentTransaction.getValue().iterator();
+                while (iterator.hasNext()) {
+                    Document currentItemToCommit = iterator.next();
                     if (!needResetAutoIncrement) {
                         needResetAutoIncrement = isAutoIncrementItem(currentItemToCommit);
                     }
+                     // Don't do clean up in case of exception here: rollback (abort()) takes care of the clean up.
                     committer.save(currentItemToCommit);
+                    // Keep update reports for routeItem (see below).
+                    if (!XSystemObjects.DC_UPDATE_PREPORT.getName().equals(dataCluster)) {
+                        iterator.remove();
+                    }
                 }
                 committer.commit(dataCluster);
             }
             // If any change was made to data cluster "UpdateReport", route committed update reports.
-            Set<Document> updateReport = itemsPerDataCluster.get("UpdateReport"); //$NON-NLS-1$
+            Set<Document> updateReport = itemsPerDataCluster.get(XSystemObjects.DC_UPDATE_PREPORT.getName());
             if (updateReport != null) {
-                for (Document updateReportDocument : updateReport) {
-                    MutableDocument document = (MutableDocument) updateReportDocument;
+                Iterator<Document> iterator = updateReport.iterator();
+                while (iterator.hasNext()) {
+                    MutableDocument document = (MutableDocument) iterator.next();
                     String dataCluster = document.createAccessor("DataCluster").get(); //$NON-NLS-1$
                     String typeName = document.createAccessor("Concept").get(); //$NON-NLS-1$
                     String key = document.createAccessor("Key").get(); //$NON-NLS-1$
@@ -154,6 +166,7 @@ public class SaverSession {
                         itemsId = new String[]{key};
                     }
                     saverSource.routeItem(dataCluster, typeName, itemsId);
+                    iterator.remove();
                 }
             }
             // reset the AutoIncrement
