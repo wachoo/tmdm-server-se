@@ -16,8 +16,6 @@ import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import java.util.HashMap;
@@ -130,27 +128,16 @@ public class SaverSession {
         synchronized (itemsPerDataCluster) {
             SaverSource saverSource = getSaverSource();
             boolean needResetAutoIncrement = false;
-            MetadataRepository repository = null;
-            ComplexTypeMetadata type = null;
             for (Map.Entry<String, Set<Document>> currentTransaction : itemsPerDataCluster.entrySet()) {
                 String dataCluster = currentTransaction.getKey();
                 committer.begin(dataCluster);
                 for (Document currentItemToCommit : currentTransaction.getValue()) {
-                    if (repository == null || type == null) {
-                        String dataModelName = currentItemToCommit.getDataModelName();
-                        if (dataModelName != null) { // TODO Every item should have a data mode name (but UpdateReport doesn't)
-                            repository = saverSource.getMetadataRepository(dataModelName);
-                            type = currentItemToCommit.getType();
-                        }
-                    }
                     if (!needResetAutoIncrement) {
                         needResetAutoIncrement = isAutoIncrementItem(currentItemToCommit);
                     }
-                    committer.save(currentItemToCommit); // TODO Use data model revision for revision id?
+                    committer.save(currentItemToCommit);
                 }
                 committer.commit(dataCluster);
-                repository = null;
-                type = null;
             }
             // If any change was made to data cluster "UpdateReport", route committed update reports.
             Set<Document> updateReport = itemsPerDataCluster.get("UpdateReport"); //$NON-NLS-1$
@@ -158,8 +145,14 @@ public class SaverSession {
                 for (Document updateReportDocument : updateReport) {
                     MutableDocument document = (MutableDocument) updateReportDocument;
                     String dataCluster = document.createAccessor("DataCluster").get(); //$NON-NLS-1$
-                    String typeName = document.createAccessor("DataModel").get(); //$NON-NLS-1$
-                    String[] itemsId = document.createAccessor("Key").get().split("."); //$NON-NLS-1$ //$NON-NLS-2$
+                    String typeName = document.createAccessor("Concept").get(); //$NON-NLS-1$
+                    String key = document.createAccessor("Key").get(); //$NON-NLS-1$
+                    String[] itemsId;
+                    if (key.indexOf('.') > 0) {
+                        itemsId = key.split("."); //$NON-NLS-1$
+                    } else {
+                        itemsId = new String[]{key};
+                    }
                     saverSource.routeItem(dataCluster, typeName, itemsId);
                 }
             }
