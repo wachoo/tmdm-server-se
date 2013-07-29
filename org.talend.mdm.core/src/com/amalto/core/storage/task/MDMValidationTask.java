@@ -98,18 +98,20 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                                 or(isNull(status()),
                                         or(eq(status(), StagingConstants.FAIL_VALIDATE_CONSTRAINTS),
                                                 eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)))))).getSelect();
-        try {
-            storage.begin();
-            StorageResults records = storage.fetch(select); // Expects an active transaction here
+        synchronized (storage) {
             try {
-                recordsCount += records.getCount();
-            } finally {
-                records.close();
+                storage.begin();
+                StorageResults records = storage.fetch(select); // Expects an active transaction here
+                try {
+                    recordsCount += records.getCount();
+                } finally {
+                    records.close();
+                }
+                storage.commit();
+            } catch (Exception e) {
+                storage.rollback();
+                throw new RuntimeException(e);
             }
-            storage.commit();
-        } catch (Exception e) {
-            storage.rollback();
-            throw new RuntimeException(e);
         }
         return new MultiThreadedTask(ServerContext.INSTANCE.get().getTransactionManager().currentTransaction(), type.getName(),
                 storage,

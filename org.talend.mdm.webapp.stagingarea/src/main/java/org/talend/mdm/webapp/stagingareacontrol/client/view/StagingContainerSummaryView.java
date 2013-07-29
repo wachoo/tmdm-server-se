@@ -155,7 +155,9 @@ public class StagingContainerSummaryView extends AbstractView {
         double percentage = valid * 1D / total;
         NumberFormat format = NumberFormat.getFormat("#0.00"); //$NON-NLS-1$
         final double validPercentage = format.parse(format.format(valid * 100D / total));
-        gaugesBar.updateProgress(percentage, messages.percentage(valid, total, validPercentage));
+        if (gaugesBar.getValue() < 1.0) {
+            gaugesBar.updateProgress(percentage, messages.percentage(valid, total, validPercentage));
+        }
     }
 
 

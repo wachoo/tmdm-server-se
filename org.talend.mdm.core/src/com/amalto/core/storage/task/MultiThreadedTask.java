@@ -86,33 +86,35 @@ public class MultiThreadedTask implements Task {
         }
 
         TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-        try {
-            transactionManager.associate(transaction);
-            taskStartTime = System.currentTimeMillis();
-            storage.begin();
-            StorageResults records = storage.fetch(expression); // Expects an active transaction here
-            if (records.getCount() > 0) {
-                closure.begin();
-                for (DataRecord record : records) {
-                    // Exit if cancelled.
-                    if (isCancelled.get()) {
-                        break;
+        synchronized (storage) {
+            try {
+                transactionManager.associate(transaction);
+                taskStartTime = System.currentTimeMillis();
+                storage.begin();
+                StorageResults records = storage.fetch(expression); // Expects an active transaction here
+                if (records.getCount() > 0) {
+                    closure.begin();
+                    for (DataRecord record : records) {
+                        // Exit if cancelled.
+                        if (isCancelled.get()) {
+                            break;
+                        }
+                        closure.execute(record, stats);
+                        count++;
                     }
-                    closure.execute(record, stats);
-                    count++;
+                    closure.end(stats);
                 }
-                closure.end(stats);
-            }
-            storage.commit();
-            isFinished = true;
-        } catch (Exception e) {
-            storage.rollback();
-            throw new RuntimeException(e);
-        } finally {
-            transactionManager.dissociate(transaction);
-            synchronized (executionLock) {
-                executionLock.set(true);
-                executionLock.notifyAll();
+                storage.commit();
+                isFinished = true;
+            } catch (Exception e) {
+                storage.rollback();
+                throw new RuntimeException(e);
+            } finally {
+                transactionManager.dissociate(transaction);
+                synchronized (executionLock) {
+                    executionLock.set(true);
+                    executionLock.notifyAll();
+                }
             }
         }
     }

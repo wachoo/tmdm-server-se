@@ -29,7 +29,9 @@ public class CurrentValidationController extends AbstractController {
 
     private CurrentValidationView view;
 
-    private Timer timer;
+    private Timer summaryTimer;
+    
+    private Timer currentValidationTimer;
 
     private boolean auto = true;
 
@@ -41,24 +43,32 @@ public class CurrentValidationController extends AbstractController {
     public CurrentValidationController(final CurrentValidationView view) {
         setBindingView(view);
         this.view = (CurrentValidationView) bindingView;
-        timer = new Timer() {
+        summaryTimer = new Timer() {
+            
+            @Override
+            public void run() {
+                if (isOrHasChild(Document.get().getBody(), view.getElement())) {
+                    if (auto && ControllerContainer.get().getSummaryController().isEnabledStartValidation()) {
+                        ControllerContainer.get().getSummaryController().refreshView();
+                    }
+                    schedule(StagingareaControl.getStagingAreaConfig().getRefreshIntervals());
+                } else {
+                    this.cancel();
+                }
+            }
+        };
+        currentValidationTimer = new Timer() {
 
             @Override
             public void run() {
                 if (isOrHasChild(Document.get().getBody(), view.getElement())) {
-                    if (!ControllerContainer.get().getSummaryController().isEnabledStartValidation()) {
-                        refreshView(new Callback() {
-                            public void callback() {
-                                if (auto) {
-                                    schedule(StagingareaControl.getStagingAreaConfig().getRefreshIntervals());
-                                }
+                    refreshView(new Callback() {
+                        public void callback() {
+                            if (auto) {
+                                schedule(StagingareaControl.getStagingAreaConfig().getRefreshIntervals());
                             }
-                        });
-                    } 
-                    ControllerContainer.get().getSummaryController().refreshView();
-                    if (auto) {
-                        schedule(StagingareaControl.getStagingAreaConfig().getRefreshIntervals());
-                    }
+                        }
+                    });
                 } else {
                     this.cancel();
                 }
@@ -81,13 +91,17 @@ public class CurrentValidationController extends AbstractController {
         if (this.auto != auto) {
             this.auto = auto;
             if (auto) {
-                refreshView();
+                if (!ControllerContainer.get().getSummaryController().isEnabledStartValidation()) {
+                    currentValidationTimer.run();
+                }
+                summaryTimer.run();
             }
         }
     }
 
     public void refreshView() {
-        timer.run();
+        currentValidationTimer.run();
+        summaryTimer.run();
     }
 
     private void refreshView(final Callback callback) {
