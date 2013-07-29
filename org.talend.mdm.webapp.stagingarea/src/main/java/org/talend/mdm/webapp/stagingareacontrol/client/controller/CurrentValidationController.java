@@ -46,13 +46,19 @@ public class CurrentValidationController extends AbstractController {
             @Override
             public void run() {
                 if (isOrHasChild(Document.get().getBody(), view.getElement())) {
-                    refreshView(new Callback() {
-                        public void callback() {
-                            if (auto) {
-                                schedule(StagingareaControl.getStagingAreaConfig().getRefreshIntervals());
+                    if (!ControllerContainer.get().getSummaryController().isEnabledStartValidation()) {
+                        refreshView(new Callback() {
+                            public void callback() {
+                                if (auto) {
+                                    schedule(StagingareaControl.getStagingAreaConfig().getRefreshIntervals());
+                                }
                             }
-                        }
-                    });
+                        });
+                    } 
+                    ControllerContainer.get().getSummaryController().refreshView();
+                    if (auto) {
+                        schedule(StagingareaControl.getStagingAreaConfig().getRefreshIntervals());
+                    }
                 } else {
                     this.cancel();
                 }
@@ -75,9 +81,7 @@ public class CurrentValidationController extends AbstractController {
         if (this.auto != auto) {
             this.auto = auto;
             if (auto) {
-                if (!ControllerContainer.get().getSummaryController().isEnabledStartValidation()) {
-                    refreshView();
-                }
+                refreshView();
             }
         }
     }
@@ -100,7 +104,6 @@ public class CurrentValidationController extends AbstractController {
                             }
                         } else {
                             ControllerContainer.get().getSummaryController().setEnabledStartValidation(true);
-                            ControllerContainer.get().getSummaryController().refreshView();
                             view.setStatus(CurrentValidationView.Status.None);
                             ControllerContainer.get().getPreviousExecutionController().searchByBeforeDate();
                         }
@@ -109,7 +112,6 @@ public class CurrentValidationController extends AbstractController {
                     @Override
                     protected void doOnFailure(Throwable caught) {
                         ControllerContainer.get().getSummaryController().setEnabledStartValidation(true);
-                        ControllerContainer.get().getSummaryController().refreshView();
                         view.setStatus(CurrentValidationView.Status.None);
                         ControllerContainer.get().getPreviousExecutionController().searchByBeforeDate();
                     }

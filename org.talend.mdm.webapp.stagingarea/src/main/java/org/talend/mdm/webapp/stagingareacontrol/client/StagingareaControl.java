@@ -52,13 +52,6 @@ public class StagingareaControl implements EntryPoint {
         XDOM.setAutoIdPrefix(GWT.getModuleName() + "-" + XDOM.getAutoIdPrefix()); //$NON-NLS-1$
         registerPubService();
         Log.setUncaughtExceptionHandler();
-        service.getStagingAreaConfig(new SessionAwareAsyncCallback<StagingAreaConfiguration>() {
-
-            @Override
-            public void onSuccess(StagingAreaConfiguration aStagingAreaConfig) {
-                StagingareaControl.stagingAreaConfig = aStagingAreaConfig;
-            }
-        });
     }
 
     private native void registerPubService()/*-{
@@ -124,26 +117,32 @@ public class StagingareaControl implements EntryPoint {
 
     public void renderContent(final String contentId) {
         onModuleRender();
-        ContentPanel content = GenerateContainer.getContentPanel();
+        service.getStagingAreaConfig(new SessionAwareAsyncCallback<StagingAreaConfiguration>() {
 
-        if (GWT.isScript()) {
-            RootPanel panel = RootPanel.get(contentId);
-            panel.add(content);
-        } else {
-            final Element element = DOM.getElementById(contentId);
-            SimplePanel panel = new SimplePanel() {
+            @Override
+            public void onSuccess(StagingAreaConfiguration aStagingAreaConfig) {
+                StagingareaControl.stagingAreaConfig = aStagingAreaConfig;
+                ContentPanel content = GenerateContainer.getContentPanel();
 
-                @Override
-                protected void setElement(Element elem) {
-                    super.setElement(element);
+                if (GWT.isScript()) {
+                    RootPanel panel = RootPanel.get(contentId);
+                    panel.add(content);
+                } else {
+                    final Element element = DOM.getElementById(contentId);
+                    SimplePanel panel = new SimplePanel() {
+
+                        @Override
+                        protected void setElement(Element elem) {
+                            super.setElement(element);
+                        }
+                    };
+                    RootPanel rootPanel = RootPanel.get();
+                    rootPanel.clear();
+                    rootPanel.add(panel);
+                    panel.add(content);
                 }
-            };
-            RootPanel rootPanel = RootPanel.get();
-            rootPanel.clear();
-            rootPanel.add(panel);
-            panel.add(content);
-        }
-
+            }
+        });
     }
 
     public void initUI() {
