@@ -11,16 +11,15 @@
 
 package com.amalto.core.save;
 
-import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.history.Document;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -156,14 +155,14 @@ public class SaverSession {
                 Iterator<Document> iterator = updateReport.iterator();
                 while (iterator.hasNext()) {
                     MutableDocument document = (MutableDocument) iterator.next();
-                    String dataCluster = document.createAccessor("DataCluster").get(); //$NON-NLS-1$
-                    String typeName = document.createAccessor("Concept").get(); //$NON-NLS-1$
-                    String key = document.createAccessor("Key").get(); //$NON-NLS-1$
-                    String[] itemsId;
-                    if (key.indexOf('.') > 0) {
-                        itemsId = key.split("."); //$NON-NLS-1$
-                    } else {
-                        itemsId = new String[]{key};
+                    String dataCluster = document.getDataCluster();
+                    String typeName = document.getType().getName();
+
+                    Collection<FieldMetadata> keyFields = document.getType().getKeyFields();
+                    String[] itemsId = new String[keyFields.size()];
+                    int i = 0;
+                    for (FieldMetadata keyField : keyFields){
+                        itemsId[i++] = document.createAccessor(keyField.getName()).get();
                     }
                     saverSource.routeItem(dataCluster, typeName, itemsId);
                     iterator.remove();
