@@ -207,8 +207,8 @@ public class MetadataUtils {
     private static boolean includeFieldInPath(FieldMetadata fieldMetadata, FieldMetadata target) {
         Collection<FieldMetadata> keyFields = fieldMetadata.getContainingType().getKeyFields();
         return fieldMetadata.equals(target)
-                        || !(fieldMetadata instanceof ReferenceFieldMetadata)
-                        || (!keyFields.isEmpty() && "x_talend_id".equals(keyFields.iterator().next().getName())); //$NON-NLS-1$
+                || !(fieldMetadata instanceof ReferenceFieldMetadata)
+                || (!keyFields.isEmpty() && "x_talend_id".equals(keyFields.iterator().next().getName())); //$NON-NLS-1$
     }
 
     /**
@@ -305,6 +305,7 @@ public class MetadataUtils {
      * <li>getSuperConcreteType(xsd:long) returns xsd:long (even if xsd:long extends xsd:decimal).</li>
      * <li>If the type does not have any super type, this method returns the <code>type</code> parameter.</li>
      * </ul>
+     *
      * @param type A non null type that may have super types.
      * @return The higher type in inheritance tree before <i>anyType</i>.
      */
@@ -318,9 +319,9 @@ public class MetadataUtils {
             while (!type.getSuperTypes().isEmpty()) {
                 TypeMetadata superType = type.getSuperTypes().iterator().next();
                 if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(superType.getNamespace())
-                        && ("anyType".equals(superType.getName()) //$NON-NLS-1$
+                        && (Types.ANY_TYPE.equals(superType.getName())
                         || "anySimpleType".equals(superType.getName()) //$NON-NLS-1$
-                        || "decimal".equals(superType.getName()))) { //$NON-NLS-1$
+                        || Types.DECIMAL.equals(superType.getName()))) {
                     break;
                 }
                 type = superType;
@@ -337,17 +338,17 @@ public class MetadataUtils {
         if (dataAsString.isEmpty()) {
             return null;
         }
-        if ("string".equals(type)) { //$NON-NLS-1$
+        if (Types.STRING.equals(type)) {
             return dataAsString;
-        } else if ("integer".equals(type) //$NON-NLS-1$
-                || "positiveInteger".equals(type) //$NON-NLS-1$
-                || "negativeInteger".equals(type) //$NON-NLS-1$
-                || "nonNegativeInteger".equals(type) //$NON-NLS-1$
-                || "nonPositiveInteger".equals(type) //$NON-NLS-1$
-                || "int".equals(type) //$NON-NLS-1$
-                || "unsignedInt".equals(type)) { //$NON-NLS-1$
+        } else if (Types.INTEGER.equals(type)
+                || Types.POSITIVE_INTEGER.equals(type)
+                || Types.NEGATIVE_INTEGER.equals(type)
+                || Types.NON_NEGATIVE_INTEGER.equals(type)
+                || Types.NON_POSITIVE_INTEGER.equals(type)
+                || Types.INT.equals(type)
+                || Types.UNSIGNED_INT.equals(type)) {
             return Integer.parseInt(dataAsString);
-        } else if ("date".equals(type)) { //$NON-NLS-1$
+        } else if (Types.DATE.equals(type)) {
             // Be careful here: DateFormat is not thread safe
             synchronized (DateConstant.DATE_FORMAT) {
                 try {
@@ -358,7 +359,7 @@ public class MetadataUtils {
                     throw new RuntimeException("Could not parse date string", e);
                 }
             }
-        } else if ("dateTime".equals(type)) { //$NON-NLS-1$
+        } else if (Types.DATETIME.equals(type)) {
             // Be careful here: DateFormat is not thread safe
             synchronized (DateTimeConstant.DATE_FORMAT) {
                 try {
@@ -369,34 +370,39 @@ public class MetadataUtils {
                     throw new RuntimeException("Could not parse date time string", e);
                 }
             }
-        } else if ("boolean".equals(type)) { //$NON-NLS-1$
+        } else if (Types.BOOLEAN.equals(type)) {
             // Boolean.parseBoolean returns "false" if content isn't a boolean string value. Callers of this method
             // expect call to fail if data is malformed.
+            if ("0".equals(dataAsString)) {
+                return false;
+            } else if ("1".equals(dataAsString)) {
+                return true;
+            }
             if (!"false".equalsIgnoreCase(dataAsString) && !"true".equalsIgnoreCase(dataAsString)) { //$NON-NLS-1$ //$NON-NLS-2$
                 throw new IllegalArgumentException("Value '" + dataAsString + "' is not valid for boolean");
             }
             return Boolean.parseBoolean(dataAsString);
-        } else if ("decimal".equals(type)) { //$NON-NLS-1$
+        } else if (Types.DECIMAL.equals(type)) {
             return new BigDecimal(dataAsString);
-        } else if ("float".equals(type)) { //$NON-NLS-1$
+        } else if (Types.FLOAT.equals(type)) {
             return Float.parseFloat(dataAsString);
-        } else if ("long".equals(type) || "unsignedLong".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (Types.LONG.equals(type) || Types.UNSIGNED_LONG.equals(type)) {
             return Long.parseLong(dataAsString);
-        } else if ("anyURI".equals(type)) { //$NON-NLS-1$
+        } else if (Types.ANY_URI.equals(type)) {
             return dataAsString;
-        } else if ("short".equals(type) || "unsignedShort".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (Types.SHORT.equals(type) || Types.UNSIGNED_SHORT.equals(type)) {
             return Short.parseShort(dataAsString);
-        } else if ("QName".equals(type)) { //$NON-NLS-1$
+        } else if (Types.QNAME.equals(type)) {
             return dataAsString;
-        } else if ("base64Binary".equals(type)) { //$NON-NLS-1$
+        } else if (Types.BASE64_BINARY.equals(type)) {
             return dataAsString;
-        } else if ("hexBinary".equals(type)) { //$NON-NLS-1$
+        } else if (Types.HEX_BINARY.equals(type)) {
             return dataAsString;
-        } else if ("byte".equals(type) || "unsignedByte".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (Types.BYTE.equals(type) || Types.UNSIGNED_BYTE.equals(type)) {
             return Byte.parseByte(dataAsString);
-        } else if ("double".equals(type) || "unsignedDouble".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (Types.DOUBLE.equals(type) || Types.UNSIGNED_DOUBLE.equals(type)) {
             return Double.parseDouble(dataAsString);
-        } else if ("duration".equals(type) || "time".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (Types.DURATION.equals(type) || Types.TIME.equals(type)) {
             // Be careful here: DateFormat is not thread safe
             synchronized (TimeConstant.TIME_FORMAT) {
                 try {
@@ -427,42 +433,42 @@ public class MetadataUtils {
             }
         }
         String type = getSuperConcreteType(metadata).getName();
-        if ("string".equals(type)) { //$NON-NLS-1$
+        if (Types.STRING.equals(type)) {
             return "java.lang.String"; //$NON-NLS-1$
-        } else if ("anyURI".equals(type)) {
+        } else if (Types.ANY_URI.equals(type)) {
             return "java.lang.String"; //$NON-NLS-1$
-        } else if ("int".equals(type) //$NON-NLS-1$
-                || "integer".equals(type) //$NON-NLS-1$
-                || "positiveInteger".equals(type) //$NON-NLS-1$
-                || "nonPositiveInteger".equals(type) //$NON-NLS-1$
-                || "nonNegativeInteger".equals(type) //$NON-NLS-1$
-                || "negativeInteger".equals(type) //$NON-NLS-1$
-                || "unsignedInt".equals(type)) { //$NON-NLS-1$
+        } else if (Types.INT.equals(type)
+                || Types.INTEGER.equals(type)
+                || Types.POSITIVE_INTEGER.equals(type)
+                || Types.NON_POSITIVE_INTEGER.equals(type)
+                || Types.NON_NEGATIVE_INTEGER.equals(type)
+                || Types.NEGATIVE_INTEGER.equals(type)
+                || Types.UNSIGNED_INT.equals(type)) {
             return "java.lang.Integer"; //$NON-NLS-1$
-        } else if ("boolean".equals(type)) { //$NON-NLS-1$
+        } else if (Types.BOOLEAN.equals(type)) {
             return "java.lang.Boolean"; //$NON-NLS-1$
-        } else if ("decimal".equals(type)) { //$NON-NLS-1$
+        } else if (Types.DECIMAL.equals(type)) {
             return "java.math.BigDecimal"; //$NON-NLS-1$
-        } else if ("date".equals(type) //$NON-NLS-1$
-                || "dateTime".equals(type) //$NON-NLS-1$
-                || "time".equals(type) //$NON-NLS-1$
-                || "duration".equals(type)) { //$NON-NLS-1$
+        } else if (Types.DATE.equals(type)
+                || Types.DATETIME.equals(type)
+                || Types.TIME.equals(type)
+                || Types.DURATION.equals(type)) {
             return "java.sql.Timestamp"; //$NON-NLS-1$
-        } else if ("unsignedShort".equals(type) || "short".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (Types.UNSIGNED_SHORT.equals(type) || Types.SHORT.equals(type)) {
             return "java.lang.Short"; //$NON-NLS-1$
-        } else if ("unsignedLong".equals(type) || "long".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (Types.UNSIGNED_LONG.equals(type) || Types.LONG.equals(type)) {
             return "java.lang.Long"; //$NON-NLS-1$
-        } else if ("float".equals(type)) { //$NON-NLS-1$
+        } else if (Types.FLOAT.equals(type)) {
             return "java.lang.Float"; //$NON-NLS-1$
-        } else if ("base64Binary".equals(type)) { //$NON-NLS-1$
+        } else if (Types.BASE64_BINARY.equals(type)) {
             return "java.lang.String"; //$NON-NLS-1$
-        } else if ("byte".equals(type) || "unsignedByte".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (Types.BYTE.equals(type) || Types.UNSIGNED_BYTE.equals(type)) {
             return "java.lang.Byte"; //$NON-NLS-1$
-        } else if ("QName".equals(type)) { //$NON-NLS-1$
+        } else if (Types.QNAME.equals(type)) {
             return "java.lang.String"; //$NON-NLS-1$
-        } else if ("hexBinary".equals(type)) { //$NON-NLS-1$
+        } else if (Types.HEX_BINARY.equals(type)) {
             return "java.lang.String"; //$NON-NLS-1$
-        } else if ("double".equals(type)) { //$NON-NLS-1$
+        } else if (Types.DOUBLE.equals(type)) {
             return "java.lang.Double"; //$NON-NLS-1$
         } else {
             throw new UnsupportedOperationException("No support for field typed as '" + type + "'");
@@ -476,26 +482,26 @@ public class MetadataUtils {
      */
     public static String getType(String javaClassName) {
         if ("java.lang.String".equals(javaClassName)) { //$NON-NLS-1$
-            return "string"; //$NON-NLS-1$
+            return Types.STRING;
         } else if ("java.lang.Integer".equals(javaClassName) //$NON-NLS-1$
                 || "java.math.BigInteger".equals(javaClassName)) { //$NON-NLS-1$
-            return "int"; //$NON-NLS-1$
+            return Types.INT;
         } else if ("java.lang.Boolean".equals(javaClassName)) { //$NON-NLS-1$
-            return "boolean"; //$NON-NLS-1$
+            return Types.BOOLEAN;
         } else if ("java.math.BigDecimal".equals(javaClassName)) { //$NON-NLS-1$
-            return "decimal"; //$NON-NLS-1$
+            return Types.DECIMAL;
         } else if ("java.sql.Timestamp".equals(javaClassName)) { //$NON-NLS-1$
-            return "dateTime"; //$NON-NLS-1$
+            return Types.DATETIME;
         } else if ("java.lang.Short".equals(javaClassName)) { //$NON-NLS-1$
-            return "short"; //$NON-NLS-1$
+            return Types.SHORT;
         } else if ("java.lang.Long".equals(javaClassName)) { //$NON-NLS-1$
-            return "long"; //$NON-NLS-1$
+            return Types.LONG;
         } else if ("java.lang.Float".equals(javaClassName)) { //$NON-NLS-1$
-            return "float"; //$NON-NLS-1$
+            return Types.FLOAT;
         } else if ("java.lang.Byte".equals(javaClassName)) { //$NON-NLS-1$
-            return "byte"; //$NON-NLS-1$
+            return Types.BYTE;
         } else if ("java.lang.Double".equals(javaClassName)) { //$NON-NLS-1$
-            return "double"; //$NON-NLS-1$
+            return Types.DOUBLE;
         } else {
             throw new UnsupportedOperationException("No support for java class '" + javaClassName + "'");
         }
@@ -727,3 +733,4 @@ public class MetadataUtils {
         return true;
     }
 }
+

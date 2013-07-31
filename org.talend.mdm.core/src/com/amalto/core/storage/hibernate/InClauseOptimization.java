@@ -11,7 +11,6 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.Paging;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.TypedExpression;
@@ -41,6 +40,7 @@ import static com.amalto.core.query.user.UserQueryBuilder.*;
 public class InClauseOptimization extends StandardQueryHandler {
 
     public static final Logger LOGGER = Logger.getLogger(InClauseOptimization.class);
+
     private final Mode mode;
 
     public static enum Mode {

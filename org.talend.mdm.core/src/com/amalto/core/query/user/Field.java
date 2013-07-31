@@ -16,8 +16,6 @@ import com.amalto.core.metadata.MetadataUtils;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
 
-import javax.xml.XMLConstants;
-
 public class Field implements TypedExpression {
 
     private final FieldMetadata fieldMetadata;

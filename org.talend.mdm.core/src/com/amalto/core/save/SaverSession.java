@@ -140,7 +140,7 @@ public class SaverSession {
                     if (!needResetAutoIncrement) {
                         needResetAutoIncrement = isAutoIncrementItem(currentItemToCommit);
                     }
-                     // Don't do clean up in case of exception here: rollback (abort()) takes care of the clean up.
+                    // Don't do clean up in case of exception here: rollback (abort()) takes care of the clean up.
                     committer.save(currentItemToCommit);
                     // Keep update reports for routeItem (see below).
                     if (!XSystemObjects.DC_UPDATE_PREPORT.getName().equals(dataCluster)) {
