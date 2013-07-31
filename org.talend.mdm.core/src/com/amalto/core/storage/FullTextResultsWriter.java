@@ -44,7 +44,7 @@ public class FullTextResultsWriter implements DataRecordWriter {
             {
                 writer.write("<ids>"); //$NON-NLS-1$
                 for (FieldMetadata keyField : keyFields) {
-                    writer.write("<id>" + record.get(keyField) + "</id>"); //$NON-NLS-1$ //$NON-NLS-2$
+                    writer.write("<id>" + StringEscapeUtils.escapeXml(String.valueOf(record.get(keyField))) + "</id>"); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 writer.write("</ids>"); //$NON-NLS-1$
             }
@@ -52,7 +52,7 @@ public class FullTextResultsWriter implements DataRecordWriter {
                 writer.write("<title>"); //$NON-NLS-1$
                 writer.write(record.getType().getName());
                 for (FieldMetadata keyField : keyFields) {
-                    writer.write(" " + record.get(keyField));
+                    writer.write(" " + StringEscapeUtils.escapeXml(String.valueOf(record.get(keyField)))); //$NON-NLS-1$
                 }
                 writer.write("</title>"); //$NON-NLS-1$
             }
@@ -64,12 +64,12 @@ public class FullTextResultsWriter implements DataRecordWriter {
                     if (field instanceof SimpleTypeFieldMetadata) {
                         Object recordFieldValue = record.get(field);
                         if (recordFieldValue != null) {
-                            String value = StringEscapeUtils.escapeXml(String.valueOf(recordFieldValue));
+                            String value = String.valueOf(recordFieldValue);
                             if (value.contains(keyword)) {
-                                snippetWords[1] = "<b>" + value + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
+                                snippetWords[1] = "<b>" + StringEscapeUtils.escapeXml(value) + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
                                 hasMetKeyword = true;
                             } else {
-                                snippetWords[hasMetKeyword ? 0 : 2] = value;
+                                snippetWords[hasMetKeyword ? 0 : 2] = StringEscapeUtils.escapeXml(value);
                                 if (hasMetKeyword) {
                                     break;
                                 }
