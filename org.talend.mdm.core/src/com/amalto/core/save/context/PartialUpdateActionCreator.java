@@ -62,8 +62,9 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                                       String key,
                                       String source,
                                       String userName,
+                                      boolean generateTouchActions,
                                       MetadataRepository repository) {
-        super(originalDocument, newDocument, date, insertIndex, source, userName, repository);
+        super(originalDocument, newDocument, date, insertIndex, source, userName, generateTouchActions, repository);
         this.preserveCollectionOldValues = preserveCollectionOldValues;
         // Pivot MUST NOT end with '/' and key MUST start with '/' (see TMDM-4381).
         if (pivot.charAt(pivot.length() - 1) == '/') {

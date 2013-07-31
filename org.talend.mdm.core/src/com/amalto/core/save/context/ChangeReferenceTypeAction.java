@@ -52,7 +52,7 @@ class ChangeReferenceTypeAction extends AbstractChangeTypeAction {
                 }
             }
         }
-        typeAccessor.createAndSet(typeName);
+        typeAccessor.set(typeName);
         return document;
     }
 

@@ -36,8 +36,7 @@ class UpdateReport implements DocumentSaver {
     @Override
     public void save(SaverSession session, DocumentSaverContext context) {
         UpdateReportDocument updateReportDocument;
-        Document updateReportAsDOM = SaverContextFactory.DOCUMENT_BUILDER.newDocument();
-        updateReportAsDOM.appendChild(updateReportAsDOM.createElement(UPDATE_REPORT_TYPE));
+        Document updateReportAsDOM = (Document) SaverContextFactory.EMPTY_UPDATE_REPORT.cloneNode(true);
         updateReportDocument = new UpdateReportDocument(updateReportAsDOM);
 
         StringBuilder key = new StringBuilder();
@@ -54,14 +53,14 @@ class UpdateReport implements DocumentSaver {
         boolean hasHeader = false;
         for (Action action : actions) {
             if (!hasHeader) {
-                createHeaderField(updateReportDocument, "UserName", session.getSaverSource().getLegitimateUser()); //$NON-NLS-1$
-                createHeaderField(updateReportDocument, "Source", String.valueOf(action.getSource())); //$NON-NLS-1$
-                createHeaderField(updateReportDocument, "TimeInMillis", String.valueOf(action.getDate().getTime())); //$NON-NLS-1$
-                createHeaderField(updateReportDocument, "RevisionID", String.valueOf(context.getRevisionID())); //$NON-NLS-1$
-                createHeaderField(updateReportDocument, "DataCluster", String.valueOf(context.getDataCluster())); //$NON-NLS-1$
-                createHeaderField(updateReportDocument, "DataModel", String.valueOf(context.getDataModelName())); //$NON-NLS-1$
-                createHeaderField(updateReportDocument, "Concept", String.valueOf(type.getName())); //$NON-NLS-1$
-                createHeaderField(updateReportDocument, "Key", key.toString()); //$NON-NLS-1$
+                setHeader(updateReportDocument, "UserName", session.getSaverSource().getLegitimateUser()); //$NON-NLS-1$
+                setHeader(updateReportDocument, "Source", String.valueOf(action.getSource())); //$NON-NLS-1$
+                setHeader(updateReportDocument, "TimeInMillis", String.valueOf(action.getDate().getTime())); //$NON-NLS-1$
+                setHeader(updateReportDocument, "RevisionID", String.valueOf(context.getRevisionID())); //$NON-NLS-1$
+                setHeader(updateReportDocument, "DataCluster", String.valueOf(context.getDataCluster())); //$NON-NLS-1$
+                setHeader(updateReportDocument, "DataModel", String.valueOf(context.getDataModelName())); //$NON-NLS-1$
+                setHeader(updateReportDocument, "Concept", String.valueOf(type.getName())); //$NON-NLS-1$
+                setHeader(updateReportDocument, "Key", key.toString()); //$NON-NLS-1$
                 hasHeader = true;
                 updateReportDocument.enableRecordFieldChange();
             }
@@ -74,9 +73,9 @@ class UpdateReport implements DocumentSaver {
         next.save(session, context);
     }
 
-    private void createHeaderField(MutableDocument updateReportDocument, String fieldName, String value) {
+    private void setHeader(MutableDocument updateReportDocument, String fieldName, String value) {
         Accessor accessor = updateReportDocument.createAccessor(fieldName);
-        accessor.createAndSet(value);
+        accessor.set(value);
     }
 
     @Override

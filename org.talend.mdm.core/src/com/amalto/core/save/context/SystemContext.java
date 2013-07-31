@@ -162,6 +162,11 @@ class SystemContext extends AbstractDocumentSaverContext {
     }
 
     @Override
+    public boolean generateTouchActions() {
+        return true;
+    }
+
+    @Override
     public String[] getId() {
         return id;
     }

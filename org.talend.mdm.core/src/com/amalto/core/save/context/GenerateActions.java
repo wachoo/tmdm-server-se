@@ -77,6 +77,7 @@ class GenerateActions implements DocumentSaver {
                 date,
                 source,
                 userName,
+                context.generateTouchActions(),
                 metadataRepository);
         UserAction userAction = context.getUserAction();
         switch (userAction) {
@@ -129,6 +130,7 @@ class GenerateActions implements DocumentSaver {
                     context.getPartialUpdateKey(),
                     source,
                     userName,
+                    context.generateTouchActions(),
                     metadataRepository);
             actions = type.accept(partialUpdateActionCreator);
             break;

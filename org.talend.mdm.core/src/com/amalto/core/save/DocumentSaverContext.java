@@ -124,4 +124,6 @@ public interface DocumentSaverContext {
     int getPartialUpdateIndex();
 
     Map<String, String> getAutoIncrementFieldMap();
+
+    boolean generateTouchActions();
 }

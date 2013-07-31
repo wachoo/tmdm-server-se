@@ -13,10 +13,10 @@ package com.amalto.core.save.context;
 
 import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.DocumentTransformer;
-import com.amalto.core.history.EmptyDocument;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
-import com.amalto.core.history.accessor.DataRecordAccessor;
+import com.amalto.core.history.accessor.record.DataRecordAccessor;
+import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
@@ -25,7 +25,12 @@ import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
+import javax.xml.parsers.DocumentBuilder;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 
@@ -50,12 +55,34 @@ public class StorageDocument implements MutableDocument {
 
     @Override
     public Document asDOM() {
-        return EmptyDocument.EMPTY_DOCUMENT; // TODO
+        synchronized (SaverContextFactory.DOCUMENT_BUILDER) {
+            try {
+                DataRecordWriter writer = new DataRecordXmlWriter();
+                StringWriter stringWriter = new StringWriter();
+                writer.write(dataRecord, stringWriter);
+                DocumentBuilder documentBuilder = SaverContextFactory.DOCUMENT_BUILDER;
+                return documentBuilder.parse(new ByteArrayInputStream(stringWriter.toString().getBytes("UTF-8")));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override
     public Document asValidationDOM() {
-        return EmptyDocument.EMPTY_DOCUMENT; // TODO
+        synchronized (SaverContextFactory.DOCUMENT_BUILDER) {
+            try {
+                DataRecordWriter writer = new DataRecordXmlWriter();
+                StringWriter stringWriter = new StringWriter();
+                writer.write(dataRecord, stringWriter);
+                SkipAttributeDocumentBuilder builder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOCUMENT_BUILDER, true);
+                Document document = builder.parse(new ByteArrayInputStream(stringWriter.toString().getBytes("UTF-8")));
+               // clean(document.getDocumentElement(), EmptyElementCleaner.INSTANCE, false);
+                return document;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override

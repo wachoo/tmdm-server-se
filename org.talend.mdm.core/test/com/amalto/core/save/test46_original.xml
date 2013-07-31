@@ -12,7 +12,7 @@
 		<Name>12</Name>
 		<Description>12</Description>
 		<Price>12</Price>
-		<supplier tmdm:type="PartyType">[party]</supplier>
+		<supplier tmdm:type="Party">[party]</supplier>
 		</Product>
 	</p>
 </ii>

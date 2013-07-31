@@ -62,6 +62,11 @@ public class AutoCommitSaverContext extends AbstractDocumentSaverContext {
     }
 
     @Override
+    public boolean generateTouchActions() {
+        return delegate.generateTouchActions();
+    }
+
+    @Override
     public DocumentSaver createSaver() {
         return new AutoCommit(delegate.createSaver());
     }

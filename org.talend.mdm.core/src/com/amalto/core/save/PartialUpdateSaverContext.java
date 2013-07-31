@@ -176,6 +176,11 @@ public class PartialUpdateSaverContext extends AbstractDocumentSaverContext {
     }
 
     @Override
+    public boolean generateTouchActions() {
+        return delegate.generateTouchActions();
+    }
+
+    @Override
     public String[] getId() {
         return delegate.getId();
     }

@@ -39,6 +39,8 @@ public class SaverContextFactory {
 
     public static final DocumentBuilder DOCUMENT_BUILDER;
 
+    public static final Document EMPTY_UPDATE_REPORT;
+
     private static final Map<String, XSystemObjects> SYSTEM_DATA_CLUSTERS = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
 
     private static final String SYSTEM_CONTAINER_PREFIX = "amalto";  //$NON-NLS-1$
@@ -76,6 +78,11 @@ public class SaverContextFactory {
             DOCUMENT_BUILDER = factory.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
             throw new RuntimeException("Could not acquire a document builder.", e);
+        }
+        try {
+            EMPTY_UPDATE_REPORT = DOCUMENT_BUILDER.parse(SaverContextFactory.class.getResourceAsStream("updateReport.xml")); //$NON-NLS-1$
+        } catch (Exception e) {
+            throw new RuntimeException("Could not parse update report skeleton document.", e);
         }
     }
 

@@ -11,6 +11,7 @@
 package com.amalto.core.save.context;
 
 import com.amalto.core.history.Action;
+import com.amalto.core.history.Document;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldUpdateAction;
@@ -52,13 +53,16 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private boolean isDeletingContainedElement = false;
 
+    private boolean generateTouchActions = false;
+
     public UpdateActionCreator(MutableDocument originalDocument,
                                MutableDocument newDocument,
                                Date date,
                                String source,
                                String userName,
+                               boolean generateTouchActions,
                                MetadataRepository repository) {
-        this(originalDocument, newDocument, date, -1, source, userName, repository);
+        this(originalDocument, newDocument, date, -1, source, userName, generateTouchActions, repository);
     }
 
     public UpdateActionCreator(MutableDocument originalDocument,
@@ -67,10 +71,12 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                                int insertIndex,
                                String source,
                                String userName,
+                               boolean generateTouchActions,
                                MetadataRepository repository) {
         this.originalDocument = originalDocument;
         this.newDocument = newDocument;
         this.insertIndex = insertIndex;
+        this.generateTouchActions = generateTouchActions;
         this.repository = repository;
         this.date = date;
         this.source = source;
@@ -251,10 +257,12 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     }
 
     protected void generateNoOp(String path) {
-        // TODO Do only this if type is a sequence (useless if type isn't ordered).
-        if (!touchedPaths.contains(path) && path != null) {
-            touchedPaths.add(path);
-            actions.add(new TouchAction(path, date, source, userName));
+        if (generateTouchActions) {
+            // TODO Do only this if type is a sequence (useless if type isn't ordered).
+            if (!touchedPaths.contains(path) && path != null) {
+                touchedPaths.add(path);
+                actions.add(new TouchAction(path, date, source, userName));
+            }
         }
     }
 

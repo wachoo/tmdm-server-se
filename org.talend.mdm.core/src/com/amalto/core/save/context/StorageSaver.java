@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class StorageSaver extends AbstractDocumentSaverContext {
 
-    public static final boolean USE_STORAGE_BASED_API = false; // TODO temp property
+    public static final boolean USE_STORAGE_BASED_API = true; // TODO temp property
 
     private final Storage storage;
 
@@ -231,5 +231,10 @@ public class StorageSaver extends AbstractDocumentSaverContext {
     @Override
     public Map<String, String> getAutoIncrementFieldMap() {
         return autoIncrementFieldMap;
+    }
+
+    @Override
+    public boolean generateTouchActions() {
+        return false;
     }
 }

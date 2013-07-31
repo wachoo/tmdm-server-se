@@ -137,4 +137,9 @@ class BulkLoadContext extends AbstractDocumentSaverContext {
     public String getPartialUpdateKey() {
         return StringUtils.EMPTY;
     }
+
+    @Override
+    public boolean generateTouchActions() {
+        return true;
+    }
 }

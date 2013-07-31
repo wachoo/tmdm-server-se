@@ -131,7 +131,7 @@ public class SkipAttributeDocumentBuilder extends DocumentBuilder {
                         Attr attribute = document.createAttributeNS(namespaceURI, qualifiedName);
                         attribute.setValue(value);
                         element.setAttributeNodeNS(attribute);
-                    } else {
+                    } else if(!TALEND_NAMESPACE.equals(namespaceURI)) {
                         Attr attribute = document.createAttributeNS(namespaceURI, qualifiedName);
                         attribute.setValue(value);
                         element.setAttributeNodeNS(attribute);

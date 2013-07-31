@@ -123,7 +123,14 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
                     _read(repository, dataRecord, type, child);
                 }
             } else if (currentChild instanceof Text) {
-                String textContent = element.getFirstChild().getNodeValue().trim();
+                StringBuilder builder = new StringBuilder();
+                for (int j = 0; j < element.getChildNodes().getLength(); j++) {
+                    String nodeValue = element.getChildNodes().item(j).getNodeValue();
+                    if (nodeValue != null) {
+                        builder.append(nodeValue.trim());
+                    }
+                }
+                String textContent = builder.toString();
                 if (!textContent.isEmpty()) {
                     FieldMetadata field = type.getField(tagName);
                     if (field instanceof ReferenceFieldMetadata) {
@@ -131,6 +138,9 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
                         String mdmType = element.getAttributeNS(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type"); //$NON-NLS-1$
                         if (!mdmType.isEmpty()) {
                             actualType = repository.getComplexType(mdmType);
+                        }
+                        if (actualType == null) {
+                            throw new IllegalArgumentException("Type '" + mdmType + "' does not exist.");
                         }
                         dataRecord.set(field, MetadataUtils.convert(textContent, field, actualType));
                     } else {

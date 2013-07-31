@@ -101,13 +101,13 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                     if (!referenceField.isMany()) {
                         DataRecord referencedRecord = (DataRecord) record.get(referenceField);
                         writeReferenceElement(referenceField, referencedRecord);
-                        out.write(getFK(referencedRecord));
+                        out.write(formatRecordKey(referencedRecord));
                         out.write("</" + referenceField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                     } else {
                         List<DataRecord> valueAsList = (List<DataRecord>) value;
                         for (DataRecord currentValue : valueAsList) {
                             writeReferenceElement(referenceField, currentValue);
-                            out.write(getFK(currentValue));
+                            out.write(formatRecordKey(currentValue));
                             out.write("</" + referenceField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
@@ -131,7 +131,7 @@ public class DataRecordXmlWriter implements DataRecordWriter {
             try {
                 if (!containedField.isMany()) {
                     DataRecord containedRecord = (DataRecord) record.get(containedField);
-                    if (containedRecord != null) {
+                    if (containedRecord != null && !containedRecord.isEmpty()) {
                         // TODO Limit new field printer instances
                         DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(containedRecord, out);
                         Collection<FieldMetadata> fields = containedRecord.getType().getFields();
@@ -145,14 +145,16 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                     List<DataRecord> recordList = (List<DataRecord>) record.get(containedField);
                     if (recordList != null) {
                         for (DataRecord dataRecord : recordList) {
-                            // TODO Limit new field printer instances
-                            DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(dataRecord, out);
-                            Collection<FieldMetadata> fields = dataRecord.getType().getFields();
-                            writeContainedField(containedField, dataRecord);
-                            for (FieldMetadata field : fields) {
-                                field.accept(fieldPrinter);
+                            if (!dataRecord.isEmpty()) {
+                                // TODO Limit new field printer instances
+                                DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(dataRecord, out);
+                                Collection<FieldMetadata> fields = dataRecord.getType().getFields();
+                                writeContainedField(containedField, dataRecord);
+                                for (FieldMetadata field : fields) {
+                                    field.accept(fieldPrinter);
+                                }
+                                out.write("</" + containedField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                             }
-                            out.write("</" + containedField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
                 }
@@ -229,15 +231,15 @@ public class DataRecordXmlWriter implements DataRecordWriter {
             if (value == null) {
                 throw new IllegalArgumentException("Not supposed to write null values to XML.");
             }
-            if ("date".equals(simpleField.getType().getName())) { //$NON-NLS-1$
+            if (Types.DATE.equals(simpleField.getType().getName())) {
                 synchronized (DateConstant.DATE_FORMAT) {
                     out.write((DateConstant.DATE_FORMAT).format(value));
                 }
-            } else if ("dateTime".equals(simpleField.getType().getName())) { //$NON-NLS-1$
+            } else if (Types.DATETIME.equals(simpleField.getType().getName())) {
                 synchronized (DateTimeConstant.DATE_FORMAT) {
                     out.write((DateTimeConstant.DATE_FORMAT).format(value));
                 }
-            } else if ("time".equals(simpleField.getType().getName())) { //$NON-NLS-1$
+            } else if (Types.TIME.equals(simpleField.getType().getName())) {
                 synchronized (TimeConstant.TIME_FORMAT) {
                     out.write((TimeConstant.TIME_FORMAT).format(value));
                 }
@@ -246,14 +248,13 @@ public class DataRecordXmlWriter implements DataRecordWriter {
             }
         }
 
-        private String getFK(DataRecord record) {
+        private static String formatRecordKey(DataRecord record) {
             StringBuilder builder = new StringBuilder();
             Collection<FieldMetadata> keyFields = record.getType().getKeyFields();
-            Object keyFieldValue = null;
             for (FieldMetadata keyField : keyFields) {
-                keyFieldValue = record.get(keyField);
-                if (Types.STRING.equals(MetadataUtils.getSuperConcreteType(keyField.getType()).getName())){
-                    keyFieldValue = StringEscapeUtils.escapeXml((String)keyFieldValue);
+                String keyFieldValue = String.valueOf(record.get(keyField));
+                if (Types.STRING.equals(MetadataUtils.getSuperConcreteType(keyField.getType()).getName())) {
+                    keyFieldValue = StringEscapeUtils.escapeXml(keyFieldValue);
                 }
                 builder.append('[').append(keyFieldValue).append(']');
             }

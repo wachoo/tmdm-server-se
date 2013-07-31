@@ -29,7 +29,11 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import com.amalto.core.save.context.SaverContextFactory;
+import com.amalto.core.save.context.StorageDocument;
 import com.amalto.core.server.*;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
@@ -55,6 +59,8 @@ import org.w3c.dom.NodeList;
 
 @SuppressWarnings("nls")
 public class DocumentSaveTest extends TestCase {
+
+    public static final boolean USE_STORAGE_OPTIMIZATIONS = true;
 
     private static Logger LOG = Logger.getLogger(DocumentSaveTest.class);
 
@@ -431,7 +437,6 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
         assertEquals("16.99", evaluate(committedElement, "/Product/Price"));
-        assertEquals("ProductFamily", evaluate(committedElement, "/Product/Family/@tmdm:type"));
     }
 
     public void testPartialUpdate() throws Exception {
@@ -831,7 +836,6 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
         assertEquals("60", evaluate(committedElement, "/Product/Price"));
-        assertEquals("Test", evaluate(committedElement, "/Product/Family/@tmdm:type"));
     }
 
     public void testSchematronValidation() throws Exception {
@@ -1366,6 +1370,7 @@ public class DocumentSaveTest extends TestCase {
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
         session.end(committer);
+        assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
         assertEquals("", evaluate(committedElement, "/testImport/KeyMapping/Keys[3]/Key"));
         assertEquals("", evaluate(committedElement, "/testImport/KeyMapping/Keys[3]/System"));
@@ -2368,7 +2373,7 @@ public class DocumentSaveTest extends TestCase {
 
     private static class MockCommitter implements SaverSession.Committer {
 
-        private Element committedElement;
+        private MutableDocument lastSaved;
 
         private boolean hasSaved = false;
 
@@ -2390,7 +2395,7 @@ public class DocumentSaveTest extends TestCase {
         @Override
         public void save(com.amalto.core.history.Document item) {
             hasSaved = true;
-            committedElement = ((DOMDocument) item).asDOM().getDocumentElement();
+            lastSaved = (MutableDocument) item;
             if (LOG.isDebugEnabled()) {
                 LOG.debug(item.exportToString());
             }
@@ -2404,7 +2409,7 @@ public class DocumentSaveTest extends TestCase {
         }
 
         public Element getCommittedElement() {
-            return committedElement;
+            return lastSaved.asDOM().getDocumentElement();
         }
 
         public boolean hasSaved() {
@@ -2450,7 +2455,13 @@ public class DocumentSaveTest extends TestCase {
                 documentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOCUMENT_BUILDER, false);
                 Document databaseDomDocument = documentBuilder.parse(DocumentSaveTest.class.getResourceAsStream(originalDocumentFileName));
                 Element userXmlElement = getUserXmlElement(databaseDomDocument);
-                return new DOMDocument(userXmlElement, type, revisionId, dataClusterName, dataClusterName);
+                if (USE_STORAGE_OPTIMIZATIONS) {
+                    DataRecordReader<String> reader = new XmlStringDataRecordReader();
+                    DataRecord dataRecord = reader.read(revisionId, repository, type, Util.nodeToString(userXmlElement));
+                    return new StorageDocument(dataClusterName, repository, dataRecord);
+                } else {
+                    return new DOMDocument(userXmlElement, type, revisionId, dataClusterName, dataClusterName);
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

@@ -11,13 +11,7 @@
 
 package com.amalto.core.storage.record;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.storage.hibernate.TypeMapping;
@@ -29,7 +23,7 @@ import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 
 public class DataRecord {
 
-    private final ComplexTypeMetadata type;
+    private ComplexTypeMetadata type;
 
     private final Map<FieldMetadata, Object> fieldToValue = new LinkedHashMap<FieldMetadata, Object>();
 
@@ -160,6 +154,43 @@ public class DataRecord {
         return fieldToValue.keySet();
     }
 
+    public boolean isEmpty() {
+        for (Map.Entry<FieldMetadata, Object> entry : fieldToValue.entrySet()) {
+            if (entry.getValue() != null) {
+                if (entry.getKey() instanceof ContainedTypeFieldMetadata) {
+                    if (entry.getKey().isMany()) {
+                        List<DataRecord> list = (List<DataRecord>) entry.getValue();
+                        for (DataRecord o : list) {
+                            if (!o.isEmpty()) {
+                                return false;
+                            }
+                        }
+                    } else {
+                        if (!((DataRecord) entry.getValue()).isEmpty()) {
+                            return false;
+                        }
+                    }
+                } else {
+                    if (entry.getKey().isMany()) {
+                        List list = (List) entry.getValue();
+                        boolean containsOnlyNulls = true;
+                        for (Object o : list) {
+                            containsOnlyNulls &= (o == null);
+                        }
+                        if (!list.isEmpty() && !containsOnlyNulls) {
+                            return false;
+                        }
+                    } else {
+                        if (entry.getValue() != null) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -185,5 +216,13 @@ public class DataRecord {
             }
         }
         return result;
+    }
+
+    /**
+     * @param type The new type of this data record. New type <b>MUST</b> be a sub type of current type.
+     */
+    public void setType(ComplexTypeMetadata type) {
+        // TODO Check if type is eligible
+        this.type = type;
     }
 }

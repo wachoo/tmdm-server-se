@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
@@ -38,8 +37,6 @@ class UserContext extends AbstractDocumentSaverContext {
 
     private UserAction userAction;
 
-    private ComplexTypeMetadata type;
-
     private String revisionId = null;
 
     private String[] id = new String[0];
@@ -47,8 +44,6 @@ class UserContext extends AbstractDocumentSaverContext {
     private MutableDocument userDocument;
 
     private MutableDocument dataBaseDocument;
-
-    private MutableDocument dataBaseValidationDocument;
 
     private boolean hasMetAutoIncrement;
 
@@ -188,6 +183,11 @@ class UserContext extends AbstractDocumentSaverContext {
     @Override
     public String getPartialUpdateKey() {
         return StringUtils.EMPTY;
+    }
+
+    @Override
+    public boolean generateTouchActions() {
+        return true;
     }
 
     @Override

@@ -65,6 +65,11 @@ public class ReportDocumentSaverContext extends AbstractDocumentSaverContext {
         return StringUtils.EMPTY;
     }
 
+    @Override
+    public boolean generateTouchActions() {
+        return delegate.generateTouchActions();
+    }
+
     public String getChangeSource() {
         return changeSource;
     }
