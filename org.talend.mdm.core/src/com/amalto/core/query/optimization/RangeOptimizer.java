@@ -63,7 +63,6 @@ public class RangeOptimizer implements Optimizer {
 
         @Override
         public Condition visit(BinaryLogicOperator condition) {
-            // TODO OR is a (not(range())) is start and end does not intersect
             if (condition.getLeft() instanceof Compare && condition.getRight() instanceof Compare) {
                 Compare left = (Compare) condition.getLeft();
                 Compare right = (Compare) condition.getRight();
@@ -72,7 +71,19 @@ public class RangeOptimizer implements Optimizer {
                     condition.getLeft().accept(this);
                     condition.getRight().accept(this);
                     if (rangeStart != null && rangeEnd != null) {
-                        return new Range(((TypedExpression) left.getLeft()), rangeStart, rangeEnd);
+                        if (!rangeStart.equals(rangeEnd)) {
+                            if (rangeStart instanceof ConstantExpression && rangeEnd instanceof ConstantExpression) {
+                                Comparable startValue = ((ConstantExpression) rangeStart).getValue();
+                                Comparable endValue = ((ConstantExpression) rangeEnd).getValue();
+                                if (startValue.compareTo(endValue) > 0) {
+                                    Range range = new Range(((TypedExpression) left.getLeft()), rangeEnd, rangeStart);
+                                    return new UnaryLogicOperator(range, Predicate.NOT);
+                                }
+                            }
+                            return new Range(((TypedExpression) left.getLeft()), rangeStart, rangeEnd);
+                        } else {
+                            return new Compare(left.getLeft(), Predicate.EQUALS, rangeStart);
+                        }
                     } else {
                         return condition;
                     }
