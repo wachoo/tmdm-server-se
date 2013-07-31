@@ -85,8 +85,13 @@ public class JournalDataPanel extends FormPanel {
                     
                     public void onSuccess(Boolean result) {
                         if(result) {
-                            JournalDataPanel.this.openBrowseRecordPanel(MessagesFactory.getMessages().journal_label(),
-                                    journalGridModel.getKey(), journalGridModel.getEntity());
+                            if (journalGridModel.getDataContainer().endsWith("#STAGING")) { //$NON-NLS-1$
+                                JournalDataPanel.this.openBrowseRecordPanel4Staging(MessagesFactory.getMessages().journal_label(),
+                                        journalGridModel.getKey(), journalGridModel.getEntity());
+                            } else {
+                                JournalDataPanel.this.openBrowseRecordPanel(MessagesFactory.getMessages().journal_label(),
+                                        journalGridModel.getKey(), journalGridModel.getEntity());
+                            }
                         } else {
                             MessageBox.alert(MessagesFactory.getMessages().error_level(), MessagesFactory.getMessages()
                                     .select_contain_model_msg(), null);
@@ -208,5 +213,10 @@ public class JournalDataPanel extends FormPanel {
     private native void openBrowseRecordPanel(String title, String key, String concept)/*-{
         var arr = key.split("\.");
         $wnd.amalto.itemsbrowser.ItemsBrowser.editItemDetails(title, arr, concept, function(){});
+    }-*/;
+    
+    private native void openBrowseRecordPanel4Staging(String title, String key, String concept)/*-{
+        var arr = key.split("\.");
+        $wnd.amalto.itemsbrowser.ItemsBrowser.editItemDetails4Staging(title, arr, concept, function(){});
     }-*/;
 }

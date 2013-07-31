@@ -128,7 +128,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
 
     @Override
     public boolean checkDCAndDM(String dataContainer, String dataModel) {
-        return Util.checkDCAndDM(dataContainer, dataModel);
+        return Util.checkDCAndDM(dataContainer.replaceAll("#STAGING$", ""), dataModel); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     @Override

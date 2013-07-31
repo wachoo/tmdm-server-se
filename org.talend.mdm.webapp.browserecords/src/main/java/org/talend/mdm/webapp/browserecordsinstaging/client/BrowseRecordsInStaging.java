@@ -65,7 +65,7 @@ public class BrowseRecordsInStaging implements EntryPoint {
        $wnd.amalto = $wnd.amalto || {};
        $wnd.amalto.itemsbrowser = $wnd.amalto.itemsbrowser || {};
        $wnd.amalto.itemsbrowser.ItemsBrowser = $wnd.amalto.itemsbrowser.ItemsBrowser || {};
-       $wnd.amalto.itemsbrowser.ItemsBrowser.editItemDetails = function(fromWhichApp, ids, entity, callback){
+       $wnd.amalto.itemsbrowser.ItemsBrowser.editItemDetails4Staging = function(fromWhichApp, ids, entity, callback){
            var checkArgs = true;
            checkArgs = checkArgs && (arguments.length >= 3);
            checkArgs = checkArgs && (typeof fromWhichApp === "string");
