@@ -30,6 +30,7 @@ import com.amalto.core.servlet.LoadServlet;
 import com.amalto.core.util.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -119,6 +120,12 @@ public class DefaultSaverSource implements SaverSource {
         Node current = userXmlPayloadElement.item(0).getFirstChild();
         while (current != null) {
             if (current instanceof Element) {
+                Element newRoot = (Element) current;
+                NamedNodeMap attrs = databaseDomDocument.getDocumentElement().getAttributes();
+                for (int i = 0; i < attrs.getLength(); i++) {
+                    Node attrNode = attrs.item(i);
+                    newRoot.setAttributeNS(attrNode.getNamespaceURI(), attrNode.getNodeName(), attrNode.getNodeValue());
+                }
                 return (Element) current;
             }
             current = current.getNextSibling();
