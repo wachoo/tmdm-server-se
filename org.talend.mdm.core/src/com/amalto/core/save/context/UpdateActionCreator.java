@@ -308,11 +308,11 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                     type = newTypeMetadata;
                 }
             }
-
-            Action before = actions.getLast();
+            Action before = actions.isEmpty() ? null : actions.getLast();
             type.accept(UpdateActionCreator.this);
             // Way to detect if there is a change in elements below: check if last action in list changed.
-            boolean hasActions = actions.getLast() != before;
+            Action last = actions.isEmpty() ? null : actions.getLast();
+            boolean hasActions = last != before;
             if (leftAccessor.exist() || (rightAccessor.exist() && hasActions)) {
                 lastMatchPath = getLeftPath();
             }
