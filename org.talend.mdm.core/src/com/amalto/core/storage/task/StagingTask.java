@@ -30,6 +30,7 @@ public class StagingTask implements Task {
     private final TaskSubmitter taskSubmitter;
 
     private final Storage stagingStorage;
+
     private final Storage destinationStorage;
 
     private final String executionId;

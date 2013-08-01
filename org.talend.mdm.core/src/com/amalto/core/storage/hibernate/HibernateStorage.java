@@ -14,6 +14,7 @@ import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.optimization.*;
 import com.amalto.core.query.user.*;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.task.StagingConstants;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.TransactionManager;
 import org.apache.log4j.Level;
@@ -590,6 +591,10 @@ public class HibernateStorage implements Storage {
                     String key = currentProperty.getKey();
                     String value = currentProperty.getValue();
                     ComplexTypeMetadata database = mapping.getDatabase();
+                    if (storageType == StorageType.STAGING) { // TODO Change status automatically
+                        recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.NEW);
+                        o.taskId(null);
+                    }
                     if (database.hasField(key)) {
                         Object convertedValue = MetadataUtils.convert(value, database.getField(key));
                         o.set(key, convertedValue);
