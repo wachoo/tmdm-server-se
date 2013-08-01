@@ -189,6 +189,7 @@ public class Util {
 
     static {
         System.setProperty("javax.xml.parsers.DocumentBuilderFactory", DocumentBuilderFactoryImpl.class.getName()); //$NON-NLS-1$
+        LoginModuleDelegator.setDelegateClassLoader(Util.class.getClassLoader());
     }
 
     /**

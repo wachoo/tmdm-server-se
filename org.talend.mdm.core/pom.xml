@@ -18,6 +18,7 @@
         <ejbs>zz.20.core</ejbs>
         <lib>z.mdm.core</lib>
         <service>org.talend.mdm.jullog4jservice</service>
+        <jaas>org.talend.mdm.jaas</jaas>
         <version.properties>product_version.properties</version.properties>
     </properties>
 
@@ -72,6 +73,9 @@
                                 <include>**</include>
                                 <include>${version.properties}</include>
                             </includes>
+                            <excludes>
+                                <exclude>com/amalto/core/util/LoginModuleDelegator.class</exclude>
+                            </excludes>
                         </configuration>
                         <goals>
                             <goal>jar</goal>
@@ -87,6 +91,9 @@
                                 <include>**/*POJO*.class</include>
                                 <include>${version.properties}</include>
                             </includes>
+                            <excludes>
+                                <exclude>com/amalto/core/util/LoginModuleDelegator.class</exclude>
+                            </excludes>
                         </configuration>
                         <goals>
                             <goal>jar</goal>
@@ -106,6 +113,20 @@
                             <goal>jar</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>jar-jaas</id>
+                        <phase>package</phase>                        
+                        <configuration>
+                            <classifier>jaas</classifier>
+                            <includes>
+                                <include>com/amalto/core/util/LoginModuleDelegator.class</include>
+                                <include>${version.properties}</include>
+                            </includes>
+                        </configuration>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>                        
+                    </execution>                                                                      
                 </executions>
             </plugin>
 
@@ -152,6 +173,7 @@
                             <tasks>
                                 <delete file="${jboss.lib.dir}/${lib}.jar" />
                                 <delete file="${jboss.lib.dir}/${service}.jar" />
+                                <delete file="${jboss.lib.dir}/${jaas}.jar" />
                                 <delete file="${jboss.deploy.dir}/${ejbs}.jar" />
                                 <delete file="${jboss.deploy.dir}/${war}.war" />
                                 <delete file="${jboss.bin.dir}/mdm.conf" />
@@ -164,6 +186,9 @@
                                 <copy
                                     file="${project.build.directory}/${project.build.finalName}-service.jar"
                                     tofile="${jboss.lib.dir}/${service}.jar" />
+                                <copy
+                                    file="${project.build.directory}/${project.build.finalName}-jaas.jar"
+                                    tofile="${jboss.lib.dir}/${jaas}.jar" />                                    
                                 <copy
                                     file="${project.build.directory}/${project.build.finalName}-ejbs.jar"
                                     tofile="${jboss.deploy.dir}/${ejbs}.jar" />
