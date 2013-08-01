@@ -159,8 +159,10 @@ $Revision: 64598 $
     <!-- Policy for talend MDM -->
     <application-policy name="xtentisSecurity">
       <authentication>
-        <login-module code="org.talend.mdm.jaas.jboss.open.SimpleLoginModule"
+        <login-module code="com.amalto.core.util.LoginModuleDelegator"
           flag="required">
+          <module-option name="delegateModule">org.talend.mdm.jaas.jboss.open.SimpleLoginModule</module-option>
+      
           <module-option name="unauthenticatedIdentity">anonymous</module-option>
           <module-option name="logins">admin,administrator,user</module-option>
           <module-option name="passwords">talend,administrator,user</module-option>
