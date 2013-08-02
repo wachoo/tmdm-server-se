@@ -98,6 +98,7 @@
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
             <classifier>jaas</classifier>
+            <scope>test</scope>
         </dependency>        
         <dependency>
             <groupId>org.talend.mdm</groupId>
