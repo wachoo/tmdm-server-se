@@ -168,10 +168,14 @@ public class Journal implements EntryPoint {
     }
 
     private void initJournalfromBrowseRecord(String ids, String concept) {
+        String idsString = org.talend.mdm.webapp.base.shared.util.CommonUtil.unescape(ids);
+        if (idsString.indexOf("@") != -1) { //$NON-NLS-1$
+            idsString = idsString.replaceAll("@", "."); //$NON-NLS-1$ //$NON-NLS-2$
+        }
         resetSearchCondition();
         JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);
-        criteria.setKey(ids);
-        JournalSearchPanel.getInstance().setKeyFieldValue(ids);
+        criteria.setKey(idsString);
+        JournalSearchPanel.getInstance().setKeyFieldValue(idsString);
         criteria.setEntity(concept);
         JournalSearchPanel.getInstance().setEntityFieldValue(concept);
     }

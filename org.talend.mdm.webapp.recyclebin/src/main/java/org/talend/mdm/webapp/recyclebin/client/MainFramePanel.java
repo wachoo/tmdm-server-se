@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.client.widget.ColumnAlignGrid;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
+import org.talend.mdm.webapp.base.shared.util.CommonUtil;
 import org.talend.mdm.webapp.recyclebin.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.recyclebin.client.resources.icon.Icons;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
@@ -144,6 +145,15 @@ public class MainFramePanel extends ContentPanel {
         colIds.setId("ids");//$NON-NLS-1$
         colIds.setWidth(COLUMN_WIDTH);
         colIds.setHeader(MessagesFactory.getMessages().Ids());
+        colIds.setRenderer(new GridCellRenderer<ItemsTrashItem>() {
+
+            @Override
+            public Object render(ItemsTrashItem model, String property, ColumnData config, int rowIndex, int colIndex,
+                    ListStore<ItemsTrashItem> store, Grid<ItemsTrashItem> grid) {
+                return CommonUtil.unescape(model.getIds());
+            }
+            
+        });
         ccList.add(colIds);
         ColumnConfig colItemName = new ColumnConfig();
         colItemName.setId("itemName");//$NON-NLS-1$

@@ -31,6 +31,7 @@ import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.recyclebin.client.RecycleBinService;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
 import org.talend.mdm.webapp.recyclebin.shared.NoPermissionException;
@@ -174,7 +175,7 @@ public class RecycleBinAction implements RecycleBinService {
         String[] values = org.talend.mdm.webapp.recyclebin.server.actions.Util.getItemNameByProjection(item.getConceptName(),
                 projection, repository, language);
         ItemsTrashItem pojo = new ItemsTrashItem(item.getConceptName(), values[1],
-                Util.joinStrings(item.getIds(), "."), values[0] != null ? values[0] : "", df.format(new Date(//$NON-NLS-1$ //$NON-NLS-2$
+                CommonUtil.joinStrings(item.getIds(), "."), values[0] != null ? values[0] : "", df.format(new Date(//$NON-NLS-1$ //$NON-NLS-2$
                         item.getInsertionTime())), item.getInsertionUserName(), item.getWsDataClusterPK().getPk(),
                 item.getPartPath(), item.getProjection(), item.getRevisionID(), item.getUniqueId());
         return pojo;
@@ -201,7 +202,7 @@ public class RecycleBinAction implements RecycleBinService {
         try {
             Locale locale = new Locale(language);
             // WSDroppedItemPK
-            String[] ids1 = ids.split("\\.");//$NON-NLS-1$
+            String[] ids1 = CommonUtil.extractIdWithDots(ids);
             String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(clusterName, conceptName, ids1);
 
             String message = null;
@@ -269,7 +270,7 @@ public class RecycleBinAction implements RecycleBinService {
                     && !DataModelAccessor.getInstance().checkRestoreAccess(modelName, conceptName)) {
                 throw new NoPermissionException();
             }
-            String[] ids1 = ids.split("\\.");//$NON-NLS-1$
+            String[] ids1 = CommonUtil.extractIdWithDots(ids);
             WSDataClusterPK wddcpk = new WSDataClusterPK(clusterName);
             WSItemPK wdipk = new WSItemPK(wddcpk, conceptName, ids1);
             WSDroppedItemPK wsdipk = new WSDroppedItemPK(wdipk, partPath, revisionId);
@@ -295,7 +296,7 @@ public class RecycleBinAction implements RecycleBinService {
             revisionId = com.amalto.webapp.core.util.Util.getRevisionIdFromUniverse(universename, concept);
         }
 
-        UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType, //$NON-NLS-1$
+        UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, CommonUtil.joinStrings(ids, "."), operationType, //$NON-NLS-1$
                 "genericUI", now.getTime(), dataClusterPK, dataModelPK, username, revisionId, null); ////$NON-NLS-1$
         return updateReportPOJO.serialize();
     }
