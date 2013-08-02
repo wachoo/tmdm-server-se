@@ -65,4 +65,6 @@ public interface BaseMessages extends Messages {
     String exception_fk_malform(String fk);
     
     String overwrite_confirm();
+    
+    String label_exception_id_malform(String id);
 }

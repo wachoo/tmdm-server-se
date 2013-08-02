@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.base.server.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +25,8 @@ import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.client.util.Parser;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
+import org.talend.mdm.webapp.base.server.exception.ExceptionConstants;
+import org.talend.mdm.webapp.base.server.exception.WebBaseException;
 import org.talend.mdm.webapp.base.server.mockup.FakeData;
 
 import com.amalto.core.util.Messages;
@@ -76,14 +79,14 @@ public class CommonUtil {
      * @param separator
      * @return a single string or null
      */
-    public static String joinStrings(List<String> strings, String separator) {
+    public static String joinStrings(String[] strings, String separator) {
         if (strings == null) {
             return null;
         }
         String res = ""; //$NON-NLS-1$ 
-        for (int i = 0; i < strings.size(); i++) {
+        for (int i = 0; i < strings.length; i++) {
             res += (i > 0) ? separator : ""; //$NON-NLS-1$ 
-            res += strings.get(i);
+            res += org.talend.mdm.webapp.base.shared.util.CommonUtil.escape(strings[i]);
         }
         return res;
     }
@@ -265,5 +268,17 @@ public class CommonUtil {
         }
         criteria.append(")"); //$NON-NLS-1$
         return criteria.toString();
+    }
+    
+    public static String[] extractIdWithDots(String ids) throws WebBaseException {
+        List<String> idList = new ArrayList<String>();
+        StringTokenizer tokenizer = new StringTokenizer(ids, "."); //$NON-NLS-1$
+        if (!tokenizer.hasMoreTokens()) {
+            throw new WebBaseException(ExceptionConstants.ID_FORMAT_EXCEPTION, org.talend.mdm.webapp.base.shared.util.CommonUtil.unescape(ids));
+        }
+        while (tokenizer.hasMoreTokens()) {
+            idList.add(org.talend.mdm.webapp.base.shared.util.CommonUtil.unescape(tokenizer.nextToken()));
+        }
+        return idList.toArray(new String[idList.size()]);
     }
 }

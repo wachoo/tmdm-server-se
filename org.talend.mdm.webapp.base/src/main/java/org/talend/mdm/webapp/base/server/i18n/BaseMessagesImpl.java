@@ -137,4 +137,8 @@ public final class BaseMessagesImpl implements BaseMessages {
     public String overwrite_confirm() {
         return MESSAGES.getMessage("overwrite_confirm");
     }
+
+    public String label_exception_id_malform(String id) {
+        return MESSAGES.getMessage("label_exception_id_malform");
+    }
 }

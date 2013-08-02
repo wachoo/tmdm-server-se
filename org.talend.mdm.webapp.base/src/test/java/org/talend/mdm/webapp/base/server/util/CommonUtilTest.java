@@ -47,7 +47,7 @@ public class CommonUtilTest extends TestCase {
         testee.add("NJ01");
         testee.add("#@$.");
         testee.add("\\/.");
-        assertEquals("NJ01.#@$..\\/.", CommonUtil.joinStrings(testee, "."));
+        assertEquals("NJ01.%23%40%24%2e.%5c%2f%2e", CommonUtil.joinStrings(testee.toArray(new String[testee.size()]), "."));
     }
 
     public void testBuildWhereItems() throws Exception {
