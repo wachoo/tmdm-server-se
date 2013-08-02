@@ -31,6 +31,7 @@ import org.talend.mdm.webapp.base.client.widget.ColumnAlignGrid;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.base.shared.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -313,6 +314,7 @@ public class ItemsListPanel extends ContentPanel {
                     if (selectedItems == null) {
                         // search and create
                         if (isCreate && createItemBean != null) {
+                            createItemBean.setIds(CommonUtil.escape(createItemBean.getIds()));
                             if (grid.getStore().findModel(createItemBean) != null) {
                                 grid.getSelectionModel().select(createItemBean, true);
                             } else {

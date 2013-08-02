@@ -188,7 +188,7 @@ public class BrowseRecordsView extends View {
         itemConcept = item.getConcept();
         itemLabel = item.getLabel();
         itemDisplayPKInfo = item.getDisplayPKInfo();
-        itemIds = item.getIds();
+        itemIds = org.talend.mdm.webapp.base.shared.util.CommonUtil.unescape(item.getIds());
         itemPkInfoList = item.getPkInfoList();
         itemDescription = item.getDescription();
 
