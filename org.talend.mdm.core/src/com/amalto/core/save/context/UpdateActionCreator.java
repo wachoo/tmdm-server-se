@@ -370,10 +370,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                         }
                     }
                 }
-                Action before = actions.getLast();
-                // Way to detect if there is a change in elements below: check if last action in list changed.
-                boolean hasActions = actions.getLast() != before;
-                if (leftAccessor.exist() || (rightAccessor.exist() && hasActions)) {
+                if (leftAccessor.exist() || rightAccessor.exist()) {
                     lastMatchPath = getLeftPath();
                 }
             }
