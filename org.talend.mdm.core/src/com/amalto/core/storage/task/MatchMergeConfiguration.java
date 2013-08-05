@@ -30,4 +30,17 @@ interface MatchMergeConfiguration {
     List<FieldMetadata> getMatchFields(ComplexTypeMetadata type);
 
     Collection<Select> getBlocks(ComplexTypeMetadata type, Select select);
+
+    /**
+     * Perform asserts on the type. In case of error/non compliance, a {@link IllegalArgumentException} is expected.
+     * @param type An entity type.
+     * @throws IllegalArgumentException If the type does not comply to the rules.
+     */
+    void check(ComplexTypeMetadata type);
+
+    /**
+     * @param type An entity type.
+     * @return <code>true</code> if configuration includes match merge details for the type, <code>false</code> otherwise.
+     */
+    boolean include(ComplexTypeMetadata type);
 }

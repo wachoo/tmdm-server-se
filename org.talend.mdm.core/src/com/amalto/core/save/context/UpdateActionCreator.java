@@ -11,19 +11,17 @@
 package com.amalto.core.save.context;
 
 import com.amalto.core.history.Action;
-import com.amalto.core.history.Document;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.metadata.MetadataUtils;
-import org.talend.mdm.commmon.metadata.*;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.*;
 
 import java.util.*;
 
-class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
+public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private static final Logger LOGGER = Logger.getLogger(UpdateActionCreator.class);
 

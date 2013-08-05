@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.task;
 
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.Select;
 import org.talend.dataquality.matchmerge.MatchAlgorithm;
 import org.talend.dataquality.matchmerge.MergeAlgorithm;
@@ -65,5 +66,23 @@ class DefaultMatchMergeConfiguration implements MatchMergeConfiguration {
     @Override
     public Collection<Select> getBlocks(ComplexTypeMetadata type, Select select) {
         return Collections.singletonList(select);
+    }
+
+    @Override
+    public void check(ComplexTypeMetadata type) {
+        if(type.getKeyFields().size() > 1) {
+            throw new IllegalArgumentException("Type '" + type.getName() + "' is incorrect because it uses composite keys.");
+        }
+        FieldMetadata keyField = type.getKeyFields().iterator().next();
+        if(!Types.STRING.equals(MetadataUtils.getSuperConcreteType(keyField.getType()).getName())) {
+            throw new IllegalArgumentException("Key field '" + keyField.getName()
+                    + "' of type '" + keyField.getContainingType().getName()
+                    + "' is expected to be a sub type of string");
+        }
+    }
+
+    @Override
+    public boolean include(ComplexTypeMetadata type) {
+        return false;
     }
 }

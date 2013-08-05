@@ -11,10 +11,13 @@
 
 package com.amalto.core.storage.task;
 
+import com.amalto.core.history.Action;
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.Condition;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.save.context.StorageDocument;
+import com.amalto.core.save.context.UpdateActionCreator;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
@@ -23,6 +26,7 @@ import com.amalto.core.storage.transaction.Transaction;
 import com.amalto.core.storage.transaction.TransactionManager;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.collections.iterators.TransformIterator;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -36,7 +40,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
 import static com.amalto.core.query.user.UserStagingQueryBuilder.status;
 
 public class MatchMergeTask implements Task {
@@ -96,17 +99,18 @@ public class MatchMergeTask implements Task {
         TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         Transaction transaction = transactionManager.create(Transaction.Lifetime.LONG);
         try {
-            storage.begin();
             List<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
             startTime = System.currentTimeMillis();
             for (ComplexTypeMetadata type : types) {
-                if (type.isInstantiable() && processType(type)) {
+                if (type.isInstantiable() && processType(type) && configuration.include(type)) {
+                    configuration.check(type); // performs some asserts on the type.
                     UserQueryBuilder typeQueryBuilder = from(type).where(or(or(eq(status(), "0"), eq(status(), StagingConstants.SUCCESS_MERGED_RECORD)), isNull(status())));
                     Collection<Select> blockQueries = configuration.getBlocks(type, typeQueryBuilder.getSelect().copy());
                     int typeRecordCount = 0;
                     List<Record> matchMergeResult = Collections.emptyList();
                     final List<FieldMetadata> matchFields = configuration.getMatchFields(type);
                     for (Select blockQuery : blockQueries) {
+                        storage.begin();
                         StorageResults records = storage.fetch(blockQuery); // Expects an active transaction here
                         try {
                             int count = records.getCount();
@@ -164,7 +168,8 @@ public class MatchMergeTask implements Task {
                                 LOGGER.info("Group id: " + record.getGroupId());
                             }
                             UserQueryBuilder qb = from(type);
-                            if (!record.getRelatedIds().isEmpty()) {
+                            int groupSize = record.getRelatedIds().size();
+                            if (groupSize > 1) {
                                 Condition condition = null;
                                 for (String relatedIds : record.getRelatedIds()) {
                                     Condition currentEquals = eq(type.getKeyFields().iterator().next(), relatedIds);
@@ -180,13 +185,43 @@ public class MatchMergeTask implements Task {
                             }
                             StorageResults relatedRecords = storage.fetch(qb.getSelect());
                             int i = 0;
+                            DataRecord goldenRecord = null;
                             for (DataRecord relatedRecord : relatedRecords) {
                                 if (LOGGER.isInfoEnabled()) {
                                     LOGGER.info("Record #" + i);
                                 }
+                                // Merge document with current golden record (if group bigger than 1).
+                                if (groupSize > 1) {
+                                    if(goldenRecord == null) {
+                                        goldenRecord = relatedRecord;
+                                        for (Attribute attribute : record.getAttributes()) {
+                                            FieldMetadata field = goldenRecord.getType().getField(attribute.getLabel());
+                                            goldenRecord.set(field, MetadataUtils.convert(attribute.getValue(), field));
+                                        }
+                                    } else {
+                                        StorageDocument storageDocument = new StorageDocument(StringUtils.EMPTY, repository, goldenRecord);
+                                        StorageDocument newDocument = new StorageDocument(StringUtils.EMPTY, repository, relatedRecord);
+                                        UpdateActionCreator updateActionCreator = new UpdateActionCreator(storageDocument,
+                                                newDocument,
+                                                new Date(System.currentTimeMillis()),
+                                                StringUtils.EMPTY,
+                                                StringUtils.EMPTY,
+                                                false, // No need for 'touch' action in this case (data record comparison does not need this).
+                                                repository);
+                                        List<Action> actions = goldenRecord.getType().accept(updateActionCreator);
+                                        for (Action action : actions) {
+                                            // TODO Skip actions performed on the merge fields
+                                            action.perform(storageDocument);
+                                        }
+                                    }
+                                } else {
+                                    goldenRecord = relatedRecord; // For group of one, only related record is the golden one.
+                                }
+                                // Record status change
                                 relatedRecord.getRecordMetadata().setTaskId(record.getGroupId());
                                 relatedRecord.getRecordMetadata().getRecordProperties().put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_MERGE_CLUSTERS);
                                 storage.update(relatedRecord);
+                                // Logger merged record content
                                 if (LOGGER.isInfoEnabled()) {
                                     StringBuilder builder = new StringBuilder();
                                     for (FieldMetadata field : matchFields) {
@@ -199,20 +234,25 @@ public class MatchMergeTask implements Task {
                             if (LOGGER.isInfoEnabled()) {
                                 LOGGER.info("-----------------");
                             }
-                            // TODO Create the merged golden record.
-                            DataRecord goldenRecord = null;
+                            // Mark the merged golden record.
                             if (goldenRecord != null) {
                                 goldenRecord.getRecordMetadata().setTaskId(record.getGroupId());
                                 goldenRecord.getRecordMetadata().getRecordProperties().put(STAGING_STATUS_FIELD, StagingConstants.SUCCESS_MERGED_RECORD);
+                                // Type for golden record is expected to have a single key field that can accept UUID values
+                                // (it is an expected error to have failure here in case this isn't true).
+                                FieldMetadata keyField = goldenRecord.getType().getKeyFields().iterator().next();
+                                goldenRecord.set(keyField, UUID.randomUUID().toString());
+                                storage.update(goldenRecord); // Golden record will go to master database in MDMValidationTask
+                            } else {
+                                throw new IllegalStateException("Expected a golden record to be built.");
                             }
-
                         }
+                        storage.commit();
                     }
                 }
             }
             endTime = System.currentTimeMillis();
         } finally {
-            storage.commit();
             transaction.commit();
             synchronized (executionLock) {
                 executionLock.set(true);
