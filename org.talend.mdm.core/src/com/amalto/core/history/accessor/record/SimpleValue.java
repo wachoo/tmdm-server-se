@@ -14,10 +14,7 @@ package com.amalto.core.history.accessor.record;
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.storage.record.DataRecord;
 import org.apache.commons.lang.StringUtils;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.*;
 
 class SimpleValue implements Setter, Getter {
 
@@ -26,7 +23,10 @@ class SimpleValue implements Setter, Getter {
     static Getter GET = new SimpleValue();
 
     @Override
-    public void set(DataRecord record, PathElement element, String value) {
+    public void set(MetadataRepository repository, DataRecord record, PathElement element, String value) {
+        if (value == null) {
+            record.set(element.field, null);
+        }
         if (element.field instanceof ReferenceFieldMetadata) {
             ComplexTypeMetadata referencedType = ((ReferenceFieldMetadata) element.field).getReferencedType();
             DataRecord referencedRecord = (DataRecord) MetadataUtils.convert(String.valueOf(value), element.field, referencedType);

@@ -25,9 +25,6 @@ import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
 
 import javax.xml.parsers.DocumentBuilder;
 import java.io.ByteArrayInputStream;
@@ -50,7 +47,7 @@ public class StorageDocument implements MutableDocument {
 
     @Override
     public Accessor createAccessor(String path) {
-        return new DataRecordAccessor(getDataRecord(), path);
+        return new DataRecordAccessor(repository, getDataRecord(), path);
     }
 
     @Override

@@ -14,10 +14,7 @@ package com.amalto.core.history.accessor.record;
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.storage.record.DataRecord;
 import org.apache.commons.lang.StringUtils;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +26,7 @@ class ManyValue implements Setter, Getter {
     static Getter GET = new ManyValue();
 
     @Override
-    public void set(DataRecord record, PathElement element, String value) {
+    public void set(MetadataRepository repository, DataRecord record, PathElement element, String value) {
         List list = (List) record.get(element.field);
         if (list == null) {
             list = new ArrayList(element.index);
@@ -37,6 +34,9 @@ class ManyValue implements Setter, Getter {
         }
         while(element.index >= list.size()) {
             list.add(null);
+        }
+        if (value == null) {
+            list.set(element.index, null);
         }
         if (element.field instanceof ReferenceFieldMetadata) {
             ComplexTypeMetadata referencedType = ((ReferenceFieldMetadata) element.field).getReferencedType();

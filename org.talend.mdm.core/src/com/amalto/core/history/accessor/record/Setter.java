@@ -12,7 +12,8 @@
 package com.amalto.core.history.accessor.record;
 
 import com.amalto.core.storage.record.DataRecord;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 interface Setter {
-    void set(DataRecord record, PathElement element, String value);
+    void set(MetadataRepository repository, DataRecord record, PathElement element, String value);
 }

@@ -13,9 +13,10 @@ package com.amalto.core.history.accessor.record;
 
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
-import org.talend.mdm.commmon.metadata.TypeMetadata;
 
 class TypeValue implements Setter, Getter {
 
@@ -24,7 +25,7 @@ class TypeValue implements Setter, Getter {
     static Getter GET = new TypeValue();
 
     @Override
-    public void set(DataRecord record, PathElement element, String value) {
+    public void set(MetadataRepository repository, DataRecord record, PathElement element, String value) {
         if (value == null) {
             return;
         }
@@ -41,39 +42,15 @@ class TypeValue implements Setter, Getter {
             }
             if (!value.isEmpty()) {
                 ComplexTypeMetadata type = record.getType();
-                if (!value.equals(record.getType().getName())) {
-                    ComplexTypeMetadata newType = getSubType(type, value);
-                    if (newType != null) {
-                        record.setType(newType);
-                    } else {
-                        for (TypeMetadata superType : type.getSuperTypes()) {
-                            if (value.equals(superType.getName())) {
-                                newType = (ComplexTypeMetadata) superType;
-                                break;
-                            }
-                        }
-                        if (newType != null) {
-                            record.setType(newType);
-                        } else {
-                            throw new IllegalArgumentException("Type '" + value + "' is not in inheritance tree accessible from '" + type.getName() + "'");
-                        }
+                if (!value.equals(type.getName())) {
+                    ComplexTypeMetadata newType = repository.getComplexType(value);
+                    if (newType == null) {
+                        newType = (ComplexTypeMetadata) repository.getNonInstantiableType(StringUtils.EMPTY, value);
                     }
+                    record.setType(newType);
                 }
             }
         }
-    }
-
-    private ComplexTypeMetadata getSubType(ComplexTypeMetadata type, String typeName) {
-        for (ComplexTypeMetadata subType : type.getSubTypes()) {
-            if (typeName.equals(subType.getName())) {
-                return subType;
-            }
-            ComplexTypeMetadata subTypeLookup = getSubType(subType, typeName);
-            if (subTypeLookup != null) {
-                return subTypeLookup;
-            }
-        }
-        return null;
     }
 
     @Override

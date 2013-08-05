@@ -12,15 +12,12 @@
 package com.amalto.core.save.context;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.xml.XMLConstants;
 
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import org.w3c.dom.Document;
 
-import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -52,7 +49,7 @@ class ChangeReferenceTypeAction extends AbstractChangeTypeAction {
                 }
             }
         }
-        typeAccessor.set(typeName);
+        typeAccessor.createAndSet(typeName);
         return document;
     }
 

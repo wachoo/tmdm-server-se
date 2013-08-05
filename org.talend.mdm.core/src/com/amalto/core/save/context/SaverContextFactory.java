@@ -189,7 +189,7 @@ public class SaverContextFactory {
         // Choose right context implementation
         DocumentSaverContext context;
         Storage storage = server.getStorageAdmin().get(dataCluster, null);
-        if (storage != null && StorageSaver.USE_STORAGE_BASED_API) { // TODO temp property
+        if (storage != null) {
             context = new StorageSaver(storage, userDocument, userAction, invokeBeforeSaving, updateReport, validate);
         } else {
             // Deprecated code here (keep it for XML database).

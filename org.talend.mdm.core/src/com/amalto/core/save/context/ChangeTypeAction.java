@@ -47,7 +47,7 @@ class ChangeTypeAction extends AbstractChangeTypeAction {
                 }
             }
         }
-        typeAccessor.set(typeName);
+        typeAccessor.createAndSet(typeName);
         return document;
     }
 

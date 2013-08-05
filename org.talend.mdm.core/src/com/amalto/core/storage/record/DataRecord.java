@@ -57,6 +57,9 @@ public class DataRecord {
     }
 
     public Object get(FieldMetadata field) {
+        if (field == null) {
+            throw new IllegalArgumentException("Field cannot be null.");
+        }
         ComplexTypeMetadata containingType = field.getContainingType();
         if (containingType != this.getType() && !this.getType().isAssignableFrom(containingType)) {
             if (fieldToValue.containsKey(field)) {
@@ -65,7 +68,7 @@ public class DataRecord {
             Iterator<FieldMetadata> path = MetadataUtils.path(type, field, false).iterator();
             if (!path.hasNext()) {
                 Object value = get(field.getName());
-                if(value != null) { // Support explicit projection type fields
+                if (value != null) { // Support explicit projection type fields
                     return value;
                 }
                 throw new IllegalArgumentException("Field '" + field.getName() + "' isn't reachable from type '" + type.getName() + "'");
@@ -131,7 +134,11 @@ public class DataRecord {
                     list = new LinkedList();
                     fieldToValue.put(field, list);
                 }
-                list.add(o);
+                if (o instanceof Collection) {
+                    list.addAll((Collection) o);
+                } else {
+                    list.add(o);
+                }
             } else {
                 if (list == null && o instanceof List) {
                     fieldToValue.put(field, o);
