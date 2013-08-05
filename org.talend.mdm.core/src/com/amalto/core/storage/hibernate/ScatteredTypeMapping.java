@@ -226,14 +226,16 @@ class ScatteredTypeMapping extends TypeMapping {
                         if (wrapperList != null) {
                             List<Wrapper> fullList = getFullList((PersistentList) value);
                             for (Wrapper wrapper : fullList) {
-                                TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
-                                DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
-                                for (FieldMetadata fkField : ((ReferenceFieldMetadata) field).getReferencedType().getFields()) {
-                                    if (mapping.getUser(fkField) != null) {
-                                        referencedRecord.set(mapping.getUser(fkField), wrapper.get(fkField.getName()));
+                                if (wrapper != null) {
+                                    TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
+                                    DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
+                                    for (FieldMetadata fkField : ((ReferenceFieldMetadata) field).getReferencedType().getFields()) {
+                                        if (mapping.getUser(fkField) != null) {
+                                            referencedRecord.set(mapping.getUser(fkField), wrapper.get(fkField.getName()));
+                                        }
                                     }
+                                    to.set(userField, referencedRecord);
                                 }
-                                to.set(userField, referencedRecord);
                             }
                         }
                     }

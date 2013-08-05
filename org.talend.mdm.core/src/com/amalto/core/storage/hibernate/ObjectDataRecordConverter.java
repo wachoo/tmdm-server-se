@@ -47,10 +47,6 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
             // Try to load existing instance (if any).
             Wrapper mainInstance;
             try {
-                if (!session.getTransaction().isActive()) {
-                    // Hibernate needs a active session to read instances.
-                    session.getTransaction().begin();
-                }
                 Collection<FieldMetadata> keyFields = dataRecord.getType().getKeyFields();
                 if (keyFields.size() == 0) {
                     throw new IllegalArgumentException("Type '" + dataRecord.getType().getName() + "' does not define any key field.");

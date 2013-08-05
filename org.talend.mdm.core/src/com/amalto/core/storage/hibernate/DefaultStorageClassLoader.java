@@ -106,9 +106,9 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         switch (type) {
             case MASTER:
             case SYSTEM:
-                return new MappingGenerator(document, resolver, dialect);
+                return new MappingGenerator(document, resolver, dataSource);
             case STAGING:
-                return new MappingGenerator(document, resolver, dialect, false);
+                return new MappingGenerator(document, resolver, dataSource, false);
             default:
                 throw new NotImplementedException("No support for storage type '" + type + "'.");
         }
@@ -216,8 +216,6 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
             case H2:
                 // Default Hibernate configuration for Hibernate forgot some JDBC type mapping.
                 return H2CustomDialect.class.getName();
-            case MYSQL:
-                return "org.hibernate.dialect.MySQLDialect"; //$NON-NLS-1$
             default:
                 throw new IllegalArgumentException("Not supported database type '" + dialectType + "'");
         }
