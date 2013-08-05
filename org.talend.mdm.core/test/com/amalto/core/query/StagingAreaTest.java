@@ -174,9 +174,6 @@ public class StagingAreaTest extends TestCase {
         Thread.currentThread().setContextClassLoader(contextClassLoader);
     }
 
-    public void test() throws Exception {
-    }
-
     public void testStaging() throws Exception {
         generateData(true);
 
@@ -345,6 +342,7 @@ public class StagingAreaTest extends TestCase {
     public void testQueryError() throws Exception {
         generateData(true);
 
+        origin.begin();
         Select selectSource = UserQueryBuilder.from(person)
                 .select(alias(UserStagingQueryBuilder.error(), UserQueryBuilder.STAGING_ERROR_ALIAS)).getSelect();
         StorageResults results = origin.fetch(selectSource);
@@ -359,11 +357,13 @@ public class StagingAreaTest extends TestCase {
             assertTrue(result.getType().hasField(UserQueryBuilder.STAGING_ERROR_ALIAS));
             assertNull(result.get(UserQueryBuilder.STAGING_ERROR_ALIAS));
         }
+        origin.commit();
     }
 
     public void testQueryStatus() throws Exception {
         generateData(true);
 
+        origin.begin();
         Select selectSource = UserQueryBuilder.from(person)
                 .select(alias(UserStagingQueryBuilder.error(), UserQueryBuilder.STAGING_STATUS_ALIAS)).getSelect();
         StorageResults results = origin.fetch(selectSource);
@@ -378,6 +378,7 @@ public class StagingAreaTest extends TestCase {
             assertTrue(result.getType().hasField(UserQueryBuilder.STAGING_STATUS_ALIAS));
             assertNull(result.get(UserQueryBuilder.STAGING_STATUS_ALIAS));
         }
+        origin.commit();
     }
 
     public void testQueryStatusWithId() throws Exception {
@@ -387,6 +388,7 @@ public class StagingAreaTest extends TestCase {
                 .select(alias(UserStagingQueryBuilder.status(), UserQueryBuilder.STAGING_STATUS_ALIAS))
                 .where(eq(person.getField("id"), String.valueOf(COUNT / 2)))
                 .getSelect();
+        origin.begin();
         StorageResults results = origin.fetch(selectSource);
         for (DataRecord result : results) {
             assertTrue(result.getType().hasField(UserQueryBuilder.STAGING_STATUS_ALIAS));
@@ -401,15 +403,18 @@ public class StagingAreaTest extends TestCase {
             assertTrue(result.getType().hasField(UserQueryBuilder.STAGING_STATUS_ALIAS));
             assertNull(result.get(UserQueryBuilder.STAGING_STATUS_ALIAS));
         }
+        origin.commit();
     }
     
     public void testValidationWithEmptyData() throws Exception {
         Select select = UserQueryBuilder.from(person).getSelect();
         Select selectEmptyTaskId = UserQueryBuilder.from(person).where(isEmpty(taskId())).getSelect();
+        destination.begin();
         assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
         assertEquals(0, destination.fetch(select).getCount());
         assertEquals(0, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
         assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
+        destination.commit();
 
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
         SaverSession.Committer committer = new TestCommitter(storages);
@@ -417,6 +422,8 @@ public class StagingAreaTest extends TestCase {
         Task stagingTask = new StagingTask(submitter, origin, stagingRepository, repository, source, committer, destination);
         submitter.submitAndWait(stagingTask);
 
+        destination.begin();
+        origin.begin();
         assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
         assertEquals(0, destination.fetch(select).getCount());
         assertEquals(0, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
@@ -441,9 +448,11 @@ public class StagingAreaTest extends TestCase {
         } finally {
             results.close();
         }
+        origin.commit();
+        destination.commit();
     }
     
-    public void testStagingAuthorization() throws Exception {
+    public void __testStagingAuthorization__() throws Exception {
         generateData(true);
     
         Select select = UserQueryBuilder.from(person).getSelect();

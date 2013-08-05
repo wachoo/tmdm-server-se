@@ -33,8 +33,6 @@ public class MultiThreadedTask implements Task {
 
     private final Storage storage;
 
-    private final Transaction transaction;
-
     private final Expression expression;
 
     private final ClosureExecutionStats stats;
@@ -55,8 +53,7 @@ public class MultiThreadedTask implements Task {
 
     private boolean isFinished;
 
-    public MultiThreadedTask(Transaction transaction,
-                             String name,
+    public MultiThreadedTask(String name,
                              Storage storage,
                              Expression expression,
                              int threadNumber,
@@ -64,7 +61,6 @@ public class MultiThreadedTask implements Task {
                              ClosureExecutionStats stats) {
         this.name = name;
         this.storage = storage;
-        this.transaction = transaction;
         this.expression = expression;
         this.stats = stats;
         this.closure = new ThreadDispatcher(threadNumber, closure, stats);
@@ -85,36 +81,28 @@ public class MultiThreadedTask implements Task {
             startLock.notifyAll();
         }
 
-        TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-        synchronized (storage) {
-            try {
-                transactionManager.associate(transaction);
-                taskStartTime = System.currentTimeMillis();
-                storage.begin();
-                StorageResults records = storage.fetch(expression); // Expects an active transaction here
-                if (records.getCount() > 0) {
-                    closure.begin();
-                    for (DataRecord record : records) {
-                        // Exit if cancelled.
-                        if (isCancelled.get()) {
-                            break;
-                        }
-                        closure.execute(record, stats);
-                        count++;
+        try {
+            taskStartTime = System.currentTimeMillis();
+            StorageResults records = storage.fetch(expression); // Expects an active transaction here
+            if (records.getCount() > 0) {
+                closure.begin();
+                for (DataRecord record : records) {
+                    // Exit if cancelled.
+                    if (isCancelled.get()) {
+                        break;
                     }
-                    closure.end(stats);
+                    closure.execute(record, stats);
+                    count++;
                 }
-                storage.commit();
-                isFinished = true;
-            } catch (Exception e) {
-                storage.rollback();
-                throw new RuntimeException(e);
-            } finally {
-                transactionManager.dissociate(transaction);
-                synchronized (executionLock) {
-                    executionLock.set(true);
-                    executionLock.notifyAll();
-                }
+                closure.end(stats);
+            }
+            isFinished = true;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            synchronized (executionLock) {
+                executionLock.set(true);
+                executionLock.notifyAll();
             }
         }
     }

@@ -17,6 +17,7 @@ import org.talend.dataquality.matchmerge.MergeAlgorithm;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.Types;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -37,7 +38,7 @@ class DefaultMatchMergeConfiguration implements MatchMergeConfiguration {
         float[] thresholds = new float[matchFields.size()];
         int i = 0;
         for (FieldMetadata matchField : matchFields) {
-            thresholds[i++] = 1f;
+            thresholds[i++] = 0.8f;
         }
         return thresholds;
     }
@@ -54,7 +55,7 @@ class DefaultMatchMergeConfiguration implements MatchMergeConfiguration {
     public List<FieldMetadata> getMatchFields(ComplexTypeMetadata type) {
         List<FieldMetadata> fields = new LinkedList<FieldMetadata>();
         for (FieldMetadata field : type.getFields()) {
-            if (!field.isKey() && !field.isMany() && field instanceof SimpleTypeFieldMetadata) {
+            if (!field.isKey() && !field.isMany() && field instanceof SimpleTypeFieldMetadata && Types.STRING.equals(field.getType().getName())) {
                 fields.add(field);
             }
         }

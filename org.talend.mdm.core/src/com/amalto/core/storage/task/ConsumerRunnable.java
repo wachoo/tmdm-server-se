@@ -25,6 +25,7 @@ class ConsumerRunnable implements Work {
     private final Closure closure;
 
     private final BlockingQueue<DataRecord> queue;
+
     private final ClosureExecutionStats stats;
 
     private final AtomicBoolean hasEnded = new AtomicBoolean(false);

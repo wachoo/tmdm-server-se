@@ -15,16 +15,58 @@ package com.amalto.core.storage.task;
  * </ul>
  */
 public interface StagingConstants {
+    /**
+     * NEW: Newly created (or updated) record.
+     */
     String NEW = "000"; //$NON-NLS-1$
+    /**
+     * Generic success status
+     */
     String SUCCESS = "200"; //$NON-NLS-1$
+    /**
+     * Passed successfully match cluster identification (groups similar records).
+     */
     String SUCCESS_IDENTIFIED_CLUSTERS = "201"; //$NON-NLS-1$
+    /**
+     * Passed successfully merge cluster (a golden record was successfully created).
+     * @see #SUCCESS_MERGED_RECORD
+     * @see #SUCCESS_MERGED_RECORD_TO_RESOLVE
+     */
     String SUCCESS_MERGE_CLUSTERS = "202"; //$NON-NLS-1$
-    String SUCCESS_MERGE_CLUSTER_TO_RESOLVE = "203"; //$NON-NLS-1$
+    /**
+     * Passed successfully merge cluster (created a golden record, but confidence value does not allow automatic
+     * creation in master database).
+     * @see #SUCCESS_MERGED_RECORD
+     */
+    String SUCCESS_MERGED_RECORD_TO_RESOLVE = "203"; //$NON-NLS-1$
+    /**
+     * Passed successfully merge cluster (created a golden record, and confidence value allowed automatic
+     * creation in master database).
+     * @see #SUCCESS_MERGED_RECORD_TO_RESOLVE
+     */
     String SUCCESS_MERGED_RECORD = "204"; //$NON-NLS-1$
+    /**
+     * Passed successfully MDM validation (XML schema validation, business rules, before saving processes...).
+     */
     String SUCCESS_VALIDATE = "205"; //$NON-NLS-1$
+    /**
+     * Generic fail status.
+     */
     String FAIL = "400"; //$NON-NLS-1$
+    /**
+     * Failed match cluster identification (groups similar records).
+     */
     String FAIL_IDENTIFIED_CLUSTERS = "401"; //$NON-NLS-1$
+    /**
+     * Failed merge cluster (a golden record was not successfully created).
+     */
     String FAIL_MERGE_CLUSTERS = "402"; //$NON-NLS-1$
+    /**
+     * Failed MDM validation.
+     */
     String FAIL_VALIDATE_VALIDATION = "403"; //$NON-NLS-1$
+    /**
+     * Failed MDM validation due to constraints issues.
+     */
     String FAIL_VALIDATE_CONSTRAINTS = "404"; //$NON-NLS-1$
 }

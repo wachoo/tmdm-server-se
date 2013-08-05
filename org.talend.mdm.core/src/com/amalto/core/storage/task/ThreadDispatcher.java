@@ -12,6 +12,7 @@
 package com.amalto.core.storage.task;
 
 import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.transaction.Transaction;
 import org.apache.log4j.Logger;
 import org.quartz.SchedulerConfigException;
 import org.quartz.simpl.SimpleThreadPool;
@@ -107,7 +108,7 @@ class ThreadDispatcher implements Closure {
         }
         if (!queue.isEmpty()) {
             LOGGER.warn("After end of queue processors work, " + queue.size() + " remained in processing queue.");
-            queue.clear();
+            prepareEndFlag(true);
         }
     }
 

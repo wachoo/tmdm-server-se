@@ -19,12 +19,11 @@ import com.amalto.core.storage.transaction.Transaction;
  *
  */
 class SingleThreadedTask extends MultiThreadedTask {
-    public SingleThreadedTask(Transaction transaction,
-                              String name,
+    public SingleThreadedTask(String name,
                               Storage storage,
                               Expression expression,
                               Closure closure,
                               ClosureExecutionStats stats) {
-        super(transaction, name, storage, expression, 1, closure, stats);
+        super(name, storage, expression, 1, closure, stats);
     }
 }

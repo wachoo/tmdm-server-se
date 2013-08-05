@@ -1,9 +1,6 @@
 package com.amalto.core.storage.task;
 
 import com.amalto.core.load.io.ResettableStringWriter;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.transaction.Transaction;
-import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserStagingQueryBuilder;
 import com.amalto.core.storage.Storage;
@@ -15,6 +12,7 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.talend.mdm.commmon.metadata.*;
 
 import javax.xml.XMLConstants;
 import javax.xml.stream.XMLOutputFactory;
@@ -41,10 +39,9 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
 
     DSCUpdaterTask(Storage origin,
                    Storage destination,
-                   Transaction transaction,
                    MetadataRepository repository,
                    ClosureExecutionStats stats) {
-        super(transaction, origin, repository, stats);
+        super(origin, repository, stats);
         this.origin = origin;
         this.destination = destination;
         xmlOutputFactory = XMLOutputFactory.newInstance();
@@ -53,7 +50,7 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
     @Override
     protected Task createTypeTask(ComplexTypeMetadata type) {
         Select select = from(type)
-                .where(eq(UserStagingQueryBuilder.status(), StagingConstants.SUCCESS_MERGE_CLUSTER_TO_RESOLVE))
+                .where(eq(UserStagingQueryBuilder.status(), StagingConstants.SUCCESS_MERGED_RECORD_TO_RESOLVE))
                 .getSelect();
         StorageResults records = storage.fetch(select); // Expects an active transaction here
         try {
@@ -61,7 +58,7 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
         } finally {
             records.close();
         }
-        return new SingleThreadedTask(ServerContext.INSTANCE.get().getTransactionManager().currentTransaction(), type.getName(),
+        return new SingleThreadedTask(type.getName(),
                 destination,
                 select,
                 new DSCTaskClosure(origin, xmlOutputFactory), stats);
@@ -86,6 +83,7 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
         private XMLStreamWriter writer;
 
         private ResettableStringWriter output;
+
         private GetMethod get;
 
         public DSCTaskClosure(Storage origin, XMLOutputFactory xmlOutputFactory) {

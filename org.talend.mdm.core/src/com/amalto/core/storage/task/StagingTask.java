@@ -1,9 +1,5 @@
 package com.amalto.core.storage.task;
 
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.transaction.Transaction;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.SaverSource;
 import com.amalto.core.storage.Storage;
@@ -12,6 +8,8 @@ import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.log4j.Logger;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -30,8 +28,6 @@ public class StagingTask implements Task {
     private final TaskSubmitter taskSubmitter;
 
     private final Storage stagingStorage;
-
-    private final Storage destinationStorage;
 
     private final String executionId;
 
@@ -57,8 +53,6 @@ public class StagingTask implements Task {
 
     private boolean isFinished;
 
-    private final Transaction transaction;
-
     public StagingTask(TaskSubmitter taskSubmitter,
                        Storage stagingStorage,
                        MetadataRepository stagingRepository,
@@ -68,11 +62,9 @@ public class StagingTask implements Task {
                        Storage destinationStorage) {
         this.taskSubmitter = taskSubmitter;
         this.stagingStorage = stagingStorage;
-        this.destinationStorage = destinationStorage;
         this.executionId = UUID.randomUUID().toString();
         this.executionType = stagingRepository.getComplexType("TALEND_TASK_EXECUTION"); //$NON-NLS-1$
-        this.transaction = ServerContext.INSTANCE.get().getTransactionManager().create(Transaction.Lifetime.AD_HOC);
-        tasks = Arrays.<Task>asList(new MDMValidationTask(stagingStorage, destinationStorage, transaction, userRepository, source, committer, stats));
+        tasks = Arrays.<Task>asList(new MDMValidationTask(stagingStorage, destinationStorage, userRepository, source, committer, stats));
         // Below: an actual validation chain.
         /*tasks = Arrays.asList(new MatchMergeTask(stagingStorage, userRepository, stats),
                 new MDMValidationTask(stagingStorage, destinationStorage, userRepository, source, committer, stats));*/
@@ -162,33 +154,25 @@ public class StagingTask implements Task {
         }
 
         try {
-            ServerContext.INSTANCE.get().getTransactionManager().associate(transaction);
             if (executionType == null) {
                 throw new IllegalStateException("Can not find internal type information for execution logging.");
             }
-            stagingStorage.begin();
-            destinationStorage.begin();
-            {
-                // Start recording the execution
-                recordExecutionStart();
-                recordCount.set(0);
-                for (Task task : tasks) {
-                    synchronized (currentTaskMonitor) {
-                        if (isCancelled) {
-                            break;
-                        }
-                        currentTask = task;
+            // Start recording the execution
+            recordExecutionStart();
+            recordCount.set(0);
+            for (Task task : tasks) {
+                synchronized (currentTaskMonitor) {
+                    if (isCancelled) {
+                        break;
                     }
-                    LOGGER.info("--> " + task.toString());
-                    taskSubmitter.submitAndWait(currentTask);
-                    LOGGER.info("<-- DONE " + task.toString());
+                    currentTask = task;
                 }
-                recordExecutionEnd();
+                LOGGER.info("--> " + task.toString());
+                taskSubmitter.submitAndWait(currentTask);
+                LOGGER.info("<-- DONE " + task.toString());
             }
-            stagingStorage.commit();
-            destinationStorage.commit();
+            recordExecutionEnd();
         } finally {
-            transaction.commit();
             synchronized (executionLock) {
                 executionLock.set(true);
                 executionLock.notifyAll();
@@ -205,7 +189,14 @@ public class StagingTask implements Task {
         execution.set(executionType.getField("id"), executionId); //$NON-NLS-1$
         startTime = System.currentTimeMillis();
         execution.set(executionType.getField("start_time"), startTime); //$NON-NLS-1$
-        stagingStorage.update(execution);
+        try {
+            stagingStorage.begin();
+            stagingStorage.update(execution);
+            stagingStorage.commit();
+        } catch (Exception e) {
+            stagingStorage.rollback();
+            throw new RuntimeException(e);
+        }
     }
 
     private void recordExecutionEnd() {
@@ -216,6 +207,14 @@ public class StagingTask implements Task {
         execution.set(executionType.getField("error_count"), new BigDecimal(getErrorCount())); //$NON-NLS-1$
         execution.set(executionType.getField("record_count"), new BigDecimal(getProcessedRecords())); //$NON-NLS-1$
         execution.set(executionType.getField("completed"), Boolean.TRUE); //$NON-NLS-1$
-        stagingStorage.update(execution);
+        try {
+            stagingStorage.begin();
+            stagingStorage.update(execution);
+            stagingStorage.commit();
+        } catch (Exception e) {
+            stagingStorage.rollback();
+            throw new RuntimeException(e);
+
+        }
     }
 }

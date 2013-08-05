@@ -1,15 +1,12 @@
 package com.amalto.core.storage.task;
 
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.transaction.Transaction;
-import com.amalto.core.storage.transaction.TransactionManager;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.storage.Storage;
 import org.apache.log4j.Logger;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -27,8 +24,6 @@ abstract class MetadataRepositoryTask implements Task {
 
     private final AtomicBoolean startLock = new AtomicBoolean();
 
-    protected final Transaction transaction;
-
     private final MetadataRepository repository;
 
     private final AtomicBoolean executionLock = new AtomicBoolean();
@@ -36,8 +31,6 @@ abstract class MetadataRepositoryTask implements Task {
     private final String id = UUID.randomUUID().toString();
 
     private final Object currentTypeTaskMonitor = new Object();
-
-    final ClosureExecutionStats stats;
 
     private long startTime;
 
@@ -49,14 +42,14 @@ abstract class MetadataRepositoryTask implements Task {
 
     private boolean isFinished;
 
+    final ClosureExecutionStats stats;
+
     final Storage storage;
 
-    MetadataRepositoryTask(Transaction transaction,
-                           Storage storage,
+    MetadataRepositoryTask(Storage storage,
                            MetadataRepository repository,
                            ClosureExecutionStats stats) {
         this.storage = storage;
-        this.transaction = transaction;
         this.repository = repository;
         this.stats = stats;
     }
@@ -78,10 +71,7 @@ abstract class MetadataRepositoryTask implements Task {
             startLock.set(true);
             startLock.notifyAll();
         }
-
-        TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         try {
-            transactionManager.associate(transaction);
             List<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
             for (ComplexTypeMetadata type : types) {
                 if (type.isInstantiable() && processType(type)) {
@@ -103,7 +93,6 @@ abstract class MetadataRepositoryTask implements Task {
             endTime = System.currentTimeMillis();
             LOGGER.info("Staging migration done @" + getPerformance() + " doc/s.");
         } finally {
-            transactionManager.dissociate(transaction);
             synchronized (executionLock) {
                 executionLock.set(true);
                 executionLock.notifyAll();

@@ -73,12 +73,11 @@ public class MDMValidationTask extends MetadataRepositoryTask {
 
     public MDMValidationTask(Storage storage,
                              Storage destinationStorage,
-                             Transaction transaction,
                              MetadataRepository repository,
                              SaverSource source,
                              SaverSession.Committer committer,
                              ClosureExecutionStats stats) {
-        super(transaction, storage, repository, stats);
+        super(storage, repository, stats);
         this.source = source;
         this.committer = committer;
         this.destinationStorage = destinationStorage;
@@ -98,27 +97,40 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                                 or(isNull(status()),
                                         or(eq(status(), StagingConstants.FAIL_VALIDATE_CONSTRAINTS),
                                                 eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)))))).getSelect();
-        synchronized (storage) {
+
+        try {
+            StorageResults records = storage.fetch(select); // Expects an active transaction here
             try {
-                storage.begin();
-                StorageResults records = storage.fetch(select); // Expects an active transaction here
-                try {
-                    recordsCount += records.getCount();
-                } finally {
-                    records.close();
-                }
-                storage.commit();
-            } catch (Exception e) {
-                storage.rollback();
-                throw new RuntimeException(e);
+                recordsCount += records.getCount();
+            } finally {
+                records.close();
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return new MultiThreadedTask(ServerContext.INSTANCE.get().getTransactionManager().currentTransaction(), type.getName(),
+        return new MultiThreadedTask(type.getName(),
                 storage,
                 select,
                 CONSUMER_POOL_SIZE,
                 closure,
                 stats);
+    }
+
+    @Override
+    public void run() {
+        Transaction transaction = ServerContext.INSTANCE.get().getTransactionManager().create(Transaction.Lifetime.LONG);
+        try {
+            transaction.begin();
+            storage.begin();
+            destinationStorage.begin();
+            super.run();
+            destinationStorage.commit();
+            storage.commit();
+        } catch (Exception e) {
+            storage.rollback();
+            transaction.rollback();
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
