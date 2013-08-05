@@ -15,8 +15,11 @@ import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
+import org.apache.log4j.Logger;
 
 class ApplyActions implements DocumentSaver {
+
+    public static final Logger LOGGER = Logger.getLogger(ApplyActions.class);
 
     private final DocumentSaver next;
 
@@ -27,6 +30,15 @@ class ApplyActions implements DocumentSaver {
     public void save(SaverSession session, DocumentSaverContext context) {
         MutableDocument databaseDocument = context.getDatabaseDocument();
         for (Action action : context.getActions()) {
+            if (LOGGER.isTraceEnabled()) {
+                StringBuilder builder = new StringBuilder();
+                String[] ids = context.getId();
+                for (String id : ids) {
+                    builder.append(' ').append(id);
+                }
+                LOGGER.trace("Actions for record of type '" + context.getDatabaseDocument().getType() + "' (id:" + builder + ")");
+                LOGGER.trace("   " + action);
+            }
             action.perform(databaseDocument);
         }
         databaseDocument.clean();
