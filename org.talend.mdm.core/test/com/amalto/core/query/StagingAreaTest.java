@@ -546,6 +546,71 @@ public class StagingAreaTest extends TestCase {
         }
     }
 
+    public void testDelete() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        try {
+            origin.begin();
+            origin.update(factory.read("1", repository, country, newCountry(1, true)));
+            origin.commit();
+        } finally {
+            origin.end();
+        }
+        try {
+            destination.begin();
+            destination.update(factory.read("1", repository, country, newCountry(1, true)));
+            destination.commit();
+        } finally {
+            origin.end();
+        }
+        // Test delete on master
+        Select select = UserQueryBuilder.from(country).where(eq(country.getField("id"), "1")).getSelect();
+        destination.begin();
+        StorageResults results = null;
+        try {
+            results = destination.fetch(select);
+            assertEquals(1, results.getCount());
+        } finally {
+            assertNotNull(results);
+            results.close();
+        }
+        destination.delete(select);
+        try {
+            results = destination.fetch(select);
+            assertEquals(0, results.getCount());
+        } finally {
+            assertNotNull(results);
+            results.close();
+        }
+        destination.commit();
+        // Test delete on staging
+        origin.begin();
+        results = null;
+        try {
+            results = origin.fetch(select);
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                String s = result.getRecordMetadata().getRecordProperties().get(Storage.METADATA_STAGING_STATUS);
+                assertNull(s);
+            }
+        } finally {
+            assertNotNull(results);
+            results.close();
+        }
+        origin.delete(select);
+        try {
+            results = origin.fetch(select);
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                String s = result.getRecordMetadata().getRecordProperties().get(Storage.METADATA_STAGING_STATUS);
+                assertEquals(StagingConstants.DELETED, s);
+            }
+        } finally {
+            assertNotNull(results);
+            results.close();
+        }
+        origin.commit();
+    }
+
     private static class TestSaverSource implements SaverSource {
 
         private final Storage storage;

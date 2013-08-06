@@ -50,6 +50,10 @@ public interface StagingConstants {
      */
     String SUCCESS_VALIDATE = "205"; //$NON-NLS-1$
     /**
+     * Indicates a deleted record.
+     */
+    String DELETED = "206";
+    /**
      * Generic fail status.
      */
     String FAIL = "400"; //$NON-NLS-1$

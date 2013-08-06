@@ -17,6 +17,7 @@ import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.task.StagingConstants;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.TransactionManager;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Level;
 import org.hibernate.cfg.Environment;
 import org.talend.mdm.commmon.metadata.*;
@@ -596,7 +597,7 @@ public class HibernateStorage implements Storage {
                     String key = currentProperty.getKey();
                     String value = currentProperty.getValue();
                     ComplexTypeMetadata database = mapping.getDatabase();
-                    if (storageType == StorageType.STAGING) { // TODO Change status automatically
+                    if (storageType == StorageType.STAGING) { // Change status automatically in staging when modified
                         recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.NEW);
                         o.taskId(null);
                     }
@@ -759,12 +760,22 @@ public class HibernateStorage implements Storage {
                     idValue = ObjectDataRecordConverter.createCompositeId(storageClassLoader, clazz, compositeIdValues);
                 }
 
-                Object object = session.get(clazz, idValue);
-                if (object != null) {
-                    session.delete(object);
-                } else {
-                    LOGGER.warn("Instance of type '" + currentType.getName() + "' and ID '" + idValue.toString()
-                            + "' has already been deleted within same transaction.");
+                Wrapper object = (Wrapper) session.get(clazz, idValue);
+                switch (storageType) {
+                    case MASTER:
+                    case SYSTEM:
+                        if (object != null) {
+                            session.delete(object);
+                        } else {
+                            LOGGER.warn("Instance of type '" + currentType.getName() + "' and ID '" + idValue.toString()
+                                    + "' has already been deleted within same transaction.");
+                        }
+                        break;
+                    case STAGING:
+                        object.set(Storage.METADATA_STAGING_STATUS, Integer.parseInt(StagingConstants.DELETED));
+                        break;
+                    default:
+                        throw new NotImplementedException("Not support for delete on storage type '" + storageType + "'.");
                 }
             }
         } catch (ConstraintViolationException e) {
