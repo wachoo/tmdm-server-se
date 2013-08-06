@@ -12,7 +12,10 @@
 package com.amalto.core.load.action;
 
 import com.amalto.core.load.LoadParser;
+import com.amalto.core.load.context.AutoIdGenerator;
+import com.amalto.core.load.context.AutoIncrementIdGenerator;
 import com.amalto.core.load.context.StateContext;
+import com.amalto.core.load.context.UUIDIdGenerator;
 import com.amalto.core.load.io.XMLRootInputStream;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.server.XmlServer;
@@ -53,10 +56,15 @@ public class OptimizedLoadAction implements LoadAction {
             throw new UnsupportedOperationException("Selector '" + keyMetadata.getSelector() + "' isn't supported.");
         }
 
+        AutoIdGenerator idGenerator = null;
         if (needAutoGenPK) {
             String[] idFieldTypes = keyMetadata.getFieldTypes();
             for (String idFieldType : idFieldTypes) {
-                if (!EUUIDCustomType.AUTO_INCREMENT.getName().equals(idFieldType) && !EUUIDCustomType.UUID.getName().equals(idFieldType)) {
+                if (EUUIDCustomType.AUTO_INCREMENT.getName().equals(idFieldType)) {
+                    idGenerator = new AutoIncrementIdGenerator();
+                } else if (EUUIDCustomType.UUID.getName().equals(idFieldType)) {
+                    idGenerator = new UUIDIdGenerator();
+                } else {
                     throw new UnsupportedOperationException("No support for key field type '" + idFieldType + "' with autogen pk on.");
                 }
             }
@@ -66,7 +74,12 @@ public class OptimizedLoadAction implements LoadAction {
         ServerParserCallback callback = new ServerParserCallback(server, dataClusterName);
 
         java.io.InputStream inputStream = new XMLRootInputStream(stream, "root"); //$NON-NLS-1$
-        LoadParser.Configuration configuration = new LoadParser.Configuration(typeName, keyMetadata.getFields(), needAutoGenPK, dataClusterName, dataModelName);
+        LoadParser.Configuration configuration = new LoadParser.Configuration(typeName,
+                keyMetadata.getFields(),
+                needAutoGenPK,
+                dataClusterName,
+                dataModelName,
+                idGenerator);
         context = LoadParser.parse(inputStream, configuration, callback);
 
         if (log.isDebugEnabled()) {

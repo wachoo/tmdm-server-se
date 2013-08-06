@@ -12,7 +12,6 @@
 package com.amalto.core.load.context;
 
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.DefaultValidationHandler;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.core.server.XmlServer;
@@ -20,14 +19,11 @@ import com.amalto.core.util.AutoIncrementGenerator;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
 
-/**
- *
- */
-public class DefaultAutoIdGenerator implements AutoIdGenerator {
-    private static final Logger LOGGER = Logger.getLogger(DefaultAutoIdGenerator.class);
-    
+public class AutoIncrementIdGenerator implements AutoIdGenerator {
+
+    private static final Logger LOGGER = Logger.getLogger(AutoIncrementIdGenerator.class);
+
     public String generateId(String dataClusterName, String conceptName, String keyElementName) {
-        // TODO check if uuid key exist
         try {
             String universe = LocalUser.getLocalUser().getUniverse().getName();
             // Include keyElementName in concept name (this is rather important).
