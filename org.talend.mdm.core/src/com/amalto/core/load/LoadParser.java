@@ -153,13 +153,6 @@ public class LoadParser {
         private final String dataModelName;
         private final AutoIdGenerator idGenerator;
 
-        public Configuration(String payLoadElementName, String[] idPaths, boolean autoGenPK, String dataClusterName, String dataModelName) {
-            this(payLoadElementName, idPaths, autoGenPK, dataClusterName, dataModelName, new DefaultAutoIdGenerator());
-            if (log.isDebugEnabled()) {
-                log.debug("No auto id generator has been set. Switching to default id generator."); //$NON-NLS-1$
-            }
-        }
-
         public Configuration(String payLoadElementName, String[] idPaths, boolean autoGenPK, String dataClusterName, String dataModelName, AutoIdGenerator idGenerator) {
             this.payLoadElementName = payLoadElementName;
             this.idPaths = idPaths;
