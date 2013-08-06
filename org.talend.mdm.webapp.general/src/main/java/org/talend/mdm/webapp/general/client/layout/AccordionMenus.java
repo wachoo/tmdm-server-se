@@ -68,7 +68,11 @@ public class AccordionMenus extends ContentPanel {
         String icon = makeImageIconPart(mb, toCheckMenuID);
         StringBuffer str = new StringBuffer();
         str.append("<span class='body'>"); //$NON-NLS-1$
-        str.append("<img src='" + icon + "'/>&nbsp;&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
+        if ("workflowtasks.BonitaWorkflowTasks".equals(toCheckMenuID)) { //$NON-NLS-1$
+            str.append("<img style='width: 16px;height: 16px;' src='" + icon + "'/>&nbsp;&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
+        } else {
+            str.append("<img src='" + icon + "'/>&nbsp;&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$    
+        }
         str.append("<span class='desc'>" + mb.getName() + "</span></span>"); //$NON-NLS-1$ //$NON-NLS-2$
         HTML html = new HTMLMenuItem(mb, str.toString());
         html.addClickHandler(clickHander);
@@ -150,6 +154,8 @@ public class AccordionMenus extends ContentPanel {
             icon = "/talendmdm/secure/img/menu/updatereport.png"; //$NON-NLS-1$
         } else if ("workflowtasks.WorkflowTasks".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/workflowtasks.png"; //$NON-NLS-1$
+        } else if ("workflowtasks.BonitaWorkflowTasks".equals(toCheckMenuID)) { //$NON-NLS-1$
+            icon = "/talendmdm/secure/img/menu/bonita_user_xp.png"; //$NON-NLS-1$
         } else if ("license.License".equals(toCheckMenuID) || "licenseManager.LicenseManager".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$
             icon = "/talendmdm/secure/img/menu/license.png"; //$NON-NLS-1$
         } else if ("datastewardship.Datastewardship".equals(toCheckMenuID)) { //$NON-NLS-1$
