@@ -79,14 +79,14 @@ public class CommonUtil {
      * @param separator
      * @return a single string or null
      */
-    public static String joinStrings(String[] strings, String separator) {
+    public static String joinStrings(List<String> strings, String separator) {
         if (strings == null) {
             return null;
         }
         String res = ""; //$NON-NLS-1$ 
-        for (int i = 0; i < strings.length; i++) {
+        for (int i = 0; i < strings.size(); i++) {
             res += (i > 0) ? separator : ""; //$NON-NLS-1$ 
-            res += org.talend.mdm.webapp.base.shared.util.CommonUtil.escape(strings[i]);
+            res += strings.get(i);
         }
         return res;
     }
@@ -274,10 +274,10 @@ public class CommonUtil {
         List<String> idList = new ArrayList<String>();
         StringTokenizer tokenizer = new StringTokenizer(ids, "."); //$NON-NLS-1$
         if (!tokenizer.hasMoreTokens()) {
-            throw new WebBaseException(ExceptionConstants.ID_FORMAT_EXCEPTION, org.talend.mdm.webapp.base.shared.util.CommonUtil.unescape(ids));
+            throw new WebBaseException(ExceptionConstants.ID_FORMAT_EXCEPTION, ids);
         }
         while (tokenizer.hasMoreTokens()) {
-            idList.add(org.talend.mdm.webapp.base.shared.util.CommonUtil.unescape(tokenizer.nextToken()));
+            idList.add(tokenizer.nextToken());
         }
         return idList.toArray(new String[idList.size()]);
     }

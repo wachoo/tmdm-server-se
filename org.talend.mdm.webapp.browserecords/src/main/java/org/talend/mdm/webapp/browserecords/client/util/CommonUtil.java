@@ -546,4 +546,28 @@ public class CommonUtil {
         }        
         return doc.toString();
     }
+    
+    public static String convertListToXml(List<String> itemList,String rootName) { 
+        Document docuemnt = XMLParser.createDocument();
+        Element rootElement = docuemnt.createElement(rootName);
+        for (int i = 0; i < itemList.size(); i++) {
+            Element itemElement = docuemnt.createElement("Item"); //$NON-NLS-1$
+            itemElement.appendChild(docuemnt.createTextNode(itemList.get(i)));
+            rootElement.appendChild(itemElement);            
+        }
+        docuemnt.appendChild(rootElement);
+        return docuemnt.toString();
+    }
+    
+    public static String convertListToXmlString(List<String> itemList,String rootName,String itemName) { 
+        Document docuemnt = XMLParser.createDocument();
+        Element rootElement = docuemnt.createElement(rootName);
+        for (int i = 0; i < itemList.size(); i++) {
+            Element itemElement = docuemnt.createElement("Item"); //$NON-NLS-1$
+            itemElement.appendChild(docuemnt.createTextNode(itemList.get(i)));
+            rootElement.appendChild(itemElement);            
+        }
+        docuemnt.appendChild(rootElement);
+        return docuemnt.toString();
+    }
 }

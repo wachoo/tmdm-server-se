@@ -478,7 +478,7 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         public void getRunnableProcessList(String concept, String language, AsyncCallback<List<ItemBaseModel>> callback) {
         }
 
-        public void processItem(String concept, String ids, String transformerPK, AsyncCallback<String> callback) {
+        public void processItem(String concept, String[] ids, String transformerPK, AsyncCallback<String> callback) {
         }
 
         public void getLineageEntity(String concept, AsyncCallback<List<String>> callback) {

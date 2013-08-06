@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.talend.mdm.webapp.base.shared.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyTabModel;
@@ -60,11 +59,11 @@ public class BreadCrumb extends Composite {
             String title;
             if (label != null) {
                 if (ids != null)
-                    title = label + " " + CommonUtil.unescape(ids); //$NON-NLS-1$
+                    title = label + " " + ids; //$NON-NLS-1$
                 else
                     title = label;
             } else
-                title = CommonUtil.unescape(ids);
+                title = ids;
             HTML tmph = new HTML("&nbsp;&gt;&nbsp;<a>" + title + "</a><input value=\"" + concept + "\"' type=\"hidden\">");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$    
             if (pWidget.getWidget(pWidget.getWidgetCount() - 1).getElement().getInnerHTML().equals(tmph.getHTML()))
                 return;
@@ -79,12 +78,12 @@ public class BreadCrumb extends Composite {
         String title;
         if (label != null) {
             if (ids != null)
-                title = label + " " + CommonUtil.unescape(ids); //$NON-NLS-1$
+                title = label + " " + ids; //$NON-NLS-1$
             else
                 title = label;
         }
         else
-            title = CommonUtil.unescape(ids);
+            title = ids;
         if (ifLink) {
             h = new HTML("&nbsp;&gt;&nbsp;<a>" + title + "</a><input value=\"" + concept + "\"' type=\"hidden\">");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$             
             h.addClickHandler(new ClickHandler() {

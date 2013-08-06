@@ -24,8 +24,6 @@ import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
-import org.talend.mdm.webapp.base.server.exception.WebBaseException;
-import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.journal.client.JournalService;
 import org.talend.mdm.webapp.journal.server.service.JournalDBService;
 import org.talend.mdm.webapp.journal.server.service.JournalHistoryService;
@@ -57,9 +55,6 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     private static final Logger LOG = Logger.getLogger(JournalAction.class);
 
     private JournalDBService service = new JournalDBService(new WebServiceImp());
-    
-    private final Messages BASEMESSAGE = MessagesFactory.getMessages(
-            "org.talend.mdm.webapp.base.client.i18n.BaseMessages", this.getClass().getClassLoader()); //$NON-NLS-1$
 
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.journal.client.i18n.JournalMessages", JournalAction.class.getClassLoader()); //$NON-NLS-1$
@@ -90,15 +85,13 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
 
     @Override
     public JournalTreeModel getDetailTreeModel(String ids) throws ServiceException {
+        String[] idsArr = ids.split("\\."); //$NON-NLS-1$
         try {
-            String[] idsArr = CommonUtil.extractIdWithDots(ids);
             JournalTreeModel root = service.getDetailTreeModel(idsArr);
             return root;
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;
-        } catch (WebBaseException e) {
-            throw new ServiceException(BASEMESSAGE.getMessage(e.getMessage(), e.getArgs()));
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getMessage());
