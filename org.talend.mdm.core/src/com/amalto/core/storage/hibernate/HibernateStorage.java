@@ -14,6 +14,7 @@ import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.optimization.*;
 import com.amalto.core.query.user.*;
 import org.apache.log4j.Level;
+import org.hibernate.cfg.Environment;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
@@ -373,7 +374,11 @@ public class HibernateStorage implements Storage {
                     CacheManager.create(ehCacheConfig);
                 }
                 configuration.configure(StorageClassLoader.HIBERNATE_CONFIG);
-                batchSize = Integer.parseInt(configuration.getProperty("hibernate.jdbc.batch_size")); //$NON-NLS-1$
+                batchSize = Integer.parseInt(configuration.getProperty(Environment.STATEMENT_BATCH_SIZE));
+                Properties properties = configuration.getProperties();
+                if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
+                    properties.setProperty(Environment.DEFAULT_SCHEMA, dataSource.getUserName());
+                }
                 // Logs DDL *before* initialization in case initialization (useful for debugging).
                 if (LOGGER.isTraceEnabled()) {
                     traceDDL();

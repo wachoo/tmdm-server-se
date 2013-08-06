@@ -48,7 +48,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     private final TableResolver resolver;
 
-    private final RDBMSDataSource.DataSourceDialect dialect;
+    private final RDBMSDataSource dataSource;
 
     private static Set<String> reservedKeyWords;
 
@@ -64,14 +64,17 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     private boolean generateConstrains;
 
-    public MappingGenerator(Document document, TableResolver resolver, RDBMSDataSource.DataSourceDialect dialect) {
-        this(document, resolver, dialect, true);
+    public MappingGenerator(Document document, TableResolver resolver, RDBMSDataSource dataSource) {
+        this(document, resolver, dataSource, true);
     }
 
-    public MappingGenerator(Document document, TableResolver resolver, RDBMSDataSource.DataSourceDialect dialect, boolean generateConstrains) {
+    public MappingGenerator(Document document,
+                            TableResolver resolver,
+                            RDBMSDataSource dataSource,
+                            boolean generateConstrains) {
         this.document = document;
         this.resolver = resolver;
-        this.dialect = dialect;
+        this.dataSource = dataSource;
         this.generateConstrains = generateConstrains;
         // Loads reserved SQL keywords.
         synchronized (MappingGenerator.class) {
@@ -512,7 +515,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     LOGGER.debug("Creating index for field '" + field.getName() + "'.");
                 }
                 Attr indexName = document.createAttribute("index"); //$NON-NLS-1$
-                indexName.setValue(formatSQLName(field.getContainingType().getName() + '_' + fieldName + "_index", resolver.getNameMaxLength())); //$NON-NLS-1$
+                setIndexName(field, fieldName, indexName);
                 column.getAttributes().setNamedItem(indexName);
             }
             parentElement.appendChild(column);
@@ -553,7 +556,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                         LOGGER.debug("Creating index for field '" + field.getName() + "'.");
                     }
                     Attr indexName = document.createAttribute("index"); //$NON-NLS-1$
-                    indexName.setValue(formatSQLName(field.getContainingType().getName() + '_' + fieldName + "_index", resolver.getNameMaxLength())); //$NON-NLS-1$
+                    setIndexName(field, fieldName, indexName);
                     propertyElement.getAttributes().setNamedItem(indexName);
                 } else {
                     if (LOGGER.isDebugEnabled()) {
@@ -576,7 +579,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     notNull.setValue("false"); //$NON-NLS-1$
                     propertyElement.getAttributes().setNamedItem(notNull);
                 }
-                addFieldTypeAttribute(field, propertyElement, dialect);
+                addFieldTypeAttribute(field, propertyElement, dataSource.getDialectName());
                 propertyElement.getAttributes().setNamedItem(propertyName);
                 propertyElement.getAttributes().setNamedItem(columnName);
                 return propertyElement;
@@ -637,7 +640,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 Attr elementColumn = document.createAttribute("column"); //$NON-NLS-1$
                 elementColumn.setValue("value"); //$NON-NLS-1$
                 element.getAttributes().setNamedItem(elementColumn);
-                addFieldTypeAttribute(field, element, dialect);
+                addFieldTypeAttribute(field, element, dataSource.getDialectName());
                 // Not null warning
                 if (field.isMandatory()) {
                     LOGGER.warn("Field '" + field.getName() + "' is mandatory and a collection. Constraint can not be expressed in database schema.");
@@ -653,6 +656,19 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 listElement.appendChild(element);
                 return listElement;
             }
+        }
+    }
+
+    private void setIndexName(FieldMetadata field, String fieldName, Attr indexName) {
+        if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
+            indexName.setValue(dataSource.getUserName() + '.'
+                    + formatSQLName(field.getContainingType().getName() + '_'
+                    + fieldName + "_index", //$NON-NLS-1$
+                    resolver.getNameMaxLength()));
+        } else {
+            indexName.setValue(formatSQLName(field.getContainingType().getName() + '_'
+                    + fieldName + "_index", //$NON-NLS-1$
+                    resolver.getNameMaxLength()));
         }
     }
 
