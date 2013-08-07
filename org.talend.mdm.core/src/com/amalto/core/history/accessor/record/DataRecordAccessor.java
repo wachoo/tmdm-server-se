@@ -267,6 +267,9 @@ public class DataRecordAccessor implements Accessor {
 
     @Override
     public void delete() {
+        if (!exist()) {
+            return; // Value is already deleted.
+        }
         initPath();
         DataRecord current = dataRecord;
         ListIterator<PathElement> listIterator = pathElements.listIterator();
