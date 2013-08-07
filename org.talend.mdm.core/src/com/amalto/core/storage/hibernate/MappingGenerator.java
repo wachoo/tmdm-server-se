@@ -42,13 +42,15 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     private static final String TEXT_TYPE_NAME = "text"; //$NON-NLS-1$
 
-    private static final String RESERVED_SQL_KEYWORDS = "reservedSQLKeywords.txt";
+    private static final String RESERVED_SQL_KEYWORDS = "reservedSQLKeywords.txt"; //$NON-NLS-1$
 
     private final Document document;
 
     private final TableResolver resolver;
 
     private final RDBMSDataSource dataSource;
+
+    private final Stack<String> tableNames = new Stack<String>();
 
     private static Set<String> reservedKeyWords;
 
@@ -100,7 +102,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                             reservedKeyWordsList.close();
                         }
                     } catch (IOException e) {
-                        LOGGER.error("Error occurred when ");
+                        LOGGER.error("Error occurred when closing reserved keyword list.", e);
                     }
                 }
             }
@@ -173,141 +175,144 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             return null;
         }
 
-        String table = resolver.get(complexType);
-        String generatedClassName = ClassCreator.getClassName(complexType.getName());
+        tableNames.push(resolver.get(complexType));
+        Element classElement;
+        {
+            String generatedClassName = ClassCreator.getClassName(complexType.getName());
+            classElement = document.createElement("class");
+            Attr className = document.createAttribute("name");  //$NON-NLS-1$
+            className.setValue(generatedClassName);
+            classElement.getAttributes().setNamedItem(className);
+            Attr classTable = document.createAttribute("table"); //$NON-NLS-1$
+            classTable.setValue(formatSQLName(tableNames.peek(), resolver.getNameMaxLength()));
+            classElement.getAttributes().setNamedItem(classTable);
 
-        Element classElement = document.createElement("class"); //$NON-NLS-1$
-        Attr className = document.createAttribute("name");  //$NON-NLS-1$
-        className.setValue(generatedClassName);
-        classElement.getAttributes().setNamedItem(className);
-        Attr classTable = document.createAttribute("table"); //$NON-NLS-1$
-        classTable.setValue(formatSQLName(table, resolver.getNameMaxLength()));
-        classElement.getAttributes().setNamedItem(classTable);
+            // <cache usage="read-write" include="non-lazy"/>
+            Element cacheElement = document.createElement("cache"); //$NON-NLS-1$
+            Attr usageAttribute = document.createAttribute("usage"); //$NON-NLS-1$
+            usageAttribute.setValue("read-write"); //$NON-NLS-1$
+            cacheElement.getAttributes().setNamedItem(usageAttribute);
+            Attr includeAttribute = document.createAttribute("include"); //$NON-NLS-1$
+            includeAttribute.setValue("non-lazy"); //$NON-NLS-1$
+            cacheElement.getAttributes().setNamedItem(includeAttribute);
+            Attr regionAttribute = document.createAttribute("region"); //$NON-NLS-1$
+            regionAttribute.setValue("region"); //$NON-NLS-1$
+            cacheElement.getAttributes().setNamedItem(regionAttribute);
+            classElement.appendChild(cacheElement);
 
-        // <cache usage="read-write" include="non-lazy"/>
-        Element cacheElement = document.createElement("cache"); //$NON-NLS-1$
-        Attr usageAttribute = document.createAttribute("usage"); //$NON-NLS-1$
-        usageAttribute.setValue("read-write"); //$NON-NLS-1$
-        cacheElement.getAttributes().setNamedItem(usageAttribute);
-        Attr includeAttribute = document.createAttribute("include"); //$NON-NLS-1$
-        includeAttribute.setValue("non-lazy"); //$NON-NLS-1$
-        cacheElement.getAttributes().setNamedItem(includeAttribute);
-        Attr regionAttribute = document.createAttribute("region"); //$NON-NLS-1$
-        regionAttribute.setValue("region"); //$NON-NLS-1$
-        cacheElement.getAttributes().setNamedItem(regionAttribute);
-        classElement.appendChild(cacheElement);
+            Collection<FieldMetadata> keyFields = complexType.getKeyFields();
+            List<FieldMetadata> allFields = new ArrayList<FieldMetadata>(complexType.getFields());
 
-        Collection<FieldMetadata> keyFields = complexType.getKeyFields();
-        List<FieldMetadata> allFields = new ArrayList<FieldMetadata>(complexType.getFields());
-
-        // Process key fields first (Hibernate DTD enforces IDs to be declared first in <class/> element).
-        Element idParentElement = classElement;
-        if (keyFields.size() > 1) {
-            /*
-            <composite-id>
-                        <key-property column="x_enterprise" name="x_enterprise"/>
-                        <key-property column="x_id" name="x_id"/>
-                    </composite-id>
-             */
-            compositeId = true;
-            idParentElement = document.createElement("composite-id"); //$NON-NLS-1$
-            classElement.appendChild(idParentElement);
-
-            Attr classAttribute = document.createAttribute("class"); //$NON-NLS-1$
-            classAttribute.setValue(generatedClassName + "_ID"); //$NON-NLS-1$
-            idParentElement.getAttributes().setNamedItem(classAttribute);
-
-            Attr mappedAttribute = document.createAttribute("mapped"); //$NON-NLS-1$
-            mappedAttribute.setValue("true"); //$NON-NLS-1$
-            idParentElement.getAttributes().setNamedItem(mappedAttribute);
-        }
-        for (FieldMetadata keyField : keyFields) {
-            idParentElement.appendChild(keyField.accept(this));
-            boolean wasRemoved = allFields.remove(keyField);
-            if (!wasRemoved) {
-                LOGGER.error("Field '" + keyField.getName() + "' was expected to be removed from processed fields.");
-            }
-        }
-        compositeId = false;
-        // Generate a discriminator (if needed).
-        if (!complexType.getSubTypes().isEmpty() && !complexType.isInstantiable()) {
-            // <discriminator column="PAYMENT_TYPE" type="string"/>
-            Element discriminator = document.createElement("discriminator"); //$NON-NLS-1$
-            Attr name = document.createAttribute("column"); //$NON-NLS-1$
-            name.setValue(DISCRIMINATOR_NAME);
-            discriminator.setAttributeNode(name);
-            Attr type = document.createAttribute("type"); //$NON-NLS-1$
-            type.setValue("string"); //$NON-NLS-1$
-            discriminator.setAttributeNode(type);
-            classElement.appendChild(discriminator);
-        }
-        // Process this type fields
-        for (FieldMetadata currentField : allFields) {
-            Element child = currentField.accept(this);
-            if (child == null) {
-                throw new IllegalArgumentException("Field type " + currentField.getClass().getName() + " is not supported.");
-            }
-            classElement.appendChild(child);
-        }
-        // Sub types
-        if (!complexType.getSubTypes().isEmpty()) {
-            if (complexType.isInstantiable()) {
+            // Process key fields first (Hibernate DTD enforces IDs to be declared first in <class/> element).
+            Element idParentElement = classElement;
+            if (keyFields.size() > 1) {
                 /*
-                    <union-subclass name="CreditCardPayment" table="CREDIT_PAYMENT">
-                           <property name="creditCardType" column=""/>
-                           ...
-                       </union-subclass>
-                    */
-                for (ComplexTypeMetadata subType : complexType.getSubTypes()) {
-                    Element unionSubclass = document.createElement("union-subclass"); //$NON-NLS-1$
-                    Attr name = document.createAttribute("name"); //$NON-NLS-1$
-                    name.setValue(ClassCreator.getClassName(subType.getName()));
-                    unionSubclass.setAttributeNode(name);
-
-                    Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
-                    tableName.setValue(formatSQLName(resolver.get(subType), resolver.getNameMaxLength()));
-                    unionSubclass.setAttributeNode(tableName);
-
-                    Collection<FieldMetadata> subTypeFields = subType.getFields();
-                    for (FieldMetadata subTypeField : subTypeFields) {
-                        if (!complexType.hasField(subTypeField.getName()) && !subTypeField.isKey()) {
-                            unionSubclass.appendChild(subTypeField.accept(this));
-                        }
-                    }
-                    classElement.appendChild(unionSubclass);
-                }
-            } else {
-                /*
-                <subclass name="CreditCardPayment" discriminator-value="CREDIT">
-                        <property name="creditCardType" column="CCTYPE"/>
-                        ...
-                    </subclass>
+                <composite-id>
+                            <key-property column="x_enterprise" name="x_enterprise"/>
+                            <key-property column="x_id" name="x_id"/>
+                        </composite-id>
                  */
-                boolean wasGeneratingConstraints = generateConstrains;
-                generateConstrains = false;
-                try {
+                compositeId = true;
+                idParentElement = document.createElement("composite-id"); //$NON-NLS-1$
+                classElement.appendChild(idParentElement);
+
+                Attr classAttribute = document.createAttribute("class"); //$NON-NLS-1$
+                classAttribute.setValue(generatedClassName + "_ID"); //$NON-NLS-1$
+                idParentElement.getAttributes().setNamedItem(classAttribute);
+
+                Attr mappedAttribute = document.createAttribute("mapped"); //$NON-NLS-1$
+                mappedAttribute.setValue("true"); //$NON-NLS-1$
+                idParentElement.getAttributes().setNamedItem(mappedAttribute);
+            }
+            for (FieldMetadata keyField : keyFields) {
+                idParentElement.appendChild(keyField.accept(this));
+                boolean wasRemoved = allFields.remove(keyField);
+                if (!wasRemoved) {
+                    LOGGER.error("Field '" + keyField.getName() + "' was expected to be removed from processed fields.");
+                }
+            }
+            compositeId = false;
+            // Generate a discriminator (if needed).
+            if (!complexType.getSubTypes().isEmpty() && !complexType.isInstantiable()) {
+                // <discriminator column="PAYMENT_TYPE" type="string"/>
+                Element discriminator = document.createElement("discriminator"); //$NON-NLS-1$
+                Attr name = document.createAttribute("column"); //$NON-NLS-1$
+                name.setValue(DISCRIMINATOR_NAME);
+                discriminator.setAttributeNode(name);
+                Attr type = document.createAttribute("type"); //$NON-NLS-1$
+                type.setValue("string"); //$NON-NLS-1$
+                discriminator.setAttributeNode(type);
+                classElement.appendChild(discriminator);
+            }
+            // Process this type fields
+            for (FieldMetadata currentField : allFields) {
+                Element child = currentField.accept(this);
+                if (child == null) {
+                    throw new IllegalArgumentException("Field type " + currentField.getClass().getName() + " is not supported.");
+                }
+                classElement.appendChild(child);
+            }
+            // Sub types
+            if (!complexType.getSubTypes().isEmpty()) {
+                if (complexType.isInstantiable()) {
+                    /*
+                        <union-subclass name="CreditCardPayment" table="CREDIT_PAYMENT">
+                               <property name="creditCardType" column=""/>
+                               ...
+                           </union-subclass>
+                        */
                     for (ComplexTypeMetadata subType : complexType.getSubTypes()) {
-                        Element subclass = document.createElement("subclass"); //$NON-NLS-1$
+                        Element unionSubclass = document.createElement("union-subclass"); //$NON-NLS-1$
                         Attr name = document.createAttribute("name"); //$NON-NLS-1$
                         name.setValue(ClassCreator.getClassName(subType.getName()));
-                        subclass.setAttributeNode(name);
-                        Attr discriminator = document.createAttribute("discriminator-value"); //$NON-NLS-1$
-                        discriminator.setValue(ClassCreator.PACKAGE_PREFIX + subType.getName());
-                        subclass.setAttributeNode(discriminator);
+                        unionSubclass.setAttributeNode(name);
+
+                        Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
+                        tableName.setValue(formatSQLName(resolver.get(subType), resolver.getNameMaxLength()));
+                        unionSubclass.setAttributeNode(tableName);
 
                         Collection<FieldMetadata> subTypeFields = subType.getFields();
                         for (FieldMetadata subTypeField : subTypeFields) {
                             if (!complexType.hasField(subTypeField.getName()) && !subTypeField.isKey()) {
-                                subclass.appendChild(subTypeField.accept(this));
+                                unionSubclass.appendChild(subTypeField.accept(this));
                             }
                         }
-                        classElement.appendChild(subclass);
+                        classElement.appendChild(unionSubclass);
                     }
-                } finally {
-                    generateConstrains = wasGeneratingConstraints;
+                } else {
+                    /*
+                    <subclass name="CreditCardPayment" discriminator-value="CREDIT">
+                            <property name="creditCardType" column="CCTYPE"/>
+                            ...
+                        </subclass>
+                     */
+                    boolean wasGeneratingConstraints = generateConstrains;
+                    generateConstrains = false;
+                    try {
+                        for (ComplexTypeMetadata subType : complexType.getSubTypes()) {
+                            Element subclass = document.createElement("subclass"); //$NON-NLS-1$
+                            Attr name = document.createAttribute("name"); //$NON-NLS-1$
+                            name.setValue(ClassCreator.getClassName(subType.getName()));
+                            subclass.setAttributeNode(name);
+                            Attr discriminator = document.createAttribute("discriminator-value"); //$NON-NLS-1$
+                            discriminator.setValue(ClassCreator.PACKAGE_PREFIX + subType.getName());
+                            subclass.setAttributeNode(discriminator);
+
+                            Collection<FieldMetadata> subTypeFields = subType.getFields();
+                            for (FieldMetadata subTypeField : subTypeFields) {
+                                if (!complexType.hasField(subTypeField.getName()) && !subTypeField.isKey()) {
+                                    subclass.appendChild(subTypeField.accept(this));
+                                }
+                            }
+                            classElement.appendChild(subclass);
+                        }
+                    } finally {
+                        generateConstrains = wasGeneratingConstraints;
+                    }
                 }
             }
         }
+        tableNames.pop();
 
         return classElement;
     }
@@ -660,13 +665,17 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
     }
 
     private void setIndexName(FieldMetadata field, String fieldName, Attr indexName) {
-        if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
+        String prefix = field.getContainingType().getName();
+        if (!tableNames.isEmpty()) {
+            prefix = tableNames.peek();
+        }
+        if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) { // Adds user name for Oracle
             indexName.setValue(dataSource.getUserName() + '.'
-                    + formatSQLName(field.getContainingType().getName() + '_'
+                    + formatSQLName(prefix + '_'
                     + fieldName + "_index", //$NON-NLS-1$
                     resolver.getNameMaxLength()));
         } else {
-            indexName.setValue(formatSQLName(field.getContainingType().getName() + '_'
+            indexName.setValue(formatSQLName(prefix + '_'
                     + fieldName + "_index", //$NON-NLS-1$
                     resolver.getNameMaxLength()));
         }
