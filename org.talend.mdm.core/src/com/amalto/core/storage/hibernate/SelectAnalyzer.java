@@ -11,7 +11,6 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.ReferenceFieldMetadata;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
@@ -21,10 +20,7 @@ import com.amalto.core.storage.inmemory.InMemoryJoinStrategy;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
-import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.*;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import java.util.Collection;
