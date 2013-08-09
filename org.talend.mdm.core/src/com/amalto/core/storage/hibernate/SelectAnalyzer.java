@@ -136,7 +136,7 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
             }
         }
         // Instance paging (TMDM-5388).
-        if (!select.isProjection() && select.getTypes().size() == 1) {
+        if (!select.isProjection() && select.getTypes().size() == 1 && select.getPaging().getLimit() < Integer.MAX_VALUE) {
             ComplexTypeMetadata uniqueType = select.getTypes().get(0);
             if (uniqueType.getSubTypes().isEmpty() && uniqueType.getSuperTypes().isEmpty()) {
                 TypeMapping mappingFromDatabase = mappings.getMappingFromDatabase(uniqueType);

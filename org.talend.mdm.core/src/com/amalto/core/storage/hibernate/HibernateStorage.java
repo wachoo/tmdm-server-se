@@ -739,6 +739,9 @@ public class HibernateStorage implements Storage {
         try {
             Thread.currentThread().setContextClassLoader(storageClassLoader);
             Session session = factory.getCurrentSession();
+            if (userQuery instanceof Select) {
+                ((Select) userQuery).setForUpdate(true);
+            }
             Iterable<DataRecord> records = internalFetch(session, userQuery, Collections.<EndOfResultsCallback>emptySet());
             for (DataRecord currentDataRecord : records) {
                 ComplexTypeMetadata currentType = currentDataRecord.getType();
@@ -760,7 +763,7 @@ public class HibernateStorage implements Storage {
                     idValue = ObjectDataRecordConverter.createCompositeId(storageClassLoader, clazz, compositeIdValues);
                 }
 
-                Wrapper object = (Wrapper) session.get(clazz, idValue);
+                Wrapper object = (Wrapper) session.get(clazz, idValue, LockOptions.READ);
                 switch (storageType) {
                     case MASTER:
                     case SYSTEM:
@@ -971,4 +974,5 @@ public class HibernateStorage implements Storage {
     public String toString() {
         return storageName + '(' + storageType + ')';
     }
+
 }

@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * Action performed on a field with maxOccurs = 1.
  */
-public class FieldUpdateAction extends AbstractAction {
+public class FieldUpdateAction extends AbstractFieldAction {
     
     public static final String MODIFY_ADD_MARKER_VALUE = "tree-node-add"; //$NON-NLS-1$
     
@@ -30,7 +30,7 @@ public class FieldUpdateAction extends AbstractAction {
     
     public static final String MODIFY_REMOVE_MARKER_VALUE = "tree-node-remove"; //$NON-NLS-1$
 
-    protected final String field;
+    protected final String path;
 
     protected final String oldValue;
 
@@ -38,39 +38,53 @@ public class FieldUpdateAction extends AbstractAction {
 
     protected final FieldMetadata updatedField;
 
-    public FieldUpdateAction(Date date, String source, String userName, String field, String oldValue, String newValue, FieldMetadata updatedField) {
-        super(date, source, userName);
-        this.field = field;
+    public FieldUpdateAction(Date date,
+                             String source,
+                             String userName,
+                             String path,
+                             String oldValue,
+                             String newValue,
+                             FieldMetadata updatedField) {
+        super(date, source, userName, updatedField);
+        this.path = path;
         this.updatedField = updatedField;
         this.oldValue = oldValue;
         this.newValue = newValue;
     }
 
     public MutableDocument perform(MutableDocument document) {
-        Accessor accessor = document.createAccessor(field);
-        if (oldValue != null) {
-            if (newValue == null) {
+        Accessor accessor = document.createAccessor(path);
+        if (getOldValue() != null) {
+            if (getNewValue() == null) {
                 accessor.delete();
             } else {
                 if (!accessor.exist()) {
-                    accessor.createAndSet(newValue);
+                    accessor.createAndSet(getNewValue());
                 } else {
-                    accessor.set(newValue);
+                    accessor.set(getNewValue());
                 }
             }
         } else {
-            accessor.createAndSet(newValue);
+            accessor.createAndSet(getNewValue());
         }
         return document;
     }
 
+    protected String getOldValue() {
+        return oldValue;
+    }
+
+    protected String getNewValue() {
+        return newValue;
+    }
+
     public MutableDocument undo(MutableDocument document) {
-        Accessor accessor = document.createAccessor(field);
-        if (oldValue != null) {
-            if (newValue == null) {
-                accessor.createAndSet(oldValue);
+        Accessor accessor = document.createAccessor(path);
+        if (getOldValue() != null) {
+            if (getNewValue() == null) {
+                accessor.createAndSet(getOldValue());
             } else {
-                accessor.set(oldValue);
+                accessor.set(getOldValue());
             }
         } else { // old value == null
             accessor.delete();
@@ -79,16 +93,16 @@ public class FieldUpdateAction extends AbstractAction {
     }
 
     public MutableDocument addModificationMark(MutableDocument document) {
-        Accessor accessor = document.createAccessor(field);
+        Accessor accessor = document.createAccessor(path);
         if (accessor.exist()) {
-            if (oldValue != null) {
-                if (newValue == null) {
+            if (getOldValue() != null) {
+                if (getNewValue() == null) {
                     accessor.markModified(Accessor.Marker.REMOVE);
                 } else {
                     accessor.markModified(Accessor.Marker.UPDATE);
                 }
             } else {
-                if (newValue != null) {
+                if (getNewValue() != null) {
                     accessor.markModified(Accessor.Marker.ADD);
                 }
             }
@@ -97,7 +111,7 @@ public class FieldUpdateAction extends AbstractAction {
     }
 
     public MutableDocument removeModificationMark(MutableDocument document) {
-        Accessor accessor = document.createAccessor(field);
+        Accessor accessor = document.createAccessor(path);
         accessor.markUnmodified();
         return document;
     }
@@ -121,9 +135,14 @@ public class FieldUpdateAction extends AbstractAction {
     @Override
     public String toString() {
         return "FieldUpdateAction{" +
-                "path='" + field + '\'' +
-                ", oldValue='" + oldValue + '\'' +
-                ", newValue='" + newValue + '\'' +
+                "path='" + path + '\'' +
+                ", oldValue='" + getOldValue() + '\'' +
+                ", newValue='" + getNewValue() + '\'' +
                 '}';
+    }
+
+    @Override
+    public FieldMetadata getField() {
+        return updatedField;
     }
 }

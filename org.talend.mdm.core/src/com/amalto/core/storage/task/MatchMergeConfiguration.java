@@ -43,4 +43,9 @@ interface MatchMergeConfiguration {
      * @return <code>true</code> if configuration includes match merge details for the type, <code>false</code> otherwise.
      */
     boolean include(ComplexTypeMetadata type);
+
+    /**
+     * @return The default merge strategy to apply for fields outside match & merge configuration.
+     */
+    MergeAlgorithm getDefaultMergeAlgorithm();
 }

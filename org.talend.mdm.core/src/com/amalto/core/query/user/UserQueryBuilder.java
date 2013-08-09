@@ -334,6 +334,11 @@ public class UserQueryBuilder {
         return new UserQueryBuilder(select);
     }
 
+    public UserQueryBuilder forUpdate() {
+        expressionAsSelect().setForUpdate(true);
+        return this;
+    }
+
     public UserQueryBuilder select(FieldMetadata... fields) {
         if (fields == null) {
             throw new IllegalArgumentException("Fields cannot be null");

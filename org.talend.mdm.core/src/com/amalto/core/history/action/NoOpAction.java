@@ -23,7 +23,25 @@ import java.util.Set;
  */
 public class NoOpAction implements Action {
 
-    private final Date date = new Date(Long.MIN_VALUE);
+    private static Action INSTANCE = new NoOpAction();
+
+    private final Date date;
+
+    private NoOpAction() {
+        this(Long.MIN_VALUE);
+    }
+
+    private NoOpAction(long time) {
+        date = new Date(time);
+    }
+
+    public static Action instance() {
+        return INSTANCE;
+    }
+
+    public static Action instance(long time) {
+        return new NoOpAction(time);
+    }
 
     public MutableDocument perform(MutableDocument document) {
         return document;

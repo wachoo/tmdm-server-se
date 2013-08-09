@@ -362,7 +362,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
         mainType = selectedTypes.get(0);
         String mainClassName = ClassCreator.getClassName(mainType.getName());
         criteria = session.createCriteria(mainClassName, mainType.getName());
-        criteria.setReadOnly(true); // We are reading data, turns on ready only mode.
+        if (!select.forUpdate()) {
+            criteria.setReadOnly(true); // We are reading data, turns on ready only mode.
+        }
         // Handle JOIN (if any)
         List<Join> joins = select.getJoins();
         for (Join join : joins) {

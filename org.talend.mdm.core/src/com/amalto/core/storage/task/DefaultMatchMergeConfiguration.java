@@ -15,10 +15,7 @@ import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.Select;
 import org.talend.dataquality.matchmerge.MatchAlgorithm;
 import org.talend.dataquality.matchmerge.MergeAlgorithm;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
-import org.talend.mdm.commmon.metadata.Types;
+import org.talend.mdm.commmon.metadata.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -83,6 +80,15 @@ class DefaultMatchMergeConfiguration implements MatchMergeConfiguration {
 
     @Override
     public boolean include(ComplexTypeMetadata type) {
-        return false;
+        if (type.getKeyFields().isEmpty()) {
+            return false;
+        }
+        TypeMetadata keyType = MetadataUtils.getSuperConcreteType(type.getKeyFields().iterator().next().getType());
+        return type.getKeyFields().size() == 1 && Types.STRING.equals(keyType.getName());
+    }
+
+    @Override
+    public MergeAlgorithm getDefaultMergeAlgorithm() {
+        return MergeAlgorithm.CONCAT;
     }
 }

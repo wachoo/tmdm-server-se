@@ -13,6 +13,7 @@ package com.amalto.core.save.context;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
+import com.amalto.core.history.action.FieldInsertAction;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.metadata.MetadataUtils;
 import org.apache.commons.lang.StringUtils;
@@ -47,6 +48,10 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private final Set<String> touchedPaths = new HashSet<String>();
 
+    private final Map<FieldMetadata, Integer> originalFieldToLastIndex = new HashMap<FieldMetadata, Integer>();
+
+    protected boolean preserveCollectionOldValues;
+
     private String lastMatchPath;
 
     private boolean isDeletingContainedElement = false;
@@ -60,17 +65,46 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                                String userName,
                                boolean generateTouchActions,
                                MetadataRepository repository) {
-        this(originalDocument, newDocument, date, -1, source, userName, generateTouchActions, repository);
+        this(originalDocument,
+                newDocument,
+                date,
+                false,
+                -1,
+                source,
+                userName,
+                generateTouchActions,
+                repository);
     }
 
     public UpdateActionCreator(MutableDocument originalDocument,
                                MutableDocument newDocument,
                                Date date,
+                               boolean preserveCollectionOldValues,
+                               String source,
+                               String userName,
+                               boolean generateTouchActions,
+                               MetadataRepository repository) {
+        this(originalDocument,
+                newDocument,
+                date,
+                preserveCollectionOldValues,
+                -1,
+                source,
+                userName,
+                generateTouchActions,
+                repository);
+    }
+
+    public UpdateActionCreator(MutableDocument originalDocument,
+                               MutableDocument newDocument,
+                               Date date,
+                               boolean preserveCollectionOldValues,
                                int insertIndex,
                                String source,
                                String userName,
                                boolean generateTouchActions,
                                MetadataRepository repository) {
+        this.preserveCollectionOldValues = preserveCollectionOldValues;
         this.originalDocument = originalDocument;
         this.newDocument = newDocument;
         this.insertIndex = insertIndex;
@@ -206,7 +240,7 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             String oldValue = originalAccessor.get();
             lastMatchPath = path;
             if (!newAccessor.exist()) {
-                if (comparedField.isMany()) {
+                if (comparedField.isMany() && !preserveCollectionOldValues) {
                     // TMDM-5216: Visit sub fields include old/new values for sub elements.
                     if (comparedField instanceof ContainedTypeFieldMetadata) {
                         isDeletingContainedElement = true;
@@ -227,7 +261,18 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             } else { // new accessor exist
                 String newValue = newAccessor.get();
                 if (newAccessor.get() != null && !(comparedField instanceof ContainedTypeFieldMetadata)) {
-                    if (oldValue != null && !oldValue.equals(newValue)) {
+                    if (comparedField.isMany() && preserveCollectionOldValues) {
+                        // Append at the end of the collection
+                        if (!originalFieldToLastIndex.containsKey(comparedField)) {
+                            originalFieldToLastIndex.put(comparedField, originalAccessor.size());
+                        }
+                        String previousPathElement = this.path.pop();
+                        int insertIndex = getInsertIndex(comparedField);
+                        this.path.push(comparedField.getName() + "[" + insertIndex + "]");
+                        actions.add(new FieldInsertAction(date, source, userName, getLeftPath(), StringUtils.EMPTY, newValue, comparedField));
+                        this.path.pop();
+                        this.path.push(previousPathElement);
+                    } else if (oldValue != null && !oldValue.equals(newValue)) {
                         if (!Types.STRING.equals(comparedField.getType().getName()) && !(comparedField instanceof ReferenceFieldMetadata)) {
                             // Field is not string. To ensure false positive difference detection, creates a typed value.
                             Object oldObject = MetadataUtils.convert(oldValue, comparedField);
@@ -254,9 +299,19 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         }
     }
 
+    private int getInsertIndex(FieldMetadata comparedField) {
+        if (insertIndex < 0) {
+            int newIndex = originalFieldToLastIndex.get(comparedField);
+            newIndex = newIndex + 1;
+            originalFieldToLastIndex.put(comparedField, newIndex);
+            return newIndex;
+        } else {
+            return insertIndex;
+        }
+    }
+
     protected void generateNoOp(String path) {
         if (generateTouchActions) {
-            // TODO Do only this if type is a sequence (useless if type isn't ordered).
             if (!touchedPaths.contains(path) && path != null) {
                 touchedPaths.add(path);
                 actions.add(new TouchAction(path, date, source, userName));
@@ -286,7 +341,7 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                     previousType = leftAccessor.getActualType();
                 }
 
-                if (!newType.isEmpty()) {
+                if (!newType.isEmpty() && !newType.startsWith(MetadataRepository.ANONYMOUS_PREFIX)) {
                     ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), newType);
                     ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), previousType);
                     // Perform some checks about the xsi:type value (valid or not?).
@@ -299,7 +354,7 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                                 + "' is not assignable from type '" + newTypeMetadata.getName() + "'");
                     }
                     if (!newTypeMetadata.getSuperTypes().isEmpty() || !newTypeMetadata.getSubTypes().isEmpty()) {
-                        actions.add(new ChangeTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata));
+                        actions.add(new ChangeTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata, field));
                     } else if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Ignore type change on '" + getLeftPath() + "': type '" + newTypeMetadata.getName() + "' does not belong to an inheritance tree.");
                     }
@@ -331,25 +386,16 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                         previousType = leftAccessor.getActualType();
                     }
 
-                    if (!newType.isEmpty()) {
+                    if (!newType.isEmpty() && !newType.startsWith(MetadataRepository.ANONYMOUS_PREFIX)) {
                         ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), newType);
                         ComplexTypeMetadata previousTypeMetadata = null;
                         if (newTypeMetadata != null && !newTypeMetadata.isInstantiable()) {
-                            ComplexTypeMetadata actualNewTypeMetadata = null;
+                            ComplexTypeMetadata actualNewTypeMetadata = newTypeMetadata;
                             Collection<TypeMetadata> instantiableTypes = repository.getInstantiableTypes();
                             for (TypeMetadata instantiableType : instantiableTypes) {
                                 if (newType.equals(instantiableType.getData(MetadataRepository.COMPLEX_TYPE_NAME))) {
-                                    if (actualNewTypeMetadata != null) {
-                                        // Multiple candidates for inheritance are forbidden / not supported.
-                                        throw new IllegalArgumentException("Reusable type '" + newType + "'is at least used by " +
-                                                "'" + actualNewTypeMetadata.getName() + "' and '" + instantiableType.getName() + "'.");
-                                    }
                                     actualNewTypeMetadata = (ComplexTypeMetadata) instantiableType;
                                 }
-                            }
-                            if (actualNewTypeMetadata == null) {
-                                // Type is still a 'reusable' type (not entity): this is an error case.
-                                throw new IllegalStateException("Can not find entity type using reusable type '" + newType + "'.");
                             }
                             if (LOGGER.isDebugEnabled()) {
                                 LOGGER.debug("Replacing type '" + newType + "' with '" + actualNewTypeMetadata.getName() + ".");
@@ -362,7 +408,7 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                         }
                         // Record the type change information (if applicable).
                         if (!newTypeMetadata.getSuperTypes().isEmpty() || !newTypeMetadata.getSubTypes().isEmpty()) {
-                            actions.add(new ChangeReferenceTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata));
+                            actions.add(new ChangeReferenceTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata, field));
                         } else if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("Ignore reference type change on '" + getLeftPath() + "': type '" + newTypeMetadata.getName() + "' does not belong to an inheritance tree.");
                         }

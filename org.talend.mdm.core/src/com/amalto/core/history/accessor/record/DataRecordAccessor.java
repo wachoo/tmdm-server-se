@@ -233,27 +233,31 @@ public class DataRecordAccessor implements Accessor {
 
     @Override
     public void insert() {
-        DataRecord current = dataRecord;
-        ListIterator<PathElement> elements = getPath(dataRecord, path).listIterator();
-        PathElement pathElement = null;
-        while (elements.hasNext()) {
-            pathElement = elements.next();
-            if (!elements.hasNext()) {
-                break;
-            }
-            if (pathElement.field instanceof ContainedTypeFieldMetadata) {
-                Object o = current.get(pathElement.field);
-                if (pathElement.field.isMany()) {
-                    List list = (List) o;
-                    current = (DataRecord) list.get(pathElement.index);
-                } else {
-                    current = (DataRecord) o;
+        if (!exist()) {
+            create();
+        } else {
+            DataRecord current = dataRecord;
+            ListIterator<PathElement> elements = getPath(dataRecord, path).listIterator();
+            PathElement pathElement = null;
+            while (elements.hasNext()) {
+                pathElement = elements.next();
+                if (!elements.hasNext()) {
+                    break;
+                }
+                if (pathElement.field instanceof ContainedTypeFieldMetadata) {
+                    Object o = current.get(pathElement.field);
+                    if (pathElement.field.isMany()) {
+                        List list = (List) o;
+                        current = (DataRecord) list.get(pathElement.index);
+                    } else {
+                        current = (DataRecord) o;
+                    }
                 }
             }
-        }
-        if (pathElement != null && pathElement.field.isMany()) {
-            List list = (List) current.get(pathElement.field);
-            list.add(pathElement.index, null);
+            if (pathElement != null && pathElement.field.isMany()) {
+                List list = (List) current.get(pathElement.field);
+                list.add(pathElement.index, null);
+            }
         }
     }
 

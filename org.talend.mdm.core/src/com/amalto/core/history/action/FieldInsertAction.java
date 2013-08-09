@@ -27,7 +27,7 @@ public class FieldInsertAction extends FieldUpdateAction {
     }
 
     public MutableDocument perform(MutableDocument document) {
-        Accessor accessor = document.createAccessor(field);
+        Accessor accessor = document.createAccessor(path);
         if (oldValue != null) {
             if (newValue == null) {
                 accessor.delete();
@@ -49,7 +49,7 @@ public class FieldInsertAction extends FieldUpdateAction {
     @Override
     public String toString() {
         return "FieldInsertAction{" +
-                "path='" + field + '\'' +
+                "path='" + path + '\'' +
                 ", oldValue='" + oldValue + '\'' +
                 ", newValue='" + newValue + '\'' +
                 '}';

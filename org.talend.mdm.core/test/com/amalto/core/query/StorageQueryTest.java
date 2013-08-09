@@ -1379,7 +1379,7 @@ public class StorageQueryTest extends StorageTestCase {
                 .where(eq(person.getField("id"), "1"));
         StorageResults results = storage.fetch(qb.getSelect());
         for (DataRecord result : results) {
-            assertEquals(1, result.get("id"));
+            assertEquals("1", result.get("id"));
             assertEquals("", result.get("addresses"));
         }
     }
@@ -1389,7 +1389,7 @@ public class StorageQueryTest extends StorageTestCase {
                 .where(eq(person.getField("firstname"), "Juste"));
         StorageResults results = storage.fetch(qb.getSelect());
         for (DataRecord result : results) {
-            assertEquals(3, result.get("id"));
+            assertEquals("3", result.get("id"));
             assertEquals("", result.get("addresses"));
         }
     }
@@ -1939,7 +1939,7 @@ public class StorageQueryTest extends StorageTestCase {
         qb.orderBy(sortField, OrderBy.Direction.DESC);
 
         StorageResults storageResults = storage.fetch(qb.getSelect());
-        int[] expected = { 3, 2, 1 };
+        String[] expected = { "3", "2", "1" };
         int i = 0;
         for (DataRecord result : storageResults) {
             assertEquals(expected[i++], result.get("id"));
@@ -2709,7 +2709,7 @@ public class StorageQueryTest extends StorageTestCase {
                 .where(eq(person.getField("knownAddresses/knownAddress/Notes/Note"), "test note"));
         StorageResults results = storage.fetch(qb.getSelect());
         for (DataRecord result : results) {
-            assertEquals(5, result.get("id"));
+            assertEquals("5", result.get("id"));
         }
     }
 
@@ -2816,16 +2816,16 @@ public class StorageQueryTest extends StorageTestCase {
         // Optimization
         optimizer.optimize(select);
         assertTrue(select.getCondition() instanceof Range);
-        assertEquals(new IntegerConstant(0), ((Range) select.getCondition()).getStart());
-        assertEquals(new IntegerConstant(1), ((Range) select.getCondition()).getEnd());
+        assertEquals(new StringConstant("0"), ((Range) select.getCondition()).getStart());
+        assertEquals(new StringConstant("1"), ((Range) select.getCondition()).getEnd());
         // Optimization
         qb = UserQueryBuilder.from(person)
                 .where(and(lte(person.getField("id"), "1"), gte(person.getField("id"), "0")));
         select = qb.getSelect();
         optimizer.optimize(select);
         assertTrue(select.getCondition() instanceof Range);
-        assertEquals(new IntegerConstant(0), ((Range) select.getCondition()).getStart());
-        assertEquals(new IntegerConstant(1), ((Range) select.getCondition()).getEnd());
+        assertEquals(new StringConstant("0"), ((Range) select.getCondition()).getStart());
+        assertEquals(new StringConstant("1"), ((Range) select.getCondition()).getEnd());
         // No optimization (not applicable)
         qb = UserQueryBuilder.from(person)
                 .where(and(and(gte(person.getField("id"), "0"), eq(person.getField("score"), "0")), lte(person.getField("id"), "1")));

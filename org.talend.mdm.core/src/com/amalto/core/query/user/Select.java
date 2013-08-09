@@ -37,6 +37,8 @@ public class Select implements Expression {
 
     private boolean isProjection;
 
+    private boolean forUpdate = false;
+
     public Select() {
     }
 
@@ -194,5 +196,13 @@ public class Select implements Expression {
         result = 31 * result + (orderBy != null ? orderBy.hashCode() : 0);
         result = 31 * result + (isProjection ? 1 : 0);
         return result;
+    }
+
+    public boolean forUpdate() {
+        return forUpdate;
+    }
+
+    public void setForUpdate(boolean forUpdate) {
+        this.forUpdate = forUpdate;
     }
 }

@@ -14,6 +14,7 @@ package com.amalto.core.save.context;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.w3c.dom.Document;
 
 import javax.xml.XMLConstants;
@@ -21,8 +22,14 @@ import java.util.Date;
 
 class ChangeTypeAction extends AbstractChangeTypeAction {
 
-    public ChangeTypeAction(Date date, String source, String userName, String path, ComplexTypeMetadata previousType, ComplexTypeMetadata newType) {
-        super(date, source, userName, path, previousType, newType);
+    public ChangeTypeAction(Date date,
+                            String source,
+                            String userName,
+                            String path,
+                            ComplexTypeMetadata previousType,
+                            ComplexTypeMetadata newType,
+                            FieldMetadata field) {
+        super(date, source, userName, path, previousType, newType, field);
     }
 
     public MutableDocument perform(MutableDocument document) {

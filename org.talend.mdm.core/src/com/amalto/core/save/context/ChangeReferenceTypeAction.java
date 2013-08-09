@@ -16,6 +16,7 @@ import java.util.Date;
 import javax.xml.XMLConstants;
 
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.w3c.dom.Document;
 
 import com.amalto.core.history.MutableDocument;
@@ -24,8 +25,14 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 class ChangeReferenceTypeAction extends AbstractChangeTypeAction {
 
-    public ChangeReferenceTypeAction(Date date, String source, String userName, String path, ComplexTypeMetadata previousType, ComplexTypeMetadata newType) {
-        super(date, source, userName, path, previousType, newType);
+    public ChangeReferenceTypeAction(Date date,
+                                     String source,
+                                     String userName,
+                                     String path,
+                                     ComplexTypeMetadata previousType,
+                                     ComplexTypeMetadata newType,
+                                     FieldMetadata field) {
+        super(date, source, userName, path, previousType, newType, field);
     }
 
     public MutableDocument perform(MutableDocument document) {

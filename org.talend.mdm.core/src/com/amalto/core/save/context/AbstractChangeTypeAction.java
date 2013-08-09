@@ -11,15 +11,16 @@
 
 package com.amalto.core.save.context;
 
-import com.amalto.core.history.Action;
+import com.amalto.core.history.FieldAction;
 import com.amalto.core.history.MutableDocument;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
 
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-abstract class AbstractChangeTypeAction implements Action {
+abstract class AbstractChangeTypeAction implements FieldAction {
 
     protected final Date date;
 
@@ -31,18 +32,25 @@ abstract class AbstractChangeTypeAction implements Action {
 
     protected final ComplexTypeMetadata newType;
 
+    private final FieldMetadata field;
+
     protected final Set<String> pathToClean;
 
     protected final boolean hasChangedType;
 
-    public AbstractChangeTypeAction(Date date, String source, String userName, String path, ComplexTypeMetadata previousType, ComplexTypeMetadata newType) {
+    public AbstractChangeTypeAction(Date date,
+                                    String source,
+                                    String userName,
+                                    String path,
+                                    ComplexTypeMetadata previousType,
+                                    ComplexTypeMetadata newType,
+                                    FieldMetadata field) {
         this.source = source;
         this.date = date;
         this.userName = userName;
-
         this.path = path;
         this.newType = newType;
-
+        this.field = field;
         pathToClean = new HashSet<String>();
         // Compute paths to fields that changed from previous type (only if type changed).
         hasChangedType = previousType != newType || !previousType.getName().equals(newType.getName());
@@ -74,5 +82,9 @@ abstract class AbstractChangeTypeAction implements Action {
 
     public MutableDocument removeModificationMark(MutableDocument document) {
         throw new UnsupportedOperationException();
+    }
+
+    public FieldMetadata getField() {
+        return field;
     }
 }
