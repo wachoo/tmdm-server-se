@@ -508,7 +508,8 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         if (isDoingColumns) {
             Element column = document.createElement("column"); //$NON-NLS-1$
             Attr columnName = document.createAttribute("name"); //$NON-NLS-1$
-            columnName.setValue(formatSQLName(compositeKeyPrefix + "_" + fieldName, resolver.getNameMaxLength())); //$NON-NLS-1$
+            String columnNameValue = formatSQLName(compositeKeyPrefix + "_" + fieldName, resolver.getNameMaxLength());
+            columnName.setValue(columnNameValue); //$NON-NLS-1$
             column.getAttributes().setNamedItem(columnName);
             if (generateConstrains) {
                 Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
@@ -520,7 +521,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     LOGGER.debug("Creating index for field '" + field.getName() + "'.");
                 }
                 Attr indexName = document.createAttribute("index"); //$NON-NLS-1$
-                setIndexName(field, fieldName, indexName);
+                setIndexName(field, columnNameValue, indexName);
                 column.getAttributes().setNamedItem(indexName);
             }
             parentElement.appendChild(column);
@@ -555,13 +556,14 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 Attr propertyName = document.createAttribute("name"); //$NON-NLS-1$
                 propertyName.setValue(fieldName);
                 Attr columnName = document.createAttribute("column"); //$NON-NLS-1$
-                columnName.setValue(formatSQLName(fieldName, resolver.getNameMaxLength()));
+                String columnNameValue = formatSQLName(fieldName, resolver.getNameMaxLength());
+                columnName.setValue(columnNameValue);
                 if (resolver.isIndexed(field)) { // Create indexes for fields that should be indexed.
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Creating index for field '" + field.getName() + "'.");
                     }
                     Attr indexName = document.createAttribute("index"); //$NON-NLS-1$
-                    setIndexName(field, fieldName, indexName);
+                    setIndexName(field, columnNameValue, indexName);
                     propertyElement.getAttributes().setNamedItem(indexName);
                 } else {
                     if (LOGGER.isDebugEnabled()) {
@@ -669,16 +671,9 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         if (!tableNames.isEmpty()) {
             prefix = tableNames.peek();
         }
-        if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) { // Adds user name for Oracle
-            indexName.setValue(dataSource.getUserName() + '.'
-                    + formatSQLName(prefix + '_'
-                    + fieldName + "_index", //$NON-NLS-1$
-                    resolver.getNameMaxLength()));
-        } else {
-            indexName.setValue(formatSQLName(prefix + '_'
-                    + fieldName + "_index", //$NON-NLS-1$
-                    resolver.getNameMaxLength()));
-        }
+        indexName.setValue(formatSQLName(prefix + '_'
+                + fieldName + "_index", //$NON-NLS-1$
+                resolver.getNameMaxLength()));
     }
 
     private static void addFieldTypeAttribute(FieldMetadata field,
