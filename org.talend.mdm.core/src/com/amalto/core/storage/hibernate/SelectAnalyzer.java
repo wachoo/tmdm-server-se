@@ -15,6 +15,7 @@ import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.CompoundFieldMetadata;
 import com.amalto.core.metadata.ContainedComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
@@ -142,16 +143,19 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
     private static boolean allowInClauseOptimization(TypeMapping mappingFromDatabase) {
         boolean allowInClauseOptimization = mappingFromDatabase instanceof ScatteredTypeMapping;
         boolean containsManyField = false;
+        int referenceFieldCount = 0;
         if (mappingFromDatabase instanceof FlatTypeMapping) {
             Collection<FieldMetadata> fields = mappingFromDatabase.getDatabase().getFields();
             for (FieldMetadata field : fields) {
+                if (field instanceof ReferenceFieldMetadata) {
+                    referenceFieldCount++;
+                }
                 if (field.isMany()) {
                     containsManyField = true;
-                    break;
                 }
             }
         }
-        return allowInClauseOptimization || containsManyField;
+        return allowInClauseOptimization || containsManyField || referenceFieldCount > 1;
     }
 
     @Override
