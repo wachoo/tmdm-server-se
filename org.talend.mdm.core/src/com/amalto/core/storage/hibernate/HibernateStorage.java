@@ -324,7 +324,7 @@ public class HibernateStorage implements Storage {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Oracle database is being used. Limit table name length to 30.");
                     }
-                    tableResolver = new StorageTableResolver(databaseIndexedFields, 30);
+                    tableResolver = new OracleStorageTableResolver(databaseIndexedFields, 30);
                     break;
                 case MYSQL:
                     if (LOGGER.isDebugEnabled()) {
@@ -600,7 +600,7 @@ public class HibernateStorage implements Storage {
                 o.timestamp(System.currentTimeMillis());
 
                 DataRecordMetadata recordMetadata = currentDataRecord.getRecordMetadata();
-                o.taskId(recordMetadata.getTaskId());
+                    o.taskId(recordMetadata.getTaskId());
                 Map<String, String> recordProperties = recordMetadata.getRecordProperties();
                 for (Map.Entry<String, String> currentProperty : recordProperties.entrySet()) {
                     String key = currentProperty.getKey();
