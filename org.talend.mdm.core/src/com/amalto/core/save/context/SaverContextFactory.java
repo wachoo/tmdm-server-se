@@ -177,37 +177,7 @@ public class SaverContextFactory {
         } catch (Exception e) {
             throw new RuntimeException("Unable to parse document to save.", e);
         }
-        // Choose right user action
-        UserAction userAction = UserAction.UPDATE;
-        if (isReplace) {
-            userAction = UserAction.REPLACE;
-        }
-        // TMDM-5587: workflow uses 'update' for both 'update' and 'create' (so choose 'auto').
-        if ("workflow".equalsIgnoreCase(changeSource)) { //$NON-NLS-1$
-            userAction = UserAction.AUTO;
-        }
-        // Choose right context implementation
-        DocumentSaverContext context;
-        Storage storage = server.getStorageAdmin().get(dataCluster, null);
-        if (storage != null) {
-            context = new StorageSaver(storage, userDocument, userAction, invokeBeforeSaving, updateReport, validate);
-        } else {
-            // Deprecated code here (keep it for XML database).
-            if (dataCluster.startsWith(SYSTEM_CONTAINER_PREFIX)
-                    || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, dataCluster)) {
-                context = new SystemContext(dataCluster, dataModelName, userDocument, userAction);
-            } else {
-                context = new UserContext(dataCluster, dataModelName, userDocument, userAction, validate, updateReport, invokeBeforeSaving);
-            }
-        }
-        // Additional options (update report, auto commit).
-        if (updateReport) {
-            context = ReportDocumentSaverContext.decorate(context, changeSource);
-        }
-        if (autoCommit) {
-            context = AutoCommitSaverContext.decorate(context);
-        }
-        return context;
+       return create(dataCluster, dataModelName, changeSource, userDocument, isReplace, validate, updateReport, invokeBeforeSaving, autoCommit);
     }
 
     /**
@@ -245,5 +215,66 @@ public class SaverContextFactory {
                 updateReport,
                 false, XSystemObjects.DC_PROVISIONING.getName().equals(dataCluster)); // Before saving is not supported
         return PartialUpdateSaverContext.decorate(context, pivot, key, index, overwrite);
+    }
+
+    /**
+     * Creates a {@link DocumentSaverContext} to save a unique record in MDM, with update report/before saving options.
+     *
+     * @param dataCluster        Data container name (must exist).
+     * @param dataModelName      Data model name (must exist).
+     * @param changeSource       Source of change (for update report). Common values includes 'genericUI'...
+     * @param userDocument       A document that contains the user-provided document for update.
+     * @param isReplace          <code>true</code> to replace XML document if it exists in database, <code>false</code>
+     *                           otherwise. If it is a creation, this parameter is ignored.
+     * @param validate           <code>true</code> to validate XML document before saving it, <code>false</code> otherwise.
+     * @param updateReport       <code>true</code> to generate an update report, <code>false</code> otherwise.
+     * @param invokeBeforeSaving <code>true</code> to invoke any existing before saving process, <code>false</code> otherwise.
+     * @param autoCommit         <code>true</code> to perform a call to {@link SaverSession#end()} when a record is ready for save.
+     * @return A context configured to save a record in MDM.
+     */
+    public DocumentSaverContext create(String dataCluster,
+                                           String dataModelName,
+                                           String changeSource,
+                                           MutableDocument userDocument,
+                                           boolean isReplace,
+                                           boolean validate,
+                                           boolean updateReport,
+                                           boolean invokeBeforeSaving,
+                                           boolean autoCommit) {
+        if (invokeBeforeSaving && !updateReport) {
+            throw new IllegalArgumentException("Must generate update report to invoke before saving.");
+        }
+        Server server = ServerContext.INSTANCE.get();
+        // Choose right user action
+        UserAction userAction = UserAction.UPDATE;
+        if (isReplace) {
+            userAction = UserAction.REPLACE;
+        }
+        // TMDM-5587: workflow uses 'update' for both 'update' and 'create' (so choose 'auto').
+        if ("workflow".equalsIgnoreCase(changeSource)) { //$NON-NLS-1$
+            userAction = UserAction.AUTO;
+        }
+        // Choose right context implementation
+        DocumentSaverContext context;
+        Storage storage = server.getStorageAdmin().get(dataCluster, null);
+        if (storage != null) {
+            context = new StorageSaver(storage, userDocument, userAction, invokeBeforeSaving, updateReport, validate);
+        } else {
+            // Deprecated code here (keep it for XML database).
+            if (dataCluster.startsWith(SYSTEM_CONTAINER_PREFIX)
+                    || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, dataCluster)) {
+                context = new SystemContext(dataCluster, dataModelName, userDocument, userAction);
+            } else {
+                context = new UserContext(dataCluster, dataModelName, userDocument, userAction, validate, updateReport, invokeBeforeSaving);
+            }
+        }
+        // Additional options (update report, auto commit).
+        if (updateReport) {
+            context = ReportDocumentSaverContext.decorate(context, changeSource);
+        }
+        if (autoCommit) {
+            context = AutoCommitSaverContext.decorate(context);
+        }
+        return context;
     }
 }

@@ -39,6 +39,8 @@ public class StorageDocument implements MutableDocument {
 
     private DataRecord dataRecord;
 
+    private String taskId;
+
     public StorageDocument(String dataModelName, MetadataRepository repository, DataRecord dataRecord) {
         this.dataModelName = dataModelName;
         this.repository = repository;
@@ -54,11 +56,8 @@ public class StorageDocument implements MutableDocument {
     public Document asDOM() {
         synchronized (SaverContextFactory.DOCUMENT_BUILDER) {
             try {
-                DataRecordWriter writer = new DataRecordXmlWriter();
-                StringWriter stringWriter = new StringWriter();
-                writer.write(dataRecord, stringWriter);
                 DocumentBuilder documentBuilder = SaverContextFactory.DOCUMENT_BUILDER;
-                return documentBuilder.parse(new ByteArrayInputStream(stringWriter.toString().getBytes("UTF-8")));
+                return documentBuilder.parse(new ByteArrayInputStream(exportToString().getBytes("UTF-8")));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -69,13 +68,8 @@ public class StorageDocument implements MutableDocument {
     public Document asValidationDOM() {
         synchronized (SaverContextFactory.DOCUMENT_BUILDER) {
             try {
-                DataRecordWriter writer = new DataRecordXmlWriter();
-                StringWriter stringWriter = new StringWriter();
-                writer.write(dataRecord, stringWriter);
                 SkipAttributeDocumentBuilder builder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOCUMENT_BUILDER, true);
-                Document document = builder.parse(new ByteArrayInputStream(stringWriter.toString().getBytes("UTF-8")));
-               // clean(document.getDocumentElement(), EmptyElementCleaner.INSTANCE, false);
-                return document;
+                return builder.parse(new ByteArrayInputStream(exportToString().getBytes("UTF-8")));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -120,6 +114,11 @@ public class StorageDocument implements MutableDocument {
     }
 
     @Override
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
+    @Override
     public String exportToString() {
         StringWriter output = new StringWriter();
         DataRecordWriter writer = new DataRecordXmlWriter();
@@ -158,6 +157,11 @@ public class StorageDocument implements MutableDocument {
     @Override
     public String getDataCluster() {
         return dataModelName;
+    }
+
+    @Override
+    public String getTaskId() {
+        return taskId;
     }
 
     public DataRecord getDataRecord() {

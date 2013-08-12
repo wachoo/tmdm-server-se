@@ -22,6 +22,7 @@ import org.hibernate.ScrollableResults;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 class ScrollableIterator implements CloseableIterator<DataRecord> {
@@ -38,6 +39,10 @@ class ScrollableIterator implements CloseableIterator<DataRecord> {
 
     private final MappingRepository storageRepository;
 
+    private boolean isFirstHasNextCall = true;
+
+    private boolean allowNextCall = true;
+
     public ScrollableIterator(MappingRepository storageRepository, StorageClassLoader storageClassLoader, ScrollableResults results, Set<EndOfResultsCallback> callbacks) {
         this.storageRepository = storageRepository;
         this.storageClassLoader = storageClassLoader;
@@ -48,7 +53,14 @@ class ScrollableIterator implements CloseableIterator<DataRecord> {
     public boolean hasNext() {
         boolean hasNext;
         try {
-            hasNext = results.next();
+            if(isFirstHasNextCall) {
+                hasNext = results.first();
+                isFirstHasNextCall = false;
+                allowNextCall = false;
+            } else {
+                allowNextCall = true;
+                hasNext = !results.isLast();
+            }
             if (!hasNext) {
                 notifyCallbacks();
             }
@@ -64,6 +76,12 @@ class ScrollableIterator implements CloseableIterator<DataRecord> {
     public DataRecord next() {
         Object next;
         try {
+            if (allowNextCall) {
+                boolean hasNext = results.next();
+                if (!hasNext) {
+                    throw new NoSuchElementException("No more results for iterator."); // Required by next() API
+                }
+            }
             next = results.get()[0];
         } catch (Exception e) {
             notifyCallbacks(); // In case of exception, notify the callbacks so statelessSession can be closed.

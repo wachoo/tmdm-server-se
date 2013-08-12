@@ -2148,16 +2148,20 @@ public class StorageQueryTest extends StorageTestCase {
         StorageResults results = storage.fetch(qb.getSelect());
         assertEquals(3, results.getCount());
         DataRecordXmlWriter writer = new DataRecordXmlWriter();
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        Set<String> expectedStrings = new HashSet<String>();
+        expectedStrings.add(E1_Record1);
+        expectedStrings.add(E1_Record2);
+        expectedStrings.add(E1_Record3);
         for (DataRecord result : results) {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
             try {
                 writer.write(result, output);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+            expectedStrings.remove(output.toString());
         }
-        String actual = new String(output.toByteArray());
-        assertEquals(E1_Record1 + E1_Record2 + E1_Record3, actual);
+        assertTrue(expectedStrings.isEmpty());
     }
 
     public void testFetchAllE1ByAliasI() {
@@ -2191,20 +2195,20 @@ public class StorageQueryTest extends StorageTestCase {
                 writer.flush();
             }
         };
-
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        Set<String> expectedStrings = new HashSet<String>();
+        expectedStrings.add("<result><subelement>aaa</subelement><subelement1>bbb</subelement1><i>aaa</i><i>bbb</i><name>asdf</name></result>");
+        expectedStrings.add("<result><subelement>ccc</subelement><subelement1>ddd</subelement1><i>ccc</i><i>ddd</i><name>cvcvc</name></result>");
+        expectedStrings.add("<result><subelement>ttt</subelement><subelement1>yyy</subelement1><i>ttt</i><i>yyy</i><name>nhhn</name></result>");
         for (DataRecord result : results) {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
             try {
                 writer.write(result, output);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+            expectedStrings.remove(output.toString());
         }
-        String actual = new String(output.toByteArray());
-        String r1 = "<result><subelement>aaa</subelement><subelement1>bbb</subelement1><i>aaa</i><i>bbb</i><name>asdf</name></result>";
-        String r2 = "<result><subelement>ccc</subelement><subelement1>ddd</subelement1><i>ccc</i><i>ddd</i><name>cvcvc</name></result>";
-        String r3 = "<result><subelement>ttt</subelement><subelement1>yyy</subelement1><i>ttt</i><i>yyy</i><name>nhhn</name></result>";
-        assertEquals(r1 + r2 + r3, actual);
+        assertTrue(expectedStrings.isEmpty());
     }
 
     public void testFetchE2ByForeignKeyToCompositeKeys() {
@@ -2212,49 +2216,56 @@ public class StorageQueryTest extends StorageTestCase {
         StorageResults results = storage.fetch(qb.getSelect());
         assertEquals(3, results.getCount());
 
+        Set<String> expectedStrings = new HashSet<String>();
+        expectedStrings.add(E2_Record1);
+        expectedStrings.add(E2_Record5);
+        expectedStrings.add(E2_Record6);
         DataRecordXmlWriter writer = new DataRecordXmlWriter();
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
         for (DataRecord result : results) {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
             try {
                 writer.write(result, output);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+            expectedStrings.remove(output.toString());
         }
-        String actual = new String(output.toByteArray());
-        assertEquals(E2_Record1 + E2_Record5 + E2_Record6, actual);
+        assertTrue(expectedStrings.isEmpty());
 
         qb = from(e2).where(eq(e2.getField("fk"), "[aaa][bbb]"));
         results = storage.fetch(qb.getSelect());
         assertEquals(2, results.getCount());
 
-        writer = new DataRecordXmlWriter();
-        output = new ByteArrayOutputStream();
+        expectedStrings = new HashSet<String>();
+        expectedStrings.add(E2_Record2);
+        expectedStrings.add(E2_Record4);
         for (DataRecord result : results) {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
             try {
                 writer.write(result, output);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+            expectedStrings.remove(output.toString());
         }
-        actual = new String(output.toByteArray());
-        assertEquals(E2_Record2 + E2_Record4, actual);
+        assertTrue(expectedStrings.isEmpty());
 
         qb = from(e2).where(eq(e2.getField("fk"), "[ttt][yyy]"));
         results = storage.fetch(qb.getSelect());
         assertEquals(1, results.getCount());
 
-        writer = new DataRecordXmlWriter();
-        output = new ByteArrayOutputStream();
+        expectedStrings = new HashSet<String>();
+        expectedStrings.add(E2_Record3);
         for (DataRecord result : results) {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
             try {
                 writer.write(result, output);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+            expectedStrings.remove(output.toString());
         }
-        actual = new String(output.toByteArray());
-        assertEquals(E2_Record3, actual);
+        assertTrue(expectedStrings.isEmpty());
     }
 
     public void testFetchAllE2() throws Exception {
@@ -2454,25 +2465,21 @@ public class StorageQueryTest extends StorageTestCase {
 
         assertEquals(7, resultsAsString.size());
 
-        final String startRoot = "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
-        final String endRoot = "</result>";
+        String startRoot = "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
+        String endRoot = "</result>";
 
-        assertEquals(startRoot + "<subelement>111</subelement><subelement1>222</subelement1><name>qwe</name><fk>[ccc][ddd]</fk>"
-                + endRoot, resultsAsString.get(0).replaceAll("\\r|\\n|\\t", ""));
-        assertEquals(startRoot + "<subelement>344</subelement><subelement1>544</subelement1><name>55</name><fk>[aaa][bbb]</fk>"
-                + endRoot, resultsAsString.get(1).replaceAll("\\r|\\n|\\t", ""));
-        assertEquals(startRoot + "<subelement>333</subelement><subelement1>444</subelement1><name>tyty</name><fk>[ttt][yyy]</fk>"
-                + endRoot, resultsAsString.get(2).replaceAll("\\r|\\n|\\t", ""));
-        assertEquals(startRoot + "<subelement>666</subelement><subelement1>777</subelement1><name>iuj</name><fk>[aaa][bbb]</fk>"
-                + endRoot, resultsAsString.get(3).replaceAll("\\r|\\n|\\t", ""));
-        assertEquals(startRoot
-                + "<subelement>6767</subelement><subelement1>7878</subelement1><name>ioiu</name><fk>[ccc][ddd]</fk>" + endRoot,
-                resultsAsString.get(4).replaceAll("\\r|\\n|\\t", ""));
-        assertEquals(startRoot
-                + "<subelement>999</subelement><subelement1>888</subelement1><name>iuiiu</name><fk>[ccc][ddd]</fk>" + endRoot,
-                resultsAsString.get(5).replaceAll("\\r|\\n|\\t", ""));
-        assertEquals(startRoot + "<subelement>119</subelement><subelement1>120</subelement1><name>zhang</name>" + endRoot,
-                resultsAsString.get(6).replaceAll("\\r|\\n|\\t", ""));
+        Set<String> expectedResults = new HashSet<String>();
+        expectedResults.add(startRoot + "<subelement>111</subelement><subelement1>222</subelement1><name>qwe</name><fk>[ccc][ddd]</fk>" + endRoot);
+        expectedResults.add(startRoot + "<subelement>344</subelement><subelement1>544</subelement1><name>55</name><fk>[aaa][bbb]</fk>" + endRoot);
+        expectedResults.add(startRoot + "<subelement>333</subelement><subelement1>444</subelement1><name>tyty</name><fk>[ttt][yyy]</fk>" + endRoot);
+        expectedResults.add(startRoot + "<subelement>666</subelement><subelement1>777</subelement1><name>iuj</name><fk>[aaa][bbb]</fk>" + endRoot);
+        expectedResults.add(startRoot + "<subelement>6767</subelement><subelement1>7878</subelement1><name>ioiu</name><fk>[ccc][ddd]</fk>" + endRoot);
+        expectedResults.add(startRoot + "<subelement>999</subelement><subelement1>888</subelement1><name>iuiiu</name><fk>[ccc][ddd]</fk>" + endRoot);
+        expectedResults.add(startRoot + "<subelement>119</subelement><subelement1>120</subelement1><name>zhang</name>" + endRoot);
+        for (String s : resultsAsString) {
+            expectedResults.remove(s.replaceAll("\\r|\\n|\\t", ""));
+        }
+        assertTrue(expectedResults.isEmpty());
     }
 
     public void testStringFieldConstraint() throws Exception {

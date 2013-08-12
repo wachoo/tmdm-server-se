@@ -732,5 +732,39 @@ public class MetadataUtils {
         }
         return true;
     }
+
+    public static String toString(Object o, FieldMetadata field) {
+        String typeName = field.getType().getName();
+        if (Types.DATE.equals(typeName)) {
+            synchronized (DateConstant.DATE_FORMAT) {
+                try {
+                    DateFormat dateFormat = DateConstant.DATE_FORMAT;
+                    return dateFormat.format(o);
+                } catch (Exception e) {
+                    throw new RuntimeException("Could not parse date time string", e);
+                }
+            }
+        } else if (Types.DATETIME.equals(typeName)) {
+            synchronized (DateTimeConstant.DATE_FORMAT) {
+                try {
+                    DateFormat dateFormat = DateTimeConstant.DATE_FORMAT;
+                    return dateFormat.format(o);
+                } catch (Exception e) {
+                    throw new RuntimeException("Could not parse date time string", e);
+                }
+            }
+        } else if (Types.TIME.equals(typeName)) {
+            synchronized (TimeConstant.TIME_FORMAT) {
+                try {
+                    DateFormat dateFormat = TimeConstant.TIME_FORMAT;
+                    return dateFormat.format(o);
+                } catch (Exception e) {
+                    throw new RuntimeException("Could not parse date time string", e);
+                }
+            }
+        } else {
+            return String.valueOf(o);
+        }
+    }
 }
 

@@ -61,7 +61,7 @@ class ManyValue implements Setter, Getter {
             }
             return builder.toString();
         } else {
-            return String.valueOf(item);
+            return MetadataUtils.toString(item, element.field);
         }
     }
 }

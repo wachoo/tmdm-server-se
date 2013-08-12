@@ -45,7 +45,7 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
         try {
             Class<?> mainInstanceClass = storageClassLoader.findClass(mapping.getDatabase().getName());
             // Try to load existing instance (if any).
-            Wrapper mainInstance;
+            Wrapper mainInstance = null;
             try {
                 Collection<FieldMetadata> keyFields = dataRecord.getType().getKeyFields();
                 if (keyFields.size() == 0) {
@@ -65,13 +65,18 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
                     mainInstance = (Wrapper) session.get(mainInstanceClass, createCompositeId(storageClassLoader, mainInstanceClass, compositeIdValues));
                 }
             } catch (ObjectNotFoundException e) {
-                mainInstance = null;
+                // Ignored (means a new instance is required).
             }
+            boolean needNewInstance = mainInstance == null;
             // Instance does not exist, so create it.
-            if(mainInstance == null) {
+            if(needNewInstance) {
                 mainInstance = (Wrapper) mainInstanceClass.newInstance();
             }
             mapping.setValues(session, dataRecord, mainInstance);
+            if (needNewInstance) {
+                mainInstance.timestamp(System.currentTimeMillis());
+                session.persist(mainInstance);
+            }
             return mainInstance;
         } catch (Exception e) {
             throw new RuntimeException("Exception occurred while creating internal object for type '" + dataRecord.getType().getName() + "'", e);

@@ -36,6 +36,8 @@ public class EmptyDocument implements MutableDocument {
         }
     }
 
+    private String taskId;
+
     private EmptyDocument() {
     }
 
@@ -86,6 +88,11 @@ public class EmptyDocument implements MutableDocument {
         return StringUtils.EMPTY;
     }
 
+    @Override
+    public String getTaskId() {
+        return taskId;
+    }
+
     public MutableDocument create(MutableDocument content) {
         return this;
     }
@@ -112,5 +119,10 @@ public class EmptyDocument implements MutableDocument {
 
     @Override
     public void clean() {
+    }
+
+    @Override
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 }

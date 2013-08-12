@@ -57,4 +57,10 @@ public interface Document {
      * @see com.amalto.core.server.StorageAdmin#STAGING_SUFFIX
      */
     String getDataCluster();
+
+    /**
+     * @return The task id (or "group id") for this record. This is used to indicate the group of records during match
+     * & merge (see staging area).
+     */
+    String getTaskId();
 }

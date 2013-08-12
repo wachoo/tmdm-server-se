@@ -41,6 +41,8 @@ public class DOMDocument implements DOMMutableDocument {
 
     private final String dataCluster;
 
+    private String taskId;
+
     public DOMDocument(org.w3c.dom.Document domDocument, ComplexTypeMetadata type, String revisionId, String dataCluster, String dataModelName) {
         this.type = type;
         this.revisionId = revisionId;
@@ -89,6 +91,11 @@ public class DOMDocument implements DOMMutableDocument {
     @Override
     public void clean() {
         clean(domDocument.getDocumentElement(), EmptyElementCleaner.INSTANCE, false);
+    }
+
+    @Override
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 
     private void clean(Element element, Cleaner cleaner, boolean removeTalendAttributes) {
@@ -189,6 +196,11 @@ public class DOMDocument implements DOMMutableDocument {
     @Override
     public String getDataCluster() {
         return dataCluster;
+    }
+
+    @Override
+    public String getTaskId() {
+        return taskId;
     }
 
     public Accessor createAccessor(String path) {

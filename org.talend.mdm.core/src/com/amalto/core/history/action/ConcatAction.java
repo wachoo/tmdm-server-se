@@ -30,7 +30,7 @@ public class ConcatAction extends FieldUpdateAction {
         return super.getOldValue() + super.getNewValue();
     }
 
-    public static FieldAction wrap(FieldUpdateAction action) {
+    public static FieldAction concat(FieldUpdateAction action) {
         return new ConcatAction(action);
     }
 }

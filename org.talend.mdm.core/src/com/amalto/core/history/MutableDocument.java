@@ -80,5 +80,15 @@ public interface MutableDocument extends Document {
      */
     MutableDocument copy();
 
+    /**
+     * Removes all empty values (MDM never stores empty values). Clean is expected to be a recursive clean (removes all
+     * empty fields and containing field element if all of them are empty).
+     */
     void clean();
+
+    /**
+     * Set the task id (or "group id") for this document.
+     * @param taskId A String task id (usually a UUID).
+     */
+    void setTaskId(String taskId);
 }

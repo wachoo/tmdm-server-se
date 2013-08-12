@@ -88,6 +88,7 @@ public class DefaultCommitter implements SaverSession.Committer {
                     ids.toArray(new String[ids.size()]), // it need to set ids value
                     System.currentTimeMillis(),
                     document.exportToString());
+            item.setTaskId(document.getTaskId());
             item.setDataModelName(document.getDataModel()); // it need to set dataModelName
             item.store(document.getRevision(), putInCache);
         } catch (XtentisException e) {

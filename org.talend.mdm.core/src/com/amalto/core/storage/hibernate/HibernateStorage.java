@@ -591,15 +591,21 @@ public class HibernateStorage implements Storage {
                 o.timestamp(System.currentTimeMillis());
 
                 DataRecordMetadata recordMetadata = currentDataRecord.getRecordMetadata();
-                    o.taskId(recordMetadata.getTaskId());
                 Map<String, String> recordProperties = recordMetadata.getRecordProperties();
+                if (o.taskId() == null) {
+                    o.taskId(recordMetadata.getTaskId());
+                }
                 for (Map.Entry<String, String> currentProperty : recordProperties.entrySet()) {
                     String key = currentProperty.getKey();
                     String value = currentProperty.getValue();
                     ComplexTypeMetadata database = mapping.getDatabase();
-                    if (storageType == StorageType.STAGING) { // Change status automatically in staging when modified
-                        recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.NEW);
-                        o.taskId(null);
+                    if (recordProperties.containsKey(Storage.METADATA_STAGING_STATUS)) {
+                        int currentStatus = Integer.parseInt(recordProperties.get(Storage.METADATA_STAGING_STATUS));
+                        int successStatus = Integer.parseInt(StagingConstants.SUCCESS);
+                        if (storageType == StorageType.STAGING && currentStatus >= successStatus) { // Change status automatically in staging when modified
+                            recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.NEW);
+                            o.taskId(null);
+                        }
                     }
                     if (database.hasField(key)) {
                         Object convertedValue = MetadataUtils.convert(value, database.getField(key));
@@ -612,7 +618,6 @@ public class HibernateStorage implements Storage {
                 if (FLUSH_ON_LOAD && session.getStatistics().getEntityCount() % batchSize == 0) {
                     // Periodically flush objects to avoid using too much memory.
                     session.flush();
-                    session.clear();
                 }
                 session.saveOrUpdate(o);
             }

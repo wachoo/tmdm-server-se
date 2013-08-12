@@ -48,7 +48,8 @@ class SimpleValue implements Setter, Getter {
             }
             return builder.toString();
         } else {
-            return String.valueOf(record.get(element.field));
+            Object o = record.get(element.field);
+            return String.valueOf(MetadataUtils.toString(o, element.field));
         }
     }
 }

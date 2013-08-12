@@ -35,7 +35,9 @@ class Save implements DocumentSaver {
         if (savedId.length == 0) {
             throw new IllegalStateException("No ID information to save instance of '" + typeName + "'");
         }
-        session.save(context.getDataCluster(), context.getDatabaseDocument(), context.hasMetAutoIncrement());
+        MutableDocument databaseDocument = context.getDatabaseDocument();
+        databaseDocument.setTaskId(context.getTaskId());
+        session.save(context.getDataCluster(), databaseDocument, context.hasMetAutoIncrement());
         context.getAutoIncrementFieldMap().clear(); // Removes generated auto_inc in this save.
         // Save update report (if any)
         MutableDocument updateReportDocument = context.getUpdateReportDocument();
@@ -52,7 +54,6 @@ class Save implements DocumentSaver {
         }
 
         Collection<FieldMetadata> keyFields = updateReportType.getKeyFields();
-        List<String> ids = new LinkedList<String>();
         long updateReportTime = 0;
         for (FieldMetadata keyField : keyFields) {
             String keyFieldName = keyField.getName();
@@ -60,7 +61,6 @@ class Save implements DocumentSaver {
             if (!keyAccessor.exist()) {
                 throw new RuntimeException("Unexpected state: update report does not have value for key '" + keyFieldName + "'.");
             }
-            ids.add(keyAccessor.get());
             if ("TimeInMillis".equals(keyFieldName)) { //$NON-NLS-1$
                 updateReportTime = Long.parseLong(keyAccessor.get());
             }

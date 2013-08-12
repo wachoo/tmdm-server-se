@@ -60,8 +60,7 @@ abstract class MetadataRepositoryTask implements Task {
         try {
             run();
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new JobExecutionException(e);
+            throw new RuntimeException(e);
         }
     }
 

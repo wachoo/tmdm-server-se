@@ -11,8 +11,21 @@
 
 package com.amalto.core.storage.task;
 
+import com.amalto.core.query.user.Select;
+import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.SaverSession;
+import com.amalto.core.save.context.DocumentSaver;
+import com.amalto.core.save.context.SaverSource;
+import com.amalto.core.save.context.StorageDocument;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.DataRecordXmlWriter.OverrideValue;
 import com.amalto.core.storage.transaction.Transaction;
+import com.amalto.core.util.User;
+import com.amalto.core.util.UserHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -22,24 +35,16 @@ import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
-import com.amalto.core.query.user.Select;
-import com.amalto.core.save.DocumentSaverContext;
-import com.amalto.core.save.SaverSession;
-import com.amalto.core.save.context.DocumentSaver;
-import com.amalto.core.save.context.SaverSource;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordXmlWriter;
-import com.amalto.core.storage.record.DataRecordXmlWriter.OverrideValue;
-import com.amalto.core.util.User;
-import com.amalto.core.util.UserHelper;
-
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
-import static com.amalto.core.query.user.UserStagingQueryBuilder.*;
+import static com.amalto.core.query.user.UserStagingQueryBuilder.status;
 
 public class MDMValidationTask extends MetadataRepositoryTask {
 
@@ -99,11 +104,13 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                                                 eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)))))).getSelect();
 
         try {
+            storage.begin();
             StorageResults records = storage.fetch(select); // Expects an active transaction here
             try {
                 recordsCount += records.getCount();
             } finally {
                 records.close();
+                storage.commit();
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -126,6 +133,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             super.run();
             destinationStorage.commit();
             storage.commit();
+            transaction.commit();
         } catch (Exception e) {
             storage.rollback();
             transaction.rollback();
@@ -176,6 +184,19 @@ public class MDMValidationTask extends MetadataRepositoryTask {
         }
 
         public void execute(DataRecord stagingRecord, ClosureExecutionStats stats) {
+            StorageDocument document = new StorageDocument(destinationStorage.getName(),
+                    destinationStorage.getMetadataRepository(),
+                    stagingRecord);
+            DocumentSaverContext context = session.getContextFactory().create(destinationStorage.getName(),
+                    destinationStorage.getName(),
+                    "Staging", //$NON-NLS-1$
+                    document,
+                    true,
+                    true,
+                    GENERATE_UPDATE_REPORT,
+                    false,
+                    false);
+            /*
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             try {
                 writer.write(stagingRecord, output);
@@ -191,6 +212,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                     GENERATE_UPDATE_REPORT,
                     false,
                     false);
+                    */
             context.setTaskId(stagingRecord.getRecordMetadata().getTaskId());
             DocumentSaver saver = context.createSaver();
             Map<String, String> recordProperties = stagingRecord.getRecordMetadata().getRecordProperties();

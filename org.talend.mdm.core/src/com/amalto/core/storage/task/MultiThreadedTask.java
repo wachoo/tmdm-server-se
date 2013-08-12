@@ -12,12 +12,9 @@
 package com.amalto.core.storage.task;
 
 import com.amalto.core.query.user.Expression;
-import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.transaction.Transaction;
-import com.amalto.core.storage.transaction.TransactionManager;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 

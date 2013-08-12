@@ -16,10 +16,7 @@ import java.util.*;
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.storage.hibernate.TypeMapping;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.*;
 
 public class DataRecord {
 
@@ -232,4 +229,19 @@ public class DataRecord {
         // TODO Check if type is eligible
         this.type = type;
     }
+
+    public static DataRecord copy(DataRecord record) {
+        DataRecord copy = new DataRecord(record.getType(), record.getRecordMetadata());
+        for (Map.Entry<FieldMetadata, Object> entry : record.fieldToValue.entrySet()) {
+            Object value = record.get(entry.getKey());
+            if (value instanceof DataRecord) {
+                value = DataRecord.copy((DataRecord) value);
+            } else if (value instanceof List) {
+                value = new ArrayList<Object>((Collection<?>) value);
+            }
+            copy.set(entry.getKey(), value);
+        }
+        return copy;
+    }
+
 }

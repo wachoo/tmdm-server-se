@@ -18,7 +18,6 @@ import com.amalto.core.history.action.DateBasedAction;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.history.action.NoOpAction;
 import com.amalto.core.metadata.MetadataUtils;
-import com.amalto.core.query.user.Condition;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.context.StorageDocument;
@@ -43,6 +42,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
 import static com.amalto.core.query.user.UserStagingQueryBuilder.status;
 
 public class MatchMergeTask implements Task {
@@ -103,8 +103,20 @@ public class MatchMergeTask implements Task {
             List<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
             startTime = System.currentTimeMillis();
             for (ComplexTypeMetadata type : types) {
-                if (type.isInstantiable() && processType(type)) {
-                    UserQueryBuilder qb = from(type).where(
+                storage.begin();
+                // TODO Comment
+                UserQueryBuilder qb = from(type);
+                StorageResults countResult = storage.fetch(qb.getSelect());
+                long typeCount;
+                try {
+                    typeCount = countResult.getCount();
+                } finally {
+                    countResult.close();
+                }
+                recordsCount += typeCount;
+                // TODO Comment
+                if (typeCount > 0 && type.isInstantiable() && processType(type)) {
+                    qb = from(type).where(
                             or(
                                     or(
                                             eq(status(), StagingConstants.NEW),
@@ -127,13 +139,11 @@ public class MatchMergeTask implements Task {
                             }
                         }
                         for (Select blockQuery : blockQueries) { // TODO Implement block detection
-                            storage.begin();
-                            StorageResults records = storage.fetch(blockQuery); // Expects an active transaction here
+                            final StorageResults records = storage.fetch(blockQuery); // Expects an active transaction here
                             try {
                                 int count = records.getCount();
-                                recordsCount += count;
                                 typeRecordCount += count;
-                                Iterator<DataRecord> iterator = records.iterator();
+                                final Iterator<DataRecord> iterator = records.iterator();
                                 // Read configuration
                                 for (FieldMetadata matchField : matchFields) {
                                     if (!matchField.getContainingType().equals(type)) {
@@ -178,35 +188,22 @@ public class MatchMergeTask implements Task {
                                     throw new IllegalStateException("Group id cannot be null.");
                                 }
                                 if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.debug("Group id: " + groupId);
+                                    LOGGER.debug("Group id: " + groupId + " (" + record.getRelatedIds().size() + " records)");
                                 }
                                 // Select related records
-                                qb = from(type);
-                                int groupSize = record.getRelatedIds().size();
-                                if (groupSize > 1) { // Adds condition for related records selection.
-                                    Condition condition = null;
-                                    for (String relatedIds : record.getRelatedIds()) {
-                                        Condition currentEquals = eq(type.getKeyFields().iterator().next(), relatedIds);
-                                        if (condition == null) {
-                                            condition = currentEquals;
-                                        } else {
-                                            condition = or(condition, currentEquals);
-                                        }
-                                    }
-                                    qb.where(condition);
-                                } else { // Group of 1
-                                    qb.where(eq(type.getKeyFields().iterator().next(), record.getId()));
-                                }
-                                StorageResults relatedRecords = storage.fetch(qb.getSelect());
-                                int i = 0;
                                 // Build golden record
+                                int i = 0;
+                                // TODO Get merged datarecord (by id too).
                                 DataRecord goldenRecord = null;
-                                for (DataRecord relatedRecord : relatedRecords) {
-                                    if (LOGGER.isDebugEnabled()) {
-                                        LOGGER.debug("Record #" + i);
-                                    }
-                                    // Merge document with current golden record (if group bigger than 1).
-                                    if (groupSize > 1) {
+                                if (record.getRelatedIds().size() > 1) {
+                                    for (String currentId : record.getRelatedIds()) {
+                                        qb = from(type).where(eq(type.getKeyFields().iterator().next(), currentId));
+                                        StorageResults relatedRecordResults = storage.fetch(qb.getSelect());
+                                        DataRecord relatedRecord = relatedRecordResults.iterator().next();
+                                        if (LOGGER.isDebugEnabled()) {
+                                            LOGGER.debug("Record #" + i + " (id: " + relatedRecord.get(relatedRecord.getType().getKeyFields().iterator().next()) + ")");
+                                        }
+                                        // Merge document with current golden record (if group bigger than 1).
                                         if (goldenRecord == null) {
                                             goldenRecord = relatedRecord;
                                             for (Attribute attribute : record.getAttributes()) {
@@ -234,7 +231,7 @@ public class MatchMergeTask implements Task {
                                                         switch (defaultMerge) {
                                                             case CONCAT:
                                                                 if (!field.isMany()) {
-                                                                    ConcatAction.wrap((FieldUpdateAction) action).perform(storageDocument);
+                                                                    ConcatAction.concat((FieldUpdateAction) action).perform(storageDocument);
                                                                 } else {
                                                                     action.perform(storageDocument);
                                                                 }
@@ -260,25 +257,31 @@ public class MatchMergeTask implements Task {
                                                 }
                                             }
                                         }
-                                    } else {
-                                        goldenRecord = relatedRecord; // For group of one, only related record is the golden one.
-                                    }
-                                    // Record status change
-                                    relatedRecord.getRecordMetadata().setTaskId(groupId);
-                                    relatedRecord.getRecordMetadata().getRecordProperties().put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_MERGE_CLUSTERS);
-                                    storage.update(relatedRecord);
-                                    // Logger merged record content
-                                    if (LOGGER.isDebugEnabled()) {
-                                        StringBuilder builder = new StringBuilder();
-                                        for (FieldMetadata field : matchFields) {
-                                            builder.append('\t').append(field.getName()).append('=').append(relatedRecord.get(field)).append(' ');
+                                        // Record status change
+                                        relatedRecord.getRecordMetadata().setTaskId(groupId);
+                                        relatedRecord.getRecordMetadata().getRecordProperties().put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_MERGE_CLUSTERS);
+                                        storage.update(relatedRecord);
+                                        // Logger merged record content
+                                        if (LOGGER.isDebugEnabled()) {
+                                            StringBuilder builder = new StringBuilder();
+                                            for (FieldMetadata field : matchFields) {
+                                                builder.append('\t').append(field.getName()).append('=').append(relatedRecord.get(field)).append(' ');
+                                            }
+                                            LOGGER.debug(builder.toString());
                                         }
-                                        LOGGER.debug(builder.toString());
+                                        i++;
+                                        if (i < record.getRelatedIds().size()) {
+                                            stats.reportSuccess();
+                                        }
                                     }
-                                    i++;
-                                }
-                                if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.debug("-----------------");
+                                    if (LOGGER.isDebugEnabled()) {
+                                        LOGGER.debug("-----------------");
+                                    }
+                                } else {
+                                    // For group of one, only related record is the golden one.
+                                    qb = from(type).where(eq(type.getKeyFields().iterator().next(), record.getId()));
+                                    StorageResults relatedRecordResults = storage.fetch(qb.getSelect());
+                                    goldenRecord = DataRecord.copy(relatedRecordResults.iterator().next());
                                 }
                                 // Mark the merged golden record.
                                 if (goldenRecord != null) {
@@ -287,16 +290,16 @@ public class MatchMergeTask implements Task {
                                     // Type for golden record is expected to have a single key field that can accept UUID values
                                     // (it is an expected error to have failure here in case this isn't true).
                                     FieldMetadata keyField = goldenRecord.getType().getKeyFields().iterator().next();
-                                    goldenRecord.set(keyField, UUID.randomUUID().toString());
+                                    goldenRecord.set(keyField, groupId);
                                     storage.update(goldenRecord); // Golden record will go to master database in MDMValidationTask
                                 } else {
                                     throw new IllegalStateException("Expected a golden record to be built.");
                                 }
                             }
-                            storage.commit();
                         }
                     }
                 }
+                storage.commit();
             }
             endTime = System.currentTimeMillis();
         } finally {

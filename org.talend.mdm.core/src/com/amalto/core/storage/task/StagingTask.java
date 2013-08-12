@@ -64,10 +64,12 @@ public class StagingTask implements Task {
         this.stagingStorage = stagingStorage;
         this.executionId = UUID.randomUUID().toString();
         this.executionType = stagingRepository.getComplexType("TALEND_TASK_EXECUTION"); //$NON-NLS-1$
-        tasks = Arrays.<Task>asList(new MDMValidationTask(stagingStorage, destinationStorage, userRepository, source, committer, stats));
-        // Below: an actual validation chain.
-        /*tasks = Arrays.asList(new MatchMergeTask(stagingStorage, userRepository, stats),
-                new MDMValidationTask(stagingStorage, destinationStorage, userRepository, source, committer, stats));*/
+        if (Boolean.valueOf(System.getProperty("mdm.enable.matchmerge"))) { // TODO Temp property
+            tasks = Arrays.asList(new MatchMergeTask(stagingStorage, userRepository, stats),
+                            new MDMValidationTask(stagingStorage, destinationStorage, userRepository, source, committer, stats));
+        } else {
+            tasks = Arrays.<Task>asList(new MDMValidationTask(stagingStorage, destinationStorage, userRepository, source, committer, stats));
+        }
     }
 
     public String getId() {
@@ -79,7 +81,7 @@ public class StagingTask implements Task {
             if (currentTask != null) {
                 return currentTask.getRecordCount();
             } else {
-                return tasks.get(tasks.size() - 1).getRecordCount();
+                return tasks.get(0).getRecordCount();
             }
         }
     }
