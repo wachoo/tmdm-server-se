@@ -363,6 +363,9 @@ class ScatteredTypeMapping extends TypeMapping {
                     Class[] parameterClasses = new Class[((List) referencedIdValue).size()];
                     int i = 0;
                     for (Object o : (List) referencedIdValue) {
+                        if (o == null) {
+                            throw new IllegalStateException("Id cannot have a null value.");
+                        }
                         parameterClasses[i++] = o.getClass();
                     }
                     Constructor<?> constructor = idClass.getConstructor(parameterClasses);

@@ -63,7 +63,7 @@ public interface Storage {
 
     /**
      * Name of the column where MDM status (validated...) is stored (for STAGING databases only).
-     * @see {@link com.amalto.core.storage.task.StagingConstants}
+     * @see com.amalto.core.storage.task.StagingConstants
      */
     String METADATA_STAGING_STATUS = "x_talend_staging_status"; //$NON-NLS-1$
 
@@ -117,7 +117,7 @@ public interface Storage {
      * @param repository A initialized {@link MetadataRepository} instance.
      * @param dropExistingData if <code>true</code>, storage preparation will drop all data that may previously exist.
      * Use this parameter with caution since recovery is not supported.
-     * @see {@link MetadataRepository#load(java.io.InputStream)}
+     * @see MetadataRepository#load(java.io.InputStream)
      */
     void prepare(MetadataRepository repository, boolean dropExistingData);
 

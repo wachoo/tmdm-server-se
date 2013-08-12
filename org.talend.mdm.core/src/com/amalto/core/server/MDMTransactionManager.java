@@ -15,6 +15,8 @@ import com.amalto.core.storage.transaction.Transaction;
 import com.amalto.core.storage.transaction.TransactionManager;
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -105,7 +107,8 @@ class MDMTransactionManager implements TransactionManager {
     @Override
     public void close() {
         synchronized (activeTransactions) {
-            for (Transaction transaction : activeTransactions.values()) {
+            Collection<Transaction> values = new ArrayList<Transaction>(activeTransactions.values());
+            for (Transaction transaction : values) {
                 transaction.rollback();
             }
         }
