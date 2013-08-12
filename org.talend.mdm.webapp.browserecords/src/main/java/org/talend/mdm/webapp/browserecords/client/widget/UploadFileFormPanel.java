@@ -92,7 +92,6 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         this.setMethod(Method.POST);
         this.setWidth("100%"); //$NON-NLS-1$
         this.setAction("/browserecords/upload"); //$NON-NLS-1$
-
         this.renderForm();
     }
 

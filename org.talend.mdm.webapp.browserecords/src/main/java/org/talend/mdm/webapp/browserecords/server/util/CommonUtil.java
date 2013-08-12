@@ -23,20 +23,35 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
+import org.dom4j.Namespace;
+import org.dom4j.QName;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.client.util.FormatUtil;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
+import org.talend.mdm.webapp.base.server.ForeignKeyHelper;
 import org.talend.mdm.webapp.base.server.util.XmlUtil;
 import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
+import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.util.EntityNotFoundException;
+import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Util;
 
 /**
@@ -201,5 +216,227 @@ public class CommonUtil {
             }
         }
         return messageMap;
+    }
+    
+    public static void dynamicAssembleByResultOrder(ItemBean itemBean, List<String> viewableXpaths, EntityModel entityModel,
+            Map<String, EntityModel> map, String language) throws Exception {
+
+        if (itemBean.getItemXml() != null) {
+            org.dom4j.Document docXml = DocumentHelper.parseText(itemBean.getItemXml());
+            int i = 0;
+            List<?> els = docXml.getRootElement().elements();
+            for (String path : viewableXpaths) {
+                String leafPath = path.substring(path.lastIndexOf('/') + 1);
+                if (leafPath.startsWith("@")) { //$NON-NLS-1$
+                    String[] xsiType = leafPath.substring(leafPath.indexOf("@") + 1).split(":"); //$NON-NLS-1$//$NON-NLS-2$
+                    itemBean.set(
+                            path,
+                            docXml.getRootElement()
+                                    .element(
+                                            new QName(xsiType[1], new Namespace(xsiType[0],
+                                                    "http://www.w3.org/2001/XMLSchema-instance"))).getText()); //$NON-NLS-1$
+                    continue;
+                }
+
+                TypeModel typeModel = entityModel.getMetaDataTypes().get(path);
+                org.dom4j.Element el = (org.dom4j.Element) els.get(i);
+                if (typeModel != null && typeModel.getForeignkey() != null) {
+                    String modelType = el.attributeValue(new QName("type", new Namespace("tmdm", "http://www.talend.com/mdm"))); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+                    itemBean.set(path, path + "-" + el.getText()); //$NON-NLS-1$
+                    itemBean.setForeignkeyDesc(
+                            path + "-" + el.getText(), org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel, el.getText(), false, modelType, map.get(typeModel.getXpath()), language)); //$NON-NLS-1$
+                } else {
+                    itemBean.set(path, el.getText());
+                }
+                i++;
+            }
+        }    
+    }
+    
+    public static Map<String,EntityModel> getForeignKeyEntityMap (EntityModel entityModel,List<String> viewableXpaths,String language) throws Exception {
+        Map<String, EntityModel> foreignKeyEntityMap = null;
+        if (viewableXpaths != null) {
+            foreignKeyEntityMap = new HashMap<String, EntityModel>();
+            for (String xpath : viewableXpaths) {
+                TypeModel typeModel = entityModel.getMetaDataTypes().get(xpath);
+                if (typeModel != null && typeModel.getForeignkey() != null) {
+                    foreignKeyEntityMap.put(xpath, org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getEntityModel(typeModel.getForeignkey().split("/")[0], language)); //$NON-NLS-1$
+                }
+            }
+        }
+        return foreignKeyEntityMap;
+    }
+    
+    public static ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids, boolean isNeedExceptionMessage, String modelType,
+            EntityModel entityModel, String language) throws Exception {
+        String xpathForeignKey = model.getForeignkey();
+        if (xpathForeignKey == null) {
+            return null;
+        }
+        if (ids == null || ids.trim().length() == 0) {
+            return null;
+        }
+
+        ForeignKeyBean bean = new ForeignKeyBean();
+        bean.setId(ids);
+        bean.setForeignKeyPath(model.getXpath());
+        try {
+            if (!model.isRetrieveFKinfos()) {
+                return bean;
+            } else {
+                ItemPOJOPK pk = new ItemPOJOPK();
+                String[] itemId = org.talend.mdm.webapp.base.server.util.CommonUtil.extractFKRefValue(ids, language);
+                pk.setIds(itemId);
+                String conceptName = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
+                // get deriveType's conceptName, otherwise getItem() method will throw exception.
+                if (modelType != null && modelType.trim().length() > 0) {
+                    conceptName = modelType;
+                    bean.setConceptName(conceptName);
+                }
+                pk.setConceptName(conceptName);
+                pk.setDataClusterPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()));
+                ItemPOJO item = com.amalto.core.util.Util.getItemCtrl2Local().getItem(pk);
+
+                if (item != null) {
+                    org.w3c.dom.Document document = item.getProjection().getOwnerDocument();
+                    List<String> foreignKeyInfo = model.getForeignKeyInfo();
+                    String formattedId = ""; // Id formatted using foreign key info //$NON-NLS-1$
+                    for (String foreignKeyPath : foreignKeyInfo) {
+                        NodeList nodes = com.amalto.core.util.Util.getNodeList(document,
+                                StringUtils.substringAfter(foreignKeyPath, "/")); //$NON-NLS-1$
+                        if (nodes.getLength() == 1) {
+                            String value = nodes.item(0).getTextContent();
+                            TypeModel typeModel = entityModel.getTypeModel(foreignKeyPath);
+                            if (typeModel != null) {
+                                if (typeModel.getForeignKeyInfo() != null && typeModel.getForeignKeyInfo().size() > 0
+                                        && !"".equals(value)) { //$NON-NLS-1$
+                                    value = ForeignKeyHelper.getDisplayValue(value, foreignKeyPath, getCurrentDataCluster(),
+                                            entityModel, language);
+                                }
+
+                                if (typeModel.getType().equals(DataTypeConstants.MLS)) {
+                                    value = MultilanguageMessageParser.getValueByLanguage(value, language);
+                                }
+                            }
+                            bean.getForeignKeyInfo().put(foreignKeyPath, value);
+                            if (formattedId.equals("")) { //$NON-NLS-1$
+                                formattedId += value;
+                            } else {
+                                formattedId += "-" + value; //$NON-NLS-1$
+                            }
+                        }
+                    }
+
+                    bean.setDisplayInfo(formattedId);
+                    return bean;
+                } else {
+                    return null;
+                }
+            }
+        } catch (EntityNotFoundException e) {
+            if (!isNeedExceptionMessage) {
+                return null;
+            }
+            // fix bug TMDM-2757
+            bean.set("foreignKeyDeleteMessage", e.getMessage()); //$NON-NLS-1$
+            return bean;
+        }
+    } 
+    
+    public static String getPKInfos(List<String> xPathList) {
+        StringBuilder gettedValue = new StringBuilder();
+        for (String pkInfo : xPathList) {
+            if (pkInfo != null) {
+                if (gettedValue.length() == 0) {
+                    gettedValue.append(pkInfo);
+                } else {
+                    gettedValue.append("-").append(pkInfo); //$NON-NLS-1$
+                }
+            }
+        }
+        return gettedValue.toString();
+    }
+    
+    public static List<String> getPKInfoList(EntityModel entityModel, TypeModel model, String ids, Document document, String language)
+            throws Exception {
+        List<String> xpathPKInfos = model.getPrimaryKeyInfo();
+        List<String> xPathList = new ArrayList<String>();
+        if (xpathPKInfos != null && xpathPKInfos.size() > 0 && ids != null) {
+            for (String pkInfoPath : xpathPKInfos) {
+                if (pkInfoPath != null && pkInfoPath.length() > 0) {
+                    String pkInfo = Util.getFirstTextNode(document, pkInfoPath);
+                    if (pkInfo != null) {
+                        if (entityModel.getTypeModel(pkInfoPath).getType().equals(DataTypeConstants.MLS)) {
+                            String value = MultilanguageMessageParser.getValueByLanguage(pkInfo, language);
+                            if (value != null) {
+                                xPathList.add(value);
+                            }
+                        } else {
+                            xPathList.add(pkInfo);
+                        }
+                    }
+                }
+            }
+        } else {
+            xPathList.add(model.getLabel(language));
+        }
+        return xPathList;
+    }
+    
+    public static void migrationMultiLingualFieldValue(ItemBean itemBean, TypeModel typeModel, Node node, String path,
+            boolean isMultiOccurence, ItemNodeModel nodeModel) {
+        String value = node.getTextContent();
+        if (typeModel != null && typeModel.getType().equals(DataTypeConstants.MLS)
+                && BrowseRecordsConfiguration.dataMigrationMultiLingualFieldAuto()) {
+            if (value != null && value.trim().length() > 0) {
+                if (!MultilanguageMessageParser.isExistMultiLanguageFormat(value)) {
+                    String defaultLanguage = com.amalto.core.util.Util.getDefaultSystemLocale();
+                    String newValue = MultilanguageMessageParser.getFormatValueByDefaultLanguage(value,
+                            defaultLanguage != null ? defaultLanguage : "en");//$NON-NLS-1$
+                    if (nodeModel == null) {
+                        if (isMultiOccurence) {
+                            node.setTextContent(newValue);
+                        } else {
+                            itemBean.set(path, newValue);
+                        }
+                    } else {
+                        nodeModel.setObjectValue(newValue);
+                    }
+                } else if (nodeModel != null) {
+                    nodeModel.setObjectValue(FormatUtil.multiLanguageEncode(value));
+                }
+            }
+        }
+    }
+    
+    public static Document parseResultDocument(String result, String expectedRootElement) throws Exception {
+        Document doc = Util.parse(result);
+        Element rootElement = doc.getDocumentElement();
+        if (!rootElement.getNodeName().equals(expectedRootElement)) {
+            // When there is a null value in fields, the viewable fields sequence is not enclosed by expected element
+            // FIXME Better to find out a solution at the underlying stage
+            doc.removeChild(rootElement);
+            Element resultElement = doc.createElement(expectedRootElement);
+            resultElement.appendChild(rootElement);
+        }
+        return doc;
+    }
+    
+    public static EntityModel getEntityModel(String concept, String language) throws Exception {
+        // bind entity model
+        String model = getCurrentDataModel();
+        EntityModel entityModel = new EntityModel();
+        DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
+        return entityModel;
+    }
+    
+    public static String getCurrentDataCluster() throws Exception {
+        Configuration config = Configuration.getConfiguration();
+        return config.getCluster();
+    }
+    
+    public static String getCurrentDataModel() throws Exception {
+        Configuration config = Configuration.getConfiguration();
+        return config.getModel();
     }
 }

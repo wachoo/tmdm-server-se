@@ -121,6 +121,6 @@ public class BrowseRecordsInStagingAction extends BrowseRecordsAction implements
         viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_STATUS);
         viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_ERROR);
         viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_SOURCE);
-        super.dynamicAssembleByResultOrder(itemBean, viewableXpaths, entityModel, map, language);
+        org.talend.mdm.webapp.browserecords.server.util.CommonUtil.dynamicAssembleByResultOrder(itemBean, viewableXpaths, entityModel, map, language);
     }
 }

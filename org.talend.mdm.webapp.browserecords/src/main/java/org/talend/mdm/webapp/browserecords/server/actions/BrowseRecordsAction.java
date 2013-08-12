@@ -42,7 +42,6 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Namespace;
@@ -56,7 +55,6 @@ import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
-import org.talend.mdm.webapp.base.client.util.FormatUtil;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.ForeignKeyHelper;
@@ -100,7 +98,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
@@ -110,7 +107,6 @@ import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
-import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.DataModelAccessor;
 import com.amalto.webapp.core.util.Util;
@@ -314,122 +310,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    private List<String> getPKInfoList(EntityModel entityModel, TypeModel model, String ids, Document document, String language)
-            throws Exception {
-        List<String> xpathPKInfos = model.getPrimaryKeyInfo();
-        List<String> xPathList = new ArrayList<String>();
-        if (xpathPKInfos != null && xpathPKInfos.size() > 0 && ids != null) {
-            for (String pkInfoPath : xpathPKInfos) {
-                if (pkInfoPath != null && pkInfoPath.length() > 0) {
-                    String pkInfo = Util.getFirstTextNode(document, pkInfoPath);
-                    if (pkInfo != null) {
-                        if (entityModel.getTypeModel(pkInfoPath).getType().equals(DataTypeConstants.MLS)) {
-                            String value = MultilanguageMessageParser.getValueByLanguage(pkInfo, language);
-                            if (value != null) {
-                                xPathList.add(value);
-                            }
-                        } else {
-                            xPathList.add(pkInfo);
-                        }
-                    }
-                }
-            }
-        } else {
-            xPathList.add(model.getLabel(language));
-        }
-        return xPathList;
-    }
-
-    private String getPKInfos(List<String> xPathList) {
-        StringBuilder gettedValue = new StringBuilder();
-        for (String pkInfo : xPathList) {
-            if (pkInfo != null) {
-                if (gettedValue.length() == 0) {
-                    gettedValue.append(pkInfo);
-                } else {
-                    gettedValue.append("-").append(pkInfo); //$NON-NLS-1$
-                }
-            }
-        }
-        return gettedValue.toString();
-    }
-
-    private ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids, boolean isNeedExceptionMessage, String modelType,
-            EntityModel entityModel, String language) throws Exception {
-        String xpathForeignKey = model.getForeignkey();
-        if (xpathForeignKey == null) {
-            return null;
-        }
-        if (ids == null || ids.trim().length() == 0) {
-            return null;
-        }
-
-        ForeignKeyBean bean = new ForeignKeyBean();
-        bean.setId(ids);
-        bean.setForeignKeyPath(model.getXpath());
-        try {
-            if (!model.isRetrieveFKinfos()) {
-                return bean;
-            } else {
-                ItemPOJOPK pk = new ItemPOJOPK();
-                String[] itemId = CommonUtil.extractFKRefValue(ids, language);
-                pk.setIds(itemId);
-                String conceptName = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
-                // get deriveType's conceptName, otherwise getItem() method will throw exception.
-                if (modelType != null && modelType.trim().length() > 0) {
-                    conceptName = modelType;
-                    bean.setConceptName(conceptName);
-                }
-                pk.setConceptName(conceptName);
-                pk.setDataClusterPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()));
-                ItemPOJO item = com.amalto.core.util.Util.getItemCtrl2Local().getItem(pk);
-
-                if (item != null) {
-                    org.w3c.dom.Document document = item.getProjection().getOwnerDocument();
-                    List<String> foreignKeyInfo = model.getForeignKeyInfo();
-                    String formattedId = ""; // Id formatted using foreign key info //$NON-NLS-1$
-                    for (String foreignKeyPath : foreignKeyInfo) {
-                        NodeList nodes = com.amalto.core.util.Util.getNodeList(document,
-                                StringUtils.substringAfter(foreignKeyPath, "/")); //$NON-NLS-1$
-                        if (nodes.getLength() == 1) {
-                            String value = nodes.item(0).getTextContent();
-                            TypeModel typeModel = entityModel.getTypeModel(foreignKeyPath);
-                            if (typeModel != null) {
-                                if (typeModel.getForeignKeyInfo() != null && typeModel.getForeignKeyInfo().size() > 0
-                                        && !"".equals(value)) { //$NON-NLS-1$
-                                    value = ForeignKeyHelper.getDisplayValue(value, foreignKeyPath, getCurrentDataCluster(),
-                                            entityModel, language);
-                                }
-
-                                if (typeModel.getType().equals(DataTypeConstants.MLS)) {
-                                    value = MultilanguageMessageParser.getValueByLanguage(value, language);
-                                }
-                            }
-                            bean.getForeignKeyInfo().put(foreignKeyPath, value);
-                            if (formattedId.equals("")) { //$NON-NLS-1$
-                                formattedId += value;
-                            } else {
-                                formattedId += "-" + value; //$NON-NLS-1$
-                            }
-                        }
-                    }
-
-                    bean.setDisplayInfo(formattedId);
-                    return bean;
-                } else {
-                    return null;
-                }
-            }
-        } catch (EntityNotFoundException e) {
-            if (!isNeedExceptionMessage) {
-                return null;
-            }
-            // fix bug TMDM-2757
-            bean.set("foreignKeyDeleteMessage", e.getMessage()); //$NON-NLS-1$
-            return bean;
-        }
-    }
-
     @Override
     public List<Restriction> getForeignKeyPolymTypeList(String xpathForeignKey, String language) throws ServiceException {
         try {
@@ -615,10 +495,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 TypeModel typeModel = types.get(path);
                 // set pkinfo and description on entity
                 if (path.equals(itemBean.getConcept())) {
-                    List<String> pkInfoList = getPKInfoList(entityModel, typeModel, itemBean.getIds(), docXml, language);
+                    List<String> pkInfoList = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getPKInfoList(entityModel, typeModel, itemBean.getIds(), docXml, language);
                     itemBean.setPkInfoList(pkInfoList);
                     itemBean.setLabel(typeModel.getLabel(language));
-                    itemBean.setDisplayPKInfo(getPKInfos(pkInfoList));
+                    itemBean.setDisplayPKInfo(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getPKInfos(pkInfoList));
                     itemBean.setDescription(typeModel.getDescriptionMap().get(language));
                 }
 
@@ -635,7 +515,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 for (int t = 0; t < nodes.getLength(); t++) {
                                     if (nodes.item(t) instanceof Element) {
                                         Node node = nodes.item(t);
-                                        migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
+                                        org.talend.mdm.webapp.browserecords.server.util.CommonUtil.migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
                                         list.add(node.getTextContent());
                                     }
 
@@ -647,11 +527,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                     String modelType = value.getAttribute("tmdm:type"); //$NON-NLS-1$
                                     itemBean.set(path, path + "-" + value.getTextContent()); //$NON-NLS-1$
                                     itemBean.setForeignkeyDesc(
-                                            path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent(), false, modelType, getEntityModel(typeModel.getForeignkey().split("/")[0], language), language)); //$NON-NLS-1$ //$NON-NLS-2$    
+                                            path + "-" + value.getTextContent(),org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel, value.getTextContent(), false, modelType, getEntityModel(typeModel.getForeignkey().split("/")[0], language), language)); //$NON-NLS-1$ //$NON-NLS-2$    
 
                                 } else {
                                     itemBean.set(path, value.getTextContent());
-                                    migrationMultiLingualFieldValue(itemBean, typeModel, value, path, false, null);
+                                    org.talend.mdm.webapp.browserecords.server.util.CommonUtil.migrationMultiLingualFieldValue(itemBean, typeModel, value, path, false, null);
                                 }
                             }
                         }
@@ -665,72 +545,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel,
             Map<String, EntityModel> map, String language) throws Exception {
-        dynamicAssembleByResultOrder(itemBean, viewBean.getViewableXpaths(), entityModel, map, language);
+        org.talend.mdm.webapp.browserecords.server.util.CommonUtil.dynamicAssembleByResultOrder(itemBean, viewBean.getViewableXpaths(), entityModel, map, language);
     }
     
-    protected void dynamicAssembleByResultOrder(ItemBean itemBean, List<String> ViewableXpaths, EntityModel entityModel,
-            Map<String, EntityModel> map, String language) throws Exception {
-
-        if (itemBean.getItemXml() != null) {
-            org.dom4j.Document docXml = DocumentHelper.parseText(itemBean.getItemXml());
-            int i = 0;
-            List<?> els = docXml.getRootElement().elements();
-            for (String path : ViewableXpaths) {
-                String leafPath = path.substring(path.lastIndexOf('/') + 1);
-                if (leafPath.startsWith("@")) { //$NON-NLS-1$
-                    String[] xsiType = leafPath.substring(leafPath.indexOf("@") + 1).split(":"); //$NON-NLS-1$//$NON-NLS-2$
-                    itemBean.set(
-                            path,
-                            docXml.getRootElement()
-                                    .element(
-                                            new QName(xsiType[1], new Namespace(xsiType[0],
-                                                    "http://www.w3.org/2001/XMLSchema-instance"))).getText()); //$NON-NLS-1$
-                    continue;
-                }
-
-                TypeModel typeModel = entityModel.getMetaDataTypes().get(path);
-                org.dom4j.Element el = (org.dom4j.Element) els.get(i);
-                if (typeModel != null && typeModel.getForeignkey() != null) {
-                    String modelType = el.attributeValue(new QName("type", new Namespace("tmdm", "http://www.talend.com/mdm"))); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
-                    itemBean.set(path, path + "-" + el.getText()); //$NON-NLS-1$
-                    itemBean.setForeignkeyDesc(
-                            path + "-" + el.getText(), getForeignKeyDesc(typeModel, el.getText(), false, modelType, map.get(typeModel.getXpath()), language)); //$NON-NLS-1$
-                } else {
-                    itemBean.set(path, el.getText());
-                }
-                i++;
-            }
-        }
-    
-    }
-
-    private void migrationMultiLingualFieldValue(ItemBean itemBean, TypeModel typeModel, Node node, String path,
-            boolean isMultiOccurence, ItemNodeModel nodeModel) {
-        String value = node.getTextContent();
-        if (typeModel != null && typeModel.getType().equals(DataTypeConstants.MLS)
-                && BrowseRecordsConfiguration.dataMigrationMultiLingualFieldAuto()) {
-            if (value != null && value.trim().length() > 0) {
-                if (!MultilanguageMessageParser.isExistMultiLanguageFormat(value)) {
-                    String defaultLanguage = com.amalto.core.util.Util.getDefaultSystemLocale();
-                    String newValue = MultilanguageMessageParser.getFormatValueByDefaultLanguage(value,
-                            defaultLanguage != null ? defaultLanguage : "en");//$NON-NLS-1$
-                    if (nodeModel == null) {
-                        if (isMultiOccurence) {
-                            node.setTextContent(newValue);
-                        } else {
-                            itemBean.set(path, newValue);
-                        }
-                    } else {
-                        nodeModel.setObjectValue(newValue);
-                    }
-                } else if (nodeModel != null) {
-                    nodeModel.setObjectValue(FormatUtil.multiLanguageEncode(value));
-                }
-
-            }
-        }
-    }
-
     @Override
     public EntityModel getEntityModel(String concept, String language) throws ServiceException {
         try {
@@ -1507,8 +1324,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     @Override
     public String getCurrentDataModel() throws ServiceException {
         try {
-            Configuration config = Configuration.getConfiguration();
-            return config.getModel();
+            return org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getCurrentDataModel();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -1518,8 +1334,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     @Override
     public String getCurrentDataCluster() throws ServiceException {
         try {
-            Configuration config = Configuration.getConfiguration();
-            return config.getCluster();
+            return org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getCurrentDataCluster();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -1751,7 +1566,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (modelType != null && modelType.trim().length() > 0) {
                 nodeModel.setTypeName(modelType);
             }
-            ForeignKeyBean fkBean = getForeignKeyDesc(model, el.getTextContent(), true, modelType,
+            ForeignKeyBean fkBean = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(model, el.getTextContent(), true, modelType,
                     getEntityModel(foreignKey.split("/")[0], language), language); //$NON-NLS-1$
             if (fkBean != null) {
                 String fkNotFoundMessage = fkBean.get("foreignKeyDeleteMessage"); //$NON-NLS-1$
@@ -1765,7 +1580,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
         } else if (model.isSimpleType()) {
             nodeModel.setObjectValue(el.getTextContent());
-            migrationMultiLingualFieldValue(null, model, el, typePath, false, nodeModel);
+            org.talend.mdm.webapp.browserecords.server.util.CommonUtil.migrationMultiLingualFieldValue(null, model, el, typePath, false, nodeModel);
         }
         if (isCreate && model.getDefaultValueExpression() != null && model.getDefaultValueExpression().trim().length() > 0) {
             nodeModel.setChangeValue(true);
