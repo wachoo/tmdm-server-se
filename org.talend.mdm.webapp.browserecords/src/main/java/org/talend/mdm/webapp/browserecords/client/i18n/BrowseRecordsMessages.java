@@ -442,4 +442,6 @@ public interface BrowseRecordsMessages extends Messages {
     String export_error();
     
     String error_missing_xmlcontent_column();
+    
+    String includeXmlContent_field_label();
 }

@@ -49,7 +49,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
  * DOC Administrator class global comment. Detailled comment
  */
 public class DownloadFilePanel extends FormPanel {
-    
+
     private TextField<String> fileName;
 
     private CheckBox includeXmlContent;
@@ -75,11 +75,11 @@ public class DownloadFilePanel extends FormPanel {
         fileName.setAllowBlank(false);
         fileName.setValue(viewBean.getBindingEntityModel().getConceptName());
         this.add(fileName, new FormData("90%")); //$NON-NLS-1$
-        
+
         includeXmlContent = new CheckBox();
-        includeXmlContent.setFieldLabel("IncludeXmlContent"); //$NON-NLS-1$
+        includeXmlContent.setFieldLabel(MessagesFactory.getMessages().includeXmlContent_field_label());
         includeXmlContent.setLabelStyle("windth:90px"); //$NON-NLS-1$
-        this.add(includeXmlContent,new FormData("90%")); //$NON-NLS-1$
+        this.add(includeXmlContent, new FormData("90%")); //$NON-NLS-1$
 
         exportBtn = new Button(MessagesFactory.getMessages().export_btn());
         exportBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -94,7 +94,8 @@ public class DownloadFilePanel extends FormPanel {
                     Map<String, String> param = buildExportParameter();
                     PostDataUtil.postData("/browserecords/download", param); //$NON-NLS-1$
                 } catch (Exception e) {
-                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().export_error(), null);
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().export_error(),
+                            null);
                 }
                 DownloadFilePanel.this.window.hide();
             }
@@ -103,9 +104,9 @@ public class DownloadFilePanel extends FormPanel {
     }
 
     private Map<String, String> buildExportParameter() {
-        
+
         Grid<ItemBean> grid = ItemsListPanel.getInstance().getGrid();
-        
+
         List<String> selectItemXmlList = new ArrayList<String>();
         if (grid != null) {
             List<ItemBean> selectItemList = grid.getSelectionModel().getSelectedItems();
@@ -132,15 +133,17 @@ public class DownloadFilePanel extends FormPanel {
         List<String> viewableXpathList = viewBean.getViewableXpaths();
         for (String viewableXpath : viewableXpathList) {
             TypeModel typeModel = dataTypes.get(viewableXpath);
-            headerList.add(typeModel == null ? viewableXpath : ViewUtil.getViewableLabel(Locale.getLanguage(),typeModel));
+            headerList.add(typeModel == null ? viewableXpath : ViewUtil.getViewableLabel(Locale.getLanguage(), typeModel));
         }
-        param.put("header", org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(headerList, Constants.FILE_EXPORT_IMPORT_SEPARATOR));  //$NON-NLS-1$
-        param.put("viewableXpath", org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(viewableXpathList, Constants.FILE_EXPORT_IMPORT_SEPARATOR));  //$NON-NLS-1$
+        param.put(
+                "header", org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(headerList, Constants.FILE_EXPORT_IMPORT_SEPARATOR)); //$NON-NLS-1$
+        param.put(
+                "viewableXpath", org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(viewableXpathList, Constants.FILE_EXPORT_IMPORT_SEPARATOR)); //$NON-NLS-1$
         if (selectItemXmlList.size() > 0) {
             selectItemXmlList.add(0, ""); //$NON-NLS-1$
-            param.put("itemXmlString",CommonUtil.convertListToString(selectItemXmlList, Constants.FILE_EXPORT_IMPORT_SEPARATOR));  //$NON-NLS-1$
+            param.put("itemXmlString", CommonUtil.convertListToString(selectItemXmlList, Constants.FILE_EXPORT_IMPORT_SEPARATOR)); //$NON-NLS-1$
         } else {
-            param.put("itemXmlString","");  //$NON-NLS-1$//$NON-NLS-2$
+            param.put("itemXmlString", ""); //$NON-NLS-1$//$NON-NLS-2$
         }
 
         RecordsPagingConfig pagingLoad = queryModel.getPagingLoadConfig();
