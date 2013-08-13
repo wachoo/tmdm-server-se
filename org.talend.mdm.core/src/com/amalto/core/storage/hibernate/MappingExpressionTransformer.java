@@ -84,6 +84,9 @@ public class MappingExpressionTransformer extends VisitorAdapter<Expression> {
         if (select.getPaging() != null) {
             select.getPaging().accept(this);
         }
+        if (select.forUpdate()) {
+            builder.forUpdate();
+        }
         return builder.getExpression();
     }
 

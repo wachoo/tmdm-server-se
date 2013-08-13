@@ -46,6 +46,7 @@ interface MatchMergeConfiguration {
 
     /**
      * @return The default merge strategy to apply for fields outside match & merge configuration.
+     * @param field The field for which the default merge applies (default merge may depend on the field's type).
      */
-    MergeAlgorithm getDefaultMergeAlgorithm();
+    MergeAlgorithm getDefaultMergeAlgorithm(FieldMetadata field);
 }

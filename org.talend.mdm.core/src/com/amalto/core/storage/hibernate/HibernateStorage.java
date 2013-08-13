@@ -602,10 +602,10 @@ public class HibernateStorage implements Storage {
                     if (recordProperties.containsKey(Storage.METADATA_STAGING_STATUS)) {
                         int currentStatus = Integer.parseInt(recordProperties.get(Storage.METADATA_STAGING_STATUS));
                         int successStatus = Integer.parseInt(StagingConstants.SUCCESS);
-                        if (storageType == StorageType.STAGING && currentStatus >= successStatus) { // Change status automatically in staging when modified
+                        /*if (storageType == StorageType.STAGING && currentStatus >= successStatus) { // Change status automatically in staging when modified
                             recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.NEW);
                             o.taskId(null);
-                        }
+                        }*/
                     }
                     if (database.hasField(key)) {
                         Object convertedValue = MetadataUtils.convert(value, database.getField(key));

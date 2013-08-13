@@ -13,10 +13,7 @@ package com.amalto.core.storage.task;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.FieldAction;
-import com.amalto.core.history.action.ConcatAction;
-import com.amalto.core.history.action.DateBasedAction;
-import com.amalto.core.history.action.FieldUpdateAction;
-import com.amalto.core.history.action.NoOpAction;
+import com.amalto.core.history.action.*;
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -193,11 +190,10 @@ public class MatchMergeTask implements Task {
                                 // Select related records
                                 // Build golden record
                                 int i = 0;
-                                // TODO Get merged datarecord (by id too).
                                 DataRecord goldenRecord = null;
                                 if (record.getRelatedIds().size() > 1) {
                                     for (String currentId : record.getRelatedIds()) {
-                                        qb = from(type).where(eq(type.getKeyFields().iterator().next(), currentId));
+                                        qb = from(type).where(eq(type.getKeyFields().iterator().next(), currentId)).forUpdate();
                                         StorageResults relatedRecordResults = storage.fetch(qb.getSelect());
                                         DataRecord relatedRecord = relatedRecordResults.iterator().next();
                                         if (LOGGER.isDebugEnabled()) {
@@ -205,7 +201,7 @@ public class MatchMergeTask implements Task {
                                         }
                                         // Merge document with current golden record (if group bigger than 1).
                                         if (goldenRecord == null) {
-                                            goldenRecord = relatedRecord;
+                                            goldenRecord = DataRecord.copy(relatedRecord);
                                             for (Attribute attribute : record.getAttributes()) {
                                                 FieldMetadata field = goldenRecord.getType().getField(attribute.getLabel());
                                                 goldenRecord.set(field, MetadataUtils.convert(attribute.getValue(), field));
@@ -227,7 +223,7 @@ public class MatchMergeTask implements Task {
                                                     FieldAction fieldAction = (FieldAction) action;
                                                     FieldMetadata field = fieldAction.getField();
                                                     if (!matchFields.contains(field)) { // Skip actions performed on the merge fields
-                                                        MergeAlgorithm defaultMerge = configuration.getDefaultMergeAlgorithm();
+                                                        MergeAlgorithm defaultMerge = configuration.getDefaultMergeAlgorithm(field);
                                                         switch (defaultMerge) {
                                                             case CONCAT:
                                                                 if (!field.isMany()) {
@@ -242,11 +238,19 @@ public class MatchMergeTask implements Task {
                                                                 break;
                                                             case MOST_COMMON:
                                                                 throw new NotImplementedException("Not (yet) supported merge: " + defaultMerge);
-                                                            case UNIFY:
                                                             case MAX:
+                                                                NumberActions.max((FieldUpdateAction) action).perform(storageDocument);
+                                                                break;
                                                             case MIN:
+                                                                NumberActions.min((FieldUpdateAction) action).perform(storageDocument);
+                                                                break;
                                                             case MEAN:
+                                                                NumberActions.mean((FieldUpdateAction) action).perform(storageDocument);
+                                                                break;
                                                             case SUM:
+                                                                NumberActions.sum((FieldUpdateAction) action).perform(storageDocument);
+                                                                break;
+                                                            case UNIFY:
                                                             case OLDEST_DATE:
                                                             case REPEATED_VALUES:
                                                                 throw new NotImplementedException("Not supported default merge: " + defaultMerge);

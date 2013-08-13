@@ -383,7 +383,11 @@ public class MetadataUtils {
             }
             return Boolean.parseBoolean(dataAsString);
         } else if (Types.DECIMAL.equals(type)) {
-            return new BigDecimal(dataAsString);
+            try {
+                return new BigDecimal(dataAsString);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("'" + dataAsString + "' is not a number.", e);
+            }
         } else if (Types.FLOAT.equals(type)) {
             return Float.parseFloat(dataAsString);
         } else if (Types.LONG.equals(type) || Types.UNSIGNED_LONG.equals(type)) {

@@ -55,10 +55,8 @@ class ScrollableIterator implements CloseableIterator<DataRecord> {
         try {
             if(isFirstHasNextCall) {
                 hasNext = results.first();
-                isFirstHasNextCall = false;
                 allowNextCall = false;
             } else {
-                allowNextCall = true;
                 hasNext = !results.isLast();
             }
             if (!hasNext) {
@@ -81,6 +79,9 @@ class ScrollableIterator implements CloseableIterator<DataRecord> {
                 if (!hasNext) {
                     throw new NoSuchElementException("No more results for iterator."); // Required by next() API
                 }
+            } else {
+                isFirstHasNextCall = false;
+                allowNextCall = true;
             }
             next = results.get()[0];
         } catch (Exception e) {

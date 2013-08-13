@@ -146,6 +146,7 @@ public class Select implements Expression {
         }
         copy.getPaging().setLimit(this.paging.getLimit());
         copy.getPaging().setStart(this.paging.getStart());
+        copy.setForUpdate(forUpdate);
         return copy;
     }
 

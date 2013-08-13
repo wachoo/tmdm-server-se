@@ -88,7 +88,12 @@ class DefaultMatchMergeConfiguration implements MatchMergeConfiguration {
     }
 
     @Override
-    public MergeAlgorithm getDefaultMergeAlgorithm() {
-        return MergeAlgorithm.CONCAT;
+    public MergeAlgorithm getDefaultMergeAlgorithm(FieldMetadata field) {
+        TypeMetadata fieldType = MetadataUtils.getSuperConcreteType(field.getType());
+        if (Types.STRING.equals(fieldType.getName())) {
+            return MergeAlgorithm.CONCAT;
+        } else {
+            return MergeAlgorithm.MAX;
+        }
     }
 }
