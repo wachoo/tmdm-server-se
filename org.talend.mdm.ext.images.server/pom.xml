@@ -43,7 +43,7 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <includeArtifactIds>ssim</includeArtifactIds>
+                            <includeArtifactIds>ssim,commons-fileupload,commons-io,commons-lang,commons-jxpath,xsom,org.talend.mdm.commmon,org.talend.mdm.core,org.talend.mdm.xmlserver.interfaces,org.talend.mdm.commons.core</includeArtifactIds>
                             <outputDirectory>${project.build.directory}/war/WEB-INF/lib</outputDirectory>
                         </configuration>
                     </execution>
@@ -60,9 +60,9 @@
                     <warSourceDirectory>${basedir}/web</warSourceDirectory>
                     <webXml>${basedir}/web/WEB-INF/web.xml</webXml>
                     <!-- WAR is packaged outside EAR, so include our external dependencies -->
-                    <packagingExcludes>%regex[WEB-INF/lib/(?!ssim).*.jar]</packagingExcludes>
+                    <packagingExcludes>%regex[WEB-INF/lib/(?!ssim|commons-fileupload|commons-io|commons-lang|commons-jxpath|xsom|org.talend.mdm.commmon|org.talend.mdm.xmlserver.interfaces|org.talend.mdm.commons.core|org.talend.mdm.core).*.jar]</packagingExcludes>
                 </configuration>
-            </plugin>
+            </plugin>            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -99,8 +99,22 @@
             <artifactId>commons-fileupload</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <scope>runtime</scope>
+        </dependency>        
+        <dependency>        
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-jxpath</groupId>
+            <artifactId>commons-jxpath</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xsom</groupId>
+            <artifactId>xsom</artifactId>
         </dependency>
         <dependency>
             <groupId>jboss</groupId>
@@ -117,9 +131,24 @@
         <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.core</artifactId>
-            <classifier>ejbs</classifier>
+            <artifactId>org.talend.mdm.commmon</artifactId>
+            <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.core</artifactId>
+            <classifier>lib</classifier>
+        </dependency>        
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.xmlserver.interfaces</artifactId>
+            <scope>runtime</scope>
+        </dependency>        
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.commons.core</artifactId>
+            <scope>runtime</scope>
+        </dependency>          
     </dependencies>
 
 </project>

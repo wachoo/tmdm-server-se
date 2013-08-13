@@ -52,6 +52,7 @@ import java.util.zip.ZipInputStream;
 
 import javax.ejb.CreateException;
 import javax.ejb.EJBException;
+import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -115,6 +116,10 @@ import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.ejb.local.TransformerCtrlLocalHome;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
+import com.amalto.core.ejb.remote.ItemCtrl2;
+import com.amalto.core.ejb.remote.ItemCtrl2Home;
+import com.amalto.core.ejb.remote.XmlServerSLWrapper;
+import com.amalto.core.ejb.remote.XmlServerSLWrapperHome;
 import com.amalto.core.jobox.JobContainer;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocal;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocalHome;
@@ -1232,6 +1237,17 @@ public class Util {
         return getItemCtrl2LocalHome().create();
     }
 
+    public static ItemCtrl2 getItemCtrl2Home(String host, String jndiPort) throws NamingException, CreateException, XtentisException {
+        ItemCtrl2 itemContrl2;
+        try {
+            itemContrl2 = ((ItemCtrl2Home) getHome(host, jndiPort, com.amalto.core.ejb.remote.ItemCtrl2Home.JNDI_NAME)).create();
+        } catch (Exception e) {
+            String err = "Error : unable to access the ItemContrl2Home : " + e.getLocalizedMessage();
+            throw new XtentisException(err, e);
+        }
+        return itemContrl2;
+    }
+    
     public static DroppedItemCtrlLocalHome getDroppedItemCtrlLocalHome() throws NamingException {
         return (DroppedItemCtrlLocalHome) getLocalHome(DroppedItemCtrlLocalHome.JNDI_NAME);
     }
@@ -1256,6 +1272,26 @@ public class Util {
             throw new XtentisException(err, e);
         }
     }
+
+    public static EJBHome getHome(String host, String port, String jndi) throws NamingException {
+        Properties props = new Properties();
+        props.setProperty("java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory"); //$NON-NLS-1$ //$NON-NLS-2$
+        props.setProperty("java.naming.provider.url", "jnp://" + host + ":" + port); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        props.setProperty("java.naming.factory.url.pkgs", "org.jboss.naming"); //$NON-NLS-1$ //$NON-NLS-2$
+        InitialContext initialContext = new InitialContext(props);
+        return (EJBHome) initialContext.lookup(jndi);
+    }
+    
+    public static XmlServerSLWrapper getXmlServerCtrlHome(String host, String jndiPort) throws XtentisException {
+        XmlServerSLWrapper server;
+        try {
+            server = ((XmlServerSLWrapperHome) getHome(host, jndiPort, XmlServerSLWrapperHome.JNDI_NAME)).create();
+        } catch (Exception e) {
+            String err = "Error : unable to access the XML Server wrapper: " + e.getLocalizedMessage();
+            throw new XtentisException(err, e);
+        }
+        return server;
+    }    
 
     public static DataClusterCtrlLocalHome getDataClusterCtrlLocalHome() throws NamingException {
         return (DataClusterCtrlLocalHome) getLocalHome(DataClusterCtrlLocalHome.JNDI_NAME);

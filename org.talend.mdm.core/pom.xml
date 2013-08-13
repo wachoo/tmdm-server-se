@@ -17,6 +17,7 @@
         <war>zz.30.core</war>
         <ejbs>zz.20.core</ejbs>
         <lib>z.mdm.core</lib>
+        <bonita-client>z.mdm.core.bonita</bonita-client>
         <service>org.talend.mdm.jullog4jservice</service>
         <jaas>org.talend.mdm.jaas</jaas>
         <version.properties>product_version.properties</version.properties>
@@ -36,6 +37,7 @@
                     <include>**/**.txt</include>
                     <include>**/initdb/data/**</include>
                     <include>**/util/phonet-utf8.*</include>
+                    <include>**/util/*.properties</include>                                
                 </includes>
             </resource>
         </resources>
@@ -89,6 +91,33 @@
                             <includes>
                                 <include>**/util/*.class</include>
                                 <include>**/*POJO*.class</include>
+                                <include>**/SchemaCoreAgent.class</include>
+                                <include>**/remote/*.class</include>
+                                <include>**/server/*.class</include>
+                                <include>${version.properties}</include>
+                            </includes>
+                            <excludes>
+                                <exclude>com/amalto/core/util/LoginModuleDelegator.class</exclude>
+                            </excludes>
+                        </configuration>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jar-bonita-client</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <classifier>bonita-client</classifier>
+                            <includes>
+                                <include>**/util/*.class</include>
+                                <include>**/util/*.properties</include>
+                                <include>**/*POJO*.class</include>
+                                <include>**/SchemaCoreAgent.class</include>
+                                <include>**/remote/*.class</include>
+                                <include>**/server/*.class</include>
+                                <include>**/integrity/*.class</include>
+                                <include>**/ejb/ServiceBean.class</include>
                                 <include>${version.properties}</include>
                             </includes>
                             <excludes>
@@ -172,6 +201,7 @@
                         <configuration>
                             <tasks>
                                 <delete file="${jboss.lib.dir}/${lib}.jar" />
+                                <delete file="${jboss.lib.dir}/${bonita-client}.jar" />
                                 <delete file="${jboss.lib.dir}/${service}.jar" />
                                 <delete file="${jboss.lib.dir}/${jaas}.jar" />
                                 <delete file="${jboss.deploy.dir}/${ejbs}.jar" />
@@ -183,6 +213,9 @@
                                 <copy
                                     file="${project.build.directory}/${project.build.finalName}-lib.jar"
                                     tofile="${jboss.lib.dir}/${lib}.jar" />
+                                <copy
+                                    file="${project.build.directory}/${project.build.finalName}-bonita-client.jar"
+                                    tofile="${jboss.lib.dir}/${bonita-client}.jar" />
                                 <copy
                                     file="${project.build.directory}/${project.build.finalName}-service.jar"
                                     tofile="${jboss.lib.dir}/${service}.jar" />
@@ -392,7 +425,7 @@
         <dependency>
             <groupId>xml-apis</groupId>
             <artifactId>xml-apis</artifactId>
-            <scope>runtime</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.codehaus.woodstox</groupId>
@@ -408,7 +441,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>runtime</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>postgresql</groupId>

@@ -19,7 +19,7 @@ import java.util.Set;
  * 
  */
 public final class UserHelper {
-
+    protected static boolean isFromeRemote = false;
     private UserHelper() {
         um = new UserManageOptimizedImpl();
     }
@@ -35,7 +35,15 @@ public final class UserHelper {
 
         return instance;
     }
+    
+    public static synchronized UserHelper getInstance(boolean isFromRemotex) {
+        isFromeRemote = isFromRemotex;
+        if (instance == null) {
+            instance = new UserHelper();
+        }
 
+        return instance;
+    }
     public static void clearInstance() {
         instance = null;
     }

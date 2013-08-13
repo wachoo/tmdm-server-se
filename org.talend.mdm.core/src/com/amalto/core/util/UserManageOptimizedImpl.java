@@ -12,8 +12,11 @@
 // ============================================================================
 package com.amalto.core.util;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Properties;
 import java.util.Set;
 
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
@@ -22,7 +25,8 @@ import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 
 public class UserManageOptimizedImpl extends UserManage {
-
+    private static final String FROM_HOST = "from.host"; //$NON-NLS-1$
+    private static final String FROM_JNDI_PORT = "from.jndi.port"; //$NON-NLS-1$
     @Override
     public int getActiveUsers() {
         try {
@@ -77,19 +81,38 @@ public class UserManageOptimizedImpl extends UserManage {
         if (user == null || user.getUserName() == null) {
             return null;
         }
+        InputStream is = null;
         try {
             ArrayList<IWhereItem> conditions = new ArrayList<IWhereItem>();
             conditions.add(new WhereCondition("User/username", //$NON-NLS-1$
                     WhereCondition.EQUALS, user.getUserName(), "NONE")); //$NON-NLS-1$
             IWhereItem whereItem = new WhereAnd(conditions);
-            ArrayList<String> items = Util.getItemCtrl2Local().getItems(new DataClusterPOJOPK(PROVISIONING_CLUSTER),
-                    USER_CONCEPT, whereItem, -1, 0, 1, false);
+            ArrayList<String> items = null;
+            if (!UserHelper.isFromeRemote) {
+                items = Util.getItemCtrl2Local().getItems(new DataClusterPOJOPK(PROVISIONING_CLUSTER),
+                        USER_CONCEPT, whereItem, -1, 0, 1, false);
+            } else {
+                is = UserManageOptimizedImpl.class.getResourceAsStream("ejb.remote.jndi.lookup.properties"); //$NON-NLS-1$
+                Properties properties = new Properties();
+                properties.load(is);
+                
+                items = Util.getItemCtrl2Home(properties.getProperty(FROM_HOST), properties.getProperty(FROM_JNDI_PORT)).
+                        getItems(new DataClusterPOJOPK(PROVISIONING_CLUSTER), USER_CONCEPT, whereItem, -1, 0, 1, false);
+            }
             if (items != null && items.size() > 0) {
                 String userXML = items.get(0);
                 return User.parse(userXML);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                 // do nothing
+                }
+            }            
         }
 
         return null;

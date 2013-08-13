@@ -12,6 +12,8 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.MetadataUtils;
+
+import org.apache.log4j.Logger;
 import org.apache.lucene.document.NumericField;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.Storage;
@@ -29,6 +31,8 @@ import java.util.*;
 
 class ClassCreator extends DefaultMetadataVisitor<Void> {
 
+    private static final Logger LOGGER = Logger.getLogger(ClassCreator.class);
+    
     public static final String PACKAGE_PREFIX = "org.talend.mdm.storage.hibernate."; //$NON-NLS-1$
 
     private final StorageClassLoader storageClassLoader;
@@ -46,7 +50,10 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
     public ClassCreator(StorageClassLoader storageClassLoader) {
         this.storageClassLoader = storageClassLoader;
         // Use a new ClassPool to prevent storing classes in default class pool.
-        this.classPool = new ClassPool(ClassPool.getDefault());
+        LOGGER.info("Creating new classpool");
+        
+        this.classPool = new ClassPool((ClassPool) null);
+        classPool.insertClassPath(new LoaderClassPath(storageClassLoader));
         try {
             listType = classPool.get(List.class.getName());
         } catch (NotFoundException e) {
