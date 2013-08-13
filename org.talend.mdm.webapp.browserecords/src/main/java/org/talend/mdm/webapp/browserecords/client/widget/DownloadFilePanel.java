@@ -77,9 +77,9 @@ public class DownloadFilePanel extends FormPanel {
         this.add(fileName, new FormData("90%")); //$NON-NLS-1$
 
         includeXmlContent = new CheckBox();
-        includeXmlContent.setFieldLabel("IncludeXmlContent"); //$NON-NLS-1$ 
-        includeXmlContent.setLabelStyle("windth:90px"); //$NON-NLS-1$ 
-        this.add(includeXmlContent, new FormData("90%")); //$NON-NLS-1$ 
+        includeXmlContent.setFieldLabel(MessagesFactory.getMessages().includeXmlContent_field_label());
+        includeXmlContent.setLabelStyle("windth:90px"); //$NON-NLS-1$
+        this.add(includeXmlContent, new FormData("90%")); //$NON-NLS-1$
 
         exportBtn = new Button(MessagesFactory.getMessages().export_btn());
         exportBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -106,6 +106,7 @@ public class DownloadFilePanel extends FormPanel {
     private Map<String, String> buildExportParameter() {
 
         Grid<ItemBean> grid = ItemsListPanel.getInstance().getGrid();
+
         List<String> selectItemXmlList = new ArrayList<String>();
         if (grid != null) {
             List<ItemBean> selectItemList = grid.getSelectionModel().getSelectedItems();
@@ -144,7 +145,6 @@ public class DownloadFilePanel extends FormPanel {
             param.put("itemXmlString", CommonUtil.convertListToString(selectItemXmlList, Constants.FILE_EXPORT_IMPORT_SEPARATOR)); //$NON-NLS-1$ 
         } else {
             param.put("itemXmlString", ""); //$NON-NLS-1$//$NON-NLS-2$ 
-        }
         RecordsPagingConfig pagingLoad = queryModel.getPagingLoadConfig();
         String sortDir = null;
         if (SortDir.ASC.equals(SortDir.findDir(pagingLoad.getSortDir()))) {
