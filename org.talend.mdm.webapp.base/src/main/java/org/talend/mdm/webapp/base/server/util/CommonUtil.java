@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.base.server.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +25,8 @@ import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.client.util.Parser;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
+import org.talend.mdm.webapp.base.server.exception.ExceptionConstants;
+import org.talend.mdm.webapp.base.server.exception.WebBaseException;
 import org.talend.mdm.webapp.base.server.mockup.FakeData;
 
 import com.amalto.core.util.Messages;
@@ -47,10 +50,10 @@ public class CommonUtil {
 
     public static final String OR = "OR"; //$NON-NLS-1$ 
 
-    public static final String EQUALS = "EQUALS";  //$NON-NLS-1$
+    public static final String EQUALS = "EQUALS"; //$NON-NLS-1$
 
     private static final Pattern extractIdPattern = Pattern.compile("\\[.*?\\]"); //$NON-NLS-1$
-    
+
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.base.client.i18n.BaseMessages", CommonUtil.class.getClassLoader()); //$NON-NLS-1$    
 
@@ -186,11 +189,11 @@ public class CommonUtil {
             BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(concept);
             businessConcept.load();
             String type = businessConcept.getXpathTypeMap().get(filterXpaths);
-            if(type != null && type.equals("xsd:boolean")) { //$NON-NLS-1$
+            if (type != null && type.equals("xsd:boolean")) { //$NON-NLS-1$
                 wc.setStringPredicate(WSStringPredicate.OR);
                 conditions.add(new WSWhereItem(new WSWhereCondition(filterXpaths, Util.getOperator("EMPTY_NULL"),//$NON-NLS-1$ 
                         filterValues, WSStringPredicate.NONE, false), null, null));
-            }        
+            }
         }
 
         if (conditions.size() == 0) {
@@ -214,8 +217,8 @@ public class CommonUtil {
                 .getStrings();
         return results;
     }
-    
-    public static String[] extractFKRefValue(String ids,String language) {
+
+    public static String[] extractFKRefValue(String ids, String language) {
         List<String> idList = new ArrayList<String>();
         Matcher matcher = extractIdPattern.matcher(ids);
         boolean hasMatchedOnce = false;
@@ -234,7 +237,7 @@ public class CommonUtil {
     }
 
     public static String buildCriteriaByIds(String[] keys, String[] ids) {
-        if(keys == null || ids == null) {
+        if (keys == null || ids == null) {
             return null;
         }
         if (keys.length < ids.length) {
@@ -254,9 +257,9 @@ public class CommonUtil {
         }
 
         StringBuilder criteria = new StringBuilder();
-        if(keys.length == 1 && ids.length == 1) {
+        if (keys.length == 1 && ids.length == 1) {
             criteria.append(keys[0]).append(" ").append(EQUALS).append(" ").append(ids[0]); //$NON-NLS-1$ //$NON-NLS-2$
-            return criteria.toString(); 
+            return criteria.toString();
         }
 
         criteria.append("((").append(keys[0]).append(" ").append(EQUALS).append(" ").append(ids[0]).append(")"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -265,5 +268,17 @@ public class CommonUtil {
         }
         criteria.append(")"); //$NON-NLS-1$
         return criteria.toString();
+    }
+
+    public static String[] extractIdWithDots(String ids) throws WebBaseException {
+        List<String> idList = new ArrayList<String>();
+        StringTokenizer tokenizer = new StringTokenizer(ids, "."); //$NON-NLS-1$
+        if (!tokenizer.hasMoreTokens()) {
+            throw new WebBaseException(ExceptionConstants.ID_FORMAT_EXCEPTION, ids);
+        }
+        while (tokenizer.hasMoreTokens()) {
+            idList.add(tokenizer.nextToken());
+        }
+        return idList.toArray(new String[idList.size()]);
     }
 }

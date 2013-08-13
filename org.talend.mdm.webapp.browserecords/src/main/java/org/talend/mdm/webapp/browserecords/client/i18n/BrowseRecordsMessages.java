@@ -440,4 +440,6 @@ public interface BrowseRecordsMessages extends Messages {
     String output_report_null();
 
     String export_error();
+
+    String error_missing_xmlcontent_column();
 }

@@ -37,6 +37,7 @@ import org.talend.mdm.webapp.base.shared.FileUtil;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.browserecords.server.util.CSVReader;
 import org.talend.mdm.webapp.browserecords.server.util.UploadUtil;
+import org.talend.mdm.webapp.browserecords.shared.Constants;
 
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -160,27 +161,8 @@ public class UploadData extends HttpServlet {
             }// while item
 
             concept = ViewHelper.getConceptFromDefaultViewName(viewPK);
-
             Locale locale = new Locale(language);
-            if (!UploadUtil.isViewableXpathValid(viewableXpath, concept)) {
-                throw new ServletException(MESSAGES.getMessage(locale, "error_invaild_field", concept)); //$NON-NLS-1$
-            }
-
-            Map<String, Boolean> visibleMap = UploadUtil.getVisibleMap(header);
-            Set<String> mandatorySet = UploadUtil.chechMandatoryField(mandatoryField, visibleMap.keySet());
-
-            if (mandatorySet.size() > 0) {
-                cusExceptionFlag = true;
-                throw new ServletException(MESSAGES.getMessage(locale, "error_missing_mandatory_field")); //$NON-NLS-1$
-            }
-
             fileInputStream = new FileInputStream(file);
-
-            String[] modelHeader = UploadUtil.getDefaultHeader(header);
-            String[] importHeader = headersOnFirstLine ? null : modelHeader;
-            Map recordMap;
-            StringBuffer field;
-            String fieldValue = ""; //$NON-NLS-1$
 
             Configuration configuration = Configuration.loadConfigurationFromDBDirectly();
 
@@ -194,97 +176,44 @@ public class UploadData extends HttpServlet {
                 }
                 Sheet sheet = workBook.getSheetAt(0);
                 Iterator<Row> it = sheet.rowIterator();
-
+                String cellValue = ""; //$NON-NLS-1$
                 while (it.hasNext()) {
                     rowNumber++;
                     Row row = it.next();
-                    if (rowNumber == 1 && headersOnFirstLine) {
-                        importHeader = getHeader(row, header, concept, locale);
-                        continue;
+
+                    Cell cell = row.getCell(0);
+                    if (cell != null && cell.getCellType() == Cell.CELL_TYPE_STRING && cell.getStringCellValue() != null) {
+                        cellValue = cell.getStringCellValue();
                     }
-                    StringBuffer xml = new StringBuffer();
 
-                    boolean allCellsEmpty = true;
-                    recordMap = new HashMap();
-                    xml.append("<" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$
-
-                    for (int i = 0; i < importHeader.length; i++) {
-                        Cell tmpCell = row.getCell(i);
-                        field = new StringBuffer();
-                        if (tmpCell != null) {
-                            field.append("<" + importHeader[i] + ">");//$NON-NLS-1$//$NON-NLS-2$
-
-                            int cellType = tmpCell.getCellType();
-                            switch (cellType) {
-                            case Cell.CELL_TYPE_NUMERIC: {
-                                double tmp = tmpCell.getNumericCellValue();
-                                fieldValue = getStringRepresentation(tmp);
-                                break;
-                            }
-                            case Cell.CELL_TYPE_STRING: {
-                                fieldValue = tmpCell.getRichStringCellValue().getString();
-                                int result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil
-                                        .getFKFormatType(fieldValue);
-                                if (result > 0) {
-                                    fieldValue = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyId(
-                                            fieldValue, result);
-                                }
-                                break;
-                            }
-                            case Cell.CELL_TYPE_BOOLEAN: {
-                                boolean tmp = tmpCell.getBooleanCellValue();
-                                if (tmp) {
-                                    fieldValue = "true";//$NON-NLS-1$
-                                } else {
-                                    fieldValue = "false";//$NON-NLS-1$
-                                }
-                                break;
-                            }
-                            case Cell.CELL_TYPE_FORMULA: {
-                                fieldValue = tmpCell.getCellFormula();
-                                break;
-                            }
-                            case Cell.CELL_TYPE_ERROR: {
-                                break;
-                            }
-                            case Cell.CELL_TYPE_BLANK: {
-                            }
-                            default: {
-                            }
-                            }
-
-                            if (fieldValue != null && !"".equals(fieldValue)) {
-                                allCellsEmpty = false;
-                            }
-                            if (visibleMap.get(importHeader[i])) {
-                                field.append(StringEscapeUtils.escapeXml(fieldValue));
-                            }
-                            field.append("</" + importHeader[i] + ">");//$NON-NLS-1$//$NON-NLS-2$  
-
+                    if (rowNumber == 1) {
+                        if (Constants.XML_CONTENT_HEADER.equals(cellValue)) {
+                            continue;
                         } else {
-                            field.append("<" + importHeader[i] + "/>"); //$NON-NLS-1$ //$NON-NLS-2$
-                        }
-                        if (headersOnFirstLine) {
-                            recordMap.put(importHeader[i], field.toString());
-                        } else {
-                            xml.append(field.toString());
+                            cusExceptionFlag = true;
+                            throw new ServletException(MESSAGES.getMessage(locale, "error_missing_xmlcontent_column")); //$NON-NLS-1$
                         }
                     }
-                    if (headersOnFirstLine) {
-                        for (String element : modelHeader) {
-                            if (recordMap.get(element) != null) {
-                                xml.append(recordMap.get(element));
-                            }
-                        }
-                    }
-
-                    xml.append("</" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$
-                    if (!allCellsEmpty) {
-                        wSPutItemWithReportList.add(getWSPutItemWithReport(xml.toString(), language, concept,
-                                configuration.getCluster(), configuration.getModel()));
-                    }
+                    wSPutItemWithReportList.add(getWSPutItemWithReport(cellValue, language, concept, configuration.getCluster(),
+                            configuration.getModel()));
                 }
-            } else if ("csv".equals(fileType.toLowerCase())) { //$NON-NLS-1$                
+            } else if ("csv".equals(fileType.toLowerCase())) { //$NON-NLS-1$
+
+                Map<String, Boolean> visibleMap = UploadUtil.getVisibleMap(header);
+                Set<String> mandatorySet = UploadUtil.chechMandatoryField(mandatoryField, visibleMap.keySet());
+                String[] modelHeader = UploadUtil.getDefaultHeader(header);
+                String[] importHeader = headersOnFirstLine ? null : modelHeader;
+
+                Map recordMap;
+                StringBuffer field;
+
+                if (mandatorySet.size() > 0) {
+                    cusExceptionFlag = true;
+                    throw new ServletException(MESSAGES.getMessage(locale, "error_missing_mandatory_field")); //$NON-NLS-1$
+                }
+                if (!UploadUtil.isViewableXpathValid(viewableXpath, concept)) {
+                    throw new ServletException(MESSAGES.getMessage(locale, "error_invaild_field", concept)); //$NON-NLS-1$
+                }
                 char separator = ',';
                 if ("semicolon".equals(sep)) {
                     separator = ';';
@@ -371,74 +300,6 @@ public class UploadData extends HttpServlet {
         } catch (Exception exception) {
             throw new ServletException(exception.getLocalizedMessage());
         }
-    }
-
-    /*
-     * Returns a string corresponding to the double value given in parameter Exponent is removed and "0" are added at
-     * the end of the string if necessary This method is useful when you import long itemid that you don't want to see
-     * modified by importation method.
-     */
-    private String getStringRepresentation(double value) {
-        String result = ""; //$NON-NLS-1$
-
-        result = Double.toString(value);
-
-        int index = result.indexOf("E");//$NON-NLS-1$
-
-        String base = result;
-
-        if (index > 0) {
-            try {
-                base = result.substring(0, index);
-                String puissance = result.substring(index + 1);
-
-                int puissanceValue = Integer.parseInt(puissance);
-
-                int indexPoint = base.indexOf(".");//$NON-NLS-1$
-
-                if (indexPoint > 0) {
-                    String beforePoint = base.substring(0, indexPoint);
-                    String afterPoint = base.substring(indexPoint + 1);
-
-                    if (puissanceValue >= afterPoint.length()) {
-                        base = beforePoint + "" + afterPoint;//$NON-NLS-1$
-                        puissanceValue -= afterPoint.length();
-                    } else {
-                        String newBeforePoint = beforePoint + "" + afterPoint.substring(0, puissanceValue);//$NON-NLS-1$
-                        String newAfterPoint = afterPoint.substring(puissanceValue);
-                        base = newBeforePoint + "." + newAfterPoint;//$NON-NLS-1$
-                        puissanceValue = 0;
-                    }
-                }
-
-                for (int j = 0; j < puissanceValue; j++) {
-                    base += "0";//$NON-NLS-1$
-                }
-
-                result = base;
-
-            } catch (NumberFormatException e) {
-            }
-        }
-        return result;
-    }
-
-    private String[] getHeader(Row headerRow, String headerString, String concept, Locale locale) throws ServletException {
-        List<String> headers = new LinkedList<String>();
-        Iterator<Cell> iter = headerRow.cellIterator();
-        while (iter.hasNext()) {
-            Cell cell = iter.next();
-            if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-                String fieldName = cell.getRichStringCellValue().getString();
-                if (headerString.contains(fieldName)) {
-                    headers.add(fieldName);
-                } else {
-                    cusExceptionFlag = true;
-                    throw new ServletException(MESSAGES.getMessage(locale, "error_column_header", fieldName, concept)); //$NON-NLS-1$
-                }
-            }
-        }
-        return headers.toArray(new String[headers.size()]);
     }
 
     private String[] getHeader(String[] headerRecord, char separator, String headerString, String concept, Locale locale)
