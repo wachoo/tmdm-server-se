@@ -144,9 +144,9 @@ public class DataSourceFactory {
                 throw new IllegalStateException("Unexpected state (file exists but can't create a stream from it).", e);
             }
         }
-        // 1- Try from file (lookup from user.dir)
+        // 1- Try from file (lookup from user.dir/server/default/conf)
         if (configurationAsStream == null) {
-            file = new File(System.getProperty("user.dir") + "/bin/" + dataSourcesFileName); //$NON-NLS-1$ //$NON-NLS-2$
+            file = new File(System.getProperty("user.dir") + "/server/default/conf/" + dataSourcesFileName); //$NON-NLS-1$ //$NON-NLS-2$
             LOGGER.info("Reading from datasource file at '" + file.getAbsolutePath() + "'.");
             if (file.exists()) {
                 try {

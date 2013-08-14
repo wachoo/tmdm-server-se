@@ -227,9 +227,9 @@
                                     tofile="${jboss.deploy.dir}/${ejbs}.jar" />
                                 <copy file="${project.build.directory}/${project.build.finalName}.war"
                                     tofile="${jboss.deploy.dir}/${war}.war" />
-                                <copy file="mdm.conf" tofile="${jboss.bin.dir}/mdm.conf" />
-                                <copy file="mdm.conf.template" tofile="${jboss.bin.dir}/mdm.conf.template" />
-                                <copy file="war/default-datasources.xml" tofile="${jboss.bin.dir}/datasources.xml.template" />
+                                <copy file="mdm.conf" tofile="${jboss.conf.dir}/mdm.conf" />
+                                <copy file="mdm.conf.template" tofile="${jboss.conf.dir}/mdm.conf.template" />
+                                <copy file="war/default-datasources.xml" tofile="${jboss.conf.dir}/datasources.xml.template" />
                                 
                                 <echo message="Remove commons-codec library" />
                                 <delete file="${jboss.lib.dir}/commons-codec.jar" verbose="true" />
