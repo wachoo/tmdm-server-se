@@ -254,7 +254,8 @@ public class StagingAreaTest extends TestCase {
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
         SaverSession.Committer committer = new TestCommitter(storages);
         TaskSubmitter submitter = TaskSubmitterFactory.getSubmitter();
-        Task stagingTask = new StagingTask(submitter, origin, stagingRepository, repository, source, committer, destination);
+        StagingConfiguration configuration = new StagingConfiguration(origin, origin.getMetadataRepository(), destination.getMetadataRepository(), source, committer, destination);
+        Task stagingTask = TaskFactory.createStagingTask(configuration);
         submitter.submit(stagingTask);
 
         Thread.sleep(200);
@@ -295,7 +296,8 @@ public class StagingAreaTest extends TestCase {
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
         SaverSession.Committer committer = new TestCommitter(storages);
         TaskSubmitter submitter = TaskSubmitterFactory.getSubmitter();
-        Task stagingTask = new StagingTask(submitter, origin, stagingRepository, repository, source, committer, destination);
+        StagingConfiguration configuration = new StagingConfiguration(origin, origin.getMetadataRepository(), destination.getMetadataRepository(), source, committer, destination);
+        Task stagingTask = TaskFactory.createStagingTask(configuration);
         submitter.submitAndWait(stagingTask);
 
         try {
@@ -419,7 +421,8 @@ public class StagingAreaTest extends TestCase {
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
         SaverSession.Committer committer = new TestCommitter(storages);
         TaskSubmitter submitter = TaskSubmitterFactory.getSubmitter();
-        Task stagingTask = new StagingTask(submitter, origin, stagingRepository, repository, source, committer, destination);
+        StagingConfiguration configuration = new StagingConfiguration(origin, origin.getMetadataRepository(), destination.getMetadataRepository(), source, committer, destination);
+        Task stagingTask = TaskFactory.createStagingTask(configuration);
         submitter.submitAndWait(stagingTask);
 
         destination.begin();
@@ -779,7 +782,7 @@ public class StagingAreaTest extends TestCase {
             DataRecord dataRecord = reader.read("1", repository, item.getType(), item.exportToString());
             DataRecordMetadata recordMetadata = dataRecord.getRecordMetadata();
             recordMetadata.setLastModificationTime(System.currentTimeMillis());
-            recordMetadata.setTaskId(null);
+            recordMetadata.setTaskId(item.getTaskId());
             currentStorage.update(dataRecord);
         }
 
