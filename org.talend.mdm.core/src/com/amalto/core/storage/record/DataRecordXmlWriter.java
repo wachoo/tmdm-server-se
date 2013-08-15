@@ -106,9 +106,11 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                     } else {
                         List<DataRecord> valueAsList = (List<DataRecord>) value;
                         for (DataRecord currentValue : valueAsList) {
-                            writeReferenceElement(referenceField, currentValue);
-                            out.write(formatRecordKey(currentValue));
-                            out.write("</" + referenceField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
+                            if (currentValue != null) {
+                                writeReferenceElement(referenceField, currentValue);
+                                out.write(formatRecordKey(currentValue));
+                                out.write("</" + referenceField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
+                            }
                         }
                     }
                 }

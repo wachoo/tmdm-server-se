@@ -234,6 +234,9 @@ public class MetadataUtils {
             throw new IllegalArgumentException("Actual type for field '" + field.getName() + "' cannot be null.");
         }
         if (field instanceof ReferenceFieldMetadata) {
+            if (dataAsString == null || dataAsString.trim().isEmpty()) {
+                return null;
+            }
             List<String> ids = new LinkedList<String>();
             if (dataAsString.startsWith("[")) { //$NON-NLS-1$
                 char[] chars = dataAsString.toCharArray();
