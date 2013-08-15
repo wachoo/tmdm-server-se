@@ -54,7 +54,6 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -66,8 +65,6 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 
 public class PictureSelector extends ContentPanel {
-
-    private static final String CONTEXT_URL = GWT.getModuleBaseURL().replace(GWT.getModuleName() + "/", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
     private ListLoader<ListLoadResult<BeanModel>> imageloader;
 
@@ -142,7 +139,7 @@ public class PictureSelector extends ContentPanel {
             protected ItemBaseModel prepareData(ItemBaseModel model) {
                 org.talend.mdm.webapp.base.client.model.Image image = (org.talend.mdm.webapp.base.client.model.Image) model;
                 model.set("shortName", Format.ellipse(image.getName(), 15)); //$NON-NLS-1$
-                model.set("url", CONTEXT_URL + image.getUri() + "?width=80&height=60&randomNum=" + Math.random()); //$NON-NLS-1$ //$NON-NLS-2$ 
+                model.set("url", image.getUri() + "?width=80&height=60&randomNum=" + Math.random()); //$NON-NLS-1$ //$NON-NLS-2$ 
                 return model;
             }
         };
@@ -180,7 +177,7 @@ public class PictureSelector extends ContentPanel {
             protected void load(Object loadConfig,
                     final AsyncCallback<List<org.talend.mdm.webapp.base.client.model.Image>> callback) {
 
-                RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, CONTEXT_URL + ImageUtil.IMAGE_SERVER_PATH);
+                RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, '/' + ImageUtil.IMAGE_SERVER_PATH);
                 requestBuilder.setCallback(new RequestCallback() {
 
                     public void onResponseReceived(Request request, Response response) {
