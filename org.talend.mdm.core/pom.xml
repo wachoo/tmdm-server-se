@@ -255,14 +255,6 @@
 
         <!-- MDM dependencies -->
         <dependency>
-            <groupId>org.talend.dataquality</groupId>
-            <artifactId>org.talend.dataquality.matchmerge</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.talend.dataquality</groupId>
-            <artifactId>org.talend.dataquality.record.linkage</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.commmon</artifactId>
         </dependency>

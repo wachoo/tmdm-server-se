@@ -1,7 +1,5 @@
 package com.amalto.core.storage.task;
 
-import com.amalto.core.save.SaverSession;
-import com.amalto.core.save.context.SaverSource;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
@@ -12,7 +10,6 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -56,20 +53,12 @@ public class StagingTask implements Task {
     public StagingTask(TaskSubmitter taskSubmitter,
                        Storage stagingStorage,
                        MetadataRepository stagingRepository,
-                       MetadataRepository userRepository,
-                       SaverSource source,
-                       SaverSession.Committer committer,
-                       Storage destinationStorage) {
+                       List<Task> tasks) {
         this.taskSubmitter = taskSubmitter;
         this.stagingStorage = stagingStorage;
         this.executionId = UUID.randomUUID().toString();
         this.executionType = stagingRepository.getComplexType("TALEND_TASK_EXECUTION"); //$NON-NLS-1$
-        if (Boolean.valueOf(System.getProperty("mdm.enable.matchmerge"))) { // TODO Temp property
-            tasks = Arrays.asList(new MatchMergeTask(stagingStorage, userRepository, stats),
-                            new MDMValidationTask(stagingStorage, destinationStorage, userRepository, source, committer, stats));
-        } else {
-            tasks = Arrays.<Task>asList(new MDMValidationTask(stagingStorage, destinationStorage, userRepository, source, committer, stats));
-        }
+        this.tasks = tasks;
     }
 
     public String getId() {

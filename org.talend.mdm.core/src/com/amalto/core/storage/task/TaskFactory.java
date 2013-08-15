@@ -11,21 +11,64 @@
 
 package com.amalto.core.storage.task;
 
+import com.amalto.core.save.SaverSession;
+import com.amalto.core.save.context.SaverSource;
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.storage.Storage;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class TaskFactory {
+
+    private static final Logger LOGGER = Logger.getLogger(TaskFactory.class);
 
     public static Task createStagingTask(StagingConfiguration config) {
         Storage stagingStorage = config.getOrigin();
         MetadataRepository stagingRepository = config.getStagingRepository();
-
+        MetadataRepository userRepository = config.getUserRepository();
+        SaverSource source = config.getSource();
+        SaverSession.Committer committer = config.getCommitter();
+        Storage destinationStorage = config.getDestination();
+        ClosureExecutionStats stats = new ClosureExecutionStats();
+        List<Task> tasks = new ArrayList<Task>();
+        // Adds match & merge (if available)
+        if (Boolean.valueOf(System.getProperty("mdm.enable.matchmerge"))) { // TODO Temp property
+            try {
+                Class<?> clazz = Class.forName("com.amalto.core.storage.task.MatchMergeTask"); //$NON-NLS-1$
+                Constructor<?> constructor = clazz.getConstructor(Storage.class, MetadataRepository.class, ClosureExecutionStats.class);
+                Object task = constructor.newInstance(stagingStorage, userRepository, stats);
+                tasks.add((Task) task);
+            } catch (ClassNotFoundException e) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Could not find match & merge extension.", e);
+                }
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException("Expected a constructor but could not find it.", e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException("Expected a constructor but could not invoke it.", e);
+            } catch (InstantiationException e) {
+                throw new RuntimeException("Expected a constructor but could not instantiate it.", e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Expected a constructor but could not access it.", e);
+            } catch (Exception e) {
+                LOGGER.error("Unexpected error when building a match & merge task.", e);
+            }
+        }
+        // Adds MDM validation task
+        tasks.add(new MDMValidationTask(stagingStorage,
+                destinationStorage,
+                userRepository,
+                source,
+                committer,
+                stats));
         return new StagingTask(TaskSubmitterFactory.getSubmitter(),
                 stagingStorage,
                 stagingRepository,
-                config.getUserRepository(),
-                config.getSource(),
-                config.getCommitter(),
-                config.getDestination());
+                tasks);
     }
 }
