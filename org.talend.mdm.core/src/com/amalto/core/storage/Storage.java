@@ -73,6 +73,11 @@ public interface Storage {
     String METADATA_STAGING_ERROR = "x_talend_staging_error"; //$NON-NLS-1$
 
     /**
+     * Name of the column where a block key can be stored (for STAGING databases only).
+     */
+    String METADATA_STAGING_BLOCK_KEY = "x_talend_staging_blockkey"; //$NON-NLS-1$
+
+    /**
      * Name of type for explicit projection (i.e. selection of a field within MDM entity). Declared fields in this type
      * varies from one query to another (if selected fields in query changed).
      */

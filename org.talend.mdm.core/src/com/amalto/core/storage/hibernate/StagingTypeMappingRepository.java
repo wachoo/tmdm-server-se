@@ -35,6 +35,7 @@ class StagingTypeMappingRepository extends InternalRepository {
             database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_TASK_ID, stringType, Collections.<String>emptyList(), Collections.<String>emptyList()));
             database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_STAGING_STATUS, intType, Collections.<String>emptyList(), Collections.<String>emptyList()));
             database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_STAGING_SOURCE, stringType, Collections.<String>emptyList(), Collections.<String>emptyList()));
+            database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_STAGING_BLOCK_KEY, stringType, Collections.<String>emptyList(), Collections.<String>emptyList()));
             SimpleTypeFieldMetadata errorField = new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_STAGING_ERROR, stringType, Collections.<String>emptyList(), Collections.<String>emptyList());
             errorField.getType().setData(TypeMapping.SQL_TYPE, "text"); //$NON-NLS-1$
             database.addField(errorField);

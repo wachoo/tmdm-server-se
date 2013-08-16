@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-class MDMTransactionManager implements TransactionManager {
+public class MDMTransactionManager implements TransactionManager {
 
     private static final Logger LOGGER = Logger.getLogger(MDMTransactionManager.class);
 
@@ -66,13 +66,14 @@ class MDMTransactionManager implements TransactionManager {
             throw new IllegalArgumentException("Transaction cannot be null.");
         }
         synchronized (currentTransactions) {
-            currentTransactions.remove(Thread.currentThread());
+            if(currentTransactions.remove(Thread.currentThread()) != null) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Transaction removed: " + transaction.getId());
+                }
+            }
         }
         synchronized (activeTransactions) {
             activeTransactions.remove(transaction.getId());
-        }
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Transaction removed: " + transaction.getId());
         }
     }
 

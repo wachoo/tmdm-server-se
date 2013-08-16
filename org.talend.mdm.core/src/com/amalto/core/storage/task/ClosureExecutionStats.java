@@ -37,4 +37,8 @@ class ClosureExecutionStats {
     int getSuccessCount() {
         return successCount.get();
     }
+
+    public void reportSuccess(int success) {
+        successCount.getAndAdd(success);
+    }
 }

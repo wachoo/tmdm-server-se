@@ -42,7 +42,7 @@ public class StagingTask implements Task {
 
     private final AtomicInteger recordCount = new AtomicInteger();
 
-    private final ClosureExecutionStats stats = new ClosureExecutionStats();
+    private final ClosureExecutionStats stats;
 
     private Task currentTask;
 
@@ -53,9 +53,11 @@ public class StagingTask implements Task {
     public StagingTask(TaskSubmitter taskSubmitter,
                        Storage stagingStorage,
                        MetadataRepository stagingRepository,
-                       List<Task> tasks) {
+                       List<Task> tasks,
+                       ClosureExecutionStats stats) {
         this.taskSubmitter = taskSubmitter;
         this.stagingStorage = stagingStorage;
+        this.stats = stats;
         this.executionId = UUID.randomUUID().toString();
         this.executionType = stagingRepository.getComplexType("TALEND_TASK_EXECUTION"); //$NON-NLS-1$
         this.tasks = tasks;

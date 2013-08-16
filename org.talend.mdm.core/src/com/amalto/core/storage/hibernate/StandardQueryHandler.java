@@ -347,7 +347,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         boolean hasPaging = pageSize < Integer.MAX_VALUE;
         // Results
         if (!hasPaging) {
-            return createResults(criteria.scroll(ScrollMode.FORWARD_ONLY), select.isProjection());
+            return createResults(criteria.scroll(ScrollMode.SCROLL_INSENSITIVE), select.isProjection());
         } else {
             List list = criteria.list();
             return createResults(list, select.isProjection());

@@ -79,7 +79,7 @@ class MDMTransaction implements Transaction {
         StorageTransaction transaction = storageTransactions.remove(storage);
         if (storageTransactions.isEmpty()) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Transaction '" + getId() + "' has no more storage transaction. Removing it.");
+                LOGGER.debug("Transaction '" + getId() + "' has no longer storage transactions. Removing it.");
             }
             transactionComplete();
         }
