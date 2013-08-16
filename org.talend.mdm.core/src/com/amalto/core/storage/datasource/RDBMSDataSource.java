@@ -232,7 +232,7 @@ public class RDBMSDataSource implements DataSource {
     }
 
     public boolean hasInit() {
-        return !initConnectionURL.isEmpty();
+        return dialect == DataSourceDialect.H2 || !initConnectionURL.isEmpty();
     }
 
     @Override
