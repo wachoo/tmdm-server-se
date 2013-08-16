@@ -70,7 +70,9 @@ class HibernateStorageTransaction extends StorageTransaction {
                 throw new ConstraintViolationException(e);
             }
             super.commit();
-            session.close();
+            if (session.isOpen()) {
+                session.close();
+            }
         }
     }
 
