@@ -161,8 +161,11 @@ public class StagingTask implements Task {
                     currentTask = task;
                 }
                 LOGGER.info("--> " + task.toString());
-                taskSubmitter.submitAndWait(currentTask);
-                LOGGER.info("<-- DONE " + task.toString());
+                long taskExecTime = System.currentTimeMillis();
+                {
+                    taskSubmitter.submitAndWait(currentTask);
+                }
+                LOGGER.info("<-- DONE " + task.toString() + " (elapsed time: " + (System.currentTimeMillis() - taskExecTime) + " ms)");
             }
             recordExecutionEnd();
         } finally {
