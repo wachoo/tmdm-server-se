@@ -728,7 +728,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     ItemHelper.SEARCH_DIRECTION_ASC, null, language);
             @SuppressWarnings("unchecked")
             List<ItemBean> itemBeans = (List<ItemBean>) result[0];
-            return itemBeans.get(0);
+            if (itemBeans.size() > 0) {
+                return itemBeans.get(0);
+            } else {
+                return null;
+            }
         } catch (WebBaseException e) {
             throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language),e.getMessage(), e.getArgs()));
         } catch (Exception exception) {

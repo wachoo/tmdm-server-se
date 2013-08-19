@@ -702,6 +702,15 @@ public class ItemsListPanel extends ContentPanel {
                         new SessionAwareAsyncCallback<ItemBean>() {
 
                             public void onSuccess(ItemBean result) {
+                                if (result == null) {
+                                    ItemsMainTabPanel.getInstance().removeAll();
+                                    if (store.getCount() > 1) {
+                                        pagingBar.refresh();
+                                    } else {
+                                        pagingBar.last();
+                                    }
+                                    return;
+                                }
                                 Record record = store.getRecord(itemBean);
                                 itemBean.copy(result);
                                 Map<String, String> formateMap = result.getFormateMap();
