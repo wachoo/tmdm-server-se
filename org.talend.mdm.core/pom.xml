@@ -206,9 +206,9 @@
                                 <delete file="${jboss.lib.dir}/${jaas}.jar" />
                                 <delete file="${jboss.deploy.dir}/${ejbs}.jar" />
                                 <delete file="${jboss.deploy.dir}/${war}.war" />
-                                <delete file="${jboss.bin.dir}/mdm.conf" />
-                                <delete file="${jboss.bin.dir}/mdm.conf.template" />
-                                <delete file="${jboss.bin.dir}/datasources.xml.template" />
+                                <delete file="${jboss.conf.dir}/mdm.conf" />
+                                <delete file="${jboss.conf.dir}/mdm.conf.template" />
+                                <delete file="${jboss.conf.dir}/datasources.xml.template" />
 
                                 <copy
                                     file="${project.build.directory}/${project.build.finalName}-lib.jar"
