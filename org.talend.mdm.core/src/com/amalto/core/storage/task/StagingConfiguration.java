@@ -12,14 +12,16 @@ public class StagingConfiguration {
     private final SaverSource source;
     private final SaverSession.Committer committer;
     private final Storage destination;
+    private final Filter filter;
 
-    public StagingConfiguration(Storage origin, MetadataRepository stagingRepository, MetadataRepository userRepository, SaverSource source, SaverSession.Committer committer, Storage destination) {
+    public StagingConfiguration(Storage origin, MetadataRepository stagingRepository, MetadataRepository userRepository, SaverSource source, SaverSession.Committer committer, Storage destination, Filter filter) {
         this.origin = origin;
         this.stagingRepository = stagingRepository;
         this.userRepository = userRepository;
         this.source = source;
         this.committer = committer;
         this.destination = destination;
+        this.filter = filter;
     }
 
     public Storage getOrigin() {
@@ -44,5 +46,9 @@ public class StagingConfiguration {
 
     public Storage getDestination() {
         return destination;
+    }
+    
+    public Filter getFilter() {
+        return filter;
     }
 }

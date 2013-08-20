@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.task;
 
+import com.amalto.core.query.user.Condition;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
@@ -37,7 +38,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.isNull;
+import static com.amalto.core.query.user.UserQueryBuilder.or;
 import static com.amalto.core.query.user.UserStagingQueryBuilder.status;
 
 public class MDMValidationTask extends MetadataRepositoryTask {
@@ -75,8 +78,9 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                              MetadataRepository repository,
                              SaverSource source,
                              SaverSession.Committer committer,
-                             ClosureExecutionStats stats) {
-        super(storage, repository, stats);
+                             ClosureExecutionStats stats,
+                             Filter filter) {
+        super(storage, repository, stats, filter);
         this.source = source;
         this.committer = committer;
         this.destinationStorage = destinationStorage;
@@ -90,13 +94,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
     @Override
     protected Task createTypeTask(ComplexTypeMetadata type) {
         Closure closure = new MDMValidationTask.MDMValidationClosure(source, committer, destinationStorage);
-        Select select = from(type).where(
-                or(eq(status(), StagingConstants.SUCCESS_MERGED_RECORD),
-                        or(eq(status(), StagingConstants.NEW),
-                                or(isNull(status()),
-                                        or(eq(status(), StagingConstants.FAIL_VALIDATE_CONSTRAINTS),
-                                                eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)))))).getSelect();
-
+        Select select = filter.doFilter(this, type);
         try {
             storage.begin();
             StorageResults records = storage.fetch(select); // Expects an active transaction here
@@ -138,6 +136,15 @@ public class MDMValidationTask extends MetadataRepositoryTask {
     @Override
     public int getRecordCount() {
         return recordsCount;
+    }
+
+    @Override
+    public Condition getDefaultFilter() {
+        return or(eq(status(), StagingConstants.SUCCESS_MERGED_RECORD),
+                or(eq(status(), StagingConstants.NEW),
+                        or(isNull(status()),
+                                or(eq(status(), StagingConstants.FAIL_VALIDATE_CONSTRAINTS),
+                                        eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)))));
     }
 
     private class MDMValidationClosure implements Closure {

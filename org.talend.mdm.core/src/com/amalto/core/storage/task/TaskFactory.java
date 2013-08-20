@@ -33,6 +33,7 @@ public class TaskFactory {
         SaverSource source = config.getSource();
         SaverSession.Committer committer = config.getCommitter();
         Storage destinationStorage = config.getDestination();
+        Filter filter = config.getFilter();
         ClosureExecutionStats stats = new ClosureExecutionStats();
         List<Task> tasks = new ArrayList<Task>();
         // Adds match & merge (if available)
@@ -61,10 +62,11 @@ public class TaskFactory {
         // Adds MDM validation task
         tasks.add(new MDMValidationTask(stagingStorage,
                 destinationStorage,
-                userRepository,
+                destinationStorage.getMetadataRepository(),
                 source,
                 committer,
-                stats));
+                stats,
+                filter));
         return new StagingTask(TaskSubmitterFactory.getSubmitter(),
                 stagingStorage,
                 stagingRepository,

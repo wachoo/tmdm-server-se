@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.amalto.core.save.context.DefaultSaverSource;
+import com.amalto.core.storage.task.*;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
@@ -33,11 +34,7 @@ import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.task.StagingConfiguration;
-import com.amalto.core.storage.task.StagingConstants;
-import com.amalto.core.storage.task.Task;
-import com.amalto.core.storage.task.TaskFactory;
-import com.amalto.core.storage.task.TaskSubmitterFactory;
+import com.amalto.core.storage.task.Filter;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -79,7 +76,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return startValidation(dataContainer, dataModel);
+        return startValidation(dataContainer, dataModel, DefaultFilter.INSTANCE);
     }
 
     public StagingContainerSummary getContainerSummary(String dataContainer, String dataModel) {
@@ -105,11 +102,15 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         return containerStagingSummary;
     }
 
-    public String startValidation(String dataContainer, String dataModel) {
+    public String startValidation(String dataContainer, String dataModel, Filter filter) {
         synchronized (runningTasks) {
             Task runningTask = runningTasks.get(dataContainer);
             if (runningTask != null) {
-                return runningTask.getId();
+                if (runningTask.hasFinished()) {
+                    runningTasks.remove(dataContainer);
+                } else {
+                    return runningTask.getId();
+                }
             }
             Server server = ServerContext.INSTANCE.get();
             Storage staging = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX, null);
@@ -133,7 +134,8 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
                     userRepository,
                     DefaultSaverSource.getDefault(userName),
                     new DefaultCommitter(),
-                    user);
+                    user,
+                    filter);
             Task stagingTask = TaskFactory.createStagingTask(stagingConfig);
             TaskSubmitterFactory.getSubmitter().submit(stagingTask);
             runningTasks.put(dataContainer, stagingTask);
@@ -170,27 +172,25 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         }
         qb.orderBy(executionType.getField("start_time"), OrderBy.Direction.ASC); //$NON-NLS-1$
         List<String> taskIds;
-        synchronized (staging) {
+        try {
+            staging.begin();
+            StorageResults results = staging.fetch(qb.getSelect());
             try {
-                staging.begin();
-                StorageResults results = staging.fetch(qb.getSelect());
-                try {
-                    if (size > 0) {
-                        taskIds = new ArrayList<String>(size);
-                    } else {
-                        taskIds = new LinkedList<String>();
-                    }
-                    for (DataRecord result : results) {
-                        taskIds.add(String.valueOf(result.get("id"))); //$NON-NLS-1$
-                    }
-                } finally {
-                    results.close();
+                if (size > 0) {
+                    taskIds = new ArrayList<String>(size);
+                } else {
+                    taskIds = new LinkedList<String>();
                 }
-                staging.commit();
-            } catch (Exception e) {
-                staging.rollback();
-                throw new RuntimeException(e);
+                for (DataRecord result : results) {
+                    taskIds.add(String.valueOf(result.get("id"))); //$NON-NLS-1$
+                }
+            } finally {
+                results.close();
             }
+            staging.commit();
+        } catch (Exception e) {
+            staging.rollback();
+            throw new RuntimeException(e);
         }
         return taskIds;
     }
@@ -255,128 +255,120 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         UserQueryBuilder qb = from(executionType)
                 .where(eq(executionType.getField("id"), executionId)); //$NON-NLS-1$
         ExecutionStatistics status = new ExecutionStatistics();
-        synchronized (staging) {
+        try {
+            staging.begin();
+            StorageResults results = staging.fetch(qb.getSelect()); // Expects an active transaction here
             try {
-                staging.begin();
-                StorageResults results = staging.fetch(qb.getSelect()); // Expects an active transaction here
-                try {
-                    for (DataRecord result : results) {
-                        status.setId(String.valueOf(result.get("id"))); //$NON-NLS-1$
-                        Date start_time = new Date((Long) result.get("start_time")); //$NON-NLS-1$
-                        Date end_time = new Date((Long) result.get("end_time")); //$NON-NLS-1$
-                        synchronized (dateFormat) {
-                            status.setStartDate(dateFormat.format(start_time)); 
-                            status.setEndDate(dateFormat.format(end_time)); 
-                        }
-                        status.setInvalidRecords(((BigDecimal) result.get("error_count")).intValue()); //$NON-NLS-1$
-                        status.setRunningTime(formatElapsedTime(end_time.getTime() - start_time.getTime()));
-                        int recordCount = ((BigDecimal) result.get("record_count")).intValue(); //$NON-NLS-1$
-                        status.setProcessedRecords(recordCount);
-                        status.setTotalRecords(recordCount);
+                for (DataRecord result : results) {
+                    status.setId(String.valueOf(result.get("id"))); //$NON-NLS-1$
+                    Date start_time = new Date((Long) result.get("start_time")); //$NON-NLS-1$
+                    Date end_time = new Date((Long) result.get("end_time")); //$NON-NLS-1$
+                    synchronized (dateFormat) {
+                        status.setStartDate(dateFormat.format(start_time));
+                        status.setEndDate(dateFormat.format(end_time));
                     }
-                } finally {
-                    results.close();
+                    status.setInvalidRecords(((BigDecimal) result.get("error_count")).intValue()); //$NON-NLS-1$
+                    status.setRunningTime(formatElapsedTime(end_time.getTime() - start_time.getTime()));
+                    int recordCount = ((BigDecimal) result.get("record_count")).intValue(); //$NON-NLS-1$
+                    status.setProcessedRecords(recordCount);
+                    status.setTotalRecords(recordCount);
                 }
-                staging.commit();
-            } catch (Exception e) {
-                staging.rollback();
-                throw new RuntimeException(e);
+            } finally {
+                results.close();
             }
+            staging.commit();
+        } catch (Exception e) {
+            staging.rollback();
+            throw new RuntimeException(e);
         }
         return status;
     }
 
     private static int countAllInstancesByStatus(Storage storage, MetadataRepository repository) {
         int totalCount = 0;
-        synchronized (storage) {
-            try {
-                storage.begin();
-                for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
-                    if (currentType.isInstantiable() && !EXECUTION_LOG_TYPE.equals(currentType.getName())) {
-                        UserQueryBuilder qb = from(currentType)
-                                .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
-                        StorageResults results = storage.fetch(qb.getSelect()); // Expects an active transaction here
-                        try {
-                            for (DataRecord result : results) {
-                                totalCount += (Long) result.get("count"); //$NON-NLS-1$
-                            }
-                        } finally {
-                            results.close();
+        try {
+            storage.begin();
+            for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
+                if (currentType.isInstantiable() && !EXECUTION_LOG_TYPE.equals(currentType.getName())) {
+                    UserQueryBuilder qb = from(currentType)
+                            .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
+                    StorageResults results = storage.fetch(qb.getSelect()); // Expects an active transaction here
+                    try {
+                        for (DataRecord result : results) {
+                            totalCount += (Long) result.get("count"); //$NON-NLS-1$
                         }
+                    } finally {
+                        results.close();
                     }
                 }
-                storage.commit();
-            } catch (Exception e) {
-                storage.rollback();
-                throw new RuntimeException(e);
             }
+            storage.commit();
+        } catch (Exception e) {
+            storage.rollback();
+            throw new RuntimeException(e);
         }
         return totalCount;
     }
 
     private static int countInstancesByStatus(Storage storage, MetadataRepository repository, String status) {
         int totalCount = 0;
-        synchronized (storage) {
-            try {
-                storage.begin();
-                for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
-                    if (currentType.isInstantiable() && !EXECUTION_LOG_TYPE.equals(currentType.getName())) {
-                        UserQueryBuilder qb = from(currentType)
-                                .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
-                        if (StagingConstants.NEW.equals(status)) {
-                            qb.where(or(eq(UserStagingQueryBuilder.status(), status), isNull(UserStagingQueryBuilder.status())));
-                        } else {
-                            qb.where(eq(UserStagingQueryBuilder.status(), status));
+        try {
+            storage.begin();
+            for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
+                if (currentType.isInstantiable() && !EXECUTION_LOG_TYPE.equals(currentType.getName())) {
+                    UserQueryBuilder qb = from(currentType)
+                            .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
+                    if (StagingConstants.NEW.equals(status)) {
+                        qb.where(or(eq(UserStagingQueryBuilder.status(), status), isNull(UserStagingQueryBuilder.status())));
+                    } else {
+                        qb.where(eq(UserStagingQueryBuilder.status(), status));
+                    }
+                    StorageResults results = storage.fetch(qb.getSelect());
+                    try {
+                        for (DataRecord result : results) {
+                            totalCount += (Long) result.get("count"); //$NON-NLS-1$
                         }
-                        StorageResults results = storage.fetch(qb.getSelect());
-                        try {
-                            for (DataRecord result : results) {
-                                totalCount += (Long) result.get("count"); //$NON-NLS-1$
-                            }
-                        } finally {
-                            results.close();
-                        }
+                    } finally {
+                        results.close();
                     }
                 }
-                storage.commit();
-            } catch (Exception e) {
-                storage.rollback();
-                throw new RuntimeException(e);
             }
+            storage.commit();
+        } catch (Exception e) {
+            storage.rollback();
+            throw new RuntimeException(e);
         }
         return totalCount;
     }
 
     private static int countInstancesByStatus(Storage storage, MetadataRepository repository, boolean valid) {
         int totalCount = 0;
-        synchronized (storage) {
-            try {
-                storage.begin();
-                for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
-                    if (currentType.isInstantiable() && !EXECUTION_LOG_TYPE.equals(currentType.getName())) {
-                        UserQueryBuilder qb = from(currentType)
-                                .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
-                        if (valid) {
-                            qb.where(eq(UserStagingQueryBuilder.status(), StagingConstants.SUCCESS_VALIDATE));
-                        } else {
-                            qb.where(gte(UserStagingQueryBuilder.status(), StagingConstants.FAIL));
+        try {
+            storage.begin();
+            for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
+                if (currentType.isInstantiable() && !EXECUTION_LOG_TYPE.equals(currentType.getName())) {
+                    UserQueryBuilder qb = from(currentType)
+                            .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
+                    if (valid) {
+                        qb.where(eq(UserStagingQueryBuilder.status(), StagingConstants.SUCCESS_VALIDATE));
+                    } else {
+                        qb.where(gte(UserStagingQueryBuilder.status(), StagingConstants.FAIL));
+                    }
+
+                    StorageResults results = storage.fetch(qb.getSelect());
+                    try {
+                        for (DataRecord result : results) {
+                            totalCount += (Long) result.get("count"); //$NON-NLS-1$
                         }
-        
-                        StorageResults results = storage.fetch(qb.getSelect());
-                        try {
-                            for (DataRecord result : results) {
-                                totalCount += (Long) result.get("count"); //$NON-NLS-1$
-                            }
-                        } finally {
-                            results.close();
-                        }
+                    } finally {
+                        results.close();
                     }
                 }
-                storage.commit();
-            } catch (Exception e) {
-                storage.rollback();
-                throw new RuntimeException(e);
             }
+            storage.commit();
+        } catch (Exception e) {
+            storage.rollback();
+            throw new RuntimeException(e);
         }
         return totalCount;
     }

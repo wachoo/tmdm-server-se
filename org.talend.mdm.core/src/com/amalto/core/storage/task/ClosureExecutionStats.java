@@ -16,25 +16,25 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  *
  */
-class ClosureExecutionStats {
+public class ClosureExecutionStats {
 
     private final AtomicInteger errorCount = new AtomicInteger();
 
     private final AtomicInteger successCount = new AtomicInteger();
 
-    void reportError() {
+    public void reportError() {
         errorCount.incrementAndGet();
     }
 
-    void reportSuccess() {
+    public void reportSuccess() {
         successCount.incrementAndGet();
     }
 
-    int getErrorCount() {
+    public int getErrorCount() {
         return errorCount.get();
     }
 
-    int getSuccessCount() {
+    public int getSuccessCount() {
         return successCount.get();
     }
 

@@ -32,6 +32,8 @@ abstract class MetadataRepositoryTask implements Task {
 
     private final Object currentTypeTaskMonitor = new Object();
 
+    protected final Filter filter;
+
     private long startTime;
 
     private long endTime = -1;
@@ -48,10 +50,12 @@ abstract class MetadataRepositoryTask implements Task {
 
     MetadataRepositoryTask(Storage storage,
                            MetadataRepository repository,
-                           ClosureExecutionStats stats) {
+                           ClosureExecutionStats stats,
+                           Filter filter) {
         this.storage = storage;
         this.repository = repository;
         this.stats = stats;
+        this.filter = filter;
     }
 
     protected abstract Task createTypeTask(ComplexTypeMetadata type);
@@ -73,7 +77,7 @@ abstract class MetadataRepositoryTask implements Task {
         try {
             List<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
             for (ComplexTypeMetadata type : types) {
-                if (type.isInstantiable() && processType(type)) {
+                if (!filter.exclude(type) && type.isInstantiable() && processType(type)) {
                     Task task = createTypeTask(type);
                     tasks.add(task);
                 }

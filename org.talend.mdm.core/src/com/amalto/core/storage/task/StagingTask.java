@@ -1,5 +1,6 @@
 package com.amalto.core.storage.task;
 
+import com.amalto.core.query.user.Condition;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
@@ -124,6 +125,13 @@ public class StagingTask implements Task {
     @Override
     public boolean hasFinished() {
         return isCancelled || isFinished;
+    }
+
+    @Override
+    public Condition getDefaultFilter() {
+        synchronized (currentTaskMonitor) {
+            return currentTask.getDefaultFilter();
+        }
     }
 
     @Override

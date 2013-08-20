@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.task;
 
+import com.amalto.core.query.user.Condition;
 import org.quartz.Job;
 
 import java.util.Date;
@@ -76,4 +77,6 @@ public interface Task extends Job, Runnable {
      * @see #cancel()
      */
     boolean hasFinished();
+
+    Condition getDefaultFilter();
 }

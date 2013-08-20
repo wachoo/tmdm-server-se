@@ -11,7 +11,9 @@
 
 package com.amalto.core.storage.task;
 
+import com.amalto.core.query.user.Condition;
 import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
@@ -152,6 +154,11 @@ public class MultiThreadedTask implements Task {
     @Override
     public boolean hasFinished() {
         return isCancelled.get() || isFinished;
+    }
+
+    @Override
+    public Condition getDefaultFilter() {
+        return UserQueryHelper.NO_OP_CONDITION;
     }
 
     @Override

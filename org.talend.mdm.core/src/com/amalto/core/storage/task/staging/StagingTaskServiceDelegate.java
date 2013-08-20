@@ -13,6 +13,8 @@ package com.amalto.core.storage.task.staging;
 
 import java.util.List;
 
+import com.amalto.core.storage.task.Filter;
+
 /**
  *
  */
@@ -24,7 +26,7 @@ public interface StagingTaskServiceDelegate {
 
     StagingContainerSummary getContainerSummary(String dataContainer, String dataModel);
 
-    String startValidation(String dataContainer, String dataModel);
+    String startValidation(String dataContainer, String dataModel, Filter filter);
 
     List<String> listCompletedExecutions(String dataContainer, String beforeDate, int start, int size);
 

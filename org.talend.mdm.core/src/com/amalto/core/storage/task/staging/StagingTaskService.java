@@ -11,15 +11,18 @@
 
 package com.amalto.core.storage.task.staging;
 
+import java.io.InputStream;
 import java.util.List;
 
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import com.amalto.core.storage.task.ConfigurableFilter;
+import com.amalto.core.storage.task.DefaultFilter;
+import com.amalto.core.storage.task.Filter;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 
 @Path(StagingTaskService.TASKS)
 public class StagingTaskService {
@@ -49,15 +52,29 @@ public class StagingTaskService {
 
     @POST
     @Path("{container}/")
+    @Consumes("application/xml")
     public String startValidation(@PathParam("container") String dataContainer,
-                                  @QueryParam("model") String dataModel) {
-        return delegate.startValidation(dataContainer, dataModel);
+                                  @QueryParam("model") String dataModel,
+                                  InputStream body) {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        Filter filter;
+        try {
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(body);
+            filter = new ConfigurableFilter(doc);
+        } catch (Exception e) {
+            filter = DefaultFilter.INSTANCE;
+            if (Logger.getLogger(StagingTaskService.class).isDebugEnabled()) {
+                Logger.getLogger(StagingTaskService.class).debug("Ignored parse error for staging filter: ", e);
+            }
+        }
+        return delegate.startValidation(dataContainer, dataModel, filter);
     }
 
     @GET
     @Path("{container}/execs")
     public List<String> listCompletedTaskExecutions(@PathParam("container") String dataContainer,
-            @QueryParam("before") String beforeDate,
+                                                    @QueryParam("before") String beforeDate,
                                                     @DefaultValue("1") @QueryParam("start") int start,
                                                     @DefaultValue("-1") @QueryParam("size") int size) {
         return SerializableList.create(delegate.listCompletedExecutions(dataContainer, beforeDate, start, size), "executions", "execution");
