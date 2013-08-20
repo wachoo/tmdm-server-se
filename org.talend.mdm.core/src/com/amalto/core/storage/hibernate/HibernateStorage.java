@@ -911,13 +911,9 @@ public class HibernateStorage implements Storage {
         @Override
         public Object visit(SimpleTypeFieldMetadata simpleField) {
             String simpleFieldTypeName = simpleField.getType().getName();
-            if (Types.G_YEAR_MONTH.equals(simpleFieldTypeName)
-                    || Types.G_YEAR.equals(simpleFieldTypeName)
-                    || Types.G_MONTH_DAY.equals(simpleFieldTypeName)
-                    || Types.G_DAY.equals(simpleFieldTypeName)
-                    || Types.G_MONTH.equals(simpleFieldTypeName)) {
+            if (NoSupportTypes.getType(simpleFieldTypeName) != null) {
                 throw new IllegalArgumentException("No support for field type '" + simpleFieldTypeName + "' (field '"
-                        + simpleField.getName() + "' of type '" + simpleField.getContainingType().getName() + "').");
+                        + simpleField.getName() + "' of type '" + simpleField.getContainingType().getName() + "').");                
             }
             assertField(simpleField);
             return super.visit(simpleField);
