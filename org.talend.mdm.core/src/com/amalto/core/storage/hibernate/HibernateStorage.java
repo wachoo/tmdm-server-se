@@ -304,6 +304,9 @@ public class HibernateStorage implements Storage {
                         if (database.hasField(METADATA_STAGING_STATUS)) {
                             databaseIndexedFields.add(database.getField(METADATA_STAGING_STATUS));
                         }
+                        if (database.hasField(METADATA_STAGING_BLOCK_KEY)) {
+                            databaseIndexedFields.add(database.getField(METADATA_STAGING_BLOCK_KEY));
+                        }
                     }
                     break;
                 case SYSTEM: // Nothing to index on SYSTEM
