@@ -471,8 +471,6 @@ public class MetadataUtils {
             return "java.lang.String"; //$NON-NLS-1$
         } else if (Types.BYTE.equals(type) || Types.UNSIGNED_BYTE.equals(type)) {
             return "java.lang.Byte"; //$NON-NLS-1$
-        } else if (Types.QNAME.equals(type)) {
-            return "java.lang.String"; //$NON-NLS-1$
         } else if (Types.HEX_BINARY.equals(type)) {
             return "java.lang.String"; //$NON-NLS-1$
         } else if (Types.DOUBLE.equals(type)) {
