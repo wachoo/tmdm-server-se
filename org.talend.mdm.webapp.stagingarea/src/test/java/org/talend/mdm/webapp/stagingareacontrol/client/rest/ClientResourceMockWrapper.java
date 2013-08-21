@@ -36,6 +36,10 @@ public class ClientResourceMockWrapper extends ClientResourceWrapper {
         this.callbackHandler = callbackHandler;
     }
 
+    public void request(MediaType mediaType) {
+        request();
+    }
+
     @Override
     public void request() {
 

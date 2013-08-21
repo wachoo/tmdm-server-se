@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client;
 
+import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.stagingareacontrol.client.model.ConceptRelationshipModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaConfiguration;
 
 import com.google.gwt.user.client.rpc.RemoteService;
@@ -21,4 +23,6 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 public interface StagingAreaService extends RemoteService {
 
     public StagingAreaConfiguration getStagingAreaConfig();
+
+    public ConceptRelationshipModel getConceptRelation() throws ServiceException;
 }

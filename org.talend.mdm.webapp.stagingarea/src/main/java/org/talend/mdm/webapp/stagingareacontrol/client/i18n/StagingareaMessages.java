@@ -99,4 +99,32 @@ public interface StagingareaMessages extends Messages {
     String staging_area_exception();
 
     String underlying_cause();
+
+    String concept_selector();
+
+    String select_concept();
+
+    String concept_collection();
+
+    String condition();
+
+    String concept();
+
+    String fk_relation();
+
+    String ok();
+
+    String status_code();
+
+    String today();
+
+    String yesterday();
+
+    String last_week();
+
+    String last_month();
+
+    String customizing();
+
+    String to();
 }

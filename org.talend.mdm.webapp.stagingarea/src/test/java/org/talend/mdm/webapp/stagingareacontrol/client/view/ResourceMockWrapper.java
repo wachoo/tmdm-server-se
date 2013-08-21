@@ -40,6 +40,10 @@ public class ResourceMockWrapper extends ClientResourceWrapper {
         this.callbackHandler = callbackHandler;
     }
 
+    public void request(MediaType mediaType) {
+        request();
+    }
+    
     @Override
     public void request() {
         Response response = new Response(null);

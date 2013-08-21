@@ -16,8 +16,14 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.StagingAreaService;
+import org.talend.mdm.webapp.stagingareacontrol.client.model.ConceptRelationshipModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaConfiguration;
+
+import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.util.webservices.WSConceptRelationship;
 
 /**
  * DOC suplch  class global comment. Detailled comment
@@ -47,4 +53,17 @@ public class StagingAreaAction implements StagingAreaService {
         }
         return cm;
     }
+
+    @Override
+    public ConceptRelationshipModel getConceptRelation() throws ServiceException {
+        try {
+            Configuration config = Configuration.getConfiguration();
+            WSConceptRelationship relationship = CommonUtil.getPort().getConceptRelation(config.getCluster());
+            return new ConceptRelationshipModel(relationship.getConcepts(), relationship.getRelationShipMap());
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
+    }
+
 }

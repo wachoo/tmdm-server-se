@@ -293,7 +293,7 @@ public class RestServiceHandler {
 
             }
         });
-        client.request();
+        client.request(MediaType.APPLICATION_XML);
 
     }
 

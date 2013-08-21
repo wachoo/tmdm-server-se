@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +50,11 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.log4j.Logger;
 import org.jboss.security.Base64Encoder;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -102,7 +106,9 @@ import com.amalto.core.save.SaverHelper;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.exception.FullTextQueryCompositeKeyException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
@@ -2604,6 +2610,50 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 webCoreException = new WebCoreException(DEFAULT_REMOTE_ERROR_MESSAGE, throwable);
             }
         }
-        return new RemoteException("", webCoreException); //$NON-NLS-1$       
+        return new RemoteException("", webCoreException); //$NON-NLS-1$
+    }
+
+    @Override
+    public WSConceptRelationship getConceptRelation(String cluster) throws RemoteException {
+        try {
+            Server server = ServerContext.INSTANCE.get();
+            Storage storage = server.getStorageAdmin().get(cluster, null);
+            MetadataRepository repository = storage.getMetadataRepository();
+            Collection<TypeMetadata> conceptTypes = repository.getInstantiableTypes();
+
+            String[] concepts = new String[conceptTypes.size()];
+            Map<String, String[]> relationMap = new HashMap<String, String[]>();
+            int i = 0;
+            for (TypeMetadata ctype : conceptTypes) {
+                ForeignKeyRelationVisitor foreignKeyVisiter = new ForeignKeyRelationVisitor();
+                ctype.accept(foreignKeyVisiter);
+                List<String> fks = foreignKeyVisiter.getForeignKeyConcepts();
+                concepts[i++] = ctype.getName();
+                relationMap.put(ctype.getName(), fks.toArray(new String[fks.size()]));
+            }
+            WSConceptRelationship relationShip = new WSConceptRelationship(concepts, relationMap);
+            return relationShip;
+        } catch (Exception e) {
+            if (LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage(); //$NON-NLS-1$
+                LOG.debug(err, e);
+            }
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+        }
+    }
+
+    private static class ForeignKeyRelationVisitor extends DefaultMetadataVisitor<Void> {
+
+        Set<String> foreignKeyConcepts = new LinkedHashSet<String>();
+
+        @Override
+        public Void visit(ReferenceFieldMetadata referenceField) {
+            foreignKeyConcepts.add(referenceField.getReferencedType().getName());
+            return null;
+        }
+
+        public List<String> getForeignKeyConcepts() {
+            return new ArrayList<String>(foreignKeyConcepts);
+        }
     }
 }

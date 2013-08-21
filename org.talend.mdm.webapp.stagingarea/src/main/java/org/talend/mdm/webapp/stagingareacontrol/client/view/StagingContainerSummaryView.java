@@ -12,7 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
+import org.talend.mdm.webapp.stagingareacontrol.client.model.ConceptRelationshipModel;
+import org.talend.mdm.webapp.stagingareacontrol.client.model.FilterModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerModel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -76,7 +80,20 @@ public class StagingContainerSummaryView extends AbstractView {
         startValidate.addSelectionListener(new SelectionListener<ButtonEvent>() {
             @Override
             public void componentSelected(ButtonEvent ce) {
-                ControllerContainer.get().getSummaryController().startValidation();
+
+                StagingareaControl.service.getConceptRelation(new SessionAwareAsyncCallback<ConceptRelationshipModel>() {
+
+                    @Override
+                    public void onSuccess(ConceptRelationshipModel relation) {
+                        FilterDialog.showFilter(relation, new FilterDialog.FilterListener() {
+
+                            @Override
+                            public void onFilter(FilterModel filterModel) {
+                                ControllerContainer.get().getSummaryController().startValidation(filterModel);
+                            }
+                        });
+                    }
+                });
             }
         });
     }
