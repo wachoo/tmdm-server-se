@@ -59,7 +59,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 getFieldName(field),
                 field.getType(),
                 field.getWriteUsers(),
-                field.getHideUsers());
+                field.getHideUsers(),
+                field.getWorkflowAccessRights());
         TypeMetadata declaringType = field.getDeclaringType();
         if (declaringType != field.getContainingType() && declaringType.isInstantiable()) {
             SoftTypeRef type = new SoftTypeRef(internalRepository,
@@ -130,7 +131,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 referenceField.allowFKIntegrityOverride(),
                 new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                 referenceField.getWriteUsers(),
-                referenceField.getHideUsers());
+                referenceField.getHideUsers(),
+                referenceField.getWorkflowAccessRights());
         database.addField(newFlattenField);
         entityMapping.map(referenceField, newFlattenField);
         currentMapping.peek().map(referenceField, newFlattenField);
@@ -161,7 +163,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     originalContainedType.getSchematron(),
                     originalContainedType.getPrimaryKeyInfo(),
                     originalContainedType.getLookupFields(),
-                    false);
+                    false,
+                    originalContainedType.getWorkflowAccessRights());
             internalRepository.addTypeMetadata(internalContainedType);
             if (superTypeName == null) {  // Generate a technical ID only if contained type does not have super type (subclasses will inherit it).
                 internalContainedType.addField(new SimpleTypeFieldMetadata(internalContainedType,
@@ -171,7 +174,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                         GENERATED_ID,
                         new SoftTypeRef(internalRepository, internalRepository.getUserNamespace(), Types.UUID, false),
                         originalContainedType.getWriteUsers(),
-                        originalContainedType.getHideUsers()));
+                        originalContainedType.getHideUsers(),
+                        originalContainedType.getWorkflowAccessRights()));
             } else {
                 internalContainedType.addSuperType(new SoftTypeRef(internalRepository, internalContainedType.getNamespace(), superTypeName, false), internalRepository);
             }
@@ -214,7 +218,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 false,
                 new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                 containedField.getWriteUsers(),
-                containedField.getHideUsers());
+                containedField.getHideUsers(),
+                containedField.getWorkflowAccessRights());
         newFlattenField.setData("SQL_DELETE_CASCADE", "true"); //$NON-NLS-1$ //$NON-NLS-2$
         currentType.peek().addField(newFlattenField);
         currentMapping.peek().map(containedField, newFlattenField);

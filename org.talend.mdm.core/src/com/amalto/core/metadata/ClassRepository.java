@@ -215,6 +215,7 @@ public class ClassRepository extends MetadataRepository {
                                             fieldType.getName(),
                                             fieldType),
                                     Collections.<String>emptyList(),
+                                    Collections.<String>emptyList(),
                                     Collections.<String>emptyList());
                         } else {
                             newField = new ReferenceFieldMetadata(typeStack.peek(),

@@ -81,7 +81,8 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     referenceField.allowFKIntegrityOverride(),
                     new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                     referenceField.getWriteUsers(),
-                    referenceField.getHideUsers());
+                    referenceField.getHideUsers(),
+                    referenceField.getWorkflowAccessRights());
             database.addField(newFlattenField);
         } else {
             newFlattenField = new SoftFieldRef(internalRepository, getColumnName(referenceField), referenceField.getContainingType());
@@ -129,7 +130,8 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     getColumnName(simpleField),
                     simpleField.getType(),
                     simpleField.getWriteUsers(),
-                    simpleField.getHideUsers());
+                    simpleField.getHideUsers(),
+                    simpleField.getWorkflowAccessRights());
             database.addField(newFlattenField);
         } else {
             SoftTypeRef internalDeclaringType;
@@ -145,7 +147,8 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     getColumnName(simpleField),
                     simpleField.getType(),
                     simpleField.getWriteUsers(),
-                    simpleField.getHideUsers());
+                    simpleField.getHideUsers(),
+                    simpleField.getWorkflowAccessRights());
             newFlattenField.setDeclaringType(internalDeclaringType);
             database.addField(newFlattenField);
         }
@@ -167,7 +170,8 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     getColumnName(enumField),
                     enumField.getType(),
                     enumField.getWriteUsers(),
-                    enumField.getHideUsers());
+                    enumField.getHideUsers(),
+                    enumField.getWorkflowAccessRights());
             database.addField(newFlattenField);
         } else {
             newFlattenField = new SoftFieldRef(internalRepository, getColumnName(enumField), enumField.getContainingType());
