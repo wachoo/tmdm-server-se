@@ -94,6 +94,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(ContainedComplexTypeMetadata containedType) {
+        mappings.addMapping(containedType, typeMapping);
         List<FieldMetadata> fields = containedType.getFields();
         for (FieldMetadata field : fields) {
             field.accept(this);

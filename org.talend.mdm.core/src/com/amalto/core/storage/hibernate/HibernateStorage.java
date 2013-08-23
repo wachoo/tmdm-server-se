@@ -252,6 +252,12 @@ public class HibernateStorage implements Storage {
                 }
                 TypeMapping mapping = mappingRepository.getMappingFromUser(containingType);
                 FieldMetadata database = mapping.getDatabase(indexedField);
+                if (database == null) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Ignore index on field '" + indexedField.getName() + "' because it is an anonymous contained type field.");
+                    }
+                    continue;
+                }
                 if (!isIndexable(database.getType())) {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Ignore index on field '" + indexedField.getName() + "' because value (in database mapping) is stored in TEXT.");

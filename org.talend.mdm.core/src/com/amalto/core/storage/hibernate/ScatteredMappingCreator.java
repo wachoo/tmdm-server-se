@@ -11,14 +11,29 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.*;
-import org.apache.commons.lang.StringUtils;
-
-import javax.xml.XMLConstants;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
+
+import javax.xml.XMLConstants;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ComplexTypeMetadataImpl;
+import com.amalto.core.metadata.ContainedComplexTypeMetadata;
+import com.amalto.core.metadata.ContainedTypeFieldMetadata;
+import com.amalto.core.metadata.DefaultMetadataVisitor;
+import com.amalto.core.metadata.EnumerationFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.SimpleTypeFieldMetadata;
+import com.amalto.core.metadata.SimpleTypeMetadata;
+import com.amalto.core.metadata.SoftIdFieldRef;
+import com.amalto.core.metadata.SoftTypeRef;
+import com.amalto.core.metadata.TypeMetadata;
 
 class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
@@ -29,6 +44,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     private final MappingRepository mappings;
 
     private final Stack<ComplexTypeMetadata> currentType = new Stack<ComplexTypeMetadata>();
+    
+    private final Stack<TypeMapping> currentMapping = new Stack<TypeMapping>();
 
     private final Set<TypeMetadata> processedTypes = new HashSet<TypeMetadata>();
 
@@ -60,6 +77,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         }
         currentType.peek().addField(newFlattenField);
         mapping.map(field, newFlattenField);
+        currentMapping.peek().map(field, newFlattenField);
         return null;
     }
 
@@ -106,6 +124,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 referenceField.getHideUsers());
         database.addField(newFlattenField);
         mapping.map(referenceField, newFlattenField);
+        currentMapping.peek().map(referenceField, newFlattenField);
         return null;
     }
 
@@ -159,21 +178,26 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             }
             internalRepository.addTypeMetadata(internalContainedType);
         }
+        // Visit contained type fields
+        TypeMapping typeMapping = mappings.getMappingFromUser(originalContainedType);
+        if (typeMapping != null) {
+            currentMapping.push(typeMapping);
+        } else {
+            typeMapping = new FlatTypeMapping(originalContainedType, internalContainedType, mappings);
+            mappings.addMapping(originalContainedType, typeMapping);
+        }
+        currentMapping.push(typeMapping);
         currentType.push(internalContainedType);
         {
             super.visit(originalContainedType);
         }
         currentType.pop();
+        currentMapping.pop();
         return typeName;
     }
 
     @Override
     public TypeMapping visit(ContainedTypeFieldMetadata containedField) {
-        if (processedTypes.contains(containedField.getContainedType())) {
-            return null;
-        } else {
-            processedTypes.add(containedField.getContainedType());
-        }
         String fieldName = getFieldName(containedField);
         String containedTypeName = newNonInstantiableTypeName(containedField.getContainedType());
         SoftTypeRef typeRef = new SoftTypeRef(internalRepository,
@@ -195,8 +219,12 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 containedField.getHideUsers());
         newFlattenField.setData("SQL_DELETE_CASCADE", "true"); //$NON-NLS-1$ //$NON-NLS-2$
         currentType.peek().addField(newFlattenField);
+        currentMapping.peek().map(containedField, newFlattenField);
         mapping.map(containedField, newFlattenField);
-        containedField.getContainedType().accept(this);
+        if (!processedTypes.contains(containedField.getContainedType())) {
+            processedTypes.add(containedField.getContainedType());
+            containedField.getContainedType().accept(this);
+        }
         return null;
     }
 
@@ -219,6 +247,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             // table with same name.
             database.setName(newNonInstantiableTypeName(database)); //$NON-NLS-1$
         }
+        currentMapping.push(mapping);
         currentType.push(database);
         {
             internalRepository.addTypeMetadata(database);
@@ -254,6 +283,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             }
         }
         currentType.pop();
+        currentMapping.pop();
         if (!currentType.isEmpty()) { // This is unexpected
             throw new IllegalStateException("Type remained in process stack.");
         }

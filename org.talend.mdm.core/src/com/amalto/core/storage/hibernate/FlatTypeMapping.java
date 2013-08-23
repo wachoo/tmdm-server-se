@@ -32,6 +32,10 @@ class FlatTypeMapping extends TypeMapping {
     public FlatTypeMapping(ComplexTypeMetadata complexType, MappingRepository mappings) {
         super(complexType, mappings);
     }
+    
+    public FlatTypeMapping(ComplexTypeMetadata complexType, ComplexTypeMetadata database, MappingRepository mappings) {
+        super(complexType, database, mappings);
+    }
 
     protected void map(FieldMetadata user, FieldMetadata database) {
         if (isFrozen) {
