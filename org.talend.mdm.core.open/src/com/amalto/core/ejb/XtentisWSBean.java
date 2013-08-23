@@ -1549,4 +1549,20 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
                 .getRoutingOrderV2ByCriteriaWithPaging(wsGetRoutingOrderV2ByCriteriaWithPaging);
     }
+    
+    /**
+     * @ejb.interface-method view-type = "service-endpoint"
+     * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
+     */
+    public WSDigest getDigest(WSDigestKey wsDigestKey) throws RemoteException {
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getDigest(wsDigestKey);
+    }
+
+    /**
+     * @ejb.interface-method view-type = "service-endpoint"
+     * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
+     */
+    public WSLong updateDigest(WSDigest wsDigest) throws RemoteException {
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().updateDigest(wsDigest);
+    }
 }

@@ -2606,6 +2606,45 @@
     </variable-mapping>
   </java-xml-type-mapping>
   <java-xml-type-mapping>
+    <java-type>com.amalto.core.webservice.WSLong</java-type>
+    <anonymous-type-qname>urn-com-amalto-xtentis-webservice:&gt;WSLong</anonymous-type-qname>
+    <qname-scope>complexType</qname-scope>
+    <variable-mapping>
+      <java-variable-name>value</java-variable-name>
+      <xml-element-name>value</xml-element-name>
+    </variable-mapping>
+  </java-xml-type-mapping>
+  <java-xml-type-mapping>
+    <java-type>com.amalto.core.webservice.WSDigestKey</java-type>
+    <root-type-qname xmlns:typeNS="urn-com-amalto-xtentis-webservice">typeNS:WSDigestKey</root-type-qname>
+    <qname-scope>complexType</qname-scope>
+    <variable-mapping>
+      <java-variable-name>objectName</java-variable-name>
+      <xml-element-name>objectName</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>type</java-variable-name>
+      <xml-element-name>type</xml-element-name>
+    </variable-mapping>
+  </java-xml-type-mapping>
+  <java-xml-type-mapping>
+    <java-type>com.amalto.core.webservice.WSDigest</java-type>
+    <root-type-qname xmlns:typeNS="urn-com-amalto-xtentis-webservice">typeNS:WSDigest</root-type-qname>
+    <qname-scope>complexType</qname-scope>
+    <variable-mapping>
+      <java-variable-name>wsDigestKey</java-variable-name>
+      <xml-element-name>wsDigestKey</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>digestValue</java-variable-name>
+      <xml-element-name>digestValue</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>timeStamp</java-variable-name>
+      <xml-element-name>timeStamp</xml-element-name>
+    </variable-mapping>
+  </java-xml-type-mapping>
+  <java-xml-type-mapping>
     <java-type>com.amalto.core.webservice.WSGetBusinessConceptValue</java-type>
     <root-type-qname xmlns:typeNS="urn-com-amalto-xtentis-webservice">typeNS:WSGetBusinessConceptValue</root-type-qname>
     <qname-scope>complexType</qname-scope>
@@ -5831,6 +5870,42 @@
         <method-return-value>com.amalto.core.webservice.WSRoutingOrderV2Array</method-return-value>
         <wsdl-message xmlns:wsdlMsgNS="urn-com-amalto-xtentis-webservice">wsdlMsgNS:getRoutingOrderV2ByCriteriaWithPagingResponse</wsdl-message>
         <wsdl-message-part-name>wsRoutingOrderArray</wsdl-message-part-name>
+      </wsdl-return-value-mapping>
+    </service-endpoint-method-mapping>
+    <service-endpoint-method-mapping>
+      <java-method-name>getDigest</java-method-name>
+      <wsdl-operation>getDigest</wsdl-operation>
+      <method-param-parts-mapping>
+        <param-position>0</param-position>
+        <param-type>com.amalto.core.webservice.WSDigestKey</param-type>
+        <wsdl-message-mapping>
+          <wsdl-message xmlns:wsdlMsgNS="urn-com-amalto-xtentis-webservice">wsdlMsgNS:getDigestRequest</wsdl-message>
+          <wsdl-message-part-name>wsDigestKey</wsdl-message-part-name>
+          <parameter-mode>IN</parameter-mode>
+        </wsdl-message-mapping>
+      </method-param-parts-mapping>
+      <wsdl-return-value-mapping>
+        <method-return-value>com.amalto.core.webservice.WSDigest</method-return-value>
+        <wsdl-message xmlns:wsdlMsgNS="urn-com-amalto-xtentis-webservice">wsdlMsgNS:getDigestResponse</wsdl-message>
+        <wsdl-message-part-name>wsDigest</wsdl-message-part-name>
+      </wsdl-return-value-mapping>
+    </service-endpoint-method-mapping>
+    <service-endpoint-method-mapping>
+      <java-method-name>updateDigest</java-method-name>
+      <wsdl-operation>updateDigest</wsdl-operation>
+      <method-param-parts-mapping>
+        <param-position>0</param-position>
+        <param-type>com.amalto.core.webservice.WSDigest</param-type>
+        <wsdl-message-mapping>
+          <wsdl-message xmlns:wsdlMsgNS="urn-com-amalto-xtentis-webservice">wsdlMsgNS:updateDigestRequest</wsdl-message>
+          <wsdl-message-part-name>wsDigest</wsdl-message-part-name>
+          <parameter-mode>IN</parameter-mode>
+        </wsdl-message-mapping>
+      </method-param-parts-mapping>
+      <wsdl-return-value-mapping>
+        <method-return-value>com.amalto.core.webservice.WSLong</method-return-value>
+        <wsdl-message xmlns:wsdlMsgNS="urn-com-amalto-xtentis-webservice">wsdlMsgNS:updateDigestResponse</wsdl-message>
+        <wsdl-message-part-name>wsLong</wsdl-message-part-name>
       </wsdl-return-value-mapping>
     </service-endpoint-method-mapping>
     <service-endpoint-method-mapping>

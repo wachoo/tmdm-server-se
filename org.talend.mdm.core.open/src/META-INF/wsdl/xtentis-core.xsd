@@ -14,6 +14,14 @@
 		</xsd:complexType>
 	</xsd:element>
 	
+	<xsd:element name="WSLong">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element maxOccurs="1" minOccurs="1" name="value" type="xsd:long"/>
+            </xsd:sequence>     
+        </xsd:complexType>
+    </xsd:element>
+	
 	<xsd:complexType name="WSStringArray">
 		<xsd:sequence>
 			<xsd:element maxOccurs="unbounded" minOccurs="0" name="strings" nillable="true" type="xsd:string"/>
@@ -132,6 +140,23 @@
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSConceptRevisionMap" type="tns:WSConceptRevisionMap"/>
+	
+	<xsd:complexType name="WSDigestKey">
+        <xsd:sequence>
+            <xsd:element maxOccurs="1" minOccurs="1" name="type" nillable="true" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="objectName" nillable="true" type="xsd:string"/>
+        </xsd:sequence>     
+    </xsd:complexType>
+    <xsd:element name="WSDigestKey" type="tns:WSDigestKey"/>
+    
+    <xsd:complexType name="WSDigest">
+        <xsd:sequence>
+            <xsd:element maxOccurs="1" minOccurs="1" name="key" nillable="true" type="tns:WSDigestKey"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="digestValue" nillable="true" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="timeStamp" nillable="true" type="xsd:long"/>
+        </xsd:sequence>     
+    </xsd:complexType>
+    <xsd:element name="WSDigest" type="tns:WSDigest"/>
 
 	<!-- *****************************************************
 		MANAGEMENT

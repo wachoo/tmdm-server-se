@@ -1607,6 +1607,32 @@
          <description><![CDATA[]]></description>
          <ejb-name>XtentisWS</ejb-name>
          <method-intf>ServiceEndpoint</method-intf>
+         <method-name>getDigest</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSDigestKey</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>updateDigest</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSDigest</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
          <method-name>routeItemV2</method-name>
          <method-params>
             <method-param>com.amalto.core.webservice.WSRouteItemV2</method-param>

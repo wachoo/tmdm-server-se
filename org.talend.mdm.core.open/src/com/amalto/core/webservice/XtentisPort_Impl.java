@@ -775,4 +775,12 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSAutoIncrement _retVal = null;
         return _retVal;
     }
+    public WSDigest getDigest(WSDigestKey key) throws java.rmi.RemoteException {
+        com.amalto.core.webservice.WSDigest _retVal = null;
+        return _retVal;
+    }
+    public WSLong updateDigest(WSDigest digest) throws java.rmi.RemoteException {
+        com.amalto.core.webservice.WSLong _retVal = null;
+        return _retVal;
+    }    
 }

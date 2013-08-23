@@ -46,6 +46,9 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -68,6 +71,8 @@ import com.amalto.core.ejb.UpdateReportItemPOJO;
 import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import com.amalto.core.metadata.ClassRepository;
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.migration.MigrationRepository;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
@@ -109,10 +114,16 @@ import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
+import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.SaveException;
 import com.amalto.core.save.SaverHelper;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.DocumentSaver;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.util.ArrayListHolder;
 import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.LocalUser;
@@ -4156,5 +4167,70 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         ObjectPOJO.clearCache();
         return new WSString("Refresh the item and object cache successfully!");
     }
-
+    
+    /**
+     * @ejb.interface-method view-type = "service-endpoint"
+     * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
+     */
+    public WSDigest getDigest(WSDigestKey wsDigestKey) {
+        StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
+        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, null); // Retrieves SYSTEM storage
+        MetadataRepository repository = systemStorage.getMetadataRepository(); // This repository holds all system object types
+        String type = wsDigestKey.getType();
+        String name = wsDigestKey.getObjectName();
+        systemStorage.begin(); // Storage needs an active transaction (even for read operations).
+        try {
+            String typeName = ClassRepository.format(type); // This line converts "DataClusterPOJO" into the name in system type repository.
+            ComplexTypeMetadata storageType = repository.getComplexType(typeName); // Get the type definition for query 
+            UserQueryBuilder qb = UserQueryBuilder.from(storageType) 
+                    .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name)); // Select instance of type where unique-id equals provided name
+            StorageResults results = systemStorage.fetch(qb.getSelect());
+            
+            Iterator<DataRecord> iterator = results.iterator();
+            if (iterator.hasNext()) {
+                DataRecord result = iterator.next();
+                return new WSDigest(wsDigestKey,(String)result.get("digest"), result.getRecordMetadata().getLastModificationTime());
+            } else {
+                return null;
+            }         
+        } finally {
+            systemStorage.rollback();
+        }
+    }
+    
+    /**
+     * @ejb.interface-method view-type = "service-endpoint"
+     * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
+     */
+    public WSLong updateDigest(WSDigest wsDigest) {
+        StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
+        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, null); // Retrieves SYSTEM storage
+        MetadataRepository repository = systemStorage.getMetadataRepository(); // This repository holds all system object types
+        String type = wsDigest.getWsDigestKey().getType();
+        String name = wsDigest.getWsDigestKey().getObjectName();
+        systemStorage.begin(); // Storage needs an active transaction (even for read operations).
+        try {
+            String typeName = ClassRepository.format(type);
+            ComplexTypeMetadata storageType = repository.getComplexType(typeName);
+            UserQueryBuilder qb = UserQueryBuilder.from(storageType)
+                    .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name))
+                    .forUpdate(); // <- Important line here!
+            StorageResults results = systemStorage.fetch(qb.getSelect());
+            
+            Iterator<DataRecord> iterator = results.iterator();
+            if (iterator.hasNext()) {
+                DataRecord result = iterator.next();
+                FieldMetadata digestField = storageType.getField("digest");
+                result.set(digestField, MetadataUtils.convert(wsDigest.getDigestValue(), digestField)); // Using convert ensure type is correct                
+                systemStorage.update(result); // No need to set timestamp (update will update it).
+                systemStorage.commit();
+                return new WSLong(result.getRecordMetadata().getLastModificationTime());
+            } else {
+                return null;
+            }            
+        } catch (Exception e) {
+            systemStorage.rollback();
+            throw new RuntimeException( e );
+        }
+    }
 }
