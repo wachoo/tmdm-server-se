@@ -112,10 +112,10 @@ public class DataRecordAccessor implements Accessor {
                     current = (DataRecord) current.get(pathElement.field);
                 }
             } else {
-                List<Object> list = (List) dataRecord.get(pathElement.field);
+                List<Object> list = (List) current.get(pathElement.field);
                 if (list == null) {
                     list = new ArrayList<Object>();
-                    dataRecord.set(pathElement.field, list);
+                    current.set(pathElement.field, list);
                 }
                 while (pathElement.index > list.size() - 1) { // Expand list size
                     list.add(null);
