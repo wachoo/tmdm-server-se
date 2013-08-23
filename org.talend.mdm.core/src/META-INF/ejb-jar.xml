@@ -935,6 +935,7 @@
    <method-permission >
       <description><![CDATA[description not supported yet by ejbdoclet]]></description>
       <role-name>administration</role-name>
+      <role-name>authenticated</role-name>      
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
          <ejb-name>XmlServerSLWrapper</ejb-name>
@@ -945,6 +946,7 @@
    <method-permission >
       <description><![CDATA[description not supported yet by ejbdoclet]]></description>
       <role-name>administration</role-name>
+      <role-name>authenticated</role-name>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
          <ejb-name>XmlServerSLWrapper</ejb-name>
