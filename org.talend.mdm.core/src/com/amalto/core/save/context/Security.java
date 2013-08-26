@@ -41,7 +41,8 @@ class Security implements DocumentSaver {
         Set<String> currentUserRoles = saverSource.getCurrentUserRoles();
 
         // admin has all rights, so bypass security checks
-        boolean bypassSecurityChecks = "admin".equals(saverSource.getUserName()); //$NON-NLS-1$
+        boolean bypassSecurityChecks = "admin".equals(saverSource.getUserName()) //$NON-NLS-1$
+                || "Update".equals(context.getDatabaseDocument().getType().getName()); //$NON-NLS-1$
         // administration has all roles, so bypass security checks
         if (currentUserRoles.contains("administration")) { //$NON-NLS-1$
             bypassSecurityChecks = true;

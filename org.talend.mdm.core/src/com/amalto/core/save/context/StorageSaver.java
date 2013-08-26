@@ -89,11 +89,6 @@ public class StorageSaver extends AbstractDocumentSaverContext {
                 if (updateReport) {
                     saver = new UpdateReport(saver);
                 }
-                // The UpdateReport does not need to be checked access rights (It is the orginal action,
-                // If it need also to check access rights, we need to Setup the UpdateReport Model access rights.)
-                if (UpdateReport.UPDATE_REPORT_DATA_MODEL.equals(storage.getName())) {
-                    return new Init(new ID(new GenerateActions(saver)));
-                }
                 return new Init(new ID(new GenerateActions(new Security(saver))));
             case SYSTEM:
                 return new Init(new ID(new GenerateActions(new ApplyActions(saver))));
