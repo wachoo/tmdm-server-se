@@ -145,6 +145,7 @@ public class DownloadFilePanel extends FormPanel {
             param.put("itemXmlString", CommonUtil.convertListToString(selectItemXmlList, Constants.FILE_EXPORT_IMPORT_SEPARATOR)); //$NON-NLS-1$ 
         } else {
             param.put("itemXmlString", ""); //$NON-NLS-1$//$NON-NLS-2$ 
+        }
         RecordsPagingConfig pagingLoad = queryModel.getPagingLoadConfig();
         String sortDir = null;
         if (SortDir.ASC.equals(SortDir.findDir(pagingLoad.getSortDir()))) {
