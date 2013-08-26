@@ -40,8 +40,11 @@ public class TaskFactory {
         if (Boolean.valueOf(System.getProperty("mdm.enable.matchmerge"))) { // TODO Temp property
             try {
                 Class<?> clazz = Class.forName("com.amalto.core.storage.task.MatchMergeTask"); //$NON-NLS-1$
-                Constructor<?> constructor = clazz.getConstructor(Storage.class, MetadataRepository.class, ClosureExecutionStats.class);
-                Object task = constructor.newInstance(stagingStorage, userRepository, stats);
+                Constructor<?> constructor = clazz.getConstructor(Storage.class,
+                        MetadataRepository.class,
+                        ClosureExecutionStats.class,
+                        Filter.class);
+                Object task = constructor.newInstance(stagingStorage, userRepository, stats, filter);
                 tasks.add((Task) task);
             } catch (ClassNotFoundException e) {
                 if (LOGGER.isDebugEnabled()) {
