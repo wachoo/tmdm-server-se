@@ -14,10 +14,14 @@ public class StagingConfiguration {
     private final Storage destination;
     private final Filter filter;
 
-    public StagingConfiguration(Storage origin, MetadataRepository stagingRepository, MetadataRepository userRepository, SaverSource source, SaverSession.Committer committer, Storage destination, Filter filter) {
+    public StagingConfiguration(Storage origin,
+                                SaverSource source,
+                                SaverSession.Committer committer,
+                                Storage destination,
+                                Filter filter) {
         this.origin = origin;
-        this.stagingRepository = stagingRepository;
-        this.userRepository = userRepository;
+        this.stagingRepository = origin.getMetadataRepository();
+        this.userRepository = destination.getMetadataRepository();
         this.source = source;
         this.committer = committer;
         this.destination = destination;
