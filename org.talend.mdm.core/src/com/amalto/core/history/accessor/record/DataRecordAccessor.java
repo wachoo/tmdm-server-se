@@ -398,7 +398,7 @@ public class DataRecordAccessor implements Accessor {
                     List list = (List) current.get(pathElement.field);
                     if (list == null) {
                         return 0;
-                    } else if (pathElement.index < 0) {
+                    } else if (pathElement.index < 0 || pathElement == pathElements.getLast()) {
                         return list.size();
                     }
                     current = (DataRecord) list.get(pathElement.index);
@@ -434,7 +434,8 @@ public class DataRecordAccessor implements Accessor {
                     if (list == null) {
                         return StringUtils.EMPTY;
                     }
-                    current = (DataRecord) list.get(pathElement.index);
+                    int index = pathElement.index == -1 ? 0 : pathElement.index;
+                    current = (DataRecord) list.get(index);
                 }
             }
         }

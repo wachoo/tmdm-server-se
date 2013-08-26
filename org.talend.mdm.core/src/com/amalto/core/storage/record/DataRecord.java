@@ -105,13 +105,16 @@ public class DataRecord {
         Object currentValue = null;
         while (tokenizer.hasMoreTokens()) {
             String currentPathElement = tokenizer.nextToken();
-            currentValue = current.get(current.getType().getField(currentPathElement));
+            FieldMetadata field = current.getType().getField(currentPathElement);
+            currentValue = current.get(field);
             if (tokenizer.hasMoreTokens()) {
                 if (currentValue == null) {
                     // Means record does not own field last call to "tokenizer.nextToken()" returned.
                     return null;
-                } else {
+                } else if(!field.isMany()) {
                     current = (DataRecord) currentValue;
+                } else { // Repeatable element
+                    current = (DataRecord) ((List) currentValue).get(0); // TODO No way to specify index in API.
                 }
             }
         }

@@ -121,8 +121,6 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             if (user == null) {
                 throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
             }
-            MetadataRepository stagingRepository = staging.getMetadataRepository();
-            MetadataRepository userRepository = user.getMetadataRepository();
             String userName;
             try {
                 userName = LocalUser.getLocalUser().getUsername();
@@ -130,8 +128,6 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
                 throw new RuntimeException("Can not get current user information.", e);
             }
             StagingConfiguration stagingConfig = new StagingConfiguration(staging,
-                    stagingRepository,
-                    userRepository,
                     DefaultSaverSource.getDefault(userName),
                     new DefaultCommitter(),
                     user,

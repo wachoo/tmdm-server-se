@@ -25,7 +25,7 @@ import org.talend.mdm.commmon.metadata.*;
 
 import java.util.*;
 
-class PartialUpdateActionCreator extends UpdateActionCreator {
+public class PartialUpdateActionCreator extends UpdateActionCreator {
 
     public static final Logger LOGGER = Logger.getLogger(PartialUpdateActionCreator.class);
 
@@ -74,16 +74,22 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                 generateTouchActions,
                 repository);
         this.preserveCollectionOldValues = preserveCollectionOldValues;
-        // Pivot MUST NOT end with '/' and key MUST start with '/' (see TMDM-4381).
-        if (pivot.charAt(pivot.length() - 1) == '/') {
-            partialUpdatePivot = pivot.substring(0, pivot.length() - 1);
+        if (!pivot.isEmpty()) {
+            // Pivot MUST NOT end with '/' and key MUST start with '/' (see TMDM-4381).
+            if (pivot.charAt(pivot.length() - 1) == '/') {
+                partialUpdatePivot = pivot.substring(0, pivot.length() - 1);
+            } else {
+                partialUpdatePivot = pivot;
+            }
+            if (!key.isEmpty() && key.charAt(0) != '/') {
+                this.partialUpdateKey = key + '/';
+            } else {
+                this.partialUpdateKey = key;
+            }
         } else {
-            partialUpdatePivot = pivot;
-        }
-        if (!key.isEmpty() && key.charAt(0) != '/') {
-            this.partialUpdateKey = key + '/';
-        } else {
-            this.partialUpdateKey = key;
+            inPivot = true;
+            partialUpdatePivot = originalDocument.getType().getName();
+            partialUpdateKey = key;
         }
         // Special comparison closure for partial update that compares only if we are in pivot.
         closure = new Closure() {

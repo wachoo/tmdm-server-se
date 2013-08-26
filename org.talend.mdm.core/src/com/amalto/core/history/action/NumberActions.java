@@ -14,14 +14,14 @@ package com.amalto.core.history.action;
 import com.amalto.core.history.Action;
 import org.apache.commons.lang.NotImplementedException;
 
-import java.math.BigDecimal;
-
 public class NumberActions {
 
     public static Action max(FieldUpdateAction action) {
-        BigDecimal newValue = new BigDecimal(action.getNewValue());
-        BigDecimal oldValue = new BigDecimal(action.getOldValue());
-        if (newValue.longValue() > oldValue.longValue()) {
+        String newValueAsString = action.getNewValue();
+        String oldValueAsString = action.getOldValue();
+        long newValue = newValueAsString.isEmpty() ? Long.MIN_VALUE : Long.parseLong(newValueAsString);
+        long oldValue = oldValueAsString.isEmpty() ? Long.MIN_VALUE : Long.parseLong(oldValueAsString);
+        if (newValue > oldValue) {
             return action;
         } else {
             return NoOpAction.instance();
@@ -29,9 +29,11 @@ public class NumberActions {
     }
 
     public static Action min(FieldUpdateAction action) {
-        BigDecimal newValue = new BigDecimal(action.getNewValue());
-        BigDecimal oldValue = new BigDecimal(action.getOldValue());
-        if (newValue.longValue() < oldValue.longValue()) {
+        String newValueAsString = action.getNewValue();
+        String oldValueAsString = action.getOldValue();
+        long newValue = newValueAsString.isEmpty() ? Long.MAX_VALUE : Long.parseLong(newValueAsString);
+        long oldValue = oldValueAsString.isEmpty() ? Long.MAX_VALUE : Long.parseLong(oldValueAsString);
+        if (newValue < oldValue) {
             return action;
         } else {
             return NoOpAction.instance();
