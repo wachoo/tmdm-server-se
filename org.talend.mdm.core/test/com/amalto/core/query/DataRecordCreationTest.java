@@ -11,23 +11,28 @@
 package com.amalto.core.query;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
+import com.amalto.core.integrity.ForeignKeyIntegrity;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.XmlDOMDataRecordReader;
 import com.amalto.core.storage.record.XmlSAXDataRecordReader;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
@@ -316,4 +321,37 @@ public class DataRecordCreationTest extends StorageTestCase {
         assertEquals("123456", metadata.getTaskId());
 
     }
+    
+    public void testCreationFromXMLStringWithReusableType() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(this.getClass().getResourceAsStream("rte.xsd"));
+
+        ComplexTypeMetadata contrat = repository.getComplexType("Contrat");
+        assertNotNull(contrat);
+
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("DataRecordCreationTest3.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord dataRecord = dataRecordReader.read("1", repository, contrat, builder.toString());
+        assertNotNull(dataRecord);
+
+        // Test exportToString
+        StringWriter output = new StringWriter();
+        DataRecordWriter writer = new DataRecordXmlWriter();
+        try {
+            writer.write(dataRecord, output);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String actualXml = output.toString();
+        String expectedXml = "<Contrat><numeroContrat>1</numeroContrat><numeroContratExterne>1</numeroContratExterne><detailContrat xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"AP-AA\"></detailContrat></Contrat>";
+        assertEquals(expectedXml, actualXml);
+    }
+
 }

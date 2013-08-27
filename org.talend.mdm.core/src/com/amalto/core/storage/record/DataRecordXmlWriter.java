@@ -133,7 +133,8 @@ public class DataRecordXmlWriter implements DataRecordWriter {
             try {
                 if (!containedField.isMany()) {
                     DataRecord containedRecord = (DataRecord) record.get(containedField);
-                    if (containedRecord != null && !containedRecord.isEmpty()) {
+                    // TMDM-6232 Unable to save reusable type value (remove --> && !containedRecord.isEmpty())
+                    if (containedRecord != null) {
                         // TODO Limit new field printer instances
                         DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(containedRecord, out);
                         Collection<FieldMetadata> fields = containedRecord.getType().getFields();
