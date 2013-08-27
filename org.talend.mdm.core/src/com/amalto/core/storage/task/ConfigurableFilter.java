@@ -137,6 +137,6 @@ public class ConfigurableFilter implements Filter {
 
     @Override
     public boolean exclude(ComplexTypeMetadata type) {
-        return !concepts.contains(type.getName());
+        return !concepts.isEmpty() && !concepts.contains(type.getName());
     }
 }
