@@ -485,9 +485,6 @@ public class ItemDetailToolBar extends ToolBar {
                 @Override
                 public void componentSelected(ButtonEvent ce) {
                     String ids = itemBean.getIds();
-                    if (ids.indexOf("@") != -1) { //$NON-NLS-1$
-                        ids = ids.replaceAll("@", "."); //$NON-NLS-1$ //$NON-NLS-2$
-                    }
                     initJournal(ids, itemBean.getConcept());
                 }
 
