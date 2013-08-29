@@ -39,6 +39,11 @@ public interface Storage {
     byte CAP_INTEGRITY = 4;
 
     /**
+     * @return A storage implementation that does not perform any on-the-fly data modification.
+     */
+    Storage asInternal();
+
+    /**
      * @return A bit mask of capabilities for this storage implementation.
      * @see #CAP_TRANSACTION
      * @see #CAP_INTEGRITY
@@ -63,6 +68,7 @@ public interface Storage {
 
     /**
      * Name of the column where MDM status (validated...) is stored (for STAGING databases only).
+     *
      * @see com.amalto.core.storage.task.StagingConstants
      */
     String METADATA_STAGING_STATUS = "x_talend_staging_status"; //$NON-NLS-1$
@@ -100,17 +106,16 @@ public interface Storage {
 
     /**
      * Prepare storage to handle types located in {@link MetadataRepository}.
-     * 
      *
-     * @param repository A initialized {@link org.talend.mdm.commmon.metadata.MetadataRepository} instance.
+     * @param repository           A initialized {@link org.talend.mdm.commmon.metadata.MetadataRepository} instance.
      * @param optimizedExpressions A {@link java.util.Set} of {@link Expression} that need to be optimized. It is up to the
-     * implementation to decide whether this information should be used or not. Callers of this method expects
-     * implementation to take all necessary actions to allow quick execution on the queries in <code>optimizedExpressions</code>.
-     * @param force <code>true</code> will force the storage to prepare event if
-     * {@link #prepare(org.talend.mdm.commmon.metadata.MetadataRepository, boolean)} has already been called.
-     * <code>false</code> will be a "no op" operation if storage is already prepared.
-     * @param dropExistingData if <code>true</code>, storage preparation will drop all data that may previously exist.
-     * Use this parameter with caution since recovery is not supported.
+     *                             implementation to decide whether this information should be used or not. Callers of this method expects
+     *                             implementation to take all necessary actions to allow quick execution on the queries in <code>optimizedExpressions</code>.
+     * @param force                <code>true</code> will force the storage to prepare event if
+     *                             {@link #prepare(org.talend.mdm.commmon.metadata.MetadataRepository, boolean)} has already been called.
+     *                             <code>false</code> will be a "no op" operation if storage is already prepared.
+     * @param dropExistingData     if <code>true</code>, storage preparation will drop all data that may previously exist.
+     *                             Use this parameter with caution since recovery is not supported.
      * @see MetadataRepository#load(java.io.InputStream)
      * @see #prepare(MetadataRepository, boolean)
      */
@@ -118,10 +123,10 @@ public interface Storage {
 
     /**
      * Prepare storage to handle types located in {@link MetadataRepository}.
-     * 
-     * @param repository A initialized {@link MetadataRepository} instance.
+     *
+     * @param repository       A initialized {@link MetadataRepository} instance.
      * @param dropExistingData if <code>true</code>, storage preparation will drop all data that may previously exist.
-     * Use this parameter with caution since recovery is not supported.
+     *                         Use this parameter with caution since recovery is not supported.
      * @see MetadataRepository#load(java.io.InputStream)
      */
     void prepare(MetadataRepository repository, boolean dropExistingData);
@@ -136,7 +141,7 @@ public interface Storage {
     /**
      * Returns all records that match the {@link Expression}. The <code>expression</code> should be a valid
      * {@link com.amalto.core.query.user.Select}.
-     * 
+     *
      * @param userQuery A {@link com.amalto.core.query.user.Select} instance.
      * @return A {@link Iterable} instance to navigate through query results. This iterable class also provides ways to
      * get how many records are returned and how many matched query in database.
@@ -147,7 +152,7 @@ public interface Storage {
     /**
      * Updates storage with a new or existing record. Record might already exist, storage implementation (or underlying
      * storage framework) will decide whether this is new record or old one.
-     * 
+     *
      * @param record Record to be created or updated.
      */
     void update(DataRecord record);
@@ -155,7 +160,7 @@ public interface Storage {
     /**
      * Updates storage with new or existing records. Records might already exist, storage implementation (or underlying
      * storage framework) will decide whether this is all new records or old ones.
-     * 
+     *
      * @param records Records to be created or updated.
      */
     void update(Iterable<DataRecord> records);
@@ -169,9 +174,10 @@ public interface Storage {
      * Implementations are expected to throw {@link IllegalArgumentException} if <code>userQuery</code> does not match
      * any record.
      * </p>
+     *
      * @param userQuery A {@link com.amalto.core.query.user.Select} instance.
-     * @see com.amalto.core.query.user.UserQueryBuilder
      * @throws IllegalArgumentException If <code>userQuery</code> does not match any document in storage.
+     * @see com.amalto.core.query.user.UserQueryBuilder
      */
     void delete(Expression userQuery);
 
@@ -225,9 +231,9 @@ public interface Storage {
     /**
      * Returns suggested keywords (words that match result in full text index) for the <code>keyword</code>. Returned
      * results depend on {@link FullTextSuggestion}.
-     * 
-     * @param keyword A word to be used as input for this method (only one word).
-     * @param mode {@link FullTextSuggestion} suggestion mode.
+     *
+     * @param keyword        A word to be used as input for this method (only one word).
+     * @param mode           {@link FullTextSuggestion} suggestion mode.
      * @param suggestionSize Number of suggestions this method should return.
      * @return A {@link Set} of <code>suggestionSize</code> keywords that matches results in full text index.
      */

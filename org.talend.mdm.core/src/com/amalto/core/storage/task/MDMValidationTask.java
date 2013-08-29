@@ -140,11 +140,22 @@ public class MDMValidationTask extends MetadataRepositoryTask {
 
     @Override
     public Condition getDefaultFilter() {
-        return or(eq(status(), StagingConstants.SUCCESS_MERGED_RECORD),
-                or(eq(status(), StagingConstants.NEW),
-                        or(isNull(status()),
-                                or(eq(status(), StagingConstants.FAIL_VALIDATE_CONSTRAINTS),
-                                        eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)))));
+        return or(
+                eq(status(), StagingConstants.TASK_RESOLVED_RECORD),
+                or(
+                        eq(status(), StagingConstants.SUCCESS_MERGED_RECORD),
+                        or(
+                                eq(status(), StagingConstants.NEW),
+                                or(
+                                        isNull(status()),
+                                        or(
+                                                eq(status(), StagingConstants.FAIL_VALIDATE_CONSTRAINTS),
+                                                eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)
+                                        )
+                                )
+                        )
+                )
+        );
     }
 
     private class MDMValidationClosure implements Closure {

@@ -864,6 +864,11 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
 
         @Override
+        public Storage asInternal() {
+            return this;
+        }
+
+        @Override
         public int getCapabilities() {
             return CAP_TRANSACTION;
         }

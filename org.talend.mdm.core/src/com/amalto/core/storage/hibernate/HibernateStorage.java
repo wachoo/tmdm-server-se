@@ -129,6 +129,11 @@ public class HibernateStorage implements Storage {
     }
 
     @Override
+    public Storage asInternal() {
+        return this;
+    }
+
+    @Override
     public int getCapabilities() {
         int capabilities = CAP_TRANSACTION | CAP_INTEGRITY;
         if (dataSource.supportFullText()) {
@@ -591,8 +596,10 @@ public class HibernateStorage implements Storage {
             for (DataRecord currentDataRecord : records) {
                 TypeMapping mapping = mappingRepository.getMappingFromUser(currentDataRecord.getType());
                 Wrapper o = (Wrapper) currentDataRecord.convert(converter, mapping);
+                if (session.isReadOnly(o)) { // A read only instance for an update?
+                    session.setReadOnly(o, false);
+                }
                 o.timestamp(System.currentTimeMillis());
-
                 DataRecordMetadata recordMetadata = currentDataRecord.getRecordMetadata();
                 Map<String, String> recordProperties = recordMetadata.getRecordProperties();
                 if (o.taskId() == null) {
@@ -602,14 +609,6 @@ public class HibernateStorage implements Storage {
                     String key = currentProperty.getKey();
                     String value = currentProperty.getValue();
                     ComplexTypeMetadata database = mapping.getDatabase();
-                    if (recordProperties.containsKey(Storage.METADATA_STAGING_STATUS)) {
-                        int currentStatus = Integer.parseInt(recordProperties.get(Storage.METADATA_STAGING_STATUS));
-                        int successStatus = Integer.parseInt(StagingConstants.SUCCESS);
-                        /*if (storageType == StorageType.STAGING && currentStatus >= successStatus) { // Change status automatically in staging when modified
-                            recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.NEW);
-                            o.taskId(null);
-                        }*/
-                    }
                     if (database.hasField(key)) {
                         Object convertedValue = MetadataUtils.convert(value, database.getField(key));
                         o.set(key, convertedValue);
@@ -772,21 +771,11 @@ public class HibernateStorage implements Storage {
                 }
 
                 Wrapper object = (Wrapper) session.get(clazz, idValue, LockOptions.READ);
-                switch (storageType) {
-                    case MASTER:
-                    case SYSTEM:
-                        if (object != null) {
-                            session.delete(object);
-                        } else {
-                            LOGGER.warn("Instance of type '" + currentType.getName() + "' and ID '" + idValue.toString()
-                                    + "' has already been deleted within same transaction.");
-                        }
-                        break;
-                    case STAGING:
-                        object.set(Storage.METADATA_STAGING_STATUS, Integer.parseInt(StagingConstants.DELETED));
-                        break;
-                    default:
-                        throw new NotImplementedException("Not support for delete on storage type '" + storageType + "'.");
+                if (object != null) {
+                    session.delete(object);
+                } else {
+                    LOGGER.warn("Instance of type '" + currentType.getName() + "' and ID '" + idValue.toString()
+                            + "' has already been deleted within same transaction.");
                 }
             }
         } catch (ConstraintViolationException e) {

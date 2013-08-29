@@ -375,6 +375,13 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
         }
 
         @Override
+        public Result visit(TaskId taskId) {
+            Result fieldResult = new Result();
+            fieldResult.id = false;
+            return fieldResult;
+        }
+
+        @Override
         public Result visit(StagingStatus stagingStatus) {
             Result fieldResult = new Result();
             fieldResult.id = false;

@@ -54,6 +54,10 @@ public interface StagingConstants {
      */
     String DELETED = "206";
     /**
+     * Indicates record merged using with a DSC task resolution.
+     */
+    String TASK_RESOLVED_RECORD = "207";
+    /**
      * Generic fail status.
      */
     String FAIL = "400"; //$NON-NLS-1$

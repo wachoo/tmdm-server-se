@@ -19,8 +19,8 @@ public class NumberActions {
     public static Action max(FieldUpdateAction action) {
         String newValueAsString = action.getNewValue();
         String oldValueAsString = action.getOldValue();
-        long newValue = newValueAsString.isEmpty() ? Long.MIN_VALUE : Long.parseLong(newValueAsString);
-        long oldValue = oldValueAsString.isEmpty() ? Long.MIN_VALUE : Long.parseLong(oldValueAsString);
+        float newValue = newValueAsString.isEmpty() ? Long.MIN_VALUE : Float.parseFloat(newValueAsString);
+        float oldValue = oldValueAsString.isEmpty() ? Long.MIN_VALUE : Float.parseFloat(oldValueAsString);
         if (newValue > oldValue) {
             return action;
         } else {
@@ -31,8 +31,8 @@ public class NumberActions {
     public static Action min(FieldUpdateAction action) {
         String newValueAsString = action.getNewValue();
         String oldValueAsString = action.getOldValue();
-        long newValue = newValueAsString.isEmpty() ? Long.MAX_VALUE : Long.parseLong(newValueAsString);
-        long oldValue = oldValueAsString.isEmpty() ? Long.MAX_VALUE : Long.parseLong(oldValueAsString);
+        float newValue = newValueAsString.isEmpty() ? Long.MAX_VALUE : Float.parseFloat(newValueAsString);
+        float oldValue = oldValueAsString.isEmpty() ? Long.MAX_VALUE : Float.parseFloat(oldValueAsString);
         if (newValue < oldValue) {
             return action;
         } else {

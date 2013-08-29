@@ -33,6 +33,11 @@ public class StorageLogger implements Storage {
     }
 
     @Override
+    public Storage asInternal() {
+        return delegate;
+    }
+
+    @Override
     public int getCapabilities() {
         return delegate.getCapabilities();
     }

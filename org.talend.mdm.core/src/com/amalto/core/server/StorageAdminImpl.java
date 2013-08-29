@@ -17,6 +17,7 @@ import com.amalto.core.ejb.DroppedItemPOJO;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.query.user.Expression;
+import com.amalto.core.storage.StagingStorage;
 import org.apache.commons.io.IOUtils;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
@@ -234,14 +235,16 @@ public class StorageAdminImpl implements StorageAdmin {
         MetadataRepository metadataRepository = metadataRepositoryAdmin.get(dataModelName);
         Set<Expression> indexedExpressions = metadataRepositoryAdmin.getIndexedExpressions(dataModelName);
         try {
-            dataModelStorage.prepare(metadataRepository, indexedExpressions, hasDataModel, autoClean);
+            dataModelStorage.prepare(metadataRepository, indexedExpressions, true, autoClean);
         } catch (Exception e) {
             throw new RuntimeException("Could not create storage for container '" + storageName + "' (" + storageType + ") using data model '" + dataModelName + "'.", e);
         }
         switch (storageType) {
             case MASTER:
-            case STAGING:
                 registerStorage(registeredStorageName, revisionId, dataModelStorage);
+                break;
+            case STAGING:
+                registerStorage(registeredStorageName, revisionId, new StagingStorage(dataModelStorage));
                 break;
             default:
                 throw new IllegalArgumentException("No support for storage type '" + storageType + "'.");

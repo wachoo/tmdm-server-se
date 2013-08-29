@@ -52,7 +52,7 @@ abstract class MetadataRepositoryTask implements Task {
                            MetadataRepository repository,
                            ClosureExecutionStats stats,
                            Filter filter) {
-        this.storage = storage;
+        this.storage = storage.asInternal();
         this.repository = repository;
         this.stats = stats;
         this.filter = filter;

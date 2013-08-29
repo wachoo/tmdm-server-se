@@ -187,6 +187,11 @@ public class TransactionTest extends TestCase {
         }
 
         @Override
+        public Storage asInternal() {
+            return this;
+        }
+
+        @Override
         public int getCapabilities() {
             return capabilities;
         }
