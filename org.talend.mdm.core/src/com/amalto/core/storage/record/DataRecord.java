@@ -247,4 +247,7 @@ public class DataRecord {
         return copy;
     }
 
+    public void remove(FieldMetadata field) {
+        fieldToValue.remove(field);
+    }
 }

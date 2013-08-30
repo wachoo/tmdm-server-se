@@ -23,6 +23,7 @@ import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.w3c.dom.Document;
 
@@ -30,6 +31,8 @@ import javax.xml.parsers.DocumentBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Iterator;
+import java.util.List;
 
 public class StorageDocument implements MutableDocument {
 
@@ -111,6 +114,38 @@ public class StorageDocument implements MutableDocument {
 
     @Override
     public void clean() {
+        clean(dataRecord);
+    }
+
+    private DataRecord clean(DataRecord dataRecord) {
+        ComplexTypeMetadata type = dataRecord.getType();
+        for (FieldMetadata entityField : type.getFields()) {
+            Object fieldData = dataRecord.get(entityField);
+            if (fieldData == null) {
+                dataRecord.remove(entityField);
+            } else if(entityField.isMany()) {
+                List list = (List) fieldData;
+                Iterator iterator = list.iterator();
+                while (iterator.hasNext()) {
+                    if (iterator.next() == null) {
+                        iterator.remove();
+                    }
+                }
+                if (list.isEmpty()) {
+                    dataRecord.remove(entityField);
+                }
+            } else if (entityField.getType() instanceof ComplexTypeMetadata) {
+                DataRecord cleanedDataRecord = clean((DataRecord) fieldData);
+                if (cleanedDataRecord == null) {
+                    dataRecord.remove(entityField);
+                }
+            }
+        }
+        if (dataRecord.getSetFields().isEmpty()) {
+            return null;
+        } else {
+            return dataRecord;
+        }
     }
 
     @Override
