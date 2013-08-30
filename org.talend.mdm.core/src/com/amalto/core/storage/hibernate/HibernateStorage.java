@@ -14,10 +14,8 @@ import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.optimization.*;
 import com.amalto.core.query.user.*;
 import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.task.StagingConstants;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.TransactionManager;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Level;
 import org.hibernate.cfg.Environment;
 import org.talend.mdm.commmon.metadata.*;
@@ -151,7 +149,7 @@ public class HibernateStorage implements Storage {
     public void init(DataSource dataSource) {
         // Stateless components
         if (dataSource == null) {
-            throw new IllegalArgumentException("Data source named '" + dataSource + "' does not exist.");
+            throw new IllegalArgumentException("Data source can not be null.");
         }
         if (!(dataSource instanceof RDBMSDataSource)) {
             throw new IllegalArgumentException("Data source is expected to be a RDBMS data source.");
@@ -894,6 +892,10 @@ public class HibernateStorage implements Storage {
         if (storageClassLoader == null || storageClassLoader.isClosed()) {
             throw new IllegalStateException("Storage has been closed.");
         }
+    }
+
+    public StorageClassLoader getClassLoader() {
+        return storageClassLoader;
     }
 
     private static class MetadataChecker extends DefaultMetadataVisitor<Object> {
