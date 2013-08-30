@@ -100,17 +100,23 @@ public interface StagingareaMessages extends Messages {
 
     String underlying_cause();
 
-    String concept_selector();
+    String entity_selector();
 
-    String select_concept();
+    String change_concepts();
 
-    String concept_collection();
+    String delete_all_concept();
 
-    String condition();
+    String entity_filter();
 
-    String concept();
+    String entity_filter_title();
 
-    String fk_relation();
+    String status_filter();
+
+    String datetime_filter();
+
+    String entity();
+
+    String dep_fk();
 
     String ok();
 

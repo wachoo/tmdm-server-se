@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import org.talend.mdm.webapp.stagingareacontrol.client.i18n.MessagesFactory;
@@ -23,29 +22,32 @@ import org.talend.mdm.webapp.stagingareacontrol.client.model.FilterModel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.ListView;
+import com.extjs.gxt.ui.client.widget.ListViewSelectionModel;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.dom.client.Style.Cursor;
-import com.google.gwt.dom.client.Style.Float;
 import com.google.gwt.dom.client.Style.FontWeight;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 public class FilterDialog extends Window {
 
@@ -56,15 +58,17 @@ public class FilterDialog extends Window {
 
     private ContentPanel container = new ContentPanel();
 
-    ToolBar toolBar = new ToolBar();
+    Button changConcept = new Button(MessagesFactory.getMessages().change_concepts());
 
-    Button selectConcept = new Button(MessagesFactory.getMessages().select_concept());
+    Button deleteAll = new Button(MessagesFactory.getMessages().delete_all_concept());
 
     FieldSet conceptSet = new FieldSet();
 
-    FlowPanel conceptSelector = new FlowPanel();
+    ListView<BaseModel> conceptList = new ListView<BaseModel>();
 
-    FilterSet filterSet = new FilterSet();
+    StatusSet statusSet = new StatusSet();
+
+    TimeSet timeSet = new TimeSet();
 
     private Button ok = new Button(MessagesFactory.getMessages().ok());
 
@@ -88,11 +92,33 @@ public class FilterDialog extends Window {
         container.setBodyBorder(false);
         container.setScrollMode(Scroll.AUTOY);
 
-        conceptSet.setHeading(MessagesFactory.getMessages().concept_collection());
-        conceptSet.add(conceptSelector);
+        conceptSet.setHeading(MessagesFactory.getMessages().entity_filter());
+
+        FlexTable conceptLayout = new FlexTable();
+        conceptLayout.setWidth("100%"); //$NON-NLS-1$
+        conceptList.setStore(new ListStore<BaseModel>());
+        conceptList.setWidth("100%"); //$NON-NLS-1$
+        conceptList.setHeight(200);
+        ListViewSelectionModel<BaseModel> selectModel = new ListViewSelectionModel<BaseModel>();
+        selectModel.setSelectionMode(SelectionMode.SINGLE);
+        selectModel.setLocked(true);
+        conceptList.setSelectionModel(selectModel);
+
+        conceptLayout.setWidget(0, 0, new HTML("<b>" + MessagesFactory.getMessages().entity_filter_title() + "</b>")); //$NON-NLS-1$//$NON-NLS-2$
+        conceptLayout.setWidget(1, 0, conceptList);
+        conceptLayout.getFlexCellFormatter().setColSpan(0, 0, 2);
+        conceptLayout.getFlexCellFormatter().setColSpan(1, 0, 2);
+
+        conceptLayout.setWidget(2, 0, changConcept);
+        conceptLayout.setWidget(2, 1, deleteAll);
+        conceptLayout.getFlexCellFormatter().setAlignment(2, 1, HasHorizontalAlignment.ALIGN_RIGHT,
+                HasVerticalAlignment.ALIGN_MIDDLE);
+
+        conceptSet.add(conceptLayout);
 
         container.add(conceptSet);
-        container.add(filterSet);
+        container.add(statusSet);
+        container.add(timeSet);
 
         ok.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
@@ -102,16 +128,15 @@ public class FilterDialog extends Window {
                 FilterModel filter = new FilterModel();
                 List<String> concepts = new ArrayList<String>();
 
-                Iterator<Widget> conceptIter = conceptSelector.iterator();
-                while (conceptIter.hasNext()) {
-                    Label conceptlb = (Label) conceptIter.next();
-                    concepts.add(conceptlb.getText());
+                for (int i = 0; i < conceptList.getItemCount(); i++) {
+                    BaseModel item = conceptList.getStore().getAt(i);
+                    concepts.add((String) item.get("value")); //$NON-NLS-1$
                 }
 
                 filter.setConcepts(concepts);
-                filter.setStatusCodes(filterSet.getStatuses());
-                filter.setStartDate(filterSet.getStartDate());
-                filter.setEndDate(filterSet.getEndDate());
+                filter.setStatusCodes(statusSet.getStatuses());
+                filter.setStartDate(timeSet.getStartDate());
+                filter.setEndDate(timeSet.getEndDate());
                 listener.onFilter(filter);
             }
         });
@@ -127,33 +152,45 @@ public class FilterDialog extends Window {
         this.setButtonAlign(HorizontalAlignment.RIGHT);
 
         this.add(container);
-        selectConcept.addSelectionListener(new SelectionListener<ButtonEvent>() {
+        changConcept.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
+
+                ListStore<BaseModel> store = conceptList.getStore();
+                List<String> concepts = new ArrayList<String>();
+                for (int i = 0; i < store.getCount(); i++) {
+                    BaseModel item = store.getAt(i);
+                    concepts.add((String) item.get("value")); //$NON-NLS-1$
+                }
 
                 selector.show(new ConceptSelector.SelectorHandler() {
 
                     @Override
                     public void onSelect(List<String> concepts) {
-                        conceptSelector.clear();
+                        conceptList.getStore().removeAll();
                         for (String concept : concepts) {
-                            Label clb = new Label(concept);
-                            clb.getElement().getStyle().setMargin(5D, Unit.PX);
-                            clb.getElement().getStyle().setFloat(Float.LEFT);
-                            conceptSelector.add(clb);
+                            BaseModel item = new BaseModel();
+                            item.set("text", concept); //$NON-NLS-1$
+                            item.set("value", concept); //$NON-NLS-1$
+                            conceptList.getStore().add(item);
                         }
                     }
-                });
+                }, concepts);
 
             }
         });
-        toolBar.add(selectConcept);
-        this.setTopComponent(toolBar);
-        setSize(480, 280);
+        deleteAll.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                conceptList.getStore().removeAll();
+            }
+        });
+        setSize(600, 550);
     }
 
-    class FilterSet extends FieldSet {
+    class StatusSet extends FieldSet {
 
         CheckBox status000 = new CheckBox("000"); //$NON-NLS-1$
 
@@ -169,9 +206,7 @@ public class FilterDialog extends Window {
 
         FlexTable table = new FlexTable();
 
-        TimePanel timePanel = new TimePanel();
-
-        public FilterSet() {
+        public StatusSet() {
 
             table.setWidth("100%"); //$NON-NLS-1$
             table.setCellPadding(3);
@@ -194,11 +229,8 @@ public class FilterDialog extends Window {
             table.getFlexCellFormatter().setWidth(0, 0, "100px"); //$NON-NLS-1$
             table.setWidget(0, 1, statusLine);
 
-            table.setWidget(1, 0, timePanel);
-            table.getFlexCellFormatter().setColSpan(1, 0, 4);
-
             this.add(table);
-            this.setHeading(MessagesFactory.getMessages().condition());
+            this.setHeading(MessagesFactory.getMessages().status_filter());
         }
 
         public List<String> getStatuses() {
@@ -223,17 +255,11 @@ public class FilterDialog extends Window {
             }
             return statuses;
         }
-
-        public Date getStartDate() {
-            return timePanel.getStartDate();
-        }
-
-        public Date getEndDate() {
-            return timePanel.getEndDate();
-        }
     }
 
-    class TimePanel extends Composite {
+    class TimeSet extends FieldSet {
+
+        Label all = new Label("All");
 
         Label today = new Label(MessagesFactory.getMessages().today());
 
@@ -245,7 +271,7 @@ public class FilterDialog extends Window {
 
         Label custom = new Label(MessagesFactory.getMessages().customizing());
 
-        Label selectedLabel = today;
+        Label selectedLabel = all;
 
         DateField startDate = new DateField();
 
@@ -281,18 +307,21 @@ public class FilterDialog extends Window {
                     timeLabel.getElement().getStyle().setColor("black"); //$NON-NLS-1$
                     timeLabel.getElement().getStyle().setFontWeight(FontWeight.BOLD);
 
-                    if (timeLabel == today) {
+                    if (timeLabel == all) {
+                        startDate.setValue(null);
+                        endDate.setValue(null);
+                    } else if (timeLabel == today) {
                         startDate.setValue(new Date(now.getTime()));
-                        endDate.setValue(new Date());
+                        endDate.setValue(null);
                     } else if (timeLabel == yesterday) {
                         startDate.setValue(new Date(now.getTime() - DAY));
-                        endDate.setValue(new Date());
+                        endDate.setValue(null);
                     } else if (timeLabel == lastWeek) {
                         startDate.setValue(new Date(now.getTime() - (7 * DAY)));
-                        endDate.setValue(new Date());
+                        endDate.setValue(null);
                     } else if (timeLabel == lastMonth) {
                         startDate.setValue(new Date(now.getTime() - (30 * DAY)));
-                        endDate.setValue(new Date());
+                        endDate.setValue(null);
                     }
 
                     if (timeLabel == custom) {
@@ -306,10 +335,14 @@ public class FilterDialog extends Window {
             }
         };
 
-        public TimePanel() {
-            today.getElement().getStyle().setCursor(Cursor.TEXT);
-            today.getElement().getStyle().setFontWeight(FontWeight.BOLD);
-            today.getElement().getStyle().setColor("black"); //$NON-NLS-1$
+        public TimeSet() {
+            all.getElement().getStyle().setCursor(Cursor.TEXT);
+            all.getElement().getStyle().setFontWeight(FontWeight.BOLD);
+            all.getElement().getStyle().setColor("black"); //$NON-NLS-1$
+
+            today.getElement().getStyle().setCursor(Cursor.POINTER);
+            today.getElement().getStyle().setColor("blue"); //$NON-NLS-1$
+            today.getElement().getStyle().setMargin(5D, Unit.PX);
 
             yesterday.getElement().getStyle().setCursor(Cursor.POINTER);
             yesterday.getElement().getStyle().setColor("blue"); //$NON-NLS-1$
@@ -327,24 +360,27 @@ public class FilterDialog extends Window {
             custom.getElement().getStyle().setColor("blue"); //$NON-NLS-1$
             custom.getElement().getStyle().setMargin(5D, Unit.PX);
 
+            all.addClickHandler(lableHandler);
             today.addClickHandler(lableHandler);
             yesterday.addClickHandler(lableHandler);
             lastWeek.addClickHandler(lableHandler);
             lastMonth.addClickHandler(lableHandler);
             custom.addClickHandler(lableHandler);
 
-            table.setWidget(0, 0, today);
+            table.setWidget(0, 0, all);
             table.setText(0, 1, "-"); //$NON-NLS-1$
-            table.setWidget(0, 2, yesterday);
+            table.setWidget(0, 2, today);
             table.setText(0, 3, "-"); //$NON-NLS-1$
-            table.setWidget(0, 4, lastWeek);
+            table.setWidget(0, 4, yesterday);
             table.setText(0, 5, "-"); //$NON-NLS-1$
-            table.setWidget(0, 6, lastMonth);
+            table.setWidget(0, 6, lastWeek);
+            table.setText(0, 7, "-"); //$NON-NLS-1$
+            table.setWidget(0, 8, lastMonth);
 
-            table.setWidget(0, 7, custom);
+            table.setWidget(0, 9, custom);
 
-            startDate.setValue(new Date(now.getTime()));
-            endDate.setValue(new Date(now.getTime() + DAY));
+            startDate.setValue(null);
+            endDate.setValue(null);
             termPanel.setVisible(false);
             termPanel.add(startDate);
             termPanel.add(new Label(MessagesFactory.getMessages().to()));
@@ -352,8 +388,8 @@ public class FilterDialog extends Window {
 
             vp.add(table);
             vp.add(termPanel);
-
-            this.initWidget(vp);
+            this.setHeading(MessagesFactory.getMessages().datetime_filter());
+            this.add(vp);
         }
 
         public Date getStartDate() {

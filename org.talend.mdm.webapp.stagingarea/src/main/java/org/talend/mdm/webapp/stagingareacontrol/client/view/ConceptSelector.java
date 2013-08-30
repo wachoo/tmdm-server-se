@@ -22,17 +22,18 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.dom.client.Style.Float;
 import com.google.gwt.dom.client.Style.FontWeight;
 import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 
 public class ConceptSelector extends Dialog {
 
@@ -56,17 +57,17 @@ public class ConceptSelector extends Dialog {
         this.setLayout(new FitLayout());
         this.setModal(true);
         this.setBlinkModal(true);
-        this.setHeading(MessagesFactory.getMessages().concept_selector());
+        this.setHeading(MessagesFactory.getMessages().entity_selector());
         this.setButtons(OKCANCEL);
-        this.setSize(600, 300);
+        this.setSize(800, 550);
         initLayout();
         initBoxesEVent();
     }
 
-    ClickHandler selectedTogetherHandler = new ClickHandler() {
+    ValueChangeHandler<Boolean> selectedTogetherHandler = new ValueChangeHandler<Boolean>() {
 
         @Override
-        public void onClick(ClickEvent event) {
+        public void onValueChange(ValueChangeEvent<Boolean> event) {
             CheckBox sourceBox = (CheckBox) event.getSource();
             for (CheckBox box : boxes) {
                 if (sourceBox.getText().equals(box.getText())) {
@@ -87,10 +88,10 @@ public class ConceptSelector extends Dialog {
         flextable.setCellPadding(5);
 
         flextable.getElement().getStyle().setBackgroundColor("white"); //$NON-NLS-1$
-        flextable.getColumnFormatter().setWidth(0, "200px"); //$NON-NLS-1$
-        Label conceptLb = new Label(MessagesFactory.getMessages().concept());
+        flextable.getColumnFormatter().setWidth(0, "300px"); //$NON-NLS-1$
+        Label conceptLb = new Label(MessagesFactory.getMessages().entity());
         conceptLb.getElement().getStyle().setColor("rgb(102,102,102)"); //$NON-NLS-1$
-        Label fkRelation = new Label(MessagesFactory.getMessages().fk_relation());
+        Label fkRelation = new Label(MessagesFactory.getMessages().dep_fk());
         fkRelation.getElement().getStyle().setColor("rgb(255,255,251)"); //$NON-NLS-1$
         flextable.setWidget(0, 0, conceptLb);
         flextable.setWidget(0, 1, fkRelation);
@@ -114,7 +115,7 @@ public class ConceptSelector extends Dialog {
                 CheckBox fkBox = new CheckBox(fkConcept);
                 fkBox.getElement().getStyle().setMarginLeft(5D, Unit.PX);
                 boxes.add(fkBox);
-                fksPanel.add(fkBox);
+                fksPanel.add(new CheckBoxWrap(fkBox));
             }
             conceptCheck.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 
@@ -124,7 +125,7 @@ public class ConceptSelector extends Dialog {
                 }
             });
 
-            flextable.setWidget(i, 0, conceptCheck);
+            flextable.setWidget(i, 0, new CheckBoxWrap(conceptCheck));
             flextable.setWidget(i, 1, fksPanel);
             flextable.getCellFormatter().getElement(i, 0).getStyle().setBackgroundColor("rgb(233,233,233)"); //$NON-NLS-1$
             flextable.getCellFormatter().getElement(i, 1).getStyle().setBackgroundColor("rgb(243,243,243)"); //$NON-NLS-1$
@@ -138,14 +139,14 @@ public class ConceptSelector extends Dialog {
 
     private void initBoxesEVent() {
         for (CheckBox box : boxes) {
-            box.addClickHandler(selectedTogetherHandler);
+            box.addValueChangeHandler(selectedTogetherHandler);
         }
     }
 
     private List<String> getSelectedConcepts() {
         List<String> concepts = new ArrayList<String>();
         for (int i = 1; i < flextable.getRowCount(); i++) {
-            CheckBox conceptBox = (CheckBox) flextable.getWidget(i, 0);
+            CheckBoxWrap conceptBox = (CheckBoxWrap) flextable.getWidget(i, 0);
             if (conceptBox.getValue()) {
                 concepts.add(conceptBox.getText());
             }
@@ -153,9 +154,20 @@ public class ConceptSelector extends Dialog {
         return concepts;
     }
 
-    public void show(SelectorHandler selectHandler) {
+    private void initSelectedConcepts(List<String> concepts) {
+        for (int i = 1; i < flextable.getRowCount(); i++) {
+            CheckBoxWrap conceptBox = (CheckBoxWrap) flextable.getWidget(i, 0);
+            conceptBox.setValue(false, true);
+            if (concepts.indexOf(conceptBox.getText()) != -1) {
+                conceptBox.setValue(true, true);
+            }
+        }
+    }
+
+    public void show(SelectorHandler selectHandler, List<String> concepts) {
         this.show();
         this.selectHandler = selectHandler;
+        initSelectedConcepts(concepts);
     }
 
     @Override
@@ -167,6 +179,36 @@ public class ConceptSelector extends Dialog {
             }
         } else if (button == getButtonBar().getItemByItemId(CANCEL)) {
             hide(button);
+        }
+    }
+
+    class CheckBoxWrap extends Composite {
+
+        SimplePanel sp = new SimplePanel();
+
+        CheckBox box;
+
+        public CheckBoxWrap(CheckBox box) {
+            sp.setWidget(box);
+            this.box = box;
+            sp.getElement().getStyle().setFloat(Float.LEFT);
+            this.initWidget(sp);
+        }
+
+        public CheckBox getBox() {
+            return box;
+        }
+
+        public boolean getValue() {
+            return box.getValue();
+        }
+
+        public void setValue(boolean value, boolean fireEvents) {
+            box.setValue(value, fireEvents);
+        }
+
+        public String getText() {
+            return box.getText();
         }
     }
 }
