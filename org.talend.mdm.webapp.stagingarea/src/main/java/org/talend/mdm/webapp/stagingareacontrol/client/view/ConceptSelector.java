@@ -18,19 +18,23 @@ import java.util.List;
 import org.talend.mdm.webapp.stagingareacontrol.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.ConceptRelationshipModel;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Style.Float;
 import com.google.gwt.dom.client.Style.FontWeight;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -46,6 +50,10 @@ public class ConceptSelector extends Dialog {
 
     ConceptRelationshipModel relationModel;
 
+    AbsolutePanel wrapPanel = new AbsolutePanel();
+
+    Grid header = new Grid(1, 2);
+
     ScrollPanel container = new ScrollPanel();
 
     FlexTable flextable = new FlexTable();
@@ -59,7 +67,7 @@ public class ConceptSelector extends Dialog {
         this.setBlinkModal(true);
         this.setHeading(MessagesFactory.getMessages().entity_selector());
         this.setButtons(OKCANCEL);
-        this.setSize(800, 550);
+        this.setSize(800, 400);
         initLayout();
         initBoxesEVent();
     }
@@ -79,7 +87,7 @@ public class ConceptSelector extends Dialog {
 
     private void initLayout() {
         this.setClosable(false);
-        this.setScrollMode(Scroll.AUTO);
+        this.setLayout(new FitLayout());
 
         flextable.setWidth("100%"); //$NON-NLS-1$
 
@@ -89,18 +97,9 @@ public class ConceptSelector extends Dialog {
 
         flextable.getElement().getStyle().setBackgroundColor("white"); //$NON-NLS-1$
         flextable.getColumnFormatter().setWidth(0, "300px"); //$NON-NLS-1$
-        Label conceptLb = new Label(MessagesFactory.getMessages().entity());
-        conceptLb.getElement().getStyle().setColor("rgb(102,102,102)"); //$NON-NLS-1$
-        Label fkRelation = new Label(MessagesFactory.getMessages().dep_fk());
-        fkRelation.getElement().getStyle().setColor("rgb(255,255,251)"); //$NON-NLS-1$
-        flextable.setWidget(0, 0, conceptLb);
-        flextable.setWidget(0, 1, fkRelation);
 
-        flextable.getCellFormatter().getElement(0, 0).getStyle().setBackgroundColor("rgb(223,223,223)"); //$NON-NLS-1$
-        flextable.getCellFormatter().getElement(0, 1).getStyle().setBackgroundColor("rgb(154,189,234)"); //$NON-NLS-1$
-
-        flextable.getRowFormatter().getElement(0).getStyle().setFontWeight(FontWeight.BOLD);
-        flextable.getRowFormatter().getElement(0).getStyle().setFontSize(24D, Unit.PX);
+        flextable.setText(0, 0, ""); //$NON-NLS-1$
+        flextable.getFlexCellFormatter().setColSpan(0, 0, 2);
         flextable.getRowFormatter().getElement(0).setAttribute("height", "36"); //$NON-NLS-1$//$NON-NLS-2$
 
         int i = 1;
@@ -132,9 +131,60 @@ public class ConceptSelector extends Dialog {
             flextable.getRowFormatter().getElement(i).setAttribute("height", "24"); //$NON-NLS-1$//$NON-NLS-2$
             i++;
         }
+
+        container.setSize("100%", "100%"); //$NON-NLS-1$//$NON-NLS-2$
         container.setWidget(flextable);
         container.getElement().getStyle().setBackgroundColor("white"); //$NON-NLS-1$
-        this.add(container);
+
+        Label conceptLb = new Label(MessagesFactory.getMessages().entity());
+        conceptLb.getElement().getStyle().setColor("rgb(102,102,102)"); //$NON-NLS-1$
+        Label fkRelation = new Label(MessagesFactory.getMessages().dep_fk());
+        fkRelation.getElement().getStyle().setColor("rgb(255,255,251)"); //$NON-NLS-1$
+
+        header.setCellSpacing(3);
+        header.setCellPadding(5);
+        header.getColumnFormatter().setWidth(0, "300px"); //$NON-NLS-1$
+        header.getElement().getStyle().setBackgroundColor("white"); //$NON-NLS-1$
+        header.getCellFormatter().getElement(0, 0).getStyle().setBackgroundColor("rgb(223,223,223)"); //$NON-NLS-1$
+        header.getCellFormatter().getElement(0, 1).getStyle().setBackgroundColor("rgb(154,189,234)"); //$NON-NLS-1$
+
+        header.getRowFormatter().getElement(0).getStyle().setFontWeight(FontWeight.BOLD);
+        header.getRowFormatter().getElement(0).getStyle().setFontSize(24D, Unit.PX);
+        header.getRowFormatter().getElement(0).setAttribute("height", "36"); //$NON-NLS-1$//$NON-NLS-2$
+        header.setWidget(0, 0, conceptLb);
+        header.setWidget(0, 1, fkRelation);
+
+        wrapPanel.add(container, 0, 0);
+        wrapPanel.add(header, 0, 0);
+        this.add(wrapPanel);
+    }
+
+    @Override
+    protected void onResize(int width, int height) {
+        super.onResize(width, height);
+        adjust();
+    }
+
+    @Override
+    protected void onRender(Element parent, int pos) {
+        super.onRender(parent, pos);
+        adjust();
+    }
+
+    private void adjust() {
+        Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+
+            @Override
+            public void execute() {
+                int cH = container.getElement().getOffsetHeight();
+                int fH = flextable.getElement().getOffsetHeight();
+                if (fH > cH) {
+                    header.setWidth(getBody().dom.getOffsetWidth() - 17 + "px"); //$NON-NLS-1$
+                } else {
+                    header.setWidth("100%"); //$NON-NLS-1$
+                }
+            }
+        });
     }
 
     private void initBoxesEVent() {
