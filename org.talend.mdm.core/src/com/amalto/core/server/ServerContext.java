@@ -67,7 +67,9 @@ public class ServerContext {
         }
 
         public void destroyServer(Server server) {
-            server.close();
+            if (server != null) {
+                server.close();
+            }
         }
 
         public StorageAdmin createStorageAdmin() {
@@ -75,7 +77,9 @@ public class ServerContext {
         }
 
         public void destroyStorageAdmin(StorageAdmin storageAdmin) {
-            storageAdmin.close();
+            if (storageAdmin != null) {
+                storageAdmin.close();
+            }
         }
 
         public MetadataRepositoryAdmin createMetadataRepositoryAdmin() {
@@ -83,7 +87,9 @@ public class ServerContext {
         }
 
         public void destroyMetadataRepositoryAdmin(MetadataRepositoryAdmin metadataRepositoryAdmin) {
-            metadataRepositoryAdmin.close();
+            if (metadataRepositoryAdmin != null) {
+                metadataRepositoryAdmin.close();
+            }
         }
 
         public Storage createStorage(String storageName, String dataSourceName, StorageType storageType) {
@@ -102,7 +108,9 @@ public class ServerContext {
         }
 
         public void destroyStorage(Storage storage, boolean dropExistingData) {
-            storage.close(dropExistingData);
+            if (storage != null) {
+                storage.close(dropExistingData);
+            }
         }
     }
 }

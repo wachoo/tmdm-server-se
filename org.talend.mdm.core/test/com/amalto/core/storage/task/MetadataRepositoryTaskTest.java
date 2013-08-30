@@ -61,6 +61,7 @@ public class MetadataRepositoryTaskTest extends TestCase {
 
     @Override
     public void setUp() throws Exception {
+        ServerContext.INSTANCE.close();
         ServerContext.INSTANCE.get(new MockServerLifecycle());
     }
 
