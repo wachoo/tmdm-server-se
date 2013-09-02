@@ -100,8 +100,8 @@ public class BulkloadClientUtil {
                 merger,
                 username,
                 password,
-                universe,
                 transactionId,
+                universe,
                 startedBulkloadCount);
         Thread loadThread = new Thread(loadRunnable);
         loadThread.start();
