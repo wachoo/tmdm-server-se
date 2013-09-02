@@ -46,10 +46,6 @@ class BulkLoadContext extends AbstractDocumentSaverContext {
         throw new UnsupportedOperationException();
     }
 
-    public MutableDocument getDatabaseValidationDocument() {
-        throw new UnsupportedOperationException();
-    }
-
     public MutableDocument getUserDocument() {
         throw new UnsupportedOperationException();
     }

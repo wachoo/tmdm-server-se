@@ -31,12 +31,21 @@ public class TransactionHandler implements Handler {
 
     private static final String TRANSACTION_ID = "transaction-id"; //$NON-NLS-1$
 
+    private static final String LOGOUT_OPERATION_NAME = "WSLogout"; //$NON-NLS-1$
+
+    private TransactionState state;
+
     private static TransactionState getState(MessageContext messageContext) {
         try {
+            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
             if (messageContext instanceof SOAPMessageContext) {
-                TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
                 SOAPMessage message = ((SOAPMessageContext) messageContext).getMessage();
                 if (message != null) {
+                    SOAPBody body = message.getSOAPBody();
+                    String messageOperationName = body.getFirstChild().getLocalName();
+                    if (LOGOUT_OPERATION_NAME.equals(messageOperationName)) {
+                        return new NoOpTransactionState();
+                    }
                     SOAPHeader soapHeader = message.getSOAPHeader();
                     if (soapHeader != null) {
                         Iterator iterator = soapHeader.extractAllHeaderElements();
@@ -47,7 +56,7 @@ public class TransactionHandler implements Handler {
                                     && SkipAttributeDocumentBuilder.TALEND_NAMESPACE.equals(name.getURI())
                                     && TRANSACTION_ID.equals(name.getLocalName())) {
                                 String transactionID = element.getValue();
-                                if(transactionManager.get(transactionID) != null) {
+                                if (transactionManager.get(transactionID) != null) {
                                     return new ExplicitTransaction(transactionID);
                                 } else {
                                     LOGGER.warn("Transaction #" + transactionID + " does not exist or no longer exists."); // TODO Warn or exception?
@@ -80,26 +89,24 @@ public class TransactionHandler implements Handler {
 
     @Override
     public boolean handleRequest(MessageContext messageContext) throws JAXRPCException, SOAPFaultException {
-        TransactionState state = getState(messageContext);
+        state = getState(messageContext);
         state.preRequest();
         return true;
     }
 
     @Override
     public boolean handleResponse(MessageContext messageContext) {
-        TransactionState state = getState(messageContext);
         state.postRequest();
         return true;
     }
 
     @Override
     public boolean handleFault(MessageContext messageContext) {
-        TransactionState state = getState(messageContext);
         state.cancelRequest();
         return true;
     }
 
-    static interface TransactionState {
+    private static interface TransactionState {
         void preRequest();
 
         void postRequest();
@@ -107,7 +114,7 @@ public class TransactionHandler implements Handler {
         void cancelRequest();
     }
 
-    static class ImplicitTransaction implements TransactionState {
+    private static class ImplicitTransaction implements TransactionState {
 
         private Transaction currentTransaction;
 
@@ -131,7 +138,7 @@ public class TransactionHandler implements Handler {
         }
     }
 
-    static class ExplicitTransaction implements TransactionState {
+    private static class ExplicitTransaction implements TransactionState {
 
         private final String transactionID;
 
@@ -143,6 +150,9 @@ public class TransactionHandler implements Handler {
         public void preRequest() {
             TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
             Transaction transaction = transactionManager.get(transactionID);
+            if (transaction == null) {
+                throw new IllegalStateException("Transaction '" + transactionID + "' no longer exists.");
+            }
             transactionManager.associate(transaction);
         }
 
@@ -154,6 +164,20 @@ public class TransactionHandler implements Handler {
         @Override
         public void cancelRequest() {
             // Nothing to do: transaction was explicit started and must be ended by caller.
+        }
+    }
+
+    private static class NoOpTransactionState implements TransactionState {
+        @Override
+        public void preRequest() {
+        }
+
+        @Override
+        public void postRequest() {
+        }
+
+        @Override
+        public void cancelRequest() {
         }
     }
 }
