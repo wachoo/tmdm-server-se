@@ -30,6 +30,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.ListView;
 import com.extjs.gxt.ui.client.widget.ListViewSelectionModel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.DateField;
@@ -124,6 +125,10 @@ public class FilterDialog extends Window {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
+                if (statusSet.getStatuses().size() == 0) {
+                    MessageBox.alert(null, MessagesFactory.getMessages().status_notice(), null);
+                    return;
+                }
                 hide();
                 FilterModel filter = new FilterModel();
                 List<String> concepts = new ArrayList<String>();
@@ -194,13 +199,7 @@ public class FilterDialog extends Window {
 
         CheckBox status000 = new CheckBox("000"); //$NON-NLS-1$
 
-        CheckBox status400 = new CheckBox("400"); //$NON-NLS-1$
-
-        CheckBox status401 = new CheckBox("401"); //$NON-NLS-1$
-
-        CheckBox status402 = new CheckBox("402"); //$NON-NLS-1$
-
-        CheckBox status403 = new CheckBox("403"); //$NON-NLS-1$
+        CheckBox status204 = new CheckBox("204"); //$NON-NLS-1$
 
         CheckBox status404 = new CheckBox("404"); //$NON-NLS-1$
 
@@ -212,18 +211,15 @@ public class FilterDialog extends Window {
             table.setCellPadding(3);
 
             HorizontalPanel statusLine = new HorizontalPanel();
+            status000.setValue(true);
+            status204.setValue(true);
+            status404.setValue(true);
             status000.getElement().getStyle().setMarginRight(5D, Unit.PX);
-            status400.getElement().getStyle().setMarginRight(5D, Unit.PX);
-            status401.getElement().getStyle().setMarginRight(5D, Unit.PX);
-            status402.getElement().getStyle().setMarginRight(5D, Unit.PX);
-            status403.getElement().getStyle().setMarginRight(5D, Unit.PX);
+            status204.getElement().getStyle().setMarginRight(5D, Unit.PX);
             status404.getElement().getStyle().setMarginRight(5D, Unit.PX);
 
             statusLine.add(status000);
-            statusLine.add(status400);
-            statusLine.add(status401);
-            statusLine.add(status402);
-            statusLine.add(status403);
+            statusLine.add(status204);
             statusLine.add(status404);
             table.setWidget(0, 0, new Label(MessagesFactory.getMessages().status_code()));
             table.getFlexCellFormatter().setWidth(0, 0, "100px"); //$NON-NLS-1$
@@ -238,17 +234,8 @@ public class FilterDialog extends Window {
             if (status000.getValue()) {
                 statuses.add("000"); //$NON-NLS-1$
             }
-            if (status400.getValue()) {
-                statuses.add("400"); //$NON-NLS-1$
-            }
-            if (status401.getValue()) {
-                statuses.add("401"); //$NON-NLS-1$
-            }
-            if (status402.getValue()) {
-                statuses.add("402"); //$NON-NLS-1$
-            }
-            if (status403.getValue()) {
-                statuses.add("403"); //$NON-NLS-1$
+            if (status204.getValue()) {
+                statuses.add("204"); //$NON-NLS-1$
             }
             if (status404.getValue()) {
                 statuses.add("404"); //$NON-NLS-1$
@@ -259,7 +246,7 @@ public class FilterDialog extends Window {
 
     class TimeSet extends FieldSet {
 
-        Label all = new Label("All");
+        Label all = new Label(MessagesFactory.getMessages().all());
 
         Label today = new Label(MessagesFactory.getMessages().today());
 

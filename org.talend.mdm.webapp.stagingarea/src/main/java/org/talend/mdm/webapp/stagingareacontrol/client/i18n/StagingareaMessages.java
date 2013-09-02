@@ -118,6 +118,10 @@ public interface StagingareaMessages extends Messages {
 
     String dep_fk();
 
+    String all();
+
+    String status_notice();
+
     String ok();
 
     String status_code();
