@@ -28,7 +28,7 @@ class ClassNameProjection extends SimpleProjection {
 
     @Override
     public String toSqlString(Criteria criteria, int position, CriteriaQuery criteriaQuery) throws HibernateException {
-        return "SUBSTRING(x_talend_class, " + (ClassCreator.PACKAGE_PREFIX.length() + 1) + ") as y" + position + "_"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        return "REPLACE(x_talend_class, '" + ClassCreator.PACKAGE_PREFIX + "', '') as y" + position + "_"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     @Override
