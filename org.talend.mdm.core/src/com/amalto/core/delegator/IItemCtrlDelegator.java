@@ -215,6 +215,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 for (String viewableBusinessElement : viewableBusinessElements.getList()) {
                     String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
                     String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
+                    if (viewablePath.isEmpty()) {
+                        throw new IllegalArgumentException("View element '" + viewableBusinessElement + "' is invalid: no path to element.");
+                    }
                     List<TypedExpression> typeExpressions = UserQueryHelper.getFields(repository, viewableTypeName, viewablePath);
                     for (TypedExpression typeExpression : typeExpressions) {
                         qb.select(typeExpression);
