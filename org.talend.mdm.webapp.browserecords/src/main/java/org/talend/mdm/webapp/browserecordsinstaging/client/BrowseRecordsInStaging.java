@@ -28,10 +28,12 @@ import org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel.ItemsDetailPanelCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecordsinstaging.client.widget.ItemsDetailPanel4Staging;
 import org.talend.mdm.webapp.browserecordsinstaging.client.widget.ItemsListPanel4Staging;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -131,6 +133,13 @@ public class BrowseRecordsInStaging implements EntryPoint {
     private void initExtendedEnviroment() {
         ToolBarFactory.initialize(new ToolBarFactory4Staging());
         ItemsListPanel.initialize(new ItemsListPanel4Staging());
+        ItemsDetailPanel.initialize(new ItemsDetailPanelCreator() {
+
+            @Override
+            public ItemsDetailPanel newInstance() {
+                return new ItemsDetailPanel4Staging();
+            }
+        });
     }
 
     private void initCurrentStateProvicer() {
@@ -154,7 +163,7 @@ public class BrowseRecordsInStaging implements EntryPoint {
 
     public void showTreeDetailPanel(final String concept, final String ids) {
 
-        final ItemsDetailPanel panel = new ItemsDetailPanel();
+        final ItemsDetailPanel panel = ItemsDetailPanel.newInstance();
         getItemService().getItemBeanById(concept,
                 ids.split("\\."), Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() { //$NON-NLS-1$
 

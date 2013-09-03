@@ -152,7 +152,7 @@ public class BrowseRecords implements EntryPoint {
 
     public void showTreeDetailPanel(final String concept, final String ids) {
 
-        final ItemsDetailPanel panel = new ItemsDetailPanel();
+        final ItemsDetailPanel panel = ItemsDetailPanel.newInstance();
         getItemService().getItemBeanById(concept,
                 ids.split("\\."), Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() { //$NON-NLS-1$
 

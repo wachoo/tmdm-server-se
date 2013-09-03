@@ -272,7 +272,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
     }
     
     public void testForeignKeyLazyRender() {
-        final ItemsDetailPanel itemsDetailPanel = new ItemsDetailPanel();
+        final ItemsDetailPanel itemsDetailPanel = ItemsDetailPanel.newInstance();
         // add PK tabPanel
         ItemPanel pkTabPanel = new ItemPanel(itemsDetailPanel);
         itemsDetailPanel.addTabItem("PKTab", pkTabPanel, ItemsDetailPanel.SINGLETON, "PK");
@@ -357,7 +357,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
      */
     public void testNodeLazyLoading() {
         ViewBean viewBean = getViewBean();
-        TreeDetail treeDetail = new TreeDetail(new ItemsDetailPanel());
+        TreeDetail treeDetail = new TreeDetail(ItemsDetailPanel.newInstance());
         treeDetail.setViewBean(viewBean);
         ItemNodeModel rootNode = builderItemNode();
         DynamicTreeItem item = treeDetail.buildGWTTree(rootNode, null, false, ItemDetailToolBar.VIEW_OPERATION);
@@ -431,7 +431,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
         visibleResults.add(b_VisibleRule);
         visibleResults.add(c_VisibleRule);
         // 3. Call TreeDetail.recrusiveSetItems(List<VisibleRuleResult>, ItemNodeModel)
-        TreeDetail treeDetail = new TreeDetail(new ItemsDetailPanel());
+        TreeDetail treeDetail = new TreeDetail(ItemsDetailPanel.newInstance());
         treeDetail.recrusiveSetItems(visibleResults, testNode);
         // 4. Validate result
         assertEquals(true, oemNode.isVisible());

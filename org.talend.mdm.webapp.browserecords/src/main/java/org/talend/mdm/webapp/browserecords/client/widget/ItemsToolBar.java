@@ -286,7 +286,7 @@ public class ItemsToolBar extends ToolBar {
                 if (ItemsListPanel.getInstance().getGrid() != null)
                     ItemsListPanel.getInstance().getGrid().getSelectionModel().deselectAll();
 
-                ItemsDetailPanel panel = new ItemsDetailPanel();
+                ItemsDetailPanel panel = ItemsDetailPanel.newInstance();
                 List<String> pkInfoList = new ArrayList<String>();
                 pkInfoList.add(itemBean.getLabel());
                 panel.initBanner(pkInfoList, itemBean.getDescription());

@@ -34,10 +34,13 @@ import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.google.gwt.dom.client.Style.Float;
 import com.google.gwt.dom.client.Style.Overflow;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -66,22 +69,37 @@ public class ItemsDetailPanel extends ContentPanel {
 
     private SimplePanel breadCrumb = new SimplePanel();
 
-    private LayoutContainer banner = new LayoutContainer();
+    protected LayoutContainer banner = new LayoutContainer();
 
     private Text textTitle = new Text();
-
-    private List<Text> subTitleList = new ArrayList<Text>();
 
     private ContentPanel treeDetail;
 
     private boolean isOutMost;
 
-    public ItemsDetailPanel() {
+    public static interface ItemsDetailPanelCreator {
+        ItemsDetailPanel newInstance();
+    }
+    
+    private static ItemsDetailPanelCreator creator;
+    
+    public static void initialize(ItemsDetailPanelCreator impl) {
+        ItemsDetailPanel.creator = impl;
+    }
+    
+    protected ItemsDetailPanel() {
         super();
         breadCrumb.getElement().getStyle().setOverflow(Overflow.HIDDEN);
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
         this.initPanel();
+    }
+    
+    public static ItemsDetailPanel newInstance() {
+        if (creator == null) {
+            return new ItemsDetailPanel();
+        }
+        return creator.newInstance();
     }
     
     public interface ForeignKeyHandler {
@@ -189,20 +207,15 @@ public class ItemsDetailPanel extends ContentPanel {
                 Text subTitle = new Text();
                 subTitle.setStyleName("ItemsDetailPanel-subTitle"); //$NON-NLS-1$
                 subTitle.setText(Format.htmlEncode(str));
-                subTitleList.add(subTitle);
                 banner.add(subTitle);
             }
             banner.layout(true);
         }
-
     }
 
     public void clearBanner() {
         textTitle.setText(null);
-        for (Text text : subTitleList) {
-            banner.remove(text);
-        }
-        subTitleList.clear();
+        banner.removeAll();
         banner.layout(true);
     }
 

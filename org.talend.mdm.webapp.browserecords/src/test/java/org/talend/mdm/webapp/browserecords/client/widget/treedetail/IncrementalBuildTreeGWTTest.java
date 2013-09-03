@@ -51,7 +51,7 @@ public class IncrementalBuildTreeGWTTest extends GWTTestCase {
     @Override
     protected void gwtSetUp() throws Exception {
         super.gwtSetUp();
-        mockItemsDetailPanel = new ItemsDetailPanel();
+        mockItemsDetailPanel = ItemsDetailPanel.newInstance();
         mockTreeDetail = new TreeDetail(mockItemsDetailPanel);
 
         foreignKeyParentMap = new HashMap<TypeModel, ItemNodeModel>();
