@@ -14,7 +14,7 @@
     <packaging>war</packaging>
 
     <properties>
-        <war>zz.50.ext.imageserver.war</war>
+        <war>zz.50.ext.imageserver</war>
     </properties>
 
     <build>
@@ -43,7 +43,7 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <includeArtifactIds>ssim,commons-fileupload,commons-io,commons-lang,commons-jxpath,xsom,org.talend.mdm.commmon,org.talend.mdm.core,org.talend.mdm.xmlserver.interfaces,org.talend.mdm.commons.core</includeArtifactIds>
+                            <includeArtifactIds>ssim</includeArtifactIds>
                             <outputDirectory>${project.build.directory}/war/WEB-INF/lib</outputDirectory>
                         </configuration>
                     </execution>
@@ -60,9 +60,9 @@
                     <warSourceDirectory>${basedir}/web</warSourceDirectory>
                     <webXml>${basedir}/web/WEB-INF/web.xml</webXml>
                     <!-- WAR is packaged outside EAR, so include our external dependencies -->
-                    <packagingExcludes>%regex[WEB-INF/lib/(?!ssim|commons-fileupload|commons-io|commons-lang|commons-jxpath|xsom|org.talend.mdm.commmon|org.talend.mdm.xmlserver.interfaces|org.talend.mdm.commons.core|org.talend.mdm.core).*.jar]</packagingExcludes>
+                    <packagingExcludes>%regex[WEB-INF/lib/(?!ssim).*.jar]</packagingExcludes>
                 </configuration>
-            </plugin>            
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -71,11 +71,10 @@
                         <id>deploy-jboss</id>
                         <configuration>
                             <tasks>
-                                <delete dir="${jboss.deploy.dir}/${war}" />
-                                <mkdir dir="${jboss.deploy.dir}/${war}" />
-                                <unzip src="${project.build.directory}/${project.build.finalName}.war"
-                                    dest="${jboss.deploy.dir}/${war}">
-                                </unzip>
+                                <delete file="${jboss.deploy.dir}/${war}.war" />
+
+                                <copy file="${project.build.directory}/${project.build.finalName}.war"
+                                    tofile="${jboss.deploy.dir}/${war}.war" />                                
                             </tasks>
                         </configuration>
                     </execution>
@@ -99,22 +98,8 @@
             <artifactId>commons-fileupload</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <scope>runtime</scope>
-        </dependency>        
-        <dependency>        
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-jxpath</groupId>
-            <artifactId>commons-jxpath</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xsom</groupId>
-            <artifactId>xsom</artifactId>
         </dependency>
         <dependency>
             <groupId>jboss</groupId>
@@ -131,24 +116,9 @@
         <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.commmon</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
-            <classifier>lib</classifier>
-        </dependency>        
-        <dependency>
-            <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.xmlserver.interfaces</artifactId>
-            <scope>runtime</scope>
-        </dependency>        
-        <dependency>
-            <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.commons.core</artifactId>
-            <scope>runtime</scope>
-        </dependency>          
+            <classifier>ejbs</classifier>
+        </dependency>
     </dependencies>
 
 </project>
