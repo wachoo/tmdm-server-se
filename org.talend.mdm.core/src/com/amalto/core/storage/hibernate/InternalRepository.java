@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 
 import java.util.Collection;
 
-abstract class InternalRepository implements MetadataVisitor<MetadataRepository> {
+public abstract class InternalRepository implements MetadataVisitor<MetadataRepository> {
 
     private static final Logger LOGGER = Logger.getLogger(InternalRepository.class);
 
