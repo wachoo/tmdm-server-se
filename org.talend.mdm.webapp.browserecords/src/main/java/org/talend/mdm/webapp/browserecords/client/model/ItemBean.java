@@ -55,10 +55,12 @@ public class ItemBean extends org.talend.mdm.webapp.base.client.model.ItemBean {
 
     @Deprecated
     public ItemBean() {
+        this.allowNestedValues = false;
     }
 
     public ItemBean(String concept, String ids, String itemXml) {
         super(concept, ids, itemXml);
+        this.allowNestedValues = false;
     }
     
     public ItemBean(String concept, String ids, String itemXml, String description, List<String> pkInfoList) {

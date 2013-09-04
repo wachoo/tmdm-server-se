@@ -24,6 +24,8 @@ public interface BrowseRecordsInStagingMessages extends Messages {
 
     String error();
 
+    String match_group();
+
     String status_000();
 
     String status_201(String dataCluser);

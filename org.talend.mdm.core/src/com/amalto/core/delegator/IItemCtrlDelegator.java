@@ -224,6 +224,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                     }
                 }
                 if (dataClusterPOJOPK.getUniqueId().endsWith(StorageAdmin.STAGING_SUFFIX)) {
+                    qb.select(repository.getComplexType(typeName), "../../taskId"); //$NON-NLS-1$
                     qb.select(repository.getComplexType(typeName), "$staging_status$"); //$NON-NLS-1$
                     qb.select(repository.getComplexType(typeName), "$staging_error$"); //$NON-NLS-1$
                     qb.select(repository.getComplexType(typeName), "$staging_source$"); //$NON-NLS-1$

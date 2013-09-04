@@ -225,7 +225,7 @@ public class ItemsListPanel extends ContentPanel {
 
     ListStore<ItemBean> store;
 
-    private Grid<ItemBean> grid;
+    protected Grid<ItemBean> grid;
 
     private RowEditor<ItemBean> re;
 

@@ -29,17 +29,30 @@ import org.talend.mdm.webapp.browserecordsinstaging.client.model.RecordStatus;
 import org.talend.mdm.webapp.browserecordsinstaging.client.model.RecordStatusWrapper;
 import org.talend.mdm.webapp.browserecordsinstaging.client.util.StagingConstant;
 
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.tips.ToolTip;
+import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Image;
 
 public class ItemsListPanel4Staging extends ItemsListPanel {
 
     private Map<Integer, String> errorTitles;
+
+    private ItemBean selectedItem;
+
+    private ToolTip tip = new ToolTip();
 
     public ItemsListPanel4Staging() {
         initErrorTitles();
@@ -65,8 +78,11 @@ public class ItemsListPanel4Staging extends ItemsListPanel {
     @Override
     public void updateGrid(CheckBoxSelectionModel<ItemBean> sm, List<ColumnConfig> columnConfigList) {
         final EntityModel em = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
+        ColumnConfig groupColumn = new ColumnConfig(em.getConceptName() + StagingConstant.STAGING_TASKID, MessagesFactory
+                .getMessages().match_group(), 200);
+        columnConfigList.add(groupColumn);
+
         ColumnConfig statusColumn = new ColumnConfig(em.getConceptName() + StagingConstant.STAGING_STATUS, "Status", 200); //$NON-NLS-1$
-        statusColumn.setSortable(false);
         statusColumn.setRenderer(new GridCellRenderer<ItemBean>() {
 
             @Override
@@ -97,16 +113,64 @@ public class ItemsListPanel4Staging extends ItemsListPanel {
             }
         });
         columnConfigList.add(statusColumn);
-        ColumnConfig errorColumn = new ColumnConfig(em.getConceptName() + StagingConstant.STAGING_ERROR, MessagesFactory
-                .getMessages().error(), 200);
-        errorColumn.setSortable(false);
-        columnConfigList.add(errorColumn);
         ColumnConfig sourceColumn = new ColumnConfig(em.getConceptName() + StagingConstant.STAGING_SOURCE, MessagesFactory
                 .getMessages().source(), 200);
-        sourceColumn.setSortable(false);
         columnConfigList.add(sourceColumn);
 
         super.updateGrid(sm, columnConfigList);
+        grid.getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ItemBean>() {
+
+            @Override
+            public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
+                if (selectedItem != null) {
+                    markGroup(false);
+                }
+                selectedItem = se.getSelectedItem();
+                if (selectedItem != null) {
+                    markGroup(true);
+                }
+            }
+        });
+        grid.addListener(Events.OnMouseOut, new Listener<GridEvent<ItemBean>>() {
+
+            @Override
+            public void handleEvent(GridEvent<ItemBean> ge) {
+                tip.hide();
+            }
+        });
+        grid.addListener(Events.OnMouseOver, new Listener<GridEvent<ItemBean>>() {
+
+            @Override
+            public void handleEvent(GridEvent<ItemBean> ge) {
+                int rowIndex = ge.getRowIndex();
+                if (rowIndex != -1) {
+                    ItemBean item = grid.getStore().getAt(rowIndex);
+                    String error = (String) item.get(item.getConcept() + StagingConstant.STAGING_ERROR);
+                    if (error != null && error.trim().length() > 0) {
+                        tip.update(new ToolTipConfig("<b>" + MessagesFactory.getMessages().error() + "</b>:" + error)); //$NON-NLS-1$ //$NON-NLS-2$
+                        tip.showAt(DOM.eventGetCurrentEvent().getClientX() + 6, DOM.eventGetCurrentEvent().getClientY() + 6);
+                    } else {
+                        tip.hide();
+                    }
+                }
+            }
+        });
+    }
+
+    private void markGroup(boolean mark) {
+        String matchGroup = selectedItem.get(selectedItem.getConcept() + StagingConstant.STAGING_TASKID);
+        ListStore<ItemBean> store = grid.getStore();
+        for (int i = 0; i < store.getCount(); i++) {
+            ItemBean item = store.getAt(i);
+            if (matchGroup != null && matchGroup.equals(item.get(item.getConcept() + StagingConstant.STAGING_TASKID))) {
+                Element rowEl = grid.getView().getRow(item);
+                if (mark) {
+                    rowEl.getStyle().setBackgroundColor("rgb(238, 243, 251)"); //$NON-NLS-1$
+                } else {
+                    rowEl.getStyle().clearBackgroundColor();
+                }
+            }
+        }
     }
 
     @Override

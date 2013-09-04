@@ -53,6 +53,8 @@ public class BrowseRecordsInStagingAction extends BrowseRecordsAction implements
         EntityModel em = view.getBindingEntityModel();
         Map<String, TypeModel> metadatas = em.getMetaDataTypes();
 
+        SimpleTypeModel stagingTaskidType = new SimpleTypeModel(StagingConstant.STAGING_TASKID, DataTypeConstants.STRING);
+        stagingTaskidType.setXpath(concept + StagingConstant.STAGING_TASKID);
         SimpleTypeModel stagingStatusType = new SimpleTypeModel(StagingConstant.STAGING_STATUS, DataTypeConstants.INT);
         stagingStatusType.setXpath(concept + StagingConstant.STAGING_STATUS);
         SimpleTypeModel stagingErrorType = new SimpleTypeModel(StagingConstant.STAGING_ERROR, DataTypeConstants.STRING);
@@ -60,6 +62,7 @@ public class BrowseRecordsInStagingAction extends BrowseRecordsAction implements
         SimpleTypeModel stagingSourceType = new SimpleTypeModel(StagingConstant.STAGING_SOURCE, DataTypeConstants.STRING);
         stagingSourceType.setXpath(concept + StagingConstant.STAGING_SOURCE);
 
+        metadatas.put(concept + StagingConstant.STAGING_TASKID, stagingTaskidType);
         metadatas.put(concept + StagingConstant.STAGING_STATUS, stagingStatusType);
         metadatas.put(concept + StagingConstant.STAGING_ERROR, stagingErrorType);
         metadatas.put(concept + StagingConstant.STAGING_SOURCE, stagingSourceType);
@@ -67,8 +70,9 @@ public class BrowseRecordsInStagingAction extends BrowseRecordsAction implements
         Map<String, String> searchables = view.getSearchables();
         Locale locale = new Locale(language);
 
+        searchables.put(concept + StagingConstant.STAGING_TASKID, MESSAGES.getMessage(locale, "match_group")); //$NON-NLS-1$
         searchables.put(concept + StagingConstant.STAGING_STATUS, MESSAGES.getMessage(locale, "status")); //$NON-NLS-1$
-        searchables.put(concept + StagingConstant.STAGING_ERROR, MESSAGES.getMessage(locale, "error")); //$NON-NLS-1$ 
+        searchables.put(concept + StagingConstant.STAGING_ERROR, MESSAGES.getMessage(locale, "error")); //$NON-NLS-1$
         searchables.put(concept + StagingConstant.STAGING_SOURCE, MESSAGES.getMessage(locale, "source")); //$NON-NLS-1$ 
         return view;
     }
@@ -108,6 +112,7 @@ public class BrowseRecordsInStagingAction extends BrowseRecordsAction implements
     protected void dynamicAssemble(ItemBean itemBean, EntityModel entityModel, String language) throws Exception {
         Map<String, TypeModel> metadatas = entityModel.getMetaDataTypes();
         String concept = entityModel.getConceptName();
+        metadatas.remove(concept + StagingConstant.STAGING_TASKID);
         metadatas.remove(concept + StagingConstant.STAGING_STATUS);
         metadatas.remove(concept + StagingConstant.STAGING_ERROR);
         metadatas.remove(concept + StagingConstant.STAGING_SOURCE);
@@ -118,13 +123,14 @@ public class BrowseRecordsInStagingAction extends BrowseRecordsAction implements
     public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel,
             Map<String, EntityModel> map, String language) throws Exception {
         List<String> viewableXpaths = new ArrayList<String>(viewBean.getViewableXpaths());
+        viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_TASKID);
         viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_STATUS);
         viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_ERROR);
         viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_SOURCE);
         org.talend.mdm.webapp.browserecords.server.util.CommonUtil.dynamicAssembleByResultOrder(itemBean, viewableXpaths,
                 entityModel, map, language, true);
     }
-    
+
     @Override
     protected boolean isStaging() {
         return true;

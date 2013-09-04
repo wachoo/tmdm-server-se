@@ -14,6 +14,8 @@ package org.talend.mdm.webapp.browserecordsinstaging.client.util;
 
 public class StagingConstant {
 
+    public static final String STAGING_TASKID = "/../../taskId"; //$NON-NLS-1$
+
     public static final String STAGING_STATUS = "/$staging_status$"; //$NON-NLS-1$
 
     public static final String STAGING_ERROR = "/$staging_error$"; //$NON-NLS-1$
