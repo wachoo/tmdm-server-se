@@ -104,6 +104,7 @@ import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -527,7 +528,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                     String modelType = value.getAttribute("tmdm:type"); //$NON-NLS-1$
                                     itemBean.set(path, path + "-" + value.getTextContent()); //$NON-NLS-1$
                                     itemBean.setForeignkeyDesc(
-                                            path + "-" + value.getTextContent(),org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel, value.getTextContent(), false, modelType, getEntityModel(typeModel.getForeignkey().split("/")[0], language), language)); //$NON-NLS-1$ //$NON-NLS-2$    
+                                            path + "-" + value.getTextContent(),org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel,  //$NON-NLS-1$
+                                                    value.getTextContent(), false, modelType, getEntityModel(typeModel.getForeignkey().split("/")[0], language), language, isStaging())); //$NON-NLS-1$
 
                                 } else {
                                     itemBean.set(path, value.getTextContent());
@@ -542,10 +544,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
         }
     }
-
+    
+    protected boolean isStaging() throws ServiceException {
+        return false;
+    }
+    
     public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel,
             Map<String, EntityModel> map, String language) throws Exception {
-        org.talend.mdm.webapp.browserecords.server.util.CommonUtil.dynamicAssembleByResultOrder(itemBean, viewBean.getViewableXpaths(), entityModel, map, language);
+        org.talend.mdm.webapp.browserecords.server.util.CommonUtil.dynamicAssembleByResultOrder(itemBean, viewBean.getViewableXpaths(), entityModel, map, language, isStaging());
     }
     
     @Override
@@ -1571,7 +1577,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 nodeModel.setTypeName(modelType);
             }
             ForeignKeyBean fkBean = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(model, el.getTextContent(), true, modelType,
-                    getEntityModel(foreignKey.split("/")[0], language), language); //$NON-NLS-1$
+                    getEntityModel(foreignKey.split("/")[0], language), language, isStaging()); //$NON-NLS-1$
             if (fkBean != null) {
                 String fkNotFoundMessage = fkBean.get("foreignKeyDeleteMessage"); //$NON-NLS-1$
                 if (fkNotFoundMessage != null) {// fix bug TMDM-2757

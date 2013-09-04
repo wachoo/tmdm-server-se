@@ -50,6 +50,7 @@ import org.w3c.dom.NodeList;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Util;
@@ -219,7 +220,7 @@ public class CommonUtil {
     }
     
     public static void dynamicAssembleByResultOrder(ItemBean itemBean, List<String> viewableXpaths, EntityModel entityModel,
-            Map<String, EntityModel> map, String language) throws Exception {
+            Map<String, EntityModel> map, String language, boolean isStaging) throws Exception {
 
         if (itemBean.getItemXml() != null) {
             org.dom4j.Document docXml = DocumentHelper.parseText(itemBean.getItemXml());
@@ -244,7 +245,8 @@ public class CommonUtil {
                     String modelType = el.attributeValue(new QName("type", new Namespace("tmdm", "http://www.talend.com/mdm"))); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
                     itemBean.set(path, path + "-" + el.getText()); //$NON-NLS-1$
                     itemBean.setForeignkeyDesc(
-                            path + "-" + el.getText(), org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel, el.getText(), false, modelType, map.get(typeModel.getXpath()), language)); //$NON-NLS-1$
+                            path + "-" + el.getText(), org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel, 
+                                    el.getText(), false, modelType, map.get(typeModel.getXpath()), language, isStaging)); //$NON-NLS-1$
                 } else {
                     itemBean.set(path, el.getText());
                 }
@@ -268,7 +270,7 @@ public class CommonUtil {
     }
     
     public static ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids, boolean isNeedExceptionMessage, String modelType,
-            EntityModel entityModel, String language) throws Exception {
+            EntityModel entityModel, String language, boolean isStaging) throws Exception {
         String xpathForeignKey = model.getForeignkey();
         if (xpathForeignKey == null) {
             return null;
@@ -294,7 +296,12 @@ public class CommonUtil {
                     bean.setConceptName(conceptName);
                 }
                 pk.setConceptName(conceptName);
-                pk.setDataClusterPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()));
+                String cluster = getCurrentDataCluster();
+                if (isStaging) {
+                    cluster += StorageAdmin.STAGING_SUFFIX;
+                }
+
+                pk.setDataClusterPOJOPK(new DataClusterPOJOPK(cluster));
                 ItemPOJO item = com.amalto.core.util.Util.getItemCtrl2Local().getItem(pk);
 
                 if (item != null) {

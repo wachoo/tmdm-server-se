@@ -24,6 +24,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.browserecords.shared.Constants;
 
+import com.amalto.core.server.StorageAdmin;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSGetItem;
@@ -108,7 +109,7 @@ public class DownloadData extends HttpServlet {
             columnCount = 0;
             HSSFRow row = sheet.createRow((short) i);
             itemBean = new ItemBean(null,null,results[i]);
-            org.talend.mdm.webapp.browserecords.server.util.CommonUtil.dynamicAssembleByResultOrder(itemBean, viewableXpathList, entity,foreignKeyEntityMap, language); 
+            org.talend.mdm.webapp.browserecords.server.util.CommonUtil.dynamicAssembleByResultOrder(itemBean, viewableXpathList, entity,foreignKeyEntityMap, language, dataCluster.endsWith(StorageAdmin.STAGING_SUFFIX)); 
             if (includeXmlContent) {
                 StringBuilder ids = new StringBuilder();
                 for (String key : entity.getKeys()) {
