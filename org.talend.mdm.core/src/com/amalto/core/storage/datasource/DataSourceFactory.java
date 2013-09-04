@@ -1,15 +1,34 @@
 /*
- * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * Copyright (C) 2006-2013 Talend Inc. - www.talend.com
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.datasource;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
@@ -18,16 +37,6 @@ import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.*;
 
 public class DataSourceFactory {
 
@@ -69,7 +78,8 @@ public class DataSourceFactory {
         return getDataSource(readDataSourcesConfiguration(), dataSourceName, container, revisionId);
     }
 
-    public DataSourceDefinition getDataSource(InputStream configurationStream, String dataSourceName, String container, String revisionId) {
+    public DataSourceDefinition getDataSource(InputStream configurationStream, String dataSourceName, String container,
+            String revisionId) {
         if (dataSourceName == null) {
             throw new IllegalArgumentException("Data source name can not be null.");
         }
@@ -137,22 +147,25 @@ public class DataSourceFactory {
         // 1- Try from file (direct lookup)
         File file = new File(dataSourcesFileName);
         if (file.exists()) {
-            LOGGER.info("Reading from datasource file at '" + file.getAbsolutePath() + "'.");
+            LOGGER.info("Reading from datasource file at '" + file.getAbsolutePath() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
             try {
                 configurationAsStream = new FileInputStream(file);
             } catch (FileNotFoundException e) {
                 throw new IllegalStateException("Unexpected state (file exists but can't create a stream from it).", e);
             }
         }
-        // 1- Try from file (lookup from user.dir/server/default/conf)
+        // 1- Try from file (from the JBoss configuration directory)
         if (configurationAsStream == null) {
-            file = new File(System.getProperty("user.dir") + "/server/default/conf/" + dataSourcesFileName); //$NON-NLS-1$ //$NON-NLS-2$
-            LOGGER.info("Reading from datasource file at '" + file.getAbsolutePath() + "'.");
-            if (file.exists()) {
-                try {
-                    configurationAsStream = new FileInputStream(file);
-                } catch (FileNotFoundException e) {
-                    throw new IllegalStateException("Unexpected state (file exists but can't create a stream from it).", e);
+            String jbossServerDir = System.getProperty("jboss.server.home.dir"); //$NON-NLS-1$
+            if (jbossServerDir != null) {
+                file = new File(jbossServerDir + File.separator + "conf", dataSourcesFileName); //$NON-NLS-1$
+                LOGGER.info("Reading from datasource file at '" + file.getAbsolutePath() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
+                if (file.exists()) {
+                    try {
+                        configurationAsStream = new FileInputStream(file);
+                    } catch (FileNotFoundException e) {
+                        throw new IllegalStateException("Unexpected state (file exists but can't create a stream from it).", e);
+                    }
                 }
             }
         }
@@ -167,7 +180,7 @@ public class DataSourceFactory {
                 configurationAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(currentFilePath);
             }
             if (configurationAsStream != null) {
-                LOGGER.info("Reading from datasource file at '" + currentFilePath + "'.");
+                LOGGER.info("Reading from datasource file at '" + currentFilePath + "'."); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
         // 3- error: configuration was not found
@@ -206,29 +219,37 @@ public class DataSourceFactory {
     }
 
     private static DataSource getDataSourceConfiguration(Node document, String name, String path) throws XPathExpressionException {
-        Node dataSource = (Node) evaluate(document, path, XPathConstants.NODE); //$NON-NLS-1$
+        Node dataSource = (Node) evaluate(document, path, XPathConstants.NODE);
         if (dataSource == null) {
             return null;
         }
         String type = (String) evaluate(dataSource, "type", XPathConstants.STRING); //$NON-NLS-1$
         if ("RDBMS".equals(type)) { //$NON-NLS-1$
             String dialectName = (String) evaluate(dataSource, "rdbms-configuration/dialect", XPathConstants.STRING); //$NON-NLS-1$
-            String driverClassName = (String) evaluate(dataSource, "rdbms-configuration/connection-driver-class", XPathConstants.STRING); //$NON-NLS-1$
+            String driverClassName = (String) evaluate(dataSource,
+                    "rdbms-configuration/connection-driver-class", XPathConstants.STRING); //$NON-NLS-1$
             String connectionURL = (String) evaluate(dataSource, "rdbms-configuration/connection-url", XPathConstants.STRING); //$NON-NLS-1$
             String userName = (String) evaluate(dataSource, "rdbms-configuration/connection-username", XPathConstants.STRING); //$NON-NLS-1$
             String password = (String) evaluate(dataSource, "rdbms-configuration/connection-password", XPathConstants.STRING); //$NON-NLS-1$
-            int connectionPoolMinSize = ((Double) evaluate(dataSource, "rdbms-configuration/connection-pool-minsize", XPathConstants.NUMBER)).intValue(); //$NON-NLS-1$
-            int connectionPoolMaxSize = ((Double) evaluate(dataSource, "rdbms-configuration/connection-pool-maxsize", XPathConstants.NUMBER)).intValue(); //$NON-NLS-1$
-            String indexDirectory = (String) evaluate(dataSource, "rdbms-configuration/fulltext-index-directory", XPathConstants.STRING); //$NON-NLS-1$
+            int connectionPoolMinSize = ((Double) evaluate(dataSource,
+                    "rdbms-configuration/connection-pool-minsize", XPathConstants.NUMBER)).intValue(); //$NON-NLS-1$
+            int connectionPoolMaxSize = ((Double) evaluate(dataSource,
+                    "rdbms-configuration/connection-pool-maxsize", XPathConstants.NUMBER)).intValue(); //$NON-NLS-1$
+            String indexDirectory = (String) evaluate(dataSource,
+                    "rdbms-configuration/fulltext-index-directory", XPathConstants.STRING); //$NON-NLS-1$
             String cacheDirectory = (String) evaluate(dataSource, "rdbms-configuration/cache-directory", XPathConstants.STRING); //$NON-NLS-1$
-            String caseSensitivity = (String) evaluate(dataSource, "rdbms-configuration/case-sensitive-search", XPathConstants.STRING); //$NON-NLS-1$
-            Boolean caseSensitiveSearch = caseSensitivity == null || caseSensitivity.isEmpty() || Boolean.parseBoolean(caseSensitivity);
-            String schemaGeneration = (String) evaluate(dataSource, "rdbms-configuration/schema-generation", XPathConstants.STRING); //$NON-NLS-1$
+            String caseSensitivity = (String) evaluate(dataSource,
+                    "rdbms-configuration/case-sensitive-search", XPathConstants.STRING); //$NON-NLS-1$
+            Boolean caseSensitiveSearch = caseSensitivity == null || caseSensitivity.isEmpty()
+                    || Boolean.parseBoolean(caseSensitivity);
+            String schemaGeneration = (String) evaluate(dataSource,
+                    "rdbms-configuration/schema-generation", XPathConstants.STRING); //$NON-NLS-1$
             if (schemaGeneration == null || schemaGeneration.isEmpty()) {
                 // Default value is "update".
                 schemaGeneration = "update"; //$NON-NLS-1$
             }
-            String generateTechnicalFKAsString = (String) evaluate(dataSource, "rdbms-configuration/schema-technical-fk", XPathConstants.STRING); //$NON-NLS-1$
+            String generateTechnicalFKAsString = (String) evaluate(dataSource,
+                    "rdbms-configuration/schema-technical-fk", XPathConstants.STRING); //$NON-NLS-1$
             Boolean generateTechnicalFK;
             if (generateTechnicalFKAsString == null || generateTechnicalFKAsString.isEmpty()) {
                 // Default value is "true" (enforce FK for technical FKs).
@@ -237,7 +258,8 @@ public class DataSourceFactory {
                 generateTechnicalFK = Boolean.parseBoolean(generateTechnicalFKAsString);
             }
             Map<String, String> advancedProperties = new HashMap<String, String>();
-            NodeList properties = (NodeList) evaluate(dataSource, "rdbms-configuration/properties/property", XPathConstants.NODESET); //$NON-NLS-1$
+            NodeList properties = (NodeList) evaluate(dataSource,
+                    "rdbms-configuration/properties/property", XPathConstants.NODESET); //$NON-NLS-1$
             for (int i = 0; i < properties.getLength(); i++) {
                 Node item = properties.item(i);
                 String propertyName = item.getAttributes().getNamedItem("name").getNodeValue(); //$NON-NLS-1$
@@ -245,7 +267,8 @@ public class DataSourceFactory {
                 advancedProperties.put(propertyName, propertyValue);
             }
             // Contains optimization
-            String containsOptimizationAsString = (String) evaluate(dataSource, "rdbms-configuration/contains-optimization", XPathConstants.STRING); //$NON-NLS-1$
+            String containsOptimizationAsString = (String) evaluate(dataSource,
+                    "rdbms-configuration/contains-optimization", XPathConstants.STRING); //$NON-NLS-1$
             RDBMSDataSource.ContainsOptimization containsOptimization = RDBMSDataSource.ContainsOptimization.FULL_TEXT;
             if ("fulltext".equals(containsOptimizationAsString)) { //$NON-NLS-1$
                 containsOptimization = RDBMSDataSource.ContainsOptimization.FULL_TEXT;
@@ -254,29 +277,17 @@ public class DataSourceFactory {
             } else if ("like".equals(containsOptimizationAsString)) { //$NON-NLS-1$
                 containsOptimization = RDBMSDataSource.ContainsOptimization.LIKE;
             }
-            String initConnectionURL = (String) evaluate(dataSource, "rdbms-configuration/init/connection-url", XPathConstants.STRING); //$NON-NLS-1$
-            String initUserName = (String) evaluate(dataSource, "rdbms-configuration/init/connection-username", XPathConstants.STRING); //$NON-NLS-1$
-            String initPassword = (String) evaluate(dataSource, "rdbms-configuration/init/connection-password", XPathConstants.STRING); //$NON-NLS-1$
+            String initConnectionURL = (String) evaluate(dataSource,
+                    "rdbms-configuration/init/connection-url", XPathConstants.STRING); //$NON-NLS-1$
+            String initUserName = (String) evaluate(dataSource,
+                    "rdbms-configuration/init/connection-username", XPathConstants.STRING); //$NON-NLS-1$
+            String initPassword = (String) evaluate(dataSource,
+                    "rdbms-configuration/init/connection-password", XPathConstants.STRING); //$NON-NLS-1$
             String databaseName = (String) evaluate(dataSource, "rdbms-configuration/init/database-name", XPathConstants.STRING); //$NON-NLS-1$
-            return new RDBMSDataSource(name,
-                    dialectName,
-                    driverClassName,
-                    userName,
-                    password,
-                    connectionPoolMinSize,
-                    connectionPoolMaxSize,
-                    indexDirectory,
-                    cacheDirectory,
-                    caseSensitiveSearch,
-                    schemaGeneration,
-                    generateTechnicalFK,
-                    advancedProperties,
-                    connectionURL,
-                    databaseName,
-                    containsOptimization,
-                    initPassword,
-                    initUserName,
-                    initConnectionURL);
+            return new RDBMSDataSource(name, dialectName, driverClassName, userName, password, connectionPoolMinSize,
+                    connectionPoolMaxSize, indexDirectory, cacheDirectory, caseSensitiveSearch, schemaGeneration,
+                    generateTechnicalFK, advancedProperties, connectionURL, databaseName, containsOptimization, initPassword,
+                    initUserName, initConnectionURL);
         } else {
             throw new NotImplementedException("No support for type '" + type + "'.");
         }
