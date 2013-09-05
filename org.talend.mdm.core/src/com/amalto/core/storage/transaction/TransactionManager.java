@@ -11,6 +11,8 @@
 
 package com.amalto.core.storage.transaction;
 
+import java.util.List;
+
 /**
  * The MDM transaction manager: provides all methods relative to MDM transactions.
  * @see Transaction
@@ -26,6 +28,8 @@ public interface TransactionManager {
      * Clean up all resources and rollbacks any pending transactions.
      */
     void close();
+
+    List<String> list();
 
     /**
      * Creates a new {@link Transaction} with a expected life time. This method also associate the newly created

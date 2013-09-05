@@ -15,10 +15,7 @@ import com.amalto.core.storage.transaction.Transaction;
 import com.amalto.core.storage.transaction.TransactionManager;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class MDMTransactionManager implements TransactionManager {
 
@@ -29,6 +26,15 @@ public class MDMTransactionManager implements TransactionManager {
     private static final Map<String, Transaction> activeTransactions = new HashMap<String, Transaction>();
 
     private boolean isInitialized = false;
+
+    @Override
+    public List<String> list() {
+        synchronized (activeTransactions) {
+            List<String> activeTransactionIds = new ArrayList<String>(activeTransactions.size());
+            activeTransactionIds.addAll(activeTransactions.keySet());
+            return activeTransactionIds;
+        }
+    }
 
     @Override
     public Transaction create(Transaction.Lifetime lifetime) {

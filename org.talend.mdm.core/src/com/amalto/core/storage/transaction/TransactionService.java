@@ -14,9 +14,26 @@ package com.amalto.core.storage.transaction;
 import com.amalto.core.server.ServerContext;
 
 import javax.ws.rs.*;
+import java.util.List;
 
 @Path("/transactions") //$NON-NLS-1$
 public class TransactionService {
+
+    /**
+     * Lists all actives transactions ({@link Transaction.Lifetime#LONG} and {@link Transaction.Lifetime#AD_HOC}).
+     * @return A space-separated list of transaction ids (as UUID).
+     */
+    @GET
+    @Path("/") //$NON-NLS-1$
+    public String list() {
+        TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
+        List<String> list = transactionManager.list();
+        StringBuilder listAsString = new StringBuilder();
+        for (String currentId : list) {
+            listAsString.append(currentId).append(' ');
+        }
+        return listAsString.toString();
+    }
 
     /**
      * Starts a new transaction and returns the id of the newly created transaction.
