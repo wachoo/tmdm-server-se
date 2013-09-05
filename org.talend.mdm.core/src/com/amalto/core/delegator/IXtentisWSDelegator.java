@@ -338,7 +338,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             session.end();
             return wsDataModelPK;
         } catch (Exception e) {
-            throw RemoteExceptionFactory.newDefaultRemoteExceptionWithFullCauseDetail(e, true);
+            throw RemoteExceptionFactory.aggregateCauses(e, true);
         }
     }
 
@@ -548,7 +548,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             return new WSDataClusterPK(Util.getDataClusterCtrlLocal().putDataCluster(WS2VO(wsDataCluster.getWsDataCluster()))
                     .getUniqueId());
         } catch (Exception e) {
-            throw RemoteExceptionFactory.newDefaultRemoteExceptionWithFullCauseDetail(e, true);
+            throw RemoteExceptionFactory.aggregateCauses(e, true);
         }
     }
 
@@ -4185,13 +4185,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             if (typeName != null) {
                 ComplexTypeMetadata storageType = repository.getComplexType(ClassRepository.format(typeName)); // Get the type definition for query 
                 UserQueryBuilder qb = UserQueryBuilder.from(storageType) 
-                        .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name)); // Select instance of type where unique-id equals provided name
+                        .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name)); //$NON-NLS-1$ // Select instance of type where unique-id equals provided name
                 StorageResults results = systemStorage.fetch(qb.getSelect());
                 
                 Iterator<DataRecord> iterator = results.iterator();
                 if (iterator.hasNext()) {
                     DataRecord result = iterator.next();
-                    return new WSDigest(wsDigestKey,(String)result.get("digest"), result.getRecordMetadata().getLastModificationTime());
+                    return new WSDigest(wsDigestKey,(String)result.get("digest"), result.getRecordMetadata().getLastModificationTime()); //$NON-NLS-1$
                 } else {
                     return null;
                 }
@@ -4219,14 +4219,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             if (typeName != null) {
                 ComplexTypeMetadata storageType = repository.getComplexType(ClassRepository.format(typeName));
                 UserQueryBuilder qb = UserQueryBuilder.from(storageType)
-                        .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name))
+                        .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name)) //$NON-NLS-1$
                         .forUpdate(); // <- Important line here!
                 StorageResults results = systemStorage.fetch(qb.getSelect());
                 
                 Iterator<DataRecord> iterator = results.iterator();
                 if (iterator.hasNext()) {
                     DataRecord result = iterator.next();
-                    FieldMetadata digestField = storageType.getField("digest");
+                    FieldMetadata digestField = storageType.getField("digest"); //$NON-NLS-1$
                     result.set(digestField, MetadataUtils.convert(wsDigest.getDigestValue(), digestField)); // Using convert ensure type is correct                
                     systemStorage.update(result); // No need to set timestamp (update will update it).
                     systemStorage.commit();
@@ -4241,5 +4241,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             systemStorage.rollback();
             throw new RuntimeException( e );
         }
+    }
+
+    public WSMatchRulePK putMatchRule(WSPutMatchRule wsPutMatchRule) throws RemoteException {
+        return null; // Supported only in EE.
+    }
+
+    public WSMatchRulePK deleteMatchRule(WSDeleteMatchRule wsDeleteMatchRule) throws RemoteException {
+        return null; // Supported only in EE.
     }
 }

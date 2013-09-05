@@ -12,6 +12,8 @@
 // ============================================================================
 package com.amalto.core.util;
 
+import com.amalto.core.metadata.ClassRepository;
+import com.amalto.core.server.StorageAdminImpl;
 import org.apache.commons.lang.StringUtils;
 import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
@@ -25,59 +27,62 @@ import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJO;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
+import org.apache.log4j.Logger;
 
-/**
- * created by talend2 on 2013-8-27
- * Detailled comment
- *
- */
 public class DigestHelper {
+
+    private static final String TYPE_DATA_CLUSTER = "MDM.DataCluster"; //$NON-NLS-1$
     
-    private String TYPE_DATACLUSTER = "MDM.DataCluster"; //$NON-NLS-1$
+    private static final String TYPE_DATA_MODEL = "MDM.DataModel"; //$NON-NLS-1$
     
-    private String TYPE_DATAMODEL = "MDM.DataModel"; //$NON-NLS-1$
+    private static final String TYPE_VIEW = "MDM.View"; //$NON-NLS-1$
     
-    private String TYPE_VIEW = "MDM.View"; //$NON-NLS-1$
+    private static final String TYPE_ROLE = "MDM.Role"; //$NON-NLS-1$
     
-    private String TYPE_ROLE = "MDM.Role"; //$NON-NLS-1$
+    private static final String TYPE_MENU = "MDM.Menu"; //$NON-NLS-1$
     
-    private String TYPE_MENU = "MDM.Menu"; //$NON-NLS-1$
+    private static final String TYPE_STORED_PROCEDURE = "MDM.StoredProcedure"; //$NON-NLS-1$
     
-    private String TYPE_STOREPROCEDURE = "MDM.StoredProcedure"; //$NON-NLS-1$
+    private static final String TYPE_UNIVERSE = "MDM.Universe"; //$NON-NLS-1$
     
-    private String TYPE_UNIVERSE = "MDM.Universe"; //$NON-NLS-1$
+    private static final String TYPE_SYNCHRONIZATION_PLAN = "MDM.SynchronizationPlan"; //$NON-NLS-1$
     
-    private String TYPE_SYNCHRONIZATIONPLAN = "MDM.SynchronizationPlan"; //$NON-NLS-1$
+    private static final String TYPE_WORKFLOW = "MDM.Workflow"; //$NON-NLS-1$
+
+    private static final String TYPE_TRANSFORMER = "MDM.TransformerV2"; //$NON-NLS-1$
     
-    private String TYPE_WORKFLOW = "MDM.Workflow"; //$NON-NLS-1$
+    private static final String TYPE_ROUTING_RULE = "MDM.RoutingRule"; //$NON-NLS-1$
+
+    private static final String TYPE_JOB_MODEL = "MDM.JobModel"; //$NON-NLS-1$
+
+    private static final String TYPE_SERVICE_CONFIGURATION = "MDM.ServiceConfiguration"; //$NON-NLS-1$
     
-    private String TYPE_TRANSFORMERV2 = "MDM.TransformerV2"; //$NON-NLS-1$
-    
-    private String TYPE_ROUTINGRULE = "MDM.RoutingRule"; //$NON-NLS-1$
-    
-    private String TYPE_JOBMODEL = "MDM.JobModel"; //$NON-NLS-1$
-    
-    private String TYPE_SERVICECONFIGURATION = "MDM.ServiceConfiguration"; //$NON-NLS-1$
-    
-    private String TYPE_RESOURCE = "MDM.Resource"; //$NON-NLS-1$
-    
-    private String TYPE_CUSTOM_FORM = "MDM.CustomForm"; //$NON-NLS-1$
-    
+    private static final String TYPE_RESOURCE = "MDM.Resource"; //$NON-NLS-1$
+
+    private static final String TYPE_CUSTOM_FORM = "MDM.CustomForm"; //$NON-NLS-1$
+
+    private static final String TYPE_MATCH_RULE = "MDM.MatchRule"; //$NON-NLS-1$
+
+    private static final Logger LOGGER = Logger.getLogger(DigestHelper.class);
+
     private static DigestHelper instance;
     
     public static synchronized DigestHelper getInstance() {
         if (instance == null) {
             instance = new DigestHelper();
         }
-
         return instance;
     }
-    
+
+    /**
+     * @param type A type of resource (see constants in {@link DigestHelper}).
+     * @return The MDM internal class name
+     */
     public String getTypeName(String type) {
         String name = null;
-        if (TYPE_DATACLUSTER.equals(type)) {
+        if (TYPE_DATA_CLUSTER.equals(type)) {
             name = DataClusterPOJO.class.getName();
-        } else if (TYPE_DATAMODEL.equals(type)) {
+        } else if (TYPE_DATA_MODEL.equals(type)) {
             name = DataModelPOJO.class.getName();
         } else if (TYPE_VIEW.equals(type)) {
             name = ViewPOJO.class.getName();
@@ -85,31 +90,30 @@ public class DigestHelper {
             name = RolePOJO.class.getName();
         } else if (TYPE_MENU.equals(type)) {
             name = MenuPOJO.class.getName();
-        } else if (TYPE_STOREPROCEDURE.equals(type)) {
+        } else if (TYPE_STORED_PROCEDURE.equals(type)) {
             name = StoredProcedurePOJO.class.getName();
         } else if (TYPE_UNIVERSE.equals(type)) {
             name = UniversePOJO.class.getName();
-        } else if (TYPE_SYNCHRONIZATIONPLAN.equals(type)) {
+        } else if (TYPE_SYNCHRONIZATION_PLAN.equals(type)) {
             name = SynchronizationPlanPOJO.class.getName();
-        } else if (TYPE_WORKFLOW.equals(type)) {
-            // don't support now
-        } else if (TYPE_TRANSFORMERV2.equals(type)) {
+        } else if (TYPE_TRANSFORMER.equals(type)) {
             name = TransformerV2POJO.class.getName();
-        } else if (TYPE_ROUTINGRULE.equals(type)) {
+        } else if (TYPE_ROUTING_RULE.equals(type)) {
             name = RoutingRulePOJO.class.getName();
-        } else if (TYPE_JOBMODEL.equals(type)) {
-            //name = BackgroundJobPOJO.class.getName();
-            //don't suppport now
-        } else if (TYPE_SERVICECONFIGURATION.equals(type)) {
+        } else if (TYPE_SERVICE_CONFIGURATION.equals(type)) {
             name = ConfigurationInfoPOJO.class.getName();
-        } else if (TYPE_RESOURCE.equals(type)) {
-            // don't support now
         } else if (TYPE_CUSTOM_FORM.equals(type)) {
             name = CustomFormPOJO.class.getName();
         } else if (TYPE_MENU.equals(type)) {
             name = DataClusterPOJO.class.getName();
+        } else if (TYPE_MATCH_RULE.equals(type)) {
+            name = StorageAdminImpl.MATCH_RULE_POJO_CLASS; // Class is not is class path when running CE edition.
+        } else {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Type '" + type + "' is not supported.");
+            }
         }
-        return name != null ? StringUtils.substringAfterLast(name, ".") : null;  //$NON-NLS-1$
+        return name != null ? StringUtils.substringAfterLast(name, ".") : null; //$NON-NLS-1$
     }
 
 }

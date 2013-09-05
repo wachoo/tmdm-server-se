@@ -30,7 +30,9 @@ public class ClassRepository extends MetadataRepository {
 
     public static final String MAP_TYPE_NAME = "map"; //$NON-NLS-1$
 
-    public static final SimpleTypeMetadata STRING = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"); //$NON-NLS-1$
+    public static final String EMBEDDED_XML = "embeddedXml"; //$NON-NLS-1$
+
+    private static final SimpleTypeMetadata STRING = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING);
 
     private static final Logger LOGGER = Logger.getLogger(ClassRepository.class);
 
@@ -41,8 +43,6 @@ public class ClassRepository extends MetadataRepository {
     private static final String JAVA_LANG_PREFIX = "java.lang."; //$NON-NLS-1$
 
     private static final int MAJ_DIFF = 'A' - 'a';
-
-    public static final String EMBEDDED_XML = "embeddedXml"; //$NON-NLS-1$
 
     private final ComplexTypeMetadata MAP_TYPE;
 
@@ -180,8 +180,8 @@ public class ClassRepository extends MetadataRepository {
                             fieldTypeName = StringUtils.substringAfter(fieldTypeName, JAVA_LANG_PREFIX);
                         }
                         TypeMetadata fieldType;
-                        if ("byte".equals(fieldTypeName) && isMany) { //$NON-NLS-1$
-                            fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "base64Binary"); //$NON-NLS-1$
+                        if (Types.BYTE.equals(fieldTypeName) && isMany) {
+                            fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.BASE64_BINARY);
                         } else {
                             fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, fieldTypeName);
                         }

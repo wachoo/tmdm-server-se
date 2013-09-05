@@ -39,6 +39,8 @@ import java.util.*;
 
 public class StorageAdminImpl implements StorageAdmin {
 
+    public static final String MATCH_RULE_POJO_CLASS = "com.amalto.core.storage.task.config.MatchRulePOJO"; //$NON-NLS-1$
+
     private static final Logger LOGGER = Logger.getLogger(StorageAdminImpl.class);
 
     private static final String JCA_ADAPTER_DATA_MODEL = "jcaAdapter.xsd"; //$NON-NLS-1$
@@ -55,7 +57,11 @@ public class StorageAdminImpl implements StorageAdmin {
 
     private static final String VERSIONING_POJO_CLASS = "com.amalto.core.objects.versioning.ejb.VersioningSystemPOJO"; //$NON-NLS-1$
 
-    private static final String[] OPTIONAL_CLASSES = new String[] {LICENSE_POJO_CLASS, VERSIONING_POJO_CLASS};
+    private static final String[] OPTIONAL_CLASSES = new String[] {
+            LICENSE_POJO_CLASS,
+            VERSIONING_POJO_CLASS,
+            MATCH_RULE_POJO_CLASS
+    };
 
     private final Map<String, Map<String, Storage>> storages = new StorageMap();
 
@@ -169,7 +175,7 @@ public class StorageAdminImpl implements StorageAdmin {
                 repository.load(clazz);
             } catch (ClassNotFoundException e) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Ignore LicencePOJO parsing. Not running enterprise edition.", e);
+                    LOGGER.debug("Ignore '" + optionalClass + "' parsing: class is not available.", e);
                 }
             }
         }
