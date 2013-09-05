@@ -125,6 +125,7 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.util.ArrayListHolder;
+import com.amalto.core.util.DigestHelper;
 import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.RemoteExceptionFactory;
@@ -4180,19 +4181,23 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         String name = wsDigestKey.getObjectName();
         systemStorage.begin(); // Storage needs an active transaction (even for read operations).
         try {
-            String typeName = ClassRepository.format(type); // This line converts "DataClusterPOJO" into the name in system type repository.
-            ComplexTypeMetadata storageType = repository.getComplexType(typeName); // Get the type definition for query 
-            UserQueryBuilder qb = UserQueryBuilder.from(storageType) 
-                    .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name)); // Select instance of type where unique-id equals provided name
-            StorageResults results = systemStorage.fetch(qb.getSelect());
-            
-            Iterator<DataRecord> iterator = results.iterator();
-            if (iterator.hasNext()) {
-                DataRecord result = iterator.next();
-                return new WSDigest(wsDigestKey,(String)result.get("digest"), result.getRecordMetadata().getLastModificationTime());
+            String typeName = DigestHelper.getInstance().getTypeName(type);
+            if (typeName != null) {
+                ComplexTypeMetadata storageType = repository.getComplexType(ClassRepository.format(typeName)); // Get the type definition for query 
+                UserQueryBuilder qb = UserQueryBuilder.from(storageType) 
+                        .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name)); // Select instance of type where unique-id equals provided name
+                StorageResults results = systemStorage.fetch(qb.getSelect());
+                
+                Iterator<DataRecord> iterator = results.iterator();
+                if (iterator.hasNext()) {
+                    DataRecord result = iterator.next();
+                    return new WSDigest(wsDigestKey,(String)result.get("digest"), result.getRecordMetadata().getLastModificationTime());
+                } else {
+                    return null;
+                }
             } else {
                 return null;
-            }         
+            }
         } finally {
             systemStorage.rollback();
         }
@@ -4210,21 +4215,25 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         String name = wsDigest.getWsDigestKey().getObjectName();
         systemStorage.begin(); // Storage needs an active transaction (even for read operations).
         try {
-            String typeName = ClassRepository.format(type);
-            ComplexTypeMetadata storageType = repository.getComplexType(typeName);
-            UserQueryBuilder qb = UserQueryBuilder.from(storageType)
-                    .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name))
-                    .forUpdate(); // <- Important line here!
-            StorageResults results = systemStorage.fetch(qb.getSelect());
-            
-            Iterator<DataRecord> iterator = results.iterator();
-            if (iterator.hasNext()) {
-                DataRecord result = iterator.next();
-                FieldMetadata digestField = storageType.getField("digest");
-                result.set(digestField, MetadataUtils.convert(wsDigest.getDigestValue(), digestField)); // Using convert ensure type is correct                
-                systemStorage.update(result); // No need to set timestamp (update will update it).
-                systemStorage.commit();
-                return new WSLong(result.getRecordMetadata().getLastModificationTime());
+            String typeName = DigestHelper.getInstance().getTypeName(type);
+            if (typeName != null) {
+                ComplexTypeMetadata storageType = repository.getComplexType(ClassRepository.format(typeName));
+                UserQueryBuilder qb = UserQueryBuilder.from(storageType)
+                        .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name))
+                        .forUpdate(); // <- Important line here!
+                StorageResults results = systemStorage.fetch(qb.getSelect());
+                
+                Iterator<DataRecord> iterator = results.iterator();
+                if (iterator.hasNext()) {
+                    DataRecord result = iterator.next();
+                    FieldMetadata digestField = storageType.getField("digest");
+                    result.set(digestField, MetadataUtils.convert(wsDigest.getDigestValue(), digestField)); // Using convert ensure type is correct                
+                    systemStorage.update(result); // No need to set timestamp (update will update it).
+                    systemStorage.commit();
+                    return new WSLong(result.getRecordMetadata().getLastModificationTime());
+                } else {
+                    return null;
+                }
             } else {
                 return null;
             }            

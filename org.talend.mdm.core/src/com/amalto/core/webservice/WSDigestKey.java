@@ -17,10 +17,10 @@ package com.amalto.core.webservice;
  * 
  */
 public class WSDigestKey {
+    
+    protected String type;
 
     protected String objectName;
-
-    protected String type;
 
     public WSDigestKey() {
         
@@ -31,20 +31,20 @@ public class WSDigestKey {
         this.type = type;
         this.objectName = objectName;
     }
-
-    public void setObjectName(String objectName) {
-        this.objectName = objectName;
-    }
     
-    public String getObjectName() {
-        return this.objectName;
+    public String getType() {
+        return this.type;
     }
 
     public void setType(String type) {
         this.type = type;
     }
 
-    public String getType() {
-        return this.type;
+    public String getObjectName() {
+        return this.objectName;
+    }
+
+    public void setObjectName(String objectName) {
+        this.objectName = objectName;
     }
 }

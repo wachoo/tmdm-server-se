@@ -2619,12 +2619,12 @@
     <root-type-qname xmlns:typeNS="urn-com-amalto-xtentis-webservice">typeNS:WSDigestKey</root-type-qname>
     <qname-scope>complexType</qname-scope>
     <variable-mapping>
-      <java-variable-name>objectName</java-variable-name>
-      <xml-element-name>objectName</xml-element-name>
-    </variable-mapping>
-    <variable-mapping>
       <java-variable-name>type</java-variable-name>
       <xml-element-name>type</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>objectName</java-variable-name>
+      <xml-element-name>objectName</xml-element-name>
     </variable-mapping>
   </java-xml-type-mapping>
   <java-xml-type-mapping>

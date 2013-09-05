@@ -237,6 +237,16 @@ public class ClassRepository extends MetadataRepository {
                 }
             }
         }
+        
+        typeStack.peek().addField(new SimpleTypeFieldMetadata(typeStack.peek(),
+                false,
+                false,
+                false,
+                "digest", //$NON-NLS-1$
+                new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList()));
+        
         return typeStack.pop();
     }
 
