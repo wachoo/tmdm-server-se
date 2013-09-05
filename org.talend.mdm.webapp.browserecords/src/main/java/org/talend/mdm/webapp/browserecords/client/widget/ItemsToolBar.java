@@ -128,11 +128,11 @@ public class ItemsToolBar extends ToolBar {
 
     private Button createBtn = new Button(MessagesFactory.getMessages().create_btn());
 
-    private Button deleteMenu = new Button(MessagesFactory.getMessages().delete_btn());
+    protected Button deleteMenu = new Button(MessagesFactory.getMessages().delete_btn());
 
     private Button uploadBtn = new Button(MessagesFactory.getMessages().itemsBrowser_Import_Export());
 
-    private BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
+    protected BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
     private List<ItemBaseModel> userCriteriasList;
 
@@ -148,13 +148,26 @@ public class ItemsToolBar extends ToolBar {
 
     /*************************************/
 
+    public static interface ItemsToolBarCreator {
+        ItemsToolBar newInstance();
+    }
+    
+    private static ItemsToolBarCreator creator;
+    
+    public static void initialize(ItemsToolBarCreator impl) {
+        ItemsToolBar.creator = impl;
+    }
+    
     private static ItemsToolBar instance;
 
     public static ItemsToolBar getInstance() {
         if (instance == null) {
-            instance = new ItemsToolBar();
+            if (creator == null) {
+                instance = new ItemsToolBar();
+            } else {
+                instance = creator.newInstance();
+            }
         }
-
         return instance;
     }
 
@@ -164,7 +177,7 @@ public class ItemsToolBar extends ToolBar {
         instance = null;
     }
 
-    private ItemsToolBar() {
+    protected ItemsToolBar() {
         // init user saved model
         userCluster = BrowseRecords.getSession().getAppHeader().getDatacluster();
         this.setBorders(false);
@@ -1037,13 +1050,13 @@ public class ItemsToolBar extends ToolBar {
         this.simplePanel = simplePanel;
     }
 
-    private class DeleteItemsBoxListener implements Listener<MessageBoxEvent> {
+    protected class DeleteItemsBoxListener implements Listener<MessageBoxEvent> {
 
         private final ItemsListPanel list;
 
         private final BrowseRecordsServiceAsync service;
 
-        private DeleteItemsBoxListener(BrowseRecordsServiceAsync service) {
+        public DeleteItemsBoxListener(BrowseRecordsServiceAsync service) {
             this.service = service;
             this.list = ItemsListPanel.getInstance();
         }

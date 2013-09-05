@@ -31,10 +31,12 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel.ItemsDetailPanelCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar.ItemsToolBarCreator;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecordsinstaging.client.widget.ItemsDetailPanel4Staging;
 import org.talend.mdm.webapp.browserecordsinstaging.client.widget.ItemsListPanel4Staging;
+import org.talend.mdm.webapp.browserecordsinstaging.client.widget.ItemsToolBar4Staging;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
@@ -133,6 +135,13 @@ public class BrowseRecordsInStaging implements EntryPoint {
     private void initExtendedEnviroment() {
         ToolBarFactory.initialize(new ToolBarFactory4Staging());
         ItemsListPanel.initialize(new ItemsListPanel4Staging());
+        ItemsToolBar.initialize(new ItemsToolBarCreator() {
+
+            @Override
+            public ItemsToolBar newInstance() {
+                return new ItemsToolBar4Staging();
+            }
+        });
         ItemsDetailPanel.initialize(new ItemsDetailPanelCreator() {
 
             @Override
