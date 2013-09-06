@@ -19,7 +19,9 @@ import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.ObjectDataRecordReader;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Priority;
 import org.hibernate.FlushMode;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Transaction;
@@ -33,6 +35,7 @@ import java.util.Set;
 class HibernateStorageTransaction extends StorageTransaction {
 
     private static final Logger LOGGER = Logger.getLogger(HibernateStorageTransaction.class);
+    protected static final int TRANSACTION_DUMP_MAX = 10;
 
     private final HibernateStorage storage;
 
@@ -80,8 +83,8 @@ class HibernateStorageTransaction extends StorageTransaction {
             } catch (Exception e) {
                 if (LOGGER.isInfoEnabled()) {
                     LOGGER.info("Transaction failed, dumps transaction content for diagnostic.");
+                    dumpTransactionContent(session, storage); // Dumps all the faulty session information.
                 }
-                dumpTransactionContent(session, storage); // Dumps all the faulty session information.
                 if (e instanceof org.hibernate.exception.ConstraintViolationException) {
                     throw new ConstraintViolationException(e);
                 } else {
@@ -104,7 +107,8 @@ class HibernateStorageTransaction extends StorageTransaction {
      */
     private static void dumpTransactionContent(Session session,
                                                HibernateStorage storage) {
-        if (LOGGER.isInfoEnabled()) {
+        Level currentLevel = Level.INFO;
+        if (LOGGER.isEnabledFor(currentLevel)) {
             Set<EntityKey> failedKeys = session.getStatistics().getEntityKeys();
             int i = 1;
             ObjectDataRecordReader reader = new ObjectDataRecordReader();
@@ -115,7 +119,7 @@ class HibernateStorageTransaction extends StorageTransaction {
             ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
             for (EntityKey failedKey : failedKeys) {
                 String entityTypeName = StringUtils.substringAfterLast(failedKey.getEntityName(), "."); //$NON-NLS-1$
-                LOGGER.info("Entity #" + i++ + " (type=" + entityTypeName + ", id=" + failedKey.getIdentifier() + ")");
+                LOGGER.log(currentLevel, "Entity #" + i++ + " (type=" + entityTypeName + ", id=" + failedKey.getIdentifier() + ")");
                 try {
                     Thread.currentThread().setContextClassLoader(classLoader);
                     Wrapper o = (Wrapper) ((SessionImpl) session).getPersistenceContext().getEntity(failedKey);
@@ -124,7 +128,7 @@ class HibernateStorageTransaction extends StorageTransaction {
                         if (type != null) {
                             DataRecord record = reader.read(mappingRepository.getMappingFromDatabase(type), o);
                             writer.write(record, xmlContent);
-                            LOGGER.info(xmlContent);
+                            LOGGER.log(currentLevel, xmlContent);
                         } else {
                             LOGGER.warn("Could not find data model type for object " + o);
                         }
@@ -132,17 +136,25 @@ class HibernateStorageTransaction extends StorageTransaction {
                         LOGGER.warn("Could not find an object for entity " + failedKey);
                     }
                 } catch (ObjectNotFoundException missingRefException) {
-                    LOGGER.info("Can not log entity: contains a unresolved reference to '"
+                    LOGGER.log(currentLevel, "Can not log entity: contains a unresolved reference to '"
                             + missingRefException.getEntityName() + "' with id '"
                             + missingRefException.getIdentifier() + "'");
                 } catch (Exception serializationException) {
-                    LOGGER.info("Failed to log entity content for type " + entityTypeName + " (enable DEBUG for exception details).");
+                    LOGGER.log(currentLevel, "Failed to log entity content for type " + entityTypeName + " (enable DEBUG for exception details).");
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Serialization exception occurred.", serializationException);
                     }
                 } finally {
                     xmlContent.reset();
                     Thread.currentThread().setContextClassLoader(previousClassLoader);
+                }
+                if (i > TRANSACTION_DUMP_MAX) {
+                    if (!LOGGER.isDebugEnabled()) {
+                        LOGGER.log(currentLevel, "and " + (failedKeys.size() - i) + " more... (enable DEBUG for full dump)");
+                        return;
+                    } else {
+                        currentLevel = Level.DEBUG; // Continue the dump but with a DEBUG level
+                    }
                 }
             }
         }
@@ -156,6 +168,11 @@ class HibernateStorageTransaction extends StorageTransaction {
                 if (!transaction.isActive()) {
                     LOGGER.warn("Can not rollback transaction, no transaction is active.");
                     return;
+                } else {
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("Transaction is being rollbacked. Transaction content:");
+                        dumpTransactionContent(session, storage); // Dumps all content in the current transaction.
+                    }
                 }
                 session.clear();
                 if (!transaction.wasRolledBack()) {
