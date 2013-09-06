@@ -104,9 +104,7 @@ public class DigestHelper {
             name = ConfigurationInfoPOJO.class.getName();
         } else if (TYPE_CUSTOM_FORM.equals(type)) {
             name = CustomFormPOJO.class.getName();
-        } else if (TYPE_MENU.equals(type)) {
-            name = DataClusterPOJO.class.getName();
-        } else if (TYPE_MATCH_RULE.equals(type)) {
+        }  else if (TYPE_MATCH_RULE.equals(type)) {
             name = StorageAdminImpl.MATCH_RULE_POJO_CLASS; // Class is not is class path when running CE edition.
         } else {
             if (LOGGER.isDebugEnabled()) {
