@@ -29,6 +29,7 @@ import org.talend.mdm.webapp.browserecordsinstaging.client.model.RecordStatus;
 import org.talend.mdm.webapp.browserecordsinstaging.client.model.RecordStatusWrapper;
 import org.talend.mdm.webapp.browserecordsinstaging.client.util.StagingConstant;
 
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -116,6 +117,32 @@ public class ItemsListPanel4Staging extends ItemsListPanel {
         ColumnConfig sourceColumn = new ColumnConfig(em.getConceptName() + StagingConstant.STAGING_SOURCE, MessagesFactory
                 .getMessages().source(), 200);
         columnConfigList.add(sourceColumn);
+
+        for (ColumnConfig cc : columnConfigList) {
+            final GridCellRenderer<ModelData> render = cc.getRenderer();
+
+            GridCellRenderer<ModelData> renderProxy = new GridCellRenderer<ModelData>() {
+
+                @Override
+                public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
+                        ListStore<ModelData> store, Grid<ModelData> g) {
+                    Object value = null;
+                    if (render != null) {
+                        value = render.render(model, property, config, rowIndex, colIndex, store, g);
+                    } else {
+                        value = model.get(property);
+                    }
+                    if (value instanceof String) {
+                        ItemBean item = (ItemBean) model;
+                        if ("205".equals(model.get(item.getConcept() + StagingConstant.STAGING_STATUS))) { //$NON-NLS-1$
+                            return "<b>" + value + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
+                        }
+                    }
+                    return value;
+                }
+            };
+            cc.setRenderer(renderProxy);
+        }
 
         super.updateGrid(sm, columnConfigList);
         grid.getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ItemBean>() {
