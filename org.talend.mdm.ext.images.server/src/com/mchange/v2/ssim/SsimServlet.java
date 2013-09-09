@@ -40,6 +40,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import talend.ext.images.server.ImageLoadFrontFilter;
 
 import com.mchange.v1.io.InputStreamUtils;
@@ -50,7 +52,9 @@ import com.mchange.v2.util.PatternReplacementMap;
 public class SsimServlet extends HttpServlet
 {
     public final static String PATTERN_REPLACEMENT_MAP_APPKEY = "com_mchange_v2_ssim_SsimServlet__patternReplacementMap";
-
+    
+    private final Logger LOG = Logger.getLogger(SsimServlet.class);
+    
     final static int DFLT_MAX_WIDTH  = 2000;
     final static int DFLT_MAX_HEIGHT = 2000;
     final static int DFLT_CACHE_SIZE = 50;  //50MB
@@ -120,7 +124,7 @@ public class SsimServlet extends HttpServlet
         throw new UnavailableException("Cache directory: " + cacheDir
                 + " does not exist, is not a directory, or is not writable!");
     } else {
-        System.err.println("SsimServlet: Using cache directory: " + cacheDir);
+        LOG.info("Using cache directory: " + cacheDir); //$NON-NLS-1$
     }
     // figure out baseUrl / path
     if (baseUrlStr != null && baseResourcePathStr != null)
@@ -177,8 +181,7 @@ public class SsimServlet extends HttpServlet
             }
         catch ( UnknownHostException e )
             {
-            System.err.println( "Couldn't look up localhost to permit within-domain relaying!" );
-            e.printStackTrace();
+            LOG.error( "Couldn't look up localhost to permit within-domain relaying!", e ); //$NON-NLS-1$
             myDomain = null;
             }
         }
@@ -208,8 +211,7 @@ public class SsimServlet extends HttpServlet
     }
 
     if (patternReplacementMap != null) {
-        System.err.println(this
-                + ": Trusted PatternReplacementMap installed in application -- takes precedence over any baseURL " //$NON-NLS-1$
+        LOG.info("Trusted PatternReplacementMap installed in application -- takes precedence over any baseURL " //$NON-NLS-1$
                 + " or beseResourcePath set, and no security checks will be performed on replaced URLs!"); //$NON-NLS-1$
     }
     
@@ -260,7 +262,6 @@ public class SsimServlet extends HttpServlet
 
     if (patternReplacementMap != null)
         uid = patternReplacementMap.attemptReplace( servletPath );
-    //System.err.println("uid after attemptReplace: " + uid);
 
     if (uid != null)
         explicitly_replaced_pattern = true;
@@ -302,7 +303,6 @@ public class SsimServlet extends HttpServlet
                 uid = imageUrlStr.trim();
             }
         }
-        // System.out.println("using uid: " + uid);
 
     if ( !open_relay && !explicitly_replaced_pattern && considerAbsoluteUrl( uid ) && !base_url_host && !checkAccessibleHost( uid, req.getHeader("Host") ) )
         {
@@ -379,7 +379,7 @@ public class SsimServlet extends HttpServlet
     {
     URL absUrl = new URL( uid );
     String host = absUrl.getHost().toLowerCase();
-    //System.err.println( "accessible host? " + host );
+
     if ( host.equals("localhost") || host.equals("127.0.0.1") )
         return true;
     if ( myDomain != null && host.endsWith( myDomain ) )
@@ -406,7 +406,7 @@ public class SsimServlet extends HttpServlet
         }
     catch (UnknownHostException e)
         { 
-        System.err.println(this + ": Denied serving image from unknown host " + host);
+        LOG.error("Denied serving image from unknown host: " + host, e); //$NON-NLS-1$
         }
     return false;
     }
@@ -431,7 +431,6 @@ public class SsimServlet extends HttpServlet
 
     protected URL urlForUid( final String uid ) throws Exception
     {
-        // System.err.println("XXXX urlForUid !!!");
         if ( considerAbsoluteUrl( uid ) )
         return new URL( uid );
         else
