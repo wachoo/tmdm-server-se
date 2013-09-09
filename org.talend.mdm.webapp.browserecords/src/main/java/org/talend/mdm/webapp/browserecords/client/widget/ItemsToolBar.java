@@ -880,7 +880,8 @@ public class ItemsToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-                    if (advancedPanel.getCriteria() == null || advancedPanel.getCriteria().equals("")) //$NON-NLS-1$
+                    String criteria = advancedPanel.getCriteria();
+                    if (criteria == null || criteria.equals("")) //$NON-NLS-1$
                         MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
                                 .search_expression_notempty(), null);
                     else {
