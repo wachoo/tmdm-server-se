@@ -91,9 +91,6 @@
                             <includes>
                                 <include>**/util/*.class</include>
                                 <include>**/*POJO*.class</include>
-                                <include>**/SchemaCoreAgent.class</include>
-                                <include>**/remote/*.class</include>
-                                <include>**/server/*.class</include>
                                 <include>${version.properties}</include>
                             </includes>
                             <excludes>
