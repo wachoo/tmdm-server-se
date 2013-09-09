@@ -105,16 +105,23 @@ public class SsimServlet extends HttpServlet
     dbDelegateClass      = this.getInitParameter( "db-delegate-class" );
 
     // figure out cache dir
-    // MODIFIED by starkey, made cache dir on web server
-    if (cacheDirStr != null)
-        cacheDir = new File( sc.getRealPath(cacheDirStr.trim()) );
-    else
-        cacheDir = (File) sc.getAttribute( "javax.servlet.context.tempdir" );
-    if (! cacheDir.isDirectory() || ! cacheDir.canWrite())
-        throw new UnavailableException("Cache directory: " + cacheDir + " does not exist, is not a directory, or is not writable!");
-    else
+    // MODIFIED by Walker, made cache dir outside web server
+    if (cacheDirStr != null) {
+        String jbossServerDir = System.getProperty("jboss.server.home.dir"); //$NON-NLS-1$
+        if (jbossServerDir != null) {
+            cacheDir = new File(jbossServerDir + File.separator + "data" + File.separator //$NON-NLS-1$
+                    + "mdm_resources" + File.separator + "scale_tmp"); //$NON-NLS-1$ //$NON-NLS-2$
+            cacheDir.mkdirs();
+        }
+    } else {
+        cacheDir = (File) sc.getAttribute("javax.servlet.context.tempdir");
+    }
+    if (!cacheDir.isDirectory() || !cacheDir.canWrite()) {
+        throw new UnavailableException("Cache directory: " + cacheDir
+                + " does not exist, is not a directory, or is not writable!");
+    } else {
         System.err.println("SsimServlet: Using cache directory: " + cacheDir);
-
+    }
     // figure out baseUrl / path
     if (baseUrlStr != null && baseResourcePathStr != null)
         throw new UnavailableException("It is illegal to specify both a baseUrl and a baseResourcePath Servlet init param.");       
@@ -191,6 +198,21 @@ public class SsimServlet extends HttpServlet
         { throw new UnavailableException( "Could not parse cullDelay init param: " + cullDelayStr ); }
     
     imf = new MyImageFinder( cache_size, cull_delay );
+    
+    // Modified by Walker
+    // Using patttern replacement path
+    patternReplacementMap = (PatternReplacementMap) sc.getAttribute(SsimServlet.PATTERN_REPLACEMENT_MAP_APPKEY);
+    if (patternReplacementMap == null) {
+        patternReplacementMap = new PatternReplacementMap();
+        sc.setAttribute(PATTERN_REPLACEMENT_MAP_APPKEY, patternReplacementMap);
+    }
+
+    if (patternReplacementMap != null) {
+        System.err.println(this
+                + ": Trusted PatternReplacementMap installed in application -- takes precedence over any baseURL " //$NON-NLS-1$
+                + " or beseResourcePath set, and no security checks will be performed on replaced URLs!"); //$NON-NLS-1$
+    }
+    
     }
 
     public void doGet(HttpServletRequest req, HttpServletResponse res)
@@ -215,17 +237,6 @@ public class SsimServlet extends HttpServlet
     int     height;
     boolean preserve_aspect_ratio;
     URL     imageUrl;
-
-    if ( patternReplacementMap == null )
-        {
-        patternReplacementMap = (PatternReplacementMap ) sc.getAttribute( PATTERN_REPLACEMENT_MAP_APPKEY );
-        if (patternReplacementMap != null)
-            {
-            System.err.println(this + 
-                       ": Trusted PatternReplacementMap installed in application -- takes precedence over any baseURL " +
-                       " or beseResourcePath set, and no security checks will be performed on replaced URLs!"); 
-            }
-        }
 
     try { width = (widthStr  != null ? Integer.parseInt( widthStr )  : -1); }
     catch ( Exception e )

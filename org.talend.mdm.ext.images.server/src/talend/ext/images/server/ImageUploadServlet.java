@@ -13,7 +13,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.UnavailableException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,9 +52,9 @@ public class ImageUploadServlet extends HttpServlet {
 
     private String bakUseTransaction = "false";
 
-    private String uploadPath = ImageServerInfoServlet.UPLOAD_PATH;
+    private String uploadPath = null;;
 
-    private String tempPath = ImageServerInfoServlet.TEMP_PATH;
+    private String tempPath = null;
 
     private String sourceFileName = "";
 
@@ -81,10 +83,15 @@ public class ImageUploadServlet extends HttpServlet {
         dbDelegateClass = config.getInitParameter("db-delegate-class");
         bakUseTransaction = config.getInitParameter("bak-use-transaction");
 
-        uploadPath = getServletContext().getRealPath(uploadPath);
-        tempPath = getServletContext().getRealPath(tempPath);
+        ServletContext sc = config.getServletContext();
+        uploadPath = (String) sc.getAttribute(ImageServerInfoServlet.UPLOAD_PATH);
+        tempPath = (String) sc.getAttribute(ImageServerInfoServlet.TEMP_PATH);
 
-        logger.debug("Images Upload Base Path: " + uploadPath);
+        if ( uploadPath == null || tempPath == null ) { 
+           throw new UnavailableException("Image Upload directory or Upload temp direcotry is not available!"); //$NON-NLS-1$
+        } else {
+            logger.debug("Images Upload Base Path: " + uploadPath); //$NON-NLS-1$
+        }
     }
 
     @Override

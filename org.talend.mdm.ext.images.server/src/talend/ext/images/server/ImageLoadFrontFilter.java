@@ -4,12 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+
+import com.mchange.v2.ssim.SsimServlet;
+import com.mchange.v2.util.PatternReplacementMap;
 
 import talend.ext.images.server.backup.DBDelegate;
 import talend.ext.images.server.backup.ResourcePK;
@@ -64,7 +68,7 @@ public class ImageLoadFrontFilter {
 
     public String getServletPath() {
 
-        String path = "/upload"; //$NON-NLS-1$
+        String path = ""; //$NON-NLS-1$
 
         if (resourceCatalogName != null && resourceCatalogName.length() > 0)
             path += ("/" + resourceCatalogName); //$NON-NLS-1$
@@ -76,20 +80,28 @@ public class ImageLoadFrontFilter {
     }
 
     private String parseResourcePath(ServletContext sc, HttpServletRequest req) {
-        String path = sc.getRealPath("/upload");
+        String path =  (String) sc.getAttribute(ImageServerInfoServlet.UPLOAD_PATH);
+
         String input = req.getRequestURI();
         if (input.indexOf("?") != -1) {
             input = input.substring(0, input.indexOf("?"));
         }
-        input = input.replaceAll("//", "/");
-        input = input.substring(input.indexOf("/upload") + 7);
+        input = input.replaceAll("//", "/");  //$NON-NLS-1$//$NON-NLS-2$
+        input = input.substring(input.indexOf("/upload") + 7); //$NON-NLS-1$
         try {
             parseCatalogAndFile(input);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
-        input = input.replace("/", File.separator); //$NON-NLS-1$
         path += (File.separator + resourceCatalogName + File.separator + resourceFileName);
+        path = path.replaceAll("\\\\", "/");  //$NON-NLS-1$//$NON-NLS-2$
+
+        PatternReplacementMap patternReplacementMap = (PatternReplacementMap) sc
+                .getAttribute(SsimServlet.PATTERN_REPLACEMENT_MAP_APPKEY);
+
+        if (patternReplacementMap != null) {
+            patternReplacementMap.addMapping(Pattern.compile(input), "file:" + path); //$NON-NLS-1$
+        }        
         return path;
     }
 
