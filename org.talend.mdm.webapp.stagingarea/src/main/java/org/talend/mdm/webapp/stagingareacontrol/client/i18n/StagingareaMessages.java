@@ -112,6 +112,10 @@ public interface StagingareaMessages extends Messages {
 
     String status_filter();
 
+    String default_option();
+
+    String selected_statuses();
+
     String datetime_filter();
 
     String entity();

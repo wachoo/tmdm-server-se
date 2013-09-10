@@ -197,6 +197,14 @@ public class FilterDialog extends Window {
 
     class StatusSet extends FieldSet {
 
+        Label defaultLb = new Label(MessagesFactory.getMessages().default_option());
+
+        Label selectedStatuses = new Label(MessagesFactory.getMessages().selected_statuses());
+
+        boolean isDefault;
+
+        HorizontalPanel statusLine = new HorizontalPanel();
+
         CheckBox status000 = new CheckBox("000"); //$NON-NLS-1$
 
         CheckBox status204 = new CheckBox("204"); //$NON-NLS-1$
@@ -206,11 +214,9 @@ public class FilterDialog extends Window {
         FlexTable table = new FlexTable();
 
         public StatusSet() {
-
-            table.setWidth("100%"); //$NON-NLS-1$
+            initEvent();
             table.setCellPadding(3);
 
-            HorizontalPanel statusLine = new HorizontalPanel();
             status000.setValue(true);
             status204.setValue(true);
             status404.setValue(true);
@@ -221,16 +227,81 @@ public class FilterDialog extends Window {
             statusLine.add(status000);
             statusLine.add(status204);
             statusLine.add(status404);
-            table.setWidget(0, 0, new Label(MessagesFactory.getMessages().status_code()));
-            table.getFlexCellFormatter().setWidth(0, 0, "100px"); //$NON-NLS-1$
-            table.setWidget(0, 1, statusLine);
+
+            isDefault = true;
+            defaultLb.getElement().getStyle().setCursor(Cursor.TEXT);
+            defaultLb.getElement().getStyle().setFontWeight(FontWeight.BOLD);
+            defaultLb.getElement().getStyle().setColor("black"); //$NON-NLS-1$
+            defaultLb.getElement().getStyle().setMargin(5D, Unit.PX);
+
+            selectedStatuses.getElement().getStyle().setCursor(Cursor.POINTER);
+            selectedStatuses.getElement().getStyle().setColor("blue"); //$NON-NLS-1$
+            selectedStatuses.getElement().getStyle().setMargin(5D, Unit.PX);
+
+            statusLine.setVisible(false);
+
+            table.setWidget(0, 0, defaultLb);
+            table.setText(0, 1, " - "); //$NON-NLS-1$
+            table.setWidget(0, 2, selectedStatuses);
+            table.setWidget(0, 3, statusLine);
 
             this.add(table);
             this.setHeading(MessagesFactory.getMessages().status_filter());
         }
 
+        private void initEvent() {
+            defaultLb.addClickHandler(new ClickHandler() {
+
+                @Override
+                public void onClick(ClickEvent event) {
+                    statusLine.setVisible(false);
+                    isDefault = true;
+                    defaultLb.getElement().getStyle().setCursor(Cursor.TEXT);
+                    defaultLb.getElement().getStyle().setFontWeight(FontWeight.BOLD);
+                    defaultLb.getElement().getStyle().setColor("black"); //$NON-NLS-1$
+
+                    selectedStatuses.getElement().getStyle().setCursor(Cursor.POINTER);
+                    selectedStatuses.getElement().getStyle().setColor("blue"); //$NON-NLS-1$
+                    selectedStatuses.getElement().getStyle().setFontWeight(FontWeight.NORMAL);
+                }
+            });
+
+            selectedStatuses.addClickHandler(new ClickHandler() {
+
+                @Override
+                public void onClick(ClickEvent event) {
+                    statusLine.setVisible(true);
+                    isDefault = false;
+                    selectedStatuses.getElement().getStyle().setCursor(Cursor.TEXT);
+                    selectedStatuses.getElement().getStyle().setFontWeight(FontWeight.BOLD);
+                    selectedStatuses.getElement().getStyle().setColor("black"); //$NON-NLS-1$
+
+                    defaultLb.getElement().getStyle().setCursor(Cursor.POINTER);
+                    defaultLb.getElement().getStyle().setColor("blue"); //$NON-NLS-1$
+                    defaultLb.getElement().getStyle().setFontWeight(FontWeight.NORMAL);
+                }
+            });
+
+            ClickHandler statusClick = new ClickHandler() {
+
+                @Override
+                public void onClick(ClickEvent event) {
+                    if (getStatuses().size() == 0) {
+                        event.preventDefault();
+                    }
+                }
+            };
+
+            status000.addClickHandler(statusClick);
+            status204.addClickHandler(statusClick);
+            status404.addClickHandler(statusClick);
+        }
+
         public List<String> getStatuses() {
             List<String> statuses = new ArrayList<String>();
+            if (isDefault) {
+                return statuses;
+            }
             if (status000.getValue()) {
                 statuses.add("000"); //$NON-NLS-1$
             }
