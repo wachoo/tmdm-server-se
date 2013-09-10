@@ -100,7 +100,7 @@ public class AdvancedSearchPanel extends FormPanel {
             String condition = c.endsWith(")") ? c.substring(c.indexOf(modifiedON), c.length() - 1) : c.substring(c.indexOf(modifiedON), c.length()); //$NON-NLS-1$
             if (!modifiedonCriteria.isAttached()) {
                 matchgroupCriteria.removeFromParent();
-                instance.insert(modifiedonCriteria, instance.getItemCount() - 1, new FormData("75%")); //$NON-NLS-1$ 
+                instance.add(modifiedonCriteria, new FormData("75%")); //$NON-NLS-1$ 
                 instance.layout(true);
             }
 
@@ -134,7 +134,7 @@ public class AdvancedSearchPanel extends FormPanel {
             String condition = c.endsWith(")") ? c.substring(c.indexOf(matchGroup), c.length() - 1) : c.substring(c.indexOf(matchGroup), c.length()); //$NON-NLS-1$
             if (!matchgroupCriteria.isAttached()) {
                 modifiedonCriteria.removeFromParent();
-                instance.insert(matchgroupCriteria, instance.getItemCount() - 1, new FormData("75%")); //$NON-NLS-1$ 
+                instance.add(matchgroupCriteria, new FormData("75%")); //$NON-NLS-1$ 
                 instance.layout(true);
             }
             matchgroupCriteria.setValue(null);
@@ -412,13 +412,13 @@ public class AdvancedSearchPanel extends FormPanel {
                             matchgroupCriteria.removeFromParent();
                             modifiedonCriteria.setStartDate(null);
                             modifiedonCriteria.setEndDate(null);
-                            instance.insert(modifiedonCriteria, instance.getItemCount() - 1, new FormData("75%")); //$NON-NLS-1$
+                            instance.add(modifiedonCriteria, new FormData("75%")); //$NON-NLS-1$
                         }
                     } else if (selvalue.equals("matchgroup")) { //$NON-NLS-1$
                         if (!matchgroupCriteria.isAttached()) {
                             modifiedonCriteria.removeFromParent();
                             matchgroupCriteria.setValue(null);
-                            instance.insert(matchgroupCriteria, instance.getItemCount() - 1, new FormData("75%")); //$NON-NLS-1$
+                            instance.add(matchgroupCriteria, new FormData("75%")); //$NON-NLS-1$
                         }
                     }
                     instance.layout(true);
