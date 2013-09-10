@@ -56,6 +56,8 @@ public interface StagingareaMessages extends Messages {
 
     String start_validation();
 
+    String with_filtering();
+
     String no_validation();
 
     String auto_refresh();

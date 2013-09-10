@@ -30,7 +30,6 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.ListView;
 import com.extjs.gxt.ui.client.widget.ListViewSelectionModel;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.DateField;
@@ -125,10 +124,6 @@ public class FilterDialog extends Window {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                if (statusSet.getStatuses().size() == 0) {
-                    MessageBox.alert(null, MessagesFactory.getMessages().status_notice(), null);
-                    return;
-                }
                 hide();
                 FilterModel filter = new FilterModel();
                 List<String> concepts = new ArrayList<String>();

@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.StorageProvider;
 import org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.ConceptRelationshipModel;
@@ -23,12 +24,18 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.IconAlign;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.state.CookieProvider;
+import com.extjs.gxt.ui.client.state.Provider;
 import com.extjs.gxt.ui.client.widget.ProgressBar;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTMLPanel;
 
 public class StagingContainerSummaryView extends AbstractView {
@@ -47,11 +54,15 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private Button startValidate;
 
+    private CheckBox withFiltering;
+
     private final int CHART_WIDTH = 400;
 
     private final int CHART_HEIGHT = 200;
 
     private HTMLPanel detailPanel;
+
+    private Provider provider;
 
     @Override
     protected void initComponents() {
@@ -71,6 +82,13 @@ public class StagingContainerSummaryView extends AbstractView {
         startValidate.setEnabled(false);
         startValidate.setIconAlign(IconAlign.TOP);
 
+        withFiltering = new CheckBox(messages.with_filtering());
+        provider = StorageProvider.newInstanceIfSupported();
+        if (provider == null) {
+            provider = new CookieProvider("/", null, null, Window.Location.getProtocol().toLowerCase().startsWith("https")); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        withFiltering.setValue(provider.getBoolean(StagingContainerSummaryView.class.getName() + "_withFiltering")); //$NON-NLS-1$
+
         mainPanel.setAutoHeight(true);
         mainPanel.setBodyBorder(false);
     }
@@ -80,6 +98,11 @@ public class StagingContainerSummaryView extends AbstractView {
         startValidate.addSelectionListener(new SelectionListener<ButtonEvent>() {
             @Override
             public void componentSelected(ButtonEvent ce) {
+
+                if (!withFiltering.getValue()) {
+                    ControllerContainer.get().getSummaryController().startValidation();
+                    return;
+                }
 
                 StagingareaControl.service.getConceptRelation(new SessionAwareAsyncCallback<ConceptRelationshipModel>() {
 
@@ -96,15 +119,23 @@ public class StagingContainerSummaryView extends AbstractView {
                 });
             }
         });
+
+        withFiltering.addClickHandler(new ClickHandler() {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                provider.set(StagingContainerSummaryView.class.getName() + "_withFiltering", withFiltering.getValue()); //$NON-NLS-1$
+            }
+        });
     }
 
     @Override
     protected void initLayout() {
-        TableLayout mainLayout = new TableLayout(2);
+        TableLayout mainLayout = new TableLayout(3);
         mainLayout.setWidth("100%"); //$NON-NLS-1$
         mainPanel.setLayout(mainLayout);
         TableData detailData = new TableData();
-        detailData.setColspan(2);
+        detailData.setColspan(3);
         detailData.setRowspan(1);
         mainPanel.add(detailPanel, detailData);
         TableData gaugesData = new TableData();
@@ -115,6 +146,9 @@ public class StagingContainerSummaryView extends AbstractView {
         startData.setWidth("220px"); //$NON-NLS-1$
         startData.setHorizontalAlign(HorizontalAlignment.CENTER);
         mainPanel.add(startValidate, startData);
+        TableData withFilterData = new TableData();
+        withFilterData.setWidth("100px"); //$NON-NLS-1$
+        mainPanel.add(withFiltering, withFilterData);
     }
 
     public void initDetailPanel() {
