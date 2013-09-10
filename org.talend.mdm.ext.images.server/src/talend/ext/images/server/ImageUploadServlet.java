@@ -86,9 +86,26 @@ public class ImageUploadServlet extends HttpServlet {
         ServletContext sc = config.getServletContext();
         uploadPath = (String) sc.getAttribute(ImageServerInfoServlet.UPLOAD_PATH);
         tempPath = (String) sc.getAttribute(ImageServerInfoServlet.TEMP_PATH);
-
+        
+        //this only happens when uploading resource images first through studio
         if ( uploadPath == null || tempPath == null ) { 
-           throw new UnavailableException("Image Upload directory or Upload temp direcotry is not available!"); //$NON-NLS-1$
+            String jbossServerDir = System.getProperty("jboss.server.home.dir"); //$NON-NLS-1$
+            if (jbossServerDir != null) {
+                uploadPath = jbossServerDir + File.separator + "data" + File.separator //$NON-NLS-1$
+                        + "mdm_resources" + File.separator + ImageServerInfoServlet.UPLOAD_PATH; //$NON-NLS-1$
+                tempPath = jbossServerDir + File.separator + "data" + File.separator //$NON-NLS-1$
+                        + "mdm_resources" + File.separator + ImageServerInfoServlet.TEMP_PATH; //$NON-NLS-1$
+            }
+            File uploadFolder = new File(uploadPath);
+            File uploadTempFolder = new File(tempPath);
+            uploadFolder.mkdirs();
+            uploadTempFolder.mkdirs();
+            sc.setAttribute(ImageServerInfoServlet.UPLOAD_PATH, uploadPath);
+            sc.setAttribute(ImageServerInfoServlet.TEMP_PATH, tempPath);
+        } 
+        
+        if ( uploadPath == null || tempPath == null ) {
+            throw new UnavailableException("Image Upload directory or Upload temp direcotry is not available!"); //$NON-NLS-1$
         } else {
             logger.debug("Images Upload Base Path: " + uploadPath); //$NON-NLS-1$
         }
