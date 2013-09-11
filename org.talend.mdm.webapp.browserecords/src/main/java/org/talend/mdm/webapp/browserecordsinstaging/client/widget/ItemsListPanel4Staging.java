@@ -173,12 +173,9 @@ public class ItemsListPanel4Staging extends ItemsListPanel {
                 if (rowIndex != -1) {
                     ItemBean item = grid.getStore().getAt(rowIndex);
                     String error = (String) item.get(item.getConcept() + StagingConstant.STAGING_ERROR);
-                    if (error != null && error.trim().length() > 0) {
-                        tip.update(new ToolTipConfig("<b>" + MessagesFactory.getMessages().error() + "</b>:" + error)); //$NON-NLS-1$ //$NON-NLS-2$
-                        tip.showAt(DOM.eventGetCurrentEvent().getClientX() + 6, DOM.eventGetCurrentEvent().getClientY() + 6);
-                    } else {
-                        tip.hide();
-                    }
+                    tip.update(new ToolTipConfig(
+                            "<b>"   + MessagesFactory.getMessages().error() + "</b>:" + ((error == null || error.trim().length() == 0) ? MessagesFactory.getMessages().no_error() : error))); //$NON-NLS-1$ //$NON-NLS-2$ 
+                    tip.showAt(DOM.eventGetCurrentEvent().getClientX() + 6, DOM.eventGetCurrentEvent().getClientY() + 6);
                 }
             }
         });

@@ -24,6 +24,8 @@ public interface BrowseRecordsInStagingMessages extends Messages {
 
     String error();
 
+    String no_error();
+
     String match_group();
 
     String mark_as_deleted();
