@@ -494,15 +494,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Set<String> xpaths = types.keySet();
             for (String path : xpaths) {
                 TypeModel typeModel = types.get(path);
-                // set pkinfo and description on entity
-                if (path.equals(itemBean.getConcept())) {
-                    List<String> pkInfoList = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getPKInfoList(entityModel, typeModel, itemBean.getIds(), docXml, language);
-                    itemBean.setPkInfoList(pkInfoList);
-                    itemBean.setLabel(typeModel.getLabel(language));
-                    itemBean.setDisplayPKInfo(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getPKInfos(pkInfoList));
-                    itemBean.setDescription(typeModel.getDescriptionMap().get(language));
-                }
-
                 if (typeModel.isSimpleType()) {
                     // It should getValue by XPath but not element name(ItemBean's map object is only used by
                     // ItemsListPanel)
@@ -542,6 +533,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     }
                 }
             }
+            // set pkinfo and description on entity
+            TypeModel conceptTypeModel = types.get(itemBean.getConcept());
+            List<String> pkInfoList = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getPKInfoList(entityModel, conceptTypeModel, itemBean, docXml, language);
+            itemBean.setPkInfoList(pkInfoList);
+            itemBean.setLabel(conceptTypeModel.getLabel(language));
+            itemBean.setDisplayPKInfo(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getPKInfos(pkInfoList));
+            itemBean.setDescription(conceptTypeModel.getDescriptionMap().get(language));
         }
     }
     

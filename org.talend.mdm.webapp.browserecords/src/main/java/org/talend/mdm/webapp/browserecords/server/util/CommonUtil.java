@@ -364,11 +364,11 @@ public class CommonUtil {
         return gettedValue.toString();
     }
     
-    public static List<String> getPKInfoList(EntityModel entityModel, TypeModel model, String ids, Document document, String language)
+    public static List<String> getPKInfoList(EntityModel entityModel, TypeModel model, ItemBean itemBean, Document document, String language)
             throws Exception {
         List<String> xpathPKInfos = model.getPrimaryKeyInfo();
         List<String> xPathList = new ArrayList<String>();
-        if (xpathPKInfos != null && xpathPKInfos.size() > 0 && ids != null) {
+        if (xpathPKInfos != null && xpathPKInfos.size() > 0 && itemBean.getIds() != null) {
             for (String pkInfoPath : xpathPKInfos) {
                 if (pkInfoPath != null && pkInfoPath.length() > 0) {
                     String pkInfo = Util.getFirstTextNode(document, pkInfoPath);
@@ -377,6 +377,11 @@ public class CommonUtil {
                             String value = MultilanguageMessageParser.getValueByLanguage(pkInfo, language);
                             if (value != null) {
                                 xPathList.add(value);
+                            }
+                        } else if (entityModel.getTypeModel(pkInfoPath).getForeignkey() != null) {
+                            ForeignKeyBean fkBean = itemBean.getForeignkeyDesc(pkInfoPath + "-" + pkInfo); //$NON-NLS-1$
+                            if (fkBean != null) {
+                                xPathList.add(fkBean.toString());    
                             }
                         } else {
                             xPathList.add(pkInfo);
