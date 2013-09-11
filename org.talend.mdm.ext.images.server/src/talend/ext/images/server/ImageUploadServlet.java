@@ -30,6 +30,7 @@ import org.apache.log4j.Logger;
 
 import talend.ext.images.server.backup.DBDelegate;
 import talend.ext.images.server.backup.ResourcePK;
+import talend.ext.images.server.util.FolderUtil;
 import talend.ext.images.server.util.ReflectionUtil;
 import talend.ext.images.server.util.Uuid;
 
@@ -87,25 +88,17 @@ public class ImageUploadServlet extends HttpServlet {
         uploadPath = (String) sc.getAttribute(ImageServerInfoServlet.UPLOAD_PATH);
         tempPath = (String) sc.getAttribute(ImageServerInfoServlet.TEMP_PATH);
         
-        //this only happens when uploading resource images first through studio
+        //this only happens when initial uploading images first through studio
         if ( uploadPath == null || tempPath == null ) { 
-            String jbossServerDir = System.getProperty("jboss.server.home.dir"); //$NON-NLS-1$
-            if (jbossServerDir != null) {
-                uploadPath = jbossServerDir + File.separator + "data" + File.separator //$NON-NLS-1$
-                        + "mdm_resources" + File.separator + ImageServerInfoServlet.UPLOAD_PATH; //$NON-NLS-1$
-                tempPath = jbossServerDir + File.separator + "data" + File.separator //$NON-NLS-1$
-                        + "mdm_resources" + File.separator + ImageServerInfoServlet.TEMP_PATH; //$NON-NLS-1$
-            }
-            File uploadFolder = new File(uploadPath);
-            File uploadTempFolder = new File(tempPath);
-            uploadFolder.mkdirs();
-            uploadTempFolder.mkdirs();
+            FolderUtil.setUp();
+            uploadPath = FolderUtil.getUploadPath();
+            tempPath = FolderUtil.getTempUploadPath();
             sc.setAttribute(ImageServerInfoServlet.UPLOAD_PATH, uploadPath);
             sc.setAttribute(ImageServerInfoServlet.TEMP_PATH, tempPath);
         } 
         
-        if ( uploadPath == null || tempPath == null ) {
-            throw new UnavailableException("Image Upload directory or Upload temp direcotry is not available!"); //$NON-NLS-1$
+        if ( !FolderUtil.IsUploadFolderReady() || !FolderUtil.IsTempUploadFolderReady()) {
+            throw new UnavailableException("Image Upload directory or Upload temp direcotry is not available for writting!"); //$NON-NLS-1$
         } else {
             logger.debug("Images Upload Base Path: " + uploadPath); //$NON-NLS-1$
         }
