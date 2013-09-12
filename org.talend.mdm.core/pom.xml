@@ -17,7 +17,6 @@
         <war>zz.30.core</war>
         <ejbs>zz.20.core</ejbs>
         <lib>z.mdm.core</lib>
-        <bonita-client>z.mdm.core.bonita</bonita-client>
         <service>org.talend.mdm.jullog4jservice</service>
         <jaas>org.talend.mdm.jaas</jaas>
         <version.properties>product_version.properties</version.properties>
@@ -102,10 +101,10 @@
                         </goals>
                     </execution>
                     <execution>
-                        <id>jar-bonita-client</id>
+                        <id>jar-ejbs-client</id>
                         <phase>package</phase>
                         <configuration>
-                            <classifier>bonita-client</classifier>
+                            <classifier>ejbs-client</classifier>
                             <includes>
                                 <include>**/util/*.class</include>
                                 <include>**/util/*.properties</include>
@@ -198,7 +197,6 @@
                         <configuration>
                             <tasks>
                                 <delete file="${jboss.lib.dir}/${lib}.jar" />
-                                <delete file="${jboss.lib.dir}/${bonita-client}.jar" />
                                 <delete file="${jboss.lib.dir}/${service}.jar" />
                                 <delete file="${jboss.lib.dir}/${jaas}.jar" />
                                 <delete file="${jboss.deploy.dir}/${ejbs}.jar" />
@@ -210,9 +208,6 @@
                                 <copy
                                     file="${project.build.directory}/${project.build.finalName}-lib.jar"
                                     tofile="${jboss.lib.dir}/${lib}.jar" />
-                                <copy
-                                    file="${project.build.directory}/${project.build.finalName}-bonita-client.jar"
-                                    tofile="${jboss.lib.dir}/${bonita-client}.jar" />
                                 <copy
                                     file="${project.build.directory}/${project.build.finalName}-service.jar"
                                     tofile="${jboss.lib.dir}/${service}.jar" />
