@@ -618,6 +618,7 @@ public class HibernateStorage implements Storage {
                 if (FLUSH_ON_LOAD && session.getStatistics().getEntityCount() % batchSize == 0) {
                     // Periodically flush objects to avoid using too much memory.
                     session.flush();
+                    session.clear();
                 }
                 session.saveOrUpdate(o);
             }
