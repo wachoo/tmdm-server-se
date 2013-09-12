@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package talend.ext.images.server;
 
 import java.io.File;
@@ -14,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import talend.ext.images.server.util.FolderUtil;
 
 
 /**
@@ -27,13 +38,13 @@ public class ImageServerInfoServlet extends HttpServlet {
      */
     private static final long serialVersionUID = 1211531979103254445L;
     
-    private static final String ACTION_GET_UPLOAD_HOME = "getUploadHome";
+    private static final String ACTION_GET_UPLOAD_HOME = "getUploadHome"; //$NON-NLS-1$
 
-    public static final String UPLOAD_PATH = "upload"; // the folder to upload
+    public static final String UPLOAD_PATH = "upload"; //$NON-NLS-1$
 
-    public static final String TEMP_PATH = "upload_tmp"; // the folder used to store temporary files of uploading
+    public static final String TEMP_PATH = "upload_tmp"; //$NON-NLS-1$
     
-    private final Logger LOG = Logger.getLogger(ImageServerInfoServlet.class);
+    private final Logger logger = Logger.getLogger(ImageServerInfoServlet.class);
 
     /**
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -50,7 +61,7 @@ public class ImageServerInfoServlet extends HttpServlet {
         String action = request.getParameter("action"); //$NON-NLS-1$
         ServletContext sc = this.getServletConfig().getServletContext();
         if (action != null) {
-            if (action.equals("getUploadHome")) {
+            if (action.equals(ACTION_GET_UPLOAD_HOME)) {
                 String realUploadPath = (String) sc.getAttribute(UPLOAD_PATH);
                 
                 File uploadFolder = new File(realUploadPath);
@@ -59,7 +70,7 @@ public class ImageServerInfoServlet extends HttpServlet {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 }
                     
-                response.setContentType("text/plain");
+                response.setContentType("text/plain"); //$NON-NLS-1$
                 PrintWriter writer = response.getWriter();
                 writer.write(realUploadPath);
                 writer.close();
@@ -72,19 +83,34 @@ public class ImageServerInfoServlet extends HttpServlet {
         ServletContext sc  = config.getServletContext();
         String realUploadPath = (String) sc.getAttribute(ImageServerInfoServlet.UPLOAD_PATH);
         String realTempUploadPath = (String) sc.getAttribute(ImageServerInfoServlet.TEMP_PATH);
-        
-        //this only happens when initial uploading images first through WebUI
+
         if ( realUploadPath == null || realTempUploadPath == null ) {
-            FolderUtil.setUp();            
-            sc.setAttribute(UPLOAD_PATH, FolderUtil.getUploadPath());
-            sc.setAttribute(TEMP_PATH, FolderUtil.getTempUploadPath());
+            String jbossServerDir = System.getProperty("jboss.server.home.dir"); //$NON-NLS-1$
+            if (jbossServerDir != null) {
+                realUploadPath = jbossServerDir + File.separator + "data" + File.separator //$NON-NLS-1$
+                        + "mdm_resources" + File.separator + ImageServerInfoServlet.UPLOAD_PATH; //$NON-NLS-1$
+                realTempUploadPath = jbossServerDir + File.separator + "data" + File.separator //$NON-NLS-1$
+                        + "mdm_resources" + File.separator + ImageServerInfoServlet.TEMP_PATH; //$NON-NLS-1$
+            }
         }
         
-        if ( !FolderUtil.IsUploadFolderReady() || !FolderUtil.IsTempUploadFolderReady() ) {
+        File uploadFolder = new File(realUploadPath);
+        File tempUploadFolder = new File(realTempUploadPath);
+
+        if (!uploadFolder.exists())
+            uploadFolder.mkdirs();
+
+        if (!tempUploadFolder.exists())
+            tempUploadFolder.mkdirs();            
+
+        if ( !uploadFolder.exists() || !uploadFolder.canWrite() || !tempUploadFolder.exists() || !tempUploadFolder.canWrite()) {
             throw new UnavailableException("Image Upload directory or Upload temp direcotry is not available for writting!"); //$NON-NLS-1$
         } else {
-            LOG.debug("Images Upload Base Path: " + realUploadPath); //$NON-NLS-1$
+            sc.setAttribute(UPLOAD_PATH, realUploadPath);
+            sc.setAttribute(TEMP_PATH, realTempUploadPath);
+            logger.debug("Images Upload Base Path: " + realUploadPath); //$NON-NLS-1$
         }
+
     }
 
 }

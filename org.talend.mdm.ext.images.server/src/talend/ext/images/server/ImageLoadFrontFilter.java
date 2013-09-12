@@ -35,22 +35,21 @@ public class ImageLoadFrontFilter {
 
         try {
             String resourcePath = parseResourcePath(sc, req);
-            logger.debug("Resource Path: " + resourcePath);
+            logger.debug("Resource Path: " + resourcePath); //$NON-NLS-1$
             File resourceFile = new File(resourcePath);
             if (resourceFile.exists()) {
 
                 return true;
 
             } else {
-                logger.debug("Resource Missing! ");
+                logger.debug("Resource Missing! "); //$NON-NLS-1$
 
                 if (restoreFromDB && inUseDBBackup) {
-                    // get from db backup and recreate in catalog
                     DBDelegate dbDelegate = (DBDelegate) ReflectionUtil.newInstance(inDBDelegateClass, new Object[0]);
                     byte[] fileBytes = dbDelegate.getResource(new ResourcePK(resourceCatalogName, resourceFileName));
                     if (fileBytes != null) {
                         if (IOUtil.byteToImage(fileBytes, resourcePath)) {
-                            logger.debug("Restore file from backup database! ");
+                            logger.debug("Restore file from backup database!"); //$NON-NLS-1$
                             return true;
                         }
                     }
@@ -83,8 +82,8 @@ public class ImageLoadFrontFilter {
         String path =  (String) sc.getAttribute(ImageServerInfoServlet.UPLOAD_PATH);
 
         String input = req.getRequestURI();
-        if (input.indexOf("?") != -1) {
-            input = input.substring(0, input.indexOf("?"));
+        if (input.indexOf("?") != -1) { //$NON-NLS-1$
+            input = input.substring(0, input.indexOf("?")); //$NON-NLS-1$
         }
         input = input.replaceAll("//", "/");  //$NON-NLS-1$//$NON-NLS-2$
         input = input.substring(input.indexOf("/upload") + 7); //$NON-NLS-1$
@@ -106,11 +105,11 @@ public class ImageLoadFrontFilter {
     }
 
     private void parseCatalogAndFile(String in) throws UnsupportedEncodingException {
-        if (in.startsWith("/"))
+        if (in.startsWith("/")) //$NON-NLS-1$
             in = in.substring(1);
-        String[] inArray = in.split("/");
+        String[] inArray = in.split("/"); //$NON-NLS-1$
         if (inArray.length == 1) {
-            resourceCatalogName = "/";
+            resourceCatalogName = "/"; //$NON-NLS-1$
             resourceFileName = inArray[0];
         } else if (inArray.length == 2) {
             resourceCatalogName = inArray[0];
