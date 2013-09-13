@@ -374,8 +374,7 @@ public class SsimServlet extends HttpServlet {
         try {
             imf.close();
         } catch (SsimException e) {
-            // Walker
-            e.printStackTrace();
+            LOG.error("Getting error during closing ImageFinder", e); //$NON-NLS-1$
         }
     }
 

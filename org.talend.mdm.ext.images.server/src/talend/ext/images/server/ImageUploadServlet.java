@@ -249,14 +249,14 @@ public class ImageUploadServlet extends ImageServerInfoServlet {
                 }
 
                 upath.append(uploadPath);
-                if (!targetCatalogName.equals("/")) {
+                if (!targetCatalogName.equals("/")) { //$NON-NLS-1$
                     upath.append(File.separator).append(targetCatalogName);
                 }
                 locateCatalog(upath);
                 targetFileName = (targetFileShortName + "." + sourceFileType); //$NON-NLS-1$
                 upath.append(File.separator).append(targetFileName);
 
-                if (!targetCatalogName.equals("/")) {
+                if (!targetCatalogName.equals("/")) { //$NON-NLS-1$
                     targetUri += ("/" + targetCatalogName); //$NON-NLS-1$
                 }
                 targetUri += ("/" + targetFileShortName + "." + sourceFileType); //$NON-NLS-1$ //$NON-NLS-2$
@@ -301,7 +301,7 @@ public class ImageUploadServlet extends ImageServerInfoServlet {
                     try {
                         value = new String(item.getString("UTF-8")); //$NON-NLS-1$
                     } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
+                        logger.error(e.getLocalizedMessage(), e);
                     }
 
                     return value;

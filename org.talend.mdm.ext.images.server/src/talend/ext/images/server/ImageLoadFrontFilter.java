@@ -58,7 +58,7 @@ public class ImageLoadFrontFilter {
                 return false;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getLocalizedMessage(), e);
             return false;
         }
 

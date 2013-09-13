@@ -33,9 +33,6 @@ import org.apache.log4j.Logger;
  */
 public class ImageServerInfoServlet extends HttpServlet {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1211531979103254445L;
     
     private static final String ACTION_GET_UPLOAD_HOME = "getUploadHome"; //$NON-NLS-1$
