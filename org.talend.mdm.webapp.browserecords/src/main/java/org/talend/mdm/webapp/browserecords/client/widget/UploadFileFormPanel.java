@@ -284,6 +284,11 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         cp1252.set("key", "cp-1252"); //$NON-NLS-1$ //$NON-NLS-2$
         encodingList.add(cp1252);
 
+        ItemBaseModel gbk = new ItemBaseModel();
+        gbk.set("label", "GBK"); //$NON-NLS-1$ //$NON-NLS-2$
+        gbk.set("key", "GBK"); //$NON-NLS-1$ //$NON-NLS-2$
+        encodingList.add(gbk);
+
         ListStore<ItemBaseModel> encodingStoreList = new ListStore<ItemBaseModel>();
         encodingStoreList.add(encodingList);
 
