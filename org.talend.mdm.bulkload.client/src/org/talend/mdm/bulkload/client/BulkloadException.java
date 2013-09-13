@@ -30,6 +30,11 @@ public class BulkloadException extends RuntimeException {
         this.serverException = serverException;
     }
 
+    @Override
+    public String getMessage() {
+        return super.getMessage() + ((serverException != null && serverException.trim().length() > 0) ? "\n" + serverException : ""); //$NON-NLS-1$ //$NON-NLS-2$ 
+    }
+
     public String getServerException() {
         return serverException;
     }
