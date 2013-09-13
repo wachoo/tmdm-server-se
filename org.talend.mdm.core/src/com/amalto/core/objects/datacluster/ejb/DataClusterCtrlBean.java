@@ -214,7 +214,11 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
         }
         // Staging DataCluster should be changed to the Master DataCluster
         if (pk.getUniqueId().endsWith(StorageAdmin.STAGING_SUFFIX)) {
-            pk = new DataClusterPOJOPK(StringUtils.substringBeforeLast(pk.getUniqueId(), "#")); //$NON-NLS-1$
+            String cluster = StringUtils.substringBeforeLast(pk.getUniqueId(), "#");
+            if (!Util.getXmlServerCtrlLocal().supportStaging(cluster)) {
+                throw new XtentisException("Cluster '" + pk.getUniqueId() + "' (revision: 'null') does not exist");  //$NON-NLS-1$//$NON-NLS-2$
+            }
+            pk = new DataClusterPOJOPK(cluster);
         }
         try {
         	return ObjectPOJO.load(DataClusterPOJO.class,pk);        	
