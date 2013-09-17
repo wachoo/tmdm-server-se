@@ -23,6 +23,13 @@
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
 
+        <resources>
+            <resource>
+                <!-- Add java files to jar -->
+                <directory>src</directory>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
