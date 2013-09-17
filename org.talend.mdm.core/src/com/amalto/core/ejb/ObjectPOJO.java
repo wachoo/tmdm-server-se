@@ -129,6 +129,8 @@ public abstract class ObjectPOJO implements Serializable {
     private transient String lastError = "";  //$NON-NLS-1$
 
     private String lastSynch = null;
+    
+    private String digest;
 
     static {
         String max_cache_size = (String) MDMConfiguration.getConfiguration().get("max_cache_size"); //$NON-NLS-1$
@@ -254,6 +256,14 @@ public abstract class ObjectPOJO implements Serializable {
 
     public void setLastSynch(String lastSynchronizationPlanRun) {
         this.lastSynch = lastSynchronizationPlanRun;
+    }
+
+    public String getDigest() {
+        return this.digest;
+    }
+
+    public void setDigest(String digest) {
+        this.digest = digest;
     }
 
     /**
