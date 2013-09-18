@@ -14,32 +14,35 @@ package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.util.PostDataUtil;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
-import org.talend.mdm.webapp.base.shared.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.RecordsPagingConfig;
-import org.talend.mdm.webapp.browserecords.client.util.Locale;
-import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
-import org.talend.mdm.webapp.browserecords.shared.Constants;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Style.SortDir;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -49,10 +52,12 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
  * DOC Administrator class global comment. Detailled comment
  */
 public class DownloadFilePanel extends FormPanel {
-
+    
     private TextField<String> fileName;
 
-    private CheckBox includeXmlContent;
+    private CheckBox fkResovled;
+
+    private ComboBox<ItemBaseModel> fkDisplayCombo;
 
     private QueryModel queryModel;
 
@@ -76,10 +81,47 @@ public class DownloadFilePanel extends FormPanel {
         fileName.setValue(viewBean.getBindingEntityModel().getConceptName());
         this.add(fileName, new FormData("90%")); //$NON-NLS-1$
 
-        includeXmlContent = new CheckBox();
-        includeXmlContent.setFieldLabel(MessagesFactory.getMessages().includeXmlContent_field_label());
-        includeXmlContent.setLabelStyle("windth:90px"); //$NON-NLS-1$
-        this.add(includeXmlContent, new FormData("90%")); //$NON-NLS-1$
+        fkResovled = new CheckBox();
+        fkResovled.setFieldLabel(MessagesFactory.getMessages().fkinfo_display_label());
+        fkResovled.setLabelStyle("width:90px"); //$NON-NLS-1$
+        fkResovled.addListener(Events.Change, new Listener<BaseEvent>() {
+
+            public void handleEvent(BaseEvent be) {
+                if (fkResovled.getValue().booleanValue()) {
+                    fkDisplayCombo.setEnabled(true);
+                } else {
+                    fkDisplayCombo.setEnabled(false);
+                }
+            }
+        });
+
+        this.add(fkResovled, new FormData("90%")); //$NON-NLS-1$
+
+        List<ItemBaseModel> fkDisplayList = new ArrayList<ItemBaseModel>();
+        ItemBaseModel idPlusInfo = new ItemBaseModel();
+        idPlusInfo.set("label", "Id-FKInfo"); //$NON-NLS-1$ //$NON-NLS-2$
+        idPlusInfo.set("key", "Id-FKInfo"); //$NON-NLS-1$ //$NON-NLS-2$
+        fkDisplayList.add(idPlusInfo);
+
+        ItemBaseModel infoOnly = new ItemBaseModel();
+        infoOnly.set("label", "FKInfo"); //$NON-NLS-1$ //$NON-NLS-2$
+        infoOnly.set("key", "FKInfo"); //$NON-NLS-1$ //$NON-NLS-2$
+        fkDisplayList.add(infoOnly);
+
+        ListStore<ItemBaseModel> fkDisplayStoreList = new ListStore<ItemBaseModel>();
+        fkDisplayStoreList.add(fkDisplayList);
+
+        fkDisplayCombo = new ComboBox<ItemBaseModel>();
+        fkDisplayCombo.setId("fkDisplay");//$NON-NLS-1$
+        fkDisplayCombo.setName("fkDisplay");//$NON-NLS-1$
+        fkDisplayCombo.setFieldLabel(MessagesFactory.getMessages().fkinfo_display_type_label());
+        fkDisplayCombo.setDisplayField("label"); //$NON-NLS-1$
+        fkDisplayCombo.setValueField("key"); //$NON-NLS-1$
+        fkDisplayCombo.setStore(fkDisplayStoreList);
+        fkDisplayCombo.setTriggerAction(TriggerAction.ALL);
+        fkDisplayCombo.setEnabled(false);
+        fkDisplayCombo.setSelection(fkDisplayList);
+        this.add(fkDisplayCombo, new FormData("90%")); //$NON-NLS-1$
 
         exportBtn = new Button(MessagesFactory.getMessages().export_btn());
         exportBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -94,8 +136,7 @@ public class DownloadFilePanel extends FormPanel {
                     Map<String, String> param = buildExportParameter();
                     PostDataUtil.postData("/browserecords/download", param); //$NON-NLS-1$
                 } catch (Exception e) {
-                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().export_error(),
-                            null);
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().export_error(), null);
                 }
                 DownloadFilePanel.this.window.hide();
             }
@@ -104,10 +145,39 @@ public class DownloadFilePanel extends FormPanel {
     }
 
     private Map<String, String> buildExportParameter() {
+        List<String> viewableXpaths = viewBean.getViewableXpaths();
+        EntityModel entityModel = viewBean.getBindingEntityModel();
+        Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
 
-        Grid<ItemBean> grid = ItemsListPanel.getInstance().getGrid();
+        List<String> headerList = new ArrayList<String>();
+        List<String> xPathList = new ArrayList<String>();
+        List<String> fkColXPathList = new ArrayList<String>();
+        List<String> fkInfoList = new ArrayList<String>();
+
+        for (String xpath : viewableXpaths) {
+            TypeModel typeModel = dataTypes.get(xpath);
+            if (typeModel != null) {
+                String header = CommonUtil.getDownloadFileHeadName(typeModel);
+                headerList.add(header);
+                xPathList.add(xpath);
+                if (typeModel.getForeignkey() != null) {
+                    fkColXPathList.add(xpath + "," + typeModel.getForeignkey()); //$NON-NLS-1$
+                    List<String> fkInfo = typeModel.getForeignKeyInfo();
+                    if (fkInfo.size() == 0) {
+                        fkInfoList.add(" "); //$NON-NLS-1$
+                    } else {
+                        StringBuilder sb = new StringBuilder(fkInfo.get(0));
+                        for (int i = 1; i < fkInfo.size(); i++) {
+                            sb.append(",").append(fkInfo.get(i)); //$NON-NLS-1$
+                        }
+                        fkInfoList.add(sb.toString());
+                    }
+                }
+            }
+        }
 
         List<String> selectItemXmlList = new ArrayList<String>();
+        Grid<ItemBean> grid = ItemsListPanel.getInstance().getGrid();
         if (grid != null) {
             List<ItemBean> selectItemList = grid.getSelectionModel().getSelectedItems();
             for (int i = 0; i < selectItemList.size(); i++) {
@@ -116,35 +186,29 @@ public class DownloadFilePanel extends FormPanel {
         }
 
         Map<String, String> param = new HashMap<String, String>();
+
         queryModel.getModel();
         queryModel.getCriteria();
         queryModel.getLanguage();
 
         param.put("fileName", fileName.getValue()); //$NON-NLS-1$
+        param.put("fkResovled", fkResovled.getValue().toString()); //$NON-NLS-1$
+        param.put("fkDisplay", fkDisplayCombo.getValue().get("key").toString()); //$NON-NLS-1$ //$NON-NLS-2$
+        param.put("tableName", viewBean.getViewPK()); //$NON-NLS-1$
+        param.put("header", CommonUtil.convertList2Xml(headerList, "header")); //$NON-NLS-1$ //$NON-NLS-2$
+        param.put("xpath", CommonUtil.convertList2Xml(xPathList, "xpath")); //$NON-NLS-1$ //$NON-NLS-2$
+        param.put("fkColXPath", CommonUtil.convertList2Xml(fkColXPathList, "fkColXPath")); //$NON-NLS-1$ //$NON-NLS-2$
+        param.put("fkInfo", CommonUtil.convertList2Xml(fkInfoList, "fkInfo")); //$NON-NLS-1$ //$NON-NLS-2$
+        if (selectItemXmlList.size() > 0) {
+            selectItemXmlList.add(0, ""); //$NON-NLS-1$
+            param.put("itemXmlString",CommonUtil.convertList2Xml(selectItemXmlList, "result"));  //$NON-NLS-1$//$NON-NLS-2$
+        } else {
+            param.put("itemXmlString","");  //$NON-NLS-1$//$NON-NLS-2$
+        }
         param.put("dataCluster", queryModel.getDataClusterPK()); //$NON-NLS-1$
         param.put("viewPk", queryModel.getView().getViewPK()); //$NON-NLS-1$
         param.put("criteria", queryModel.getCriteria()); //$NON-NLS-1$
         param.put("language", queryModel.getLanguage()); //$NON-NLS-1$
-        param.put("includeXmlContent", includeXmlContent.getValue().toString()); //$NON-NLS-1$
-
-        EntityModel entityModel = viewBean.getBindingEntityModel();
-        Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
-        List<String> headerList = new LinkedList<String>();
-        List<String> viewableXpathList = viewBean.getViewableXpaths();
-        for (String viewableXpath : viewableXpathList) {
-            TypeModel typeModel = dataTypes.get(viewableXpath);
-            headerList.add(typeModel == null ? viewableXpath : ViewUtil.getViewableLabel(Locale.getLanguage(), typeModel));
-        }
-        param.put(
-                "header", org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(headerList, Constants.FILE_EXPORT_IMPORT_SEPARATOR)); //$NON-NLS-1$
-        param.put(
-                "viewableXpath", org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(viewableXpathList, Constants.FILE_EXPORT_IMPORT_SEPARATOR)); //$NON-NLS-1$
-        if (selectItemXmlList.size() > 0) {
-            selectItemXmlList.add(0, ""); //$NON-NLS-1$
-            param.put("itemXmlString", CommonUtil.convertListToString(selectItemXmlList, Constants.FILE_EXPORT_IMPORT_SEPARATOR)); //$NON-NLS-1$
-        } else {
-            param.put("itemXmlString", ""); //$NON-NLS-1$//$NON-NLS-2$
-        }
 
         RecordsPagingConfig pagingLoad = queryModel.getPagingLoadConfig();
         String sortDir = null;
