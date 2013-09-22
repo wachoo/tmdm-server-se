@@ -42,7 +42,10 @@ public class TransactionHandler implements Handler {
                 SOAPMessage message = ((SOAPMessageContext) messageContext).getMessage();
                 if (message != null) {
                     SOAPBody body = message.getSOAPBody();
-                    String messageOperationName = body.getFirstChild().getLocalName();
+                    String messageOperationName = null;
+                    if (body.getFirstChild() != null) {
+                        messageOperationName = body.getFirstChild().getLocalName();
+                    }
                     if (LOGOUT_OPERATION_NAME.equals(messageOperationName)) {
                         return new NoOpTransactionState();
                     }

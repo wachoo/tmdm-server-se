@@ -1549,7 +1549,15 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
                 .getRoutingOrderV2ByCriteriaWithPaging(wsGetRoutingOrderV2ByCriteriaWithPaging);
     }
-    
+
+    /**
+     * @ejb.interface-method view-type = "service-endpoint"
+     * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
+     */
+    public WSBoolean isXmlDB() throws RemoteException {
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().isXmlDB();
+    }
+
     /**
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"

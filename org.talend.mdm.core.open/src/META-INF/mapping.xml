@@ -5873,6 +5873,15 @@
       </wsdl-return-value-mapping>
     </service-endpoint-method-mapping>
     <service-endpoint-method-mapping>
+      <java-method-name>isXmlDB</java-method-name>
+      <wsdl-operation>isXmlDB</wsdl-operation>
+      <wsdl-return-value-mapping>
+        <method-return-value>com.amalto.core.webservice.WSBoolean</method-return-value>
+        <wsdl-message xmlns:wsdlMsgNS="urn-com-amalto-xtentis-webservice">wsdlMsgNS:isXmlDBResponse</wsdl-message>
+        <wsdl-message-part-name>wsBoolean</wsdl-message-part-name>
+      </wsdl-return-value-mapping>
+    </service-endpoint-method-mapping>
+    <service-endpoint-method-mapping>
       <java-method-name>getDigest</java-method-name>
       <wsdl-operation>getDigest</wsdl-operation>
       <method-param-parts-mapping>
