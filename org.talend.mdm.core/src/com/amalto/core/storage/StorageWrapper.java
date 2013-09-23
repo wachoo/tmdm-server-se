@@ -16,10 +16,8 @@ import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.record.*;
-import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
@@ -540,7 +538,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         try {
             storage.begin();
             if (typeName != null && !typeName.isEmpty()) {
-                totalCount += getTypeItemCount(criteria, repository.getComplexType(typeName), storage);
+                totalCount = getTypeItemCount(criteria, repository.getComplexType(typeName), storage);
                 itemPKResults.addAll(getTypeItems(criteria, repository.getComplexType(typeName), storage));
             } else {
                 // TMDM-4651: Returns type in correct dependency order.
@@ -750,9 +748,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     protected Storage getStorage(String dataClusterName) {
-        StorageAdmin admin = getStorageAdmin();
-        Collection<Storage> storages = admin.get(dataClusterName);
-        return new TransactionStorage(storages);
+        return getStorage(dataClusterName, null);
     }
 
     protected Storage getStorage(String dataClusterName, String revisionId) {
@@ -847,113 +843,5 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     public void exportDocuments(String revisionId, String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws XmlServerException {
         // No support for bulk export when using SQL storages (this could be in HibernateStorage but would require to define new API).
         throw new NotImplementedException("No support for bulk export.");
-    }
-
-    private static class TransactionStorage implements Storage {
-
-        private final Collection<Storage> storages;
-
-        public TransactionStorage(Collection<Storage> storages) {
-            this.storages = storages;
-        }
-
-        @Override
-        public Storage asInternal() {
-            return this;
-        }
-
-        @Override
-        public int getCapabilities() {
-            return CAP_TRANSACTION;
-        }
-
-        @Override
-        public StorageTransaction newStorageTransaction() {
-            throw new UnsupportedOperationException();
-        }
-
-        public void init(DataSource dataSource) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void prepare(MetadataRepository repository, Set<Expression> optimizedExpressions, boolean force, boolean dropExistingData) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void prepare(MetadataRepository repository, boolean dropExistingData) {
-            throw new UnsupportedOperationException();
-        }
-
-        public MetadataRepository getMetadataRepository() {
-            throw new UnsupportedOperationException();
-        }
-
-        public StorageResults fetch(Expression userQuery) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void update(DataRecord record) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void update(Iterable<DataRecord> records) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void delete(Expression userQuery) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void close() {
-            throw new UnsupportedOperationException();
-        }
-
-        public void close(boolean dropExistingData) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void begin() {
-            for (Storage storage : storages) {
-                storage.begin();
-            }
-        }
-
-        public void commit() {
-            for (Storage storage : storages) {
-                storage.commit();
-            }
-        }
-
-        public void rollback() {
-            for (Storage storage : storages) {
-                storage.rollback();
-            }
-        }
-
-        public void end() {
-            for (Storage storage : storages) {
-                storage.end();
-            }
-        }
-
-        public void reindex() {
-            throw new UnsupportedOperationException();
-        }
-
-        public Set<String> getFullTextSuggestion(String keyword, FullTextSuggestion mode, int suggestionSize) {
-            throw new UnsupportedOperationException();
-        }
-
-        public String getName() {
-            throw new UnsupportedOperationException();
-        }
-
-        public DataSource getDataSource() {
-            throw new UnsupportedOperationException();
-        }
-
-        public StorageType getType() {
-            throw new UnsupportedOperationException();
-        }
     }
 }

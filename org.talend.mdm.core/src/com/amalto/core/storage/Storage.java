@@ -39,19 +39,6 @@ public interface Storage {
     byte CAP_INTEGRITY = 4;
 
     /**
-     * @return A storage implementation that does not perform any on-the-fly data modification.
-     */
-    Storage asInternal();
-
-    /**
-     * @return A bit mask of capabilities for this storage implementation.
-     * @see #CAP_TRANSACTION
-     * @see #CAP_INTEGRITY
-     * @see #CAP_FULL_TEXT
-     */
-    int getCapabilities();
-
-    /**
      * Name of the column where MDM timestamp is stored.
      */
     String METADATA_TIMESTAMP = "x_talend_timestamp"; //$NON-NLS-1$
@@ -88,6 +75,19 @@ public interface Storage {
      * varies from one query to another (if selected fields in query changed).
      */
     String PROJECTION_TYPE = "$ExplicitProjection$"; //$NON-NLS-1$
+
+    /**
+     * @return A storage implementation that does not perform any on-the-fly data modification.
+     */
+    Storage asInternal();
+
+    /**
+     * @return A bit mask of capabilities for this storage implementation.
+     * @see #CAP_TRANSACTION
+     * @see #CAP_INTEGRITY
+     * @see #CAP_FULL_TEXT
+     */
+    int getCapabilities();
 
     /**
      * @return An implementation of {@link StorageTransaction} ready for usage. Implementations are always expected

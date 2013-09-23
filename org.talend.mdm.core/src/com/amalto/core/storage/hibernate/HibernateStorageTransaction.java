@@ -21,7 +21,6 @@ import com.amalto.core.storage.transaction.StorageTransaction;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
 import org.hibernate.FlushMode;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Transaction;
@@ -35,7 +34,8 @@ import java.util.Set;
 class HibernateStorageTransaction extends StorageTransaction {
 
     private static final Logger LOGGER = Logger.getLogger(HibernateStorageTransaction.class);
-    protected static final int TRANSACTION_DUMP_MAX = 10;
+
+    private static final int TRANSACTION_DUMP_MAX = 10;
 
     private final HibernateStorage storage;
 

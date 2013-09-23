@@ -21,10 +21,6 @@ import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 
-/**
- * created by suplch on 2013-6-28 Detailled comment
- * 
- */
 public class StorageWrapperTest extends TestCase {
 
     public StorageWrapperTest() {
@@ -36,7 +32,6 @@ public class StorageWrapperTest extends TestCase {
         final Storage storage = prepareStorage(repository);
 
         StorageWrapper wrapper = new StorageWrapper() {
-
             @Override
             protected Storage getStorage(String dataClusterName) {
                 return storage;
