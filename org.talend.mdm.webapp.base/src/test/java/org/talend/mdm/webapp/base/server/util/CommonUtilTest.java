@@ -41,6 +41,39 @@ public class CommonUtilTest extends TestCase {
     protected void tearDown() throws Exception {
         BaseMessagesFactory.setMessages(null);
     }
+    
+    public void testExtractIdWithDots() throws Exception {
+        String[] keys = new String[] { "Id" };
+        String ids = ".3";
+
+        String[] result = CommonUtil.extractIdWithDots(keys, ids);
+        assertTrue(result.length == 1);
+        assertEquals(result[0], ids);
+
+        ids = "1.3";
+        result = CommonUtil.extractIdWithDots(keys, ids);
+        assertTrue(result.length == 1);
+        assertEquals(result[0], ids);
+
+        ids = "3.";
+        result = CommonUtil.extractIdWithDots(keys, ids);
+        assertTrue(result.length == 1);
+        assertEquals(result[0], ids);
+
+        ids = "1";
+        result = CommonUtil.extractIdWithDots(keys, ids);
+        assertTrue(result.length == 1);
+        assertEquals(result[0], ids);
+
+        // Composite key is only support the following format, otherwise it will throw exception
+        // see com.amalto.core.storage.StorageWrapper.getSelectTypeById(ComplexTypeMetadata, String, String[])
+        keys = new String[] { "Id1", "Id2" };
+        ids = "1.3";
+        result = CommonUtil.extractIdWithDots(keys, ids);
+        assertTrue(result.length == 2);
+        assertEquals(result[0], "1");
+        assertEquals(result[1], "3");
+    }
 
     public void testJoinStrings() {
         List<String> testee = new ArrayList<String>();

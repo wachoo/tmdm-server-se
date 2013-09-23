@@ -270,14 +270,18 @@ public class CommonUtil {
         return criteria.toString();
     }
     
-    public static String[] extractIdWithDots(String ids) throws WebBaseException {
+    public static String[] extractIdWithDots(String[] keys, String ids) throws WebBaseException {
         List<String> idList = new ArrayList<String>();
-        StringTokenizer tokenizer = new StringTokenizer(ids, "."); //$NON-NLS-1$
-        if (!tokenizer.hasMoreTokens()) {
-            throw new WebBaseException(ExceptionConstants.ID_FORMAT_EXCEPTION, ids);
-        }
-        while (tokenizer.hasMoreTokens()) {
-            idList.add(tokenizer.nextToken());
+        if (keys.length == 1) {
+            idList.add(ids);
+        } else {
+            StringTokenizer tokenizer = new StringTokenizer(ids, "."); //$NON-NLS-1$
+            if (!tokenizer.hasMoreTokens()) {
+                throw new WebBaseException(ExceptionConstants.ID_FORMAT_EXCEPTION, ids);
+            }
+            while (tokenizer.hasMoreTokens()) {
+                idList.add(tokenizer.nextToken());
+            }    
         }
         return idList.toArray(new String[idList.size()]);
     }
