@@ -186,10 +186,13 @@ public class ItemsListPanel4Staging extends ItemsListPanel {
 
     private void markGroup(boolean mark) {
         String matchGroup = selectedItem.get(selectedItem.getConcept() + StagingConstant.STAGING_TASKID);
+        if (matchGroup == null || matchGroup.length() == 0) {
+            return;
+        }
         ListStore<ItemBean> store = grid.getStore();
         for (int i = 0; i < store.getCount(); i++) {
             ItemBean item = store.getAt(i);
-            if (matchGroup != null && matchGroup.equals(item.get(item.getConcept() + StagingConstant.STAGING_TASKID))) {
+            if (matchGroup.equals(item.get(item.getConcept() + StagingConstant.STAGING_TASKID))) {
                 Element rowEl = grid.getView().getRow(item);
                 if (mark) {
                     rowEl.getStyle().setBackgroundColor("rgb(238, 243, 251)"); //$NON-NLS-1$
