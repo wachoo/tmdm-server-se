@@ -163,6 +163,14 @@ public class StorageQueryTest extends StorageTestCase {
                 + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
                 + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
                 + "</Supplier>"));
+        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>.127</Id>\n"
+                + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
+                + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
+                + "</Supplier>"));
+        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>127.</Id>\n"
+                + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
+                + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
+                + "</Supplier>"));
         allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>127.0.0.1</Id>\n"
                         + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
                         + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
@@ -379,6 +387,102 @@ public class StorageQueryTest extends StorageTestCase {
         assertTrue(found);
         // Delete document
         long result = wrapper.deleteDocument(null, "Test", "Test.Supplier.127.0.0.1", "");
+        assertTrue(result >= 0);
+        wrapper.getAllDocumentsUniqueID(null, "Test");
+    }
+    
+    public void testSelectByIdIncludingDots2() throws Exception {
+        Collection<FieldMetadata> keyFields = supplier.getKeyFields();
+        assertEquals(1, keyFields.size());
+        FieldMetadata keyField = keyFields.iterator().next();
+
+        UserQueryBuilder qb = from(supplier).where(eq(supplier.getField("Id"), ".127"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get(keyField));
+            }
+        } finally {
+            results.close();
+        }
+        // Wrapper test
+        StorageWrapper wrapper = new StorageWrapper() {
+            @Override
+            protected Storage getStorage(String dataClusterName, String revisionId) {
+                return storage;
+            }
+
+            @Override
+            protected Storage getStorage(String dataClusterName) {
+                return storage;
+            }
+        };
+        // Get document by id
+        String documentAsString = wrapper.getDocumentAsString(null, "Test", "Test.Supplier..127");
+        assertNotNull(documentAsString);
+        // Get cluster ids
+        String[] ids = wrapper.getAllDocumentsUniqueID(null, "Test");
+        boolean found = false;
+        for (String id : ids) {
+            if("Test.Supplier..127".equals(id)) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found);
+        // Delete document
+        long result = wrapper.deleteDocument(null, "Test", "Test.Supplier..127", "");
+        assertTrue(result >= 0);
+        wrapper.getAllDocumentsUniqueID(null, "Test");
+    }
+    
+    public void testSelectByIdIncludingDots3() throws Exception {
+        Collection<FieldMetadata> keyFields = supplier.getKeyFields();
+        assertEquals(1, keyFields.size());
+        FieldMetadata keyField = keyFields.iterator().next();
+
+        UserQueryBuilder qb = from(supplier).where(eq(supplier.getField("Id"), "127."));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get(keyField));
+            }
+        } finally {
+            results.close();
+        }
+        // Wrapper test
+        StorageWrapper wrapper = new StorageWrapper() {
+            @Override
+            protected Storage getStorage(String dataClusterName, String revisionId) {
+                return storage;
+            }
+
+            @Override
+            protected Storage getStorage(String dataClusterName) {
+                return storage;
+            }
+        };
+        // Get document by id
+        String documentAsString = wrapper.getDocumentAsString(null, "Test", "Test.Supplier.127.");
+        assertNotNull(documentAsString);
+        // Get cluster ids
+        String[] ids = wrapper.getAllDocumentsUniqueID(null, "Test");
+        boolean found = false;
+        for (String id : ids) {
+            if("Test.Supplier.127.".equals(id)) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found);
+        // Delete document
+        long result = wrapper.deleteDocument(null, "Test", "Test.Supplier.127.", "");
         assertTrue(result >= 0);
         wrapper.getAllDocumentsUniqueID(null, "Test");
     }

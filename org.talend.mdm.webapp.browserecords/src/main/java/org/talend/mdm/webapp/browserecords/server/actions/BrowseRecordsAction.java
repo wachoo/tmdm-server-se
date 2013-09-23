@@ -117,6 +117,7 @@ import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSByteArray;
+import com.amalto.webapp.util.webservices.WSConceptKey;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSDeleteItem;
@@ -124,6 +125,7 @@ import com.amalto.webapp.util.webservices.WSDropItem;
 import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSExecuteTransformerV2;
 import com.amalto.webapp.util.webservices.WSExistsItem;
+import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSGetItem;
@@ -179,7 +181,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         try {
             String dataClusterPK = getCurrentDataCluster();
             String concept = item.getConcept();
-            String[] ids = extractIdWithDots(item.getIds());
+            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
+                    new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));
+            String[] ids = extractIdWithDots(key.getFields(), item.getIds());
             String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
 
             String message = null;
@@ -257,10 +261,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         try {
             Map<ItemBean, FKIntegrityResult> itemBeanToResult = new HashMap<ItemBean, FKIntegrityResult>(selectedItems.size());
-
+            WSConceptKey key = null;
             for (ItemBean selectedItem : selectedItems) {
                 String concept = selectedItem.getConcept();
-                String[] ids = extractIdWithDots(selectedItem.getIds());
+                if (key == null) {
+                    key = CommonUtil.getPort().getBusinessConceptKey(
+                            new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));   
+                }
+                String[] ids = extractIdWithDots(key.getFields(), selectedItem.getIds());
 
                 WSItemPK wsItemPK = new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, ids);
                 WSDeleteItem deleteItem = new WSDeleteItem(wsItemPK, false);
@@ -372,7 +380,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String concept = itemBean.getConcept();
             // get item
             WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
-            String[] ids = extractIdWithDots(itemBean.getIds());
+            String[] ids = extractIdWithDots(entityModel.getKeys(), itemBean.getIds());
 
             // parse schema firstly, then use element declaration (DataModelHelper.getEleDecl)
             DataModelHelper.parseSchema(dataModel, concept, entityModel, RoleHelper.getUserRoles());
@@ -623,7 +631,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         try {
             String dataClusterPK = getCurrentDataCluster();
             String concept = item.getConcept();
-            String[] ids = extractIdWithDots(item.getIds());
+            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
+                    new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));
+            String[] ids = extractIdWithDots(key.getFields(), item.getIds());
 
             WSItemPK wsItemPK = new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids);
             WSItem item1 = CommonUtil.getPort().getItem(new WSGetItem(wsItemPK));
@@ -1257,16 +1267,21 @@ public class BrowseRecordsAction implements BrowseRecordsService {
      * @param ids Expect a id like "value0.value1.value2"
      * @return Returns an array with ["value0", "value1", "value2"]
      */
-    private static String[] extractIdWithDots(String ids) {
+    public static String[] extractIdWithDots(String[] keys, String ids) {
         List<String> idList = new ArrayList<String>();
-        StringTokenizer tokenizer = new StringTokenizer(ids, "."); //$NON-NLS-1$
-        if (!tokenizer.hasMoreTokens()) {
-            throw new IllegalArgumentException(MESSAGES.getMessage("label_exception_id_malform", ids)); //$NON-NLS-1$
-        }
+        if (keys.length == 1) {
+            idList.add(ids);
+        } else {
+            StringTokenizer tokenizer = new StringTokenizer(ids, "."); //$NON-NLS-1$
+            if (!tokenizer.hasMoreTokens()) {
+                throw new IllegalArgumentException(MESSAGES.getMessage("label_exception_id_malform", ids)); //$NON-NLS-1$
+            }
 
-        while (tokenizer.hasMoreTokens()) {
-            idList.add(tokenizer.nextToken());
+            while (tokenizer.hasMoreTokens()) {
+                idList.add(tokenizer.nextToken());
+            }    
         }
+        
         return idList.toArray(new String[idList.size()]);
     }
 
@@ -1725,7 +1740,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             } else {
                 String[] pk = wsi.getIds();
                 if (pk == null || pk.length == 0) {
-                    pk = extractIdWithDots(ids);
+                    WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
+                            new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));
+                    pk = extractIdWithDots(key.getFields(), ids);
                 }
                 WSItem wsItem = CommonUtil.getPort().getItem(
                         new WSGetItem(new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, pk)));
@@ -1767,7 +1784,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String dataCluster = getCurrentDataCluster();
                 // get item
                 WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
-                String[] idArray = extractIdWithDots(ids);
+                WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
+                        new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));
+                String[] idArray = extractIdWithDots(key.getFields(), ids);
 
                 WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, concept, idArray)));
                 doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(wsItem.getContent());
@@ -1824,8 +1843,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     @Override
     public boolean isItemModifiedByOthers(ItemBean itemBean) throws ServiceException {
         try {
+            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
+                    new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), itemBean.getConcept()));
             ItemPOJOPK itempk = new ItemPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()), itemBean.getConcept(),
-                    extractIdWithDots(itemBean.getIds()));
+                    extractIdWithDots(key.getFields(), itemBean.getIds()));
             boolean isModified = com.amalto.core.util.Util.getItemCtrl2Local().isItemModifiedByOther(itempk,
                     itemBean.getLastUpdateTime());
             return isModified;
