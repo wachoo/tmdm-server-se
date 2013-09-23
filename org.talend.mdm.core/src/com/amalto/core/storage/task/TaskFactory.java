@@ -37,30 +37,29 @@ public class TaskFactory {
         ClosureExecutionStats stats = new ClosureExecutionStats();
         List<Task> tasks = new ArrayList<Task>();
         // Adds match & merge (if available)
-        if (Boolean.valueOf(System.getProperty("mdm.enable.matchmerge"))) { // TODO Temp property
-            try {
-                Class<?> clazz = Class.forName("com.amalto.core.storage.task.MatchMergeTask"); //$NON-NLS-1$
-                Constructor<?> constructor = clazz.getConstructor(Storage.class,
-                        MetadataRepository.class,
-                        ClosureExecutionStats.class,
-                        Filter.class);
-                Object task = constructor.newInstance(stagingStorage, userRepository, stats, filter);
-                tasks.add((Task) task);
-            } catch (ClassNotFoundException e) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Could not find match & merge extension.", e);
-                }
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("Expected a constructor but could not find it.", e);
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException("Expected a constructor but could not invoke it.", e);
-            } catch (InstantiationException e) {
-                throw new RuntimeException("Expected a constructor but could not instantiate it.", e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Expected a constructor but could not access it.", e);
-            } catch (Exception e) {
-                LOGGER.error("Unexpected error when building a match & merge task.", e);
+        try {
+            Class<?> clazz = Class.forName("com.amalto.core.storage.task.MatchMergeTask"); //$NON-NLS-1$
+            Constructor<?> constructor = clazz.getConstructor(Storage.class,
+                    MetadataRepository.class,
+                    ClosureExecutionStats.class,
+                    Filter.class);
+            Object task = constructor.newInstance(stagingStorage, userRepository, stats, filter);
+            tasks.add((Task) task);
+        } catch (ClassNotFoundException e) {
+            LOGGER.warn("Could not find match & merge extension, feature will be disabled.");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Could not find match & merge extension: exception occurred.", e);
             }
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Expected a constructor but could not find it.", e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException("Expected a constructor but could not invoke it.", e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException("Expected a constructor but could not instantiate it.", e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Expected a constructor but could not access it.", e);
+        } catch (Exception e) {
+            LOGGER.error("Unexpected error when building a match & merge task.", e);
         }
         // Adds MDM validation task
         tasks.add(new MDMValidationTask(stagingStorage,
