@@ -46,4 +46,9 @@ public interface DataRecordMetadata {
      */
     Map<String, String> getRecordProperties();
 
+    /**
+     * @return A copy of this {@link DataRecordMetadata} instance ({@link #getRecordProperties()} is also expected
+     * to be a copy of this original instance).
+     */
+    DataRecordMetadata copy();
 }

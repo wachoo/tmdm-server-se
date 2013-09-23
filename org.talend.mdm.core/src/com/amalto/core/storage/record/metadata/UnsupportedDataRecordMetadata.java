@@ -100,4 +100,9 @@ public class UnsupportedDataRecordMetadata implements DataRecordMetadata {
             }
         };
     }
+
+    @Override
+    public DataRecordMetadata copy() {
+        return this;
+    }
 }

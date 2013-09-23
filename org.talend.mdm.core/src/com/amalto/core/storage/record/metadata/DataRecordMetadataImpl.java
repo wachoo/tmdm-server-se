@@ -49,4 +49,11 @@ public class DataRecordMetadataImpl implements DataRecordMetadata {
         }
         return recordProperties;
     }
+
+    @Override
+    public DataRecordMetadata copy() {
+        DataRecordMetadataImpl copy = new DataRecordMetadataImpl(lastModificationTime, taskId);
+        copy.recordProperties = new HashMap<String, String>(this.recordProperties);
+        return copy;
+    }
 }

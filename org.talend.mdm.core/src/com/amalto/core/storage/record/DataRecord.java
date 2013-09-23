@@ -234,7 +234,7 @@ public class DataRecord {
     }
 
     public static DataRecord copy(DataRecord record) {
-        DataRecord copy = new DataRecord(record.getType(), record.getRecordMetadata());
+        DataRecord copy = new DataRecord(record.getType(), record.getRecordMetadata().copy());
         for (Map.Entry<FieldMetadata, Object> entry : record.fieldToValue.entrySet()) {
             Object value = record.get(entry.getKey());
             if (value instanceof DataRecord) {
