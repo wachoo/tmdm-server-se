@@ -74,7 +74,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     public StorageWrapper() {
     }
 
-    private static Select getSelectTypeById(ComplexTypeMetadata type, String revisionId, String[] splitUniqueId) {
+    private static Select getSelectTypeById(ComplexTypeMetadata type, String revisionId, String[] splitUniqueId, String uniqueID) {
         ComplexTypeMetadata typeForSelect = type;
         while (typeForSelect.getSuperTypes() != null && !typeForSelect.getSuperTypes().isEmpty() && typeForSelect.getSuperTypes().size() > 0) {
             typeForSelect = (ComplexTypeMetadata) typeForSelect.getSuperTypes().iterator().next();
@@ -90,14 +90,9 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             throw new IllegalArgumentException("Id '" + builder.toString() + "' does not contain all required values for key of type '" + type.getName() + "'.");
         } else if (keyFields.size() == 1) {
             // Split unique id > keyField: if # of key elements is 1, consider all remaining value as a single value (with '.' separators).
-            StringBuilder builder = new StringBuilder();
-            for (int i = 2; i < splitUniqueId.length; i++) {
-                builder.append(splitUniqueId[i]);
-                if (i < splitUniqueId.length - 1) {
-                    builder.append('.');
-                }
-            }
-            qb.where(eq(keyFields.iterator().next(), builder.toString()));
+            String uniqueIdPrefix = splitUniqueId[0] + '.' + splitUniqueId[1] + '.';
+            String key = StringUtils.removeStart(uniqueID, uniqueIdPrefix);
+            qb.where(eq(keyFields.iterator().next(), key));
         } else {
             int currentIndex = 2;
             for (FieldMetadata keyField : keyFields) {
@@ -245,7 +240,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         MetadataRepository repository = storage.getMetadataRepository();
         String typeName = splitUniqueId[1];
         ComplexTypeMetadata type = repository.getComplexType(typeName);
-        Select select = getSelectTypeById(type, revisionID, splitUniqueId);
+        Select select = getSelectTypeById(type, revisionID, splitUniqueId, uniqueID);
         StorageResults records = storage.fetch(select);
         ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
         try {
@@ -325,7 +320,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             String[] splitUniqueID = uniqueID.split("\\."); //$NON-NLS-1$
             Storage storage = getStorage(clusterName, revisionID);
             ComplexTypeMetadata type = storage.getMetadataRepository().getComplexType(typeName);
-            Select select = getSelectTypeById(type, revisionID, splitUniqueID);
+            Select select = getSelectTypeById(type, revisionID, splitUniqueID, uniqueID);
             try {
                 storage.begin();
                 storage.delete(select);
