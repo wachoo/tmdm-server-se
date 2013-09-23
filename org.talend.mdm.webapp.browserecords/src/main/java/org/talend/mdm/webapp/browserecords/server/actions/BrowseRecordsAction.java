@@ -198,8 +198,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (ids != null && !item.isReadOnly()) {
                     WSItemPK wsItem = CommonUtil.getPort().deleteItem(
                             new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), override));
-                    if (wsItem != null) {
+                    if (wsItem != null && !dataClusterPK.endsWith(StorageAdmin.STAGING_SUFFIX)) {
                         pushUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE);
+                    } else if (wsItem != null && dataClusterPK.endsWith(StorageAdmin.STAGING_SUFFIX)) {
+                        //do nothing
                     } else {
                         throw new ServiceException(MESSAGES.getMessage("delete_record_failure")); //$NON-NLS-1$
                     }

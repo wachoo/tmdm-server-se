@@ -17,6 +17,7 @@ import com.amalto.core.save.*;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.server.XmlServer;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.util.XSDKey;
@@ -258,6 +259,11 @@ public class SaverContextFactory {
         DocumentSaverContext context;
         Storage storage = server.getStorageAdmin().get(dataCluster, null);
         if (storage != null) {
+            //TMDM-6316: disable update report generation & before Checking for Staging data operation: creation,update
+            if (dataCluster.endsWith(StorageAdmin.STAGING_SUFFIX)) {
+                invokeBeforeSaving = false;
+                updateReport = false;
+            }
             context = new StorageSaver(storage, userDocument, userAction, invokeBeforeSaving, updateReport, validate);
         } else {
             // Deprecated code here (keep it for XML database).
