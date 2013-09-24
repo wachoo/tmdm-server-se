@@ -505,6 +505,7 @@ public class HibernateStorage implements Storage {
     public InternalRepository getTypeEnhancer() {
         if (typeMappingRepository == null) {
             TypeMappingStrategy mappingStrategy;
+            // TODO Not nice to setUseTechnicalFK, change this
             switch (storageType) {
                 case SYSTEM:
                     switch (dataSource.getDialectName()) {
@@ -594,7 +595,7 @@ public class HibernateStorage implements Storage {
             for (DataRecord currentDataRecord : records) {
                 TypeMapping mapping = mappingRepository.getMappingFromUser(currentDataRecord.getType());
                 Wrapper o = (Wrapper) currentDataRecord.convert(converter, mapping);
-                if (session.isReadOnly(o)) { // A read only instance for an update?
+                if (session.contains(o) && session.isReadOnly(o)) { // A read only instance for an update?
                     session.setReadOnly(o, false);
                 }
                 o.timestamp(System.currentTimeMillis());
@@ -874,7 +875,7 @@ public class HibernateStorage implements Storage {
             }
             if (!isInternal) {
                 MappingExpressionTransformer transformer = new MappingExpressionTransformer(mappingRepository);
-                // TODO a call to normalize should not be needed
+                // Normalize should not be needed, but adds it as safety
                 internalExpression = expression.accept(transformer).normalize();
             }
             if (LOGGER.isTraceEnabled()) {
