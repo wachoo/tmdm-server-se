@@ -257,7 +257,12 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                             SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
                             SimpleTypeFieldMetadata aliasField = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, aliasName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList());
                             explicitProjectionType.addField(aliasField);
-                            nextRecord.set(aliasField, ((DataRecord) next.get(fieldMetadata.getName())).getType().getName());
+                            DataRecord dataRecord = (DataRecord) next.get(fieldMetadata.getName());
+                            if (dataRecord != null) {
+                                nextRecord.set(aliasField, dataRecord.getType().getName());
+                            } else {
+                                nextRecord.set(aliasField, StringUtils.EMPTY);
+                            }
                             return null;
                         }
                     };
