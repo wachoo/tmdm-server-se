@@ -77,6 +77,14 @@ public class MDMTransactionManager implements TransactionManager {
                     LOGGER.debug("Transaction removed: " + transaction.getId());
                 }
             }
+            // remove all of transactions by transaction id
+            for (Iterator<Thread> it = currentTransactions.keySet().iterator(); it.hasNext();) {
+                Thread thread = it.next();
+                if (transaction.getId().equals(currentTransactions.get(thread).getId())) {
+                    it.remove();
+                    currentTransactions.remove(thread);
+                }
+            }
         }
         synchronized (activeTransactions) {
             activeTransactions.remove(transaction.getId());

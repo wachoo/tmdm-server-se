@@ -34,6 +34,7 @@ class MDMTransaction implements Transaction {
     }
 
     private void transactionComplete() {
+        storageTransactions.clear();
         ServerContext.INSTANCE.get().getTransactionManager().remove(this);
     }
 
