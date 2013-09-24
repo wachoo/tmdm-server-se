@@ -10,26 +10,53 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.MetadataUtils;
-import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
-import com.amalto.core.query.user.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
+
 import com.amalto.core.metadata.*;
+import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
 import com.amalto.core.query.optimization.ContainsOptimizer;
 import com.amalto.core.query.optimization.Optimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.optimization.UpdateReportOptimizer;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.UserQueryDumpConsole;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
-import com.amalto.core.storage.prepare.*;
+import com.amalto.core.storage.prepare.FullTextIndexCleaner;
+import com.amalto.core.storage.prepare.JDBCStorageCleaner;
+import com.amalto.core.storage.prepare.JDBCStorageInitializer;
+import com.amalto.core.storage.prepare.StorageCleaner;
+import com.amalto.core.storage.prepare.StorageInitializer;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordConverter;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import net.sf.ehcache.CacheManager;
 import org.apache.log4j.Logger;
-import org.hibernate.*;
+import org.hibernate.FlushMode;
+import org.hibernate.HibernateException;
+import org.hibernate.NonUniqueObjectException;
+import org.hibernate.PropertyValueException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.search.MassIndexer;
@@ -43,15 +70,6 @@ import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.sql.SQLException;
-import java.util.*;
 
 public class HibernateStorage implements Storage {
 
@@ -520,7 +538,7 @@ public class HibernateStorage implements Storage {
             for (DataRecord currentDataRecord : records) {
                 TypeMapping mapping = mappingRepository.getMappingFromUser(currentDataRecord.getType());
                 Wrapper o = (Wrapper) currentDataRecord.convert(converter, mapping);
-                if (session.isReadOnly(o)) { // A read only instance for an update?
+                if (session.contains(o) && session.isReadOnly(o)) { // A read only instance for an update?
                     session.setReadOnly(o, false);
                 }
                 o.timestamp(System.currentTimeMillis());
