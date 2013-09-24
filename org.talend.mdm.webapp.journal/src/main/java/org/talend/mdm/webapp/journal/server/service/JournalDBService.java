@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.journal.server.service;
 
 import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -158,19 +159,21 @@ public class JournalDBService {
         return root;
     }
 
-    public JournalTreeModel getComparisionTreeModel(String xmlStr) {
+    public JournalTreeModel getComparisionTreeModel(String xmlString) {
         JournalTreeModel root = new JournalTreeModel("root", "Document", "root"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-        if (xmlStr == null || "".equals(xmlStr)) { //$NON-NLS-1$
+        if (xmlString == null || "".equals(xmlString)) { //$NON-NLS-1$
             return root;
         }
 
         SAXReader reader = new SAXReader();
         org.dom4j.Document document = null;
         try {
-            document = reader.read(new ByteArrayInputStream(xmlStr.getBytes()));
+            document = reader.read(new ByteArrayInputStream(xmlString.getBytes("UTF-8"))); //$NON-NLS-1$
             org.dom4j.Element rootElement = document.getRootElement();
             this.retrieveElement(rootElement, root);
         } catch (DocumentException e) {
+            LOG.error(e.getMessage(), e);
+        } catch (UnsupportedEncodingException e) {
             LOG.error(e.getMessage(), e);
         }
 
