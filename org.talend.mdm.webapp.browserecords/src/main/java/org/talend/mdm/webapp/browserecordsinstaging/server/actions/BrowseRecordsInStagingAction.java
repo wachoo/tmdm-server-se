@@ -88,7 +88,7 @@ public class BrowseRecordsInStagingAction extends BrowseRecordsAction implements
     @Override
     public String getCurrentDataCluster() throws ServiceException {
         String cluster = super.getCurrentDataCluster();
-        if (!cluster.endsWith(StorageAdmin.STAGING_SUFFIX)) {
+        if (cluster != null && !cluster.endsWith(StorageAdmin.STAGING_SUFFIX)) {
             cluster += StorageAdmin.STAGING_SUFFIX;
         }
         return cluster;
