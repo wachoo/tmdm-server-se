@@ -1,8 +1,15 @@
 package com.amalto.core.ejb;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
+import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.schema.manage.SchemaCoreAgent;
 
 public class DroppedItemPOJOPK implements Serializable {
 	
@@ -55,8 +62,9 @@ public class DroppedItemPOJOPK implements Serializable {
 	/**
 	 * @param input "."&&"-" are reserved words
 	 * @return DroppedItemPOJOPK
+	 * @throws Exception 
 	 */
-	public static DroppedItemPOJOPK buildUid2POJOPK(String input) {
+	public static DroppedItemPOJOPK buildUid2POJOPK(String input, Map<String, BusinessConcept> conceptMap) throws Exception {
 		//TODO need regular expression to validate input
 		
 		int pos=input.lastIndexOf("-"); // input = "head.Product.Product.1-" or "head.RTE-RAP.Contrat.1-"
@@ -68,10 +76,21 @@ public class DroppedItemPOJOPK implements Serializable {
 		String revision=part1s[0];
 		String clusterName=part1s[1];
 		String conceptName=part1s[2];
-		String[] ids=new String[part1s.length-3];
-		for (int i = 0; i < ids.length; i++) {
-			ids[i]=part1s[i+3];
-		}
+		// check xsd key's length
+        String idPrefix = clusterName + "." + conceptName + ".";  //$NON-NLS-1$//$NON-NLS-2$
+        String[] ids=new String[part1s.length-3];
+        for (int i = 0; i < ids.length; i++) {
+            ids[i]=part1s[i+3];
+        }
+        if (!conceptMap.containsKey(idPrefix)) {
+            BusinessConcept businessConcept = SchemaCoreAgent.getInstance().getBusinessConcept(conceptName, new DataModelID(clusterName, revision));
+            businessConcept.load();
+            conceptMap.put(idPrefix, businessConcept);
+        }
+        if (conceptMap.get(idPrefix) != null && conceptMap.get(idPrefix).getKeyFieldPaths().size() == 1) {
+            ids = new String[] {StringUtils.removeStart(part1, idPrefix)};
+        }
+		
 		
 		String partPath=part2.replaceAll("-", "/");
 		

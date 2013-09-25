@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.InitialContext;
 
@@ -16,6 +18,7 @@ import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
@@ -373,17 +376,17 @@ public class DroppedItemPOJO implements Serializable{
  
             //build PKs collection
             List<DroppedItemPOJOPK> list = new ArrayList<DroppedItemPOJOPK>();
-            
+            Map<String, BusinessConcept> conceptMap = new HashMap<String, BusinessConcept>();
             for (int i = 0; i < ids.length; i++) {
             	String uid=ids[i];
             	if(regex!=null){
             		boolean match = ids[i].matches(regex);
             		if(match){
-            			DroppedItemPOJOPK droppedItemPOJOPK=DroppedItemPOJOPK.buildUid2POJOPK(uid);
+            			DroppedItemPOJOPK droppedItemPOJOPK=DroppedItemPOJOPK.buildUid2POJOPK(uid, conceptMap);
                     	if(droppedItemPOJOPK!=null)list.add(droppedItemPOJOPK);
             		}
             	}else{
-            		DroppedItemPOJOPK droppedItemPOJOPK=DroppedItemPOJOPK.buildUid2POJOPK(uid);
+            		DroppedItemPOJOPK droppedItemPOJOPK=DroppedItemPOJOPK.buildUid2POJOPK(uid, conceptMap);
                 	if(droppedItemPOJOPK!=null)list.add(droppedItemPOJOPK);
             	}
             	

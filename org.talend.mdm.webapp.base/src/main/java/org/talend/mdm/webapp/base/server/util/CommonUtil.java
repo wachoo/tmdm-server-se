@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.base.server.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -265,5 +266,21 @@ public class CommonUtil {
         }
         criteria.append(")"); //$NON-NLS-1$
         return criteria.toString();
+    }
+    
+    public static String[] extractIdWithDots(String[] keys, String ids) throws Exception {
+        List<String> idList = new ArrayList<String>();
+        if (keys.length == 1) {
+            idList.add(ids);
+        } else {
+            StringTokenizer tokenizer = new StringTokenizer(ids, "."); //$NON-NLS-1$
+            if (!tokenizer.hasMoreTokens()) {
+                throw new IllegalArgumentException(MESSAGES.getMessage("label_exception_id_malform", ids)); //$NON-NLS-1$
+            }
+            while (tokenizer.hasMoreTokens()) {
+                idList.add(tokenizer.nextToken());
+            }    
+        }
+        return idList.toArray(new String[idList.size()]);
     }
 }

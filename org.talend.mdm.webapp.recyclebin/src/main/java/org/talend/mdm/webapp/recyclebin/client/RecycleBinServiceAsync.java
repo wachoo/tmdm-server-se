@@ -25,8 +25,8 @@ public interface RecycleBinServiceAsync {
 
     void getTrashItems(String regex, BasePagingLoadConfigImpl load, AsyncCallback<ItemBasePageLoadResult<ItemsTrashItem>> callback);
 
-    void removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids, String language,
-            AsyncCallback<String> callback);
+    void removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String modelName, String ids,
+            String language, AsyncCallback<String> callback);
 
     void recoverDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String modelName, String ids,
             AsyncCallback<Void> callback);

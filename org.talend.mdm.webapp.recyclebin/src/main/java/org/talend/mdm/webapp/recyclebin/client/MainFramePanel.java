@@ -604,7 +604,7 @@ public class MainFramePanel extends ContentPanel {
 
                             service.removeDroppedItem(r.get("itemPK").toString(), r.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
                                     r.get("revisionId") == null ? null : r.get("revisionId").toString(), r //$NON-NLS-1$//$NON-NLS-2$
-                                            .get("conceptName").toString(), r.get("ids").toString(), UrlUtil.getLanguage(), //$NON-NLS-1$//$NON-NLS-2$
+                                            .get("conceptName").toString(), r.get("dataModelName").toString(), r.get("ids").toString(), UrlUtil.getLanguage(), //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
                                     new SessionAwareAsyncCallback<String>() {
 
                                         public void onSuccess(String msg) {
@@ -660,7 +660,7 @@ public class MainFramePanel extends ContentPanel {
 
         service.removeDroppedItem(model.get("itemPK").toString(), model.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
                 model.get("revisionId") == null ? null : model.get("revisionId").toString(), model //$NON-NLS-1$//$NON-NLS-2$
-                        .get("conceptName").toString(), model.get("ids").toString(), UrlUtil.getLanguage(),//$NON-NLS-1$//$NON-NLS-2$
+                        .get("conceptName").toString(), model.get("dataModelName").toString(), model.get("ids").toString(), UrlUtil.getLanguage(),//$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
                 new SessionAwareAsyncCallback<String>() {
 
                     public void onSuccess(String msg) {
