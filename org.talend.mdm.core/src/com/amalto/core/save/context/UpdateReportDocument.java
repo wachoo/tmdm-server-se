@@ -1,5 +1,13 @@
 package com.amalto.core.save.context;
 
+import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.MutableDocument;
@@ -7,12 +15,6 @@ import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.save.DOMDocument;
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
-import org.apache.commons.lang.StringUtils;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 class UpdateReportDocument extends DOMDocument {
 
@@ -67,10 +69,20 @@ class UpdateReportDocument extends DOMDocument {
     @Override
     public MutableDocument create(MutableDocument content) {
         isCreated = true;
-        Element item = updateReportDocument.createElement("OperationType"); //$NON-NLS-1$
+        Element item = null;
+        NodeList operationTypeNodeList = updateReportDocument.getElementsByTagName("OperationType"); //$NON-NLS-1$
+        for (int i=0;i<operationTypeNodeList.getLength();i++) {
+            Node operationTypeNode = operationTypeNodeList.item(i);
+            if (Node.ELEMENT_NODE ==  operationTypeNode.getNodeType()) {
+                item = (Element)operationTypeNode;                
+                break;
+            }
+        }
+        if (item == null) {
+            item = updateReportDocument.createElement("OperationType"); //$NON-NLS-1$
+        }
         item.appendChild(updateReportDocument.createTextNode(UpdateReportPOJO.OPERATION_TYPE_CREATE));
         updateReportDocument.getDocumentElement().appendChild(item);
-
         return this;
     }
 
@@ -92,8 +104,18 @@ class UpdateReportDocument extends DOMDocument {
 
     public void disableRecordFieldChange() {
         if (!isCreated) {
-            // Doing so add the OperationType element to the end of the document... not very human readable but works for an XML parser.
-            Element item = updateReportDocument.createElement("OperationType"); //$NON-NLS-1$
+            Element item = null;
+            NodeList operationTypeNodeList = updateReportDocument.getElementsByTagName("OperationType"); //$NON-NLS-1$
+            for (int i=0;i<operationTypeNodeList.getLength();i++) {
+                Node operationTypeNode = operationTypeNodeList.item(i);
+                if (Node.ELEMENT_NODE ==  operationTypeNode.getNodeType()) {
+                    item = (Element)operationTypeNode;
+                    break;
+                }
+            }
+            if (item == null) {
+                item = updateReportDocument.createElement("OperationType"); //$NON-NLS-1$
+            }
             item.appendChild(updateReportDocument.createTextNode(UpdateReportPOJO.OPERATION_TYPE_UPDATE));
             updateReportDocument.getDocumentElement().appendChild(item);
         }
