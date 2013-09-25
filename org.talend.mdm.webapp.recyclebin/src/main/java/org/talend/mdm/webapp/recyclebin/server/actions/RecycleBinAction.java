@@ -31,6 +31,7 @@ import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.recyclebin.client.RecycleBinService;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
 import org.talend.mdm.webapp.recyclebin.shared.NoPermissionException;
@@ -51,12 +52,15 @@ import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.DataModelAccessor;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
+import com.amalto.webapp.util.webservices.WSConceptKey;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSDroppedItem;
 import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSDroppedItemPKArray;
 import com.amalto.webapp.util.webservices.WSExistsItem;
 import com.amalto.webapp.util.webservices.WSFindAllDroppedItemsPKs;
+import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSLoadDroppedItem;
 import com.amalto.webapp.util.webservices.WSRecoverDroppedItem;
@@ -201,7 +205,9 @@ public class RecycleBinAction implements RecycleBinService {
         try {
             Locale locale = new Locale(language);
             // WSDroppedItemPK
-            String[] ids1 = ids.split("\\.");//$NON-NLS-1$
+            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
+                    new WSGetBusinessConceptKey(new WSDataModelPK(modelName), conceptName));
+            String[] ids1 = CommonUtil.extractIdWithDots(key.getFields(), ids);
             String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(clusterName, conceptName, ids1);
 
             String message = null;
@@ -269,7 +275,9 @@ public class RecycleBinAction implements RecycleBinService {
                     && !DataModelAccessor.getInstance().checkRestoreAccess(modelName, conceptName)) {
                 throw new NoPermissionException();
             }
-            String[] ids1 = ids.split("\\.");//$NON-NLS-1$
+            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
+                    new WSGetBusinessConceptKey(new WSDataModelPK(modelName), conceptName));
+            String[] ids1 = CommonUtil.extractIdWithDots(key.getFields(), ids);
             WSDataClusterPK wddcpk = new WSDataClusterPK(clusterName);
             WSItemPK wdipk = new WSItemPK(wddcpk, conceptName, ids1);
             WSDroppedItemPK wsdipk = new WSDroppedItemPK(wdipk, partPath, revisionId);
