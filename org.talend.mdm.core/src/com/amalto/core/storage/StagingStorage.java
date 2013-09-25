@@ -11,9 +11,7 @@
 
 package com.amalto.core.storage;
 
-import com.amalto.core.query.user.Condition;
 import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.Select;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
