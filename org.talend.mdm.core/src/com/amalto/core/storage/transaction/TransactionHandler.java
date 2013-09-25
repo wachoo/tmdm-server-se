@@ -47,7 +47,7 @@ public class TransactionHandler implements Handler {
                         messageOperationName = body.getFirstChild().getLocalName();
                     }
                     if (LOGOUT_OPERATION_NAME.equals(messageOperationName)) {
-                        return new NoOpTransactionState();
+                        return NoOpTransactionState.INSTANCE;
                     }
                     SOAPHeader soapHeader = message.getSOAPHeader();
                     if (soapHeader != null) {
@@ -62,7 +62,8 @@ public class TransactionHandler implements Handler {
                                 if (transactionManager.get(transactionID) != null) {
                                     return new ExplicitTransaction(transactionID);
                                 } else {
-                                    LOGGER.warn("Transaction #" + transactionID + " does not exist or no longer exists."); // TODO Warn or exception?
+                                    //TODO Throw exception
+                                    LOGGER.warn("Transaction #" + transactionID + " does not exist or no longer exists.");
                                     return new ImplicitTransaction();
                                 }
                             }
@@ -70,10 +71,10 @@ public class TransactionHandler implements Handler {
                     }
                 }
             }
-            return new ImplicitTransaction();
+            return NoOpTransactionState.INSTANCE;
         } catch (SOAPException e) {
             LOGGER.error("Unexpected SOAP handler exception.", e);
-            return new ImplicitTransaction();
+            return NoOpTransactionState.INSTANCE;
         }
     }
 
@@ -117,6 +118,7 @@ public class TransactionHandler implements Handler {
         void cancelRequest();
     }
 
+    //TODO To remove
     private static class ImplicitTransaction implements TransactionState {
 
         private Transaction currentTransaction;
@@ -171,6 +173,9 @@ public class TransactionHandler implements Handler {
     }
 
     private static class NoOpTransactionState implements TransactionState {
+
+        private static final TransactionState INSTANCE = new NoOpTransactionState();
+
         @Override
         public void preRequest() {
         }
