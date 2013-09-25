@@ -75,7 +75,7 @@ public class BusinessConcept {
     
     private Map<String, String> xpathDerivedSimpleTypeMap;
 
-    private List<String> keyFiledPaths;
+    private List<String> keyFieldPaths;
 
     // TODO: translate it from technique to business logic
     // annotations{label,access rules,foreign keys,workflow,schematron,lookup fields...}
@@ -175,7 +175,7 @@ public class BusinessConcept {
         subReuseTypeMap = new HashMap<String, ReusableType>();
         xpathTypeMap = new HashMap<String, String>();
         xpathDerivedSimpleTypeMap = new HashMap<String, String>();
-        keyFiledPaths = new ArrayList<String>();
+        keyFieldPaths = new ArrayList<String>();
     }
 
     public Map<String, String> getXpathDerivedSimpleTypeMap() {
@@ -279,7 +279,7 @@ public class BusinessConcept {
                                 StringBuilder keyPath = new StringBuilder()
                                         .append(this.getName()).append(prefix).append("/") //$NON-NLS-1$ //$NON-NLS-2$
                                         .append(xsxPath.getXPath().value);
-                                keyFiledPaths.add(keyPath.toString());
+                                keyFieldPaths.add(keyPath.toString());
                             }
                         }
                     }
@@ -390,8 +390,8 @@ public class BusinessConcept {
         }
     }
 
-    public List<String> getKeyFiledPaths() {
-        return keyFiledPaths;
+    public List<String> getKeyFieldPaths() {
+        return keyFieldPaths;
     }
 
 }
