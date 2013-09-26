@@ -338,7 +338,7 @@ public class MetadataUtils {
     }
 
     public static Object convert(String dataAsString, String type) {
-        if (dataAsString.isEmpty()) {
+        if (dataAsString == null || dataAsString.isEmpty()) {
             return null;
         }
         if (Types.STRING.equals(type)) {
