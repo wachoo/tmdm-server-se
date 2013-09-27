@@ -212,6 +212,11 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                 recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_VALIDATE);
                 recordProperties.put(Storage.METADATA_STAGING_ERROR, StringUtils.EMPTY);
                 storage.update(stagingRecord);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Validation success: record id #"
+                            + stagingRecord.get(stagingRecord.getType().getKeyFields().iterator().next())
+                            + " (" + stagingRecord.getType().getName() + ")");
+                }
                 stats.reportSuccess();
             } catch (Exception e) {
                 recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.FAIL_VALIDATE_VALIDATION);
@@ -226,6 +231,11 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                 }
                 recordProperties.put(Storage.METADATA_STAGING_ERROR, exceptionMessages.toString());
                 storage.update(stagingRecord);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Validation failed: record id #"
+                            + stagingRecord.get(stagingRecord.getType().getKeyFields().iterator().next())
+                            + " (" + stagingRecord.getType().getName() + ")");
+                }
                 stats.reportError();
             }
         }

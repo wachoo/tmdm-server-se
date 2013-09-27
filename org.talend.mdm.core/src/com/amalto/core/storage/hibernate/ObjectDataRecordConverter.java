@@ -24,7 +24,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
+
+    private static final Logger LOGGER = Logger.getLogger(ObjectDataRecordConverter.class);
 
     private final StorageClassLoader storageClassLoader;
 
@@ -46,13 +50,14 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
             Class<?> mainInstanceClass = storageClassLoader.findClass(mapping.getDatabase().getName());
             // Try to load existing instance (if any).
             Wrapper mainInstance = null;
+            Serializable id = null;
             try {
                 Collection<FieldMetadata> keyFields = dataRecord.getType().getKeyFields();
                 if (keyFields.size() == 0) {
                     throw new IllegalArgumentException("Type '" + dataRecord.getType().getName() + "' does not define any key field.");
                 } else if (keyFields.size() == 1) {
                     String keyFieldName = keyFields.iterator().next().getName();
-                    Serializable id = (Serializable) dataRecord.get(keyFieldName);
+                    id = (Serializable) dataRecord.get(keyFieldName);
                     if (id == null) {
                         throw new IllegalArgumentException("Instance of type '" + dataRecord.getType().getName() + "' does not have value for '" + keyFieldName + "'.");
                     }
@@ -62,9 +67,13 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
                     for (FieldMetadata keyField : keyFields) {
                         compositeIdValues.add(MetadataUtils.convert(String.valueOf(dataRecord.get(keyField)), mapping.getDatabase(keyField)));
                     }
-                    mainInstance = (Wrapper) session.get(mainInstanceClass, createCompositeId(storageClassLoader, mainInstanceClass, compositeIdValues));
+                    id = createCompositeId(storageClassLoader, mainInstanceClass, compositeIdValues);
+                    mainInstance = (Wrapper) session.get(mainInstanceClass, id);
                 }
             } catch (ObjectNotFoundException e) {
+                if (id != null && LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Could not find instance with id '" + id + "' in current session. Consider it as a creation.");
+                }
                 // Ignored (means a new instance is required).
             }
             boolean needNewInstance = mainInstance == null;

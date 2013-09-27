@@ -69,10 +69,10 @@ class ScatteredTypeMapping extends TypeMapping {
                 }
                 ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) mappedDatabaseField;
                 if (!field.isMany()) {
-                    DataRecord containedRecord = (DataRecord) readValue(from, field, mappedDatabaseField, session);
-                    if (containedRecord != null) {
-                        TypeMapping mappingFromUser = mappings.getMappingFromUser(containedRecord.getType());
-                        ComplexTypeMetadata referencedType = mappingFromUser != null ? mappingFromUser.getDatabase() : containedRecord.getType();
+                    DataRecord referencedObject = (DataRecord) readValue(from, field, mappedDatabaseField, session);
+                    if (referencedObject != null) {
+                        TypeMapping mappingFromUser = mappings.getMappingFromUser(referencedObject.getType());
+                        ComplexTypeMetadata referencedType = mappingFromUser != null ? mappingFromUser.getDatabase() : referencedObject.getType();
                         Wrapper existingValue = (Wrapper) to.get(referenceFieldMetadata.getName());
                         boolean needCreate = existingValue == null;
                         if (!needCreate) {
@@ -80,7 +80,7 @@ class ScatteredTypeMapping extends TypeMapping {
                             needCreate = !existingType.equals(referencedType);
                         }
                         Wrapper object = needCreate ? createObject(contextClassLoader, referencedType) : existingValue;
-                        to.set(referenceFieldMetadata.getName(), _setValues(session, containedRecord, object));
+                        to.set(referenceFieldMetadata.getName(), _setValues(session, referencedObject, object));
                         if (needCreate) {
                             session.persist(object);
                         }

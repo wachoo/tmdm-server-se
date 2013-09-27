@@ -65,7 +65,7 @@ class HibernateStorageTransaction extends StorageTransaction {
         if (isAutonomous) {
             Transaction transaction = session.getTransaction();
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("[" + this + "] Transaction #" + transaction.hashCode() + " -> Commit "
+                LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Commit "
                         + session.getStatistics().getEntityCount() + " record(s).");
             }
             if (!transaction.isActive()) {
@@ -75,7 +75,7 @@ class HibernateStorageTransaction extends StorageTransaction {
                 if (!transaction.wasCommitted()) {
                     transaction.commit();
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("[" + this + "] Transaction #" + transaction.hashCode() + " -> Commit done.");
+                        LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Commit done.");
                     }
                 } else {
                     LOGGER.warn("Transaction was already committed.");

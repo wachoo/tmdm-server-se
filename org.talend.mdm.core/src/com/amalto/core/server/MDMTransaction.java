@@ -53,10 +53,16 @@ class MDMTransaction implements Transaction {
 
     @Override
     public void commit() {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Commit.");
+        }
         try {
             Collection<StorageTransaction> values = new ArrayList<StorageTransaction>(storageTransactions.values());
             for (StorageTransaction storageTransaction : values) {
                 storageTransaction.autonomous().commit();
+            }
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Commit done.");
             }
         } finally {
             transactionComplete();
@@ -65,10 +71,16 @@ class MDMTransaction implements Transaction {
 
     @Override
     public void rollback() {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Rollback. ");
+        }
         try {
             Collection<StorageTransaction> values = new ArrayList<StorageTransaction>(storageTransactions.values());
             for (StorageTransaction storageTransaction : values) {
                 storageTransaction.autonomous().rollback();
+            }
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Rollback done.");
             }
         } finally {
             transactionComplete();
