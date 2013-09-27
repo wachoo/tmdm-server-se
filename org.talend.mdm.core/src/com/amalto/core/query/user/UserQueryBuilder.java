@@ -329,6 +329,7 @@ public class UserQueryBuilder {
         return new UserQueryBuilder(select);
     }
 
+    // TODO This declaration allows user to set where clauses on a native query: but where clause won't be processed in this case
     public static UserQueryBuilder from(String nativeQuery) {
         NativeQuery select = new NativeQuery(nativeQuery);
         return new UserQueryBuilder(select);
