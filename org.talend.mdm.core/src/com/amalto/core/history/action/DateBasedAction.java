@@ -12,7 +12,6 @@
 package com.amalto.core.history.action;
 
 import com.amalto.core.history.Action;
-import com.amalto.core.history.FieldAction;
 import com.amalto.core.history.MutableDocument;
 import org.apache.commons.lang.NotImplementedException;
 
@@ -44,7 +43,7 @@ public class DateBasedAction implements Action {
         return new DateBasedAction(left, right, Type.MOST_RECENT);
     }
 
-    public static Action leastRecent(FieldAction left, FieldAction right) {
+    public static Action leastRecent(Action left, Action right) {
         return new DateBasedAction(left, right, Type.LEAST_RECENT);
     }
 

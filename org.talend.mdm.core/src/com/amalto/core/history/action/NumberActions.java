@@ -12,7 +12,6 @@
 package com.amalto.core.history.action;
 
 import com.amalto.core.history.Action;
-import org.apache.commons.lang.NotImplementedException;
 
 public class NumberActions {
 
@@ -38,13 +37,5 @@ public class NumberActions {
         } else {
             return NoOpAction.instance();
         }
-    }
-
-    public static Action mean(FieldUpdateAction action) {
-        throw new NotImplementedException();
-    }
-
-    public static Action sum(FieldUpdateAction action) {
-        throw new NotImplementedException();
     }
 }
