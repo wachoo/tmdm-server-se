@@ -469,6 +469,17 @@ public class MetadataValidationTest extends TestCase {
         assertFalse(handler.getLineNumbers().contains(null));
     }
 
+    public void testXSDAttributeWarning() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("xsd_attributes.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        repository.load(resourceAsStream, handler);
+        assertEquals(1, handler.getWarningCount());
+        assertTrue(handler.getMessages().contains(ValidationError.TYPE_USE_XSD_ATTRIBUTES));
+        assertTrue(handler.getLineNumbers().contains(94));
+        assertFalse(handler.getLineNumbers().contains(null));
+    }
+
     private static class TestValidationHandler implements ValidationHandler {
 
         private int errorField;
