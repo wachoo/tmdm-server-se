@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
@@ -346,8 +347,11 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
             ButtonEvent buttonEvent = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
             ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, buttonEvent);
         } else {
-            MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                    MultilanguageMessageParser.pickOutISOMessage(extractErrorMessage(result)), null);
+            String errorMsg = MultilanguageMessageParser.pickOutISOMessage(extractErrorMessage(result));
+            if (errorMsg == null || errorMsg.length() == 0 || errorMsg.equals("<f></f>")) { //$NON-NLS-1$
+                errorMsg = BaseMessagesFactory.getMessages().unknown_error();
+            }
+            MessageBox.alert(MessagesFactory.getMessages().error_title(), errorMsg, null);
         }
     }
 
