@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -165,6 +165,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         file.setFieldLabel(MessagesFactory.getMessages().label_field_file());
         file.addListener(Events.Change, new Listener<BaseEvent>() {
 
+            @Override
             public void handleEvent(BaseEvent be) {
                 type = FileUtil.getFileType(file.getValue());
                 if (type.equalsIgnoreCase("CSV")) { //$NON-NLS-1$
@@ -274,7 +275,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         encodingList.add(iso88591);
 
         ItemBaseModel iso885915 = new ItemBaseModel();
-        iso885915.set("label", "iso885915"); //$NON-NLS-1$ //$NON-NLS-2$
+        iso885915.set("label", "ISO-8859-15"); //$NON-NLS-1$ //$NON-NLS-2$
         iso885915.set("key", "iso-8859-15"); //$NON-NLS-1$ //$NON-NLS-2$
         encodingList.add(iso885915);
 
@@ -333,6 +334,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         this.addListener(Events.Submit, this);
     }
 
+    @Override
     public void handleEvent(FormEvent be) {
         String result = be.getResultHtml().replace("pre>", "f>"); //$NON-NLS-1$//$NON-NLS-2$
 
