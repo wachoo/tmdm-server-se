@@ -19,12 +19,12 @@ import com.amalto.core.save.context.SaverSource;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class SaverSession {
 
@@ -34,7 +34,7 @@ public class SaverSession {
 
     private final SaverContextFactory contextFactory = new SaverContextFactory();
 
-    private final Map<String, Set<Document>> itemsPerDataCluster = new HashMap<String, Set<Document>>();
+    private final Map<String, List<Document>> itemsPerDataCluster = new HashMap<String, List<Document>>();
 
     private final SaverSource dataSource;
 
@@ -110,7 +110,7 @@ public class SaverSession {
         synchronized (itemsPerDataCluster) {
             committer.begin(dataCluster);
             if (!itemsPerDataCluster.containsKey(dataCluster)) {
-                itemsPerDataCluster.put(dataCluster, new HashSet<Document>());
+                itemsPerDataCluster.put(dataCluster, new ArrayList<Document>());
             }
         }
     }
@@ -131,7 +131,7 @@ public class SaverSession {
         synchronized (itemsPerDataCluster) {
             SaverSource saverSource = getSaverSource();
             boolean needResetAutoIncrement = false;
-            for (Map.Entry<String, Set<Document>> currentTransaction : itemsPerDataCluster.entrySet()) {
+            for (Map.Entry<String, List<Document>> currentTransaction : itemsPerDataCluster.entrySet()) {
                 String dataCluster = currentTransaction.getKey();
                 committer.begin(dataCluster);
                 Iterator<Document> iterator = currentTransaction.getValue().iterator();
@@ -150,7 +150,7 @@ public class SaverSession {
                 committer.commit(dataCluster);
             }
             // If any change was made to data cluster "UpdateReport", route committed update reports.
-            Set<Document> updateReport = itemsPerDataCluster.get(XSystemObjects.DC_UPDATE_PREPORT.getName());
+            List<Document> updateReport = itemsPerDataCluster.get(XSystemObjects.DC_UPDATE_PREPORT.getName());
             if (updateReport != null) {
                 Iterator<Document> iterator = updateReport.iterator();
                 while (iterator.hasNext()) {
@@ -211,9 +211,9 @@ public class SaverSession {
             if (!this.hasMetAutoIncrement) {
                 this.hasMetAutoIncrement = hasMetAutoIncrement;
             }
-            Set<Document> documentsToSave = itemsPerDataCluster.get(dataCluster);
+            List<Document> documentsToSave = itemsPerDataCluster.get(dataCluster);
             if (documentsToSave == null) {
-                documentsToSave = new HashSet<Document>();
+                documentsToSave = new ArrayList<Document>();
                 itemsPerDataCluster.put(dataCluster, documentsToSave);
             }
             documentsToSave.add(document);
@@ -241,7 +241,7 @@ public class SaverSession {
      */
     public void abort(Committer committer) {
         synchronized (itemsPerDataCluster) {
-            for (Map.Entry<String, Set<Document>> currentTransaction : itemsPerDataCluster.entrySet()) {
+            for (Map.Entry<String, List<Document>> currentTransaction : itemsPerDataCluster.entrySet()) {
                 String dataCluster = currentTransaction.getKey();
                 committer.rollback(dataCluster);
             }
