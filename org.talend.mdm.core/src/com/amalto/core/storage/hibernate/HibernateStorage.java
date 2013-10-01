@@ -591,26 +591,30 @@ public class HibernateStorage implements Storage {
         assertPrepared();
         isMDMTransaction.remove();
         Session session = factory.getCurrentSession();
-        Transaction transaction = session.getTransaction();
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("[" + this + "] Transaction #" + transaction.hashCode() + " -> Commit "
-                    + session.getStatistics().getEntityCount() + " record(s).");
-        }
-        if (!transaction.isActive()) {
-            throw new IllegalStateException("Can not commit transaction, no transaction is active.");
-        }
         try {
-            if (!transaction.wasCommitted()) {
-                transaction.commit();
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[" + this + "] Transaction #" + transaction.hashCode() + " -> Commit done.");
-                }
-            } else {
-                LOGGER.warn("Transaction was already committed.");
+            Transaction transaction = session.getTransaction();
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[" + this + "] Transaction #" + transaction.hashCode() + " -> Commit "
+                        + session.getStatistics().getEntityCount() + " record(s).");
             }
-        } catch (ConstraintViolationException e) {
-            throw new com.amalto.core.storage.exception.ConstraintViolationException(e);
-        }
+            if (!transaction.isActive()) {
+                throw new IllegalStateException("Can not commit transaction, no transaction is active.");
+            }
+            try {
+                if (!transaction.wasCommitted()) {
+                    transaction.commit();
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("[" + this + "] Transaction #" + transaction.hashCode() + " -> Commit done.");
+                    }
+                } else {
+                    LOGGER.warn("Transaction was already committed.");
+                }
+            } catch (ConstraintViolationException e) {
+                throw new com.amalto.core.storage.exception.ConstraintViolationException(e);
+            }
+	} finally {
+            session.clear(); // TMDM-6192: Evicts cache in case session is reused without being closed.
+	}
     }
 
     @Override
