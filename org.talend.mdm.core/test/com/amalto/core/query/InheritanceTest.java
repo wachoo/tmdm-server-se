@@ -87,7 +87,7 @@ public class InheritanceTest extends StorageTestCase {
         // New order following XML schema library
         String[] expectedOrder = {"Group", "Persons", "Employee", "Update", "SS", "Country", "Address", "Supplier", "B",
                 "D", "A", "C", "Person", "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "ProductFamily",
-                "TypeA", "ff", "E1", "E2", "Manager", "Store", "Product", "a2", "a1" };
+                "TypeA", "ff", "E1", "E2", "Concurrent", "Manager", "Store", "Product", "a2", "a1" };
         int i = 0;
         for (ComplexTypeMetadata sortedType : sortedList) {
             assertEquals(expectedOrder[i++], sortedType.getName());

@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
@@ -47,6 +48,8 @@ class IdQueryHandler extends AbstractQueryHandler {
         }
     };
 
+    private static final Logger LOGGER = Logger.getLogger(IdQueryHandler.class);
+
     private Object idValue;
 
     private final MappingRepository mappings;
@@ -73,10 +76,13 @@ class IdQueryHandler extends AbstractQueryHandler {
         }
         ComplexTypeMetadata mainType = select.getTypes().get(0);
         String className = ClassCreator.getClassName(mainType.getName());
-        if (!session.getTransaction().isActive()) {
-            session.getTransaction().begin();
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Calling get()...");
         }
         Wrapper loadedObject = (Wrapper) session.get(className, (Serializable) idValue);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("get() returned '" + loadedObject + "'");
+        }
         if (loadedObject == null) {
             return noResult(select);
         } else {

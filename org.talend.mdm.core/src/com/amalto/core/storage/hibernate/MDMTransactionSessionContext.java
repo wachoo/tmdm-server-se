@@ -14,6 +14,7 @@ package com.amalto.core.storage.hibernate;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.transaction.Transaction;
 import com.amalto.core.storage.transaction.TransactionManager;
+import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
@@ -26,6 +27,8 @@ import java.util.Map;
 public class MDMTransactionSessionContext implements CurrentSessionContext {
 
     private final static Map<SessionFactory, HibernateStorage> declaredStorages = new HashMap<SessionFactory, HibernateStorage>();
+
+    private static final Logger LOGGER = Logger.getLogger(MDMTransactionSessionContext.class);
 
     private final SessionFactoryImplementor factory;
 
@@ -41,6 +44,10 @@ public class MDMTransactionSessionContext implements CurrentSessionContext {
 
     @Override
     public Session currentSession() throws HibernateException {
+        if (LOGGER.isDebugEnabled()) {
+            long openCount = factory.getStatistics().getSessionOpenCount();
+            LOGGER.debug("Currently open session count: " + openCount);
+        }
         synchronized (declaredStorages) {
             TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
             Transaction transaction = transactionManager.currentTransaction();

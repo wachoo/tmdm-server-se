@@ -54,6 +54,9 @@ class HibernateStorageTransaction extends StorageTransaction {
     @Override
     public void begin() {
         Transaction transaction = session.getTransaction();
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Transaction begin (session " + session.hashCode() + ")");
+        }
         if (!transaction.isActive()) {
             session.beginTransaction();
             session.setFlushMode(FlushMode.AUTO);
@@ -64,35 +67,48 @@ class HibernateStorageTransaction extends StorageTransaction {
     public void commit() {
         if (isAutonomous) {
             Transaction transaction = session.getTransaction();
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Commit "
-                        + session.getStatistics().getEntityCount() + " record(s).");
-            }
-            if (!transaction.isActive()) {
-                throw new IllegalStateException("Can not commit transaction, no transaction is active.");
-            }
-            try {
-                if (!transaction.wasCommitted()) {
-                    transaction.commit();
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Commit done.");
+            if (!session.isDirty()) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> No change to commit.");
+                }
+            } else {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Committing "
+                            + session.getStatistics().getEntityCount() + " record(s)...");
+                }
+                if (!transaction.isActive()) {
+                    throw new IllegalStateException("Can not commit transaction, no transaction is active.");
+                }
+                try {
+                    if (!transaction.wasCommitted()) {
+                        transaction.commit();
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Commit done.");
+                        }
+                    } else {
+                        LOGGER.warn("Transaction was already committed.");
                     }
-                } else {
-                    LOGGER.warn("Transaction was already committed.");
-                }
-            } catch (Exception e) {
-                if (LOGGER.isInfoEnabled()) {
-                    LOGGER.info("Transaction failed, dumps transaction content for diagnostic.");
-                    dumpTransactionContent(session, storage); // Dumps all the faulty session information.
-                }
-                if (e instanceof org.hibernate.exception.ConstraintViolationException) {
-                    throw new ConstraintViolationException(e);
-                } else {
-                    throw new RuntimeException(e);
+                } catch (Exception e) {
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("Transaction failed, dumps transaction content for diagnostic.");
+                        dumpTransactionContent(session, storage); // Dumps all the faulty session information.
+                    }
+                    if (e instanceof org.hibernate.exception.ConstraintViolationException) {
+                        throw new ConstraintViolationException(e);
+                    } else {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
             super.commit();
             if (session.isOpen()) {
+                /*
+                 * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the session
+                 * is reused.
+                 */
+                if (session.getStatistics().getEntityKeys().size() > 0) {
+                    session.clear();
+                }
                 session.close();
             }
         }
@@ -105,8 +121,7 @@ class HibernateStorageTransaction extends StorageTransaction {
      * @param storage A {@link com.amalto.core.storage.hibernate.HibernateStorage} that can be used to retrieve metadata information for all objects in
      *                <code>session</code>.
      */
-    private static void dumpTransactionContent(Session session,
-                                               HibernateStorage storage) {
+    private static void dumpTransactionContent(Session session, HibernateStorage storage) {
         Level currentLevel = Level.INFO;
         if (LOGGER.isEnabledFor(currentLevel)) {
             Set<EntityKey> failedKeys = session.getStatistics().getEntityKeys();
@@ -182,6 +197,13 @@ class HibernateStorageTransaction extends StorageTransaction {
                 }
             } finally {
                 super.rollback();
+                /*
+                 * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the session
+                 * is reused.
+                 */
+                if (session.getStatistics().getEntityKeys().size() > 0) {
+                    session.clear();
+                }
                 session.close();
             }
         }

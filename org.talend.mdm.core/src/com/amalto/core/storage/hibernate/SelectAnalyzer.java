@@ -120,7 +120,7 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
             ConditionChecks.Result result = condition.accept(conditionChecks);
             if (result.id && !select.isProjection()) { // TMDM-5965: IdQueryHandler has trouble with projections using reusable type's elements.
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Using \"get by id\" strategy");
+                    LOGGER.debug("Using \"get by id\" strategy (with id '" + result.id + "')");
                 }
                 return new IdQueryHandler(storage, mappings, storageClassLoader, session, select, this.selectedFields, callbacks);
             }
