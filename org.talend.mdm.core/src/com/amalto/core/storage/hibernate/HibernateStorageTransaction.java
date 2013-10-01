@@ -178,8 +178,12 @@ class HibernateStorageTransaction extends StorageTransaction {
     @Override
     public void rollback() {
         if (isAutonomous) {
-            try {
-                Transaction transaction = session.getTransaction();
+            Transaction transaction = session.getTransaction();
+            if (!session.isDirty()) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> No change to rollback.");
+                }
+            } else {
                 if (!transaction.isActive()) {
                     LOGGER.warn("Can not rollback transaction, no transaction is active.");
                     return;
@@ -189,23 +193,21 @@ class HibernateStorageTransaction extends StorageTransaction {
                         dumpTransactionContent(session, storage); // Dumps all content in the current transaction.
                     }
                 }
-                session.clear();
                 if (!transaction.wasRolledBack()) {
                     transaction.rollback();
                 } else {
                     LOGGER.warn("Transaction was already rollbacked.");
                 }
-            } finally {
-                super.rollback();
-                /*
-                 * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the session
-                 * is reused.
-                 */
-                if (session.getStatistics().getEntityKeys().size() > 0) {
-                    session.clear();
-                }
-                session.close();
             }
+            super.rollback();
+            /*
+             * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the session
+             * is reused.
+             */
+            if (session.getStatistics().getEntityKeys().size() > 0) {
+                session.clear();
+            }
+            session.close();
         }
     }
 
