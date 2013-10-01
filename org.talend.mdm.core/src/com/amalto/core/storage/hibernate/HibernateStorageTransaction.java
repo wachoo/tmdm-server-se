@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.hibernate.FlushMode;
+import org.hibernate.HibernateException;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
@@ -178,36 +179,43 @@ class HibernateStorageTransaction extends StorageTransaction {
     @Override
     public void rollback() {
         if (isAutonomous) {
-            Transaction transaction = session.getTransaction();
-            if (!session.isDirty()) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> No change to rollback.");
-                }
-            } else {
+            try {
+                Transaction transaction = session.getTransaction();
                 if (!transaction.isActive()) {
                     LOGGER.warn("Can not rollback transaction, no transaction is active.");
                     return;
                 } else {
-                    if (LOGGER.isInfoEnabled()) {
+                    boolean dirty;
+                    try {
+                        dirty = session.isDirty();
+                    } catch (HibernateException e) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Is dirty check during rollback threw exception.", e);
+                        }
+                        dirty = true; // Consider session is dirty (exception might occur when there's an integrity issue).
+                    }
+                    if (LOGGER.isInfoEnabled() && dirty) {
                         LOGGER.info("Transaction is being rollbacked. Transaction content:");
                         dumpTransactionContent(session, storage); // Dumps all content in the current transaction.
                     }
                 }
+                session.clear();
                 if (!transaction.wasRolledBack()) {
                     transaction.rollback();
                 } else {
                     LOGGER.warn("Transaction was already rollbacked.");
                 }
+            } finally {
+                super.rollback();
+                /*
+                 * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the session
+                 * is reused.
+                 */
+                if (session.getStatistics().getEntityKeys().size() > 0) {
+                    session.clear();
+                }
+                session.close();
             }
-            super.rollback();
-            /*
-             * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the session
-             * is reused.
-             */
-            if (session.getStatistics().getEntityKeys().size() > 0) {
-                session.clear();
-            }
-            session.close();
         }
     }
 
