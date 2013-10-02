@@ -739,6 +739,9 @@ public class MetadataUtils {
     }
 
     public static String toString(Object o, FieldMetadata field) {
+        if (o == null) {
+            return null;
+        }
         String typeName = field.getType().getName();
         if (Types.DATE.equals(typeName)) {
             synchronized (DateConstant.DATE_FORMAT) {
@@ -746,7 +749,7 @@ public class MetadataUtils {
                     DateFormat dateFormat = DateConstant.DATE_FORMAT;
                     return dateFormat.format(o);
                 } catch (Exception e) {
-                    throw new RuntimeException("Could not parse date time string", e);
+                    throw new RuntimeException("Could not parse date '" + o + "'.", e);
                 }
             }
         } else if (Types.DATETIME.equals(typeName)) {
@@ -755,7 +758,7 @@ public class MetadataUtils {
                     DateFormat dateFormat = DateTimeConstant.DATE_FORMAT;
                     return dateFormat.format(o);
                 } catch (Exception e) {
-                    throw new RuntimeException("Could not parse date time string", e);
+                    throw new RuntimeException("Could not parse date time '" + o + "'.", e);
                 }
             }
         } else if (Types.TIME.equals(typeName)) {
@@ -764,7 +767,7 @@ public class MetadataUtils {
                     DateFormat dateFormat = TimeConstant.TIME_FORMAT;
                     return dateFormat.format(o);
                 } catch (Exception e) {
-                    throw new RuntimeException("Could not parse date time string", e);
+                    throw new RuntimeException("Could not parse time '" + o + "'.", e);
                 }
             }
         } else {
