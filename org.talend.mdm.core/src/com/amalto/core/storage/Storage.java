@@ -178,8 +178,17 @@ public interface Storage {
      * @param userQuery A {@link com.amalto.core.query.user.Select} instance.
      * @throws IllegalArgumentException If <code>userQuery</code> does not match any document in storage.
      * @see com.amalto.core.query.user.UserQueryBuilder
+     * @see #delete(com.amalto.core.storage.record.DataRecord)
      */
     void delete(Expression userQuery);
+
+    /**
+     * Deletes a {@link DataRecord} record using the record instance (no need for a query as in
+     * {@link #delete(com.amalto.core.query.user.Expression)}.
+     * @param record The record to be deleted.
+     * @see #delete(com.amalto.core.query.user.Expression)
+     */
+    void delete(DataRecord record);
 
     /**
      * Performs shutdown actions and internal objects clean up. Calling this method is <b>same</b> as calling

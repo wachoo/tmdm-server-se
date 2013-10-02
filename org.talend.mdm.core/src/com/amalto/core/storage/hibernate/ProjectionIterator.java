@@ -32,14 +32,14 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
 
     private final List<TypedExpression> selectedFields;
 
-    private final Set<EndOfResultsCallback> callbacks;
+    private final Set<ResultsCallback> callbacks;
 
     private final MappingRepository mappingMetadataRepository;
 
     public ProjectionIterator(MappingRepository mappingMetadataRepository,
                               Iterator<Object> iterator,
                               List<TypedExpression> selectedFields,
-                              Set<EndOfResultsCallback> callbacks) {
+                              Set<ResultsCallback> callbacks) {
         this.iterator = iterator;
         this.selectedFields = selectedFields;
         this.callbacks = callbacks;
@@ -49,13 +49,22 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
     public ProjectionIterator(MappingRepository mappingMetadataRepository,
                               final ScrollableResults results,
                               List<TypedExpression> selectedFields,
-                              Set<EndOfResultsCallback> callbacks) {
+                              final Set<ResultsCallback> callbacks) {
         this(mappingMetadataRepository, new Iterator<Object>() {
+
+            private boolean firstNextCall = true;
+
             public boolean hasNext() {
                 return results.next();
             }
 
             public Object next() {
+                if (firstNextCall) {
+                    for (ResultsCallback callback : callbacks) {
+                        callback.onBeginOfResults();
+                    }
+                    firstNextCall = false;
+                }
                 return results.get();
             }
 
@@ -73,7 +82,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
     }
 
     private void notifyCallbacks() {
-        for (EndOfResultsCallback callback : callbacks) {
+        for (ResultsCallback callback : callbacks) {
             try {
                 callback.onEndOfResults();
             } catch (Throwable t) {

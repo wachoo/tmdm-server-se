@@ -42,7 +42,7 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
 
     private final Session session;
 
-    private final Set<EndOfResultsCallback> callbacks;
+    private final Set<ResultsCallback> callbacks;
 
     private final Storage storage;
 
@@ -57,7 +57,7 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
     SelectAnalyzer(MappingRepository mappings,
                    StorageClassLoader storageClassLoader,
                    Session session,
-                   Set<EndOfResultsCallback> callbacks,
+                   Set<ResultsCallback> callbacks,
                    Storage storage,
                    TableResolver resolver) {
         this.mappings = mappings;

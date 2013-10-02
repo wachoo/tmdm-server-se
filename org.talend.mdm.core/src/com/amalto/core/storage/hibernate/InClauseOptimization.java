@@ -55,7 +55,7 @@ public class InClauseOptimization extends StandardQueryHandler {
                                 Session session,
                                 Select select,
                                 List<TypedExpression> selectedFields,
-                                Set<EndOfResultsCallback> callbacks,
+                                Set<ResultsCallback> callbacks,
                                 Mode mode) {
         super(storage, mappings, resolver, storageClassLoader, session, select, selectedFields, callbacks);
         this.mode = mode;

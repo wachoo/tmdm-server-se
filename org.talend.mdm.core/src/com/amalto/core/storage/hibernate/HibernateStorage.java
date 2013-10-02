@@ -466,7 +466,7 @@ public class HibernateStorage implements Storage {
     }
 
     private static boolean isIndexable(TypeMetadata fieldType) {
-        if (Types.MULTI_LINGUAL.equals(fieldType.getName())) { //$NON-NLS-1$
+        if (Types.MULTI_LINGUAL.equals(fieldType.getName())) {
             return false;
         }
         if (fieldType.getData(MetadataRepository.DATA_MAX_LENGTH) != null) {
@@ -557,24 +557,29 @@ public class HibernateStorage implements Storage {
     @Override
     public StorageResults fetch(Expression userQuery) {
         assertPrepared();
-        final ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(storageClassLoader);
+            storageClassLoader.bind(Thread.currentThread());
             if (!ServerContext.INSTANCE.get().getTransactionManager().hasTransaction()) {
                 throw new IllegalStateException("Transaction must be active during fetch operation.");
             }
             Session session = factory.getCurrentSession();
             // Call back closes session once calling code has consumed all results.
-            Set<EndOfResultsCallback> callbacks = Collections.<EndOfResultsCallback>singleton(new EndOfResultsCallback() {
+            Set<ResultsCallback> callbacks = Collections.<ResultsCallback>singleton(new ResultsCallback() {
+                @Override
+                public void onBeginOfResults() {
+                    storageClassLoader.bind(Thread.currentThread());
+                }
+
                 @Override
                 public void onEndOfResults() {
-                    Thread.currentThread().setContextClassLoader(previousClassLoader);
+                    storageClassLoader.unbind(Thread.currentThread());
                 }
             });
             return internalFetch(session, userQuery, callbacks);
         } catch (Exception e) {
-            Thread.currentThread().setContextClassLoader(previousClassLoader);
             throw new RuntimeException("Exception occurred during fetch operation", e);
+        } finally {
+            storageClassLoader.unbind(Thread.currentThread());
         }
     }
 
@@ -586,10 +591,8 @@ public class HibernateStorage implements Storage {
     @Override
     public void update(Iterable<DataRecord> records) {
         assertPrepared();
-        ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(storageClassLoader);
-
+            storageClassLoader.bind(Thread.currentThread());
             Session session = factory.getCurrentSession();
             DataRecordConverter<Object> converter = new ObjectDataRecordConverter(storageClassLoader, session);
             for (DataRecord currentDataRecord : records) {
@@ -632,7 +635,7 @@ public class HibernateStorage implements Storage {
         } catch (Exception e) {
             throw new RuntimeException("Exception occurred during update.", e);
         } finally {
-            Thread.currentThread().setContextClassLoader(previousClassLoader);
+            storageClassLoader.unbind(Thread.currentThread());
         }
     }
 
@@ -742,14 +745,13 @@ public class HibernateStorage implements Storage {
 
     @Override
     public void delete(Expression userQuery) {
-        ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(storageClassLoader);
+            storageClassLoader.bind(Thread.currentThread());
             Session session = factory.getCurrentSession();
             if (userQuery instanceof Select) {
                 ((Select) userQuery).setForUpdate(true);
             }
-            Iterable<DataRecord> records = internalFetch(session, userQuery, Collections.<EndOfResultsCallback>emptySet());
+            Iterable<DataRecord> records = internalFetch(session, userQuery, Collections.<ResultsCallback>emptySet());
             for (DataRecord currentDataRecord : records) {
                 ComplexTypeMetadata currentType = currentDataRecord.getType();
                 TypeMapping mapping = mappingRepository.getMappingFromUser(currentType);
@@ -783,45 +785,80 @@ public class HibernateStorage implements Storage {
         } catch (HibernateException e) {
             throw new RuntimeException(e);
         } finally {
-            Thread.currentThread().setContextClassLoader(previousClassLoader);
+            storageClassLoader.unbind(Thread.currentThread());
+        }
+    }
+
+    @Override
+    public void delete(DataRecord record) {
+        try {
+            storageClassLoader.bind(Thread.currentThread());
+            Session session = factory.getCurrentSession();
+            ComplexTypeMetadata currentType = record.getType();
+            TypeMapping mapping = mappingRepository.getMappingFromUser(currentType);
+            if (mapping == null) {
+                throw new IllegalArgumentException("Type '" + currentType.getName() + "' does not have a database mapping.");
+            }
+            Class<?> clazz = storageClassLoader.getClassFromType(mapping.getDatabase());
+
+            Serializable idValue;
+            Collection<FieldMetadata> keyFields = currentType.getKeyFields();
+            if (keyFields.size() == 1) {
+                idValue = (Serializable) record.get(keyFields.iterator().next());
+            } else {
+                List<Object> compositeIdValues = new LinkedList<Object>();
+                for (FieldMetadata keyField : keyFields) {
+                    compositeIdValues.add(record.get(keyField));
+                }
+                idValue = ObjectDataRecordConverter.createCompositeId(storageClassLoader, clazz, compositeIdValues);
+            }
+
+            Wrapper object = (Wrapper) session.get(clazz, idValue, LockOptions.READ);
+            if (object != null) {
+                session.delete(object);
+            } else {
+                LOGGER.warn("Instance of type '" + currentType.getName() + "' and ID '" + idValue.toString()
+                        + "' has already been deleted within same transaction.");
+            }
+        } catch (ConstraintViolationException e) {
+            throw new com.amalto.core.storage.exception.ConstraintViolationException(e);
+        } catch (HibernateException e) {
+            throw new RuntimeException(e);
+        } finally {
+            storageClassLoader.unbind(Thread.currentThread());
         }
     }
 
     @Override
     public synchronized void close() {
         LOGGER.info("Closing storage '" + storageName + "' (" + storageType + ").");
-        ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
-        if (previousClassLoader instanceof StorageClassLoader) { // TMDM-5934: Prevent restoring a closed classloader.
-            previousClassLoader = previousClassLoader.getParent();
-        }
         try {
-            Thread.currentThread().setContextClassLoader(storageClassLoader);
+            if (storageClassLoader != null) {
+                storageClassLoader.bind(Thread.currentThread());
+            }
+            // Hack to prevent Hibernate Search to cause ConcurrentModificationException
             try {
-                // Hack to prevent Hibernate Search to cause ConcurrentModificationException
-                try {
-                    Field contexts = ContextHolder.class.getDeclaredField("contexts"); //$NON-NLS-1$
-                    contexts.setAccessible(true); // 'contexts' field is private.
-                    ThreadLocal<WeakHashMap<Configuration, SearchFactoryImpl>> contextsPerThread = (ThreadLocal<WeakHashMap<Configuration, SearchFactoryImpl>>) contexts
-                            .get(null);
-                    WeakHashMap<Configuration, SearchFactoryImpl> contextMap = contextsPerThread.get();
-                    if (contextMap != null) {
-                        contextMap.remove(configuration);
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("Exception occurred during Hibernate Search clean up.", e);
+                Field contexts = ContextHolder.class.getDeclaredField("contexts"); //$NON-NLS-1$
+                contexts.setAccessible(true); // 'contexts' field is private.
+                ThreadLocal<WeakHashMap<Configuration, SearchFactoryImpl>> contextsPerThread = (ThreadLocal<WeakHashMap<Configuration, SearchFactoryImpl>>) contexts
+                        .get(null);
+                WeakHashMap<Configuration, SearchFactoryImpl> contextMap = contextsPerThread.get();
+                if (contextMap != null) {
+                    contextMap.remove(configuration);
                 }
-                if (factory != null) {
-                    factory.close();
-                    factory = null; // SessionFactory#close() documentation advises to remove all references to SessionFactory.
-                }
-            } finally {
-                if (storageClassLoader != null) {
-                    storageClassLoader.close();
-                    storageClassLoader = null;
-                }
+            } catch (Exception e) {
+                LOGGER.error("Exception occurred during Hibernate Search clean up.", e);
+            }
+            if (factory != null) {
+                factory.close();
+                factory = null; // SessionFactory#close() documentation advises to remove all references to SessionFactory.
             }
         } finally {
-            Thread.currentThread().setContextClassLoader(previousClassLoader);
+            if (storageClassLoader != null) {
+                storageClassLoader.unbind(Thread.currentThread()); // TMDM-5934: Prevent restoring a closed classloader.
+                storageClassLoader.close();
+                storageClassLoader = null;
+            }
         }
         // Reset caches
         ListIterator.resetTypeReaders();
@@ -841,7 +878,7 @@ public class HibernateStorage implements Storage {
         }
     }
 
-    private StorageResults internalFetch(Session session, Expression userQuery, Set<EndOfResultsCallback> callbacks) {
+    private StorageResults internalFetch(Session session, Expression userQuery, Set<ResultsCallback> callbacks) {
         // Always normalize the query to ensure query has expected format.
         Expression expression = userQuery.normalize();
         if (expression instanceof Select) {

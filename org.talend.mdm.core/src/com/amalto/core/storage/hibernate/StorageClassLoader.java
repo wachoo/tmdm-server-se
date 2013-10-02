@@ -202,4 +202,19 @@ public abstract class StorageClassLoader extends ClassLoader {
     public boolean isClosed() {
         return isClosed;
     }
+
+    public void bind(Thread thread) {
+        thread.setContextClassLoader(this);
+    }
+
+    public void unbind(Thread thread) {
+        ClassLoader classLoader = thread.getContextClassLoader();
+        if (classLoader == this) {
+            ClassLoader current = this;
+            while (current instanceof StorageClassLoader) {
+                current = current.getParent();
+            }
+            thread.setContextClassLoader(current);
+        }
+    }
 }

@@ -236,6 +236,10 @@ public class TransactionTest extends TestCase {
         }
 
         @Override
+        public void delete(DataRecord record) {
+        }
+
+        @Override
         public void close() {
         }
 

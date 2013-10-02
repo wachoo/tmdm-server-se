@@ -200,7 +200,7 @@ public class MetadataRepositoryTaskTest extends TestCase {
 
         @Override
         public StorageResults fetch(Expression userQuery) {
-            StorageResults results = new StorageResults() {
+            return new StorageResults() {
 
                 @Override
                 public Iterator<DataRecord> iterator() {
@@ -222,7 +222,6 @@ public class MetadataRepositoryTaskTest extends TestCase {
 
                 }
             };
-            return results;
         }
 
         @Override
@@ -237,6 +236,11 @@ public class MetadataRepositoryTaskTest extends TestCase {
 
         @Override
         public void delete(Expression userQuery) {
+
+        }
+
+        @Override
+        public void delete(DataRecord record) {
 
         }
 

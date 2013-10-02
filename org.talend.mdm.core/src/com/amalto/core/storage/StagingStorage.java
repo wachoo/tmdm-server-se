@@ -117,6 +117,11 @@ public class StagingStorage implements Storage {
     }
 
     @Override
+    public void delete(DataRecord record) {
+        delegate.delete(record);
+    }
+
+    @Override
     public void close() {
         delegate.close();
     }

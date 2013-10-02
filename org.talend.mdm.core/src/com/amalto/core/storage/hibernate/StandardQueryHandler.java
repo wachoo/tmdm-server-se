@@ -69,7 +69,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                                 Session session,
                                 Select select,
                                 List<TypedExpression> selectedFields,
-                                Set<EndOfResultsCallback> callbacks) {
+                                Set<ResultsCallback> callbacks) {
         super(storage, storageClassLoader, session, select, selectedFields, callbacks);
         this.mappings = mappings;
         this.resolver = resolver;

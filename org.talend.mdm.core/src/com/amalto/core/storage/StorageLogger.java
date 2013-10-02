@@ -129,6 +129,11 @@ public class StorageLogger implements Storage {
         }
     }
 
+    @Override
+    public void delete(DataRecord record) {
+        delegate.delete(record);
+    }
+
     public void close() {
         delegate.close();
     }

@@ -35,9 +35,11 @@ class ListIterator implements CloseableIterator<DataRecord> {
 
     private final Iterator iterator;
 
-    private final Set<EndOfResultsCallback> callbacks;
+    private final Set<ResultsCallback> callbacks;
 
-    public ListIterator(MappingRepository storageRepository, StorageClassLoader storageClassLoader, Iterator iterator, Set<EndOfResultsCallback> callbacks) {
+    private boolean firstNextCall = true;
+
+    public ListIterator(MappingRepository storageRepository, StorageClassLoader storageClassLoader, Iterator iterator, Set<ResultsCallback> callbacks) {
         this.storageRepository = storageRepository;
         this.storageClassLoader = storageClassLoader;
         this.iterator = iterator;
@@ -59,6 +61,12 @@ class ListIterator implements CloseableIterator<DataRecord> {
     }
 
     public DataRecord next() {
+        if (firstNextCall) {
+            for (ResultsCallback callback : callbacks) {
+                callback.onBeginOfResults();
+            }
+            firstNextCall = false;
+        }
         Object next;
         try {
             next = iterator.next();
@@ -98,7 +106,7 @@ class ListIterator implements CloseableIterator<DataRecord> {
     }
 
     private void notifyCallbacks() {
-        for (EndOfResultsCallback callback : callbacks) {
+        for (ResultsCallback callback : callbacks) {
             try {
                 callback.onEndOfResults();
             } catch (Throwable t) {

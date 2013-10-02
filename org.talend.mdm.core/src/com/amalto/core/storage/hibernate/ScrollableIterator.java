@@ -33,7 +33,7 @@ class ScrollableIterator implements CloseableIterator<DataRecord> {
 
     private final ScrollableResults results;
 
-    private final Set<EndOfResultsCallback> callbacks;
+    private final Set<ResultsCallback> callbacks;
 
     private final StorageClassLoader storageClassLoader;
 
@@ -43,7 +43,9 @@ class ScrollableIterator implements CloseableIterator<DataRecord> {
 
     private boolean allowNextCall = true;
 
-    public ScrollableIterator(MappingRepository storageRepository, StorageClassLoader storageClassLoader, ScrollableResults results, Set<EndOfResultsCallback> callbacks) {
+    private boolean firstNextCall = true;
+
+    public ScrollableIterator(MappingRepository storageRepository, StorageClassLoader storageClassLoader, ScrollableResults results, Set<ResultsCallback> callbacks) {
         this.storageRepository = storageRepository;
         this.storageClassLoader = storageClassLoader;
         this.results = results;
@@ -72,6 +74,12 @@ class ScrollableIterator implements CloseableIterator<DataRecord> {
     }
 
     public DataRecord next() {
+        if (firstNextCall) {
+            for (ResultsCallback callback : callbacks) {
+                callback.onBeginOfResults();
+            }
+            firstNextCall = false;
+        }
         Object next;
         try {
             if (allowNextCall) {
@@ -120,7 +128,7 @@ class ScrollableIterator implements CloseableIterator<DataRecord> {
     }
 
     private void notifyCallbacks() {
-        for (EndOfResultsCallback callback : callbacks) {
+        for (ResultsCallback callback : callbacks) {
             try {
                 callback.onEndOfResults();
             } catch (Throwable t) {

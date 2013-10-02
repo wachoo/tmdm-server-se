@@ -60,7 +60,7 @@ class IdQueryHandler extends AbstractQueryHandler {
                           Session session,
                           Select select,
                           List<TypedExpression> selectedFields,
-                          Set<EndOfResultsCallback> callbacks) {
+                          Set<ResultsCallback> callbacks) {
         super(storage, storageClassLoader, session, select, selectedFields, callbacks);
         this.mappings = mappings;
     }
@@ -92,8 +92,15 @@ class IdQueryHandler extends AbstractQueryHandler {
                 iterator = new ListIterator(mappings, storageClassLoader, objectIterator, callbacks);
             } else {
                 iterator = new ListIterator(mappings, storageClassLoader, objectIterator, callbacks) {
+                    private boolean firstCall = true;
                     @Override
                     public DataRecord next() {
+                        if (firstCall) {
+                            for (ResultsCallback callback : callbacks) {
+                                callback.onBeginOfResults();
+                            }
+                            firstCall = false;
+                        }
                         DataRecord next = super.next();
                         ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, Storage.PROJECTION_TYPE, false);
                         DataRecord nextRecord = new DataRecord(explicitProjectionType, next.getRecordMetadata());
@@ -101,7 +108,7 @@ class IdQueryHandler extends AbstractQueryHandler {
                         for (TypedExpression selectedField : selectedFields) {
                             selectedField.accept(projectionAdapter);
                         }
-                        for (EndOfResultsCallback callback : callbacks) {
+                        for (ResultsCallback callback : callbacks) {
                             callback.onEndOfResults();
                         }
                         return nextRecord;
@@ -118,7 +125,8 @@ class IdQueryHandler extends AbstractQueryHandler {
     }
 
     private StorageResults noResult(final Select select) {
-        for (EndOfResultsCallback callback : callbacks) {
+        for (ResultsCallback callback : callbacks) {
+            callback.onBeginOfResults();
             callback.onEndOfResults();
         }
         return new HibernateStorageResults(storage, select, IdQueryHandler.EMPTY_ITERATOR) {

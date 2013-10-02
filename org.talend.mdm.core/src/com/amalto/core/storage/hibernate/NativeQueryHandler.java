@@ -41,7 +41,7 @@ class NativeQueryHandler extends AbstractQueryHandler {
 
     private static final Logger LOGGER = Logger.getLogger(NativeQueryHandler.class);
 
-    NativeQueryHandler(Storage storage, StorageClassLoader storageClassLoader, Session session, Set<EndOfResultsCallback> callbacks) {
+    NativeQueryHandler(Storage storage, StorageClassLoader storageClassLoader, Session session, Set<ResultsCallback> callbacks) {
         super(storage, storageClassLoader, session, null, null, callbacks);
     }
 
@@ -87,7 +87,7 @@ class NativeQueryHandler extends AbstractQueryHandler {
 
         private final NativeIterator nativeIterator;
 
-        public NativeQueryStorageResults(List list, Set<EndOfResultsCallback> callbacks) {
+        public NativeQueryStorageResults(List list, Set<ResultsCallback> callbacks) {
             this.list = list;
             this.nativeIterator = new NativeIterator(list.iterator(), callbacks);
         }
@@ -124,9 +124,11 @@ class NativeQueryHandler extends AbstractQueryHandler {
 
         private final Iterator iterator;
 
-        private final Set<EndOfResultsCallback> callbacks;
+        private final Set<ResultsCallback> callbacks;
 
-        public NativeIterator(Iterator iterator, Set<EndOfResultsCallback> callbacks) {
+        private boolean firstNextCall = true;
+
+        public NativeIterator(Iterator iterator, Set<ResultsCallback> callbacks) {
             this.iterator = iterator;
             this.callbacks = callbacks;
         }
@@ -146,6 +148,12 @@ class NativeQueryHandler extends AbstractQueryHandler {
 
         @Override
         public DataRecord next() {
+            if (firstNextCall) {
+                for (ResultsCallback callback : callbacks) {
+                    callback.onBeginOfResults();
+                }
+                firstNextCall = false;
+            }
             ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, Storage.PROJECTION_TYPE, false);
             DataRecord nativeResult = new DataRecord(explicitProjectionType, UnsupportedDataRecordMetadata.INSTANCE);
             Object next = iterator.next();
@@ -177,7 +185,7 @@ class NativeQueryHandler extends AbstractQueryHandler {
 
         @Override
         public void close() throws IOException {
-            for (EndOfResultsCallback callback : callbacks) {
+            for (ResultsCallback callback : callbacks) {
                 try {
                     callback.onEndOfResults();
                 } catch (Throwable t) {

@@ -99,6 +99,11 @@ public class SecuredStorage implements Storage {
         delegate.delete(userQuery);
     }
 
+    @Override
+    public void delete(DataRecord record) {
+        delegate.delete(record);
+    }
+
     public void close() {
         delegate.close();
     }
