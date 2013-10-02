@@ -88,7 +88,7 @@ public class ItemsListPanel4Staging extends ItemsListPanel {
 
             @Override
             public Object render(ItemBean model, String property, ColumnData config, int rowIndex, int colIndex,
-                    ListStore<ItemBean> store, Grid<ItemBean> grid) {
+                    ListStore<ItemBean> store, Grid<ItemBean> aGrid) {
                 com.google.gwt.user.client.ui.Grid g = new com.google.gwt.user.client.ui.Grid(1, 2);
                 g.setCellPadding(0);
                 g.setCellSpacing(0);
@@ -176,9 +176,10 @@ public class ItemsListPanel4Staging extends ItemsListPanel {
                 if (rowIndex != -1) {
                     ItemBean item = grid.getStore().getAt(rowIndex);
                     String error = (String) item.get(item.getConcept() + StagingConstant.STAGING_ERROR);
-                    tip.update(new ToolTipConfig(
-                            "<b>"   + MessagesFactory.getMessages().error() + "</b>:" + ((error == null || error.trim().length() == 0) ? MessagesFactory.getMessages().no_error() : error))); //$NON-NLS-1$ //$NON-NLS-2$ 
-                    tip.showAt(DOM.eventGetCurrentEvent().getClientX() + 6, DOM.eventGetCurrentEvent().getClientY() + 6);
+                    if (error != null && error.trim().length() != 0) {
+                        tip.update(new ToolTipConfig("<b>" + MessagesFactory.getMessages().error() + "</b>:" + error)); //$NON-NLS-1$ //$NON-NLS-2$ 
+                        tip.showAt(DOM.eventGetCurrentEvent().getClientX() + 6, DOM.eventGetCurrentEvent().getClientY() + 6);
+                    }
                 }
             }
         });
