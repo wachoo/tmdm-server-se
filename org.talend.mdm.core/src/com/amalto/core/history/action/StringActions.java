@@ -121,16 +121,19 @@ public class StringActions {
 
         // TODO Duplicated code with org.talend.dataquality.matchmerge -> bad
         public static String getMostCommonValue(Collection<String> values) {
+            if (values.isEmpty()) {
+                return null;
+            }
             String[] strings = values.toArray(new String[values.size()]);
             Arrays.sort(strings); // Sorts items to ensure all similar strings are grouped together
             int occurrenceCount = 1;
             int maxOccurrenceCount = 0;
             String mostCommon = strings[0];
             String previousString = strings[0];
-            for(int i = 1; i < strings.length; i++) {
+            for (int i = 1; i < strings.length; i++) {
                 String current = strings[i];
-                if(!previousString.equals(current)) {
-                    if(occurrenceCount > maxOccurrenceCount) {
+                if (!previousString.equals(current)) {
+                    if (occurrenceCount > maxOccurrenceCount) {
                         mostCommon = current;
                         maxOccurrenceCount = occurrenceCount;
                     }
