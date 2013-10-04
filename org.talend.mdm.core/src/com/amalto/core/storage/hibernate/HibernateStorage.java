@@ -193,7 +193,7 @@ public class HibernateStorage implements Storage {
             throw new RuntimeException("Exception occurred during unsupported features check.", e);
         }
         // Create class loader for storage's dynamically created classes.
-        ClassLoader contextClassLoader = HibernateStorage.class.getClassLoader();
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         Class<? extends StorageClassLoader> clazz;
         try {
             try {
