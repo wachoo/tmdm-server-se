@@ -208,7 +208,7 @@ public class StorageAdminImpl implements StorageAdmin {
                 }
             }
             if (getRegisteredStorage(registeredStorageName, revisionId) != null) {
-                LOGGER.warn("Storage for '" + storageName + "' already exists. It needs to be deleted before it can be recreated.");
+                LOGGER.warn("Storage for '" + storageName + "' already exists. This is probably normal. If you want MDM to recreate it from scratch, delete the container and restart.");
                 return get(storageName, revisionId);
             }
             // Replace all container name, so re-read the configuration.
