@@ -135,6 +135,16 @@ public class StagingTask implements Task {
     }
 
     @Override
+    public boolean hasFailed() {
+        for (Task task : tasks) {
+            if (task.hasFailed()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public int getProcessedRecords() {
         return stats.getErrorCount() + stats.getSuccessCount();
     }
@@ -174,6 +184,10 @@ public class StagingTask implements Task {
                     taskSubmitter.submitAndWait(currentTask);
                 }
                 LOGGER.info("<-- DONE " + task.toString() + " (elapsed time: " + (System.currentTimeMillis() - taskExecTime) + " ms)");
+                if (currentTask.hasFailed()) {
+                    LOGGER.warn("Task '" + currentTask + "' failed: abort staging validation task.");
+                    break;
+                }
             }
             recordExecutionEnd();
         } finally {

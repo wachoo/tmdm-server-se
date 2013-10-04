@@ -12,29 +12,46 @@
 package com.amalto.core.history.action;
 
 import com.amalto.core.history.Action;
+import org.apache.log4j.Logger;
 
 public class NumberActions {
+
+    protected static final Logger LOGGER = Logger.getLogger(NumberActions.class);
 
     public static Action max(FieldUpdateAction action) {
         String newValueAsString = action.getNewValue();
         String oldValueAsString = action.getOldValue();
-        float newValue = newValueAsString.isEmpty() ? Long.MIN_VALUE : Float.parseFloat(newValueAsString);
-        float oldValue = oldValueAsString.isEmpty() ? Long.MIN_VALUE : Float.parseFloat(oldValueAsString);
-        if (newValue > oldValue) {
-            return action;
-        } else {
+        try {
+            float newValue = newValueAsString.isEmpty() ? Long.MIN_VALUE : Float.parseFloat(newValueAsString);
+            float oldValue = oldValueAsString.isEmpty() ? Long.MIN_VALUE : Float.parseFloat(oldValueAsString);
+            if (newValue > oldValue) {
+                return action;
+            } else {
+                return NoOpAction.instance();
+            }
+        } catch (NumberFormatException e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Can't use the field action MAX on '" + action + "'.", e);
+            }
             return NoOpAction.instance();
         }
     }
 
     public static Action min(FieldUpdateAction action) {
-        String newValueAsString = action.getNewValue();
-        String oldValueAsString = action.getOldValue();
-        float newValue = newValueAsString.isEmpty() ? Long.MAX_VALUE : Float.parseFloat(newValueAsString);
-        float oldValue = oldValueAsString.isEmpty() ? Long.MAX_VALUE : Float.parseFloat(oldValueAsString);
-        if (newValue < oldValue) {
-            return action;
-        } else {
+        try {
+            String newValueAsString = action.getNewValue();
+            String oldValueAsString = action.getOldValue();
+            float newValue = newValueAsString.isEmpty() ? Long.MAX_VALUE : Float.parseFloat(newValueAsString);
+            float oldValue = oldValueAsString.isEmpty() ? Long.MAX_VALUE : Float.parseFloat(oldValueAsString);
+            if (newValue < oldValue) {
+                return action;
+            } else {
+                return NoOpAction.instance();
+            }
+        } catch (NumberFormatException e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Can't use the field action MIN on '" + action + "'.", e);
+            }
             return NoOpAction.instance();
         }
     }

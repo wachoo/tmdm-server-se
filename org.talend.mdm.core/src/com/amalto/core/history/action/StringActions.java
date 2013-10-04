@@ -70,10 +70,12 @@ public class StringActions {
 
         @Override
         protected String getNewValue() {
-            if(super.getNewValue().length() >= super.getOldValue().length()) {
-                return super.getNewValue();
+            String newValue = super.getNewValue();
+            String oldValue = super.getOldValue();
+            if(newValue.length() >= oldValue.length()) {
+                return newValue;
             } else {
-                return super.getOldValue();
+                return oldValue;
             }
         }
     }
@@ -91,10 +93,12 @@ public class StringActions {
 
         @Override
         protected String getNewValue() {
-            if(super.getNewValue().length() < super.getOldValue().length()) {
-                return super.getNewValue();
+            String newValue = super.getNewValue();
+            String oldValue = super.getOldValue();
+            if(newValue.length() < oldValue.length()) {
+                return newValue;
             } else {
-                return super.getOldValue();
+                return oldValue;
             }
         }
     }
@@ -132,7 +136,7 @@ public class StringActions {
             String previousString = strings[0];
             for (int i = 1; i < strings.length; i++) {
                 String current = strings[i];
-                if (!previousString.equals(current)) {
+                if (!areEquals(previousString, current)) {
                     if (occurrenceCount > maxOccurrenceCount) {
                         mostCommon = current;
                         maxOccurrenceCount = occurrenceCount;
@@ -144,6 +148,13 @@ public class StringActions {
                 previousString = current;
             }
             return mostCommon;
+        }
+
+        private static boolean areEquals(String previousString, String current) {
+            if (previousString == null) {
+                return current == null;
+            }
+            return previousString.equals(current);
         }
     }
 

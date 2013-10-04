@@ -52,6 +52,8 @@ public class MultiThreadedTask implements Task {
 
     private boolean isFinished;
 
+    private boolean hasFailed;
+
     public MultiThreadedTask(String name,
                              Storage storage,
                              Expression expression,
@@ -97,6 +99,7 @@ public class MultiThreadedTask implements Task {
             }
             isFinished = true;
         } catch (Exception e) {
+            hasFailed = true;
             throw new RuntimeException(e);
         } finally {
             synchronized (executionLock) {
@@ -159,6 +162,11 @@ public class MultiThreadedTask implements Task {
     @Override
     public Condition getDefaultFilter() {
         return UserQueryHelper.NO_OP_CONDITION;
+    }
+
+    @Override
+    public boolean hasFailed() {
+        return hasFailed;
     }
 
     @Override

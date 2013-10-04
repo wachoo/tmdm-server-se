@@ -48,6 +48,8 @@ abstract class MetadataRepositoryTask implements Task {
 
     final Storage storage;
 
+    private boolean hasFailed;
+
     MetadataRepositoryTask(Storage storage,
                            MetadataRepository repository,
                            ClosureExecutionStats stats,
@@ -64,6 +66,7 @@ abstract class MetadataRepositoryTask implements Task {
         try {
             run();
         } catch (Exception e) {
+            hasFailed = true;
             throw new RuntimeException(e);
         }
     }
@@ -167,5 +170,10 @@ abstract class MetadataRepositoryTask implements Task {
     @Override
     public boolean hasFinished() {
         return isCancelled || isFinished;
+    }
+
+    @Override
+    public boolean hasFailed() {
+        return hasFailed;
     }
 }

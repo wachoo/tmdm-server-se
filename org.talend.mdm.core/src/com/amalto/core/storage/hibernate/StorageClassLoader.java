@@ -59,6 +59,8 @@ public abstract class StorageClassLoader extends ClassLoader {
 
     private boolean isClosed;
 
+    private ClassLoader previousClassLoader;
+
     StorageClassLoader(ClassLoader parent,
                        String storageName,
                        RDBMSDataSource.DataSourceDialect dialect,
@@ -204,17 +206,13 @@ public abstract class StorageClassLoader extends ClassLoader {
     }
 
     public void bind(Thread thread) {
+        previousClassLoader = Thread.currentThread().getContextClassLoader();
         thread.setContextClassLoader(this);
     }
 
     public void unbind(Thread thread) {
-        ClassLoader classLoader = thread.getContextClassLoader();
-        if (classLoader == this) {
-            ClassLoader current = this;
-            while (current instanceof StorageClassLoader) {
-                current = current.getParent();
-            }
-            thread.setContextClassLoader(current);
+        if (previousClassLoader != null) {
+            thread.setContextClassLoader(previousClassLoader);
         }
     }
 }

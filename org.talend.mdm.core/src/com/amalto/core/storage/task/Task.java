@@ -79,4 +79,9 @@ public interface Task extends Job, Runnable {
     boolean hasFinished();
 
     Condition getDefaultFilter();
+
+    /**
+     * @return <code>true</code> if the task failed (did not finish without an error), <code>false</code> otherwise.
+     */
+    boolean hasFailed();
 }
