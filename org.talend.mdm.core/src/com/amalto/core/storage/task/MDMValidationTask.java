@@ -61,6 +61,8 @@ public class MDMValidationTask extends MetadataRepositoryTask {
 
     private int recordsCount;
 
+    private boolean hasFailed;
+
     static {
         // staging.validation.updatereport tells whether validation should generate update reports
         String value = MDMConfiguration.getConfiguration().getProperty("staging.validation.updatereport"); //$NON-NLS-1$
@@ -127,6 +129,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             storage.commit();
             transaction.commit();
         } catch (Exception e) {
+            hasFailed = true;
             storage.rollback();
             transaction.rollback();
             throw new RuntimeException(e);
@@ -156,6 +159,11 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                         )
                 )
         );
+    }
+
+    @Override
+    public boolean hasFailed() {
+        return hasFailed;
     }
 
     private class MDMValidationClosure implements Closure {
@@ -234,7 +242,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Validation failed: record id #"
                             + stagingRecord.get(stagingRecord.getType().getKeyFields().iterator().next())
-                            + " (" + stagingRecord.getType().getName() + ")");
+                            + " (" + stagingRecord.getType().getName() + ")", e);
                 }
                 stats.reportError();
             }

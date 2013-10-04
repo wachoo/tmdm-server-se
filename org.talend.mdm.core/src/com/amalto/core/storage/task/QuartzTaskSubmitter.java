@@ -55,10 +55,10 @@ class QuartzTaskSubmitter implements TaskSubmitter {
     @Override
     public void submitAndWait(Task task) {
         SimpleTrigger trigger = new SimpleTrigger(task.getId(), "group");
-        submit(task, trigger);
         try {
+            submit(task, trigger);
             task.waitForCompletion();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Exception occurred during wait for task's end.", e);
         }
     }

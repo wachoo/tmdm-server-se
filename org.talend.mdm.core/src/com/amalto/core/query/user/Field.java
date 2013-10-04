@@ -21,6 +21,9 @@ public class Field implements TypedExpression {
     private final FieldMetadata fieldMetadata;
 
     public Field(FieldMetadata fieldMetadata) {
+        if (fieldMetadata == null) {
+            throw new IllegalArgumentException("Field can not be null.");
+        }
         this.fieldMetadata = fieldMetadata;
     }
 
