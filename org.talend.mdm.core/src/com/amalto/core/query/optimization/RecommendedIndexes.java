@@ -1,6 +1,7 @@
 package com.amalto.core.query.optimization;
 
 import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.metadata.*;
 import org.talend.mdm.commmon.metadata.*;
 
 import java.util.*;

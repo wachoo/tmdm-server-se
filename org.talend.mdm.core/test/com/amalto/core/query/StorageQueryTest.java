@@ -38,6 +38,7 @@ import java.util.Set;
 import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.storage.StorageWrapper;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
@@ -1473,9 +1474,8 @@ public class StorageQueryTest extends StorageTestCase {
         assertTrue(((Compare) condition).getPredicate() == Predicate.EQUALS);
 
         StorageResults results = storage.fetch(qb.getSelect());
-        int expected = 10000;
         for (DataRecord result : results) {
-            assertEquals(expected, result.get("ZipCode"));
+            assertEquals(10000, result.get("ZipCode"));
         }
     }
 

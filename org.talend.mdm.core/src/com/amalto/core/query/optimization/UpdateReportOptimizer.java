@@ -11,6 +11,7 @@
 
 package com.amalto.core.query.optimization;
 
+import com.amalto.core.query.user.metadata.Timestamp;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.TypeMetadata;

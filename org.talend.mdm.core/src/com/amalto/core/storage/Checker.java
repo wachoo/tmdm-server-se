@@ -12,6 +12,7 @@
 package com.amalto.core.storage;
 
 import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.metadata.*;
 
 class Checker extends VisitorAdapter<Boolean> {
 

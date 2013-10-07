@@ -1,5 +1,9 @@
 package com.amalto.core.query.user;
 
+import com.amalto.core.query.user.metadata.StagingError;
+import com.amalto.core.query.user.metadata.StagingSource;
+import com.amalto.core.query.user.metadata.StagingStatus;
+
 public class UserStagingQueryBuilder {
     /**
      * @return A {@link TypedExpression} that represents the staging area status of the record.

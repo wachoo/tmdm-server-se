@@ -11,10 +11,22 @@
 
 package com.amalto.core.query.user;
 
+import com.amalto.core.query.user.metadata.*;
+
 /**
  *
  */
 public interface Visitor<T> {
+
+    T visit(Timestamp timestamp);
+
+    T visit(TaskId taskId);
+
+    T visit(StagingStatus stagingStatus);
+
+    T visit(StagingError stagingError);
+
+    T visit(StagingSource stagingSource);
 
     T visit(Select select);
 
@@ -30,17 +42,7 @@ public interface Visitor<T> {
 
     T visit(Range range);
 
-    T visit(Timestamp timestamp);
-
-    T visit(TaskId taskId);
-
     T visit(Type type);
-
-    T visit(StagingStatus stagingStatus);
-
-    T visit(StagingError stagingError);
-
-    T visit(StagingSource stagingSource);
 
     T visit(Join join);
 
@@ -53,7 +55,7 @@ public interface Visitor<T> {
     T visit(Alias alias);
 
     T visit(Id id);
-    
+
     T visit(StringConstant constant);
 
     T visit(IntegerConstant constant);
@@ -85,7 +87,7 @@ public interface Visitor<T> {
     T visit(Predicate.Equals equals);
 
     T visit(Predicate.Contains contains);
-    
+
     T visit(IsEmpty isEmpty);
 
     T visit(NotIsEmpty notIsEmpty);

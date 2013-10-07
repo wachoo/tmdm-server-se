@@ -11,6 +11,9 @@
 
 package com.amalto.core.query.user;
 
+import com.amalto.core.query.user.metadata.MetadataField;
+import com.amalto.core.query.user.metadata.TaskId;
+import com.amalto.core.query.user.metadata.Timestamp;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -23,26 +26,6 @@ import java.util.List;
  *
  */
 public class UserQueryBuilder {
-
-    public static final String STAGING_STATUS_FIELD = "$staging_status$"; //$NON-NLS-1$
-
-    public static final String STAGING_SOURCE_FIELD = "$staging_source$"; //$NON-NLS-1$
-
-    public static final String STAGING_ERROR_FIELD = "$staging_error$"; //$NON-NLS-1$
-
-    public static final String STAGING_STATUS_ALIAS = "staging_status"; //$NON-NLS-1$
-
-    public static final String STAGING_SOURCE_ALIAS = "staging_source"; //$NON-NLS-1$
-
-    public static final String STAGING_ERROR_ALIAS = "staging_error"; //$NON-NLS-1$
-
-    public static final String TIMESTAMP_FIELD = "../../t"; //$NON-NLS-1$
-
-    public static final String TIMESTAMP_ALIAS = "timestamp"; //$NON-NLS-1$
-
-    public static final String TASK_ID_FIELD = "../../taskId"; //$NON-NLS-1$
-
-    public static final String TASK_ID_ALIAS = "taskId"; //$NON-NLS-1$
 
     public static final String ID_FIELD = "../../i"; //$NON-NLS-1$
 
@@ -374,16 +357,9 @@ public class UserQueryBuilder {
         if (type.hasField(fieldName)) {
             select(type.getField(fieldName));
         } else {
-            if (STAGING_STATUS_FIELD.equals(fieldName)) {
-                select(alias(UserStagingQueryBuilder.status(), STAGING_STATUS_ALIAS));
-            } else if (STAGING_SOURCE_FIELD.equals(fieldName)) {
-                select(alias(UserStagingQueryBuilder.source(), STAGING_SOURCE_ALIAS));
-            } else if (STAGING_ERROR_FIELD.equals(fieldName)) {
-                select(alias(UserStagingQueryBuilder.error(), STAGING_ERROR_ALIAS));
-            } else if (TIMESTAMP_FIELD.equals(fieldName)) {
-                select(alias(timestamp(), TIMESTAMP_ALIAS));
-            } else if (TASK_ID_FIELD.equals(fieldName)) {
-                select(alias(taskId(), TASK_ID_ALIAS));
+            MetadataField metadataField = MetadataField.Factory.getMetadataField(fieldName);
+            if (metadataField != null) {
+                select(metadataField.getProjectionExpression());
             } else if (ID_FIELD.equals(fieldName)) {
                 for (FieldMetadata keyField : type.getKeyFields()) {
                     select(alias(keyField, ID_ALIAS));

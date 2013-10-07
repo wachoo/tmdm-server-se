@@ -12,6 +12,7 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.metadata.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
@@ -248,7 +249,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
 
         public ProjectionElement visit(Timestamp timestamp) {
             if (!isAlias) {
-                createElement(Timestamp.TIMESTAMP_TYPE_NAME, Storage.METADATA_TIMESTAMP);
+                createElement(timestamp.getTypeName(), Storage.METADATA_TIMESTAMP);
             }
             currentElement.value = values[currentIndex++];
             return currentElement;
@@ -256,7 +257,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
 
         public ProjectionElement visit(TaskId taskId) {
             if (!isAlias) {
-                createElement(TaskId.TASK_ID_TYPE_NAME, Storage.METADATA_TASK_ID);
+                createElement(taskId.getTypeName(), Storage.METADATA_TASK_ID);
             }
             currentElement.value = values[currentIndex++];
             return currentElement;

@@ -13,6 +13,8 @@ package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.metadata.TaskId;
+import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.datasource.DataSource;

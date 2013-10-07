@@ -13,6 +13,7 @@ package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.metadata.*;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;

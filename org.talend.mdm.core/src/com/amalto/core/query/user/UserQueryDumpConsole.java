@@ -11,6 +11,7 @@
 
 package com.amalto.core.query.user;
 
+import com.amalto.core.query.user.metadata.*;
 import org.apache.log4j.Level;
 import org.talend.mdm.commmon.metadata.*;
 import org.apache.log4j.Logger;
@@ -21,6 +22,7 @@ import java.util.List;
  *
  */
 public class UserQueryDumpConsole implements Visitor<Void> {
+
     private int indent;
 
     private Logger logger;

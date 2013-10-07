@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.query.user.metadata.*;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.query.user.*;

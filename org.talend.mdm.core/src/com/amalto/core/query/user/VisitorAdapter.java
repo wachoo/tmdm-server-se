@@ -1,5 +1,6 @@
 package com.amalto.core.query.user;
 
+import com.amalto.core.query.user.metadata.*;
 import org.apache.commons.lang.NotImplementedException;
 
 public class VisitorAdapter<T> implements Visitor<T> {

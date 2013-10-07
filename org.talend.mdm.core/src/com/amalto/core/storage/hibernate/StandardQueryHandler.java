@@ -16,6 +16,7 @@ import java.util.*;
 
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.metadata.*;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.NotImplementedException;

@@ -14,6 +14,7 @@
 package com.amalto.core.query.user;
 
 import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.query.user.metadata.MetadataField;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.webservice.WSStringPredicate;
 import com.amalto.xmlserver.interfaces.*;
@@ -185,10 +186,9 @@ public class UserQueryHelper {
     }
 
     public static List<TypedExpression> getInnerField(String fieldName) {
-        if (UserQueryBuilder.TIMESTAMP_FIELD.equals(fieldName)) {
-            return Collections.singletonList(timestamp());
-        } else if (UserQueryBuilder.TASK_ID_FIELD.equals(fieldName)) {
-            return Collections.singletonList(taskId());
+        MetadataField metadataField = MetadataField.Factory.getMetadataField(fieldName);
+        if (metadataField != null) {
+            return Collections.singletonList(metadataField.getConditionExpression());
         }
         return null;
     }
@@ -196,7 +196,7 @@ public class UserQueryHelper {
     public static List<TypedExpression> getFields(MetadataRepository repository, String typeName, String fieldName) {
         // Considers attributes as elements
         // TODO This is assuming attributes are elements... which is true when these line were written.
-        if(fieldName.startsWith("@")) { //$NON-NLS-1$
+        if (fieldName.startsWith("@")) { //$NON-NLS-1$
             fieldName = fieldName.substring(1);
         }
         int position = -1;
@@ -210,9 +210,13 @@ public class UserQueryHelper {
         }
         // Additional trim() (in case XPath is like "Entity/FieldName  ").
         fieldName = fieldName.trim();
+        MetadataField metadataField = MetadataField.Factory.getMetadataField(fieldName);
         ComplexTypeMetadata type = repository.getComplexType(typeName);
         if (type == null) {
             throw new IllegalArgumentException("Type '" + typeName + "' does not exist.");
+        }
+        if (metadataField != null) {
+            return Collections.singletonList(metadataField.getConditionExpression());
         }
         if (fieldName.endsWith("xsi:type") || fieldName.endsWith("tmdm:type")) { //$NON-NLS-1$ //$NON-NLS-2$
             FieldMetadata field = repository.getComplexType(typeName).getField(StringUtils.substringBeforeLast(fieldName, "/")); //$NON-NLS-1$
@@ -221,10 +225,6 @@ public class UserQueryHelper {
             } else {
                 return Collections.singletonList(alias(type(field), "tmdm:type")); //$NON-NLS-1$
             }
-        } else if (UserQueryBuilder.TIMESTAMP_FIELD.equals(fieldName)) {
-            return Collections.singletonList(timestamp());
-        } else if (UserQueryBuilder.TASK_ID_FIELD.equals(fieldName)) {
-            return Collections.singletonList(taskId());
         } else if (UserQueryBuilder.ID_FIELD.equals(fieldName)) {
             Collection<FieldMetadata> keyFields = type.getKeyFields();
             if (keyFields.isEmpty()) {
@@ -235,12 +235,6 @@ public class UserQueryHelper {
                 expressions.add(new Field(keyField));
             }
             return expressions;
-        } else if (UserQueryBuilder.STAGING_STATUS_FIELD.equals(fieldName)) {
-            return Collections.singletonList(UserStagingQueryBuilder.status());
-        } else if (UserQueryBuilder.STAGING_SOURCE_FIELD.equals(fieldName)) {
-            return Collections.singletonList(UserStagingQueryBuilder.source());
-        } else if (UserQueryBuilder.STAGING_ERROR_FIELD.equals(fieldName)) {
-            return Collections.singletonList(UserStagingQueryBuilder.error());
         }
         FieldMetadata field = type.getField(fieldName);
         if (field == null) {

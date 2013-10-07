@@ -14,6 +14,7 @@ package com.amalto.core.storage;
 import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
