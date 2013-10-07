@@ -160,12 +160,14 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
                     fieldName,
                     fieldType,
                     Collections.<String>emptyList(),
-                    Collections.<String>emptyList());
+                    Collections.<String>emptyList(),
+                    Collections.<String>emptyList(),
+                    fieldName);
             currentElement = new ProjectionElement();
             currentElement.field = field;
         }
 
-        private void createElement(String typeName, String aliasName, String realFieldName) {
+        private void createElement(String typeName, String aliasName, FieldMetadata aliasedField) {
             SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
             FieldMetadata field = new AliasedFieldMetadata(explicitProjectionType,
                     false,
@@ -175,7 +177,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
                     fieldType,
                     Collections.<String>emptyList(),
                     Collections.<String>emptyList(),
-                    realFieldName);
+                    aliasedField);
             currentElement = new ProjectionElement();
             currentElement.field = field;
         }
@@ -193,7 +195,9 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
                     false,
                     new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                     Collections.<String>emptyList(),
-                    Collections.<String>emptyList());
+                    Collections.<String>emptyList(),
+                    Collections.<String>emptyList(),
+                    StringUtils.EMPTY);
             currentElement = new ProjectionElement();
             currentElement.field = field;
         }
@@ -208,8 +212,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
             isAlias = true;
             if (alias.getTypedExpression() instanceof Field) {
                 Field fieldExpression = (Field) alias.getTypedExpression();
-                String realFieldName = fieldExpression.getFieldMetadata().getName();
-                createElement(alias.getTypeName(), alias.getAliasName(), realFieldName);
+                createElement(alias.getTypeName(), alias.getAliasName(), fieldExpression.getFieldMetadata());
             } else {
                 createElement(alias.getTypeName(), alias.getAliasName());
             }

@@ -206,8 +206,10 @@ public abstract class StorageClassLoader extends ClassLoader {
     }
 
     public void bind(Thread thread) {
-        previousClassLoader = Thread.currentThread().getContextClassLoader();
-        thread.setContextClassLoader(this);
+        if (thread.getContextClassLoader() != this) {
+            previousClassLoader = thread.getContextClassLoader();
+            thread.setContextClassLoader(this);
+        }
     }
 
     public void unbind(Thread thread) {

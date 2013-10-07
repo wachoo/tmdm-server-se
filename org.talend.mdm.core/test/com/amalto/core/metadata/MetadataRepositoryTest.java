@@ -31,6 +31,13 @@ public class MetadataRepositoryTest extends TestCase {
         InputStream stream = getClass().getResourceAsStream("schema.xsd");
         repository.load(stream);
         // repository.accept(visitor);
+
+        ComplexTypeMetadata product = repository.getComplexType("Product");
+        assertNotNull(product);
+        FieldMetadata field = product.getField("Features/Sizes/Size");
+        assertNotNull(field);
+        assertEquals("Features/Sizes/Size", field.getPath());
+        assertEquals("Product", field.getEntityTypeName());
     }
 
     public void test2() {

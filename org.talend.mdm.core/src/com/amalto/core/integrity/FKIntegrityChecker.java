@@ -136,7 +136,7 @@ public class FKIntegrityChecker {
         Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields = new HashMap<FKIntegrityCheckResult, Set<FieldMetadata>>();
         for (ReferenceFieldMetadata incomingReference : fieldToCheck) {
             // TMDM-5434: Checks if containing type is an actual entity type
-            String referencingTypeName = getFromTypeNameThroughIncomingReference(incomingReference);
+            String referencingTypeName = incomingReference.getEntityTypeName();
             MetadataRepository repository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(dataModel);
             ComplexTypeMetadata containingType = repository.getComplexType(referencingTypeName);
             if (containingType == null || !containingType.isInstantiable()) {
@@ -187,24 +187,6 @@ public class FKIntegrityChecker {
             // Log in server's log how conflict was solved.
             dataSource.resolvedConflict(checkResultToFields, conflictResolution);
             return conflictResolution;
-        }
-    }
-
-    /**
-     * Get from type name by incomingReference
-     * 
-     * @return The from type name
-     */
-    private String getFromTypeNameThroughIncomingReference(ReferenceFieldMetadata incomingReference) {
-        if (incomingReference == null) {
-            throw new IllegalArgumentException("The input reference field metadata should is null! "); //$NON-NLS-1$
-        }
-        String rootTypeName = incomingReference.getData(ForeignKeyIntegrity.ATTRIBUTE_ROOTTYPE);
-        if (rootTypeName != null && rootTypeName.trim().length() > 0) {
-            return rootTypeName;
-        } else {
-            TypeMetadata referencingType = incomingReference.getContainingType();
-            return referencingType.getName();
         }
     }
 

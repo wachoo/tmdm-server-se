@@ -208,7 +208,9 @@ class IdQueryHandler extends AbstractQueryHandler {
                     currentAliasName,
                     new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typedExpression.getTypeName()),
                     Collections.<String>emptyList(),
-                    Collections.<String>emptyList());
+                    Collections.<String>emptyList(),
+                    Collections.<String>emptyList(),
+                    currentAliasName);
             explicitProjectionType.addField(fieldType);
             return fieldType;
         }
@@ -228,7 +230,9 @@ class IdQueryHandler extends AbstractQueryHandler {
                         currentAliasName,
                         fieldMetadata.getType(),
                         Collections.<String>emptyList(),
-                        Collections.<String>emptyList());
+                        Collections.<String>emptyList(),
+                        Collections.<String>emptyList(),
+                        currentAliasName);
                 explicitProjectionType.addField(fieldType);
                 nextRecord.set(fieldType, o);
             }
@@ -245,7 +249,9 @@ class IdQueryHandler extends AbstractQueryHandler {
                     currentAliasName,
                     new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.LONG),
                     Collections.<String>emptyList(),
-                    Collections.<String>emptyList());
+                    Collections.<String>emptyList(),
+                    Collections.<String>emptyList(),
+                    currentAliasName);
             explicitProjectionType.addField(fieldType);
             nextRecord.set(fieldType, 1L);
             return null;
@@ -264,7 +270,9 @@ class IdQueryHandler extends AbstractQueryHandler {
                     currentAliasName,
                     new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                     Collections.<String>emptyList(),
-                    Collections.<String>emptyList());
+                    Collections.<String>emptyList(),
+                    Collections.<String>emptyList(),
+                    currentAliasName);
             explicitProjectionType.addField(fieldType);
             nextRecord.set(fieldType, o.getType().getName());
             return null;

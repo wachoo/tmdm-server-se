@@ -24,10 +24,6 @@ import java.util.Stack;
  */
 public class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFieldMetadata>> {
 
-    public static final String ATTRIBUTE_ROOTTYPE = "RootType"; //$NON-NLS-1$
-
-    public static final String ATTRIBUTE_XPATH = "XPath"; //$NON-NLS-1$
-
     // Internal: for optimization purpose prevents checking a type more than once.
     private final Set<TypeMetadata> checkedTypes = new HashSet<TypeMetadata>();
 
@@ -35,24 +31,6 @@ public class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFie
     private final Set<ReferenceFieldMetadata> fieldToCheck = new HashSet<ReferenceFieldMetadata>();
 
     private final TypeMetadata type;
-
-    private Stack<String> currentPosition = new Stack<String>();
-
-    private String rootTypeName;
-
-    private String getCurrentPath() {
-        StringBuilder path = new StringBuilder();
-        for (String pathElement : currentPosition) {
-            if (path.length() == 0) {
-                rootTypeName = pathElement;
-            }
-            if (path.length() > 0) {
-                path.append('/');
-            }
-            path.append(pathElement);
-        }
-        return path.toString();
-    }
 
     /**
      * This {@link MetadataVisitor} returns foreign key fields that points to <code>type</code>.
@@ -69,30 +47,20 @@ public class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFie
     public Set<ReferenceFieldMetadata> visit(ComplexTypeMetadata metadata) {
         if (!checkedTypes.contains(metadata)) {
             checkedTypes.add(metadata);
-            currentPosition.push(metadata.getName());
-            Set<ReferenceFieldMetadata> result = super.visit(metadata);
-            currentPosition.pop();
-            return result;
+            return super.visit(metadata);
         }
         return fieldToCheck;
-
     }
 
     @Override
     public Set<ReferenceFieldMetadata> visit(ReferenceFieldMetadata metadata) {
-        currentPosition.push(metadata.getName());
-        {
-            if (type.isAssignableFrom(metadata.getReferencedType())) {
-                metadata.setData(ATTRIBUTE_XPATH, getCurrentPath());
-                metadata.setData(ATTRIBUTE_ROOTTYPE, rootTypeName);
-                fieldToCheck.add(metadata);
-            }
-            for (ComplexTypeMetadata subType : metadata.getReferencedType().getSubTypes()) {
-                subType.accept(this);
-            }
-            super.visit(metadata);
+        if (type.isAssignableFrom(metadata.getReferencedType())) {
+            fieldToCheck.add(metadata);
         }
-        currentPosition.pop();
+        for (ComplexTypeMetadata subType : metadata.getReferencedType().getSubTypes()) {
+            subType.accept(this);
+        }
+        super.visit(metadata);
         return fieldToCheck;
     }
 
@@ -118,11 +86,7 @@ public class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFie
 
     @Override
     public Set<ReferenceFieldMetadata> visit(SimpleTypeFieldMetadata metadata) {
-        currentPosition.push(metadata.getName());
-        {
-            super.visit(metadata);
-        }
-        currentPosition.pop();
+        super.visit(metadata);
         return fieldToCheck;
     }
 
@@ -134,14 +98,10 @@ public class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFie
 
     @Override
     public Set<ReferenceFieldMetadata> visit(ContainedTypeFieldMetadata metadata) {
-        currentPosition.push(metadata.getName());
-        {
-            super.visit(metadata);
-            for (ComplexTypeMetadata subType : metadata.getContainedType().getSubTypes()) {
-                subType.accept(this);
-            }
+        super.visit(metadata);
+        for (ComplexTypeMetadata subType : metadata.getContainedType().getSubTypes()) {
+            subType.accept(this);
         }
-        currentPosition.pop();
         return fieldToCheck;
     }
 }

@@ -653,7 +653,7 @@ public class MetadataUtils {
                         Set<ReferenceFieldMetadata> incomingFields = repository.accept(incomingReferences);
                         boolean hasMetDependency = false;
                         for (ReferenceFieldMetadata incomingField : incomingFields) {
-                            ComplexTypeMetadata containingType = repository.getComplexType(incomingField.<String>getData(ForeignKeyIntegrity.ATTRIBUTE_ROOTTYPE));
+                            ComplexTypeMetadata containingType = repository.getComplexType(incomingField.getEntityTypeName());
                             int currentDependency = getId(containingType, types);
                             if (hasIncomingEdges(dependencyGraph[currentDependency])) {
                                 dependencyGraph[currentLineNumber][currentDependency]--;
@@ -690,7 +690,7 @@ public class MetadataUtils {
                             Set<ReferenceFieldMetadata> inboundReferences = repository.accept(new ForeignKeyIntegrity(currentType));
                             cyclesAsString.append(" ( possible fields: ");
                             for (ReferenceFieldMetadata inboundReference : inboundReferences) {
-                                String xPath = inboundReference.getData(ForeignKeyIntegrity.ATTRIBUTE_XPATH);
+                                String xPath = inboundReference.getPath();
                                 cyclesAsString.append(xPath).append(' ');
                             }
                             cyclesAsString.append(')');

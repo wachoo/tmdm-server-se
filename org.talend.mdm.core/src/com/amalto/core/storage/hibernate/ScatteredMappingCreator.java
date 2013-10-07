@@ -15,10 +15,7 @@ import org.talend.mdm.commmon.metadata.*;
 import org.apache.commons.lang.StringUtils;
 
 import javax.xml.XMLConstants;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
@@ -60,7 +57,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 field.getType(),
                 field.getWriteUsers(),
                 field.getHideUsers(),
-                field.getWorkflowAccessRights());
+                field.getWorkflowAccessRights(),
+                getPath(field));
         TypeMetadata declaringType = field.getDeclaringType();
         if (declaringType != field.getContainingType() && declaringType.isInstantiable()) {
             SoftTypeRef type = new SoftTypeRef(internalRepository,
@@ -80,8 +78,24 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         return null;
     }
 
+    private static String getPath(FieldMetadata field) {
+        StringTokenizer tokenizer = new StringTokenizer(field.getPath(), "/");
+        StringBuilder path = new StringBuilder();
+        while (tokenizer.hasMoreTokens()) {
+            path.append(getFieldColumn(tokenizer.nextToken()));
+            if (tokenizer.hasMoreTokens()) {
+                path.append('/');
+            }
+        }
+        return path.toString();
+    }
+
     private static String getFieldName(FieldMetadata field) {
-        return "x_" + field.getName().replace('-', '_').toLowerCase(); //$NON-NLS-1$
+        return getFieldColumn(field.getName());
+    }
+
+    private static String getFieldColumn(String name) {
+        return "x_" + name.replace('-', '_').toLowerCase(); //$NON-NLS-1$
     }
 
     private static String newNonInstantiableTypeName(ComplexTypeMetadata fieldReferencedType) {
@@ -132,7 +146,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                 referenceField.getWriteUsers(),
                 referenceField.getHideUsers(),
-                referenceField.getWorkflowAccessRights());
+                referenceField.getWorkflowAccessRights(),
+                getPath(referenceField));
         database.addField(newFlattenField);
         entityMapping.map(referenceField, newFlattenField);
         currentMapping.peek().map(referenceField, newFlattenField);
@@ -175,7 +190,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                         new SoftTypeRef(internalRepository, internalRepository.getUserNamespace(), Types.UUID, false),
                         originalContainedType.getWriteUsers(),
                         originalContainedType.getHideUsers(),
-                        originalContainedType.getWorkflowAccessRights()));
+                        originalContainedType.getWorkflowAccessRights(),
+                        StringUtils.EMPTY)); // TODO Compute path for generated id.
             } else {
                 internalContainedType.addSuperType(new SoftTypeRef(internalRepository, internalContainedType.getNamespace(), superTypeName, false), internalRepository);
             }
@@ -219,7 +235,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                 containedField.getWriteUsers(),
                 containedField.getHideUsers(),
-                containedField.getWorkflowAccessRights());
+                containedField.getWorkflowAccessRights(),
+                getPath(containedField));
         newFlattenField.setData("SQL_DELETE_CASCADE", "true"); //$NON-NLS-1$ //$NON-NLS-2$
         currentType.peek().addField(newFlattenField);
         currentMapping.peek().map(containedField, newFlattenField);
@@ -263,7 +280,9 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                         GENERATED_ID,
                         type,
                         Collections.<String>emptyList(),
-                        Collections.<String>emptyList()));
+                        Collections.<String>emptyList(),
+                        Collections.<String>emptyList(),
+                        StringUtils.EMPTY));
             }
             for (TypeMetadata superType : complexType.getSuperTypes()) {
                 if (superType.isInstantiable()) {
@@ -282,7 +301,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             }
             super.visit(complexType);
             for (FieldMetadata keyField : complexType.getKeyFields()) {
-                database.registerKey(database.getField("x_" + keyField.getName().replace('-', '_').toLowerCase())); //$NON-NLS-1$
+                database.registerKey(database.getField(getFieldColumn(keyField.getName()))); //$NON-NLS-1$
             }
         }
         currentType.pop();

@@ -84,9 +84,11 @@ class DefaultCheckDataSource implements FKIntegrityCheckDataSource {
         LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
         conceptPatternsToClusterName.put(".*", clusterName); //$NON-NLS-1$
 
-        String leftPath = fromReference.getData(ForeignKeyIntegrity.ATTRIBUTE_XPATH);
+        String leftPath = fromReference.getPath();
         IWhereItem whereItem = new WhereCondition(leftPath,
-                WhereCondition.EQUALS, referencedId, WhereCondition.NO_OPERATOR);
+                WhereCondition.EQUALS,
+                referencedId,
+                WhereCondition.NO_OPERATOR);
 
         return Util.getXmlServerCtrlLocal()
                 .countItems(new LinkedHashMap(), conceptPatternsToClusterName, fromTypeName, whereItem);

@@ -157,20 +157,22 @@ class NativeQueryHandler extends AbstractQueryHandler {
             ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, Storage.PROJECTION_TYPE, false);
             DataRecord nativeResult = new DataRecord(explicitProjectionType, UnsupportedDataRecordMetadata.INSTANCE);
             Object next = iterator.next();
-            int i = 0;
             if (next instanceof Object[]) {
+                int i = 0;
                 Object[] objectArray = (Object[]) next;
                 for (Object o : objectArray) {
                     if (o != null) {
                         SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, MetadataUtils.getType(o.getClass().getName()));
-                        SimpleTypeFieldMetadata colField = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, "col" + i++, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList()); //$NON-NLS-1$
+                        String name = "col" + i++; //$NON-NLS-1$
+                        SimpleTypeFieldMetadata colField = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, name, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), name);
                         explicitProjectionType.addField(colField);
                         nativeResult.set(colField, o);
                     }
                 }
             } else {
                 SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, MetadataUtils.getType(next.getClass().getName()));
-                SimpleTypeFieldMetadata colField = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, "col" + i, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList());  //$NON-NLS-1$
+                String name = "col0"; //$NON-NLS-1$
+                SimpleTypeFieldMetadata colField = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, name, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), name);
                 explicitProjectionType.addField(colField);
                 nativeResult.set(colField, next);
             }

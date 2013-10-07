@@ -22,28 +22,23 @@ import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 
 
-/**
- * created by talend2 on 2013-3-4
- * Detailled comment
- *
- */
 public class DataRecordDefaultWriterTest extends TestCase {
     
     public void testWrite() throws IOException {
         String xml = "<referenceField>[111][222][444]</referenceField>"; //$NON-NLS-1$
-        
-        FieldMetadata fieldMetadata = new ReferenceFieldMetadata(null,true,false,true,"referenceField",null,null, Collections.<FieldMetadata>emptyList(),true,true,null,null,null); //$NON-NLS-1$
-        DataRecord record = new DataRecord(null,null);
+
+        FieldMetadata fieldMetadata = new ReferenceFieldMetadata(null, true, false, true, "referenceField", null, null, Collections.<FieldMetadata>emptyList(), true, true, null, null, null, null, null); //$NON-NLS-1$
+        DataRecord record = new DataRecord(null, null);
         Object[] values = new Object[3];
         values[0] = "111"; //$NON-NLS-1$
         values[1] = "222"; //$NON-NLS-1$
         values[2] = "444"; //$NON-NLS-1$
         record.set(fieldMetadata, values);
-        
-        ByteArrayOutputStream output = new ByteArrayOutputStream();        
+
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
         DataRecordWriter dataRecordWriter = new DataRecordDefaultWriter();
-        dataRecordWriter.write(record,output);
-        String document = new String(output.toByteArray());        
+        dataRecordWriter.write(record, output);
+        String document = new String(output.toByteArray());
         assertEquals(true, document.contains(xml));
     }
 
