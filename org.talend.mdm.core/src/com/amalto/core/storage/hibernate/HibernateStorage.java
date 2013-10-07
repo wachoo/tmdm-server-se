@@ -616,7 +616,8 @@ public class HibernateStorage implements Storage {
                         o.set(key, convertedValue);
                     } else {
                         throw new IllegalArgumentException("Can not store value '" + key
-                                + "' because there is no database field '" + key + "' in type '" + mapping.getName() + "'");
+                                + "' because there is no database field '" + key + "' in type '" + mapping.getName()
+                                + "' (storage is '" + toString() + "')");
                     }
                 }
                 if (FLUSH_ON_LOAD && session.getStatistics().getEntityCount() % batchSize == 0) {

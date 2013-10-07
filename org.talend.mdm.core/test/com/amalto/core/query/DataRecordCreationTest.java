@@ -10,16 +10,9 @@
 
 package com.amalto.core.query;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.record.*;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.w3c.dom.Document;
@@ -28,15 +21,11 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.amalto.core.integrity.ForeignKeyIntegrity;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordReader;
-import com.amalto.core.storage.record.DataRecordWriter;
-import com.amalto.core.storage.record.DataRecordXmlWriter;
-import com.amalto.core.storage.record.XmlDOMDataRecordReader;
-import com.amalto.core.storage.record.XmlSAXDataRecordReader;
-import com.amalto.core.storage.record.XmlStringDataRecordReader;
-import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.*;
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("nls")
 public class DataRecordCreationTest extends StorageTestCase {
@@ -60,6 +49,35 @@ public class DataRecordCreationTest extends StorageTestCase {
         DataRecord dataRecord = dataRecordReader.read("1", repository, product, builder.toString());
 
         performAsserts(dataRecord);
+    }
+
+    public void testCreationFromXMLStringWithMetadata() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(this.getClass().getResourceAsStream("metadata.xsd"));
+
+        ComplexTypeMetadata product = repository.getComplexType("Product");
+        assertNotNull(product);
+
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("DataRecordCreationTest_metadata.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord dataRecord = dataRecordReader.read("1", repository, product, builder.toString());
+
+        performAsserts(dataRecord);
+
+        DataRecordMetadata recordMetadata = dataRecord.getRecordMetadata();
+        assertEquals("1234", recordMetadata.getTaskId());
+        Map<String,String> recordProperties = recordMetadata.getRecordProperties();
+        assertEquals("My Source", recordProperties.get(Storage.METADATA_STAGING_SOURCE));
+        assertEquals("My Error", recordProperties.get(Storage.METADATA_STAGING_ERROR));
+        assertEquals("999", recordProperties.get(Storage.METADATA_STAGING_STATUS));
+        assertEquals("5678", recordProperties.get(Storage.METADATA_STAGING_BLOCK_KEY));
     }
 
     public void testCreationFromXMLStringWithInheritance() throws Exception {
@@ -199,7 +217,6 @@ public class DataRecordCreationTest extends StorageTestCase {
         assertNotNull(metadata);
 
         assertEquals(1328544306381l, metadata.getLastModificationTime());
-        assertEquals(null, metadata.getTaskId());
         assertNotNull(metadata.getRecordProperties());
     }
 

@@ -23,9 +23,9 @@ public class StagingStatus implements TypedExpression, MetadataField {
 
     public static final StagingStatus INSTANCE = new StagingStatus();
 
-    private static final String[] STAGING_STATUS_FIELD = new String[]{"$staging_status$", "metadata:staging_status"}; //$NON-NLS-1$ //$NON-NLS-2$
+    public static final String STAGING_STATUS_ALIAS = "staging_status"; //$NON-NLS-1$
 
-    private static final String STAGING_STATUS_ALIAS = "staging_status"; //$NON-NLS-1$
+    private static final String[] STAGING_STATUS_FIELD = new String[]{"$staging_status$", "metadata:staging_status"}; //$NON-NLS-1$ //$NON-NLS-2$
 
     private StagingStatus() {
     }

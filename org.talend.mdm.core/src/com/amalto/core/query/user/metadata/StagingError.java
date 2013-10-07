@@ -23,9 +23,9 @@ public class StagingError implements TypedExpression, MetadataField {
 
     public static final StagingError INSTANCE = new StagingError();
 
-    private static final String[] STAGING_ERROR_FIELD = new String[] {"$staging_error$", "metadata:staging_error"}; //$NON-NLS-1$ //$NON-NLS-2$
+    public static final String STAGING_ERROR_ALIAS = "staging_error"; //$NON-NLS-1$
 
-    private static final String STAGING_ERROR_ALIAS = "staging_error"; //$NON-NLS-1$
+    private static final String[] STAGING_ERROR_FIELD = new String[] {"$staging_error$", "metadata:staging_error"}; //$NON-NLS-1$ //$NON-NLS-2$
 
     private StagingError() {
     }

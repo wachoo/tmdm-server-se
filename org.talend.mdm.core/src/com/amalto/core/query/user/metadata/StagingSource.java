@@ -23,9 +23,9 @@ public class StagingSource implements TypedExpression, MetadataField {
 
     public static final StagingSource INSTANCE = new StagingSource();
 
-    private static final String[] STAGING_SOURCE_FIELD = new String[] {"$staging_source$", "metadata:staging_source"}; //$NON-NLS-1$ //$NON-NLS-2$
+    public static final String STAGING_SOURCE_ALIAS = "staging_source"; //$NON-NLS-1$
 
-    private static final String STAGING_SOURCE_ALIAS = "staging_source"; //$NON-NLS-1$
+    private static final String[] STAGING_SOURCE_FIELD = new String[] {"$staging_source$", "metadata:staging_source"}; //$NON-NLS-1$ //$NON-NLS-2$
 
     private StagingSource() {
     }

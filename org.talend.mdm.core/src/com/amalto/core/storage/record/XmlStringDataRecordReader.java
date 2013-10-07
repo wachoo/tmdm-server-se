@@ -14,12 +14,16 @@ package com.amalto.core.storage.record;
 import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.metadata.MetadataUtils;
-import org.talend.mdm.commmon.metadata.*;
+import com.amalto.core.query.user.metadata.StagingError;
+import com.amalto.core.query.user.metadata.StagingSource;
+import com.amalto.core.query.user.metadata.StagingStatus;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
+import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.*;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -27,6 +31,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.events.*;
 import java.io.StringReader;
+import java.util.Map;
 import java.util.Stack;
 
 public class XmlStringDataRecordReader implements DataRecordReader<String> {
@@ -117,27 +122,34 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
             Stack<DataRecord> dataRecords = new Stack<DataRecord>();
             dataRecords.push(dataRecord);
             int userXmlPayloadLevel = level;
+            String currentElementName = null;
+            boolean isMetadataField = false;
             while (xmlEventReader.hasNext()) {
                 XMLEvent xmlEvent = xmlEventReader.nextEvent();
                 if (xmlEvent.isStartElement()) {
                     if (level >= userXmlPayloadLevel) {
                         StartElement startElement = xmlEvent.asStartElement();
+                        currentElementName = startElement.getName().getLocalPart();
+                        isMetadataField = METADATA_NAMESPACE.equals(startElement.getName().getNamespaceURI());
+                        if(isMetadataField) {
+                            skipLevel = level;
+                        }
                         TypeMetadata typeMetadata = currentType.peek();
                         if (!(typeMetadata instanceof ComplexTypeMetadata)) {
                             throw new IllegalStateException("Expected a complex type but got a " + typeMetadata.getClass().getName());
                         }
                         if (level < skipLevel) {
-                            if (!((ComplexTypeMetadata) typeMetadata).hasField(startElement.getName().getLocalPart())) {
+                            if (!((ComplexTypeMetadata) typeMetadata).hasField(currentElementName)) {
                                 skipLevel = level;
                                 continue;
                             }
-                            field = ((ComplexTypeMetadata) typeMetadata).getField(startElement.getName().getLocalPart());
+                            field = ((ComplexTypeMetadata) typeMetadata).getField(currentElementName);
                             TypeMetadata fieldType = field.getType();
                             if (ClassRepository.EMBEDDED_XML.equals(fieldType.getName())) {
                                 xmlAccumulatorLevel = level;
                             }
                             if (xmlAccumulatorLevel > userXmlPayloadLevel) {
-                                xmlAccumulator.append('<').append(startElement.getName().getLocalPart()).append('>');
+                                xmlAccumulator.append('<').append(currentElementName).append('>');
                             } else {
                                 // Reads MDM type attribute for actual FK type
                                 if (field instanceof ReferenceFieldMetadata) {
@@ -185,6 +197,9 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                             }
                         }
                     }
+                    if(isMetadataField) {
+                        setMetadataValue(metadata, currentElementName, xmlEvent.asCharacters().getData());
+                    }
                 } else if (xmlEvent.isEndElement()) {
                     EndElement endElement = xmlEvent.asEndElement();
                     String endElementLocalPart = endElement.getName().getLocalPart();
@@ -192,22 +207,26 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                         break;
                     }
                     if (level < skipLevel) {
-                        if (xmlAccumulatorLevel > userXmlPayloadLevel) {
-                            xmlAccumulator.append("</").append(xmlEvent.asEndElement().getName().getLocalPart()).append('>'); //$NON-NLS-1$
-                            continue;
-                        } else if (xmlAccumulatorLevel == level) {
-                            dataRecords.peek().set(field, xmlAccumulator.reset());
-                            xmlAccumulatorLevel = 0;
-                        } else if (currentType.peek() instanceof ComplexTypeMetadata && !(field instanceof ReferenceFieldMetadata)) {
-                            dataRecords.pop();
+                        if (!isMetadataField) {
+                            if (xmlAccumulatorLevel > userXmlPayloadLevel) {
+                                xmlAccumulator.append("</").append(xmlEvent.asEndElement().getName().getLocalPart()).append('>'); //$NON-NLS-1$
+                                continue;
+                            } else if (xmlAccumulatorLevel == level) {
+                                dataRecords.peek().set(field, xmlAccumulator.reset());
+                                xmlAccumulatorLevel = 0;
+                            } else if (currentType.peek() instanceof ComplexTypeMetadata && !(field instanceof ReferenceFieldMetadata)) {
+                                dataRecords.pop();
+                            }
+                            field = null;
+                            currentType.pop();
                         }
-                        field = null;
-                        currentType.pop();
                     }
                     level--;
                     if (level == skipLevel) {
                         skipLevel = Integer.MAX_VALUE;
                     }
+                    // Reset metadata parsing
+                    isMetadataField = false;
                 }
             }
             DataRecord createdDataRecord = dataRecords.pop();
@@ -217,6 +236,23 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
             return createdDataRecord;
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static void setMetadataValue(DataRecordMetadata metadata, String metadataProperty, String value) {
+        Map<String, String> properties = metadata.getRecordProperties();
+        if(StagingError.STAGING_ERROR_ALIAS.equals(metadataProperty)) {
+            properties.put(Storage.METADATA_STAGING_ERROR, value);
+        } else if(StagingSource.STAGING_SOURCE_ALIAS.equals(metadataProperty)) {
+            properties.put(Storage.METADATA_STAGING_SOURCE, value);
+        } else if(StagingStatus.STAGING_STATUS_ALIAS.equals(metadataProperty)) {
+            properties.put(Storage.METADATA_STAGING_STATUS, value);
+        } else if(TASK_ID.equals(metadataProperty)) {
+            metadata.setTaskId(value);
+        } else if(BLOCK_KEY.equals(metadataProperty)) {
+            properties.put(Storage.METADATA_STAGING_BLOCK_KEY, value);
+        } else {
+            throw new UnsupportedOperationException("Metadata parameter '" + metadataProperty + "' is not supported.");
         }
     }
 }
