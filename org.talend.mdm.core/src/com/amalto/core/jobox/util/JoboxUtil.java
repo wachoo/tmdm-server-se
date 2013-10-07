@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -34,6 +34,8 @@ import com.amalto.core.jobox.JobInfo;
 
 public class JoboxUtil {
 
+    private static final String LOG4J_LIB_NAME = "log4j-"; //$NON-NLS-1$
+
     private static final Logger LOGGER = Logger.getLogger(JoboxUtil.class);
 
     private JoboxUtil() {
@@ -44,7 +46,7 @@ public class JoboxUtil {
             delAllFile(folderPath);
             File myFilePath = new File(folderPath);
             if (!myFilePath.delete()) {
-                LOGGER.error("Delete folder failed for '" + folderPath + "'.");
+                LOGGER.error("Delete folder failed for '" + folderPath + "'."); //$NON-NLS-1$ //$NON-NLS-2$
             }
         } catch (Exception e) {
             throw new JoboxException(e);
@@ -65,7 +67,7 @@ public class JoboxUtil {
             return;
         }
         if (!file.isDirectory()) {
-            LOGGER.warn("Expected a folder '" + path + "' but was a file.");
+            LOGGER.warn("Expected a folder '" + path + "' but was a file."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         String[] tempList = file.list();
         File temp;
@@ -77,7 +79,7 @@ public class JoboxUtil {
             }
             if (temp.isFile()) {
                 if (!temp.delete()) {
-                    LOGGER.error("Delete folder failed for '" + currentTempFile + "'.");
+                    LOGGER.error("Delete folder failed for '" + currentTempFile + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             }
             if (temp.isDirectory()) {
@@ -110,20 +112,21 @@ public class JoboxUtil {
                 if (ze.isDirectory()) {
                     if (!zipFile.exists()) {
                         if (!zipFile.mkdirs()) {
-                            LOGGER.error("Create folder failed for '" + zipFile.getAbsolutePath() + "'.");
+                            LOGGER.error("Create folder failed for '" + zipFile.getAbsolutePath() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
                     zipInputStream.closeEntry();
                 } else {
                     if (!zipFilePath.exists()) {
                         if (!zipFilePath.mkdirs()) {
-                            LOGGER.error("Create folder failed for '" + zipFilePath.getAbsolutePath() + "'.");
+                            LOGGER.error("Create folder failed for '" + zipFilePath.getAbsolutePath() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
                     FileOutputStream fileOutputStream = new FileOutputStream(zipFile);
                     int i;
-                    while ((i = zipInputStream.read(ch)) != -1)
+                    while ((i = zipInputStream.read(ch)) != -1) {
                         fileOutputStream.write(ch, 0, i);
+                    }
                     zipInputStream.closeEntry();
                     fileOutputStream.close();
                 }
@@ -139,13 +142,17 @@ public class JoboxUtil {
     }
 
     public static void findFirstFile(JobInfo jobInfo, File root, String fileName, List<File> resultList) {
-        if (resultList.size() > 0)
+        if (resultList.size() > 0) {
             return;
+        }
 
         if (root.isFile()) {
             if (root.getName().equals(fileName)) {
-                if (jobInfo == null || root.getParentFile().getParentFile().getName().toLowerCase().startsWith(jobInfo.getName().toLowerCase()))
+                if (jobInfo == null
+                        || root.getParentFile().getParentFile().getName().toLowerCase()
+                                .startsWith(jobInfo.getName().toLowerCase())) {
                     resultList.add(root);
+                }
             }
         } else if (root.isDirectory()) {
             File[] files = root.listFiles();
@@ -180,7 +187,7 @@ public class JoboxUtil {
 
     public static void zip(File file, String zipFilePath) throws IOException {
         if (zipFilePath == null) {
-            zipFilePath = file.getAbsolutePath() + ".zip";//$NON-NLS-1$
+            zipFilePath = file.getAbsolutePath() + ".zip"; //$NON-NLS-1$
         }
 
         ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFilePath));
@@ -231,8 +238,16 @@ public class JoboxUtil {
             if (pathToAdd != null && pathToAdd.length() > 0) {
                 try {
                     File fileToAdd = new File(pathToAdd).getCanonicalFile();
-                    urls.add(fileToAdd.toURI().toURL());
-                    LOGGER.debug("Added " + fileToAdd.toURI().toURL() + " to job '" + info.getName() + "'. "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    if (fileToAdd.getName().startsWith(LOG4J_LIB_NAME)) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Ignoring " + fileToAdd.toURI().toURL() + " from job '" + info.getName() + "'. "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        }
+                    } else {
+                        urls.add(fileToAdd.toURI().toURL());
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Added " + fileToAdd.toURI().toURL() + " to job '" + info.getName() + "'. "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        }
+                    }
                 } catch (IOException e) {
                     throw new JoboxException(e);
                 }
@@ -259,12 +274,13 @@ public class JoboxUtil {
                 boolean hasJAL = false;
                 Queue<String> myQueue = new LinkedList<String>();
                 String[] tokens = line.split("\\s"); //$NON-NLS-1$
-                for (int i = 0; i < tokens.length; i++) {
+                for (String token : tokens) {
 
-                    if (hasJAL && tokens[i].trim().length() > 0)
-                        myQueue.offer(tokens[i].trim());
+                    if (hasJAL && token.trim().length() > 0) {
+                        myQueue.offer(token.trim());
+                    }
 
-                    if (tokens[i].equals("java")) { //$NON-NLS-1$
+                    if (token.equals("java")) { //$NON-NLS-1$
                         hasJAL = true;
                     }
 
@@ -286,13 +302,14 @@ public class JoboxUtil {
                         }
 
                         if (str.startsWith("-")) { //$NON-NLS-1$
-                            
+
                             str = str.substring(1);
-                            if (str.startsWith("-")) //$NON-NLS-1$
+                            if (str.startsWith("-")) { //$NON-NLS-1$
                                 str = str.substring(1);
-                            
+                            }
+
                             // FIXME is there any more?
-                            if (str.equals("cp") || str.equals("classpath") || str.equals("jar")) {  //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+                            if (str.equals("cp") || str.equals("classpath") || str.equals("jar")) { //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
                                 needConsume = true;
                             }
                         }
