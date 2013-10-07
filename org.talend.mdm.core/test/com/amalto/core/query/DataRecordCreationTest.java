@@ -70,7 +70,10 @@ public class DataRecordCreationTest extends StorageTestCase {
         DataRecord dataRecord = dataRecordReader.read("1", repository, product, builder.toString());
 
         performAsserts(dataRecord);
+        performMetadataAsserts(dataRecord);
+    }
 
+    private void performMetadataAsserts(DataRecord dataRecord) {
         DataRecordMetadata recordMetadata = dataRecord.getRecordMetadata();
         assertEquals("1234", recordMetadata.getTaskId());
         Map<String,String> recordProperties = recordMetadata.getRecordProperties();
@@ -118,6 +121,24 @@ public class DataRecordCreationTest extends StorageTestCase {
         performAsserts(dataRecord);
     }
 
+    public void testCreationFromSAXWithMetadata() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(this.getClass().getResourceAsStream("metadata.xsd"));
+
+        ComplexTypeMetadata product = repository.getComplexType("Product");
+        assertNotNull(product);
+
+        XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+
+        DataRecordReader<XmlSAXDataRecordReader.Input> dataRecordReader = new XmlSAXDataRecordReader();
+        XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass()
+                .getResourceAsStream("DataRecordCreationTest_metadata.xml")));
+        DataRecord dataRecord = dataRecordReader.read("1", repository, product, input);
+
+        performAsserts(dataRecord);
+        performMetadataAsserts(dataRecord);
+    }
+
     public void testCreationFromSAXWithInheritance() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(this.getClass().getResourceAsStream("metadata.xsd"));
@@ -148,6 +169,25 @@ public class DataRecordCreationTest extends StorageTestCase {
         DataRecord dataRecord = dataRecordReader.read("1", repository, product, document.getDocumentElement());
 
         performAsserts(dataRecord);
+    }
+
+    public void testCreationFromDOMWithMetadata() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(this.getClass().getResourceAsStream("metadata.xsd"));
+
+        ComplexTypeMetadata product = repository.getComplexType("Product");
+        assertNotNull(product);
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        DocumentBuilder documentBuilder = factory.newDocumentBuilder();
+        InputStream stream = this.getClass().getResourceAsStream("DataRecordCreationTest_metadata.xml");
+        Document document = documentBuilder.parse(stream);
+        DataRecordReader<Element> dataRecordReader = new XmlDOMDataRecordReader();
+        DataRecord dataRecord = dataRecordReader.read("1", repository, product, document.getDocumentElement());
+
+        performAsserts(dataRecord);
+        performMetadataAsserts(dataRecord);
     }
 
     public void testCreationFromDOMWithInheritance() throws Exception {

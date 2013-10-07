@@ -14,12 +14,9 @@ package com.amalto.core.storage.record;
 import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.metadata.MetadataUtils;
-import com.amalto.core.query.user.metadata.StagingError;
-import com.amalto.core.query.user.metadata.StagingSource;
-import com.amalto.core.query.user.metadata.StagingStatus;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
-import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import com.amalto.core.storage.record.metadata.DataRecordMetadataHelper;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.log4j.Logger;
@@ -31,7 +28,6 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.events.*;
 import java.io.StringReader;
-import java.util.Map;
 import java.util.Stack;
 
 public class XmlStringDataRecordReader implements DataRecordReader<String> {
@@ -198,7 +194,7 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                         }
                     }
                     if(isMetadataField) {
-                        setMetadataValue(metadata, currentElementName, xmlEvent.asCharacters().getData());
+                        DataRecordMetadataHelper.setMetadataValue(metadata, currentElementName, xmlEvent.asCharacters().getData());
                     }
                 } else if (xmlEvent.isEndElement()) {
                     EndElement endElement = xmlEvent.asEndElement();
@@ -236,23 +232,6 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
             return createdDataRecord;
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private static void setMetadataValue(DataRecordMetadata metadata, String metadataProperty, String value) {
-        Map<String, String> properties = metadata.getRecordProperties();
-        if(StagingError.STAGING_ERROR_ALIAS.equals(metadataProperty)) {
-            properties.put(Storage.METADATA_STAGING_ERROR, value);
-        } else if(StagingSource.STAGING_SOURCE_ALIAS.equals(metadataProperty)) {
-            properties.put(Storage.METADATA_STAGING_SOURCE, value);
-        } else if(StagingStatus.STAGING_STATUS_ALIAS.equals(metadataProperty)) {
-            properties.put(Storage.METADATA_STAGING_STATUS, value);
-        } else if(TASK_ID.equals(metadataProperty)) {
-            metadata.setTaskId(value);
-        } else if(BLOCK_KEY.equals(metadataProperty)) {
-            properties.put(Storage.METADATA_STAGING_BLOCK_KEY, value);
-        } else {
-            throw new UnsupportedOperationException("Metadata parameter '" + metadataProperty + "' is not supported.");
         }
     }
 }

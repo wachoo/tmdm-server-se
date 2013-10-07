@@ -13,14 +13,15 @@ package com.amalto.core.storage.record;
 
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.metadata.MetadataUtils;
-import org.apache.commons.lang.StringUtils;
-import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import com.amalto.core.storage.record.metadata.DataRecordMetadataHelper;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import com.amalto.core.util.Util;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.*;
 import org.w3c.dom.*;
 
 import javax.xml.XMLConstants;
@@ -89,38 +90,42 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
             Node currentChild = children.item(i);
             if (currentChild instanceof Element) {
                 Element child = (Element) currentChild;
-                if (!type.hasField(child.getTagName())) {
-                    continue;
-                }
-                FieldMetadata field = type.getField(child.getTagName());
-                if (field.getType() instanceof ContainedComplexTypeMetadata) {
-                    ComplexTypeMetadata containedType = (ComplexTypeMetadata) field.getType();
-                    String xsiType = child.getAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
-                    if (xsiType.startsWith("java:")) { //$NON-NLS-1$
-                        // Special format for 'java:' type names (used in Castor XML to indicate actual class name)
-                        xsiType = ClassRepository.format(StringUtils.substringAfterLast(StringUtils.substringAfter(xsiType, "java:"), ".")); //$NON-NLS-1$ //$NON-NLS-2$
+                if(METADATA_NAMESPACE.equals(child.getNamespaceURI())) {
+                    DataRecordMetadataHelper.setMetadataValue(dataRecord.getRecordMetadata(), child.getLocalName(), child.getTextContent());
+                } else {
+                    if (!type.hasField(child.getTagName())) {
+                        continue;
                     }
-                    if (!xsiType.isEmpty()) {
-                        ComplexTypeMetadata actualType = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), xsiType);
-                        if (actualType != null) {
-                            containedType = actualType;
-                        } else {
-                            if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Ignoring xsi:type '" + xsiType + "' because it is not a data model type.");
+                    FieldMetadata field = type.getField(child.getTagName());
+                    if (field.getType() instanceof ContainedComplexTypeMetadata) {
+                        ComplexTypeMetadata containedType = (ComplexTypeMetadata) field.getType();
+                        String xsiType = child.getAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
+                        if (xsiType.startsWith("java:")) { //$NON-NLS-1$
+                            // Special format for 'java:' type names (used in Castor XML to indicate actual class name)
+                            xsiType = ClassRepository.format(StringUtils.substringAfterLast(StringUtils.substringAfter(xsiType, "java:"), ".")); //$NON-NLS-1$ //$NON-NLS-2$
+                        }
+                        if (!xsiType.isEmpty()) {
+                            ComplexTypeMetadata actualType = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), xsiType);
+                            if (actualType != null) {
+                                containedType = actualType;
+                            } else {
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("Ignoring xsi:type '" + xsiType + "' because it is not a data model type.");
+                                }
                             }
                         }
+                        DataRecord containedRecord = new DataRecord(containedType, UnsupportedDataRecordMetadata.INSTANCE);
+                        dataRecord.set(field, containedRecord);
+                        _read(repository, containedRecord, containedType, child);
+                    } else if (ClassRepository.EMBEDDED_XML.equals(field.getType().getName())) {
+                        try {
+                            dataRecord.set(field, Util.nodeToString(element));
+                        } catch (TransformerException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        _read(repository, dataRecord, type, child);
                     }
-                    DataRecord containedRecord = new DataRecord(containedType, UnsupportedDataRecordMetadata.INSTANCE);
-                    dataRecord.set(field, containedRecord);
-                    _read(repository, containedRecord, containedType, child);
-                } else if (ClassRepository.EMBEDDED_XML.equals(field.getType().getName())) {
-                    try {
-                        dataRecord.set(field, Util.nodeToString(element));
-                    } catch (TransformerException e) {
-                        throw new RuntimeException(e);
-                    }
-                } else {
-                    _read(repository, dataRecord, type, child);
                 }
             } else if (currentChild instanceof Text) {
                 StringBuilder builder = new StringBuilder();

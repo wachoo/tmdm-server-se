@@ -14,6 +14,7 @@ package com.amalto.core.storage.record;
 import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.record.metadata.DataRecordMetadataHelper;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
@@ -80,6 +81,10 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
 
         private int accumulateXml = 0;
 
+        private boolean isMetadata = false;
+
+        private String metadataField;
+
         public DataRecordContentHandler(ComplexTypeMetadata type, MetadataRepository repository) {
             mainType = type;
             this.repository = repository;
@@ -124,40 +129,45 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
                     }
                     return;
                 }
-                field = ((ComplexTypeMetadata) currentType.peek()).getField(localName);
-                if (field instanceof ReferenceFieldMetadata) {
-                    ComplexTypeMetadata actualType = ((ReferenceFieldMetadata) field).getReferencedType();
-                    String mdmType = attributes.getValue(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type"); //$NON-NLS-1$
-                    if (mdmType != null) {
-                        actualType = repository.getComplexType(mdmType);
-                    }
-                    if (actualType == null) {
-                        throw new IllegalArgumentException("Type '" + mdmType + "' does not exist in data model.");
-                    }
-                    currentType.push(actualType);
-                } else if (field instanceof ContainedTypeFieldMetadata) {
-                    ComplexTypeMetadata actualType = ((ContainedTypeFieldMetadata) field).getContainedType();
-                    String xsiType = attributes.getValue(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
-                    if (xsiType != null) {
-                        ComplexTypeMetadata type = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), xsiType);
-                        if (type != null) {
-                            actualType = type;
-                        } else {
-                            if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Ignoring xsi:type '" + xsiType + "' because it is not a data model type.");
+                if (METADATA_NAMESPACE.equals(uri)) {
+                    metadataField = localName;
+                    isMetadata = true;
+                } else {
+                    field = ((ComplexTypeMetadata) currentType.peek()).getField(localName);
+                    if (field instanceof ReferenceFieldMetadata) {
+                        ComplexTypeMetadata actualType = ((ReferenceFieldMetadata) field).getReferencedType();
+                        String mdmType = attributes.getValue(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type"); //$NON-NLS-1$
+                        if (mdmType != null) {
+                            actualType = repository.getComplexType(mdmType);
+                        }
+                        if (actualType == null) {
+                            throw new IllegalArgumentException("Type '" + mdmType + "' does not exist in data model.");
+                        }
+                        currentType.push(actualType);
+                    } else if (field instanceof ContainedTypeFieldMetadata) {
+                        ComplexTypeMetadata actualType = ((ContainedTypeFieldMetadata) field).getContainedType();
+                        String xsiType = attributes.getValue(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
+                        if (xsiType != null) {
+                            ComplexTypeMetadata type = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), xsiType);
+                            if (type != null) {
+                                actualType = type;
+                            } else {
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("Ignoring xsi:type '" + xsiType + "' because it is not a data model type.");
+                                }
                             }
                         }
+                        DataRecord containedRecord = new DataRecord(actualType, UnsupportedDataRecordMetadata.INSTANCE);
+                        dataRecordStack.peek().set(field, containedRecord);
+                        dataRecordStack.push(containedRecord);
+                        currentType.push(actualType);
+                    } else {
+                        TypeMetadata type = field.getType();
+                        if (ClassRepository.EMBEDDED_XML.equals(type.getName())) {
+                            accumulateXml = 1;
+                        }
+                        currentType.push(type);
                     }
-                    DataRecord containedRecord = new DataRecord(actualType, UnsupportedDataRecordMetadata.INSTANCE);
-                    dataRecordStack.peek().set(field, containedRecord);
-                    dataRecordStack.push(containedRecord);
-                    currentType.push(actualType);
-                } else {
-                    TypeMetadata type = field.getType();
-                    if (ClassRepository.EMBEDDED_XML.equals(type.getName())) {
-                        accumulateXml = 1;
-                    }
-                    currentType.push(type);
                 }
             }
         }
@@ -173,7 +183,10 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
                 return;
             }
             String value = charactersBuffer.reset();
-            if (hasMetUserElement && field != null) {
+            if (isMetadata) {
+                DataRecordMetadataHelper.setMetadataValue(dataRecord.getRecordMetadata(), metadataField, value);
+                isMetadata = false;
+            } else if (hasMetUserElement && field != null) {
                 if (!value.isEmpty()) {
                     dataRecordStack.peek().set(field, value.isEmpty() ? null : MetadataUtils.convert(value, field, currentType.peek()));
                 }
