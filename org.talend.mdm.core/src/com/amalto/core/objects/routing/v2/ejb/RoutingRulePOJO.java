@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.metadata.LongString;
 
 /**
  * @author bgrieder
@@ -84,6 +85,7 @@ public class RoutingRulePOJO extends ObjectPOJO{
 		this.name = name;
 	}
 
+    @LongString
 	public String getParameters() {
 		return parameters;
 	}
