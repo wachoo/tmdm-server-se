@@ -2373,6 +2373,40 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("Demo_User", evaluate(committer.getCommittedElement(), "/User/roles/role[2]"));
     }
 
+    public void test61() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata15.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("test61", repository);
+
+        SaverSource source = new TestSaverSource(repository, false, null, "metadata15.xsd");
+        ((TestSaverSource) source).setUserName("System_Admin");
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test61_1.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "test61", "Source", recordXml, true, true, true,
+                false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("0", evaluate(committedElement, "/Individual/PartyPK"));
+
+        recordXml = DocumentSaveTest.class.getResourceAsStream("test61_2.xml");
+        context = session.getContextFactory().create("MDM", "test61", "Source", recordXml, true, true, true,
+                false, false);
+        saver = context.createSaver();
+        saver.save(session, context);
+        committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        committedElement = committer.getCommittedElement();
+        assertEquals("1", evaluate(committedElement, "/Company/PartyPK"));
+
+    }
+
     private static class MockCommitter implements SaverSession.Committer {
 
         private MutableDocument lastSaved;

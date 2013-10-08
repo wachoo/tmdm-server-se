@@ -13,6 +13,7 @@ package com.amalto.core.save.context;
 
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.history.MutableDocument;
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.save.DOMDocument;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -28,6 +29,7 @@ import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.XmlServer;
 import com.amalto.core.servlet.LoadServlet;
 import com.amalto.core.util.*;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -254,7 +256,10 @@ public class DefaultSaverSource implements SaverSource {
     }
 
     public String nextAutoIncrementId(String universe, String dataCluster, String conceptName) {
-        return String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, conceptName));
+        MetadataRepository metadataRepository = getMetadataRepository(dataCluster);
+        ComplexTypeMetadata complexType = metadataRepository.getComplexType(conceptName);
+        TypeMetadata superType = MetadataUtils.getSuperConcreteType(complexType);
+        return String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, superType.getName()));
     }
 
     public String getLegitimateUser() {
