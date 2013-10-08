@@ -251,6 +251,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
     }
 
     @Override
+    public StorageResults visit(StagingBlockKey stagingBlockKey) {
+        projectionList.add(Projections.property(Storage.METADATA_STAGING_BLOCK_KEY));
+        return null;
+    }
+
+    @Override
     public StorageResults visit(final Field field) {
         final FieldMetadata userFieldMetadata = field.getFieldMetadata();
         ComplexTypeMetadata containingType = getContainingType(userFieldMetadata);
@@ -898,6 +904,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
         @Override
         public FieldCondition visit(StagingSource stagingSource) {
             return createInternalCondition(Storage.METADATA_STAGING_SOURCE);
+        }
+
+        @Override
+        public FieldCondition visit(StagingBlockKey stagingBlockKey) {
+            return createInternalCondition(Storage.METADATA_STAGING_BLOCK_KEY);
         }
 
         @Override

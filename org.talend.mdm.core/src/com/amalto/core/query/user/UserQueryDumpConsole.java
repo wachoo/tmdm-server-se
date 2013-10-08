@@ -249,6 +249,12 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(StagingBlockKey stagingBlockKey) {
+        print("[Technical field: STAGING_BLOCK_KEY]"); //$NON-NLS-1$
+        return null;
+    }
+
     public Void visit(Join join) {
         print("[JOIN]"); //$NON-NLS-1$
         increaseIndent();

@@ -135,6 +135,12 @@ public class RecommendedIndexes {
             return Collections.emptySet();
         }
 
+        @Override
+        public Collection<FieldMetadata> visit(StagingBlockKey stagingBlockKey) {
+            // TODO Should indicate that staging block key needs index
+            return Collections.emptySet();
+        }
+
         public Collection<FieldMetadata> visit(Join join) {
             List<FieldMetadata> fields = Arrays.asList(join.getLeftField().getFieldMetadata(),
                     join.getRightField().getFieldMetadata());

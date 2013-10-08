@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage;
 
+import com.amalto.core.query.user.metadata.StagingBlockKey;
 import com.amalto.core.query.user.metadata.StagingError;
 import com.amalto.core.query.user.metadata.StagingSource;
 import com.amalto.core.query.user.metadata.StagingStatus;
@@ -212,5 +213,10 @@ class SecurityQueryCleaner extends VisitorAdapter<Expression> {
     @Override
     public Expression visit(StagingSource stagingSource) {
         return stagingSource;
+    }
+
+    @Override
+    public Expression visit(StagingBlockKey stagingBlockKey) {
+        return stagingBlockKey;
     }
 }

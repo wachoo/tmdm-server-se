@@ -199,6 +199,11 @@ class Checker extends VisitorAdapter<Boolean> {
     }
 
     @Override
+    public Boolean visit(StagingBlockKey stagingBlockKey) {
+        return true;
+    }
+
+    @Override
     public Boolean visit(Range range) {
         return range.getExpression().accept(this);
     }

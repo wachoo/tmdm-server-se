@@ -323,6 +323,14 @@ class IdQueryHandler extends AbstractQueryHandler {
         }
 
         @Override
+        public Void visit(StagingBlockKey stagingBlockKey) {
+            FieldMetadata field = createField(stagingBlockKey);
+            Object o = next.getRecordMetadata().getRecordProperties().get(Storage.METADATA_STAGING_BLOCK_KEY);
+            nextRecord.set(field, o);
+            return null;
+        }
+
+        @Override
         public Void visit(StagingSource stagingSource) {
             FieldMetadata field = createField(stagingSource);
             Object o = next.getRecordMetadata().getRecordProperties().get(Storage.METADATA_STAGING_SOURCE);

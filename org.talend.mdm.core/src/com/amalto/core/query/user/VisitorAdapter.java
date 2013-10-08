@@ -60,6 +60,11 @@ public class VisitorAdapter<T> implements Visitor<T> {
         throw new NotImplementedException();
     }
 
+    @Override
+    public T visit(StagingBlockKey stagingBlockKey) {
+        throw new NotImplementedException();
+    }
+
     public T visit(Join join) {
         throw new NotImplementedException();
     }

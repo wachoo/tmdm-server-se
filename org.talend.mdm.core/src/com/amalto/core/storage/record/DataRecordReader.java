@@ -24,8 +24,6 @@ public interface DataRecordReader<T> {
 
     String TASK_ID = "task_id"; //$NON-NLS-1$
 
-    String BLOCK_KEY = "block_key"; //$NON-NLS-1$
-
     /**
      * Read an input (typed as <code>T</code>) and returns a {@link DataRecord} instance that has user type
      * {@link ComplexTypeMetadata}.

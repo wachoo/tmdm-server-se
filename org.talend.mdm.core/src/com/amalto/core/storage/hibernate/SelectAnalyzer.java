@@ -273,6 +273,11 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
     }
 
     @Override
+    public Visitor<StorageResults> visit(StagingBlockKey stagingBlockKey) {
+        return null;
+    }
+
+    @Override
     public VisitorAdapter<StorageResults> visit(Condition condition) {
         return null;
     }
@@ -398,6 +403,13 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
 
         @Override
         public Result visit(StagingSource stagingSource) {
+            Result fieldResult = new Result();
+            fieldResult.id = false;
+            return fieldResult;
+        }
+
+        @Override
+        public Result visit(StagingBlockKey stagingBlockKey) {
             Result fieldResult = new Result();
             fieldResult.id = false;
             return fieldResult;

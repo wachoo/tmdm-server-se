@@ -321,5 +321,14 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
             currentElement.value = values[currentIndex++];
             return currentElement;
         }
+
+        @Override
+        public ProjectionElement visit(StagingBlockKey stagingBlockKey) {
+            if (!isAlias) {
+                createElement(stagingBlockKey.getTypeName(), Storage.METADATA_STAGING_BLOCK_KEY);
+            }
+            currentElement.value = values[currentIndex++];
+            return currentElement;
+        }
     }
 }

@@ -175,6 +175,12 @@ public class MappingExpressionTransformer extends VisitorAdapter<Expression> {
     }
 
     @Override
+    public Expression visit(StagingBlockKey stagingBlockKey) {
+        currentField = stagingBlockKey;
+        return stagingBlockKey;
+    }
+
+    @Override
     public Expression visit(Join join) {
         return new Join(((Field) join.getLeftField().accept(this)),
                 (Field) join.getRightField().accept(this),

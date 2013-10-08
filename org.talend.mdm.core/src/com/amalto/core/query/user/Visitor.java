@@ -28,6 +28,8 @@ public interface Visitor<T> {
 
     T visit(StagingSource stagingSource);
 
+    T visit(StagingBlockKey stagingBlockKey);
+
     T visit(Select select);
 
     T visit(NativeQuery nativeQuery);
