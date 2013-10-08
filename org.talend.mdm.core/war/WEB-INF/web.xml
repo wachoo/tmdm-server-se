@@ -73,12 +73,14 @@
     <servlet>
         <servlet-name>CXFServlet</servlet-name>
         <display-name>CXF Servlet</display-name>
-        <servlet-class>org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet</servlet-class>
+        <servlet-class>com.amalto.core.servlet.CXFServlet</servlet-class>
         <init-param>
             <param-name>jaxrs.serviceClasses</param-name>
             <param-value>
                 com.amalto.core.storage.task.staging.StagingTaskService
                 com.amalto.core.storage.transaction.TransactionService
+                com.amalto.core.storage.task.matching.ExplainTaskService
+                com.amalto.core.storage.task.matching.SimilarTaskService
             </param-value>
         </init-param>
         <init-param>

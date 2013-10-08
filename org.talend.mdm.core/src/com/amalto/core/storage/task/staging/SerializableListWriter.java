@@ -29,10 +29,11 @@ public class SerializableListWriter implements MessageBodyWriter<SerializableLis
     @Override
     public boolean isWriteable(Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType) {
         return SerializableList.class.isAssignableFrom(aClass)
-                && (mediaType.equals(MediaType.TEXT_PLAIN_TYPE) |
-                mediaType.equals(MediaType.TEXT_XML_TYPE) |
-                mediaType.equals(MediaType.APPLICATION_JSON_TYPE) |
-                mediaType.equals(MediaType.TEXT_HTML_TYPE));
+                && (MediaType.WILDCARD_TYPE.equals(mediaType) ||
+                MediaType.TEXT_PLAIN_TYPE.equals(mediaType) ||
+                MediaType.TEXT_XML_TYPE.equals(mediaType) ||
+                MediaType.APPLICATION_JSON_TYPE.equals(mediaType) ||
+                MediaType.TEXT_HTML_TYPE.equals(mediaType));
     }
 
     @Override
@@ -42,7 +43,7 @@ public class SerializableListWriter implements MessageBodyWriter<SerializableLis
 
     @Override
     public void writeTo(SerializableList strings, Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> stringObjectMultivaluedMap, OutputStream outputStream) throws IOException, WebApplicationException {
-        if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)) {
+        if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE) || mediaType.equals(MediaType.WILDCARD_TYPE)) {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outputStream));
             for (Object string : strings) {
                 bw.write(String.valueOf(string));
