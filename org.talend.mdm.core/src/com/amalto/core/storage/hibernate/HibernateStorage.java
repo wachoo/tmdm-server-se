@@ -693,7 +693,9 @@ public class HibernateStorage implements Storage {
                 throw new com.amalto.core.storage.exception.ConstraintViolationException(e);
             }
 	} finally {
-            session.clear(); // TMDM-6192: Evicts cache in case session is reused without being closed.
+	    if(session.isOpen()) {
+                session.clear(); // TMDM-6192: Evicts cache in case session is reused without being closed.
+	    }
 	}
     }
 
