@@ -11,10 +11,19 @@
 
 package com.amalto.core.save.context;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.history.MutableDocument;
+import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.metadata.TypeMetadata;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
@@ -24,13 +33,13 @@ import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.servlet.LoadServlet;
-import com.amalto.core.util.*;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import com.amalto.core.util.AutoIncrementGenerator;
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.OutputReport;
+import com.amalto.core.util.User;
+import com.amalto.core.util.UserHelper;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
 
 public class DefaultSaverSource implements SaverSource {
 
@@ -209,7 +218,10 @@ public class DefaultSaverSource implements SaverSource {
     }
 
     public String nextAutoIncrementId(String universe, String dataCluster, String conceptName) {
-        return String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, conceptName));
+        MetadataRepository metadataRepository = getMetadataRepository(dataCluster);
+        ComplexTypeMetadata complexType = metadataRepository.getComplexType(conceptName);
+        TypeMetadata superType = MetadataUtils.getSuperConcreteType(complexType);
+        return String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, superType.getName()));
     }
 
 }
