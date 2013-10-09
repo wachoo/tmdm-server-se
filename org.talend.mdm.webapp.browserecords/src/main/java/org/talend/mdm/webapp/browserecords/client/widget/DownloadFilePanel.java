@@ -14,8 +14,11 @@ package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
@@ -28,6 +31,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.RecordsPagingConfig;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
+import org.talend.mdm.webapp.browserecords.shared.Constants;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Style.SortDir;
@@ -35,6 +39,7 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -66,6 +71,8 @@ public class DownloadFilePanel extends FormPanel {
     private Window window;
 
     private ViewBean viewBean = BrowseRecords.getSession().getCurrentView();
+    
+    Map<String,List<String>> inheritanceNodeMap = null;
 
     public DownloadFilePanel(QueryModel queryModel, Window window) {
         this.queryModel = queryModel;
@@ -133,8 +140,29 @@ public class DownloadFilePanel extends FormPanel {
                 }
 
                 try {
-                    Map<String, String> param = buildExportParameter();
-                    PostDataUtil.postData("/browserecords/download", param); //$NON-NLS-1$
+                    final Map<String, String> param = buildExportParameter();
+                    if (inheritanceNodeMap.keySet().size() > 0) {
+                        StringBuilder errorMessage = new StringBuilder();
+                         Set<Entry<String, List<String>>> entrySet = inheritanceNodeMap.entrySet();
+                         for (Entry<String, List<String>> entry : entrySet) {
+                            List<String> xpathList = entry.getValue();
+                            for (String xpath : xpathList) {
+                                errorMessage.append(entry.getKey());
+                                errorMessage.append(" ----> "); //$NON-NLS-1$
+                                errorMessage.append(xpath);
+                                errorMessage.append("\r\n"); //$NON-NLS-1$
+                            }
+                        }
+                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages().missing_attribute(errorMessage.toString()), new Listener<MessageBoxEvent>() {
+
+                            @Override
+                            public void handleEvent(MessageBoxEvent be) {
+                                PostDataUtil.postData("/browserecords/download", param); //$NON-NLS-1$                                
+                            }                        
+                        });
+                    } else {
+                        PostDataUtil.postData("/browserecords/download", param); //$NON-NLS-1$                     
+                    }
                 } catch (Exception e) {
                     MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().export_error(), null);
                 }
@@ -148,18 +176,35 @@ public class DownloadFilePanel extends FormPanel {
         List<String> viewableXpaths = viewBean.getViewableXpaths();
         EntityModel entityModel = viewBean.getBindingEntityModel();
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
-
+        List<String> inheritanceNodePathList = CommonUtil.findInheritanceNodePath(entityModel);
+        inheritanceNodeMap = new HashMap<String, List<String>>(); 
+        List<String> xsiTypeList = new LinkedList<String>();
         List<String> headerList = new ArrayList<String>();
         List<String> xPathList = new ArrayList<String>();
         List<String> fkColXPathList = new ArrayList<String>();
         List<String> fkInfoList = new ArrayList<String>();
 
         for (String xpath : viewableXpaths) {
+            headerList.add(xpath.substring(xpath.indexOf("/") + 1, xpath.length())); //$NON-NLS-1$
+            if (xpath.endsWith(Constants.XSI_TYPE_QUALIFIED_NAME)) {
+                xsiTypeList.add(xpath);
+            } else {
+                for (String inheritanceNodePath : inheritanceNodePathList) {
+                    if (xpath.startsWith(inheritanceNodePath + "/")) { //$NON-NLS-1$
+                        String xsiType = inheritanceNodePath + "/@" + Constants.XSI_TYPE_QUALIFIED_NAME; //$NON-NLS-1$
+                        if (inheritanceNodeMap.get(xsiType) == null) {
+                            List<String> subPathList = new LinkedList<String>();
+                            subPathList.add(xpath);
+                            inheritanceNodeMap.put(xsiType, subPathList);
+                        } else {
+                            inheritanceNodeMap.get(xsiType).add(xpath);
+                        } 
+                    }
+                }
+            }  
+            xPathList.add(xpath);
             TypeModel typeModel = dataTypes.get(xpath);
             if (typeModel != null) {
-                String header = CommonUtil.getDownloadFileHeadName(typeModel);
-                headerList.add(header);
-                xPathList.add(xpath);
                 if (typeModel.getForeignkey() != null) {
                     fkColXPathList.add(xpath + "," + typeModel.getForeignkey()); //$NON-NLS-1$
                     List<String> fkInfo = typeModel.getForeignKeyInfo();
@@ -175,13 +220,17 @@ public class DownloadFilePanel extends FormPanel {
                 }
             }
         }
+        
+        for (String xsiType : xsiTypeList) {
+            inheritanceNodeMap.remove(xsiType);
+        }       
 
-        List<String> selectItemXmlList = new ArrayList<String>();
+        List<String> selectItemIdsList = new ArrayList<String>();
         Grid<ItemBean> grid = ItemsListPanel.getInstance().getGrid();
         if (grid != null) {
             List<ItemBean> selectItemList = grid.getSelectionModel().getSelectedItems();
             for (int i = 0; i < selectItemList.size(); i++) {
-                selectItemXmlList.add(selectItemList.get(i).getItemXml());
+                selectItemIdsList.add(selectItemList.get(i).getIds());
             }
         }
 
@@ -199,14 +248,12 @@ public class DownloadFilePanel extends FormPanel {
         param.put("xpath", CommonUtil.convertList2Xml(xPathList, "xpath")); //$NON-NLS-1$ //$NON-NLS-2$
         param.put("fkColXPath", CommonUtil.convertList2Xml(fkColXPathList, "fkColXPath")); //$NON-NLS-1$ //$NON-NLS-2$
         param.put("fkInfo", CommonUtil.convertList2Xml(fkInfoList, "fkInfo")); //$NON-NLS-1$ //$NON-NLS-2$
-        if (selectItemXmlList.size() > 0) {
-            selectItemXmlList.add(0, ""); //$NON-NLS-1$
-            param.put("itemXmlString",CommonUtil.convertList2Xml(selectItemXmlList, "result"));  //$NON-NLS-1$//$NON-NLS-2$
+        if (selectItemIdsList.size() > 0) {
+            param.put("itemIdsListString",org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(selectItemIdsList, Constants.FILE_EXPORT_IMPORT_SEPARATOR));  //$NON-NLS-1$
         } else {
-            param.put("itemXmlString","");  //$NON-NLS-1$//$NON-NLS-2$
+            param.put("itemIdsListString","");  //$NON-NLS-1$//$NON-NLS-2$
         }
         param.put("dataCluster", queryModel.getDataClusterPK()); //$NON-NLS-1$
-        param.put("viewPk", queryModel.getView().getViewPK()); //$NON-NLS-1$
         param.put("criteria", queryModel.getCriteria()); //$NON-NLS-1$
         param.put("language", queryModel.getLanguage()); //$NON-NLS-1$
 

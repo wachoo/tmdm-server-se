@@ -442,4 +442,6 @@ public interface BrowseRecordsMessages extends Messages {
     String output_report_null();
 
     String export_error();
+    
+    String missing_attribute(String path);
 }

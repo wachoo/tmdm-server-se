@@ -4,9 +4,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.Map.Entry;
 
 import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
@@ -569,5 +572,21 @@ public class CommonUtil {
         }
         docuemnt.appendChild(rootElement);
         return docuemnt.toString();
+    }
+    
+    public static List<String> findInheritanceNodePath(EntityModel entityModel) {
+        Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
+        List<String> xpathList = new LinkedList<String>();
+        Iterator<Entry<String, TypeModel>> iterator = dataTypes.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Entry<String, TypeModel> entry = iterator.next();
+            if (entry.getValue() instanceof ComplexTypeModel) {
+                ComplexTypeModel typeModel = (ComplexTypeModel)entry.getValue();
+                if (typeModel.getReusableComplexTypes() != null && typeModel.getReusableComplexTypes().size() > 1) {
+                    xpathList.add(typeModel.getXpath()); 
+                }
+            }
+        }    
+        return xpathList;
     }
 }

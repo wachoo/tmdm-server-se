@@ -12,28 +12,18 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.util;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+
+import org.talend.mdm.webapp.browserecords.shared.Constants;
 
 @SuppressWarnings("nls")
 public class UploadUtil {
     
-    public static Map<String,Boolean> getVisibleMap(String headerString){
-        Map<String,Boolean> visbleMap = new HashMap<String,Boolean>();
-        String fields[] = headerString.split("@"); //$NON-NLS-1$
-        for (int i=0;i<fields.length;i++){
-            visbleMap.put(getFieldName(fields[i]), getFieldVisible(fields[i]));
-        }
-        return visbleMap;       
-    }
-    
     public static Set<String> chechMandatoryField(String mandatoryField, Set<String> fields) {
-
-        String[] mandatoryFields = mandatoryField.split("@"); //$NON-NLS-1$
+        String[] mandatoryFields = mandatoryField.split(Constants.FILE_EXPORT_IMPORT_SEPARATOR);
         Set<String> mandatorySet = new HashSet<String>();
         for (String field : mandatoryFields)
             mandatorySet.add(field);
@@ -48,16 +38,16 @@ public class UploadUtil {
     }
     
     public static String getFieldName(String fieldValue){
-        return fieldValue.split(":")[0]; //$NON-NLS-1$
+        return fieldValue.split(Constants.HEADER_VISIBILITY_SEPARATOR)[0];
     }
     
     public static boolean getFieldVisible(String fieldValue){
-        return Boolean.valueOf(fieldValue.split(":")[1]); //$NON-NLS-1$
+        return Boolean.valueOf(fieldValue.split(Constants.HEADER_VISIBILITY_SEPARATOR)[1]);
     }
     
     public static String[] getDefaultHeader(String headerString){
         List<String> headers = new LinkedList<String>();  
-        String fields[] = headerString.split("@"); //$NON-NLS-1$
+        String fields[] = headerString.split(Constants.FILE_EXPORT_IMPORT_SEPARATOR);
         for (int i=0;i<fields.length;i++){
             headers.add(getFieldName(fields[i]));  
         }
@@ -74,9 +64,8 @@ public class UploadUtil {
         return message;
     }
     
-    public static boolean isViewableXpathValid(String viewableXpath, String concept){
-        String[] xPathArr = viewableXpath.split("@"); //$NON-NLS-1$
-        for(String path : xPathArr){
+    public static boolean isViewableXpathValid(Set<String> viewableXpathSet, String concept){
+        for(String path : viewableXpathSet){
             String str = path.substring(0, path.indexOf("/"));
             if(!str.equalsIgnoreCase(concept))
                 return false;

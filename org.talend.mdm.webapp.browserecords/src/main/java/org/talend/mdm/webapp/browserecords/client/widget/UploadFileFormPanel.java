@@ -15,18 +15,15 @@ package org.talend.mdm.webapp.browserecords.client.widget;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
-import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.FileUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.shared.Constants;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -52,8 +49,6 @@ import com.extjs.gxt.ui.client.widget.form.HiddenField;
  */
 public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent> {
 
-    private String tableName;
-
     private ComboBox<ItemBaseModel> separatorCombo;
 
     private ComboBox<ItemBaseModel> textDelimiterCombo;
@@ -64,7 +59,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
     private CheckBox headerLine;
 
-    private HiddenField<String> nameField;
+    private HiddenField<String> conceptField;
 
     private HiddenField<String> headerField;
 
@@ -73,6 +68,8 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     private HiddenField<String> languageField;
 
     private HiddenField<String> viewableXpathField;
+
+    private HiddenField<String> inheritanceNodePath;
 
     private MessageBox waitBar;
 
@@ -83,8 +80,6 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     private Window window;
 
     public UploadFileFormPanel(ViewBean viewBean, Window window) {
-
-        this.tableName = viewBean.getBindingEntityModel().getConceptName();
         this.viewBean = viewBean;
         this.window = window;
         this.setFrame(false);
@@ -96,57 +91,61 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         this.renderForm();
     }
 
-    private String getHeaderStr(ViewBean viewBean) {
+    private String getHeaderStr() {
         EntityModel entityModel = viewBean.getBindingEntityModel();
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
-        StringBuilder sb = new StringBuilder();
-        int i = 0;
-        ComplexTypeModel rootModel = (ComplexTypeModel) dataTypes.get(entityModel.getConceptName());
-        List<TypeModel> typeModels = rootModel.getSubTypes();
-        int size = typeModels.size();
-        for (TypeModel typeModel : typeModels) {
-            i++;
-            sb.append(typeModel.getName() + ":" + typeModel.isVisible()); //$NON-NLS-1$
-            if (i < size) {
-                sb.append("@"); //$NON-NLS-1$
+        List<String> viewableXpathList = viewBean.getViewableXpaths();
+        StringBuilder headerStringBuilder = new StringBuilder();
+        for (String viewableXpath : viewableXpathList) {
+            TypeModel typeModel = null;
+            if (viewableXpath.endsWith(Constants.XSI_TYPE_QUALIFIED_NAME)) {
+                typeModel = dataTypes.get(viewableXpath.substring(0, viewableXpath.lastIndexOf("/"))); //$NON-NLS-1$
+            } else {
+                typeModel = dataTypes.get(viewableXpath);
             }
+            if (!headerStringBuilder.toString().isEmpty()) {
+                headerStringBuilder.append(Constants.FILE_EXPORT_IMPORT_SEPARATOR);
+            }
+            headerStringBuilder.append(org.talend.mdm.webapp.base.shared.util.CommonUtil.escape(viewableXpath + Constants.HEADER_VISIBILITY_SEPARATOR + typeModel.isVisible()));
         }
-        return sb.toString();
+        return headerStringBuilder.toString();
     }
 
-    private String getMandatoryStr(ViewBean viewBean) {
+    private String getMandatoryStr() {
         EntityModel entityModel = viewBean.getBindingEntityModel();
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
-        Set<String> keySet = dataTypes.keySet();
-        StringBuilder sb = new StringBuilder();
+        List<String> xpathList = viewBean.getViewableXpaths();
+        StringBuilder mandatoryStringBuilder = new StringBuilder();
 
-        for (String key : keySet) {
+        for (String key : xpathList) {
             TypeModel typeModel = dataTypes.get(key);
             if (typeModel != null) {
-                if (typeModel.getMaxOccurs() == 1 && typeModel.getMinOccurs() == 1) {
-                    sb.append(typeModel.getName()).append("@"); //$NON-NLS-1$
+                if (typeModel.getMinOccurs() == 1) {
+                    if (!mandatoryStringBuilder.toString().isEmpty()) {
+                        mandatoryStringBuilder.append(Constants.FILE_EXPORT_IMPORT_SEPARATOR);
+                    }
+                    mandatoryStringBuilder.append(typeModel.getTypePath());
                 }
             }
         }
-
-        return sb.toString();
+        return org.talend.mdm.webapp.base.shared.util.CommonUtil.escape(mandatoryStringBuilder.toString());
     }
 
     private void renderForm() {
 
-        nameField = new HiddenField<String>();
-        nameField.setName("concept");//$NON-NLS-1$
-        nameField.setValue(tableName);
-        this.add(nameField);
+        conceptField = new HiddenField<String>();
+        conceptField.setName("concept");//$NON-NLS-1$
+        conceptField.setValue(viewBean.getBindingEntityModel().getConceptName());
+        this.add(conceptField);
 
         headerField = new HiddenField<String>();
         headerField.setName("header");//$NON-NLS-1$
-        headerField.setValue(this.getHeaderStr(viewBean));
+        headerField.setValue(getHeaderStr());
         this.add(headerField);
 
         mandatoryField = new HiddenField<String>();
         mandatoryField.setName("mandatoryField");//$NON-NLS-1$
-        mandatoryField.setValue(this.getMandatoryStr(viewBean));
+        mandatoryField.setValue(getMandatoryStr());
         this.add(mandatoryField);
 
         languageField = new HiddenField<String>();
@@ -156,8 +155,13 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
         viewableXpathField = new HiddenField<String>();
         viewableXpathField.setName("viewableXpath");//$NON-NLS-1$
-        viewableXpathField.setValue(LabelUtil.convertList2String(viewBean.getViewableXpaths(), "@")); //$NON-NLS-1$
+        viewableXpathField.setValue(org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(viewBean.getViewableXpaths(), Constants.FILE_EXPORT_IMPORT_SEPARATOR));
         this.add(viewableXpathField);
+        
+        inheritanceNodePath = new HiddenField<String>();
+        inheritanceNodePath.setName("inheritanceNodePath");//$NON-NLS-1$
+        inheritanceNodePath.setValue(org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(org.talend.mdm.webapp.browserecords.client.util.CommonUtil.findInheritanceNodePath(viewBean.getBindingEntityModel()), Constants.FILE_EXPORT_IMPORT_SEPARATOR));
+        this.add(inheritanceNodePath);
 
         file = new FileUploadField();
         file.setAllowBlank(false);
@@ -353,10 +357,6 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
             }
             MessageBox.alert(MessagesFactory.getMessages().error_title(), errorMsg, null);
         }
-    }
-
-    public HiddenField<String> getNameField() {
-        return nameField;
     }
 
     public static String extractErrorMessage(String errMsg) {
