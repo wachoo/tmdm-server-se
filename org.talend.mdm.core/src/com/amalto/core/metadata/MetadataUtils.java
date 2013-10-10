@@ -323,7 +323,7 @@ public class MetadataUtils {
                 TypeMetadata superType = type.getSuperTypes().iterator().next();
                 if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(superType.getNamespace())
                         && (Types.ANY_TYPE.equals(superType.getName())
-                        || "anySimpleType".equals(superType.getName()) //$NON-NLS-1$
+                        || Types.ANY_SIMPLE_TYPE.equals(superType.getName())
                         || Types.DECIMAL.equals(superType.getName()))) {
                     break;
                 }
