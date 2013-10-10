@@ -37,6 +37,8 @@ public abstract class StorageClassLoader extends ClassLoader {
 
     public static final String EHCACHE_XML_CONFIG = "ehcache.xml";
 
+    private final Map<Thread, ClassLoader> previousClassLoaders = new HashMap<Thread, ClassLoader>();
+
     static final String HIBERNATE_CONFIG_TEMPLATE = "hibernate.cfg.template.xml"; //$NON-NLS-1$
 
     static final String HIBERNATE_MAPPING = "hibernate.hbm.xml"; //$NON-NLS-1$
@@ -58,8 +60,6 @@ public abstract class StorageClassLoader extends ClassLoader {
     TableResolver resolver;
 
     private boolean isClosed;
-
-    private ClassLoader previousClassLoader;
 
     StorageClassLoader(ClassLoader parent,
                        String storageName,
@@ -195,6 +195,9 @@ public abstract class StorageClassLoader extends ClassLoader {
 
     public void close() {
         if (!isClosed) {
+            for (Map.Entry<Thread, ClassLoader> entry : previousClassLoaders.entrySet()) {
+                entry.getKey().setContextClassLoader(entry.getValue());
+            }
             registeredClasses.clear();
             knownTypes.clear();
             isClosed = true;
@@ -207,14 +210,15 @@ public abstract class StorageClassLoader extends ClassLoader {
 
     public void bind(Thread thread) {
         if (thread.getContextClassLoader() != this) {
-            previousClassLoader = thread.getContextClassLoader();
+            previousClassLoaders.put(thread, thread.getContextClassLoader());
             thread.setContextClassLoader(this);
         }
     }
 
     public void unbind(Thread thread) {
-        if (previousClassLoader != null) {
-            thread.setContextClassLoader(previousClassLoader);
+        if (previousClassLoaders.get(thread) != null) {
+            thread.setContextClassLoader(previousClassLoaders.get(thread));
+            previousClassLoaders.remove(thread);
         }
     }
 }

@@ -128,6 +128,8 @@ public class StorageTestCase extends TestCase {
         LOG.info("Storage prepared.");
     }
 
+    private ClassLoader previous;
+
     protected static DataSource getDatasource(String dataSourceName) {
         return ServerContext.INSTANCE.get().getDataSource(dataSourceName, "MDM", StorageType.MASTER);
     }
@@ -138,12 +140,15 @@ public class StorageTestCase extends TestCase {
 
     @Override
     public void setUp() throws Exception {
+        previous = Thread.currentThread().getContextClassLoader();
         storage.begin();
+
     }
 
     @Override
     public void tearDown() throws Exception {
         storage.commit();
+        assertTrue(previous == Thread.currentThread().getContextClassLoader());
     }
 
     protected static class TestUserDelegator implements SecuredStorage.UserDelegator {

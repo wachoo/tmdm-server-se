@@ -112,6 +112,7 @@ class HibernateStorageTransaction extends StorageTransaction {
                 }
                 session.close();
             }
+            storage.getClassLoader().unbind(Thread.currentThread());
         }
     }
 
@@ -132,12 +133,11 @@ class HibernateStorageTransaction extends StorageTransaction {
             StorageClassLoader classLoader = storage.getClassLoader();
             DataRecordXmlWriter writer = new DataRecordXmlWriter();
             ResettableStringWriter xmlContent = new ResettableStringWriter();
-            ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
             for (EntityKey failedKey : failedKeys) {
                 String entityTypeName = StringUtils.substringAfterLast(failedKey.getEntityName(), "."); //$NON-NLS-1$
                 LOGGER.log(currentLevel, "Entity #" + i++ + " (type=" + entityTypeName + ", id=" + failedKey.getIdentifier() + ")");
                 try {
-                    Thread.currentThread().setContextClassLoader(classLoader);
+                    storage.getClassLoader().bind(Thread.currentThread());
                     Wrapper o = (Wrapper) ((SessionImpl) session).getPersistenceContext().getEntity(failedKey);
                     if (o != null) {
                         ComplexTypeMetadata type = classLoader.getTypeFromClass(classLoader.loadClass(failedKey.getEntityName()));
@@ -162,7 +162,7 @@ class HibernateStorageTransaction extends StorageTransaction {
                     }
                 } finally {
                     xmlContent.reset();
-                    Thread.currentThread().setContextClassLoader(previousClassLoader);
+                    storage.getClassLoader().unbind(Thread.currentThread());
                 }
                 if (i > TRANSACTION_DUMP_MAX) {
                     if (!LOGGER.isDebugEnabled()) {
@@ -215,6 +215,7 @@ class HibernateStorageTransaction extends StorageTransaction {
                     session.clear();
                 }
                 session.close();
+                storage.getClassLoader().unbind(Thread.currentThread());
             }
         }
     }
