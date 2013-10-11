@@ -37,6 +37,8 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
 
     private final MappingRepository mappingMetadataRepository;
 
+    private boolean firstNextCall = true;
+
     public ProjectionIterator(MappingRepository mappingMetadataRepository,
                               Iterator<Object> iterator,
                               List<TypedExpression> selectedFields,
@@ -52,20 +54,11 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
                               List<TypedExpression> selectedFields,
                               final Set<ResultsCallback> callbacks) {
         this(mappingMetadataRepository, new Iterator<Object>() {
-
-            private boolean firstNextCall = true;
-
             public boolean hasNext() {
                 return results.next();
             }
 
             public Object next() {
-                if (firstNextCall) {
-                    for (ResultsCallback callback : callbacks) {
-                        callback.onBeginOfResults();
-                    }
-                    firstNextCall = false;
-                }
                 return results.get();
             }
 
@@ -93,6 +86,12 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
     }
 
     public DataRecord next() {
+        if (firstNextCall) {
+            for (ResultsCallback callback : callbacks) {
+                callback.onBeginOfResults();
+            }
+            firstNextCall = false;
+        }
         DataRecord record;
         try {
             final ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, Storage.PROJECTION_TYPE, false);
