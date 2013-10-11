@@ -13,6 +13,7 @@ package com.amalto.core.save.context;
 
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.history.MutableDocument;
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
@@ -28,9 +29,11 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.util.*;
+
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -214,7 +217,29 @@ public class StorageSaverSource implements SaverSource {
     }
 
     public String nextAutoIncrementId(String universe, String dataCluster, String conceptName) {
-        return String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, conceptName));
+        long autoIncrementId = -1;        
+        String concept = null;
+        String field = null;
+        if (conceptName.contains(".")) { //$NON-NLS-1$
+            String[] conceptArray = conceptName.split("\\."); //$NON-NLS-1$
+            concept = conceptArray[0];
+            field = conceptArray[1];
+        } else {
+            concept = conceptName;
+        }
+        MetadataRepository metadataRepository = getMetadataRepository(dataCluster);
+        if (metadataRepository != null) {
+            ComplexTypeMetadata complexType = metadataRepository.getComplexType(concept);
+            if (complexType != null) {
+                TypeMetadata superType = MetadataUtils.getSuperConcreteType(complexType);
+                if (superType != null) {
+                    concept = superType.getName();
+                }                
+                String autoIncrementFiledName = field != null ? concept + "." + field : concept; //$NON-NLS-1$
+                autoIncrementId = AutoIncrementGenerator.generateNum(universe, dataCluster, autoIncrementFiledName);
+            } 
+        }
+        return String.valueOf(autoIncrementId);
     }
 
     public String getLegitimateUser() {

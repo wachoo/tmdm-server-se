@@ -256,10 +256,29 @@ public class DefaultSaverSource implements SaverSource {
     }
 
     public String nextAutoIncrementId(String universe, String dataCluster, String conceptName) {
+        long autoIncrementId = -1;        
+        String concept = null;
+        String field = null;
+        if (conceptName.contains(".")) { //$NON-NLS-1$
+            String[] conceptArray = conceptName.split("\\."); //$NON-NLS-1$
+            concept = conceptArray[0];
+            field = conceptArray[1];
+        } else {
+            concept = conceptName;
+        }
         MetadataRepository metadataRepository = getMetadataRepository(dataCluster);
-        ComplexTypeMetadata complexType = metadataRepository.getComplexType(conceptName);
-        TypeMetadata superType = MetadataUtils.getSuperConcreteType(complexType);
-        return String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, superType.getName()));
+        if (metadataRepository != null) {
+            ComplexTypeMetadata complexType = metadataRepository.getComplexType(concept);
+            if (complexType != null) {
+                TypeMetadata superType = MetadataUtils.getSuperConcreteType(complexType);
+                if (superType != null) {
+                    concept = superType.getName();
+                }
+                String autoIncrementFiledName = field != null ? concept + "." + field : concept; //$NON-NLS-1$
+                autoIncrementId = AutoIncrementGenerator.generateNum(universe, dataCluster, autoIncrementFiledName);
+            } 
+        }
+        return String.valueOf(autoIncrementId);
     }
 
     public String getLegitimateUser() {
