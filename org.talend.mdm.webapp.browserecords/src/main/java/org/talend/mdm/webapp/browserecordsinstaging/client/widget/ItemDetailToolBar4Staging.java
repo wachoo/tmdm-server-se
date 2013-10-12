@@ -12,12 +12,27 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecordsinstaging.client.widget;
 
+import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecordsinstaging.client.i18n.BrowseRecordsInStagingMessages;
+
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public class ItemDetailToolBar4Staging extends ItemDetailToolBar {
+    
+    private final BrowseRecordsInStagingMessages msg = org.talend.mdm.webapp.browserecordsinstaging.client.i18n.MessagesFactory
+            .getMessages();
 
     public ItemDetailToolBar4Staging() {
         this.setBorders(false);
@@ -67,7 +82,7 @@ public class ItemDetailToolBar4Staging extends ItemDetailToolBar {
         this.addSeparator();
         this.addSaveQuitButton();
         this.addSeparator();
-        this.addDeleteMenu();
+        this.addDeleteButton();
         this.addSeparator();
         this.addDuplicateButton();
         this.addSeparator();
@@ -85,7 +100,7 @@ public class ItemDetailToolBar4Staging extends ItemDetailToolBar {
         addGeneratedViewButton();
         addSeparator();
         addSmartViewCombo();
-        addDeleteMenu();
+        addDeleteButton();
         addSeparator();
         addPrintButton();
         addSeparator();
@@ -104,4 +119,29 @@ public class ItemDetailToolBar4Staging extends ItemDetailToolBar {
         this.addSeparator();
         this.addSaveQuitButton();
     }
+
+    @Override
+    protected void addDeleteButton() {
+        if (deleteButton == null) {
+            deleteButton = new Button(msg.mark_as_deleted());
+            deleteButton.setId("deleteButton"); //$NON-NLS-1$
+            deleteButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
+            
+            deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+                @Override
+                public void componentSelected(ButtonEvent ce) {
+                    MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), msg.mark_deleted_confirm(),
+                            new Listener<MessageBoxEvent>() {
+
+                        public void handleEvent(MessageBoxEvent be) {
+                            if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                deleteRecord();
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        add(deleteButton);
+    }      
 }

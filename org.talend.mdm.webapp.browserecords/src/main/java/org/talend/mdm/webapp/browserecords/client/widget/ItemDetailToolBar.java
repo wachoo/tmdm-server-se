@@ -103,7 +103,7 @@ public class ItemDetailToolBar extends ToolBar {
 
     private Button saveAndCloseButton;
 
-    private Button deleteButton;
+    protected Button deleteButton;
 
     private Button relationButton;
 
@@ -202,10 +202,12 @@ public class ItemDetailToolBar extends ToolBar {
             deleteButton.setEnabled(false);
         else {
             deleteButton.setEnabled(true);
-            if (denyLogicalDelete)
-                delete_SendToTrash.setEnabled(false);
-            if (denyPhysicalDelete)
-                delete_Delete.setEnabled(false);
+            if (delete_SendToTrash != null && delete_Delete != null) {
+                if (denyLogicalDelete)
+                    delete_SendToTrash.setEnabled(false);
+                if (denyPhysicalDelete)
+                    delete_Delete.setEnabled(false);
+            }
         }
     }
 
@@ -235,7 +237,7 @@ public class ItemDetailToolBar extends ToolBar {
         this.addSeparator();
         this.addSaveQuitButton();
         this.addSeparator();
-        this.addDeleteMenu();
+        this.addDeleteButton();
         this.addSeparator();
         this.addDuplicateButton();
         this.addSeparator();
@@ -380,65 +382,60 @@ public class ItemDetailToolBar extends ToolBar {
         }
         add(saveAndCloseButton);
     }
-
-    protected void addDeleteMenu() {
+    
+    protected void addDeleteButton() {
         if (deleteButton == null) {
             deleteButton = new Button(MessagesFactory.getMessages().delete_btn());
             deleteButton.setId("deleteButton"); //$NON-NLS-1$
             deleteButton.setToolTip(MessagesFactory.getMessages().delete_tip());
             deleteButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
-
-            deleteMenu = new Menu();
-            deleteMenu.setId("deleteMenu"); //$NON-NLS-1$
-            delete_SendToTrash = new MenuItem(MessagesFactory.getMessages().trash_btn());
-            delete_SendToTrash.setId("delete_SendToTrash"); //$NON-NLS-1$
-            delete_SendToTrash.addSelectionListener(new SelectionListener<MenuEvent>() {
-
-                @Override
-                public void componentSelected(MenuEvent ce) {
-                    PostDeleteAction postDeleteAction = new CloseTabPostDeleteAction(ItemDetailToolBar.this, new ListRefresh(
-                            ItemDetailToolBar.this, new ContainerUpdate(ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE)));
-                    DeleteAction deleteAction = new LogicalDeleteAction("/"); //$NON-NLS-1$
-                    // Collections.singletonList(itemBean) --- it could not be sent to backend correctly
-                    List<ItemBean> list = new ArrayList<ItemBean>();
-                    list.add(itemBean);
-                    service.checkFKIntegrity(list, new DeleteCallback(deleteAction, postDeleteAction, service));
-                }
-            });
-            delete_SendToTrash.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Send_to_trash()));
-            deleteMenu.add(delete_SendToTrash);
-
-            delete_Delete = new MenuItem(MessagesFactory.getMessages().delete_btn());
-            delete_Delete.setId("delete_Delete"); //$NON-NLS-1$
-            deleteMenu.add(delete_Delete);
-            delete_Delete.addSelectionListener(new SelectionListener<MenuEvent>() {
-
-                @Override
-                public void componentSelected(MenuEvent ce) {
-                    MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
-                            .delete_confirm(), new Listener<MessageBoxEvent>() {
-
-                        public void handleEvent(MessageBoxEvent be) {
-                            if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                PostDeleteAction postDeleteAction = new CloseTabPostDeleteAction(ItemDetailToolBar.this,
-                                        new ListRefresh(ItemDetailToolBar.this, new ContainerUpdate(ItemDetailToolBar.this,
-                                                NoOpPostDeleteAction.INSTANCE)));
-                                List<ItemBean> list = new ArrayList<ItemBean>();
-                                list.add(itemBean);
-                                service.checkFKIntegrity(list, new DeleteCallback(DeleteAction.PHYSICAL, postDeleteAction,
-                                        service));
-                            }
-                        }
-                    });
-
-                }
-            });
-
-            delete_Delete.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
-            deleteButton.setMenu(deleteMenu);
+            addDeleteMenu();
         }
-
         add(deleteButton);
+    }
+
+    private void addDeleteMenu() {
+        deleteMenu = new Menu();
+        deleteMenu.setId("deleteMenu"); //$NON-NLS-1$
+        delete_SendToTrash = new MenuItem(MessagesFactory.getMessages().trash_btn());
+        delete_SendToTrash.setId("delete_SendToTrash"); //$NON-NLS-1$
+        delete_SendToTrash.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+            @Override
+            public void componentSelected(MenuEvent ce) {
+                PostDeleteAction postDeleteAction = new CloseTabPostDeleteAction(ItemDetailToolBar.this, new ListRefresh(
+                        ItemDetailToolBar.this, new ContainerUpdate(ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE)));
+                DeleteAction deleteAction = new LogicalDeleteAction("/"); //$NON-NLS-1$
+                // Collections.singletonList(itemBean) --- it could not be sent to backend correctly
+                List<ItemBean> list = new ArrayList<ItemBean>();
+                list.add(itemBean);
+                service.checkFKIntegrity(list, new DeleteCallback(deleteAction, postDeleteAction, service));
+            }
+        });
+        delete_SendToTrash.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Send_to_trash()));
+        deleteMenu.add(delete_SendToTrash);
+
+        delete_Delete = new MenuItem(MessagesFactory.getMessages().delete_btn());
+        delete_Delete.setId("delete_Delete"); //$NON-NLS-1$
+        deleteMenu.add(delete_Delete);
+        delete_Delete.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+            @Override
+            public void componentSelected(MenuEvent ce) {
+                MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
+                        .delete_confirm(), new Listener<MessageBoxEvent>() {
+
+                    public void handleEvent(MessageBoxEvent be) {
+                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                            deleteRecord();
+                        }
+                    }
+                });
+            }
+        });
+
+        delete_Delete.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
+        deleteButton.setMenu(deleteMenu);
     }
 
     protected void addDuplicateButton() {
@@ -810,7 +807,7 @@ public class ItemDetailToolBar extends ToolBar {
         addGeneratedViewButton();
         addSeparator();
         addSmartViewCombo();
-        addDeleteMenu();
+        addDeleteButton();
         addSeparator();
         addPrintButton();
         addSeparator();
@@ -1302,5 +1299,15 @@ public class ItemDetailToolBar extends ToolBar {
 
     public void setFkToolBar(boolean isFkToolBar) {
         this.isFkToolBar = isFkToolBar;
+    }
+    
+    protected void deleteRecord() {
+        PostDeleteAction postDeleteAction = new CloseTabPostDeleteAction(ItemDetailToolBar.this,
+                new ListRefresh(ItemDetailToolBar.this, new ContainerUpdate(ItemDetailToolBar.this,
+                        NoOpPostDeleteAction.INSTANCE)));
+        List<ItemBean> list = new ArrayList<ItemBean>();
+        list.add(itemBean);
+        service.checkFKIntegrity(list, new DeleteCallback(DeleteAction.PHYSICAL, postDeleteAction,
+                service));
     }
 }
