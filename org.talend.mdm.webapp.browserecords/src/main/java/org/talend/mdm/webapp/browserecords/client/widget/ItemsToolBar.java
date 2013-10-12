@@ -260,14 +260,16 @@ public class ItemsToolBar extends ToolBar {
             deleteMenu.setEnabled(false);
         else {
             deleteMenu.setEnabled(true);
-            if (denyPhysicalDelete)
-                deleteMenu.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(false); //$NON-NLS-1$
-            else
-                deleteMenu.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(true); //$NON-NLS-1$
-            if (denyLogicalDelete)
-                deleteMenu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(false); //$NON-NLS-1$
-            else
-                deleteMenu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(true); //$NON-NLS-1$
+            if (deleteMenu.getMenu() != null) {
+                if (denyPhysicalDelete)
+                    deleteMenu.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(false); //$NON-NLS-1$
+                else
+                    deleteMenu.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(true); //$NON-NLS-1$
+                if (denyLogicalDelete)
+                    deleteMenu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(false); //$NON-NLS-1$
+                else
+                    deleteMenu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(true); //$NON-NLS-1$
+            }
         }
 
         updateUserCriteriasList();
