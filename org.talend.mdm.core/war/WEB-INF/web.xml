@@ -103,7 +103,20 @@
             <param-value>10000</param-value>
         </init-param>
     </servlet>
-    
+
+    <servlet>
+        <servlet-name>LogViewerServlet</servlet-name>
+        <servlet-class>com.amalto.core.servlet.LogViewerServlet</servlet-class>
+        <init-param>
+            <param-name>logFile</param-name>
+            <param-value>${jboss.server.log.dir}/match.log</param-value>
+        </init-param>
+        <init-param>
+            <param-name>maxLinesByChunk</param-name>
+            <param-value>10000</param-value>
+        </init-param>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>runServlet</servlet-name>
         <url-pattern>/run</url-pattern>
@@ -127,6 +140,10 @@
         <servlet-mapping>
         <servlet-name>LogViewerServlet</servlet-name>
         <url-pattern>/logviewer/log</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LogViewerServlet</servlet-name>
+        <url-pattern>/logviewer/match</url-pattern>
     </servlet-mapping>
 
     <security-constraint>

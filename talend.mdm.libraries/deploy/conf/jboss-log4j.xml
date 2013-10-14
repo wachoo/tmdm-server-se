@@ -45,6 +45,19 @@
       </layout>
    </appender>
 
+    <!-- A time/date based rolling appender -->
+    <appender name="MATCH_LOG_FILE" class="org.jboss.logging.appender.DailyRollingFileAppender">
+        <errorHandler class="org.jboss.logging.util.OnlyOnceErrorHandler"/>
+        <param name="File" value="${jboss.server.log.dir}/match.log"/>
+        <param name="Append" value="false"/>
+        <param name="Threshold" value="INFO"/>
+
+        <!-- Rollover at midnight each day -->
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5r %-5p [%c] (%t:%x) %m%n"/>
+        </layout>
+    </appender>
 
     <!-- Use Log4J ChainSaw to see those messages with:                 -->
     <!--   java -Dchainsaw.port=4560 org.apache.log4j.chainsaw.Main     -->
@@ -184,6 +197,16 @@
    <!-- ================ -->
 
     <category name="com.amalto">
+        <priority value="INFO"/>
+    </category>
+
+    <category name="com.amalto.core.storage.task" additivity="false">
+        <appender-ref ref="MATCH_LOG_FILE"/>
+        <priority value="INFO"/>
+    </category>
+
+    <category name="org.talend.dataquality.matchmerge" additivity="false">
+        <appender-ref ref="MATCH_LOG_FILE"/>
         <priority value="INFO"/>
     </category>
 
