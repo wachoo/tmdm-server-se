@@ -112,7 +112,7 @@ class HibernateStorageTransaction extends StorageTransaction {
                 }
                 session.close();
             }
-            storage.getClassLoader().unbind(Thread.currentThread());
+            storage.getClassLoader().reset(Thread.currentThread());
         }
     }
 
@@ -215,7 +215,7 @@ class HibernateStorageTransaction extends StorageTransaction {
                     session.clear();
                 }
                 session.close();
-                storage.getClassLoader().unbind(Thread.currentThread());
+                storage.getClassLoader().reset(Thread.currentThread());
             }
         }
     }

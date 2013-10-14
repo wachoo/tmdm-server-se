@@ -25,6 +25,7 @@ import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 import java.util.TreeMap;
 
 public abstract class StorageClassLoader extends ClassLoader {
@@ -37,7 +38,7 @@ public abstract class StorageClassLoader extends ClassLoader {
 
     public static final String EHCACHE_XML_CONFIG = "ehcache.xml";
 
-    private final Map<Thread, ClassLoader> previousClassLoaders = new HashMap<Thread, ClassLoader>();
+    private final Map<Thread, Stack<ClassLoader>> previousClassLoaders = new HashMap<Thread, Stack<ClassLoader>>();
 
     static final String HIBERNATE_CONFIG_TEMPLATE = "hibernate.cfg.template.xml"; //$NON-NLS-1$
 
@@ -195,8 +196,8 @@ public abstract class StorageClassLoader extends ClassLoader {
 
     public void close() {
         if (!isClosed) {
-            for (Map.Entry<Thread, ClassLoader> entry : previousClassLoaders.entrySet()) {
-                entry.getKey().setContextClassLoader(entry.getValue());
+            for (Map.Entry<Thread, Stack<ClassLoader>> entry : previousClassLoaders.entrySet()) {
+                reset(entry.getKey());
             }
             registeredClasses.clear();
             knownTypes.clear();
@@ -208,17 +209,62 @@ public abstract class StorageClassLoader extends ClassLoader {
         return isClosed;
     }
 
+    /**
+     * Replace the thread's context class loader with this class loader. "Binds" remembers the
+     * {@link Thread#getContextClassLoader()} value, so a call to {@link #unbind(Thread)} will restore previous context
+     * class loader. Method support nesting bind calls, in this case successive calls ({@link #unbind(Thread)}) will
+     * successively restored previous class loaders.
+     *
+     * @param thread A non-null Thread instance (usually {@link Thread#currentThread()}. Calling this method will
+     *               <code>null</code> has no effect.
+     * @see #unbind(Thread)
+     */
     public void bind(Thread thread) {
-        if (thread.getContextClassLoader() != this) {
-            previousClassLoaders.put(thread, thread.getContextClassLoader());
-            thread.setContextClassLoader(this);
+        if (thread == null) {
+            return;
+        }
+        Stack<ClassLoader> classLoaders = previousClassLoaders.get(thread);
+        if (classLoaders == null) {
+            classLoaders = new Stack<ClassLoader>();
+            previousClassLoaders.put(thread, classLoaders);
+        }
+        classLoaders.push(thread.getContextClassLoader());
+        thread.setContextClassLoader(this);
+    }
+
+    /**
+     * Restore the previous context class loader.
+     *
+     * @param thread A non-null Thread instance (usually {@link Thread#currentThread()}. Calling this method will
+     *               <code>null</code> has no effect.
+     * @see #bind(Thread)
+     */
+    public void unbind(Thread thread) {
+        if (thread == null) {
+            return;
+        }
+        Stack<ClassLoader> classLoaders = previousClassLoaders.get(thread);
+        if (classLoaders != null && !classLoaders.isEmpty()) {
+            ClassLoader previousClassLoader = classLoaders.pop();
+            thread.setContextClassLoader(previousClassLoader);
         }
     }
 
-    public void unbind(Thread thread) {
-        if (previousClassLoaders.get(thread) != null) {
-            thread.setContextClassLoader(previousClassLoaders.get(thread));
-            previousClassLoaders.remove(thread);
+    /**
+     * Similar to {@link #unbind(Thread)} but in case successive calls to {@link #bind(Thread)} were made, this method
+     * ensures the very first class loader is restored.
+     *
+     * @param thread A non-null Thread instance (usually {@link Thread#currentThread()}. Calling this method will
+     *               <code>null</code> has no effect.
+     */
+    public void reset(Thread thread) {
+        if (thread == null) {
+            return;
+        }
+        Stack<ClassLoader> classLoaders = previousClassLoaders.get(thread);
+        if (classLoaders != null && !classLoaders.isEmpty()) {
+            thread.setContextClassLoader(classLoaders.firstElement());
+            classLoaders.clear();
         }
     }
 }
