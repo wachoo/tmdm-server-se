@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package talend.ext.images.server;
 
 import java.io.File;
@@ -12,13 +24,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.mchange.v2.ssim.SsimServlet;
-import com.mchange.v2.util.PatternReplacementMap;
-
 import talend.ext.images.server.backup.DBDelegate;
 import talend.ext.images.server.backup.ResourcePK;
 import talend.ext.images.server.util.IOUtil;
 import talend.ext.images.server.util.ReflectionUtil;
+
+import com.mchange.v2.ssim.SsimServlet;
+import com.mchange.v2.util.PatternReplacementMap;
 
 public class ImageLoadFrontFilter {
 
@@ -64,13 +76,13 @@ public class ImageLoadFrontFilter {
 
     }
 
-
     public String getServletPath() {
 
         String path = ""; //$NON-NLS-1$
 
-        if (resourceCatalogName != null && resourceCatalogName.length() > 0)
+        if (resourceCatalogName != null && resourceCatalogName.length() > 0) {
             path += ("/" + resourceCatalogName); //$NON-NLS-1$
+        }
 
         path += ("/" + resourceFileName); //$NON-NLS-1$
 
@@ -79,13 +91,13 @@ public class ImageLoadFrontFilter {
     }
 
     private String parseResourcePath(ServletContext sc, HttpServletRequest req) {
-        String path =  (String) sc.getAttribute(ImageServerInfoServlet.UPLOAD_PATH);
+        String path = new String(ImageServerInfoServlet.getUploadPath());
 
         String input = req.getRequestURI();
         if (input.indexOf("?") != -1) { //$NON-NLS-1$
             input = input.substring(0, input.indexOf("?")); //$NON-NLS-1$
         }
-        input = input.replaceAll("//", "/");  //$NON-NLS-1$//$NON-NLS-2$
+        input = input.replaceAll("//", "/"); //$NON-NLS-1$//$NON-NLS-2$
         input = input.substring(input.indexOf("/upload") + 7); //$NON-NLS-1$
         try {
             parseCatalogAndFile(input);
@@ -93,20 +105,21 @@ public class ImageLoadFrontFilter {
             throw new RuntimeException(e);
         }
         path += (File.separator + resourceCatalogName + File.separator + resourceFileName);
-        path = path.replaceAll("\\\\", "/");  //$NON-NLS-1$//$NON-NLS-2$
+        path = path.replaceAll("\\\\", "/"); //$NON-NLS-1$//$NON-NLS-2$
 
         PatternReplacementMap patternReplacementMap = (PatternReplacementMap) sc
                 .getAttribute(SsimServlet.PATTERN_REPLACEMENT_MAP_APPKEY);
 
         if (patternReplacementMap != null) {
             patternReplacementMap.addMapping(Pattern.compile(input), "file:" + path); //$NON-NLS-1$
-        }        
+        }
         return path;
     }
 
     private void parseCatalogAndFile(String in) throws UnsupportedEncodingException {
-        if (in.startsWith("/")) //$NON-NLS-1$
+        if (in.startsWith("/")) { //$NON-NLS-1$
             in = in.substring(1);
+        }
         String[] inArray = in.split("/"); //$NON-NLS-1$
         if (inArray.length == 1) {
             resourceCatalogName = "/"; //$NON-NLS-1$
@@ -115,7 +128,7 @@ public class ImageLoadFrontFilter {
             resourceCatalogName = inArray[0];
             resourceFileName = inArray[1];
         }
-        
+
         resourceCatalogName = URLDecoder.decode(resourceCatalogName, "UTF-8"); //$NON-NLS-1$
         resourceFileName = URLDecoder.decode(resourceFileName, "UTF-8"); //$NON-NLS-1$
     }

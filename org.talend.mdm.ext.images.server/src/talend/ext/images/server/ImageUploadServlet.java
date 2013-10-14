@@ -24,7 +24,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -64,10 +63,6 @@ public class ImageUploadServlet extends ImageServerInfoServlet {
 
     private String bakUseTransaction = "false"; //$NON-NLS-1$
 
-    private String uploadPath = null;;
-
-    private String tempPath = null;
-
     private String sourceFileName = ""; //$NON-NLS-1$
 
     private String sourceFileType = ""; //$NON-NLS-1$
@@ -96,10 +91,6 @@ public class ImageUploadServlet extends ImageServerInfoServlet {
         bakInDB = config.getInitParameter("bak-in-db"); //$NON-NLS-1$
         dbDelegateClass = config.getInitParameter("db-delegate-class"); //$NON-NLS-1$
         bakUseTransaction = config.getInitParameter("bak-use-transaction"); //$NON-NLS-1$
-
-        ServletContext sc = config.getServletContext();
-        uploadPath = (String) sc.getAttribute(ImageServerInfoServlet.UPLOAD_PATH);
-        tempPath = (String) sc.getAttribute(ImageServerInfoServlet.TEMP_PATH);
     }
 
     @Override
@@ -117,7 +108,7 @@ public class ImageUploadServlet extends ImageServerInfoServlet {
         }
         logger.debug("changeFileName: " + changeFileName); //$NON-NLS-1$
 
-        String result = onUpload(request, response);
+        String result = onUpload(request);
 
         response.setContentType("text/html"); //$NON-NLS-1$
         response.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
@@ -126,14 +117,14 @@ public class ImageUploadServlet extends ImageServerInfoServlet {
         writer.close();
     }
 
-    private String onUpload(HttpServletRequest request, HttpServletResponse response) {
+    private String onUpload(HttpServletRequest request) {
         try {
             boolean isMultipart = ServletFileUpload.isMultipartContent(request);
             if (isMultipart) {
 
                 DiskFileItemFactory factory = new DiskFileItemFactory();
                 factory.setSizeThreshold(4096);
-                factory.setRepository(new File(tempPath));
+                factory.setRepository(new File(getTempPath()));
 
                 ServletFileUpload sevletFileUpload = new ServletFileUpload(factory);
                 sevletFileUpload.setSizeMax(4 * 1024 * 1024);
@@ -248,7 +239,7 @@ public class ImageUploadServlet extends ImageServerInfoServlet {
                     targetCatalogName = generateCatalogName();
                 }
 
-                upath.append(uploadPath);
+                upath.append(getUploadPath());
                 if (!targetCatalogName.equals("/")) { //$NON-NLS-1$
                     upath.append(File.separator).append(targetCatalogName);
                 }
