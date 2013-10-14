@@ -42,7 +42,7 @@ public class ImageServerInfoServlet extends HttpServlet {
 
     private static String tempPath = null;
 
-    private static void initPaths() {
+    private static synchronized void initPaths() {
         String jbossServerDir = System.getProperty("jboss.server.home.dir"); //$NON-NLS-1$
         if (jbossServerDir != null) {
             uploadPath = jbossServerDir + File.separator + "data" + File.separator //$NON-NLS-1$
