@@ -28,8 +28,6 @@ public interface BrowseRecordsInStagingMessages extends Messages {
 
     String mark_as_deleted();
 
-    String send_to_trans_mark();
-
     String select_mark_item_record();
 
     String mark_deleted_confirm();
