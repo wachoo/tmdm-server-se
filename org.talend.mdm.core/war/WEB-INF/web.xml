@@ -105,7 +105,7 @@
     </servlet>
 
     <servlet>
-        <servlet-name>LogViewerServlet</servlet-name>
+        <servlet-name>MatchingLogViewerServlet</servlet-name>
         <servlet-class>com.amalto.core.servlet.LogViewerServlet</servlet-class>
         <init-param>
             <param-name>logFile</param-name>
@@ -142,7 +142,7 @@
         <url-pattern>/logviewer/log</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>LogViewerServlet</servlet-name>
+        <servlet-name>MatchingLogViewerServlet</servlet-name>
         <url-pattern>/logviewer/match</url-pattern>
     </servlet-mapping>
 
