@@ -40,7 +40,7 @@ public class StagingStorage implements Storage {
 
     @Override
     public Storage asInternal() {
-        return delegate;
+        return delegate.asInternal();
     }
 
     @Override

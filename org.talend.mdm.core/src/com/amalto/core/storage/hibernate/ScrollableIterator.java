@@ -11,13 +11,13 @@
 
 package com.amalto.core.storage.hibernate;
 
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.ObjectDataRecordReader;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.ScrollableResults;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -45,6 +45,8 @@ class ScrollableIterator implements CloseableIterator<DataRecord> {
 
     private boolean firstNextCall = true;
 
+    private boolean isClosed;
+
     public ScrollableIterator(MappingRepository storageRepository, StorageClassLoader storageClassLoader, ScrollableResults results, Set<ResultsCallback> callbacks) {
         this.storageRepository = storageRepository;
         this.storageClassLoader = storageClassLoader;
@@ -53,9 +55,12 @@ class ScrollableIterator implements CloseableIterator<DataRecord> {
     }
 
     public boolean hasNext() {
+        if (isClosed) {
+            return false;
+        }
         boolean hasNext;
         try {
-            if(isFirstHasNextCall) {
+            if (isFirstHasNextCall) {
                 hasNext = results.first();
                 allowNextCall = false;
             } else {
@@ -102,7 +107,13 @@ class ScrollableIterator implements CloseableIterator<DataRecord> {
         if (!(next instanceof Wrapper)) {
             throw new IllegalArgumentException("Result object is not an instance of " + Wrapper.class.getName());
         }
-        return reader.read(storageRepository.getMappingFromDatabase(type), (Wrapper) next);
+        // TODO A bind should *not* be needed (but storage class loader isn't correctly set in case of distinct block strategy for m&m).
+        storageClassLoader.bind(Thread.currentThread());
+        try {
+            return reader.read(storageRepository.getMappingFromDatabase(type), (Wrapper) next);
+        } finally {
+            storageClassLoader.unbind(Thread.currentThread());
+        }
     }
 
     // Cache type readers
@@ -134,6 +145,8 @@ class ScrollableIterator implements CloseableIterator<DataRecord> {
             } catch (Throwable t) {
                 // Catch Throwable and log it (to ensure all callbacks get called).
                 LOGGER.error("End of result callback exception", t);
+            } finally {
+                isClosed = true;
             }
         }
     }

@@ -11,14 +11,14 @@
 
 package com.amalto.core.storage;
 
-import com.amalto.core.storage.transaction.StorageTransaction;
-import org.talend.mdm.commmon.metadata.ConsoleDumpMetadataVisitor;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryDumpConsole;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.transaction.StorageTransaction;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ConsoleDumpMetadataVisitor;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import java.util.Set;
 
@@ -34,7 +34,7 @@ public class StorageLogger implements Storage {
 
     @Override
     public Storage asInternal() {
-        return delegate;
+        return delegate.asInternal();
     }
 
     @Override
