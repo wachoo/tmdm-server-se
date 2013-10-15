@@ -10,14 +10,13 @@
 
 package com.amalto.core.metadata.validation;
 
+import junit.framework.TestCase;
+import org.talend.mdm.commmon.metadata.*;
+import org.w3c.dom.Element;
+
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
-
-import junit.framework.TestCase;
-
-import org.talend.mdm.commmon.metadata.*;
-import org.w3c.dom.Element;
 
 public class MetadataValidationTest extends TestCase {
 
@@ -474,9 +473,10 @@ public class MetadataValidationTest extends TestCase {
         InputStream resourceAsStream = this.getClass().getResourceAsStream("xsd_attributes.xsd");
         TestValidationHandler handler = new TestValidationHandler();
         repository.load(resourceAsStream, handler);
-        assertEquals(1, handler.getWarningCount());
+        assertEquals(2, handler.getWarningCount());
         assertTrue(handler.getMessages().contains(ValidationError.TYPE_USE_XSD_ATTRIBUTES));
-        assertTrue(handler.getLineNumbers().contains(94));
+        assertTrue(handler.getLineNumbers().contains(63));
+        assertTrue(handler.getLineNumbers().contains(109));
         assertFalse(handler.getLineNumbers().contains(null));
     }
 
