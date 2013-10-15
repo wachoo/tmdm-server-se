@@ -70,23 +70,16 @@ public class TransactionFilter implements Filter {
 
     static class ImplicitTransaction implements TransactionState {
 
-        private Transaction currentTransaction;
-
         @Override
         public void preRequest() {
-            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-            currentTransaction = transactionManager.create(Transaction.Lifetime.LONG);
-            transactionManager.associate(currentTransaction);
         }
 
         @Override
         public void postRequest() {
-            currentTransaction.commit();
         }
 
         @Override
         public void cancelRequest() {
-            currentTransaction.rollback();
         }
     }
 
@@ -107,12 +100,16 @@ public class TransactionFilter implements Filter {
 
         @Override
         public void postRequest() {
-            // Nothing to do: transaction was explicit started and will be ended by caller.
+            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
+            Transaction transaction = transactionManager.get(transactionID);
+            transactionManager.dissociate(transaction);
         }
 
         @Override
         public void cancelRequest() {
-            // Nothing to do: transaction was explicit started and will be ended by caller.
+            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
+            Transaction transaction = transactionManager.get(transactionID);
+            transactionManager.dissociate(transaction);
         }
     }
 }

@@ -11,23 +11,22 @@
 
 package com.amalto.core.storage.task.staging;
 
-import java.io.InputStream;
-import java.util.List;
-
-import javax.ws.rs.*;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import com.amalto.core.storage.task.ConfigurableFilter;
 import com.amalto.core.storage.task.DefaultFilter;
 import com.amalto.core.storage.task.Filter;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import javax.ws.rs.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.InputStream;
+import java.util.List;
+
 @Path(StagingTaskService.TASKS)
 public class StagingTaskService {
 
-    public static final String TASKS = "/tasks/staging";
+    public static final String TASKS = "/tasks/staging"; //$NON-NLS-1$
 
     private final StagingTaskServiceDelegate delegate = new DefaultStagingTaskService();
 

@@ -20,9 +20,9 @@ import javax.xml.rpc.JAXRPCException;
 import javax.xml.rpc.handler.Handler;
 import javax.xml.rpc.handler.HandlerInfo;
 import javax.xml.rpc.handler.MessageContext;
+import javax.xml.rpc.handler.soap.SOAPMessageContext;
 import javax.xml.rpc.soap.SOAPFaultException;
 import javax.xml.soap.*;
-import javax.xml.rpc.handler.soap.SOAPMessageContext;
 import java.util.Iterator;
 
 public class TransactionHandler implements Handler {
@@ -163,12 +163,22 @@ public class TransactionHandler implements Handler {
 
         @Override
         public void postRequest() {
-            // Nothing to do: transaction was explicit started and must be ended by caller.
+            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
+            Transaction transaction = transactionManager.get(transactionID);
+            if (transaction == null) {
+                throw new IllegalStateException("Transaction '" + transactionID + "' no longer exists.");
+            }
+            transactionManager.dissociate(transaction);
         }
 
         @Override
         public void cancelRequest() {
-            // Nothing to do: transaction was explicit started and must be ended by caller.
+            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
+            Transaction transaction = transactionManager.get(transactionID);
+            if (transaction == null) {
+                throw new IllegalStateException("Transaction '" + transactionID + "' no longer exists.");
+            }
+            transactionManager.dissociate(transaction);
         }
     }
 
