@@ -44,9 +44,13 @@ pre {
     </div>
     <div id="logToolbar">
         <div id="logToolbarLeft">
+            <select name="logFile" id="logFile" onchange="changeLog(this)">
+                <option value="log" selected>Log file</option>
+                <option value="match">Match log file</option>
+            </select>
             <input type="button" value="Reload" onclick="window.location.reload();">
             <input type="button" value="Clear" onclick="clearLog();">
-            <input type="button" value="Download" onclick="window.open('log','_self');">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="button" value="Download" onclick="downloadLog();">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <input type="button" id="toggleLoad" onclick="toggleLoading();">
             <img id="spinner" alt="" src="/core/secure/ext-2.2/resources/images/default/shared/loading-balls.gif" />
         </div>
@@ -57,9 +61,21 @@ pre {
         </div>
     </div>
     <script>
-        initLog("log", $("logContent"), $("logScroller"), $("spinner"), $("toggleLoad"));
-        $("logFetchPeriod").value = FETCH_PERIOD;
-        $("logMaxLines").value = MAX_LINES; 
+        function downloadLog() {
+            var selectedLog = getLogSelection($("logFile"));
+            window.open(selectedLog,'_self');
+        }
+        function getLogSelection(selectLog) {
+            return selectLog.options[selectLog.selectedIndex].value;
+        }
+        function changeLog(selectLog) {            
+            initLog(getLogSelection(selectLog), $("logContent"), $("logScroller"), $("spinner"), $("toggleLoad"));
+            clearLog();
+            $("logFetchPeriod").value = FETCH_PERIOD;
+            $("logMaxLines").value = MAX_LINES;
+        }
+        changeLog($("logFile"));
+
     </script>
 </body>
 </html>
