@@ -100,7 +100,8 @@ public class CommonUtil {
                         .add(buildWhereItemsByCriteria(Parser.parse(criteria.substring(0, criteria.indexOf("../../t") - 5) + ")")));//$NON-NLS-1$  //$NON-NLS-2$
             }
 
-            String modifyString = criteria.substring(criteria.indexOf("../../t"), criteria.length() - 1); //$NON-NLS-1$
+            String modifyString = criteria.substring(criteria.indexOf("../../t")); //$NON-NLS-1$
+            modifyString = modifyString.lastIndexOf(')') == -1 ? modifyString : modifyString.substring(0, modifyString.length() -1);
             String[] modifyArr = modifyString.split("AND"); //$NON-NLS-1$
             for (String str : modifyArr) {
                 conditions.add(buildWhereItem(str.trim()));

@@ -27,6 +27,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxFiel
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.SpinnerField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.SearchFieldCreator;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecordsinstaging.client.util.StagingConstant;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModel;
@@ -159,6 +160,9 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
             for (String key : this.view.getSearchables().keySet()) {
                 field = new BaseModel();
                 field.set("name", this.view.getSearchables().get(key)); //$NON-NLS-1$
+                //TMDM-6441: fixed the parsing errors
+                if (key.endsWith(StagingConstant.STAGING_TASKID))
+                    key = StagingConstant.STAGING_TASKID.substring(1);
                 field.set("value", key); //$NON-NLS-1$
                 list.add(field);
             }
