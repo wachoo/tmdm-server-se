@@ -13,30 +13,27 @@
 
 package com.amalto.core.integrity;
 
-import static com.amalto.core.integrity.FKIntegrityCheckResult.ALLOWED;
-import static com.amalto.core.integrity.FKIntegrityCheckResult.FORBIDDEN;
-import static com.amalto.core.integrity.FKIntegrityCheckResult.FORBIDDEN_OVERRIDE_ALLOWED;
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.amalto.core.server.ServerContext;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.WhereCondition;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
-import org.talend.mdm.commmon.metadata.TypeMetadata;
+import static com.amalto.core.integrity.FKIntegrityCheckResult.*;
 
 class DefaultCheckDataSource implements FKIntegrityCheckDataSource {
 
@@ -76,22 +73,24 @@ class DefaultCheckDataSource implements FKIntegrityCheckDataSource {
             return 0;
 
         // Transform ids into the string format expected in base
-        String referencedId = ""; //$NON-NLS-1$
+        StringBuilder referencedId = new StringBuilder(); //$NON-NLS-1$
         for (String id : ids) {
-            referencedId += '[' + id + ']';
+            referencedId.append('[').append(id).append(']');
         }
 
         LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
         conceptPatternsToClusterName.put(".*", clusterName); //$NON-NLS-1$
 
-        String leftPath = fromReference.getPath();
+        String leftPath = fromReference.getEntityTypeName() + '/' + fromReference.getPath();
         IWhereItem whereItem = new WhereCondition(leftPath,
                 WhereCondition.EQUALS,
-                referencedId,
+                referencedId.toString(),
                 WhereCondition.NO_OPERATOR);
 
-        return Util.getXmlServerCtrlLocal()
-                .countItems(new LinkedHashMap(), conceptPatternsToClusterName, fromTypeName, whereItem);
+        return Util.getXmlServerCtrlLocal().countItems(new LinkedHashMap(),
+                conceptPatternsToClusterName,
+                fromTypeName,
+                whereItem);
     }
 
     public Set<ReferenceFieldMetadata> getForeignKeyList(String concept, String dataModel) throws XtentisException {

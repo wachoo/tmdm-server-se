@@ -15,12 +15,12 @@ package com.amalto.core.query.user;
 
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.metadata.MetadataField;
-import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.webservice.WSStringPredicate;
 import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.*;
 
 import java.util.*;
 
@@ -60,7 +60,7 @@ public class UserQueryHelper {
             }
             String leftPath = whereCondition.getLeftPath();
             if (leftPath.indexOf('/') == -1) {
-                throw new IllegalArgumentException("Incorrect XPath '" + leftPath + "'. An XPath like 'Entity/element'"); //$NON-NLS-1$ //$NON-NLS-2$
+                throw new IllegalArgumentException("Incorrect XPath '" + leftPath + "'. An XPath like 'Entity/element' was expected."); //$NON-NLS-1$ //$NON-NLS-2$
             }
             String leftTypeName = leftPath.substring(0, leftPath.indexOf('/')); //$NON-NLS-1$
             if (".".equals(leftTypeName)) { //$NON-NLS-1$
