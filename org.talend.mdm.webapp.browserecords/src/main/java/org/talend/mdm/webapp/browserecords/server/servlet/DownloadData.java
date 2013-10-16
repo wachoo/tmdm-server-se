@@ -204,7 +204,11 @@ public class DownloadData extends HttpServlet {
                     value = attribute.getValue();
                 } else {
                     Element element = (Element)object;
-                    value = element.getText();
+                    if (element.elements().size() > 0) {
+                        value = element.asXML();
+                    } else {
+                        value = element.getText();
+                    }
                 }
             }
         }        
