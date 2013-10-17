@@ -116,8 +116,8 @@ public class StringActions {
 
         private static Action mostCommon(Collection<FieldUpdateAction> actions) {
             List<String> newValues = new ArrayList<String>(actions.size());
-            for (String newValue : newValues) {
-                newValues.add(newValue);
+            for (FieldUpdateAction action : actions) {
+                newValues.add(action.getNewValue());
             }
             String mostCommonValue = getMostCommonValue(newValues);
             return new MostCommonAction(mostCommonValue, actions.iterator().next());
