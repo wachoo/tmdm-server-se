@@ -48,6 +48,12 @@ public class CommonUtilTest extends TestCase {
         sourceList.add("4$5%6^"); //$NON-NLS-1$
         sourceList.add("7&8*9(0)"); //$NON-NLS-1$
         assertEquals("1%212%403%23@4%245%256%5e@7%268%2a9%280%29", CommonUtil.convertListToString(sourceList, "@")); //$NON-NLS-1$ //$NON-NLS-2$
+
+        sourceList = new LinkedList<String>();
+        sourceList.add("1!2@3#"); //$NON-NLS-1$
+        sourceList.add("4$5;%6^"); //$NON-NLS-1$
+        sourceList.add("7&8*9(0)"); //$NON-NLS-1$
+        assertEquals("1!2@3#;4$5%3b%256^;7&8*9(0)", CommonUtil.convertListToString(sourceList)); //$NON-NLS-1$
     }
 
     public void testConvertStrigToList() {
@@ -56,6 +62,17 @@ public class CommonUtilTest extends TestCase {
         List<String> targetList = new ArrayList<String>();
         targetList.add("1!2@3#"); //$NON-NLS-1$
         targetList.add("4$5%6^"); //$NON-NLS-1$
+        targetList.add("7&8*9(0)"); //$NON-NLS-1$
+        assertEquals(sourceList.size(), targetList.size());
+        for (int i = 0; i < sourceList.size(); i++) {
+            assertEquals(targetList.get(i), sourceList.get(i));
+        }
+
+        sourceString = "1!2@3#;4$5%3b%256^;7&8*9(0)"; //$NON-NLS-1$
+        sourceList = CommonUtil.convertStrigToList(sourceString);
+        targetList = new ArrayList<String>();
+        targetList.add("1!2@3#"); //$NON-NLS-1$
+        targetList.add("4$5;%6^"); //$NON-NLS-1$
         targetList.add("7&8*9(0)"); //$NON-NLS-1$
         assertEquals(sourceList.size(), targetList.size());
         for (int i = 0; i < sourceList.size(); i++) {

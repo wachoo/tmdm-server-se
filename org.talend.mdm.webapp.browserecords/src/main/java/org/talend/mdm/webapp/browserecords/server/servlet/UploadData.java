@@ -309,7 +309,6 @@ public class UploadData extends HttpServlet {
                                     configuration.getModel()));
                         }
                     }
-
                 }
             } else if (FILE_TYPE_CSV_SUFFIX.equals(fileType.toLowerCase())) {
                 char separator = File_CSV_SEPARATOR_SEMICOLON.equals(sep) ? ';' : ',';
@@ -505,14 +504,16 @@ public class UploadData extends HttpServlet {
             if (currentElement != null) {
                 currentElement = currentElement.element(xpathPartArray[i]);
                 if (i == xpathPartArray.length - 1) {
-                    if (currentElement.elements().size() > 0) {
-                        Element complexeElement = XmlUtil.parseDocument(Util.parse(StringEscapeUtils.unescapeXml(fieldValue)))
-                                .getRootElement();
-                        Element parentElement = currentElement.getParent();
-                        parentElement.remove(currentElement);
-                        parentElement.add(complexeElement);
-                    } else {
-                        currentElement.setText(fieldValue);
+                    List<String> valueList = org.talend.mdm.webapp.base.shared.util.CommonUtil.convertStrigToList(fieldValue);
+                    for (int j = 0; j < valueList.size(); j++) {
+                        if (j == 0) {
+                            setFieldValue(currentElement, valueList.get(j));
+                        } else {
+                            List<Element> contentList = currentElement.getParent().content();
+                            Element copyElement = currentElement.createCopy();
+                            contentList.add(contentList.indexOf(currentElement) + j, copyElement);
+                            setFieldValue(copyElement, valueList.get(j));
+                        }
                     }
                 } else {
                     String currentElemntPath = currentElement.getPath().substring(1);
@@ -537,6 +538,18 @@ public class UploadData extends HttpServlet {
                     }
                 }
             }
+        }
+    }
+
+    private void setFieldValue(Element currentElement, String value) throws Exception {
+        if (currentElement.elements().size() > 0) {
+            Element complexeElement = XmlUtil.parseDocument(Util.parse(StringEscapeUtils.unescapeXml(value))).getRootElement();
+            List<Element> contentList = currentElement.getParent().content();
+            int index = contentList.indexOf(currentElement);
+            contentList.remove(currentElement);
+            contentList.add(index, complexeElement);
+        } else {
+            currentElement.setText(value);
         }
     }
 }

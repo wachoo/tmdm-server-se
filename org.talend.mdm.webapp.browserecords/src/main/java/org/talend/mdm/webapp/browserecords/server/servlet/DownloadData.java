@@ -109,6 +109,8 @@ public class DownloadData extends HttpServlet {
         String criteria = request.getParameter("criteria"); //$NON-NLS-1$
         String language = request.getParameter("language"); //$NON-NLS-1$
         EntityModel entity = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getEntityModel(concept, language);
+        String sortField = request.getParameter("sortField"); //$NON-NLS-1$
+        String sortDir = request.getParameter("sortDir"); //$NON-NLS-1$
         boolean fkResovled = Boolean.valueOf(request.getParameter("fkResovled")); //$NON-NLS-1$
         String fkDisplay = request.getParameter("fkDisplay"); //$NON-NLS-1$
         Map<String, String> colFkMap = new HashMap<String, String>();
@@ -195,7 +197,7 @@ public class DownloadData extends HttpServlet {
         List<?> selectNodes = null;
         Map<String, String> namespaceMap = new HashMap<String, String>();
         namespaceMap.put(Constants.XSI_PREFIX, Constants.XSI_URI);
-        String value = ""; //$NON-NLS-1$
+        List<String> value = new LinkedList<String>();
         boolean isAttribute = xpath.endsWith(Constants.XSI_TYPE_QUALIFIED_NAME) ? true : false;
         if (isAttribute) {
             XPath x = document.createXPath(xpath);
@@ -208,17 +210,17 @@ public class DownloadData extends HttpServlet {
             for (Object object : selectNodes) {
                 if (isAttribute) {
                     Attribute attribute = (Attribute) object;
-                    value = attribute.getValue();
+                    value.add(attribute.getValue());
                 } else {
                     Element element = (Element) object;
                     if (element.elements().size() > 0) {
-                        value = element.asXML();
+                        value.add(element.asXML());
                     } else {
-                        value = element.getText();
+                        value.add(element.getText());
                     }
                 }
             }
         }
-        return value;
+        return org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(value);
     }
 }
