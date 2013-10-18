@@ -66,6 +66,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
 import com.amalto.core.util.Util;
 import com.amalto.webapp.core.util.WebCoreException;
 import com.amalto.webapp.core.util.XmlUtil;
@@ -82,6 +84,9 @@ import com.extjs.gxt.ui.client.data.ModelData;
         BrowseRecordsAction.class, SmartViewProvider.class, SmartViewUtil.class, SmartViewDescriptions.class })
 @SuppressWarnings("nls")
 public class BrowseRecordsActionTest extends TestCase {
+
+    private final Messages MESSAGES = MessagesFactory.getMessages(
+            "org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages", this.getClass().getClassLoader()); //$NON-NLS-1$
 
     private BrowseRecordsAction action = new BrowseRecordsAction();
 
@@ -733,20 +738,21 @@ public class BrowseRecordsActionTest extends TestCase {
 	    assertEquals("2", parsingNodeValue(docXml, xpath, conceptName));
 	}
 	
-	public void  testGetErrorMessageFromWebCoreException() throws Exception {
-	    RuntimeException runtimeException = new RuntimeException("throw a runtimeException");
-	    WebCoreException webCoreException = new WebCoreException("delete_failure_constraint_violation",runtimeException);
-	    Method[] methods = BrowseRecordsAction.class.getDeclaredMethods();	
-	    for (int i=0;i<methods.length;i++) {
-	        if ("getErrorMessageFromWebCoreException".equals(methods[i].getName())){
-	            methods[i].setAccessible(true);
-	            Object para[] = {webCoreException,"TestModel", "1", new Locale("en")};
-	            Object result = methods[i].invoke(action, para);
-	            assertEquals("Unable to delete TestModel.1,integrity constraint check failed.", result);
-	            break;
-	        }
-	    }
-	}
+    public void testGetErrorMessageFromWebCoreException() throws Exception {
+        RuntimeException runtimeException = new RuntimeException("throw a runtimeException");
+        WebCoreException webCoreException = new WebCoreException("delete_failure_constraint_violation", runtimeException);
+        Method[] methods = BrowseRecordsAction.class.getDeclaredMethods();
+        for (Method method : methods) {
+            if ("getErrorMessageFromWebCoreException".equals(method.getName())) {
+                method.setAccessible(true);
+                Object para[] = { webCoreException, "TestModel", "1", new Locale("en") };
+                Object result = method.invoke(action, para);
+                String expectedMsg = MESSAGES.getMessage("delete_failure_constraint_violation", "TestModel.1");
+                assertEquals(expectedMsg, result);
+                break;
+            }
+        }
+    }
 	
     public void testFormatValue() throws Exception {
         FormatModel formatModel = new FormatModel();
