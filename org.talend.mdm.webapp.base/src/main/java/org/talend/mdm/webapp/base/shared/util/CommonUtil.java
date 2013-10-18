@@ -47,6 +47,30 @@ public class CommonUtil {
         }
         return tmp.toString();
     }
+    
+    public static String escapeSemicolon(String src) {
+        int i;
+        char j;
+        StringBuffer tmp = new StringBuffer();
+        tmp.ensureCapacity(src.length() * 6);
+        for (i = 0; i < src.length(); i++) {
+            j = src.charAt(i);
+            if (';' == j || '%' == j) {
+                if (j < 256) {
+                    tmp.append("%"); //$NON-NLS-1$
+                    if (j < 16)
+                        tmp.append("0"); //$NON-NLS-1$
+                    tmp.append(Integer.toString(j, 16));
+                } else {
+                    tmp.append("%u"); //$NON-NLS-1$
+                    tmp.append(Integer.toString(j, 16));
+                }
+            } else {
+                tmp.append(j);
+            }
+        }
+        return tmp.toString();
+    }
 
     public static String unescape(String src) {
         StringBuffer tmp = new StringBuffer();
@@ -79,7 +103,7 @@ public class CommonUtil {
         }
         return tmp.toString();
     }
-    
+
     public static String convertListToString(List<String> itemList,String separator) {
         if (itemList == null) {
             return null;
@@ -102,5 +126,29 @@ public class CommonUtil {
             valueList.add(unescape(value));
         }
         return valueList;
-    }    
+    }
+    
+    public static String convertListToString(List<String> itemList) {
+        if (itemList == null) {
+            return null;
+        }
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < itemList.size(); i++) {
+            result.append((i > 0) ? ";" : ""); //$NON-NLS-1$ //$NON-NLS-2$ 
+            result.append(escapeSemicolon(itemList.get(i)));
+        }
+        return result.toString();
+    }
+    
+    public static List<String> convertStrigToList(String valueString) {
+        if (valueString == null || valueString.isEmpty()) {
+            return null;
+        }
+        List<String> valueList = new ArrayList<String>();
+        String[] valueArray = valueString.split(";"); //$NON-NLS-1$
+        for (String value : valueArray) {
+            valueList.add(unescape(value));
+        }
+        return valueList;
+    }
 }
