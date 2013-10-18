@@ -42,7 +42,7 @@ public class DOMDocumentTest extends TestCase {
     }
 
     public void testIncludeXSINamespace() throws Exception {
-        String xml = "<Organisation xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><IdOrganisation xsi:type=\"xsd:string\">5797</IdOrganisation></Organisation>";
+        String xml = "<Organisation xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n<IdOrganisation xsi:type=\"xsd:string\">5797</IdOrganisation>\r\n</Organisation>\r\n";
         InputStream documentStream = new ByteArrayInputStream(xml.getBytes("UTF-8"));
         // Parsing
         MutableDocument userDocument;
@@ -60,7 +60,8 @@ public class DOMDocumentTest extends TestCase {
             throw new RuntimeException("Unable to parse document to save.", e);
         }
         assertNotNull(userDocument);
-        assertEquals(xml, userDocument.exportToString());
+        String result = userDocument.exportToString();
+        assertEquals(xml, result);
     }
 
 }

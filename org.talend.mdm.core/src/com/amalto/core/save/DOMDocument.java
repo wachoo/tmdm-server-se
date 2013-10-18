@@ -11,6 +11,7 @@
 
 package com.amalto.core.save;
 
+import com.amalto.commons.core.utils.XMLUtils;
 import com.amalto.core.history.*;
 import com.amalto.core.history.Document;
 import com.amalto.core.history.accessor.Accessor;
@@ -156,12 +157,7 @@ public class DOMDocument implements DOMMutableDocument {
 
     public String exportToString() {
         try {
-            OutputFormat format = new OutputFormat(domDocument);
-            format.setOmitXMLDeclaration(true);
-            StringWriter stringOut = new StringWriter();
-            XMLSerializer serial = new XMLSerializer(stringOut, format);
-            serial.serialize(domDocument);
-            return stringOut.toString();
+            return XMLUtils.nodeToString(domDocument.getDocumentElement());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

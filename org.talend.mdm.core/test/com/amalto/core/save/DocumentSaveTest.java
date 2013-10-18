@@ -1135,7 +1135,7 @@ public class DocumentSaveTest extends TestCase {
         saver.save(session, context);
         assertEquals("change the value successfully!", saver.getBeforeSavingMessage());
 
-        String expectedUserXml = "<Agency><Id>5258f292-5670-473b-bc01-8b63434682f3</Id><Name>beforeSaving_Agency</Name></Agency>";
+        String expectedUserXml = "<Agency>\r\n<Id>5258f292-5670-473b-bc01-8b63434682f3</Id>\r\n<Name>beforeSaving_Agency</Name>\r\n</Agency>\r\n";
         assertEquals(expectedUserXml, context.getUserDocument().exportToString());
         MutableDocument updateReportDocument = context.getUpdateReportDocument();
         assertNotNull(updateReportDocument);
