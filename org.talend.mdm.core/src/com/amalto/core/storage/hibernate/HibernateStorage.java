@@ -605,9 +605,7 @@ public class HibernateStorage implements Storage {
                 o.timestamp(System.currentTimeMillis());
                 DataRecordMetadata recordMetadata = currentDataRecord.getRecordMetadata();
                 Map<String, String> recordProperties = recordMetadata.getRecordProperties();
-                if (o.taskId() == null) {
-                    o.taskId(recordMetadata.getTaskId());
-                }
+                o.taskId(recordMetadata.getTaskId());
                 for (Map.Entry<String, String> currentProperty : recordProperties.entrySet()) {
                     String key = currentProperty.getKey();
                     String value = currentProperty.getValue();
