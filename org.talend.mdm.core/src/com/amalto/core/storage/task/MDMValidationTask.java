@@ -118,25 +118,6 @@ public class MDMValidationTask extends MetadataRepositoryTask {
     }
 
     @Override
-    public void run() {
-        Transaction transaction = ServerContext.INSTANCE.get().getTransactionManager().create(Transaction.Lifetime.LONG);
-        try {
-            transaction.begin();
-            storage.begin();
-            destinationStorage.begin();
-            super.run();
-            destinationStorage.commit();
-            storage.commit();
-            transaction.commit();
-        } catch (Exception e) {
-            hasFailed = true;
-            storage.rollback();
-            transaction.rollback();
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public int getRecordCount() {
         return recordsCount;
     }

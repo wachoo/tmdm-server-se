@@ -20,6 +20,8 @@ import com.amalto.core.storage.hibernate.TypeMapping;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.*;
 
 import javax.xml.XMLConstants;
@@ -376,9 +378,9 @@ public class MetadataUtils {
         } else if (Types.BOOLEAN.equals(type)) {
             // Boolean.parseBoolean returns "false" if content isn't a boolean string value. Callers of this method
             // expect call to fail if data is malformed.
-            if ("0".equals(dataAsString)) {
+            if ("0".equals(dataAsString)) { //$NON-NLS-1$
                 return false;
-            } else if ("1".equals(dataAsString)) {
+            } else if ("1".equals(dataAsString)) { //$NON-NLS-1$
                 return true;
             }
             if (!"false".equalsIgnoreCase(dataAsString) && !"true".equalsIgnoreCase(dataAsString)) { //$NON-NLS-1$ //$NON-NLS-2$
@@ -678,14 +680,14 @@ public class MetadataUtils {
                 int i = 1;
                 Iterator<List<ComplexTypeMetadata>> cyclesIterator = cycles.iterator();
                 while (cyclesIterator.hasNext()) {
-                    cyclesAsString.append(i++).append(") ");
+                    cyclesAsString.append(i++).append(") "); //$NON-NLS-1$
                     Iterator<ComplexTypeMetadata> dependencyPathIterator = cyclesIterator.next().iterator();
                     ComplexTypeMetadata previous = null;
                     while (dependencyPathIterator.hasNext()) {
                         ComplexTypeMetadata currentType = dependencyPathIterator.next();
                         cyclesAsString.append(currentType.getName());
                         if (dependencyPathIterator.hasNext()) {
-                            cyclesAsString.append(" -> ");
+                            cyclesAsString.append(" -> "); //$NON-NLS-1$
                         } else if (previous != null) {
                             Set<ReferenceFieldMetadata> inboundReferences = repository.accept(new ForeignKeyIntegrity(currentType));
                             cyclesAsString.append(" ( possible fields: ");
@@ -742,6 +744,9 @@ public class MetadataUtils {
         if (o == null) {
             return null;
         }
+        if (field instanceof ReferenceFieldMetadata) {
+            return toString(o);
+        }
         String typeName = field.getType().getName();
         if (Types.DATE.equals(typeName)) {
             synchronized (DateConstant.DATE_FORMAT) {
@@ -773,6 +778,26 @@ public class MetadataUtils {
         } else {
             return String.valueOf(o);
         }
+    }
+
+    public static String toString(Object value) {
+        if (value == null) {
+            return StringUtils.EMPTY;
+        }
+        if (value instanceof DataRecord) {
+            DataRecord record = (DataRecord) value;
+            StringBuilder builder = new StringBuilder();
+            Collection<FieldMetadata> keyFields = record.getType().getKeyFields();
+            for (FieldMetadata keyField : keyFields) {
+                String keyFieldValue = String.valueOf(record.get(keyField));
+                if (Types.STRING.equals(MetadataUtils.getSuperConcreteType(keyField.getType()).getName())) {
+                    keyFieldValue = StringEscapeUtils.escapeXml(keyFieldValue);
+                }
+                builder.append('[').append(keyFieldValue).append(']');
+            }
+            return builder.toString();
+        }
+        return StringEscapeUtils.escapeXml(String.valueOf(value));
     }
 }
 

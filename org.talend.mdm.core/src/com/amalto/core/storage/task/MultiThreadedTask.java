@@ -83,6 +83,7 @@ public class MultiThreadedTask implements Task {
         }
 
         try {
+            storage.begin();
             taskStartTime = System.currentTimeMillis();
             StorageResults records = storage.fetch(expression); // Expects an active transaction here
             if (records.getCount() > 0) {
@@ -97,8 +98,10 @@ public class MultiThreadedTask implements Task {
                 }
                 closure.end(stats);
             }
+            storage.commit();
             isFinished = true;
         } catch (Exception e) {
+            storage.rollback();
             hasFailed = true;
             throw new RuntimeException(e);
         } finally {

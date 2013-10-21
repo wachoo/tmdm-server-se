@@ -30,6 +30,7 @@ import org.hibernate.engine.EntityKey;
 import org.hibernate.impl.SessionImpl;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
+import java.util.HashSet;
 import java.util.Set;
 
 class HibernateStorageTransaction extends StorageTransaction {
@@ -68,52 +69,46 @@ class HibernateStorageTransaction extends StorageTransaction {
     public void commit() {
         if (isAutonomous) {
             Transaction transaction = session.getTransaction();
-            if (!session.isDirty()) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> No change to commit.");
-                }
-            } else {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Committing "
-                            + session.getStatistics().getEntityCount() + " record(s)...");
-                }
-                if (!transaction.isActive()) {
-                    throw new IllegalStateException("Can not commit transaction, no transaction is active.");
-                }
-                try {
-                    if (!transaction.wasCommitted()) {
-                        transaction.commit();
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Commit done.");
-                        }
-                    } else {
-                        LOGGER.warn("Transaction was already committed.");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Commit includes "
+                        + session.getStatistics().getEntityCount() + " not-flushed record(s)...");
+            }
+            if (!transaction.isActive()) {
+                throw new IllegalStateException("Can not commit transaction, no transaction is active.");
+            }
+            try {
+                if (!transaction.wasCommitted()) {
+                    transaction.commit();
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Commit done.");
                     }
-                } catch (Exception e) {
-                    if (LOGGER.isInfoEnabled()) {
-                        LOGGER.info("Transaction failed, dumps transaction content for diagnostic.");
-                        dumpTransactionContent(session, storage); // Dumps all the faulty session information.
-                    }
-                    if (e instanceof org.hibernate.exception.ConstraintViolationException) {
-                        throw new ConstraintViolationException(e);
-                    } else {
-                        throw new RuntimeException(e);
-                    }
+                } else {
+                    LOGGER.warn("Transaction was already committed.");
+                }
+            } catch (Exception e) {
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("Transaction failed, dumps transaction content for diagnostic.");
+                    dumpTransactionContent(session, storage); // Dumps all the faulty session information.
+                }
+                if (e instanceof org.hibernate.exception.ConstraintViolationException) {
+                    throw new ConstraintViolationException(e);
+                } else {
+                    throw new RuntimeException(e);
                 }
             }
-            super.commit();
-            if (session.isOpen()) {
-                /*
-                 * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the session
-                 * is reused.
-                 */
-                if (session.getStatistics().getEntityKeys().size() > 0) {
-                    session.clear();
-                }
-                session.close();
-            }
-            storage.getClassLoader().reset(Thread.currentThread());
         }
+        super.commit();
+        if (session.isOpen()) {
+            /*
+             * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the session
+             * is reused.
+             */
+            if (session.getStatistics().getEntityKeys().size() > 0) {
+                session.clear();
+            }
+            session.close();
+        }
+        storage.getClassLoader().reset(Thread.currentThread());
     }
 
     /**
@@ -126,7 +121,7 @@ class HibernateStorageTransaction extends StorageTransaction {
     private static void dumpTransactionContent(Session session, HibernateStorage storage) {
         Level currentLevel = Level.INFO;
         if (LOGGER.isEnabledFor(currentLevel)) {
-            Set<EntityKey> failedKeys = session.getStatistics().getEntityKeys();
+            Set<EntityKey> failedKeys = new HashSet<EntityKey>(session.getStatistics().getEntityKeys()); // Copy content to avoid concurrent modification issues.
             int i = 1;
             ObjectDataRecordReader reader = new ObjectDataRecordReader();
             MappingRepository mappingRepository = storage.getTypeEnhancer().getMappings();
@@ -199,7 +194,6 @@ class HibernateStorageTransaction extends StorageTransaction {
                         dumpTransactionContent(session, storage); // Dumps all content in the current transaction.
                     }
                 }
-                session.clear();
                 if (!transaction.wasRolledBack()) {
                     transaction.rollback();
                 } else {
@@ -211,10 +205,10 @@ class HibernateStorageTransaction extends StorageTransaction {
                  * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the session
                  * is reused.
                  */
-                if (session.getStatistics().getEntityKeys().size() > 0) {
+                if (session.isOpen() && session.getStatistics().getEntityKeys().size() > 0) {
                     session.clear();
+                    session.close();
                 }
-                session.close();
                 storage.getClassLoader().reset(Thread.currentThread());
             }
         }

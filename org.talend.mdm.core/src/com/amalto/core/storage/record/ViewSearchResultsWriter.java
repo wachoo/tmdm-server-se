@@ -80,6 +80,7 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
         }
         if (fieldMetadata instanceof ReferenceFieldMetadata) {
             if (value instanceof DataRecord) {
+                // TODO Replace with MetadataUtils.toString()
                 DataRecord referencedRecord = (DataRecord) value;
                 StringBuilder fkValueAsString = new StringBuilder();
                 for (FieldMetadata keyField : referencedRecord.getType().getKeyFields()) {

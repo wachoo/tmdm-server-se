@@ -101,14 +101,14 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                     if (!referenceField.isMany()) {
                         DataRecord referencedRecord = (DataRecord) record.get(referenceField);
                         writeReferenceElement(referenceField, referencedRecord);
-                        out.write(formatRecordKey(referencedRecord));
+                        out.write(MetadataUtils.toString(referencedRecord));
                         out.write("</" + referenceField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                     } else {
                         List<DataRecord> valueAsList = (List<DataRecord>) value;
                         for (DataRecord currentValue : valueAsList) {
                             if (currentValue != null) {
                                 writeReferenceElement(referenceField, currentValue);
-                                out.write(formatRecordKey(currentValue));
+                                out.write(MetadataUtils.toString(currentValue));
                                 out.write("</" + referenceField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                             }
                         }
@@ -249,19 +249,6 @@ public class DataRecordXmlWriter implements DataRecordWriter {
             } else {
                 out.write(StringEscapeUtils.escapeXml(value.toString()));
             }
-        }
-
-        private static String formatRecordKey(DataRecord record) {
-            StringBuilder builder = new StringBuilder();
-            Collection<FieldMetadata> keyFields = record.getType().getKeyFields();
-            for (FieldMetadata keyField : keyFields) {
-                String keyFieldValue = String.valueOf(record.get(keyField));
-                if (Types.STRING.equals(MetadataUtils.getSuperConcreteType(keyField.getType()).getName())) {
-                    keyFieldValue = StringEscapeUtils.escapeXml(keyFieldValue);
-                }
-                builder.append('[').append(keyFieldValue).append(']');
-            }
-            return builder.toString();
         }
     }
 }

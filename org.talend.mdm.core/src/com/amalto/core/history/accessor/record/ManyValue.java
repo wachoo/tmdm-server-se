@@ -55,6 +55,7 @@ class ManyValue implements Setter, Getter {
         List list = (List) record.get(element.field);
         Object item = list.get(element.index);
         if (element.field instanceof ReferenceFieldMetadata) {
+            // TODO Replace with MetadataUtils.toString()
             StringBuilder builder = new StringBuilder();
             for (FieldMetadata keyField : ((ReferenceFieldMetadata) element.field).getReferencedType().getKeyFields()) {
                 builder.append('[').append(((DataRecord) item).get(keyField)).append(']');

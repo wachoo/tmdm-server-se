@@ -31,8 +31,6 @@ import java.util.*;
 
 class ClassCreator extends DefaultMetadataVisitor<Void> {
 
-    private static final Logger LOGGER = Logger.getLogger(ClassCreator.class);
-    
     public static final String PACKAGE_PREFIX = "org.talend.mdm.storage.hibernate."; //$NON-NLS-1$
 
     private final StorageClassLoader storageClassLoader;
@@ -45,14 +43,12 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
 
     private final ClassPool classPool;
 
-    private CtClass listType;
+    private final CtClass listType;
 
     public ClassCreator(StorageClassLoader storageClassLoader) {
         this.storageClassLoader = storageClassLoader;
         // Use a new ClassPool to prevent storing classes in default class pool.
-        LOGGER.info("Creating new classpool");
-        
-        this.classPool = new ClassPool((ClassPool) null);
+        this.classPool = new ClassPool(null);
         classPool.insertClassPath(new LoaderClassPath(storageClassLoader));
         try {
             listType = classPool.get(List.class.getName());
