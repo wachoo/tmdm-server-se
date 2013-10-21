@@ -14,27 +14,29 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import com.amalto.core.history.MutableDocument;
-import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
-import com.amalto.core.util.Util;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import com.amalto.core.history.MutableDocument;
+import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
+import com.amalto.core.util.Util;
 
 @SuppressWarnings("nls")
 public class DOMDocumentTest extends TestCase {
-    
+
     public void testExportToString() throws Exception {
         BufferedReader in = new BufferedReader(new InputStreamReader(DOMDocumentTest.class.getResourceAsStream("test1.xml")));
         String line;
         String xml = "";
-        while ((line = in.readLine()) != null)
+        while ((line = in.readLine()) != null) {
             xml += line;
+        }
         DOMDocument doc = new DOMDocument(Util.parse(xml), null, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY);
         assertNotNull(doc);
         assertNotNull(doc.exportToString());
@@ -42,7 +44,14 @@ public class DOMDocumentTest extends TestCase {
     }
 
     public void testIncludeXSINamespace() throws Exception {
-        String xml = "<Organisation xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n<IdOrganisation xsi:type=\"xsd:string\">5797</IdOrganisation>\r\n</Organisation>\r\n";
+        String lineSeparator = System.getProperty("line.separator");
+        StringBuilder xmlBuilder = new StringBuilder("<Organisation xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
+        xmlBuilder.append(lineSeparator);
+        xmlBuilder.append("<IdOrganisation xsi:type=\"xsd:string\">5797</IdOrganisation>");
+        xmlBuilder.append(lineSeparator);
+        xmlBuilder.append("</Organisation>");
+        xmlBuilder.append(lineSeparator);
+        String xml = xmlBuilder.toString();
         InputStream documentStream = new ByteArrayInputStream(xml.getBytes("UTF-8"));
         // Parsing
         MutableDocument userDocument;
