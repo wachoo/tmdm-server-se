@@ -250,4 +250,16 @@ public class DataRecord {
     public void remove(FieldMetadata field) {
         fieldToValue.remove(field);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder keyValue = new StringBuilder();
+        for (FieldMetadata keyField : type.getKeyFields()) {
+            keyValue.append('[').append(fieldToValue.get(keyField)).append(']');
+        }
+        return "Record {" +
+                "type=" + type.getName() +
+                ",key=" + keyValue.toString() +
+                '}';
+    }
 }

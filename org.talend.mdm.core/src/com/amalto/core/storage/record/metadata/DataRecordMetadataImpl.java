@@ -43,7 +43,9 @@ public class DataRecordMetadataImpl implements DataRecordMetadata {
 
     public void setTaskId(String taskId) {
         this.taskId = taskId;
-        recordProperties.put(Storage.METADATA_TASK_ID, taskId); // Overrides task id in record properties (in case it was there).
+        if (recordProperties != null) {
+            recordProperties.put(Storage.METADATA_TASK_ID, taskId); // Overrides task id in record properties (in case it was there).
+        }
     }
 
     public Map<String, String> getRecordProperties() {

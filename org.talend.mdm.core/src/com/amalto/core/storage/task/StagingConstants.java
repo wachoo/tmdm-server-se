@@ -58,6 +58,10 @@ public interface StagingConstants {
      */
     String TASK_RESOLVED_RECORD = "207";
     /**
+     * Indicates a deleted record.
+     */
+    String NEED_REMATCH = "208";
+    /**
      * Generic fail status.
      */
     String FAIL = "400"; //$NON-NLS-1$
