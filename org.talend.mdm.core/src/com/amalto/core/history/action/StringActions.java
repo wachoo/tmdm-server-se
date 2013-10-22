@@ -34,7 +34,7 @@ public class StringActions {
     }
 
     public static Action mostCommon(Collection<FieldUpdateAction> actions) {
-        if (actions == null || actions.isEmpty()){
+        if (actions == null || actions.isEmpty()) {
             return NoOpAction.instance();
         }
         return MostCommonAction.mostCommon(actions);
@@ -72,7 +72,7 @@ public class StringActions {
         protected String getNewValue() {
             String newValue = super.getNewValue();
             String oldValue = super.getOldValue();
-            if(newValue.length() >= oldValue.length()) {
+            if (newValue.length() >= oldValue.length()) {
                 return newValue;
             } else {
                 return oldValue;
@@ -95,7 +95,7 @@ public class StringActions {
         protected String getNewValue() {
             String newValue = super.getNewValue();
             String oldValue = super.getOldValue();
-            if(newValue.length() < oldValue.length()) {
+            if (newValue.length() < oldValue.length()) {
                 return newValue;
             } else {
                 return oldValue;
@@ -141,11 +141,14 @@ public class StringActions {
                         mostCommon = previousString;
                         maxOccurrenceCount = occurrenceCount;
                     }
-                    occurrenceCount = 0;
+                    occurrenceCount = 1;
                 } else {
                     occurrenceCount++;
                 }
                 previousString = current;
+            }
+            if (occurrenceCount > maxOccurrenceCount) {
+                mostCommon = previousString;
             }
             return mostCommon;
         }
@@ -157,5 +160,4 @@ public class StringActions {
             return previousString.equals(current);
         }
     }
-
 }
