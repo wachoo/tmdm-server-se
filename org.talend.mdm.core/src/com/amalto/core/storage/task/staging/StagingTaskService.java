@@ -59,8 +59,12 @@ public class StagingTaskService {
         Filter filter;
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(body);
-            filter = new ConfigurableFilter(doc);
+            if (body.available() > 0) {
+                Document doc = builder.parse(body);
+                filter = new ConfigurableFilter(doc);
+            } else {
+                filter = DefaultFilter.INSTANCE;
+            }
         } catch (Exception e) {
             filter = DefaultFilter.INSTANCE;
             if (Logger.getLogger(StagingTaskService.class).isDebugEnabled()) {
