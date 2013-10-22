@@ -130,7 +130,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             throw new IllegalArgumentException("Max length must be greater than 0 (was " + maxLength + ").");
         }
         if (s == null) {
-            return s;
+            return null;
         }
         // Adds a prefix until 's' is no longer a SQL reserved key word.
         String backup = s;
