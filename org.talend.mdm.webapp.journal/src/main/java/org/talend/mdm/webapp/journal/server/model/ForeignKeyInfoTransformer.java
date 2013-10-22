@@ -1,19 +1,16 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 package org.talend.mdm.webapp.journal.server.model;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -48,25 +45,48 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
         this.dataClusterName = dataClusterName;
     }
 
+    @Override
     public Document transform(MutableDocument document) {
-        Map<String, ReferenceFieldMetadata> pathToForeignKeyInfo = metadata.accept(new ForeignKeyInfoResolver());
+        List<ReferenceFieldMetadata> referenceFieldMetadatas = metadata.accept(new ForeignKeyInfoResolver());
 
-        Set<Map.Entry<String, ReferenceFieldMetadata>> entries = pathToForeignKeyInfo.entrySet();
-        for (Map.Entry<String, ReferenceFieldMetadata> entry : entries) {
-            String path = entry.getKey();
-            ReferenceFieldMetadata fieldMetadata = entry.getValue();
-            Accessor accessor = document.createAccessor(path);
-
-            if (accessor.exist()) { // The field might not be set, so check if it exists.
-                String foreignKeyValue = accessor.get(); // Raw foreign key value (surrounded by "[")
-                String resolvedForeignKeyInfo = resolveForeignKeyValue(fieldMetadata, foreignKeyValue); // Value to be
-                // displayed to
-                // users
-                accessor.set(resolvedForeignKeyInfo);
+        for (ReferenceFieldMetadata referenceFieldMetadata : referenceFieldMetadatas) {
+            String path = referenceFieldMetadata.getPath();
+            // FIXME
+            // path can contain repeatable elements in the middle
+            // path should be taken from instance document and not metadata (case of non-anonymous types)
+            if (referenceFieldMetadata.isMany()) {
+                boolean occurrencePathExists = true;
+                for (int i = 1; occurrencePathExists == true; i++) {
+                    occurrencePathExists = setForeignKeyValue(document, path + '[' + i + ']', referenceFieldMetadata);
+                }
+            } else {
+                setForeignKeyValue(document, path, referenceFieldMetadata);
             }
+
         }
 
         return document;
+    }
+
+    private boolean setForeignKeyValue(MutableDocument document, String path, ReferenceFieldMetadata referenceFieldMetadata) {
+        Accessor accessor = document.createAccessor(path);
+        if (accessor.exist()) { // The field might not be set, so check if it exists.
+            String foreignKeyValue = accessor.get(); // Raw foreign key value (surrounded by "[")
+            String resolvedForeignKeyInfo = resolveForeignKeyValue(referenceFieldMetadata, foreignKeyValue); // Value
+                                                                                                             // to
+                                                                                                             // be
+            // displayed to
+            // users
+            accessor.set(resolvedForeignKeyInfo);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Set value " + resolvedForeignKeyInfo + " to " + path); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            return true;
+        }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(path + " does not exists"); //$NON-NLS-1$
+        }
+        return false;
     }
 
     private String resolveForeignKeyValue(ReferenceFieldMetadata foreignKeyField, String foreignKeyValue) {
@@ -98,17 +118,17 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
             Element element = item.getProjection();
             StringBuilder foreignKeyInfo = new StringBuilder();
             for (FieldMetadata fieldMetadata : foreignKeyField.getForeignKeyInfoFields()) {
-                NodeList nodeList = Util.getNodeList(element,
-                        "/" + referencedTypeName + "/" + fieldMetadata.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-                if (nodeList.getLength() == 1 && nodeList.item(0).getTextContent() != null && !nodeList.item(0).getTextContent().isEmpty()) {
+                NodeList nodeList = Util.getNodeList(element, "/" + referencedTypeName + "/" + fieldMetadata.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+                if (nodeList.getLength() == 1 && nodeList.item(0).getTextContent() != null
+                        && !nodeList.item(0).getTextContent().isEmpty()) {
                     if (foreignKeyInfo.length() > 0) {
                         foreignKeyInfo.append("-"); //$NON-NLS-1$
-                    } 
+                    }
                     foreignKeyInfo.append(nodeList.item(0).getTextContent());
                 }
             }
             if (foreignKeyField.getForeignKeyInfoFields().size() > 0) {
-                return foreignKeyInfo.toString();   
+                return foreignKeyInfo.toString();
             } else {
                 return foreignKeyValue;
             }
@@ -117,60 +137,35 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
         }
     }
 
-    private static class ForeignKeyInfoResolver extends DefaultMetadataVisitor<Map<String, ReferenceFieldMetadata>> {
+    private static class ForeignKeyInfoResolver extends DefaultMetadataVisitor<List<ReferenceFieldMetadata>> {
 
-        private final Map<String, ReferenceFieldMetadata> pathToForeignKeyInfo = new HashMap<String, ReferenceFieldMetadata>();
-
-        private Stack<String> currentPosition = new Stack<String>();
-
-        private String getCurrentPath() {
-            String path = ""; //$NON-NLS-1$
-            for (String pathElement : currentPosition) {
-                path += "/" + pathElement; //$NON-NLS-1$
-            }
-            return path;
-        }
+        private final List<ReferenceFieldMetadata> references = new ArrayList<ReferenceFieldMetadata>();
 
         @Override
-        public Map<String, ReferenceFieldMetadata> visit(ComplexTypeMetadata metadata) {
+        public List<ReferenceFieldMetadata> visit(ComplexTypeMetadata metadata) {
             super.visit(metadata);
-            return pathToForeignKeyInfo;
+            return references;
         }
 
         @Override
-        public Map<String, ReferenceFieldMetadata> visit(ReferenceFieldMetadata metadata) {
-            currentPosition.push(metadata.getName());
-            {
-                if (metadata.hasForeignKeyInfo()) {
-                    pathToForeignKeyInfo.put(getCurrentPath(), metadata);
-                }
-                super.visit(metadata);
+        public List<ReferenceFieldMetadata> visit(ReferenceFieldMetadata metadata) {
+            if (metadata.hasForeignKeyInfo()) {
+                references.add(metadata);
             }
-            currentPosition.pop();
-
-            return pathToForeignKeyInfo;
+            super.visit(metadata);
+            return references;
         }
 
         @Override
-        public Map<String, ReferenceFieldMetadata> visit(FieldMetadata fieldMetadata) {
-            currentPosition.push(fieldMetadata.getName());
-            {
-                super.visit(fieldMetadata);
-            }
-            currentPosition.pop();
-
-            return pathToForeignKeyInfo;
+        public List<ReferenceFieldMetadata> visit(FieldMetadata fieldMetadata) {
+            super.visit(fieldMetadata);
+            return references;
         }
 
         @Override
-        public Map<String, ReferenceFieldMetadata> visit(SimpleTypeFieldMetadata metadata) {
-            currentPosition.push(metadata.getName());
-            {
-                super.visit(metadata);
-            }
-            currentPosition.pop();
-
-            return pathToForeignKeyInfo;
+        public List<ReferenceFieldMetadata> visit(SimpleTypeFieldMetadata metadata) {
+            super.visit(metadata);
+            return references;
         }
     }
 }
