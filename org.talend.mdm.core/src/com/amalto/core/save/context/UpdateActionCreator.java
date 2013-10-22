@@ -244,7 +244,11 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                     // TMDM-5216: Visit sub fields include old/new values for sub elements.
                     if (comparedField instanceof ContainedTypeFieldMetadata) {
                         isDeletingContainedElement = true;
-                        ((ContainedTypeFieldMetadata) comparedField).getContainedType().accept(this);
+                        TypeMetadata type = repository.getNonInstantiableType(repository.getUserNamespace(), originalAccessor.getActualType());
+                        if (type == null) {
+                            type = ((ContainedTypeFieldMetadata) comparedField).getContainedType();
+                        }
+                        type.accept(this);
                         isDeletingContainedElement = false;
                     } else if (!isDeletingContainedElement) {
                         // TMDM-5257: RemoveSimpleTypeNodeWithOccurrence
