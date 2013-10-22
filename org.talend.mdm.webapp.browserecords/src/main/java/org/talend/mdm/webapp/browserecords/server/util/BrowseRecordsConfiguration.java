@@ -25,7 +25,7 @@ public class BrowseRecordsConfiguration {
 
     private static Properties properties;
 
-    public static final int TEXTAREA_THRESHOLD_DEFAULT_LENGTH = 30;
+    public static final int TEXTAREA_THRESHOLD_DEFAULT_LENGTH = 60;
 
     public static void reload() throws IOException {
         properties = new Properties();
