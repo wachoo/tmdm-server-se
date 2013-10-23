@@ -12,6 +12,7 @@
 package com.amalto.core.query.optimization;
 
 import com.amalto.core.query.user.metadata.Timestamp;
+import com.amalto.core.util.Util;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
@@ -35,7 +36,16 @@ public class UpdateReportOptimizer implements Optimizer {
             if ("Update".equals(mainType.getName())) { //$NON-NLS-1$
                 String dataModelName;
                 synchronized (REPORT_DATA_MODEL) {
-                    dataModelName = select.accept(REPORT_DATA_MODEL);
+                    dataModelName = select.accept(REPORT_DATA_MODEL); // 1- Try to get data model name in query.
+                }
+                if (dataModelName == null) {
+                    try {
+                        dataModelName = Util.getUserDataModel(); // 2- Try to get data model name from current user.
+                    } catch (Exception e) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Could not access current user data model.", e);
+                        }
+                    }
                 }
                 if (dataModelName != null) {
                     Server server = ServerContext.INSTANCE.get();
