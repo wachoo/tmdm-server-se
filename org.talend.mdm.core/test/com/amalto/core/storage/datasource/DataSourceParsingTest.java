@@ -143,4 +143,21 @@ public class DataSourceParsingTest extends TestCase {
         rdbmsDataSource = (RDBMSDataSource) dataSource;
         assertFalse(rdbmsDataSource.isCaseSensitiveSearch());
     }
+
+    public void testPostgresLowercasePostProcess() throws Exception {
+        InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-5", "MDM", null);
+        DataSource master = dataSourceDefinition.getMaster();
+        assertNotNull(master);
+        assertTrue(master instanceof RDBMSDataSource);
+
+        RDBMSDataSource masterRDBMSDatasource = (RDBMSDataSource) master;
+        assertEquals("jdbc:postgresql://localhost:5432/ds2", masterRDBMSDatasource.getConnectionURL());
+        assertEquals("ds2", masterRDBMSDatasource.getDatabaseName());
+
+        DataSource system = dataSourceDefinition.getSystem();
+        RDBMSDataSource systemRDBMSDatasource = (RDBMSDataSource) system;
+        assertEquals("jdbc:postgresql://localhost:5432/system", systemRDBMSDatasource.getConnectionURL());
+        assertEquals("system", systemRDBMSDatasource.getDatabaseName());
+    }
 }

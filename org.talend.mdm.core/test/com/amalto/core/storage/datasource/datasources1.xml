@@ -125,5 +125,39 @@
         </master>
     </datasource>
 
+    <datasource name="Test-5">
+        <master>
+            <type>RDBMS</type>
+            <rdbms-configuration>
+                <dialect>Postgres</dialect>
+                <connection-driver-class>com.mysql.jdbc.Driver</connection-driver-class>
+                <connection-url>jdbc:postgresql://localhost:5432/DS2</connection-url>
+                <connection-username>postgres</connection-username>
+                <connection-password>toor</connection-password>
+                <init>
+                    <connection-url>jdbc:postgresql://localhost:5432/</connection-url>
+                    <connection-username>postgres</connection-username>
+                    <connection-password>toor</connection-password>
+                    <database-name>DS2</database-name>
+                </init>
+            </rdbms-configuration>
+        </master>
+        <system>
+            <type>RDBMS</type>
+            <rdbms-configuration>
+                <dialect>Postgres</dialect>
+                <connection-driver-class>org.postgresql.Driver</connection-driver-class>
+                <connection-url>jdbc:postgresql://localhost:5432/SYSTEM</connection-url>
+                <connection-username>postgres</connection-username>
+                <connection-password>toor</connection-password>
 
+                <init>
+                    <connection-url>jdbc:postgresql://localhost:5432/</connection-url>
+                    <connection-username>postgres</connection-username>
+                    <connection-password>toor</connection-password>
+                    <database-name>SYSTEM</database-name>
+                </init>
+            </rdbms-configuration>
+        </system>
+    </datasource>
 </datasources>

@@ -93,6 +93,7 @@ public class DataSourceFactory {
         }
         // Additional post parsing (replace potential ${container} with container parameter value).
         replacePlaceholder(dataSource.getMaster(), CONTAINER_PLACEHOLDER, container);
+        replacePlaceholder(dataSource.getSystem(), CONTAINER_PLACEHOLDER, StringUtils.EMPTY); // TMDM-6527: Call this for lower case processing.
         if (dataSource.hasStaging()) {
             replacePlaceholder(dataSource.getStaging(), CONTAINER_PLACEHOLDER, container);
         }
@@ -120,7 +121,7 @@ public class DataSourceFactory {
             String processedConnectionURL;
             if (((RDBMSDataSource) dataSource).getDialectName() == RDBMSDataSource.DataSourceDialect.POSTGRES) {
                 // Postgres always creates lower case database name
-                processedConnectionURL = connectionURL.replace(placeholderName, value.toLowerCase());
+                processedConnectionURL = connectionURL.replace(placeholderName, value).toLowerCase();
             } else {
                 processedConnectionURL = connectionURL.replace(placeholderName, value);
             }
