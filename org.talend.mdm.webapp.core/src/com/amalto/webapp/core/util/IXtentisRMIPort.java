@@ -2240,7 +2240,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             if (Util.getUUIDNodes(schema, concept).size() > 0) { // check uuid key exists
 
                 Document schema1 = Util.parse(schema);
-                Node n = Util.processUUID(true, item.getProjection(), schema, dataCluster, concept);
+                //TMDM-6495: use newly available next autoIncrement Id, forget about (don't use) unused id
+                Node n = Util.processUUID(false, item.getProjection(), schema, dataCluster, concept);
                 XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema1, concept);
                 // get key values
                 String[] itemKeyValues = com.amalto.core.util.Util.getKeyValuesFromItem((Element) n, conceptKey);
