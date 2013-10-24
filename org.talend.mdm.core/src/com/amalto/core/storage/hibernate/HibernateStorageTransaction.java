@@ -85,6 +85,16 @@ class HibernateStorageTransaction extends StorageTransaction {
                 } else {
                     LOGGER.warn("Transaction was already committed.");
                 }
+                if (session.isOpen()) {
+                    /*
+                     * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the session
+                     * is reused.
+                     */
+                    if (session.getStatistics().getEntityKeys().size() > 0) {
+                        session.clear();
+                    }
+                    session.close();
+                }
             } catch (Exception e) {
                 if (LOGGER.isInfoEnabled()) {
                     LOGGER.info("Transaction failed, dumps transaction content for diagnostic.");
@@ -98,16 +108,6 @@ class HibernateStorageTransaction extends StorageTransaction {
             }
         }
         super.commit();
-        if (session.isOpen()) {
-            /*
-             * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the session
-             * is reused.
-             */
-            if (session.getStatistics().getEntityKeys().size() > 0) {
-                session.clear();
-            }
-            session.close();
-        }
         storage.getClassLoader().reset(Thread.currentThread());
     }
 
@@ -200,7 +200,6 @@ class HibernateStorageTransaction extends StorageTransaction {
                     LOGGER.warn("Transaction was already rollbacked.");
                 }
             } finally {
-                super.rollback();
                 /*
                  * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the session
                  * is reused.
@@ -209,9 +208,10 @@ class HibernateStorageTransaction extends StorageTransaction {
                     session.clear();
                     session.close();
                 }
-                storage.getClassLoader().reset(Thread.currentThread());
             }
         }
+        super.rollback();
+        storage.getClassLoader().reset(Thread.currentThread());
     }
 
     public Session getSession() {
