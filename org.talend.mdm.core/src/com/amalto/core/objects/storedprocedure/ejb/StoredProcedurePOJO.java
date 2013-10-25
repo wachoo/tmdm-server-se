@@ -51,7 +51,6 @@ public class StoredProcedurePOJO extends ObjectPOJO {
         this.refreshCache = refreshCache;
     }
 
-    @LongString
     public String getDescription() {
         return description;
     }
@@ -60,6 +59,7 @@ public class StoredProcedurePOJO extends ObjectPOJO {
         this.description = description;
     }
 
+    @LongString
     public String getProcedure() {
         return procedure;
     }
