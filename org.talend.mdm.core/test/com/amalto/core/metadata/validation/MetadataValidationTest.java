@@ -216,6 +216,23 @@ public class MetadataValidationTest extends TestCase {
         assertFalse(handler.getLineNumbers().contains(null));
     }
 
+    public void testFKInfo6() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("FKINFO6.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        try {
+            repository.load(resourceAsStream, handler);
+            fail("Should fail validation.");
+        } catch (Exception e) {
+            // Expected
+        }
+        assertEquals(1, handler.getErrorCount());
+        assertEquals(0, handler.getWarningCount());
+        assertTrue(handler.getMessages().contains(ValidationError.TYPE_DOES_NOT_OWN_FIELD));
+        assertTrue(handler.getLineNumbers().contains(228));
+        assertFalse(handler.getLineNumbers().contains(null));
+    }
+
     public void testPKINFO_manyType() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         InputStream resourceAsStream = this.getClass().getResourceAsStream("PKINFO_manyType_0.1.xsd");
