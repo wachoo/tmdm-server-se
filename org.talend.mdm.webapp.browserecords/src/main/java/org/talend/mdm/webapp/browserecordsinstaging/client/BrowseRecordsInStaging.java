@@ -19,6 +19,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.ToolBarFactory;
+import org.talend.mdm.webapp.browserecords.client.WidgetFactory;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsController;
@@ -134,6 +135,7 @@ public class BrowseRecordsInStaging implements EntryPoint {
 
     private void initExtendedEnviroment() {
         ToolBarFactory.initialize(new ToolBarFactory4Staging());
+        WidgetFactory.initialize(new WidgetFactory4Staging());
         ItemsListPanel.initialize(new ItemsListPanel4Staging());
         ItemsToolBar.initialize(new ItemsToolBarCreator() {
 

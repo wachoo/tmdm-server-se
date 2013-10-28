@@ -25,7 +25,6 @@ import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.util.PostDataUtil;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
-import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
@@ -70,11 +69,12 @@ public class DownloadFilePanel extends FormPanel {
 
     private Window window;
 
-    private ViewBean viewBean = BrowseRecords.getSession().getCurrentView();
+    private ViewBean viewBean = null;
     
-    Map<String,List<String>> inheritanceNodeMap = null;
+    private Map<String,List<String>> inheritanceNodeMap = null;
 
-    public DownloadFilePanel(QueryModel queryModel, Window window) {
+    public DownloadFilePanel(ViewBean viewBean,QueryModel queryModel, Window window) {
+        this.viewBean = viewBean;
         this.queryModel = queryModel;
         this.window = window;
 
@@ -157,11 +157,11 @@ public class DownloadFilePanel extends FormPanel {
 
                             @Override
                             public void handleEvent(MessageBoxEvent be) {
-                                PostDataUtil.postData("/browserecords/download", param); //$NON-NLS-1$                                
+                                PostDataUtil.postData(getActionUrl(), param);
                             }                        
                         });
                     } else {
-                        PostDataUtil.postData("/browserecords/download", param); //$NON-NLS-1$                     
+                        PostDataUtil.postData(getActionUrl(), param);                     
                     }
                 } catch (Exception e) {
                     MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().export_error(), null);
@@ -287,5 +287,9 @@ public class DownloadFilePanel extends FormPanel {
         param.put("offset", Integer.toString(pagingLoad.getOffset())); //$NON-NLS-1$
         param.put("limit", Integer.toString(pagingLoad.getLimit())); //$NON-NLS-1$
         return param;
+    }
+    
+    protected String getActionUrl() {
+        return "/browserecords/download"; //$NON-NLS-1$
     }
 }

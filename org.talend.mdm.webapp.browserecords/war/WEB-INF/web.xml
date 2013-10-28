@@ -38,11 +38,23 @@
         <display-name>exportExcelFile</display-name>
         <servlet-class>org.talend.mdm.webapp.browserecords.server.servlet.DownloadData</servlet-class>
     </servlet>
+    
+    <servlet>
+        <servlet-name>exportExcelFile4Staging</servlet-name>
+        <display-name>exportExcelFile4Staging</display-name>
+        <servlet-class>org.talend.mdm.webapp.browserecordsinstaging.server.servlet.DownloadData4Staging</servlet-class>
+    </servlet>
 
     <servlet>
         <servlet-name>readExcelFile</servlet-name>
         <display-name>readExcelFile</display-name>
         <servlet-class>org.talend.mdm.webapp.browserecords.server.servlet.UploadData</servlet-class>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>readExcelFile4Staging</servlet-name>
+        <display-name>readExcelFile4Staging</display-name>
+        <servlet-class>org.talend.mdm.webapp.browserecordsinstaging.server.servlet.UploadData4Staging</servlet-class>
     </servlet>
 
     <servlet>
@@ -79,10 +91,20 @@
         <servlet-name>readExcelFile</servlet-name>
         <url-pattern>/upload</url-pattern>
     </servlet-mapping>
+    
+   <servlet-mapping>
+        <servlet-name>readExcelFile4Staging</servlet-name>
+        <url-pattern>/upload4Staging</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>exportExcelFile</servlet-name>
         <url-pattern>/download</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>exportExcelFile4Staging</servlet-name>
+        <url-pattern>/download4Staging</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

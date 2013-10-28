@@ -43,7 +43,6 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
-
 /**
  * DOC Administrator class global comment. Detailled comment
  */
@@ -58,6 +57,8 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     private FileUploadField file;
 
     private CheckBox headerLine;
+    
+    private HiddenField<String> clusterField;
 
     private HiddenField<String> conceptField;
 
@@ -78,8 +79,11 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     private ViewBean viewBean;
 
     private Window window;
+    
+    private String dataCluster;
 
-    public UploadFileFormPanel(ViewBean viewBean, Window window) {
+    public UploadFileFormPanel(String dataCluster,ViewBean viewBean, Window window) {
+        this.dataCluster = dataCluster;
         this.viewBean = viewBean;
         this.window = window;
         this.setFrame(false);
@@ -87,11 +91,11 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         this.setEncoding(Encoding.MULTIPART);
         this.setMethod(Method.POST);
         this.setWidth("100%"); //$NON-NLS-1$
-        this.setAction("/browserecords/upload"); //$NON-NLS-1$
+        this.setAction(getActionUrl());
         this.renderForm();
     }
 
-    private String getHeaderStr() {
+    protected String getHeaderString() {
         EntityModel entityModel = viewBean.getBindingEntityModel();
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
         List<String> viewableXpathList = viewBean.getViewableXpaths();
@@ -109,6 +113,10 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
             headerStringBuilder.append(org.talend.mdm.webapp.base.shared.util.CommonUtil.escape(viewableXpath + Constants.HEADER_VISIBILITY_SEPARATOR + typeModel.isVisible()));
         }
         return headerStringBuilder.toString();
+    }
+    
+    protected String getViewableXpathString() {
+        return org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(viewBean.getViewableXpaths(), Constants.FILE_EXPORT_IMPORT_SEPARATOR);
     }
 
     private String getMandatoryStr() {
@@ -132,7 +140,12 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     }
 
     private void renderForm() {
-
+        
+        clusterField = new HiddenField<String>();
+        clusterField.setName("cluster"); //$NON-NLS-1$
+        clusterField.setValue(dataCluster);
+        this.add(clusterField);
+        
         conceptField = new HiddenField<String>();
         conceptField.setName("concept");//$NON-NLS-1$
         conceptField.setValue(viewBean.getBindingEntityModel().getConceptName());
@@ -140,7 +153,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
         headerField = new HiddenField<String>();
         headerField.setName("header");//$NON-NLS-1$
-        headerField.setValue(getHeaderStr());
+        headerField.setValue(getHeaderString());
         this.add(headerField);
 
         mandatoryField = new HiddenField<String>();
@@ -155,7 +168,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
         viewableXpathField = new HiddenField<String>();
         viewableXpathField.setName("viewableXpath");//$NON-NLS-1$
-        viewableXpathField.setValue(org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(viewBean.getViewableXpaths(), Constants.FILE_EXPORT_IMPORT_SEPARATOR));
+        viewableXpathField.setValue(getViewableXpathString());
         this.add(viewableXpathField);
         
         inheritanceNodePath = new HiddenField<String>();
@@ -367,5 +380,9 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         }
 
         return errMsg;
+    }
+    
+    protected String getActionUrl() {
+        return "/browserecords/upload"; //$NON-NLS-1$
     }
 }

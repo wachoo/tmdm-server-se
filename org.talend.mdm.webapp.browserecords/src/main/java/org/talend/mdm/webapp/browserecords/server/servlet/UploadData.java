@@ -99,7 +99,9 @@ public class UploadData extends HttpServlet {
     
     private String encoding = "utf-8";//$NON-NLS-1$
     
-    private String concept = "";//$NON-NLS-1$
+    private String cluster = ""; //$NON-NLS-1$
+    
+    protected String concept = "";//$NON-NLS-1$
     
     private String fileType = "";//$NON-NLS-1$
     
@@ -152,7 +154,9 @@ public class UploadData extends HttpServlet {
                 // we are not expecting any field just (one) file(s)
                 String name = item.getFieldName();
                 LOG.debug("doPost() Field: '" + name + "' - value:'" + item.getString() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                if (name.equals("concept")) { //$NON-NLS-1$
+                if (name.equals("cluster")) { //$NON-NLS-1$
+                    cluster = item.getString();
+                } else if (name.equals("concept")) { //$NON-NLS-1$
                     concept = item.getString();
                 }
                 else if (name.equals("sep")) { //$NON-NLS-1$
@@ -195,13 +199,8 @@ public class UploadData extends HttpServlet {
                 item.write(file);
             }// if field
         }// while item
-    
     }
     
-    public UploadData() {
-        super();
-    }
-
     @Override
     protected void doGet(HttpServletRequest arg0, HttpServletResponse arg1) throws ServletException, IOException {
         doPost(arg0, arg1);
@@ -245,14 +244,14 @@ public class UploadData extends HttpServlet {
                     workBook = new XSSFWorkbook(new FileInputStream(file));
                 }
                 Sheet sheet = workBook.getSheetAt(0);
-                Iterator<Row> rowiIterator = sheet.rowIterator();
+                Iterator<Row> rowIterator = sheet.rowIterator();
                 int rowNumber = 0;
-                while (rowiIterator.hasNext()) {
+                while (rowIterator.hasNext()) {
                     dataLine = false;
                     rowNumber++;
-                    Row row = rowiIterator.next();
+                    Row row = rowIterator.next();
                     if (rowNumber == 1) {
-                        importHeader = getHeader(row, null);
+                        importHeader = readHeader(row, null);
                         if (headersOnFirstLine) {
                             continue;
                         }
@@ -296,6 +295,7 @@ public class UploadData extends HttpServlet {
                                             break;
                                         }
                                         case Cell.CELL_TYPE_BLANK: {
+                                            fieldValue = ""; //$NON-NLS-1$
                                         }
                                         default: {
                                         }
@@ -308,7 +308,7 @@ public class UploadData extends HttpServlet {
                             }
                         }
                         if (dataLine) {
-                            wSPutItemWithReportList.add(getWSPutItemWithReport(document.asXML(),configuration.getCluster(), configuration.getModel()));
+                            wSPutItemWithReportList.add(buildWSPutItemWithReport(document,configuration.getModel()));
                         }
                     }
                 }
@@ -320,7 +320,7 @@ public class UploadData extends HttpServlet {
                     String[] record = records.get(i);
                     dataLine = false;
                     if (i == 0) {
-                        importHeader = getHeader(null, record);
+                        importHeader = readHeader(null, record);
                         if (headersOnFirstLine) {
                             continue;
                         }
@@ -338,7 +338,7 @@ public class UploadData extends HttpServlet {
                             }
                         }
                         if (dataLine) {
-                            wSPutItemWithReportList.add(getWSPutItemWithReport(document.asXML(),configuration.getCluster(), configuration.getModel()));
+                            wSPutItemWithReportList.add(buildWSPutItemWithReport(document,configuration.getModel()));
                         }
                     }
                 }
@@ -364,8 +364,8 @@ public class UploadData extends HttpServlet {
         }
     }
 
-    private WSPutItemWithReport getWSPutItemWithReport(String xml,String model, String cluster) {
-        return new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(cluster), xml, new WSDataModelPK(model), false),
+    protected WSPutItemWithReport buildWSPutItemWithReport(Document document,String model) {
+        return new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(cluster), document.asXML(), new WSDataModelPK(model), false),
                 "genericUI", true); //$NON-NLS-1$
     }
 
@@ -430,9 +430,9 @@ public class UploadData extends HttpServlet {
         return result;
     }
 
-    private String[] getHeader(Row headerRow,String[] headerRecord) throws ServletException {
+    protected String[] readHeader(Row headerRow,String[] headerRecord) throws ServletException {
         List<String> headers = new LinkedList<String>();
-        String headerName;
+        String header;
         int index = 0;
         if (headersOnFirstLine) {
             if (FILE_TYPE_EXCEL_SUFFIX.equals(fileType.toLowerCase()) || FILE_TYPE_EXCEL2010_SUFFIX.equals(fileType.toLowerCase())) {
@@ -440,30 +440,30 @@ public class UploadData extends HttpServlet {
                 while (headerIterator.hasNext()) {
                     Cell cell = headerIterator.next();
                     if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-                        headerName = cell.getRichStringCellValue().getString();
-                        headers.add(handleHeader(headerName, index));
+                        header = cell.getRichStringCellValue().getString();
+                        headers.add(handleHeader(header, index));
                     }
                     index++;
                 }
             } else if (FILE_TYPE_CSV_SUFFIX.equals(fileType.toLowerCase())) {
-                for (String element : headerRecord) {
-                    headers.add(handleHeader(element, index));
+                for (int i=0;i<headerRecord.length;i++) {
+                    headers.add(handleHeader(headerRecord[i], index));
                     index++;
                 }
             }
         } else {
             Iterator<String> headerIterator = headerVisibleMap.keySet().iterator();
             while (headerIterator.hasNext()) {
-                headerName = headerIterator.next();
-                registXsiType(headerName, index);
-                headers.add(headerName);
+                header = headerIterator.next();
+                registXsiType(header, index);
+                headers.add(header);
                 index++;
-            }    
+            }
         }
         return headers.toArray(new String[headers.size()]);
     }
     
-    private String handleHeader(String headerName,int index) throws ServletException {
+    protected String handleHeader(String headerName,int index) throws ServletException {
         String headerPath = ""; //$NON-NLS-1$
         if (!headerName.startsWith(concept + "/")) { //$NON-NLS-1$
             headerPath = concept + "/" + headerName; //$NON-NLS-1$
@@ -493,8 +493,7 @@ public class UploadData extends HttpServlet {
         }
     }
  
-    
-    private void fillFieldValue(Element currentElement,String fieldPath,String fieldValue,Row row,String[] record) throws Exception {
+    protected void fillFieldValue(Element currentElement,String fieldPath,String fieldValue,Row row,String[] record) throws Exception {
         QName xsiTypeQName = new QName(Constants.XSI_TYPE_NAME, new Namespace(Constants.XSI_PREFIX,Constants.XSI_URI), Constants.XSI_TYPE_QUALIFIED_NAME);
         String[] xpathPartArray = fieldPath.split("/"); //$NON-NLS-1$
         for (int i=1;i<xpathPartArray.length;i++) {

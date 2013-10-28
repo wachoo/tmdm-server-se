@@ -27,6 +27,7 @@ import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.WidgetFactory;
 import org.talend.mdm.webapp.browserecords.client.creator.ItemCreator;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
@@ -396,7 +397,7 @@ public class ItemsToolBar extends ToolBar {
                 window.setClosable(true);
 
                 ViewBean viewBean = BrowseRecords.getSession().getCurrentView();
-                UploadFileFormPanel formPanel = new UploadFileFormPanel(viewBean, window);
+                UploadFileFormPanel formPanel = WidgetFactory.getInstance().createUploadFileFormPanel(userCluster, viewBean, window);
                 window.add(formPanel);
                 window.show();
             }
@@ -410,7 +411,7 @@ public class ItemsToolBar extends ToolBar {
 
             @Override
             public void componentSelected(MenuEvent ce) {
-                QueryModel queryModel = ItemsListPanel.getInstance().getCurrentQueryModel();
+                final QueryModel queryModel = ItemsListPanel.getInstance().getCurrentQueryModel();
                 if (queryModel != null) {
                     final Window window = new Window();
                     window.setSize(380, 200);
@@ -420,8 +421,14 @@ public class ItemsToolBar extends ToolBar {
                     window.setHeading(MessagesFactory.getMessages().export_title());
                     window.setLayout(new FitLayout());
                     window.setClosable(true);
-                    window.add(new DownloadFilePanel(queryModel, window));
-                    window.show();                    
+                        service.getView("Browse_items_" + ViewUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString()), Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>(){ //$NON-NLS-1$ //$NON-NLS-2$
+
+                        @Override
+                        public void onSuccess(ViewBean viewBean) {
+                            window.add(WidgetFactory.getInstance().createDownloadFilePanel(viewBean, queryModel, window));
+                            window.show();
+                        }
+                    });
                 }
             }
         });
