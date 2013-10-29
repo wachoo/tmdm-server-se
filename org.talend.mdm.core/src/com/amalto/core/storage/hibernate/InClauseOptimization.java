@@ -19,6 +19,7 @@ import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.EmptyIterator;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
@@ -26,6 +27,7 @@ import org.hibernate.Criteria;
 import org.hibernate.EntityMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.dialect.Dialect;
@@ -63,13 +65,14 @@ public class InClauseOptimization extends StandardQueryHandler {
 
     @Override
     public StorageResults visit(Select select) {
-        // Standard criteria
-        Criteria criteria = createCriteria(select);
+	// Keep select class loader (for result creation)
+        ClassLoader resultClassLoader = Thread.currentThread().getContextClassLoader();
         // Create in clause for the id
         ComplexTypeMetadata mainType = select.getTypes().get(0);
         Paging paging = select.getPaging();
         int start = paging.getStart();
         int limit = paging.getLimit();
+	Criterion criterion = null;
         switch (mode) {
             case SUB_QUERY:
                 throw new NotImplementedException("Not supported in this MDM version");
@@ -79,7 +82,7 @@ public class InClauseOptimization extends StandardQueryHandler {
                 // ComplexTypeMetadata typeMetadata = (ComplexTypeMetadata) MetadataUtils.getSuperConcreteType(mainType);
                 // String idColumnName = typeMetadata.getKeyFields().iterator().next().getName();
                 // String tableName = typeMetadata.getName();
-                // criteria.add(new IdInSubQueryClause(idColumnName, tableName, start, limit));
+                // criterion = new IdInSubQueryClause(idColumnName, tableName, start, limit);
             case CONSTANT:
                 UserQueryBuilder qb = from(mainType)
                         .selectId(mainType)
@@ -93,18 +96,6 @@ public class InClauseOptimization extends StandardQueryHandler {
                     constants = new ArrayList<String[]>(limit);
                 } else {
                     constants = new LinkedList<String[]>();
-                }
-                // TODO Prevent session close (DO NOT REMOVE).
-                if (!HibernateStorage.isMDMTransaction.get()) {
-                    storage.begin();
-                    Set<EndOfResultsCallback> newCallbacks = new HashSet<EndOfResultsCallback>(callbacks);
-                    newCallbacks.add(new EndOfResultsCallback() {
-                        @Override
-                        public void onEndOfResults() {
-                            storage.rollback();
-                        }
-                    });
-                    callbacks = newCallbacks;
                 }
                 // Get ids for constant list
                 StorageResults records = storage.fetch(qb.getSelect());
@@ -120,15 +111,37 @@ public class InClauseOptimization extends StandardQueryHandler {
                 }
                 if (!constants.isEmpty()) {
                     TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(mainType);
-                    criteria.add(new IdInConstantClause(mapping.getDatabase().getKeyFields(), constants));
+                    criterion = new IdInConstantClause(mapping.getDatabase().getKeyFields(), constants));
                 } else {
                     return new HibernateStorageResults(storage, select, EmptyIterator.INSTANCE);
                 }
                 break;
         }
         // Create results
-        List list = criteria.list();
-        return createResults(list, select.isProjection());
+        final ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
+	Thread.currentThread().setContextClassLoader(resultClassLoader);
+	try {
+		this.session = ((HibernateStorage) storage).getFactory().getCurrentSession();
+		final Transaction transaction = session.getTransaction();
+		transaction.begin();
+		Criteria criteria = createCriteria(select);
+		if(criterion != null) {
+		    criteria.add(criterion);
+		}
+		List list = criteria.list();
+		this.callbacks = Collections.<EndOfResultsCallback>singleton(new EndOfResultsCallback() {
+		        @Override
+		        public void onEndOfResults() {
+			    if (transaction.isActive()) {
+				transaction.commit();
+		            }
+		            Thread.currentThread().setContextClassLoader(previousClassLoader);
+		        }
+		});
+		return createResults(list, select.isProjection());
+	} catch(Exception e) {
+	    throw new RuntimeException("Could not create 'in clause' result", e);
+	}
     }
 
     private static class IdInConstantClause implements Criterion {
