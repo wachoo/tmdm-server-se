@@ -75,15 +75,6 @@ public class HibernateStorage implements Storage {
     private static final boolean autoPrepare = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty(
             "db.autoPrepare", "true")); //$NON-NLS-1$ //$NON-NLS-2$
 
-    // Thread local to keep track of transactions explicitly started by MDM (prevents close() on Session during update
-    // when initial record is read).
-    public static final ThreadLocal<Boolean> isMDMTransaction = new ThreadLocal<Boolean>() {
-        @Override
-        protected Boolean initialValue() {
-            return false;
-        }
-    };
-
     private static final Boolean FLUSH_ON_LOAD = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("db.flush.on.load", "false")); //$NON-NLS-1$ //$NON-NLS-2$
 
     private final String storageName;
@@ -553,7 +544,7 @@ public class HibernateStorage implements Storage {
             Thread.currentThread().setContextClassLoader(storageClassLoader);
 
             final Session session = factory.getCurrentSession();
-            Transaction transaction = session.getTransaction();
+            final Transaction transaction = session.getTransaction();
             if (!transaction.isActive()) {
                 // Implicitly start a transaction
                 transaction.begin();
@@ -563,8 +554,8 @@ public class HibernateStorage implements Storage {
 
                 @Override
                 public void onEndOfResults() {
-                    if (!isMDMTransaction.get() && session.isOpen()) { // Prevent any problem if anyone (Hibernate...) already closed session.
-                        session.close();
+		    if (transaction.isActive()) {
+			transaction.commit();
                     } else {
                         if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("Attempted to close session on end of query result, but it has already been done.");
@@ -663,13 +654,11 @@ public class HibernateStorage implements Storage {
         }
         session.beginTransaction();
         session.setFlushMode(FlushMode.AUTO);
-        isMDMTransaction.set(true);
     }
 
     @Override
     public void commit() {
         assertPrepared();
-        isMDMTransaction.remove();
         Session session = factory.getCurrentSession();
         try {
             Transaction transaction = session.getTransaction();
@@ -702,7 +691,6 @@ public class HibernateStorage implements Storage {
     @Override
     public void rollback() {
         assertPrepared();
-        isMDMTransaction.remove();
         Session session = factory.getCurrentSession();
         Transaction transaction = session.getTransaction();
         if (!transaction.isActive()) {
@@ -795,6 +783,10 @@ public class HibernateStorage implements Storage {
          * LOGGER.error("Exception occurred during full text suggestion searches.", e); } }
          */
         throw new UnsupportedOperationException("No support due to version of Lucene in use.");
+    }
+
+    public SessionFactory getFactory() {
+	return factory;
     }
 
     @Override
