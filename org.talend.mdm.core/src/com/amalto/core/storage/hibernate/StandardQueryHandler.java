@@ -16,6 +16,7 @@ import java.util.*;
 
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.Type;
 import com.amalto.core.query.user.metadata.*;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
@@ -35,6 +36,7 @@ import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
+import org.hibernate.type.*;
 import org.talend.mdm.commmon.metadata.*;
 
 class StandardQueryHandler extends AbstractQueryHandler {
@@ -253,6 +255,17 @@ class StandardQueryHandler extends AbstractQueryHandler {
     @Override
     public StorageResults visit(StagingBlockKey stagingBlockKey) {
         projectionList.add(Projections.property(Storage.METADATA_STAGING_BLOCK_KEY));
+        return null;
+    }
+
+    @Override
+    public StorageResults visit(GroupSize groupSize) {
+        Projection groupSizeProjection = Projections.sqlGroupProjection("count(X_TALEND_TASK_ID) as talend_group_size", //$NON-NLS-1$
+                Storage.METADATA_TASK_ID,
+                new String[]{"talend_group_size"}, //$NON-NLS-1$
+                new org.hibernate.type.Type[]{new IntegerType()}
+        );
+        projectionList.add(groupSizeProjection);
         return null;
     }
 
@@ -614,6 +627,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
         }
 
         @Override
+        public Criterion visit(GroupSize groupSize) {
+            return Restrictions.sqlRestriction("count()");
+        }
+
+        @Override
         public Criterion visit(NotIsNull notIsNull) {
             FieldCondition fieldCondition = notIsNull.getField().accept(visitor);
             if (fieldCondition == null) {
@@ -667,7 +685,35 @@ class StandardQueryHandler extends AbstractQueryHandler {
         public Criterion visit(Compare condition) {
             FieldCondition leftFieldCondition = condition.getLeft().accept(criterionFieldCondition);
             FieldCondition rightFieldCondition = condition.getRight().accept(criterionFieldCondition);
+            Predicate predicate = condition.getPredicate();
             if (!leftFieldCondition.isProperty) {
+                if (leftFieldCondition.isComputedProperty) {
+                    // TODO Assuming that main table alias is "this_" is quite a bold statement.
+                    String mainTableAlias = "this_"; //$NON-NLS-1$
+                    String mainTableName = resolver.get(mainType);
+                    Object value = condition.getRight().accept(VALUE_ADAPTER);
+                    String comparator;
+                    if (predicate == Predicate.EQUALS) {
+                        comparator = "="; //$NON-NLS-1$
+                    } else if (predicate == Predicate.GREATER_THAN) {
+                        comparator = ">"; //$NON-NLS-1$
+                    } else if (predicate == Predicate.GREATER_THAN_OR_EQUALS) {
+                        comparator = ">="; //$NON-NLS-1$
+                    } else if (predicate == Predicate.LOWER_THAN) {
+                        comparator = "<"; //$NON-NLS-1$
+                    } else if (predicate == Predicate.LOWER_THAN_OR_EQUALS) {
+                        comparator = "<="; //$NON-NLS-1$
+                    } else {
+                        throw new IllegalArgumentException("Predicate '" + predicate + "' is not supported on group_size value.");
+                    }
+                    String sqlConditionBuilder = "("; //$NON-NLS-1$
+                    sqlConditionBuilder += "select count(1) from"; //$NON-NLS-1$
+                    sqlConditionBuilder += ' ' + mainTableName + ' ';
+                    sqlConditionBuilder += "where " + Storage.METADATA_TASK_ID + " = " + mainTableAlias + "." + Storage.METADATA_TASK_ID; //$NON-NLS-1$  //$NON-NLS-1$
+                    sqlConditionBuilder += ')';
+                    sqlConditionBuilder += ' ' + comparator + ' ' + value;
+                    return Restrictions.sqlRestriction(sqlConditionBuilder);
+                }
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Query on '" + leftFieldCondition + "' is not a user set property. Ignore this condition.");
                 }
@@ -728,7 +774,6 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         compareValue = MetadataUtils.convert(String.valueOf(compareValue), fieldMetadata);
                     }
                 }
-                Predicate predicate = condition.getPredicate();
                 if (compareValue instanceof Boolean && predicate == Predicate.EQUALS) {
                     if (!(Boolean) compareValue) {
                         // Special case for boolean: when looking for 'false' value, consider null values as 'false'
@@ -795,7 +840,6 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     throw new NotImplementedException("No support for predicate '" + predicate.getClass() + "'");
                 }
             } else { // Since we expect left part to be a field, this 'else' means we're comparing 2 fields
-                Predicate predicate = condition.getPredicate();
                 if (predicate == Predicate.EQUALS) {
                     return Restrictions.eqProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName);
                 } else if (predicate == Predicate.GREATER_THAN) {
@@ -889,6 +933,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
             } else {
                 return null;
             }
+        }
+
+        @Override
+        public FieldCondition visit(GroupSize groupSize) {
+            FieldCondition fieldCondition = new FieldCondition();
+            fieldCondition.isProperty = false;
+            fieldCondition.isComputedProperty = true;
+            return fieldCondition;
         }
 
         @Override

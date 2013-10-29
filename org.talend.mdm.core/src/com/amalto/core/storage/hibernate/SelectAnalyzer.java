@@ -416,6 +416,13 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
         }
 
         @Override
+        public Result visit(GroupSize groupSize) {
+            Result fieldResult = new Result();
+            fieldResult.id = false;
+            return fieldResult;
+        }
+
+        @Override
         public Result visit(IndexedField indexedField) {
             Result fieldResult = new Result();
             fieldResult.id = false;

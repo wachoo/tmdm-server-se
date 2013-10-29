@@ -29,6 +29,7 @@ public interface MetadataField {
             StagingSource.INSTANCE,
             StagingStatus.INSTANCE,
             StagingBlockKey.INSTANCE,
+            GroupSize.INSTANCE,
             TaskId.INSTANCE,
             Timestamp.INSTANCE
     };

@@ -255,6 +255,12 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(GroupSize groupSize) {
+        print("[Computed field: GROUP_SIZE]"); //$NON-NLS-1$
+        return null;
+    }
+
     public Void visit(Join join) {
         print("[JOIN]"); //$NON-NLS-1$
         increaseIndent();

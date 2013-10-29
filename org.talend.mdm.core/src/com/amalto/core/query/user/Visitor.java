@@ -30,6 +30,8 @@ public interface Visitor<T> {
 
     T visit(StagingBlockKey stagingBlockKey);
 
+    T visit(GroupSize groupSize);
+
     T visit(Select select);
 
     T visit(NativeQuery nativeQuery);

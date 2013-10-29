@@ -161,7 +161,10 @@ class HibernateStorageTransaction extends StorageTransaction {
                 }
                 if (i > TRANSACTION_DUMP_MAX) {
                     if (!LOGGER.isDebugEnabled()) {
-                        LOGGER.log(currentLevel, "and " + (failedKeys.size() - i) + " more... (enable DEBUG for full dump)");
+                        int more = failedKeys.size() - i;
+                        if (more > 0) {
+                            LOGGER.log(currentLevel, "and " + more + " more... (enable DEBUG for full dump)");
+                        }
                         return;
                     } else {
                         currentLevel = Level.DEBUG; // Continue the dump but with a DEBUG level

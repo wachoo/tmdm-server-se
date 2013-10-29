@@ -1,9 +1,6 @@
 package com.amalto.core.query.user;
 
-import com.amalto.core.query.user.metadata.StagingBlockKey;
-import com.amalto.core.query.user.metadata.StagingError;
-import com.amalto.core.query.user.metadata.StagingSource;
-import com.amalto.core.query.user.metadata.StagingStatus;
+import com.amalto.core.query.user.metadata.*;
 
 public class UserStagingQueryBuilder {
     /**
@@ -35,5 +32,12 @@ public class UserStagingQueryBuilder {
      */
     public static TypedExpression blockKey() {
         return StagingBlockKey.INSTANCE;
+    }
+
+    /**
+     * @return A {@link TypedExpression} that represents the number of similar record in group (>= 1).
+     */
+    public static TypedExpression groupSize() {
+        return GroupSize.INSTANCE;
     }
 }

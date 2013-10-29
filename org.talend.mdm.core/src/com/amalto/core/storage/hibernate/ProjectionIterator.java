@@ -262,6 +262,15 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
             return currentElement;
         }
 
+        @Override
+        public ProjectionElement visit(GroupSize groupSize) {
+            if (!isAlias) {
+                createElement(groupSize.getTypeName(), GroupSize.GROUP_SIZE_ALIAS);
+            }
+            currentElement.value = values[currentIndex++];
+            return currentElement;
+        }
+
         public ProjectionElement visit(Field field) {
             FieldMetadata fieldMetadata = field.getFieldMetadata();
             if (!isAlias) {

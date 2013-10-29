@@ -230,6 +230,8 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
     }
 
     protected static class FieldCondition {
+        boolean isComputedProperty;
+
         boolean isMany;
 
         String criterionFieldName;

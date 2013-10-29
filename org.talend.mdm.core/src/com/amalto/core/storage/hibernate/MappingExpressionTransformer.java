@@ -181,6 +181,12 @@ public class MappingExpressionTransformer extends VisitorAdapter<Expression> {
     }
 
     @Override
+    public Expression visit(GroupSize groupSize) {
+        currentField = groupSize;
+        return groupSize;
+    }
+
+    @Override
     public Expression visit(Join join) {
         return new Join(((Field) join.getLeftField().accept(this)),
                 (Field) join.getRightField().accept(this),

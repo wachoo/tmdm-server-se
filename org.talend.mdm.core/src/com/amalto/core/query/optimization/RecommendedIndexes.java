@@ -141,6 +141,11 @@ public class RecommendedIndexes {
             return Collections.emptySet();
         }
 
+        @Override
+        public Collection<FieldMetadata> visit(GroupSize groupSize) {
+            return Collections.emptySet();
+        }
+
         public Collection<FieldMetadata> visit(Join join) {
             List<FieldMetadata> fields = Arrays.asList(join.getLeftField().getFieldMetadata(),
                     join.getRightField().getFieldMetadata());
