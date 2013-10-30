@@ -13,9 +13,11 @@
 
 package org.talend.mdm.service.calljob.ejb;
 
+
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -29,6 +31,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.service.calljob.CompiledParameters;
 import org.talend.mdm.service.calljob.ContextParam;
 import org.talend.mdm.service.calljob.webservices.Args;
@@ -44,6 +48,7 @@ import com.amalto.core.jobox.JobContainer;
 import com.amalto.core.jobox.JobInvokeConfig;
 import com.amalto.core.jobox.component.MDMJobInvoker;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.server.ServerContext;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
@@ -319,9 +324,18 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
             String updateReportXml = pojo.getProjectionAsString();
             
             Element root = Util.parse(updateReportXml).getDocumentElement();
-            String concept = Util.getFirstTextNode(root, "Concept");//$NON-NLS-1$ 
+            String concept = Util.getFirstTextNode(root, "Concept");//$NON-NLS-1$
+            String dataCluster = Util.getFirstTextNode(root, "DataCluster");//$NON-NLS-1$
             String key = Util.getFirstTextNode(root, "Key");//$NON-NLS-1$ 
-            String[] ids = key.split("\\.");//$NON-NLS-1$ 
+            ComplexTypeMetadata type = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(dataCluster).getComplexType(concept);
+            Collection<FieldMetadata> keyFields = type.getKeyFields();
+            String[] ids;
+            
+            if (keyFields.size() == 1) {
+                ids = new String []{ key };
+            } else {
+                ids = key.split("\\.");//$NON-NLS-1$
+            } 
             String clusterPK = Util.getFirstTextNode(root, "DataCluster");//$NON-NLS-1$ 
             ItemPOJOPK itemPk = new ItemPOJOPK(new DataClusterPOJOPK(clusterPK), concept, ids);
             
