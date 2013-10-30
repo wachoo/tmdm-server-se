@@ -68,13 +68,14 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
 
     public Set<Expression> getIndexedExpressions(String dataModelName) {
         synchronized (metadataRepository) {
+            ViewPOJO view = null;
             try {
                 MetadataRepository repository = get(dataModelName);
                 ViewCtrlLocal viewCtrlLocal = Util.getViewCtrlLocal();
                 Set<Expression> indexedExpressions = new HashSet<Expression>();
                 for (Object viewAsObject : viewCtrlLocal.getAllViews(".*")) { //$NON-NLS-1$
                     UserQueryBuilder qb = null;
-                    ViewPOJO view = (ViewPOJO) viewAsObject;
+                    view = (ViewPOJO) viewAsObject;
                     ArrayList<String> searchableElements = view.getSearchableBusinessElements().getList();
                     for (String searchableElement : searchableElements) {
                         String typeName = StringUtils.substringBefore(searchableElement, "/"); //$NON-NLS-1$
@@ -105,7 +106,13 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
                 }
                 return indexedExpressions;
             } catch (Exception e) {
-                throw new RuntimeException("Could not get indexed fields.", e);
+                if (view != null) {
+                    throw new RuntimeException("Can not use view '" + view.getPK().getUniqueId()
+                            + "' with data model '" + dataModelName
+                            + "': " + e.getMessage(), e);
+                } else {
+                    throw new RuntimeException("Could not get indexed fields.", e);
+                }
             }
         }
     }
