@@ -257,14 +257,15 @@ public class DefaultSaverSource implements SaverSource {
 
     public String nextAutoIncrementId(String universe, String dataCluster, String conceptName) {
         long autoIncrementId = -1;        
-        String concept = null;
-        String field = null;
+        String concept;
+        String field;
         if (conceptName.contains(".")) { //$NON-NLS-1$
             String[] conceptArray = conceptName.split("\\."); //$NON-NLS-1$
             concept = conceptArray[0];
             field = conceptArray[1];
         } else {
             concept = conceptName;
+            field = null;
         }
         MetadataRepository metadataRepository = getMetadataRepository(dataCluster);
         if (metadataRepository != null) {
@@ -274,8 +275,8 @@ public class DefaultSaverSource implements SaverSource {
                 if (superType != null) {
                     concept = superType.getName();
                 }
-                String autoIncrementFiledName = field != null ? concept + "." + field : concept; //$NON-NLS-1$
-                autoIncrementId = AutoIncrementGenerator.generateNum(universe, dataCluster, autoIncrementFiledName);
+                String autoIncrementFieldName = field != null ? concept + "." + field : concept; //$NON-NLS-1$
+                autoIncrementId = AutoIncrementGenerator.generateNum(universe, dataCluster, autoIncrementFieldName);
             } 
         }
         return String.valueOf(autoIncrementId);
