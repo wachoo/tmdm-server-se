@@ -65,6 +65,8 @@ public class RDBMSDataSource implements DataSource {
 
     private int connectionPoolMaxSize;
 
+    private boolean isShared;
+
     public RDBMSDataSource(RDBMSDataSource dataSource) {
         caseSensitiveSearch = dataSource.caseSensitiveSearch;
         name = dataSource.name;
@@ -240,11 +242,84 @@ public class RDBMSDataSource implements DataSource {
         return name;
     }
 
+    @Override
+    public boolean isShared() {
+        return isShared;
+    }
+
+    @Override
+    public void setShared(boolean isShared) {
+        this.isShared = isShared;
+    }
+
     public SchemaGeneration getSchemaGeneration() {
         return schemaGeneration;
     }
 
     public Map<String, String> getAdvancedProperties() {
         return advancedProperties;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof RDBMSDataSource)) return false;
+
+        RDBMSDataSource that = (RDBMSDataSource) o;
+
+        if (connectionPoolMaxSize != that.connectionPoolMaxSize) return false;
+        if (connectionPoolMinSize != that.connectionPoolMinSize) return false;
+        if (generateTechnicalFK != that.generateTechnicalFK) return false;
+        if (isShared != that.isShared) return false;
+        if (advancedProperties != null ? !advancedProperties.equals(that.advancedProperties) : that.advancedProperties != null)
+            return false;
+        if (cacheDirectory != null ? !cacheDirectory.equals(that.cacheDirectory) : that.cacheDirectory != null)
+            return false;
+        if (caseSensitiveSearch != null ? !caseSensitiveSearch.equals(that.caseSensitiveSearch) : that.caseSensitiveSearch != null)
+            return false;
+        if (connectionURL != null ? !connectionURL.equals(that.connectionURL) : that.connectionURL != null)
+            return false;
+        if (containsOptimization != that.containsOptimization) return false;
+        if (databaseName != null ? !databaseName.equals(that.databaseName) : that.databaseName != null) return false;
+        if (dialect != that.dialect) return false;
+        if (driverClassName != null ? !driverClassName.equals(that.driverClassName) : that.driverClassName != null)
+            return false;
+        if (indexDirectory != null ? !indexDirectory.equals(that.indexDirectory) : that.indexDirectory != null)
+            return false;
+        if (initConnectionURL != null ? !initConnectionURL.equals(that.initConnectionURL) : that.initConnectionURL != null)
+            return false;
+        if (initPassword != null ? !initPassword.equals(that.initPassword) : that.initPassword != null) return false;
+        if (initUserName != null ? !initUserName.equals(that.initUserName) : that.initUserName != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (password != null ? !password.equals(that.password) : that.password != null) return false;
+        if (schemaGeneration != that.schemaGeneration) return false;
+        if (userName != null ? !userName.equals(that.userName) : that.userName != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (generateTechnicalFK ? 1 : 0);
+        result = 31 * result + (containsOptimization != null ? containsOptimization.hashCode() : 0);
+        result = 31 * result + (caseSensitiveSearch != null ? caseSensitiveSearch.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (schemaGeneration != null ? schemaGeneration.hashCode() : 0);
+        result = 31 * result + (advancedProperties != null ? advancedProperties.hashCode() : 0);
+        result = 31 * result + (cacheDirectory != null ? cacheDirectory.hashCode() : 0);
+        result = 31 * result + (initConnectionURL != null ? initConnectionURL.hashCode() : 0);
+        result = 31 * result + (initUserName != null ? initUserName.hashCode() : 0);
+        result = 31 * result + (initPassword != null ? initPassword.hashCode() : 0);
+        result = 31 * result + (dialect != null ? dialect.hashCode() : 0);
+        result = 31 * result + (driverClassName != null ? driverClassName.hashCode() : 0);
+        result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + (indexDirectory != null ? indexDirectory.hashCode() : 0);
+        result = 31 * result + (userName != null ? userName.hashCode() : 0);
+        result = 31 * result + (connectionURL != null ? connectionURL.hashCode() : 0);
+        result = 31 * result + (databaseName != null ? databaseName.hashCode() : 0);
+        result = 31 * result + connectionPoolMinSize;
+        result = 31 * result + connectionPoolMaxSize;
+        result = 31 * result + (isShared ? 1 : 0);
+        return result;
     }
 }

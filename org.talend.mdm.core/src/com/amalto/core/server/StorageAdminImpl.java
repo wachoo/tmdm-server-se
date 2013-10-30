@@ -220,7 +220,7 @@ public class StorageAdminImpl implements StorageAdmin {
         }
         // Create storage
         if (XSystemObjects.DC_UPDATE_PREPORT.getName().equals(storageName) && dataSource instanceof RDBMSDataSource) {
-            RDBMSDataSource previousDataSource = (RDBMSDataSource) dataSource;
+            final RDBMSDataSource previousDataSource = (RDBMSDataSource) dataSource;
             dataSource = new RDBMSDataSource(previousDataSource) {
                 @Override
                 public boolean supportFullText() {
@@ -228,6 +228,16 @@ public class StorageAdminImpl implements StorageAdmin {
                         LOGGER.debug("Disabling full text for update report storage.");
                     }
                     return false;
+                }
+
+                @Override
+                public boolean isShared() {
+                    return previousDataSource.isShared();
+                }
+
+                @Override
+                public void setShared(boolean isShared) {
+                    previousDataSource.setShared(isShared);
                 }
             };
         }

@@ -155,6 +155,10 @@ public class HibernateStorage implements Storage {
         if (!(dataSource instanceof RDBMSDataSource)) {
             throw new IllegalArgumentException("Data source is expected to be a RDBMS data source.");
         }
+        if (dataSource.isShared()) {
+            LOGGER.warn("Datasource '" + dataSource.getName() + "' (for storage type: " + storageType + ") is shared " +
+                    "with at least another one other storage type, please review datasource configuration.");
+        }
         this.dataSource = (RDBMSDataSource) dataSource;
         internalInit();
     }

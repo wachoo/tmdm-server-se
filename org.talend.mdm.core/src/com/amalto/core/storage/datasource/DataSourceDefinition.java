@@ -11,6 +11,8 @@
 
 package com.amalto.core.storage.datasource;
 
+import java.util.Arrays;
+
 public class DataSourceDefinition {
 
     private final DataSource master;
@@ -23,6 +25,47 @@ public class DataSourceDefinition {
         this.master = master;
         this.staging = staging;
         this.system = system;
+        // Compute isShared status
+        DataSource[] dataSources = new DataSource[] {master, staging, system};
+        boolean[][] isShared = computeSharedStatus(dataSources);
+        if (master != null) {
+            master.setShared(isShared(isShared[0]));
+        }
+        if (staging != null) {
+            staging.setShared(isShared(isShared[1]));
+        }
+        if (system != null) {
+            system.setShared(isShared(isShared[2]));
+        }
+    }
+
+    private static boolean[][] computeSharedStatus(DataSource[] dataSources) {
+        boolean isShared[][] = new boolean[dataSources.length][dataSources.length];
+        int i = 0;
+        for (DataSource dataSource : dataSources) {
+            int j = 0;
+            if (dataSource == null) {
+                Arrays.fill(isShared[i], false);
+            } else {
+                for (DataSource source : dataSources) {
+                    if (i != j) { // Don't count a self equals as a "share".
+                        isShared[i][j] = dataSource.equals(source);
+                    }
+                    j++;
+                }
+            }
+            i++;
+        }
+        return isShared;
+    }
+
+    private boolean isShared(boolean[] booleans) {
+        for (boolean isShared : booleans) {
+            if (isShared) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public DataSource getMaster() {

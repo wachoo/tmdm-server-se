@@ -130,9 +130,11 @@ public class DataSourceFactory {
                     // TMDM-6559: MySQL doesn't like '-' in database name
                     processedConnectionURL = connectionURL.replace(placeholderName, value);
                     if (processedConnectionURL.indexOf('-') > 0) {
-                        LOGGER.warn("JDBC URL '" + processedConnectionURL + "' contains character(s) not supported by MySQL.");
                         URI uri = URI.create(processedConnectionURL.substring(5)); // Uses URI-based parsing to prevent replace of '-' in host name.
-                        processedConnectionURL = processedConnectionURL.replace(uri.getPath(), uri.getPath().replace('-', '_'));
+                        if (uri.getPath().indexOf('-') > 0) {
+                            LOGGER.warn("JDBC URL '" + processedConnectionURL + "' contains character(s) not supported by MySQL.");
+                            processedConnectionURL = processedConnectionURL.replace(uri.getPath(), uri.getPath().replace('-', '_'));
+                        }
                     }
                     break;
                 case H2:

@@ -172,4 +172,21 @@ public class DataSourceParsingTest extends TestCase {
         assertEquals("jdbc:mysql://mysql-server-01:3306/A_A_1_B", masterRDBMSDatasource.getConnectionURL());
         assertEquals("A_A_1_B", masterRDBMSDatasource.getDatabaseName());
     }
+
+    public void testDatasourceSharedStatus() throws Exception {
+        InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-7", "MDM", null);
+        DataSource master = dataSourceDefinition.getMaster();
+        assertNotNull(master);
+        assertTrue(master.isShared());
+
+        DataSource staging = dataSourceDefinition.getStaging();
+        assertNotNull(staging);
+        assertTrue(staging.isShared());
+
+        DataSource system = dataSourceDefinition.getSystem();
+        assertNotNull(system);
+        assertFalse(system.isShared());
+    }
+
 }

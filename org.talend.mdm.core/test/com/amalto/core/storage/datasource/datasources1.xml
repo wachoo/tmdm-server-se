@@ -184,4 +184,65 @@
         </master>
     </datasource>
 
+    <datasource name="Test-7">
+        <master>
+            <type>RDBMS</type>
+            <rdbms-configuration>
+                <dialect>MySQL</dialect>
+                <connection-driver-class>com.mysql.jdbc.Driver</connection-driver-class>
+                <connection-url>jdbc:mysql://mysql-server-01:3306/${container}</connection-url>
+                <connection-username>root</connection-username>
+                <connection-password>toor</connection-password>
+                <connection-pool-minsize></connection-pool-minsize>
+                <connection-pool-maxsize>50</connection-pool-maxsize>
+                <fulltext-index-directory>/var/lucene/indexes/DS1</fulltext-index-directory>
+
+                <init>
+                    <connection-url>jdbc:mysql://mysql-server-01:3306/</connection-url>
+                    <connection-username>root</connection-username>
+                    <connection-password>toor</connection-password>
+                    <database-name>${container}</database-name>
+                </init>
+            </rdbms-configuration>
+        </master>
+        <staging>
+            <type>RDBMS</type>
+            <rdbms-configuration>
+                <dialect>MySQL</dialect>
+                <connection-driver-class>com.mysql.jdbc.Driver</connection-driver-class>
+                <connection-url>jdbc:mysql://mysql-server-01:3306/${container}</connection-url>
+                <connection-username>root</connection-username>
+                <connection-password>toor</connection-password>
+                <connection-pool-minsize></connection-pool-minsize>
+                <connection-pool-maxsize>50</connection-pool-maxsize>
+                <fulltext-index-directory>/var/lucene/indexes/DS1</fulltext-index-directory>
+
+                <init>
+                    <connection-url>jdbc:mysql://mysql-server-01:3306/</connection-url>
+                    <connection-username>root</connection-username>
+                    <connection-password>toor</connection-password>
+                    <database-name>${container}</database-name>
+                </init>
+            </rdbms-configuration>
+        </staging>
+        <system>
+            <type>RDBMS</type>
+            <rdbms-configuration>
+                <dialect>Postgres</dialect>
+                <connection-driver-class>org.postgresql.Driver</connection-driver-class>
+                <connection-url>jdbc:postgresql://localhost:5432/SYSTEM</connection-url>
+                <connection-username>postgres</connection-username>
+                <connection-password>toor</connection-password>
+
+                <init>
+                    <connection-url>jdbc:postgresql://localhost:5432/</connection-url>
+                    <connection-username>postgres</connection-username>
+                    <connection-password>toor</connection-password>
+                    <database-name>SYSTEM</database-name>
+                </init>
+            </rdbms-configuration>
+        </system>
+    </datasource>
+
+
 </datasources>
