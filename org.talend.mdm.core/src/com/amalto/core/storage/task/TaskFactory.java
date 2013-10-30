@@ -40,10 +40,11 @@ public class TaskFactory {
         try {
             Class<?> clazz = Class.forName("com.amalto.core.storage.task.MatchMergeTask"); //$NON-NLS-1$
             Constructor<?> constructor = clazz.getConstructor(Storage.class,
+                    Storage.class,
                     MetadataRepository.class,
                     ClosureExecutionStats.class,
                     Filter.class);
-            Object task = constructor.newInstance(stagingStorage, userRepository, stats, filter);
+            Object task = constructor.newInstance(stagingStorage, destinationStorage, userRepository, stats, filter);
             tasks.add((Task) task);
         } catch (ClassNotFoundException e) {
             LOGGER.warn("Could not find match & merge extension, feature will be disabled.");
