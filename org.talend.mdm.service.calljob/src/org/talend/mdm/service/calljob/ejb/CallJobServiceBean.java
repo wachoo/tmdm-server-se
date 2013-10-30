@@ -17,6 +17,7 @@ package org.talend.mdm.service.calljob.ejb;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -330,12 +331,21 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
             ComplexTypeMetadata type = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(dataCluster).getComplexType(concept);
             Collection<FieldMetadata> keyFields = type.getKeyFields();
             String[] ids;
+            int dotNum = countDots(key);
+            int keyNum = keyFields.size();
             
-            if (keyFields.size() == 1) {
+            if (keyNum == 1) {
                 ids = new String []{ key };
-            } else {
+            } else if (keyNum == dotNum + 1) {
                 ids = key.split("\\.");//$NON-NLS-1$
-            } 
+            } else {
+                String [] idsTemp =  key.split("\\.");//$NON-NLS-1$
+                String [] compositeKeyPart = Arrays.copyOfRange(idsTemp, 0, keyNum-1);
+                ids = Arrays.copyOf(compositeKeyPart, keyNum);
+                String lastCompositeKey =  compositeKeyPart[compositeKeyPart.length-1]; 
+                ids[keyNum-1] = key.substring(key.lastIndexOf(compositeKeyPart[compositeKeyPart.length-1]) + lastCompositeKey.length() + 1);
+            }
+            
             String clusterPK = Util.getFirstTextNode(root, "DataCluster");//$NON-NLS-1$ 
             ItemPOJOPK itemPk = new ItemPOJOPK(new DataClusterPOJOPK(clusterPK), concept, ids);
             
@@ -352,6 +362,16 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
         return value;
     }
 
+    private static int countDots(String str) {
+        int counter = 0;
+        for( int i=0; i<str.length(); i++ ) {
+            if( str.charAt(i) == '.' ) {
+                counter++;
+            } 
+        }
+        return counter;
+    }
+    
     /**
      * @throws EJBException
      *
