@@ -81,4 +81,8 @@ public interface StagingConstants {
      * Failed MDM validation due to constraints issues.
      */
     String FAIL_VALIDATE_CONSTRAINTS = "404"; //$NON-NLS-1$
+    /**
+     * Constant to indicate a record source when created by MDM.
+     */
+    String STAGING_MDM_SOURCE = "MDM"; //$NON-NLS-1$
 }
