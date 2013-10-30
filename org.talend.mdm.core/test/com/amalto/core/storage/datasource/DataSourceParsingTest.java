@@ -160,4 +160,16 @@ public class DataSourceParsingTest extends TestCase {
         assertEquals("jdbc:postgresql://localhost:5432/system", systemRDBMSDatasource.getConnectionURL());
         assertEquals("system", systemRDBMSDatasource.getDatabaseName());
     }
+
+    public void testMySQLHyphenSubstitution() throws Exception {
+        InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-6", "A-A-1_B", null);
+        DataSource master = dataSourceDefinition.getMaster();
+        assertNotNull(master);
+        assertTrue(master instanceof RDBMSDataSource);
+
+        RDBMSDataSource masterRDBMSDatasource = (RDBMSDataSource) master;
+        assertEquals("jdbc:mysql://mysql-server-01:3306/A_A_1_B", masterRDBMSDatasource.getConnectionURL());
+        assertEquals("A_A_1_B", masterRDBMSDatasource.getDatabaseName());
+    }
 }
