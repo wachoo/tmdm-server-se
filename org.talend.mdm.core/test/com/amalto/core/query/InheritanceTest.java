@@ -40,6 +40,7 @@ public class InheritanceTest extends StorageTestCase {
         allRecords.add(factory.read("1", repository, d, "<D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D>"));
         allRecords.add(factory.read("1", repository, persons, "<Persons><name>person</name><age>20</age></Persons>"));
         allRecords.add(factory.read("1", repository, employee, "<Employee><name>employee</name><age>21</age><jobTitle>Test</jobTitle></Employee>"));
+        allRecords.add(factory.read("1", repository, employee, "<Employee><name>employee2</name><age>22</age><jobTitle>Test2</jobTitle></Employee>"));
         allRecords.add(factory.read("1", repository, manager, "<Manager><name>manager</name><age>25</age><jobTitle>Test</jobTitle><dept>manager</dept></Manager>"));
         allRecords
                 .add(factory
@@ -545,5 +546,26 @@ public class InheritanceTest extends StorageTestCase {
         } finally {
             results.close();
         }
+    }
+
+    public void testInheritanceCount() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(employee);
+        StorageResults results = storage.fetch(qb.getSelect());
+        int i = 0;
+        try {
+            for (DataRecord result : results) {
+                i++;
+            }
+        } finally {
+            results.close();
+        }
+
+        qb = UserQueryBuilder.from(employee);
+        results = storage.fetch(qb.getSelect());
+        assertEquals(i, results.getCount());
+
+        qb = UserQueryBuilder.from(persons);
+        results = storage.fetch(qb.getSelect());
+        assertTrue(i < results.getCount());
     }
 }
