@@ -117,12 +117,12 @@ public class InheritanceTest extends StorageTestCase {
         qb.isa(employee);
         results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(1, results.getCount());
+            assertEquals(2, results.getCount());
             int actualCount = 0;
             for (DataRecord result : results) {
                 actualCount++;
             }
-            assertEquals(1, actualCount);
+            assertEquals(2, actualCount);
         } finally {
             results.close();
         }
