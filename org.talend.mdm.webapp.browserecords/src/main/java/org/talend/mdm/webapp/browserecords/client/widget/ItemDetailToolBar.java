@@ -707,7 +707,7 @@ public class ItemDetailToolBar extends ToolBar {
                     final MessageBox waitBar = MessageBox.wait(MessagesFactory.getMessages().process_progress_bar_title(),
                             MessagesFactory.getMessages().process_progress_bar_message(), MessagesFactory.getMessages()
                                     .process_progress_bar_title() + "..."); //$NON-NLS-1$
-                    String[] ids = itemBean.getIds().split("@"); //$NON-NLS-1$
+                    String[] ids = new String [] { itemBean.getIds() }; //$NON-NLS-1$
 
                     service.processItem(itemBean.getConcept(), ids,
                             (String) selectItem.get("key"), new SessionAwareAsyncCallback<String>() { //$NON-NLS-1$
