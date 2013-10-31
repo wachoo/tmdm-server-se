@@ -198,6 +198,7 @@ public class SecuredStorageTest extends StorageTestCase {
     }
 
     public void testSecuredFieldOrderBy() throws Exception {
+        storage.rollback(); // Cancel transaction begun in setUp();
         assertTrue(storage instanceof SecuredStorage);
 
         // With security active
@@ -206,6 +207,7 @@ public class SecuredStorageTest extends StorageTestCase {
                 .orderBy(person.getField("Status"), OrderBy.Direction.DESC);
 
         String[] firstNames = new String[3];
+        storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(3, results.getCount());
@@ -217,6 +219,7 @@ public class SecuredStorageTest extends StorageTestCase {
             }
         } finally {
             results.close();
+            storage.commit();
         }
 
         // With security active
@@ -224,7 +227,7 @@ public class SecuredStorageTest extends StorageTestCase {
         assertFalse(userSecurity.isActive);
         qb = from(person).selectId(person).select(person.getField("firstname"))
                 .orderBy(person.getField("Status"), OrderBy.Direction.ASC);
-
+        storage.begin();
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(3, results.getCount());
@@ -238,7 +241,9 @@ public class SecuredStorageTest extends StorageTestCase {
             assertTrue(hasOrderChanged);
         } finally {
             results.close();
+            storage.commit();
         }
+        storage.begin(); // Here for tearDown()
     }
 
 }

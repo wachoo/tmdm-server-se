@@ -43,9 +43,16 @@ class HibernateStorageTransaction extends StorageTransaction {
 
     private final Session session;
 
+    private final Thread initiatorThread;
+
     public HibernateStorageTransaction(HibernateStorage storage, Session session) {
         this.storage = storage;
         this.session = session;
+        this.initiatorThread = Thread.currentThread();
+    }
+
+    public Thread getInitiatorThread() {
+        return initiatorThread;
     }
 
     @Override
@@ -219,5 +226,14 @@ class HibernateStorageTransaction extends StorageTransaction {
 
     public Session getSession() {
         return session;
+    }
+
+    @Override
+    public String toString() {
+        return "HibernateStorageTransaction {" +
+                "storage=" + storage +
+                ", session=" + session +
+                ", initiatorThread=" + initiatorThread +
+                '}';
     }
 }

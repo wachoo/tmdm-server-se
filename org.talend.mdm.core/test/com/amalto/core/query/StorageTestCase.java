@@ -142,7 +142,6 @@ public class StorageTestCase extends TestCase {
     public void setUp() throws Exception {
         previous = Thread.currentThread().getContextClassLoader();
         storage.begin();
-
     }
 
     @Override

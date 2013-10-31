@@ -52,6 +52,9 @@ public class MDMTransactionSessionContext implements CurrentSessionContext {
             TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
             Transaction transaction = transactionManager.currentTransaction();
             HibernateStorageTransaction storageTransaction = (HibernateStorageTransaction) transaction.include(declaredStorages.get(factory));
+            if (storageTransaction.getInitiatorThread() != Thread.currentThread()) {
+                LOGGER.error("Current thread ('" + Thread.currentThread() + "') did not initiate transaction (was '" + storageTransaction.getInitiatorThread() + "').");
+            }
             return storageTransaction.getSession();
         }
     }

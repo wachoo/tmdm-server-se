@@ -14,6 +14,7 @@ package com.amalto.core.server;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.Transaction;
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 
@@ -25,7 +26,7 @@ class MDMTransaction implements Transaction {
 
     private final String id = UUID.randomUUID().toString();
 
-    private final Map<Storage, StorageTransaction> storageTransactions = new HashMap<Storage, StorageTransaction>();
+    private final MultiKeyMap storageTransactions = new MultiKeyMap();
 
     private final Lifetime lifetime;
 
@@ -34,8 +35,10 @@ class MDMTransaction implements Transaction {
     }
 
     private void transactionComplete() {
-        storageTransactions.clear();
-        ServerContext.INSTANCE.get().getTransactionManager().remove(this);
+        synchronized (storageTransactions) {
+            storageTransactions.clear();
+            ServerContext.INSTANCE.get().getTransactionManager().remove(this);
+        }
     }
 
     @Override
@@ -45,9 +48,11 @@ class MDMTransaction implements Transaction {
 
     @Override
     public void begin() {
-        Collection<StorageTransaction> values = new ArrayList<StorageTransaction>(storageTransactions.values());
-        for (StorageTransaction storageTransaction : values) {
-            storageTransaction.autonomous().begin();
+        synchronized (storageTransactions) {
+            Collection<StorageTransaction> values = new ArrayList<StorageTransaction>(storageTransactions.values());
+            for (StorageTransaction storageTransaction : values) {
+                storageTransaction.autonomous().begin();
+            }
         }
     }
 
@@ -56,16 +61,18 @@ class MDMTransaction implements Transaction {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Commit.");
         }
-        try {
-            Collection<StorageTransaction> values = new ArrayList<StorageTransaction>(storageTransactions.values());
-            for (StorageTransaction storageTransaction : values) {
-                storageTransaction.autonomous().commit();
+        synchronized (storageTransactions) {
+            try {
+                Collection<StorageTransaction> values = new ArrayList<StorageTransaction>(storageTransactions.values());
+                for (StorageTransaction storageTransaction : values) {
+                    storageTransaction.autonomous().commit();
+                }
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Commit done.");
+                }
+            } finally {
+                transactionComplete();
             }
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Commit done.");
-            }
-        } finally {
-            transactionComplete();
         }
     }
 
@@ -74,27 +81,31 @@ class MDMTransaction implements Transaction {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Rollback. ");
         }
-        try {
-            Collection<StorageTransaction> values = new ArrayList<StorageTransaction>(storageTransactions.values());
-            for (StorageTransaction storageTransaction : values) {
-                storageTransaction.autonomous().rollback();
+        synchronized (storageTransactions) {
+            try {
+                Collection<StorageTransaction> values = new ArrayList<StorageTransaction>(storageTransactions.values());
+                for (StorageTransaction storageTransaction : values) {
+                    storageTransaction.autonomous().rollback();
+                }
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Rollback done.");
+                }
+            } finally {
+                transactionComplete();
             }
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Rollback done.");
-            }
-        } finally {
-            transactionComplete();
         }
     }
 
     @Override
     public StorageTransaction exclude(Storage storage) {
-        StorageTransaction transaction = storageTransactions.remove(storage);
-        if (storageTransactions.isEmpty()) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Transaction '" + getId() + "' has no longer storage transactions. Removing it.");
+        StorageTransaction transaction = (StorageTransaction) storageTransactions.remove(storage, Thread.currentThread());
+        synchronized (storageTransactions) {
+            if (storageTransactions.isEmpty()) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Transaction '" + getId() + "' has no longer storage transactions. Removing it.");
+                }
+                transactionComplete();
             }
-            transactionComplete();
         }
         return transaction;
     }
@@ -103,10 +114,13 @@ class MDMTransaction implements Transaction {
         if ((storage.getCapabilities() & Storage.CAP_TRANSACTION) != Storage.CAP_TRANSACTION) {
             throw new IllegalArgumentException("Storage '" + storage.getName() + "' does not support transactions.");
         }
-        StorageTransaction storageTransaction = storageTransactions.get(storage);
-        if (storageTransaction == null) {
-            storageTransaction = storage.newStorageTransaction();
-            storageTransactions.put(storage, storageTransaction);
+        StorageTransaction storageTransaction;
+        synchronized (storageTransactions) {
+            storageTransaction = getStorageTransaction(storage, Thread.currentThread());
+            if (storageTransaction == null) {
+                storageTransaction = storage.newStorageTransaction();
+                storageTransactions.put(storage, Thread.currentThread(), storageTransaction);
+            }
         }
         switch (lifetime) {
             case AD_HOC:
@@ -118,10 +132,17 @@ class MDMTransaction implements Transaction {
         }
     }
 
+    private StorageTransaction getStorageTransaction(Storage storage, Thread thread) {
+        synchronized (storageTransactions) {
+            return (StorageTransaction) storageTransactions.get(storage, thread);
+        }
+    }
+
     @Override
     public String toString() {
         return "MDMTransaction{" +
                 "id='" + id + '\'' +
+                ", storageTransactions=" + storageTransactions +
                 ", lifetime=" + lifetime +
                 '}';
     }
