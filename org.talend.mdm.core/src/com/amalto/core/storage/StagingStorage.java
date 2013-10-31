@@ -22,20 +22,32 @@ import org.apache.commons.collections.iterators.TransformIterator;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class StagingStorage implements Storage {
 
+    private static final StagingUpdateAction defaultUpdateAction = new StagingUpdateAction(StagingConstants.NEW, true);
+
     private final Storage delegate;
+
+    private final Map<String, StagingUpdateAction> updateActions = new HashMap<String, StagingUpdateAction>();
 
     public StagingStorage(Storage delegate) {
         if (delegate.getType() != StorageType.STAGING) {
             throw new IllegalArgumentException("Storage is not a staging storage (is a " + delegate.getType() + ").");
         }
         this.delegate = delegate;
+        // Initialize staging update actions
+        updateActions.put(StagingConstants.NEW, new StagingUpdateAction(StagingConstants.NEW, true));
+        updateActions.put(StagingConstants.SUCCESS_MERGE_CLUSTERS, new StagingUpdateAction(StagingConstants.NEW, true));
+        updateActions.put(StagingConstants.SUCCESS_MERGED_RECORD_TO_RESOLVE, new StagingUpdateAction(StagingConstants.SUCCESS_MERGED_RECORD_TO_RESOLVE, false));
+        updateActions.put(StagingConstants.SUCCESS_VALIDATE, new StagingUpdateAction(StagingConstants.SUCCESS_MERGED_RECORD, false));
+        updateActions.put(StagingConstants.DELETED, new StagingUpdateAction(StagingConstants.DELETED, false));
+        updateActions.put(StagingConstants.FAIL_VALIDATE_VALIDATION, new StagingUpdateAction(StagingConstants.SUCCESS_MERGED_RECORD, false));
+        updateActions.put(StagingConstants.FAIL_VALIDATE_CONSTRAINTS, new StagingUpdateAction(StagingConstants.SUCCESS_MERGED_RECORD, false));
+        updateActions.put(StagingConstants.SUCCESS_MERGED_RECORD, new StagingUpdateAction(StagingConstants.SUCCESS_MERGED_RECORD, false));
+        updateActions.put(StagingConstants.TASK_RESOLVED_RECORD, new StagingUpdateAction(StagingConstants.TASK_RESOLVED_RECORD, false));
+        updateActions.put(StagingConstants.NEED_REMATCH, new StagingUpdateAction(StagingConstants.NEED_REMATCH, false));
     }
 
     @Override
@@ -92,9 +104,15 @@ public class StagingStorage implements Storage {
                 DataRecordMetadata metadata = dataRecord.getRecordMetadata();
                 Map<String, String> recordProperties = metadata.getRecordProperties();
                 // Update on a record in staging reset all its match&merge information.
-                recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.NEW);
+                StagingUpdateAction updateAction = updateActions.get(recordProperties.get(METADATA_STAGING_STATUS));
+                if (updateAction == null) {
+                    updateAction = defaultUpdateAction; // Covers cases where update action isn't specified.
+                }
+                recordProperties.put(Storage.METADATA_STAGING_STATUS, updateAction.value());
                 recordProperties.put(Storage.METADATA_STAGING_ERROR, StringUtils.EMPTY);
-                metadata.setTaskId(null);
+                if (updateAction.resetTaskId()) {
+                    metadata.setTaskId(null);
+                }
                 return dataRecord;
             }
         });
@@ -174,5 +192,25 @@ public class StagingStorage implements Storage {
     @Override
     public StorageType getType() {
         return delegate.getType();
+    }
+
+    private static class StagingUpdateAction {
+
+        private final String value;
+
+        private final boolean resetTaskId;
+
+        StagingUpdateAction(String value, boolean resetTaskId) {
+            this.value = value;
+            this.resetTaskId = resetTaskId;
+        }
+
+        public String value() {
+            return value;
+        }
+
+        public boolean resetTaskId() {
+            return resetTaskId;
+        }
     }
 }
