@@ -595,6 +595,10 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private void setRelation(List<String> list) {
+        if (list == null || list.size() == 0) {
+            return;
+        }
+
         final List<String> lineageList = list;
         relationButton = new Button(MessagesFactory.getMessages().relations_btn());
         relationButton.setId("relationButton"); //$NON-NLS-1$
