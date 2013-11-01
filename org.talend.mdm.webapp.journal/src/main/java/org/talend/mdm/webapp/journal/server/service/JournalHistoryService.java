@@ -44,7 +44,6 @@ import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
-import com.amalto.webapp.core.util.Util;
 
 
 /**
@@ -65,8 +64,11 @@ public class JournalHistoryService {
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.journal.client.i18n.JournalMessages", JournalHistoryService.class.getClassLoader()); //$NON-NLS-1$
     
+    private MetadataRepository metadataRepository = null;
+    
     private JournalHistoryService() {
-        doucmentHistory = DocumentHistoryFactory.getInstance().create();      
+        doucmentHistory = DocumentHistoryFactory.getInstance().create();
+        metadataRepository = new MetadataRepository();
     }
     
     private static JournalHistoryService service;    
@@ -81,8 +83,6 @@ public class JournalHistoryService {
     public String getComparisionTreeString(JournalParameters parameter) throws Exception {
         DocumentHistoryNavigator navigator = doucmentHistory.getHistory(parameter.getDataClusterName(), parameter.getDataModelName(),
                 parameter.getConceptName(), parameter.getId(), parameter.getRevisionId());
-
-        MetadataRepository metadataRepository = new MetadataRepository();
         TypeMetadata documentTypeMetadata = metadataRepository.getType(parameter.getConceptName());
         if (documentTypeMetadata == null) {
             try {
