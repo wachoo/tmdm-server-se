@@ -45,6 +45,10 @@ public class RecordStatusWrapper implements IsSerializable {
             isValid = true;
             icon = Resources.ICONS.statusValid();
             color = "green"; //$NON-NLS-1$
+        } else if (status.equals(RecordStatus.SUCCESS_DELETED)) {
+            isValid = true;
+            icon = Resources.ICONS.statusDeleted();
+            color = "red"; //$NON-NLS-1$
         } else if (status.equals(RecordStatus.FAIL) || status.equals(RecordStatus.FAIL_IDENTIFIED_CLUSTERS)
                 || status.equals(RecordStatus.FAIL_MERGE_CLUSTERS) || status.equals(RecordStatus.FAIL_VALIDATE_VALIDATION)
                 || status.equals(RecordStatus.FAIL_VALIDATE_CONSTRAINTS)) {

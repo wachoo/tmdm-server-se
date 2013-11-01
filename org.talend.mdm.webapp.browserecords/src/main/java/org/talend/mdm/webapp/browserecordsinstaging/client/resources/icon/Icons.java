@@ -21,12 +21,15 @@ public interface Icons extends ClientBundle {
 
     Icons INSTANCE = GWT.create(Icons.class);
 
-    @Source("status_valid.gif")
+    @Source("status_valid.png")
     ImageResource statusValid();
 
-    @Source("status_invalid.gif")
+    @Source("status_invalid.png")
     ImageResource statusInvalid();
 
-    @Source("status_unknown.gif")
+    @Source("status_unknown.png")
     ImageResource statusUnknown();
+
+    @Source("status_deleted.png")
+    ImageResource statusDeleted();
 }

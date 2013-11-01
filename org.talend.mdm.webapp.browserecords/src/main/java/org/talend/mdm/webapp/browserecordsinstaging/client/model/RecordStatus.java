@@ -23,6 +23,7 @@ public enum RecordStatus implements IsSerializable {
     SUCCESS_MERGE_CLUSTER_TO_RESOLVE(203),
     SUCCESS_MERGED_RECORD(204),
     SUCCESS_VALIDATE(205),
+    SUCCESS_DELETED(206),
     FAIL(400),
     FAIL_IDENTIFIED_CLUSTERS(401),
     FAIL_MERGE_CLUSTERS(402),
@@ -57,7 +58,9 @@ public enum RecordStatus implements IsSerializable {
         case 204:
             return SUCCESS_MERGED_RECORD;
         case 205:
-            return SUCCESS_VALIDATE;
+            return SUCCESS_VALIDATE;            
+        case 206:
+            return SUCCESS_DELETED;
         case 400:
             return FAIL;
         case 401:
