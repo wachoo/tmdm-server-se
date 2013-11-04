@@ -17,6 +17,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -64,7 +65,7 @@ public class JournalDBService {
 
     public Object[] getResultListByCriteria(JournalSearchCriteria criteria, int start, int limit, String sort, String field)
             throws Exception {
-
+        Map<String, Boolean> visitableEntityMap = null;
         List<WSWhereItem> conditions = org.talend.mdm.webapp.journal.server.util.Util.buildWhereItems(criteria);
 
         int totalSize = 0;
@@ -85,9 +86,17 @@ public class JournalDBService {
             String result = results[i];
             JournalGridModel journalGridModel = parseString2Model(result);
             if (webService.isEnterpriseVersion()) {
-                boolean canReadModel = webService.userCanRead(DataModelPOJO.class, journalGridModel.getDataModel());
-                boolean canReadEntity = webService.checkReadAccess(journalGridModel.getDataModel(), journalGridModel.getEntity());
-                if (!canReadModel || !canReadEntity) {
+                if (visitableEntityMap == null) {
+                    visitableEntityMap = new HashMap<String, Boolean>();
+                }
+                if (visitableEntityMap.get(journalGridModel.getEntity()) == null) {
+                    boolean canReadModel = webService.userCanRead(DataModelPOJO.class, journalGridModel.getDataModel());
+                    boolean canReadEntity = webService.checkReadAccess(journalGridModel.getDataModel(),
+                            journalGridModel.getEntity());
+                    visitableEntityMap.put(journalGridModel.getEntity(), (canReadModel && canReadEntity));
+                }
+
+                if (!visitableEntityMap.get(journalGridModel.getEntity())) {
                     continue;
                 }
             }
