@@ -24,6 +24,8 @@ public class MatchGroupCriteria extends Composite {
     private LayoutContainer container = new LayoutContainer();
 
     private TextField<String> matchGroupField = new TextField<String>();
+    
+    private String operator = "EQUALS"; //$NON-NLS-1$
 
     public MatchGroupCriteria() {
         init();
@@ -38,6 +40,13 @@ public class MatchGroupCriteria extends Composite {
         return matchGroupField.getValue();
     }
 
+    public void setOperator(String operator) {
+        this.operator = operator;
+    }
+    
+    public String getOperator() {
+        return this.operator;
+    }
     private void init() {
         FormLayout layout = new FormLayout();
         layout.setLabelWidth(110);

@@ -75,8 +75,6 @@ public class AdvancedSearchPanel extends FormPanel {
 
     private static String le = "LOWER_THAN_OR_EQUAL";//$NON-NLS-1$
 
-    private static String eq = "EQUALS"; //$NON-NLS-1$
-
     public static String modifiedON = "../../t";//$NON-NLS-1$
 
     public static String matchGroup = "../../taskId"; //$NON-NLS-1$
@@ -91,13 +89,13 @@ public class AdvancedSearchPanel extends FormPanel {
 
     MatchGroupCriteria matchgroupCriteria;
 
-    final public void setCriteria(String c) {
-        if (c.indexOf(modifiedON + blank) > -1) {
+    final public void setCriteria(String criteriaStr) {
+        if (criteriaStr.indexOf(modifiedON + blank) > -1) {
             // modified on condition
-            String express = c.indexOf(modifiedON) - 5 > -1 ? c.substring(0, c.indexOf(modifiedON) - 5) + ")" : "";//$NON-NLS-1$ //$NON-NLS-2$ 
+            String express = criteriaStr.indexOf(modifiedON) - 5 > -1 ? criteriaStr.substring(0, criteriaStr.indexOf(modifiedON) - 5) + ")" : "";//$NON-NLS-1$ //$NON-NLS-2$ 
             parseSearchExpression(express);
             expressionTextField.setValue(express);
-            String condition = c.endsWith(")") ? c.substring(c.indexOf(modifiedON), c.length() - 1) : c.substring(c.indexOf(modifiedON), c.length()); //$NON-NLS-1$
+            String condition = criteriaStr.endsWith(")") ? criteriaStr.substring(criteriaStr.indexOf(modifiedON), criteriaStr.length() - 1) : criteriaStr.substring(criteriaStr.indexOf(modifiedON), criteriaStr.length()); //$NON-NLS-1$
             if (!modifiedonCriteria.isAttached()) {
                 matchgroupCriteria.removeFromParent();
                 instance.add(modifiedonCriteria, new FormData("75%")); //$NON-NLS-1$ 
@@ -127,25 +125,18 @@ public class AdvancedSearchPanel extends FormPanel {
                 modifiedonCriteria.setEndDate(d);
             }
             cb.setValue(modifiedonModel);
-        } else if (c.indexOf(matchGroup + blank) > -1) {
-            String express = c.indexOf(matchGroup) - 5 > -1 ? c.substring(0, c.indexOf(matchGroup) - 5) + ")" : "";//$NON-NLS-1$ //$NON-NLS-2$ 
+        } else if (criteriaStr.indexOf(matchGroup + blank) > -1) {
+            String express = filterOutMatchGroupConditon(criteriaStr); 
             parseSearchExpression(express);
             expressionTextField.setValue(express);
-            String condition = c.endsWith(")") ? c.substring(c.indexOf(matchGroup), c.length() - 1) : c.substring(c.indexOf(matchGroup), c.length()); //$NON-NLS-1$
+            String condition = getMatchGroupCondition(criteriaStr);
             if (!matchgroupCriteria.isAttached()) {
                 modifiedonCriteria.removeFromParent();
                 instance.add(matchgroupCriteria, new FormData("75%")); //$NON-NLS-1$ 
                 instance.layout(true);
             }
-            matchgroupCriteria.setValue(null);
-            if (condition.indexOf(eq) > -1) {
-                int index = condition.indexOf(eq) + eq.length() + 1;
-                if (condition.indexOf(blank, index) == -1) {
-                    matchgroupCriteria.setValue(condition.substring(index));
-                } else {
-                    matchgroupCriteria.setValue(condition.substring(index, condition.indexOf(blank, index)));
-                }
-            }
+            populateMatchGroupCriteria(condition);
+
             cb.setValue(matchgroupModel);
         } else {
             if (modifiedonCriteria.isAttached()) {
@@ -154,10 +145,48 @@ public class AdvancedSearchPanel extends FormPanel {
             if (matchgroupCriteria.isAttached()) {
                 matchgroupCriteria.removeFromParent();
             }
-            parseSearchExpression(c);
-            expressionTextField.setValue(c);
+            parseSearchExpression(criteriaStr);
+            expressionTextField.setValue(criteriaStr);
             cb.setValue(null);
         }
+    }
+
+    private void populateMatchGroupCriteria(String condition) {
+        String value;
+        int firstBlankIndex = condition.indexOf(blank);
+        int secondBlankIndex = condition.indexOf(blank, firstBlankIndex + 1) ;
+        value = condition.substring(secondBlankIndex + 1);
+        
+        matchgroupCriteria.setValue(value);
+        matchgroupCriteria.setOperator(condition.substring(firstBlankIndex + 1, secondBlankIndex));
+    }
+
+    private String getMatchGroupCondition(String criteriaStr) {
+        int startIndex = criteriaStr.indexOf(matchGroup);
+        String condition = criteriaStr.substring(startIndex, criteriaStr.indexOf(')', startIndex));
+        return condition;
+    }
+
+    private String filterOutMatchGroupConditon(String criteriaStr) {
+        int start;
+        int end;
+        int preEnd;
+        int nextStart;
+        String express;
+        start = criteriaStr.indexOf(matchGroup);
+        end = criteriaStr.indexOf(')', start);
+        if (start <= 2 ) {
+            nextStart = criteriaStr.indexOf('(', end);
+            express = '(' + criteriaStr.substring(nextStart);
+        } else {
+            preEnd = criteriaStr.lastIndexOf(')', start);
+            if (criteriaStr.charAt(end + 1) == ')') {
+                express = criteriaStr.substring(0, preEnd + 1) + ')';   
+            } else {
+                express = criteriaStr.substring(0, preEnd + 1) + criteriaStr.substring(end + 1);
+            }
+        }
+        return express;
     }
 
     public static void parseSearchExpression(String s) {
@@ -202,15 +231,12 @@ public class AdvancedSearchPanel extends FormPanel {
             else
                 curCriteria = (express == null) ? curDate : express;
         } else if (matchgroupCriteria.isAttached()) {
-            String matchgroupValue = null;
+            String matchgroupCriteriaStr = null;
             if (matchgroupCriteria.getValue() != null && matchgroupCriteria.getValue().trim().length() > 0) {
-                matchgroupValue = matchGroup + blank + eq + blank + matchgroupCriteria.getValue();
+                matchgroupCriteriaStr = matchGroup + blank + matchgroupCriteria.getOperator() + blank + matchgroupCriteria.getValue();
             }
-            if (matchgroupValue != null){
-                curCriteria = (express == null) ? matchgroupValue : express.substring(0, express.lastIndexOf(")")) + " AND " + matchgroupValue //$NON-NLS-1$  //$NON-NLS-2$
-                        + ")"; //$NON-NLS-1$
-            } else {
-                curCriteria = (express == null) ? matchgroupValue : express;
+            if (matchgroupCriteriaStr != null){
+                curCriteria = (express == null) ? matchgroupCriteriaStr : express.substring(0, express.lastIndexOf(")")) + " AND " + matchgroupCriteriaStr + ")"; //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$
             }
         } else
             curCriteria = express;
