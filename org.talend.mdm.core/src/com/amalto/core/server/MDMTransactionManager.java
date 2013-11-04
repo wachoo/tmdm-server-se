@@ -38,11 +38,20 @@ public class MDMTransactionManager implements TransactionManager {
 
     @Override
     public Transaction create(Transaction.Lifetime lifetime) {
+        return create(lifetime, UUID.randomUUID().toString());
+    }
+
+    @Override
+    public Transaction create(Transaction.Lifetime lifetime, String transactionID) {
         if (lifetime == null) {
             throw new IllegalArgumentException("Life time argument cannot be null.");
         }
-        MDMTransaction transaction = new MDMTransaction(lifetime);
+        Transaction transaction;
         synchronized (activeTransactions) {
+            transaction = activeTransactions.get(transactionID);
+            if (transaction == null) {
+                transaction = new MDMTransaction(lifetime, transactionID);
+            }
             activeTransactions.put(transaction.getId(), transaction);
         }
         synchronized (currentTransactions) {

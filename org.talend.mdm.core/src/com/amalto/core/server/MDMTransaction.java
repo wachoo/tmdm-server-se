@@ -24,14 +24,15 @@ class MDMTransaction implements Transaction {
 
     private static final Logger LOGGER = Logger.getLogger(MDMTransaction.class);
 
-    private final String id = UUID.randomUUID().toString();
-
     private final MultiKeyMap storageTransactions = new MultiKeyMap();
+
+    private final String id;
 
     private final Lifetime lifetime;
 
-    MDMTransaction(Lifetime lifetime) {
+    MDMTransaction(Lifetime lifetime, String id) {
         this.lifetime = lifetime;
+        this.id = id;
     }
 
     private void transactionComplete() {

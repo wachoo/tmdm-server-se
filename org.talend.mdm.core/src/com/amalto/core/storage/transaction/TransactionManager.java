@@ -44,6 +44,27 @@ public interface TransactionManager {
     Transaction create(Transaction.Lifetime lifetime);
 
     /**
+     * <p>
+     * Creates a new {@link Transaction} with a expected life time. This method also associate the newly created
+     * transaction with calling thread.
+     * </p>
+     * <p>
+     * Returned transaction <b>MUST</b> have as id the value provided in parameter <code>transactionID</code>. If a
+     * transaction with <code>transactionID</code> already exists, the previously created transaction is returned.
+     * </p>
+     *
+     * @param lifetime      The expected life time of the new transaction.
+     * @param transactionID The id for the newly created transaction, or a previously created one if <code>transactionID</code>
+     *                      already exists.
+     * @return A new transaction ready to be used.
+     * @throws IllegalArgumentException If <code>lifetime</code> parameter is <code>null</code>.
+     * @see Transaction#include(com.amalto.core.storage.Storage)
+     * @see #associate(Transaction)
+     * @see #create(com.amalto.core.storage.transaction.Transaction.Lifetime)
+     */
+    Transaction create(Transaction.Lifetime lifetime, String transactionID);
+
+    /**
      * @param transactionId A transaction id (see {@link Transaction#getId()}.
      * @return The transaction with given id, or <code>null</code> if not found, or <code>null</code> if transaction
      *         is no longer managed by this transaction manager (i.e. it was committed or rollbacked).

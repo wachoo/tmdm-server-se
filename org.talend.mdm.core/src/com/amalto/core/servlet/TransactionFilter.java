@@ -95,6 +95,10 @@ public class TransactionFilter implements Filter {
         public void preRequest() {
             TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
             Transaction transaction = transactionManager.get(transactionID);
+            if (transaction == null) {
+                transaction = transactionManager.create(Transaction.Lifetime.LONG, transactionID);
+                transaction.begin();
+            }
             transactionManager.associate(transaction);
         }
 

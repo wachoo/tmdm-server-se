@@ -37,7 +37,6 @@ public class TransactionHandler implements Handler {
 
     private static TransactionState getState(MessageContext messageContext) {
         try {
-            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
             if (messageContext instanceof SOAPMessageContext) {
                 SOAPMessage message = ((SOAPMessageContext) messageContext).getMessage();
                 if (message != null) {
@@ -59,13 +58,7 @@ public class TransactionHandler implements Handler {
                                     && SkipAttributeDocumentBuilder.TALEND_NAMESPACE.equals(name.getURI())
                                     && TRANSACTION_ID.equals(name.getLocalName())) {
                                 String transactionID = element.getValue();
-                                if (transactionManager.get(transactionID) != null) {
-                                    return new ExplicitTransaction(transactionID);
-                                } else {
-                                    //TODO Throw exception
-                                    LOGGER.warn("Transaction #" + transactionID + " does not exist or no longer exists.");
-                                    return new ImplicitTransaction();
-                                }
+                                return new ExplicitTransaction(transactionID);
                             }
                         }
                     }
@@ -118,31 +111,6 @@ public class TransactionHandler implements Handler {
         void cancelRequest();
     }
 
-    //TODO To remove
-    private static class ImplicitTransaction implements TransactionState {
-
-        private Transaction currentTransaction;
-
-        @Override
-        public void preRequest() {
-            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-            currentTransaction = transactionManager.create(Transaction.Lifetime.LONG);
-            transactionManager.associate(currentTransaction);
-        }
-
-        @Override
-        public void postRequest() {
-            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-            transactionManager.currentTransaction().commit();
-        }
-
-        @Override
-        public void cancelRequest() {
-            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-            transactionManager.currentTransaction().rollback();
-        }
-    }
-
     private static class ExplicitTransaction implements TransactionState {
 
         private final String transactionID;
@@ -156,7 +124,8 @@ public class TransactionHandler implements Handler {
             TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
             Transaction transaction = transactionManager.get(transactionID);
             if (transaction == null) {
-                throw new IllegalStateException("Transaction '" + transactionID + "' no longer exists.");
+                transaction = transactionManager.create(Transaction.Lifetime.LONG, transactionID);
+                transaction.begin();
             }
             transactionManager.associate(transaction);
         }
