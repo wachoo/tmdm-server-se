@@ -29,6 +29,9 @@ public interface TransactionManager {
      */
     void close();
 
+    /**
+     * @return All ids of currently active transactions (id returned by {@link com.amalto.core.storage.transaction.Transaction#getId()}).
+     */
     List<String> list();
 
     /**

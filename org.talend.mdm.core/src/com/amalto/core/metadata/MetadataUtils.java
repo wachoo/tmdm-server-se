@@ -269,10 +269,13 @@ public class MetadataUtils {
             if (!(actualType instanceof ComplexTypeMetadata)) {
                 throw new IllegalArgumentException("Type '" + actualType.getName() + "' was expected to be an entity type.");
             }
-
             ComplexTypeMetadata actualComplexType = (ComplexTypeMetadata) actualType;
             DataRecord referencedRecord = new DataRecord(actualComplexType, UnsupportedDataRecordMetadata.INSTANCE);
-            Iterator<FieldMetadata> keyIterator = actualComplexType.getKeyFields().iterator();
+            Collection<FieldMetadata> keyFields = actualComplexType.getKeyFields();
+            if (ids.size() != keyFields.size()) {
+                throw new IllegalStateException("Type '" + actualType.getName() + "' expects " + keyFields.size() + " keys values, but got " + ids.size() + ".");
+            }
+            Iterator<FieldMetadata> keyIterator = keyFields.iterator();
             for (String id : ids) {
                 FieldMetadata nextKey = keyIterator.next();
                 referencedRecord.set(nextKey, convert(id, nextKey));
