@@ -111,7 +111,7 @@ public class InClauseOptimization extends StandardQueryHandler {
                 }
                 if (!constants.isEmpty()) {
                     TypeMapping mapping = mappingMetadataRepository.getMappingFromUser(mainType);
-                    criterion = new IdInConstantClause(mapping.getDatabase().getKeyFields(), constants));
+                    criterion = new IdInConstantClause(mapping.getDatabase().getKeyFields(), constants);
                 } else {
                     return new HibernateStorageResults(storage, select, EmptyIterator.INSTANCE);
                 }
