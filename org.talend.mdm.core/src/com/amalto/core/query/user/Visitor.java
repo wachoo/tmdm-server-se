@@ -38,6 +38,8 @@ public interface Visitor<T> {
 
     T visit(Condition condition);
 
+    T visit(Max max);
+
     T visit(Compare condition);
 
     T visit(BinaryLogicOperator condition);

@@ -151,6 +151,17 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(Max max) {
+        print("[MAX]"); //$NON-NLS-1$
+        increaseIndent();
+        {
+            max.getExpression().accept(this);
+        }
+        decreaseIndent();
+        return null;
+    }
+
     public Void visit(Compare condition) {
         print("[COMPARE]"); //$NON-NLS-1$
         increaseIndent();

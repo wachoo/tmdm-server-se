@@ -64,6 +64,11 @@ class Checker extends VisitorAdapter<Boolean> {
     }
 
     @Override
+    public Boolean visit(Max max) {
+        return max.getExpression().accept(this);
+    }
+
+    @Override
     public Boolean visit(Alias alias) {
         return alias.getTypedExpression().accept(this);
     }

@@ -329,143 +329,143 @@ public class ConfigurableContainsOptimizer implements Optimizer {
     }
 
     private static class HasForbiddenFullTextPredicates extends VisitorAdapter<Boolean> {
-            @Override
-            public Boolean visit(Compare condition) {
-                return (condition.getPredicate() == Predicate.GREATER_THAN ||
-                        condition.getPredicate() == Predicate.GREATER_THAN_OR_EQUALS ||
-                        condition.getPredicate() == Predicate.LOWER_THAN ||
-                        condition.getPredicate() == Predicate.LOWER_THAN_OR_EQUALS) ||
-                        condition.getLeft().accept(this);
-            }
-
-            @Override
-            public Boolean visit(Condition condition) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(BinaryLogicOperator condition) {
-                return condition.getLeft().accept(this) || condition.getRight().accept(this);
-            }
-
-            @Override
-            public Boolean visit(UnaryLogicOperator condition) {
-                return condition.getCondition().accept(this);
-            }
-
-            @Override
-            public Boolean visit(Range range) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(IsEmpty isEmpty) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(NotIsEmpty notIsEmpty) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(IsNull isNull) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(NotIsNull notIsNull) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(FullText fullText) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(FieldFullText fieldFullText) {
-                return false;
-            }
-            
-            @Override
-            public Boolean visit(Alias alias) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(Field field) {
-                return field.getFieldMetadata() instanceof ReferenceFieldMetadata;
-            }
-
-            @Override
-            public Boolean visit(Id id) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(StringConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(IntegerConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(DateConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(DateTimeConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(BooleanConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(BigDecimalConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(TimeConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(ShortConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(ByteConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(LongConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(DoubleConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(FloatConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(Isa isa) {
-                return false;
-            }
+        @Override
+        public Boolean visit(Compare condition) {
+            return (condition.getPredicate() == Predicate.GREATER_THAN ||
+                    condition.getPredicate() == Predicate.GREATER_THAN_OR_EQUALS ||
+                    condition.getPredicate() == Predicate.LOWER_THAN ||
+                    condition.getPredicate() == Predicate.LOWER_THAN_OR_EQUALS) ||
+                    condition.getLeft().accept(this);
         }
+
+        @Override
+        public Boolean visit(Condition condition) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BinaryLogicOperator condition) {
+            return condition.getLeft().accept(this) || condition.getRight().accept(this);
+        }
+
+        @Override
+        public Boolean visit(UnaryLogicOperator condition) {
+            return condition.getCondition().accept(this);
+        }
+
+        @Override
+        public Boolean visit(Range range) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(IsEmpty isEmpty) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(NotIsEmpty notIsEmpty) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(IsNull isNull) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(NotIsNull notIsNull) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(FullText fullText) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(FieldFullText fieldFullText) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(Alias alias) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(Field field) {
+            return field.getFieldMetadata() instanceof ReferenceFieldMetadata;
+        }
+
+        @Override
+        public Boolean visit(Id id) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(StringConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(IntegerConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(DateConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(DateTimeConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BooleanConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BigDecimalConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(TimeConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(ShortConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(ByteConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(LongConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(DoubleConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(FloatConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(Isa isa) {
+            return false;
+        }
+    }
 }

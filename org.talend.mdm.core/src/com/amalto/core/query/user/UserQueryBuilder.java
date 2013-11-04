@@ -77,6 +77,17 @@ public class UserQueryBuilder {
         return new Compare(field, Predicate.STARTS_WITH, createConstant(field, constant));
     }
 
+    public static TypedExpression max(FieldMetadata field) {
+        assertNullField(field);
+        Field userField = new Field(field);
+        return max(userField);
+    }
+
+    public static TypedExpression max(TypedExpression typedExpression) {
+        assertNullField(typedExpression);
+        return new Alias(new Max(typedExpression), "max"); //$NON-NLS-1$
+    }
+
     public static Condition gt(FieldMetadata field, String constant) {
         assertValueConditionArguments(field, constant);
         Field userField = new Field(field);

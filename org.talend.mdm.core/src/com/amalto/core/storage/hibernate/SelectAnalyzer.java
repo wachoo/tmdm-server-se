@@ -178,6 +178,11 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
     }
 
     @Override
+    public Visitor<StorageResults> visit(Max max) {
+        return null;
+    }
+
+    @Override
     public VisitorAdapter<StorageResults> visit(Isa isa) {
         return null;
     }
@@ -328,6 +333,13 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
         class Result {
             boolean id = false;
             public boolean limitJoins = false;
+        }
+
+        @Override
+        public Result visit(Max max) {
+            Result fieldResult = new Result();
+            fieldResult.id = false;
+            return fieldResult;
         }
 
         @Override

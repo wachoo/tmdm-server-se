@@ -97,6 +97,11 @@ public class MappingExpressionTransformer extends VisitorAdapter<Expression> {
     }
 
     @Override
+    public Expression visit(Max max) {
+        return new Max((TypedExpression) max.getExpression().accept(this));
+    }
+
+    @Override
     public Expression visit(Compare condition) {
         Expression previousLeft = condition.getLeft();
         Expression left = previousLeft.accept(this);

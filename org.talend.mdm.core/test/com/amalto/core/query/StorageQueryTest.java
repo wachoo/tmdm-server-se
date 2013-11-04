@@ -2932,6 +2932,28 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testMax() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(person).select(max(person.getField("age"))).limit(1);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            for (DataRecord result : results) {
+                assertEquals(30, result.get("max"));
+            }
+        } finally {
+            results.close();
+        }
+
+        qb = UserQueryBuilder.from(person).select(max(timestamp())).limit(1);
+        results = storage.fetch(qb.getSelect());
+        try {
+            for (DataRecord result : results) {
+                assertTrue(((Long) result.get("max")) < System.currentTimeMillis());
+            }
+        } finally {
+            results.close();
+        }
+    }
+
     public void testRangeOptimization() throws Exception {
         RangeOptimizer optimizer = new RangeOptimizer();
         // No optimization

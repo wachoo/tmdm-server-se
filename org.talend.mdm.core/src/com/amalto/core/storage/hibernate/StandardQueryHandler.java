@@ -494,6 +494,13 @@ class StandardQueryHandler extends AbstractQueryHandler {
     }
 
     @Override
+    public StorageResults visit(Max max) {
+        FieldCondition fieldCondition = max.getExpression().accept(criterionFieldCondition);
+        projectionList.add(Projections.max(fieldCondition.criterionFieldName));
+        return null;
+    }
+
+    @Override
     public StorageResults visit(IsNull isNull) {
         Criterion criterion = isNull.accept(criterionVisitor);
         criteria.add(criterion);

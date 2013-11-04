@@ -83,6 +83,11 @@ public class RecommendedIndexes {
             return Collections.emptySet();
         }
 
+        @Override
+        public Collection<FieldMetadata> visit(Max max) {
+            return max.getExpression().accept(this);
+        }
+
         public Collection<FieldMetadata> visit(Compare condition) {
             Collection<FieldMetadata> fields = new HashSet<FieldMetadata>();
             fields.addAll(condition.getLeft().accept(this));

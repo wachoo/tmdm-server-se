@@ -17,6 +17,11 @@ public class VisitorAdapter<T> implements Visitor<T> {
         throw new NotImplementedException();
     }
 
+    @Override
+    public T visit(Max max) {
+        throw new NotImplementedException();
+    }
+
     public T visit(Compare condition) {
         throw new NotImplementedException();
     }
