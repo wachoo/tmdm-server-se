@@ -172,6 +172,9 @@ public class MDMValidationTask extends MetadataRepositoryTask {
         }
 
         public void execute(DataRecord stagingRecord, ClosureExecutionStats stats) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(Thread.currentThread() + " is validating record: " + stagingRecord);
+            }
             StorageDocument document = new StorageDocument(destinationStorage.getName(),
                     destinationStorage.getMetadataRepository(),
                     stagingRecord);
@@ -190,7 +193,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             Map<String, String> recordProperties = stagingRecord.getRecordMetadata().getRecordProperties();
             try {
                 if (!isAllowedAccess(stagingRecord, source.getLegitimateUser())) {
-                    throw new Exception("User '" + source.getLegitimateUser() + "' is not allowed to write '" + stagingRecord.getType().getName() + "' ."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    throw new Exception("User '" + source.getLegitimateUser() + "' is not allowed to write '" + stagingRecord.getType().getName() + "'."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
                 saver.save(session, context);
                 commitCount++;

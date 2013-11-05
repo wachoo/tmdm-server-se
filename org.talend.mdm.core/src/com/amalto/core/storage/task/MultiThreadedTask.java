@@ -88,12 +88,16 @@ public class MultiThreadedTask implements Task {
             StorageResults records = storage.fetch(expression); // Expects an active transaction here
             if (records.getCount() > 0) {
                 closure.begin();
+                DataRecord previousRecord = null;
                 for (DataRecord record : records) {
                     // Exit if cancelled.
                     if (isCancelled.get()) {
                         break;
                     }
-                    closure.execute(record, stats);
+                    if (!record.equals(previousRecord)) {
+                        closure.execute(record, stats);
+                    }
+                    previousRecord = record;
                     count++;
                 }
                 closure.end(stats);
