@@ -44,9 +44,9 @@ public class MDMTransactionSessionContext implements CurrentSessionContext {
 
     @Override
     public Session currentSession() throws HibernateException {
-        if (LOGGER.isDebugEnabled()) {
+        if (LOGGER.isTraceEnabled()) {
             long openCount = factory.getStatistics().getSessionOpenCount();
-            LOGGER.debug("Currently open session count: " + openCount);
+            LOGGER.trace("Currently open session count: " + openCount);
         }
         synchronized (declaredStorages) {
             TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();

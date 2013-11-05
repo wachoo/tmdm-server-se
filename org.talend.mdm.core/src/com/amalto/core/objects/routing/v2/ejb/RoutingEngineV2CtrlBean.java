@@ -334,7 +334,6 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
         if (routingRulesThatMatched.size() == 0) {
             String err = "Unable to find a routing rule for document " + itemPOJOPK.getUniqueID();
             LOGGER.info(err);
-            //throw new XtentisException(err);
             return new RoutingRulePOJOPK[0];
         }
         return routingRulesThatMatched.toArray(new RoutingRulePOJOPK[routingRulesThatMatched.size()]);

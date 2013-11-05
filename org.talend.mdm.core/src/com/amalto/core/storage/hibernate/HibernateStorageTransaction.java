@@ -146,7 +146,7 @@ class HibernateStorageTransaction extends StorageTransaction {
                         if (type != null) {
                             DataRecord record = reader.read(mappingRepository.getMappingFromDatabase(type), o);
                             writer.write(record, xmlContent);
-                            LOGGER.log(currentLevel, xmlContent);
+                            LOGGER.log(currentLevel, xmlContent + "\n(taskId='" + o.taskId() + "', timestamp='" + o.timestamp() + "')");
                         } else {
                             LOGGER.warn("Could not find data model type for object " + o);
                         }
