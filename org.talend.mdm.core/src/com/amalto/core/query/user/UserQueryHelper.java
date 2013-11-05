@@ -235,6 +235,12 @@ public class UserQueryHelper {
                 expressions.add(new Field(keyField));
             }
             return expressions;
+        } else if ("/*".equals(fieldName)) { //$NON-NLS-1$
+            List<TypedExpression> expressions = new LinkedList<TypedExpression>();
+            for (FieldMetadata field : type.getFields()) {
+                expressions.add(new Field(field));
+            }
+            return expressions;
         }
         FieldMetadata field = type.getField(fieldName);
         if (field == null) {
