@@ -35,6 +35,9 @@ public class DataRecordMetadataImpl implements DataRecordMetadata {
 
     public void setLastModificationTime(long lastModificationTime) {
         this.lastModificationTime = lastModificationTime;
+        if (recordProperties != null) {
+            recordProperties.put(Storage.METADATA_TIMESTAMP, String.valueOf(lastModificationTime)); // Overrides timestamp in record properties (in case it was there).
+        }
     }
 
     public String getTaskId() {
