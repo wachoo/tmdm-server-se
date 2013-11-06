@@ -227,6 +227,20 @@ public class SearchView extends AbstractView {
                 ControllerContainer.get().getResultsController().searchResult(searchModel);
             }
         });
+
+        resetButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                entityCombo.setValue(null);
+                sourceField.setValue(null);
+                keyField.setValue(null);
+                stateCombo.setValue(null);
+                statusCodeField.setValue(null);
+                startDate.setValue(null);
+                endDate.setValue(null);
+            }
+        });
     }
 
     public void defaultDoSearch(int defaultState) {
