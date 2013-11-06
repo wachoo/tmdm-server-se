@@ -38,7 +38,8 @@ public final class SessionListener implements ServletContextListener, HttpSessio
     private static Map<String, Configuration> registeredConfigurations = new WeakHashMap<String, Configuration>();
 
     public synchronized static void registerUser(String user, String session) throws WebappRepeatedLoginException {
-        String registeredSession = (String) registeredSessions.get(user);
+        String userInsensitiveCase = user.toLowerCase();
+        String registeredSession = (String) registeredSessions.get(userInsensitiveCase);
         if (registeredSession != null) {
             if (!registeredSession.equals(session)) {
                 throw new WebappRepeatedLoginException();
@@ -47,17 +48,18 @@ public final class SessionListener implements ServletContextListener, HttpSessio
             if (logger.isDebugEnabled()) {
                 logger.debug("Registering session " + session + " with user " + user); //$NON-NLS-1$ //$NON-NLS-2$
             }
-            registeredSessions.put(user, session);
+            registeredSessions.put(userInsensitiveCase, session);
         }
     }
 
     public static synchronized void unregisterUser(String user) {
-        if (!registeredSessions.containsKey(user)) {
+        String userInsensitiveCase = user.toLowerCase();
+        if (!registeredSessions.containsKey(userInsensitiveCase)) {
             if (logger.isDebugEnabled()) {
                 logger.warn("No session registered with user " + user); //$NON-NLS-1$
             }
         } else {
-            String session = (String) registeredSessions.remove(user);
+            String session = (String) registeredSessions.remove(userInsensitiveCase);
             registeredConfigurations.remove(session);
             if (logger.isDebugEnabled()) {
                 logger.debug("Unregistered session " + session + " with user " + user); //$NON-NLS-1$ //$NON-NLS-2$
