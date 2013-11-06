@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,6 +39,9 @@ public class CXFServlet extends CXFNonSpringJaxrsServlet {
             throw new ServletException("At least one resource class should be specified");
         }
         String[] classNames = serviceBeans.split(" "); //$NON-NLS-1$
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Resources classes: " + Arrays.toString(classNames));
+        }
         List<Class> resourceClasses = new ArrayList<Class>();
         for (String cName : classNames) {
             String theName = cName.trim();
@@ -53,7 +57,7 @@ public class CXFServlet extends CXFNonSpringJaxrsServlet {
             }
         }
         if (resourceClasses.isEmpty()) {
-            throw new ServletException("At least one resource class should be specified");
+            LOGGER.warn("No resource class was found in current environment (enable DEBUG for more details).");
         }
         return resourceClasses;
     }
