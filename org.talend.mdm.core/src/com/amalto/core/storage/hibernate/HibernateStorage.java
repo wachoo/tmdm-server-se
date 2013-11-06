@@ -141,7 +141,7 @@ public class HibernateStorage implements Storage {
     }
 
     @Override
-    public StorageTransaction newStorageTransaction() {
+    public synchronized StorageTransaction newStorageTransaction() {
         assertPrepared();
         return new HibernateStorageTransaction(this, factory.openSession());
     }
