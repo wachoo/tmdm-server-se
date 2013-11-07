@@ -12,6 +12,7 @@
 package com.amalto.core.storage.transaction;
 
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.task.staging.SerializableList;
 
 import javax.ws.rs.*;
 import java.util.List;
@@ -25,14 +26,10 @@ public class TransactionService {
      */
     @GET
     @Path("/") //$NON-NLS-1$
-    public String list() {
+    public List<String> list() {
         TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         List<String> list = transactionManager.list();
-        StringBuilder listAsString = new StringBuilder();
-        for (String currentId : list) {
-            listAsString.append(currentId).append(' ');
-        }
-        return listAsString.toString();
+        return SerializableList.create(list, "transactions", "transaction_id"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     /**
