@@ -25,7 +25,7 @@ public class StagingBlockKey implements TypedExpression, MetadataField {
 
     public static final String STAGING_BLOCK_ALIAS = "staging_block_key"; //$NON-NLS-1$
 
-    private static final String[] STAGING_BLOCK_FIELD = new String[]{"metadata:staging_block_key"}; //$NON-NLS-1$
+    private static final String[] STAGING_BLOCK_FIELD = new String[]{"metadata:staging_blockkey"}; //$NON-NLS-1$
 
     private StagingBlockKey() {
     }
