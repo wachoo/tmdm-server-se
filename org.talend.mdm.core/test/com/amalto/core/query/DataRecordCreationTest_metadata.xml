@@ -11,7 +11,7 @@
             <metadata:staging_source>My Source</metadata:staging_source>
             <metadata:staging_error>My Error</metadata:staging_error>
             <metadata:staging_status>999</metadata:staging_status>
-            <metadata:staging_block_key>5678</metadata:staging_block_key>
+            <metadata:staging_blockkey>5678</metadata:staging_blockkey>
             <metadata:task_id>1234</metadata:task_id>
             <Id>1</Id>
             <Name>Test23</Name>
