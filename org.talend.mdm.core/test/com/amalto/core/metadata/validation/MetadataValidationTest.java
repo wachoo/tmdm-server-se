@@ -418,6 +418,16 @@ public class MetadataValidationTest extends TestCase {
         assertTrue(handler.getLineNumbers().contains(15));
         assertFalse(handler.getLineNumbers().contains(null));
     }
+    
+    // See TMDM-6554
+    public void testSecondLevelPkInfo() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("PKINFO_2LevelPKInfo.xsd"); //$NON-NLS-1$
+        TestValidationHandler handler = new TestValidationHandler();
+        repository.load(resourceAsStream, handler);
+        assertEquals(0, handler.getWarningCount());
+        assertEquals(0, handler.getErrorCount());
+    }
 
     // See TMDMQA-6317
     public void testLookUpField1() throws Exception {
