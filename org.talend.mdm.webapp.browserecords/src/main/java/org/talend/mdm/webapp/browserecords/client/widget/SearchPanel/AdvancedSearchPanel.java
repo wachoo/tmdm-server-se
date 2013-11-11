@@ -177,7 +177,11 @@ public class AdvancedSearchPanel extends FormPanel {
         end = criteriaStr.indexOf(')', start);
         if (start <= 2 ) {
             nextStart = criteriaStr.indexOf('(', end);
-            express = '(' + criteriaStr.substring(nextStart);
+            if (nextStart == -1 )
+                express = ""; //$NON-NLS-1$
+            else {
+                express = '(' + criteriaStr.substring(nextStart);
+            }
         } else {
             preEnd = criteriaStr.lastIndexOf(')', start);
             if (criteriaStr.charAt(end + 1) == ')') {
