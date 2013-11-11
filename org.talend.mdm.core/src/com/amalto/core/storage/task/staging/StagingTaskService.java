@@ -14,13 +14,17 @@ package com.amalto.core.storage.task.staging;
 import com.amalto.core.storage.task.ConfigurableFilter;
 import com.amalto.core.storage.task.DefaultFilter;
 import com.amalto.core.storage.task.Filter;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 import javax.ws.rs.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.List;
 
 @Path(StagingTaskService.TASKS)
@@ -59,8 +63,9 @@ public class StagingTaskService {
         Filter filter;
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
-            if (body.available() > 0) {
-                Document doc = builder.parse(body);
+            String content = IOUtils.toString(body);
+            if (!content.isEmpty()) {
+                Document doc = builder.parse(new InputSource(new StringReader(content)));
                 filter = new ConfigurableFilter(doc);
             } else {
                 filter = DefaultFilter.INSTANCE;
