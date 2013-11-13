@@ -46,6 +46,8 @@ public class InputStreamMerger extends InputStream {
 
     private Throwable lastFailure;
 
+    private ConsumeStrategy consumeStrategy;
+
     public InputStreamMerger() {
         this(DEFAULT_CAPACITY, NoWarmUpStrategy.INSTANCE);
     }
@@ -59,17 +61,32 @@ public class InputStreamMerger extends InputStream {
      *
      * @param capacity Input stream buffer will never exceed <code>capacity</code>. {@link Integer#MAX_VALUE} is equivalent
      *                 to infinite capacity.
-     * @param strategy Allow customization of "warm up" time. Can allow initial buffering before consumers can actually
+     * @param warmUpStrategy Allow customization of "warm up" time. Can allow initial buffering before consumers can actually
      *                 consume data.
      * @see NoWarmUpStrategy
      * @see ThresholdWarmUpStrategy
      */
-    public InputStreamMerger(int capacity, WarmUpStrategy strategy) {
+    public InputStreamMerger(int capacity, WarmUpStrategy warmUpStrategy) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("Capacity " + capacity + " is invalid.");
         }
         inputStreamBuffer = new LinkedBlockingQueue<InputStream>(capacity);
-        warmUpStrategy = strategy;
+        this.warmUpStrategy = warmUpStrategy;
+        this.consumeStrategy = new FinishedRead(hasFinishedRead);
+    }
+
+    /**
+     * <p>
+     * Indicates to this {@link org.talend.mdm.bulkload.client.InputStreamMerger} that <code>thread</code> is consuming
+     * all data available in stream. Doing so ensures the {@link #close()} will also wait for consumer end before
+     * actually closing the stream.
+     * </p>
+     *
+     * @param thread The thread this input stream should wait for.
+     * @see #close()
+     */
+    public void setConsumerThread(Thread thread) {
+        this.consumeStrategy = new WaitForConsumer(hasFinishedRead, thread);
     }
 
     /**
@@ -176,7 +193,7 @@ public class InputStreamMerger extends InputStream {
     }
 
     private void moveToNextInputStream() throws IOException {
-        if (hasFinishedRead.get() && isClosed) {
+        if (consumeStrategy.isConsumed() && isClosed) {
             return;
         }
         // Throw any exception that might have occurred during previous records
@@ -214,10 +231,13 @@ public class InputStreamMerger extends InputStream {
     /**
      * <p> Close this stream and perform some checks: <ul> <li>Mark this stream as closed (no more calls to {@link
      * #push(java.io.InputStream)} are allowed)</li> <li>Closes any remaining stream pushed to this stream</li> </ul>
-     * </p> <p> Calling this method wakes up any thread blocked on {@link #read()} </p> <p> Wait till all streams pushed
+     * </p>
+     * <p> Calling this method wakes up any thread blocked on {@link #read()} </p> <p> Wait till all streams pushed
      * to this stream (and stored in <code>inputStreamBuffer</code>) are processed by a reader. </p> <p> When this
      * method exits, the buffer is empty and the last stream in buffer is fully read (i.e. until read() returns -1).
      * </p>
+     * <p> <b>Note:</b> if {@link #setConsumerThread(Thread)} was previously called, this method will wait for
+     * the death of consumer before returning.</p>
      *
      * @throws IOException In case at least one stream in buffer hasn't been read.
      * @see java.io.InputStream#close()
@@ -231,12 +251,12 @@ public class InputStreamMerger extends InputStream {
             consumerMonitor.notifyAll();
         }
         debug("[P] Input stream buffer size: " + inputStreamBuffer.size());
-        debug("[P] Has finished read: " + hasFinishedRead);
-        while (!inputStreamBuffer.isEmpty() && !hasFinishedRead.get()) {
+        debug("[P] Has finished read: " + consumeStrategy.isConsumed());
+        while (!inputStreamBuffer.isEmpty() || !consumeStrategy.isConsumed()) {
             try {
-                debug("[P] Waiting for exhaust... (" + inputStreamBuffer.size() + " remaining)");
+                debug("[P] Waiting for exhaust... (" + inputStreamBuffer.size() + " buffer(s) remaining / consumer finished: " + consumeStrategy.isConsumed() + ")");
                 synchronized (exhaustLock) {
-                    exhaustLock.wait(1000);
+                    exhaustLock.wait(200);
                 }
                 // In case we got woken up due to a failure
                 throwLastFailure();
@@ -307,6 +327,39 @@ public class InputStreamMerger extends InputStream {
                 isReady = inputStreamMerger.getBufferSize() >= threshold;
             }
             return isReady;
+        }
+    }
+
+    interface ConsumeStrategy {
+        boolean isConsumed();
+    }
+
+    public static class FinishedRead implements ConsumeStrategy {
+
+        private final AtomicBoolean hasFinishedRead;
+
+        public FinishedRead(AtomicBoolean hasFinishedRead) {
+            this.hasFinishedRead = hasFinishedRead;
+        }
+
+        public boolean isConsumed() {
+            return hasFinishedRead.get();
+        }
+    }
+
+    public static class WaitForConsumer implements ConsumeStrategy {
+
+        private final Thread consumerThread;
+
+        private final AtomicBoolean hasFinishedRead;
+
+        public WaitForConsumer(AtomicBoolean hasFinishedRead, Thread consumerThread) {
+            this.consumerThread = consumerThread;
+            this.hasFinishedRead = hasFinishedRead;
+        }
+
+        public boolean isConsumed() {
+            return hasFinishedRead.get() && !consumerThread.isAlive();
         }
     }
 }
