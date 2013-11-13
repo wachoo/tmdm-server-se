@@ -305,7 +305,7 @@ public class UploadData extends HttpServlet {
                                         default: {
                                         }
                                     }
-                                    if (fieldValue != null && !"".equals(fieldValue)) { //$NON-NLS-1$
+                                    if (fieldValue != null && !fieldValue.isEmpty()) {
                                         dataLine = true;
                                         fillFieldValue(currentElement, importHeader[i], fieldValue, row, null);
                                     }                                
@@ -335,7 +335,7 @@ public class UploadData extends HttpServlet {
                             for (int j = 0; j < importHeader.length; j++) {
                                 if (j < record.length && headerVisibleMap.get(importHeader[j]) != null && headerVisibleMap.get(importHeader[j])) {
                                     fieldValue = record[j];
-                                    if (fieldValue != null && !"".equals(fieldValue)) { //$NON-NLS-1$
+                                    if (fieldValue != null && !fieldValue.isEmpty()) {
                                         dataLine =  true;
                                         fillFieldValue(currentElement, importHeader[j], fieldValue, null, record);
                                     }
@@ -505,17 +505,19 @@ public class UploadData extends HttpServlet {
             if (currentElement != null) {
                 currentElement = currentElement.element(xpathPartArray[i]);
                 if (i == xpathPartArray.length -1) {
-                    if (multipleValueSeperator != null && !"".equals(multipleValueSeperator) && fieldValue.contains(multipleValueSeperator)) { //$NON-NLS-1$
-                        List<String> valueList = CommonUtil.splitString(fieldValue, multipleValueSeperator);
-                        for (int j = 0; j < valueList.size(); j++) {
-                            List<Element> contentList = currentElement.getParent().content();
-                            Element copyElement = currentElement.createCopy();
-                            contentList.add(contentList.indexOf(currentElement) + j,copyElement);
-                            setFieldValue(copyElement, valueList.get(j));
+                    if (fieldValue != null && !fieldValue.isEmpty()) {
+                        if (multipleValueSeperator != null && !multipleValueSeperator.isEmpty() && fieldValue.contains(multipleValueSeperator)) {
+                            List<String> valueList = CommonUtil.splitString(fieldValue, multipleValueSeperator);
+                            for (int j = 0; j < valueList.size(); j++) {
+                                List<Element> contentList = currentElement.getParent().content();
+                                Element copyElement = currentElement.createCopy();
+                                contentList.add(contentList.indexOf(currentElement) + j,copyElement);
+                                setFieldValue(copyElement, valueList.get(j));
+                            }
+                        } else {
+                            setFieldValue(currentElement,fieldValue);
                         }
-                    } else {
-                        setFieldValue(currentElement,fieldValue);
-                    } 
+                    }
                 } else {
                     String currentElemntPath = currentElement.getPath().substring(1);
                     if (inheritanceNodePathList != null && inheritanceNodePathList.contains(currentElemntPath)) {
