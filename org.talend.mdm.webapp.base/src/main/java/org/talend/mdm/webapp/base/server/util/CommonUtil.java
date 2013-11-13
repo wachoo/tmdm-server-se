@@ -90,6 +90,18 @@ public class CommonUtil {
         }
         return res;
     }
+    
+    public static List<String> splitString(String valueString,String separator) {
+        if (valueString == null || valueString.isEmpty()) {
+            return null;
+        }
+        List<String> valueList = new ArrayList<String>();
+        String[] valueArray = valueString.split(separator);
+        for (String value : valueArray) {
+            valueList.add(value);
+        }
+        return valueList;
+    }
 
     public static WSWhereItem buildWhereItems(String criteria) throws Exception {
         WSWhereItem wi;

@@ -86,47 +86,49 @@ public class UploadData extends HttpServlet {
             "org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages", UploadData.class.getClassLoader()); //$NON-NLS-1$
 
     private final String FILE_TYPE_CSV_SUFFIX = "csv"; //$NON-NLS-1$
-
+    
     private final String FILE_TYPE_EXCEL_SUFFIX = "xls"; //$NON-NLS-1$
-
+    
     private final String FILE_TYPE_EXCEL2010_SUFFIX = "xlsx"; //$NON-NLS-1$
-
+    
     private final String File_CSV_SEPARATOR_SEMICOLON = "semicolon"; //$NON-NLS-1$
-
+    
     private boolean cusExceptionFlag = false;
-
+    
     private String language = "en"; //$NON-NLS-1$
-
+    
     private String encoding = "utf-8";//$NON-NLS-1$
-
-    private String concept = "";//$NON-NLS-1$
-
+    
+    private String cluster = ""; //$NON-NLS-1$
+    
+    protected String concept = "";//$NON-NLS-1$
+    
     private String fileType = "";//$NON-NLS-1$
-
+    
     private String sep = ",";//$NON-NLS-1$
-
+    
     private String textDelimiter = "\"";//$NON-NLS-1$
-
+    
     private String headerString = ""; //$NON-NLS-1$
-
+    
     private String mandatoryField = ""; //$NON-NLS-1$
-
+    
     private String multipleValueSeperator = null;
     
     private Locale locale = null;
-
+    
     private EntityModel entityModel = null;
-
+    
     private File file = null;
-
+    
     private Map<String, Boolean> headerVisibleMap = null;
-
-    private Map<String, Integer> xsiTypeMap = null;
-
+    
+    private Map<String,Integer> xsiTypeMap = null;
+    
     private List<String> inheritanceNodePathList = null;
-
+    
     private boolean headersOnFirstLine;
-
+    
     private void setParameter(HttpServletRequest request) throws Exception {
         headersOnFirstLine = false;
         request.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
@@ -154,33 +156,41 @@ public class UploadData extends HttpServlet {
                 // we are not expecting any field just (one) file(s)
                 String name = item.getFieldName();
                 LOG.debug("doPost() Field: '" + name + "' - value:'" + item.getString() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                if (name.equals("concept")) { //$NON-NLS-1$
+                if (name.equals("cluster")) { //$NON-NLS-1$
+                    cluster = item.getString();
+                } else if (name.equals("concept")) { //$NON-NLS-1$
                     concept = item.getString();
-                } else if (name.equals("sep")) { //$NON-NLS-1$
+                }
+                else if (name.equals("sep")) { //$NON-NLS-1$
                     sep = item.getString();
-                } else if (name.equals("delimiter")) { //$NON-NLS-1$
+                }
+                else if (name.equals("delimiter")) { //$NON-NLS-1$
                     textDelimiter = item.getString();
-                } else if (name.equals("language")) { //$NON-NLS-1$
+                }
+                else if (name.equals("language")) { //$NON-NLS-1$
                     locale = new Locale(item.getString());
-                } else if (name.equals("encodings")) { //$NON-NLS-1$
+                }
+                else if (name.equals("encodings")) { //$NON-NLS-1$
                     encoding = item.getString();
-                } else if (name.equals("header")) { //$NON-NLS-1$
+                }
+                else if (name.equals("header")) { //$NON-NLS-1$
                     headerVisibleMap = new LinkedHashMap<String, Boolean>();
                     headerString = item.getString();
-                    List<String> headerItemList = org.talend.mdm.webapp.base.shared.util.CommonUtil.convertStrigToList(
-                            headerString, Constants.FILE_EXPORT_IMPORT_SEPARATOR);
+                    List<String> headerItemList = org.talend.mdm.webapp.base.shared.util.CommonUtil.convertStrigToList(headerString, Constants.FILE_EXPORT_IMPORT_SEPARATOR);
                     if (headerItemList != null) {
                         for (String headerItem : headerItemList) {
-                            String[] headerItemArray = headerItem.split(Constants.HEADER_VISIBILITY_SEPARATOR);
-                            headerVisibleMap.put(headerItemArray[0], Boolean.valueOf(headerItemArray[1]));
+                            String[] headerItemArray = headerItem.split(Constants.HEADER_VISIBILITY_SEPARATOR);                                
+                            headerVisibleMap.put(headerItemArray[0], Boolean.valueOf(headerItemArray[1]));                                
                         }
                     }
-                } else if (name.equals("mandatoryField")) { //$NON-NLS-1$
+                }
+                else if (name.equals("mandatoryField")) { //$NON-NLS-1$
                     mandatoryField = item.getString();
-                } else if (name.equals("inheritanceNodePath")) { //$NON-NLS-1$
-                    inheritanceNodePathList = org.talend.mdm.webapp.base.shared.util.CommonUtil.convertStrigToList(
-                            item.getString(), Constants.FILE_EXPORT_IMPORT_SEPARATOR);
-                } else if (name.equals("headersOnFirstLine")) { //$NON-NLS-1$
+                }
+                else if (name.equals("inheritanceNodePath")) { //$NON-NLS-1$
+                    inheritanceNodePathList = org.talend.mdm.webapp.base.shared.util.CommonUtil.convertStrigToList(item.getString(), Constants.FILE_EXPORT_IMPORT_SEPARATOR);
+                }
+                else if (name.equals("headersOnFirstLine")) { //$NON-NLS-1$
                     headersOnFirstLine = "on".equals(item.getString());//$NON-NLS-1$
                 }
                 else if (name.equals("multipleValueSeperator")) { //$NON-NLS-1$
@@ -194,13 +204,8 @@ public class UploadData extends HttpServlet {
                 item.write(file);
             }// if field
         }// while item
-
     }
-
-    public UploadData() {
-        super();
-    }
-
+    
     @Override
     protected void doGet(HttpServletRequest arg0, HttpServletResponse arg1) throws ServletException, IOException {
         doPost(arg0, arg1);
@@ -220,25 +225,22 @@ public class UploadData extends HttpServlet {
             if (!UploadUtil.isViewableXpathValid(headerVisibleMap.keySet(), concept)) {
                 throw new ServletException(MESSAGES.getMessage(locale, "error_invaild_field", concept)); //$NON-NLS-1$
             }
-            Set<String> mandatorySet = UploadUtil.chechMandatoryField(
-                    org.talend.mdm.webapp.base.shared.util.CommonUtil.unescape(mandatoryField), headerVisibleMap.keySet());
+            Set<String> mandatorySet = UploadUtil.chechMandatoryField(org.talend.mdm.webapp.base.shared.util.CommonUtil.unescape(mandatoryField), headerVisibleMap.keySet());
             if (mandatorySet.size() > 0) {
                 cusExceptionFlag = true;
                 throw new ServletException(MESSAGES.getMessage(locale, "error_missing_mandatory_field")); //$NON-NLS-1$
             }
             fileInputStream = new FileInputStream(file);
-            DataModelHelper.parseSchema(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getCurrentDataModel(),
-                    concept, entityModel, RoleHelper.getUserRoles());
+            DataModelHelper.parseSchema(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getCurrentDataModel(), concept, entityModel, RoleHelper.getUserRoles());
             TypeModel typeModel = entityModel.getTypeModel(concept);
             Configuration configuration = Configuration.loadConfigurationFromDBDirectly();
-            Document document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getSubXML(
-                    typeModel, null, null, language));
-            xsiTypeMap = new HashMap<String, Integer>();
+            Document document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getSubXML(typeModel, null, null,
+                    language));
+            xsiTypeMap = new HashMap<String,Integer>();
             Element currentElement = document.getRootElement();
             String fieldValue = ""; //$NON-NLS-1$
             boolean dataLine = false;
-            if (FILE_TYPE_EXCEL_SUFFIX.equals(fileType.toLowerCase())
-                    || FILE_TYPE_EXCEL2010_SUFFIX.equals(fileType.toLowerCase())) {
+            if (FILE_TYPE_EXCEL_SUFFIX.equals(fileType.toLowerCase()) || FILE_TYPE_EXCEL2010_SUFFIX.equals(fileType.toLowerCase())) {
                 Workbook workBook = null;
                 if (FILE_TYPE_EXCEL_SUFFIX.equals(fileType.toLowerCase())) {
                     POIFSFileSystem poiFSFile = new POIFSFileSystem(fileInputStream);
@@ -247,14 +249,14 @@ public class UploadData extends HttpServlet {
                     workBook = new XSSFWorkbook(new FileInputStream(file));
                 }
                 Sheet sheet = workBook.getSheetAt(0);
-                Iterator<Row> rowiIterator = sheet.rowIterator();
+                Iterator<Row> rowIterator = sheet.rowIterator();
                 int rowNumber = 0;
-                while (rowiIterator.hasNext()) {
+                while (rowIterator.hasNext()) {
                     dataLine = false;
                     rowNumber++;
-                    Row row = rowiIterator.next();
+                    Row row = rowIterator.next();
                     if (rowNumber == 1) {
-                        importHeader = getHeader(row, null);
+                        importHeader = readHeader(row, null);
                         if (headersOnFirstLine) {
                             continue;
                         }
@@ -266,52 +268,52 @@ public class UploadData extends HttpServlet {
                                 if (tmpCell != null) {
                                     int cellType = tmpCell.getCellType();
                                     switch (cellType) {
-                                    case Cell.CELL_TYPE_NUMERIC: {
-                                        double tmp = tmpCell.getNumericCellValue();
-                                        fieldValue = getStringRepresentation(tmp);
-                                        break;
-                                    }
-                                    case Cell.CELL_TYPE_STRING: {
-                                        fieldValue = tmpCell.getRichStringCellValue().getString();
-                                        int result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil
-                                                .getFKFormatType(fieldValue);
-                                        if (result > 0) {
-                                            fieldValue = org.talend.mdm.webapp.browserecords.server.util.CommonUtil
-                                                    .getForeignKeyId(fieldValue, result);
+                                        case Cell.CELL_TYPE_NUMERIC: {
+                                            double tmp = tmpCell.getNumericCellValue();
+                                            fieldValue = getStringRepresentation(tmp);
+                                            break;
                                         }
-                                        break;
-                                    }
-                                    case Cell.CELL_TYPE_BOOLEAN: {
-                                        boolean tmp = tmpCell.getBooleanCellValue();
-                                        if (tmp) {
-                                            fieldValue = "true"; //$NON-NLS-1$
-                                        } else {
-                                            fieldValue = "false";//$NON-NLS-1$
+                                        case Cell.CELL_TYPE_STRING: {
+                                            fieldValue = tmpCell.getRichStringCellValue().getString();
+                                            int result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                                                    .getFKFormatType(fieldValue);
+                                            if (result > 0) {
+                                                fieldValue = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyId(
+                                                        fieldValue, result);
+                                            }
+                                            break;
                                         }
-                                        break;
+                                        case Cell.CELL_TYPE_BOOLEAN: {
+                                            boolean tmp = tmpCell.getBooleanCellValue();
+                                            if (tmp) {
+                                                fieldValue = "true"; //$NON-NLS-1$
+                                            } else {
+                                                fieldValue = "false";//$NON-NLS-1$
+                                            }
+                                            break;
+                                        }
+                                        case Cell.CELL_TYPE_FORMULA: {
+                                            fieldValue = tmpCell.getCellFormula();
+                                            break;
+                                        }
+                                        case Cell.CELL_TYPE_ERROR: {
+                                            break;
+                                        }
+                                        case Cell.CELL_TYPE_BLANK: {
+                                            fieldValue = ""; //$NON-NLS-1$
+                                        }
+                                        default: {
+                                        }
                                     }
-                                    case Cell.CELL_TYPE_FORMULA: {
-                                        fieldValue = tmpCell.getCellFormula();
-                                        break;
-                                    }
-                                    case Cell.CELL_TYPE_ERROR: {
-                                        break;
-                                    }
-                                    case Cell.CELL_TYPE_BLANK: {
-                                    }
-                                    default: {
-                                    }
-                                    }
-                                    if (fieldValue != null && !"".equals(fieldValue)) { //$NON-NLS-1$
+                                    if (fieldValue != null && !fieldValue.isEmpty()) {
                                         dataLine = true;
                                         fillFieldValue(currentElement, importHeader[i], fieldValue, row, null);
-                                    }
+                                    }                                
                                 }
                             }
                         }
                         if (dataLine) {
-                            wSPutItemWithReportList.add(getWSPutItemWithReport(document.asXML(), configuration.getCluster(),
-                                    configuration.getModel()));
+                            wSPutItemWithReportList.add(buildWSPutItemWithReport(document,configuration.getModel()));
                         }
                     }
                 }
@@ -323,7 +325,7 @@ public class UploadData extends HttpServlet {
                     String[] record = records.get(i);
                     dataLine = false;
                     if (i == 0) {
-                        importHeader = getHeader(null, record);
+                        importHeader = readHeader(null, record);
                         if (headersOnFirstLine) {
                             continue;
                         }
@@ -331,26 +333,23 @@ public class UploadData extends HttpServlet {
                     if (importHeader != null) {
                         if (record.length > 0) {
                             for (int j = 0; j < importHeader.length; j++) {
-                                if (j < record.length && headerVisibleMap.get(importHeader[j]) != null
-                                        && headerVisibleMap.get(importHeader[j])) {
+                                if (j < record.length && headerVisibleMap.get(importHeader[j]) != null && headerVisibleMap.get(importHeader[j])) {
                                     fieldValue = record[j];
-                                    if (fieldValue != null && !"".equals(fieldValue)) { //$NON-NLS-1$
-                                        dataLine = true;
+                                    if (fieldValue != null && !fieldValue.isEmpty()) {
+                                        dataLine =  true;
                                         fillFieldValue(currentElement, importHeader[j], fieldValue, null, record);
                                     }
                                 }
                             }
                         }
                         if (dataLine) {
-                            wSPutItemWithReportList.add(getWSPutItemWithReport(document.asXML(), configuration.getCluster(),
-                                    configuration.getModel()));
+                            wSPutItemWithReportList.add(buildWSPutItemWithReport(document,configuration.getModel()));
                         }
                     }
                 }
             }
             if (wSPutItemWithReportList.size() > 0) {
-                putDocument(new WSPutItemWithReportArray(
-                        wSPutItemWithReportList.toArray(new WSPutItemWithReport[wSPutItemWithReportList.size()])));
+                putDocument(new WSPutItemWithReportArray(wSPutItemWithReportList.toArray(new WSPutItemWithReport[wSPutItemWithReportList.size()])));                                
             }
             writer.print("true"); //$NON-NLS-1$
         } catch (Exception e) {
@@ -370,8 +369,8 @@ public class UploadData extends HttpServlet {
         }
     }
 
-    private WSPutItemWithReport getWSPutItemWithReport(String xml, String model, String cluster) {
-        return new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(cluster), xml, new WSDataModelPK(model), false),
+    protected WSPutItemWithReport buildWSPutItemWithReport(Document document,String model) {
+        return new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(cluster), document.asXML(), new WSDataModelPK(model), false),
                 "genericUI", true); //$NON-NLS-1$
     }
 
@@ -436,41 +435,40 @@ public class UploadData extends HttpServlet {
         return result;
     }
 
-    private String[] getHeader(Row headerRow, String[] headerRecord) throws ServletException {
+    protected String[] readHeader(Row headerRow,String[] headerRecord) throws ServletException {
         List<String> headers = new LinkedList<String>();
-        String headerName;
+        String header;
         int index = 0;
         if (headersOnFirstLine) {
-            if (FILE_TYPE_EXCEL_SUFFIX.equals(fileType.toLowerCase())
-                    || FILE_TYPE_EXCEL2010_SUFFIX.equals(fileType.toLowerCase())) {
+            if (FILE_TYPE_EXCEL_SUFFIX.equals(fileType.toLowerCase()) || FILE_TYPE_EXCEL2010_SUFFIX.equals(fileType.toLowerCase())) {
                 Iterator<Cell> headerIterator = headerRow.cellIterator();
                 while (headerIterator.hasNext()) {
                     Cell cell = headerIterator.next();
                     if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-                        headerName = cell.getRichStringCellValue().getString();
-                        headers.add(handleHeader(headerName, index));
+                        header = cell.getRichStringCellValue().getString();
+                        headers.add(handleHeader(header, index));
                     }
                     index++;
                 }
             } else if (FILE_TYPE_CSV_SUFFIX.equals(fileType.toLowerCase())) {
-                for (String element : headerRecord) {
-                    headers.add(handleHeader(element, index));
+                for (int i=0;i<headerRecord.length;i++) {
+                    headers.add(handleHeader(headerRecord[i], index));
                     index++;
                 }
             }
         } else {
             Iterator<String> headerIterator = headerVisibleMap.keySet().iterator();
             while (headerIterator.hasNext()) {
-                headerName = headerIterator.next();
-                registXsiType(headerName, index);
-                headers.add(headerName);
+                header = headerIterator.next();
+                registXsiType(header, index);
+                headers.add(header);
                 index++;
             }
         }
         return headers.toArray(new String[headers.size()]);
     }
-
-    private String handleHeader(String headerName, int index) throws ServletException {
+    
+    protected String handleHeader(String headerName,int index) throws ServletException {
         String headerPath = ""; //$NON-NLS-1$
         if (!headerName.startsWith(concept + "/")) { //$NON-NLS-1$
             headerPath = concept + "/" + headerName; //$NON-NLS-1$
@@ -481,15 +479,15 @@ public class UploadData extends HttpServlet {
             if (entityModel.getTypeModel(headerPath) == null) {
                 cusExceptionFlag = true;
                 throw new ServletException(MESSAGES.getMessage(locale, "error_column_header", headerName, concept)); //$NON-NLS-1$
-            }
+            }  
         } else {
             registXsiType(headerPath, index);
         }
-
+        
         return headerPath;
     }
-
-    private void registXsiType(String headerName, int index) throws ServletException {
+    
+    private void registXsiType(String headerName,int index) throws ServletException {
         if (headerName.endsWith(Constants.XSI_TYPE_QUALIFIED_NAME)) {
             if (entityModel.getTypeModel(headerName.substring(0, headerName.indexOf("/@" + Constants.XSI_TYPE_QUALIFIED_NAME))) != null) { //$NON-NLS-1$
                 xsiTypeMap.put(headerName, index);
@@ -499,55 +497,53 @@ public class UploadData extends HttpServlet {
             }
         }
     }
-
-    private void fillFieldValue(Element currentElement, String fieldPath, String fieldValue, Row row, String[] record)
-            throws Exception {
-        QName xsiTypeQName = new QName(Constants.XSI_TYPE_NAME, new Namespace(Constants.XSI_PREFIX, Constants.XSI_URI),
-                Constants.XSI_TYPE_QUALIFIED_NAME);
+ 
+    protected void fillFieldValue(Element currentElement,String fieldPath,String fieldValue,Row row,String[] record) throws Exception {
+        QName xsiTypeQName = new QName(Constants.XSI_TYPE_NAME, new Namespace(Constants.XSI_PREFIX,Constants.XSI_URI), Constants.XSI_TYPE_QUALIFIED_NAME);
         String[] xpathPartArray = fieldPath.split("/"); //$NON-NLS-1$
-        for (int i = 1; i < xpathPartArray.length; i++) {
+        for (int i=1;i<xpathPartArray.length;i++) {
             if (currentElement != null) {
                 currentElement = currentElement.element(xpathPartArray[i]);
-                if (i == xpathPartArray.length - 1) {
-                    if (multipleValueSeperator != null && !"".equals(multipleValueSeperator) && fieldValue.contains(multipleValueSeperator)) { //$NON-NLS-1$
-                        List<String> valueList = CommonUtil.splitString(fieldValue, multipleValueSeperator);
-                        for (int j = 0; j < valueList.size(); j++) {
-                            List<Element> contentList = currentElement.getParent().content();
-                            Element copyElement = currentElement.createCopy();
-                            contentList.add(contentList.indexOf(currentElement) + j, copyElement);
-                            setFieldValue(copyElement, valueList.get(j));
+                if (i == xpathPartArray.length -1) {
+                    if (fieldValue != null && !fieldValue.isEmpty()) {
+                        if (multipleValueSeperator != null && !multipleValueSeperator.isEmpty() && fieldValue.contains(multipleValueSeperator)) {
+                            List<String> valueList = CommonUtil.splitString(fieldValue, multipleValueSeperator);
+                            for (int j = 0; j < valueList.size(); j++) {
+                                List<Element> contentList = currentElement.getParent().content();
+                                Element copyElement = currentElement.createCopy();
+                                contentList.add(contentList.indexOf(currentElement) + j,copyElement);
+                                setFieldValue(copyElement, valueList.get(j));
+                            }
+                        } else {
+                            setFieldValue(currentElement,fieldValue);
                         }
-                    } else {
-                        setFieldValue(currentElement,fieldValue);
-                    } 
+                    }
                 } else {
                     String currentElemntPath = currentElement.getPath().substring(1);
                     if (inheritanceNodePathList != null && inheritanceNodePathList.contains(currentElemntPath)) {
                         Integer xsiTypeIndex = xsiTypeMap.get(currentElemntPath + "/@" + Constants.XSI_TYPE_QUALIFIED_NAME); //$NON-NLS-1$
                         if (xsiTypeIndex != null) {
                             String xsiTypeValue = ""; //$NON-NLS-1$
-                            if (FILE_TYPE_EXCEL_SUFFIX.equals(fileType.toLowerCase())
-                                    || FILE_TYPE_EXCEL2010_SUFFIX.equals(fileType.toLowerCase())) {
+                            if (FILE_TYPE_EXCEL_SUFFIX.equals(fileType.toLowerCase()) || FILE_TYPE_EXCEL2010_SUFFIX.equals(fileType.toLowerCase())) {
                                 xsiTypeValue = row.getCell(xsiTypeIndex).getRichStringCellValue().getString();
                             } else if (FILE_TYPE_CSV_SUFFIX.equals(fileType.toLowerCase())) {
                                 xsiTypeValue = record[i];
-                            }
+                            }                            
                             if (!xsiTypeValue.equals(currentElement.attributeValue(xsiTypeQName))) {
                                 currentElement.setAttributeValue(xsiTypeQName, xsiTypeValue);
                             }
                         } else {
                             cusExceptionFlag = true;
-                            throw new ServletException(MESSAGES.getMessage(locale,
-                                    "missing_attribute", currentElemntPath + "/@" + Constants.XSI_TYPE_QUALIFIED_NAME)); //$NON-NLS-1$ //$NON-NLS-2$
+                            throw new ServletException(MESSAGES.getMessage(locale, "missing_attribute",currentElemntPath + "/@" + Constants.XSI_TYPE_QUALIFIED_NAME)); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
                 }
             }
         }
     }
-
-    private void setFieldValue(Element currentElement, String value) throws Exception {
-        if (currentElement.elements().size() > 0) {
+    
+    private void setFieldValue(Element currentElement,String value) throws Exception {
+        if (currentElement.elements().size() > 0) {                        
             Element complexeElement = XmlUtil.parseDocument(Util.parse(StringEscapeUtils.unescapeXml(value))).getRootElement();
             List<Element> contentList = currentElement.getParent().content();
             int index = contentList.indexOf(currentElement);
