@@ -16,6 +16,7 @@ import com.amalto.core.query.user.*;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.TransactionManager;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Level;
 import org.hibernate.cfg.Environment;
 import org.talend.mdm.commmon.metadata.*;
@@ -609,26 +610,29 @@ public class HibernateStorage implements Storage {
                 o.timestamp(System.currentTimeMillis());
                 DataRecordMetadata recordMetadata = currentDataRecord.getRecordMetadata();
                 Map<String, String> recordProperties = recordMetadata.getRecordProperties();
-                o.taskId(recordMetadata.getTaskId());
+                if (!ObjectUtils.equals(recordMetadata.getTaskId(), o.taskId())) {
+                    o.taskId(recordMetadata.getTaskId());
+                }
                 for (Map.Entry<String, String> currentProperty : recordProperties.entrySet()) {
                     String key = currentProperty.getKey();
                     String value = currentProperty.getValue();
                     ComplexTypeMetadata database = mapping.getDatabase();
                     if (database.hasField(key)) {
                         Object convertedValue = MetadataUtils.convert(value, database.getField(key));
-                        o.set(key, convertedValue);
+                        if (!ObjectUtils.equals(convertedValue, o.get(key))) {
+                            o.set(key, convertedValue);
+                        }
                     } else {
                         throw new IllegalArgumentException("Can not store value '" + key
                                 + "' because there is no database field '" + key + "' in type '" + mapping.getName()
                                 + "' (storage is '" + toString() + "')");
                     }
                 }
+                session.saveOrUpdate(o);
                 if (FLUSH_ON_LOAD && session.getStatistics().getEntityCount() % batchSize == 0) {
                     // Periodically flush objects to avoid using too much memory.
                     session.flush();
-                    session.clear();
                 }
-                session.saveOrUpdate(o);
             }
         } catch (ConstraintViolationException e) {
             throw new com.amalto.core.storage.exception.ConstraintViolationException(e);

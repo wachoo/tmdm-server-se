@@ -7,20 +7,21 @@ import com.amalto.core.load.action.OptimizedLoadAction;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocal;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.save.AutoCommitSaverContext;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverContextFactory;
+import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.ServerContext;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.w3c.dom.Document;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -55,18 +57,15 @@ public class LoadServlet extends HttpServlet {
 
     private static final String PARAMETER_ACTION = "action"; //$NON-NLS-1$
 
-    /**
-     * Constructor
-     */
+    private static AtomicInteger counter = new AtomicInteger();
+
     public LoadServlet() {
         super();
     }
 
-
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-
     }
 
     @Override
@@ -74,7 +73,6 @@ public class LoadServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
         response.setContentType("text/html; charset=UTF-8"); //$NON-NLS-1$
         response.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
-
         // configure writer depending on logger configuration.
         PrintWriter writer = configureWriter(response);
         writer.write("<html><body>"); //$NON-NLS-1$
@@ -82,7 +80,6 @@ public class LoadServlet extends HttpServlet {
                 "<p><b>Load data into MDM</b><br/>" +
                         "Check jboss/server/default/log/server.log or the jboss console output to determine when load is completed</b></p>"
         );
-
         String dataClusterName = request.getParameter(PARAMETER_CLUSTER);
         String typeName = request.getParameter(PARAMETER_CONCEPT);
         String dataModelName = request.getParameter(PARAMETER_DATAMODEL);
@@ -92,12 +89,10 @@ public class LoadServlet extends HttpServlet {
         if (action == null || action.length() == 0) {
             action = getServletConfig().getInitParameter(PARAMETER_ACTION);
         }
-
         // We support only load as action here
         if (!"load".equalsIgnoreCase(action)) { //$NON-NLS-1$
             throw new ServletException(new UnsupportedOperationException("Action '" + action + "' isn't supported"));
         }
-
         LoadAction loadAction = getLoadAction(dataClusterName, typeName, dataModelName, needValidate, needAutoGenPK);
         if (needValidate && !loadAction.supportValidation()) {
             throw new ServletException(new UnsupportedOperationException("XML Validation isn't supported"));
@@ -105,17 +100,15 @@ public class LoadServlet extends HttpServlet {
         if (needAutoGenPK && !loadAction.supportAutoGenPK()) {
             throw new ServletException(new UnsupportedOperationException("Autogen pk isn't supported"));
         }
-
         // Get xml server and key information
         XmlServerSLWrapperLocal server;
         XSDKey keyMetadata;
         try {
-            keyMetadata = getTypeKey(dataModelName, typeName, dataClusterName);
+            keyMetadata = getTypeKey(dataModelName, typeName);
             server = Util.getXmlServerCtrlLocal();
         } catch (Exception e) {
             throw new ServletException(e);
         }
-
         SaverSession session = SaverSession.newSession();
         SaverContextFactory contextFactory = session.getContextFactory();
         DocumentSaverContext context = contextFactory.createBulkLoad(dataClusterName, dataModelName, keyMetadata, request.getInputStream(), loadAction, server);
@@ -134,7 +127,6 @@ public class LoadServlet extends HttpServlet {
             }
             throw new ServletException(e);
         }
-
         writer.write("</body></html>"); //$NON-NLS-1$
     }
 
@@ -174,42 +166,22 @@ public class LoadServlet extends HttpServlet {
         return dataCluster;
     }
 
-    private XSDKey getTypeKey(String dataModelName, String typeName, String dataClusterName) throws Exception {
-        XSDKey xsdKey = typeNameToKeyDef.get(dataModelName + typeName);
-
-        if (xsdKey == null) {
-            synchronized (typeNameToKeyDef) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Caching id for type '" + typeName + "' in data model '" + dataModelName + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                }
-
-                DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(dataModelName));
-                String schemaString = dataModel.getSchema();
-                Document schema = Util.parseXSD(schemaString);
-                XSDKey conceptKey = Util.getBusinessConceptKey(schema, typeName);
-
-                if (conceptKey != null) {
-                    String keysAsString = ""; //$NON-NLS-1$
-                    for (String currentField : conceptKey.getFields()) {
-                        keysAsString += ' ' + currentField;
-                    }
-                    if (log.isDebugEnabled()) {
-                        log.debug("Key for entity '" + typeName + "' : " + keysAsString); //$NON-NLS-1$ //$NON-NLS-2$
-                    }
-                } else {
-                    String message = "No key definition for entity '" + typeName + "' (data model name: '"
-                            + dataModelName + "' / data cluster name: '" + dataClusterName + "').";
-                    log.error(message);
-                    throw new RuntimeException(message);
-                }
-                xsdKey = conceptKey;
-
-                // Use dataModelName in key in case 1+ data models share the type name
-                typeNameToKeyDef.put(dataModelName + typeName, xsdKey);
-            }
+    private XSDKey getTypeKey(String dataModelName, String typeName) throws Exception {
+        MetadataRepositoryAdmin repositoryAdmin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
+        MetadataRepository repository = repositoryAdmin.get(dataModelName);
+        ComplexTypeMetadata type = repository.getComplexType(typeName);
+        if (type == null) {
+            throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data model '" + dataModelName + "'.");
         }
-
-        return xsdKey;
+        String[] fields = new String[type.getKeyFields().size()];
+        String[] fieldTypes = new String[type.getKeyFields().size()];
+        int i = 0;
+        for (FieldMetadata keyField : type.getKeyFields()) {
+            fields[i] = keyField.getPath();
+            fieldTypes[i] = "xsd:" + keyField.getType().getName(); //$NON-NLS-1$
+            i++;
+        }
+        return new XSDKey(".", fields, fieldTypes);
     }
 
     /**

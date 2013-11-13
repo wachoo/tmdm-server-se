@@ -186,7 +186,14 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             Attr classTable = document.createAttribute("table"); //$NON-NLS-1$
             classTable.setValue(formatSQLName(tableNames.peek(), resolver.getNameMaxLength()));
             classElement.getAttributes().setNamedItem(classTable);
-
+            // dynamic-update="true"
+            Attr dynamicUpdate = document.createAttribute("dynamic-update");  //$NON-NLS-1$
+            dynamicUpdate.setValue("true"); //$NON-NLS-1$
+            classElement.getAttributes().setNamedItem(dynamicUpdate);
+            // dynamic-insert="true"
+            Attr dynamicInsert = document.createAttribute("dynamic-insert");  //$NON-NLS-1$
+            dynamicInsert.setValue("true"); //$NON-NLS-1$
+            classElement.getAttributes().setNamedItem(dynamicInsert);
             // <cache usage="read-write" include="non-lazy"/>
             Element cacheElement = document.createElement("cache"); //$NON-NLS-1$
             Attr usageAttribute = document.createAttribute("usage"); //$NON-NLS-1$
@@ -365,7 +372,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 // cascade="true"
                 if (Boolean.parseBoolean(referenceField.<String>getData(SQL_DELETE_CASCADE))) {
                     Attr cascade = document.createAttribute("cascade"); //$NON-NLS-1$
-                    cascade.setValue("save-update, delete"); //$NON-NLS-1$
+                    cascade.setValue("lock, save-update, delete"); //$NON-NLS-1$
                     propertyElement.getAttributes().setNamedItem(cascade);
                 }
                 Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
@@ -446,7 +453,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         // Cascade delete
         if (Boolean.parseBoolean(referencedField.<String>getData(SQL_DELETE_CASCADE))) {
             Attr cascade = document.createAttribute("cascade"); //$NON-NLS-1$
-            cascade.setValue("save-update, delete"); //$NON-NLS-1$
+            cascade.setValue("lock, save-update, delete"); //$NON-NLS-1$
             propertyElement.getAttributes().setNamedItem(cascade);
         }
         isDoingColumns = true;
@@ -630,7 +637,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 }
                 // cascade="delete"
                 Attr cascade = document.createAttribute("cascade"); //$NON-NLS-1$
-                cascade.setValue("all-delete-orphan"); //$NON-NLS-1$
+                cascade.setValue("lock, all-delete-orphan"); //$NON-NLS-1$
                 listElement.getAttributes().setNamedItem(cascade);
                 // Keys
                 Element key = document.createElement("key"); //$NON-NLS-1$
