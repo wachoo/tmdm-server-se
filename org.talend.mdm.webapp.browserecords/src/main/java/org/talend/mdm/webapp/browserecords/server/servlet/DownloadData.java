@@ -54,6 +54,8 @@ public class DownloadData extends HttpServlet {
     
     protected String fileName = ""; //$NON-NLS-1$
     
+    private String multipleValueSeperator = null;
+    
     protected String dataCluster = ""; //$NON-NLS-1$
     
     protected String concept = ""; //$NON-NLS-1$
@@ -133,6 +135,7 @@ public class DownloadData extends HttpServlet {
         criteria = request.getParameter("criteria"); //$NON-NLS-1$
         language = request.getParameter("language"); //$NON-NLS-1$
         fkDisplay = request.getParameter("fkDisplay"); //$NON-NLS-1$
+        multipleValueSeperator = request.getParameter("multipleValueSeperator"); //$NON-NLS-1$
         
         if (request.getParameter("itemIdsListString") != null && !request.getParameter("itemIdsListString").isEmpty()) { //$NON-NLS-1$ //$NON-NLS-2$
             idsList = org.talend.mdm.webapp.base.shared.util.CommonUtil.convertStrigToList(request.getParameter("itemIdsListString"), Constants.FILE_EXPORT_IMPORT_SEPARATOR); //$NON-NLS-1$
@@ -181,7 +184,7 @@ public class DownloadData extends HttpServlet {
                             if (fkDisplay.equalsIgnoreCase("Id-FKInfo")) { //$NON-NLS-1$
                                 infoList.add(0, tmp);
                             }
-                            tmp = LabelUtil.convertList2String(infoList, "-"); //$NON-NLS-1$                            
+                            tmp = LabelUtil.convertList2String(infoList, "-"); //$NON-NLS-1$
                         }
                     }
                 }
@@ -205,7 +208,7 @@ public class DownloadData extends HttpServlet {
         List<?> selectNodes = null;
         Map<String,String> namespaceMap = new HashMap<String,String>();
         namespaceMap.put(Constants.XSI_PREFIX,Constants.XSI_URI);
-        List<String> value = new LinkedList<String>();
+        List<String> valueList = null;
         boolean isAttribute = xpath.endsWith(Constants.XSI_TYPE_QUALIFIED_NAME) ? true : false;
         if (isAttribute) {
             XPath x = document.createXPath(xpath);
@@ -215,21 +218,30 @@ public class DownloadData extends HttpServlet {
             selectNodes = document.selectNodes(xpath);
         }
         if (selectNodes != null) {
+            valueList = new LinkedList<String>();
             for (Object object : selectNodes) {         
                 if (isAttribute) {
                     Attribute attribute = (Attribute)object;
-                    value.add(attribute.getValue());
+                    valueList.add(attribute.getValue());
                 } else {
                     Element element = (Element)object;
                     if (element.elements().size() > 0) {
-                        value.add(element.asXML());
+                        valueList.add(element.asXML());
                     } else {
-                        value.add(element.getText());
+                        valueList.add(element.getText());
                     }
                 }
             }
-        }        
-        return org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(value);
+        }
+        if (valueList == null || valueList.size() == 0) {
+            return ""; //$NON-NLS-1$
+        } else {
+            if (valueList.size() > 1) {
+                return CommonUtil.joinStrings(valueList,multipleValueSeperator);
+            } else {
+                return valueList.get(0);
+            }
+        }
     }
     
     private List<String> getFKInfo(String fk, List<String> fkInfoList, String fkValue) throws Exception {

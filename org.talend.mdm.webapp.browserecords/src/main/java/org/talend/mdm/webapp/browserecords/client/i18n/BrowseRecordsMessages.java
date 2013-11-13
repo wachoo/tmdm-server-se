@@ -444,4 +444,6 @@ public interface BrowseRecordsMessages extends Messages {
     String export_error();
     
     String missing_attribute(String path);
+    
+    String multiple_value_separator_field_label();
 }

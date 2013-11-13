@@ -58,6 +58,8 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 public class DownloadFilePanel extends FormPanel {
     
     private TextField<String> fileName;
+    
+    private TextField<String> multipleValueSeperatorField;
 
     private CheckBox fkResovled;
 
@@ -87,6 +89,12 @@ public class DownloadFilePanel extends FormPanel {
         fileName.setAllowBlank(false);
         fileName.setValue(viewBean.getBindingEntityModel().getConceptName());
         this.add(fileName, new FormData("90%")); //$NON-NLS-1$
+        
+        multipleValueSeperatorField = new TextField<String>();
+        multipleValueSeperatorField.setId("multipleValueSeperator"); //$NON-NLS-1$
+        multipleValueSeperatorField.setName("multipleValueSeperator"); //$NON-NLS-1$
+        multipleValueSeperatorField.setFieldLabel(MessagesFactory.getMessages().multiple_value_separator_field_label());
+        this.add(multipleValueSeperatorField, new FormData("67.3%")); //$NON-NLS-1$
 
         fkResovled = new CheckBox();
         fkResovled.setFieldLabel(MessagesFactory.getMessages().fkinfo_display_label());
@@ -170,6 +178,7 @@ public class DownloadFilePanel extends FormPanel {
             }
         });
         this.add(exportBtn);
+        this.setLabelWidth(180);
     }
 
     private Map<String, String> buildExportParameter() {
@@ -241,6 +250,7 @@ public class DownloadFilePanel extends FormPanel {
         queryModel.getLanguage();
 
         param.put("fileName", fileName.getValue()); //$NON-NLS-1$
+        param.put("multipleValueSeperator", multipleValueSeperatorField.getValue()); //$NON-NLS-1$
         param.put("fkResovled", fkResovled.getValue().toString()); //$NON-NLS-1$
         param.put("fkDisplay", fkDisplayCombo.getValue().get("key").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         param.put("tableName", viewBean.getViewPK()); //$NON-NLS-1$
