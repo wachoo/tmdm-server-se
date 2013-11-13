@@ -372,7 +372,7 @@ public class ItemsToolBar extends ToolBar {
             @Override
             public void componentSelected(MenuEvent ce) {
                 final Window window = new Window();
-                window.setSize(500, 260);
+                window.setSize(480, 260);
                 window.setPlain(true);
                 window.setModal(true);
                 window.setBlinkModal(true);
@@ -398,7 +398,7 @@ public class ItemsToolBar extends ToolBar {
                 QueryModel queryModel = ItemsListPanel.getInstance().getCurrentQueryModel();
                 if (queryModel != null) {
                     final Window window = new Window();
-                    window.setSize(380, 200);
+                    window.setSize(480, 220);
                     window.setPlain(true);
                     window.setModal(true);
                     window.setBlinkModal(true);

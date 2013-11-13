@@ -111,6 +111,8 @@ public class UploadData extends HttpServlet {
 
     private String mandatoryField = ""; //$NON-NLS-1$
 
+    private String multipleValueSeperator = null;
+    
     private Locale locale = null;
 
     private EntityModel entityModel = null;
@@ -180,6 +182,9 @@ public class UploadData extends HttpServlet {
                             item.getString(), Constants.FILE_EXPORT_IMPORT_SEPARATOR);
                 } else if (name.equals("headersOnFirstLine")) { //$NON-NLS-1$
                     headersOnFirstLine = "on".equals(item.getString());//$NON-NLS-1$
+                }
+                else if (name.equals("multipleValueSeperator")) { //$NON-NLS-1$
+                    multipleValueSeperator = item.getString();
                 }
             } else {
                 fileType = FileUtil.getFileType(item.getName());
@@ -328,7 +333,7 @@ public class UploadData extends HttpServlet {
                             for (int j = 0; j < importHeader.length; j++) {
                                 if (j < record.length && headerVisibleMap.get(importHeader[j]) != null
                                         && headerVisibleMap.get(importHeader[j])) {
-                                    fieldValue = StringEscapeUtils.escapeXml(record[j]);
+                                    fieldValue = record[j];
                                     if (fieldValue != null && !"".equals(fieldValue)) { //$NON-NLS-1$
                                         dataLine = true;
                                         fillFieldValue(currentElement, importHeader[j], fieldValue, null, record);
@@ -504,17 +509,17 @@ public class UploadData extends HttpServlet {
             if (currentElement != null) {
                 currentElement = currentElement.element(xpathPartArray[i]);
                 if (i == xpathPartArray.length - 1) {
-                    List<String> valueList = org.talend.mdm.webapp.base.shared.util.CommonUtil.convertStrigToList(fieldValue);
-                    for (int j = 0; j < valueList.size(); j++) {
-                        if (j == 0) {
-                            setFieldValue(currentElement, valueList.get(j));
-                        } else {
+                    if (multipleValueSeperator != null && !"".equals(multipleValueSeperator) && fieldValue.contains(multipleValueSeperator)) { //$NON-NLS-1$
+                        List<String> valueList = CommonUtil.splitString(fieldValue, multipleValueSeperator);
+                        for (int j = 0; j < valueList.size(); j++) {
                             List<Element> contentList = currentElement.getParent().content();
                             Element copyElement = currentElement.createCopy();
                             contentList.add(contentList.indexOf(currentElement) + j, copyElement);
                             setFieldValue(copyElement, valueList.get(j));
                         }
-                    }
+                    } else {
+                        setFieldValue(currentElement,fieldValue);
+                    } 
                 } else {
                     String currentElemntPath = currentElement.getPath().substring(1);
                     if (inheritanceNodePathList != null && inheritanceNodePathList.contains(currentElemntPath)) {

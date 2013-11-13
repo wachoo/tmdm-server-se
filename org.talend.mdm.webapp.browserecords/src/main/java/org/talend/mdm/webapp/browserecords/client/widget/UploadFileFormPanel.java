@@ -43,6 +43,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -56,6 +57,8 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     private ComboBox<ItemBaseModel> encodingCombo;
 
     private FileUploadField file;
+    
+    private TextField<String> multipleValueSeperatorField; 
 
     private CheckBox headerLine;
 
@@ -200,6 +203,12 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
             }
         });
         this.add(file);
+        
+        multipleValueSeperatorField = new TextField<String>();
+        multipleValueSeperatorField.setId("multipleValueSeperator"); //$NON-NLS-1$
+        multipleValueSeperatorField.setName("multipleValueSeperator"); //$NON-NLS-1$
+        multipleValueSeperatorField.setFieldLabel(MessagesFactory.getMessages().multiple_value_separator_field_label());
+        this.add(multipleValueSeperatorField);
 
         List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
         ItemBaseModel excel = new ItemBaseModel();
