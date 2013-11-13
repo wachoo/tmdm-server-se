@@ -10,16 +10,9 @@
 
 package com.amalto.core.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
-
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.TypedExpression;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.storage.StorageResults;
@@ -29,6 +22,13 @@ import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 @SuppressWarnings("nls")
 public class InheritanceTest extends StorageTestCase {
@@ -92,6 +92,33 @@ public class InheritanceTest extends StorageTestCase {
         int i = 0;
         for (ComplexTypeMetadata sortedType : sortedList) {
             assertEquals(expectedOrder[i++], sortedType.getName());
+        }
+    }
+
+    public void testTypeSubSetOrdering() throws Exception {
+        // Test type list sort
+        ComplexTypeMetadata[] types = new ComplexTypeMetadata[] {
+                repository.getComplexType("Address"),
+                repository.getComplexType("Country")
+        };
+        List<ComplexTypeMetadata> sortedList = MetadataUtils.sortTypes(repository, Arrays.asList(types));
+        // New order following XML schema library
+        String[] expectedOrder = {"Country", "Address"};
+        int i = 0;
+        for (ComplexTypeMetadata sortedType : sortedList) {
+            assertEquals(expectedOrder[i++], sortedType.getName());
+        }
+        // Test missing reference exception
+        types = new ComplexTypeMetadata[] {
+                repository.getComplexType("Address"),
+                repository.getComplexType("Country"),
+                repository.getComplexType("Product")
+        };
+        try {
+            MetadataUtils.sortTypes(repository, Arrays.asList(types));
+            fail("Expected fail: Product has FK to types not in 'types' parameter.");
+        } catch (Exception e) {
+            // Expected
         }
     }
 

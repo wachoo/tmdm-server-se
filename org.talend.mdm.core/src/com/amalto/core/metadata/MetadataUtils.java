@@ -539,14 +539,47 @@ public class MetadataUtils {
      *                                  information on where the cycle is.
      */
     public static List<ComplexTypeMetadata> sortTypes(MetadataRepository repository) {
-        return _sortTypes(repository, true);
+        ArrayList<ComplexTypeMetadata> types = new ArrayList<ComplexTypeMetadata>(repository.getUserComplexTypes());
+        return _sortTypes(repository, true, types);
     }
 
-    private static List<ComplexTypeMetadata> _sortTypes(MetadataRepository repository, final boolean isInstantiable) {
-        final List<ComplexTypeMetadata> types = new ArrayList<ComplexTypeMetadata>(repository.getUserComplexTypes());
+    /**
+     * <p>
+     * Sorts types (usually a sub set of types in a {@link MetadataRepository}) in inverse order of dependency
+     * (topological sort). A dependency to <i>type</i> might be:
+     * <ul>
+     * <li>FK reference to <i>type</i> (sub types of <i>type</i> are all included as a dependency).</li>
+     * <li>Use of <i>type</i> as a super type.</li>
+     * </ul>
+     * This method runs in linear time <i>O(n+p)</i> (<i>n</i> number of types and <i>p</i> number of dependencies
+     * between types). This method uses <i>n²</i> bytes in memory for processing (<i>n</i> still being the number of types
+     * in <code>repository</code>).
+     * </p>
+     * <p>
+     * This method is thread safe.
+     * </p>
+     *
+     * @param repository This is used to display information in case of cycle.
+     * @param types The list of types to be sorted. This list must provide a transitive closure of types (all references
+     *              to other types must be satisfied in this list), if it isn't a {@link IllegalArgumentException} is
+     *              thrown.
+     * @return A sorted list of {@link ComplexTypeMetadata} types. First type of list is a type that has no dependency on
+     *         any other type of the list.
+     * @throws IllegalArgumentException If repository contains types that creates a cyclic dependency. Error message contains
+     *                                  information on where the cycle is.
+     * @throws IllegalArgumentException If the <code>types</code> parameters doesn't provide a transitive closure. Exception's
+     *                                  message include the missing type name.
+     */
+    public static List<ComplexTypeMetadata> sortTypes(MetadataRepository repository, List<ComplexTypeMetadata> types) {
+        return _sortTypes(repository, true, new ArrayList<ComplexTypeMetadata>(types));
+    }
+
+    private static List<ComplexTypeMetadata> _sortTypes(MetadataRepository repository,
+                                                        final boolean isInstantiable,
+                                                        final List<ComplexTypeMetadata> types) {
         /*
-        * Compute additional data for topological sorting
-        */
+         * Compute additional data for topological sorting
+         */
         final int typeNumber = types.size();
         byte[][] dependencyGraph = new byte[typeNumber][typeNumber];
         for (final ComplexTypeMetadata type : types) {
@@ -602,6 +635,11 @@ public class MetadataUtils {
                     ComplexTypeMetadata referencedType = referenceField.getReferencedType();
                     if (!type.equals(referencedType) && referenceField.isFKIntegrity()) { // Don't count a dependency to itself as a dependency.
                         if (isInstantiable == referencedType.isInstantiable()) {
+                            if(!types.contains(referencedType)) {
+                                // Types parameter doesn't include a referenced type: this is not expected (all reachable types
+                                // are expected in "types" parameter).
+                                throw new IllegalArgumentException("Types parameter must provide a transitive closure (missing '" + referencedType.getName() + "').");
+                            }
                             lineContent[getId(referencedType, types)]++;
                             // Implicitly include reference to sub types of referenced type.
                             for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
