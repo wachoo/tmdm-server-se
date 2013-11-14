@@ -237,7 +237,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 containedField.getHideUsers(),
                 containedField.getWorkflowAccessRights(),
                 getPath(containedField));
-        newFlattenField.setData("SQL_DELETE_CASCADE", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+        newFlattenField.setData(MappingGenerator.SQL_DELETE_CASCADE, "true"); //$NON-NLS-1$
         currentType.peek().addField(newFlattenField);
         currentMapping.peek().map(containedField, newFlattenField);
         entityMapping.map(containedField, newFlattenField);

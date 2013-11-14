@@ -36,7 +36,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     public static final String DISCRIMINATOR_NAME = "x_talend_class"; //$NON-NLS-1$
 
-    private static final String SQL_DELETE_CASCADE = "SQL_DELETE_CASCADE"; //$NON-NLS-1$
+    public static final String SQL_DELETE_CASCADE = "SQL_DELETE_CASCADE"; //$NON-NLS-1$
 
     private static final Logger LOGGER = Logger.getLogger(MappingGenerator.class);
 
