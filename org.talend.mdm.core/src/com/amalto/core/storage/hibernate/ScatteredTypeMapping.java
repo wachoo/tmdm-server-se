@@ -227,7 +227,12 @@ class ScatteredTypeMapping extends TypeMapping {
                     } else {
                         List<Wrapper> wrapperList = (List<Wrapper>) value;
                         if (wrapperList != null) {
-                            List<Wrapper> fullList = getFullList((PersistentList) value);
+                            List<Wrapper> fullList;
+                            if (value instanceof PersistentList) {
+                                fullList = getFullList((PersistentList) value);
+                            } else {
+                                fullList = (List<Wrapper>) value;
+                            }
                             for (Wrapper wrapper : fullList) {
                                 if (wrapper != null) {
                                     TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
