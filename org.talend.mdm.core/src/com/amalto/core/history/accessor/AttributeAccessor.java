@@ -14,6 +14,7 @@ package com.amalto.core.history.accessor;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
+import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Attr;
@@ -70,9 +71,18 @@ class AttributeAccessor implements DOMAccessor {
 
     private Attr createAttribute(Node parentNode, Document domDocument) {
         // Ensure xsi prefix is declared
-        String xsi = domDocument.lookupNamespaceURI("xsi"); //$NON-NLS-1$
-        if (xsi == null) {
-            domDocument.getDocumentElement().setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);  //$NON-NLS-1$
+        if (attributeName.indexOf(':') > 0) {
+            String attributePrefix = StringUtils.substringBefore(attributeName, ":"); //$NON-NLS-1$
+            String namespaceURI = domDocument.lookupNamespaceURI(attributePrefix);
+            if (namespaceURI == null) {
+                if ("xsi".equals(attributePrefix)) { //$NON-NLS-1$
+                    domDocument.getDocumentElement().setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);  //$NON-NLS-1$
+                } else if ("tmdm".equals(attributePrefix)) { //$NON-NLS-1$
+                    domDocument.getDocumentElement().setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:tmdm", SkipAttributeDocumentBuilder.TALEND_NAMESPACE);  //$NON-NLS-1$
+                } else {
+                    throw new IllegalArgumentException("Unrecognized attribute prefix: '" + attributePrefix + "'.");
+                }
+            }
         }
         QName qName = getQName(domDocument);
         Attr newAttribute = domDocument.createAttributeNS(qName.getNamespaceURI(), qName.getLocalPart());
@@ -84,12 +94,11 @@ class AttributeAccessor implements DOMAccessor {
 
     private QName getQName(Document domDocument) {
         QName qName;
-        String attributeNamespaceURI = ""; //$NON-NLS-1$
         String prefix = StringUtils.substringBefore(attributeName, ":"); //$NON-NLS-1$
         String name = StringUtils.substringAfter(attributeName, ":"); //$NON-NLS-1$
         if (name.isEmpty()) {
             // No prefix (so prefix is attribute name due to substring calls).
-            attributeNamespaceURI = domDocument.getDocumentURI();
+            String attributeNamespaceURI = domDocument.getDocumentURI();
             if (attributeNamespaceURI == null || attributeNamespaceURI.isEmpty()) {
                 Node attributeNode = getAttributeNode(domDocument);
                 if (attributeNode != null) {
@@ -98,7 +107,7 @@ class AttributeAccessor implements DOMAccessor {
             }
             qName = new QName(attributeNamespaceURI,prefix);
         } else {
-            attributeNamespaceURI = domDocument.lookupNamespaceURI(prefix);
+            String attributeNamespaceURI = domDocument.lookupNamespaceURI(prefix);
             if (attributeNamespaceURI == null || attributeNamespaceURI.isEmpty()) {
                 Node attributeNode = getAttributeNode(domDocument);
                 if (attributeNode != null) {
