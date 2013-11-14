@@ -250,10 +250,10 @@ public class StorageQueryTest extends StorageTestCase {
                 qb = from(country);
                 storage.delete(qb.getSelect());
 
-                qb = from(e1);
+                qb = from(e2);
                 storage.delete(qb.getSelect());
 
-                qb = from(e2);
+                qb = from(e1);
                 storage.delete(qb.getSelect());
             }
             storage.commit();

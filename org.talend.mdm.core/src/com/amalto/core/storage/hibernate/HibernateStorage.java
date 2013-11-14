@@ -10,6 +10,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.integrity.ForeignKeyIntegrity;
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.optimization.*;
 import com.amalto.core.query.user.*;
@@ -19,6 +20,7 @@ import com.amalto.core.storage.transaction.TransactionManager;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Level;
 import org.hibernate.cfg.Environment;
+import org.hibernate.search.FullTextSession;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
@@ -756,6 +758,81 @@ public class HibernateStorage implements Storage {
         try {
             storageClassLoader.bind(Thread.currentThread());
             Session session = factory.getCurrentSession();
+            // Check if optimized delete for one type (and no filter) is applicable
+            if (userQuery instanceof Select) {
+                Select select = (Select) userQuery;
+                List<ComplexTypeMetadata> types = select.getTypes();
+                if (types.size() == 1 && select.getCondition() == null) {
+                    ComplexTypeMetadata mainType = types.get(0);
+                    TypeMapping mapping = mappingRepository.getMappingFromUser(mainType);
+                    // Compute (and eventually sort) types to delete
+                    List<ComplexTypeMetadata> typesToDelete;
+                    MetadataRepository internalRepository = typeMappingRepository.getInternalRepository();
+                    if (mapping instanceof ScatteredTypeMapping) {
+                        MetadataVisitor<List<ComplexTypeMetadata>> transitiveClosure = new TypeTransitiveClosure();
+                        typesToDelete = MetadataUtils.sortTypes(internalRepository, mapping.getDatabase().accept(transitiveClosure));
+                    } else {
+                        Collection<ComplexTypeMetadata> subTypes = mapping.getDatabase().getSubTypes();
+                        if (subTypes.isEmpty()) {
+                            typesToDelete = Collections.singletonList(mapping.getDatabase());
+                        } else {
+                            typesToDelete = new ArrayList<ComplexTypeMetadata>(subTypes.size() + 1);
+                            typesToDelete.add(mapping.getDatabase());
+                            typesToDelete.addAll(subTypes);
+                        }
+                    }
+                    for (ComplexTypeMetadata typeToDelete : typesToDelete) {
+                        Set<ReferenceFieldMetadata> references = internalRepository.accept(new ForeignKeyIntegrity(typeToDelete));
+                        // Empty values from intermediate tables to this non instantiable type and unset inbound references
+                        for (ReferenceFieldMetadata reference : references) {
+                            if (reference.isMany()) {
+                                String collectionTableName = reference.getContainingType().getName() + '_' + reference.getName() + '_' + reference.getReferencedType().getName();
+                                String formattedTableName = MappingGenerator.formatSQLName(collectionTableName.toUpperCase(), tableResolver.getNameMaxLength());
+                                session.createSQLQuery("delete from " + formattedTableName).executeUpdate(); //$NON-NLS-1$
+                            } else {
+                                String referenceTableName = MappingGenerator.formatSQLName(reference.getContainingType().getName().toUpperCase(), tableResolver.getNameMaxLength());
+                                List<String> fkColumnNames;
+                                if (reference.getReferencedField() instanceof CompoundFieldMetadata) {
+                                    FieldMetadata[] fields = ((CompoundFieldMetadata) reference.getReferencedField()).getFields();
+                                    fkColumnNames = new ArrayList<String>(fields.length);
+                                    for (FieldMetadata field : fields) {
+                                        fkColumnNames.add(reference.getName() + "_" + field.getName());
+                                    }
+                                } else {
+                                    fkColumnNames = Collections.singletonList(reference.getName() + "_" + reference.getReferencedField().getName());
+                                }
+                                for (String fkColumnName : fkColumnNames) {
+                                    session.createSQLQuery("update " + referenceTableName + " set " + fkColumnName + " = NULL").executeUpdate(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                }
+                            }
+                        }
+                        // Empty values in type isMany=true reference
+                        for (FieldMetadata field  : typeToDelete.getFields()) {
+                            if (field.isMany()) {
+                                if (field instanceof ReferenceFieldMetadata) {
+                                    String collectionTableName = typeToDelete.getName() + '_' + field.getName() + '_' + ((ReferenceFieldMetadata) field).getReferencedType().getName();
+                                    String formattedTableName = MappingGenerator.formatSQLName(collectionTableName.toUpperCase(), tableResolver.getNameMaxLength());
+                                    session.createSQLQuery("delete from " + formattedTableName).executeUpdate(); //$NON-NLS-1$
+                                } else if(field instanceof SimpleTypeFieldMetadata) {
+                                    String collectionTableName = typeToDelete.getName() + '_' + field.getName();
+                                    String formattedTableName = MappingGenerator.formatSQLName(collectionTableName.toUpperCase(), tableResolver.getNameMaxLength());
+                                    session.createSQLQuery("delete from " + formattedTableName).executeUpdate(); //$NON-NLS-1$
+                                }
+                            }
+                        }
+                        // Delete the type instances
+                        String className = storageClassLoader.getClassFromType(typeToDelete).getName();
+                        session.createQuery("delete from " + className).executeUpdate(); //$NON-NLS-1$
+                        // Clean up full text indexes
+                        if (dataSource.supportFullText()) {
+                            FullTextSession fullTextSession = Search.getFullTextSession(session);
+                            fullTextSession.purgeAll(storageClassLoader.getClassFromType(mapping.getDatabase()));
+                        }
+                    }
+                    return;
+                }
+            }
+            // Generic fall back for deletions (filter)
             if (userQuery instanceof Select) {
                 ((Select) userQuery).setForUpdate(true);
             }
@@ -1015,6 +1092,28 @@ public class HibernateStorage implements Storage {
     @Override
     public String toString() {
         return storageName + '(' + storageType + ')';
+    }
+
+    private static class TypeTransitiveClosure extends DefaultMetadataVisitor<List<ComplexTypeMetadata>> {
+
+        private final List<ComplexTypeMetadata> types = new LinkedList<ComplexTypeMetadata>();
+
+        @Override
+        public List<ComplexTypeMetadata> visit(ComplexTypeMetadata complexType) {
+            if (types.isEmpty() || !complexType.isInstantiable()) {
+                types.add(complexType);
+                types.addAll(complexType.getSubTypes());
+                super.visit(complexType);
+            }
+            return types;
+        }
+
+        @Override
+        public List<ComplexTypeMetadata> visit(ReferenceFieldMetadata referenceField) {
+            ComplexTypeMetadata referencedType = referenceField.getReferencedType();
+            referencedType.accept(this);
+            return types;
+        }
     }
 
 }

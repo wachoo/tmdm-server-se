@@ -97,7 +97,7 @@ public class InheritanceTest extends StorageTestCase {
 
     public void testTypeSubSetOrdering() throws Exception {
         // Test type list sort
-        ComplexTypeMetadata[] types = new ComplexTypeMetadata[] {
+        ComplexTypeMetadata[] types = new ComplexTypeMetadata[]{
                 repository.getComplexType("Address"),
                 repository.getComplexType("Country")
         };
@@ -109,16 +109,17 @@ public class InheritanceTest extends StorageTestCase {
             assertEquals(expectedOrder[i++], sortedType.getName());
         }
         // Test missing reference exception
-        types = new ComplexTypeMetadata[] {
+        types = new ComplexTypeMetadata[]{
                 repository.getComplexType("Address"),
                 repository.getComplexType("Country"),
                 repository.getComplexType("Product")
         };
-        try {
-            MetadataUtils.sortTypes(repository, Arrays.asList(types));
-            fail("Expected fail: Product has FK to types not in 'types' parameter.");
-        } catch (Exception e) {
-            // Expected
+        sortedList = MetadataUtils.sortTypes(repository, Arrays.asList(types));
+        // New order following XML schema library
+        expectedOrder = new String[] {"Country", "Address", "Product"};
+        i = 0;
+        for (ComplexTypeMetadata sortedType : sortedList) {
+            assertEquals(expectedOrder[i++], sortedType.getName());
         }
     }
 
