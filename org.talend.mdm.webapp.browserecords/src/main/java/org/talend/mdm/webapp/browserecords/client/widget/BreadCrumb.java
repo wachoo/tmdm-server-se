@@ -118,6 +118,7 @@ public class BreadCrumb extends Composite {
                 if (ids != null && ids.trim().length() > 0) { // Saved record
                     itemsDetailPanel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
                     itemsDetailPanel.addTabItem(itemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getIds());
+                    itemsDetailPanel.setTreeDetail(itemPanel.getTree());
                 } else { // Created record
                     List<String> pkInfoList = new ArrayList<String>();
                     pkInfoList.add(label);
@@ -128,6 +129,7 @@ public class BreadCrumb extends Composite {
                     itemsDetailPanel.initBreadCrumb(new BreadCrumb(breads, itemsDetailPanel));
                     itemsDetailPanel
                             .addTabItem(itemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getConcept());
+                    itemsDetailPanel.setTreeDetail(itemPanel.getTree());
                 }
 
                 // FK rendering
