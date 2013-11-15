@@ -20,6 +20,7 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.core.EDBType;
+import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
@@ -178,7 +179,12 @@ public class LoadServlet extends HttpServlet {
         int i = 0;
         for (FieldMetadata keyField : type.getKeyFields()) {
             fields[i] = keyField.getPath();
-            fieldTypes[i] = "xsd:" + keyField.getType().getName(); //$NON-NLS-1$
+            String name = keyField.getType().getName();
+            if (EUUIDCustomType.AUTO_INCREMENT.getName().equals(name) || EUUIDCustomType.UUID.getName().equals(name)) { // See TMDM-6687
+                fieldTypes[i] = name;
+            } else {
+                fieldTypes[i] = "xsd:" + name; //$NON-NLS-1$
+            }
             i++;
         }
         return new XSDKey(".", fields, fieldTypes);
