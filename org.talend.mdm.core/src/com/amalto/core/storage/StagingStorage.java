@@ -12,6 +12,7 @@
 package com.amalto.core.storage;
 
 import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
@@ -20,9 +21,13 @@ import com.amalto.core.storage.transaction.StorageTransaction;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.collections.iterators.TransformIterator;
 import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import java.util.*;
+
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 public class StagingStorage implements Storage {
 
@@ -104,9 +109,25 @@ public class StagingStorage implements Storage {
                 DataRecordMetadata metadata = dataRecord.getRecordMetadata();
                 Map<String, String> recordProperties = metadata.getRecordProperties();
                 // Update on a record in staging reset all its match&merge information.
-                StagingUpdateAction updateAction = updateActions.get(recordProperties.get(METADATA_STAGING_STATUS));
+                String status = recordProperties.get(METADATA_STAGING_STATUS);
+                StagingUpdateAction updateAction = updateActions.get(status);
                 if (updateAction == null) {
-                    updateAction = defaultUpdateAction; // Covers cases where update action isn't specified.
+                    // Try to re-read status from database
+                    if (status == null) {
+                        UserQueryBuilder readStatus = from(dataRecord.getType());
+                        for (FieldMetadata keyField : dataRecord.getType().getKeyFields()) {
+                            readStatus.where(eq(keyField, String.valueOf(dataRecord.get(keyField))));
+                        }
+                        StorageResults refreshedRecord = delegate.fetch(readStatus.getSelect());
+                        for (DataRecord record : refreshedRecord) {
+                            Map<String, String> refreshedProperties = record.getRecordMetadata().getRecordProperties();
+                            updateAction = updateActions.get(refreshedProperties.get(METADATA_STAGING_STATUS));
+                        }
+                    }
+                    // Database doesn't have any satisfying update action
+                    if (updateAction == null) {
+                        updateAction = defaultUpdateAction; // Covers cases where update action isn't specified.
+                    }
                 }
                 recordProperties.put(Storage.METADATA_STAGING_STATUS, updateAction.value());
                 recordProperties.put(Storage.METADATA_STAGING_ERROR, StringUtils.EMPTY);
