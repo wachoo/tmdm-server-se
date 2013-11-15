@@ -76,11 +76,10 @@ public class PagingToolBarEx extends PagingToolBar {
         sizeField.addListener(Events.Change, new Listener<BaseEvent>() {
 
             public void handleEvent(BaseEvent be) {
-                if (isFireKeyEnter && isBrowseRecordsGridCall) {
+                if (isFireKeyEnter) {
                     isFireKeyEnter = false;
                     return;
                 }
-                isFireKeyEnter = false;
                 if (isBrowseRecordsGridCall) {
                     Cookies.setCookie(BROWSERECORD_PAGESIZE, String.valueOf(sizeField.getValue().intValue()));
                 }
