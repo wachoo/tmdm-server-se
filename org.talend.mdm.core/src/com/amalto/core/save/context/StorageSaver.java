@@ -19,6 +19,7 @@ import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -37,7 +38,7 @@ public class StorageSaver extends AbstractDocumentSaverContext {
 
     private boolean hasMetAutoIncrement;
 
-    private String taskId;
+    private String taskId = StringUtils.EMPTY;
 
     private UserAction userAction;
 

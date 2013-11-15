@@ -48,6 +48,7 @@ public class StorageDocument implements MutableDocument {
         this.dataModelName = dataModelName;
         this.repository = repository;
         this.dataRecord = dataRecord;
+        this.taskId = dataRecord.getRecordMetadata().getTaskId();
     }
 
     @Override

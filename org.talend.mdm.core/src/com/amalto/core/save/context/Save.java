@@ -36,7 +36,9 @@ class Save implements DocumentSaver {
             throw new IllegalStateException("No ID information to save instance of '" + typeName + "'");
         }
         MutableDocument databaseDocument = context.getDatabaseDocument();
-        databaseDocument.setTaskId(context.getTaskId());
+        if (!StringUtils.EMPTY.equals(context.getTaskId())) {
+            databaseDocument.setTaskId(context.getTaskId());
+        }
         session.save(context.getDataCluster(), databaseDocument, context.hasMetAutoIncrement());
         context.getAutoIncrementFieldMap().clear(); // Removes generated auto_inc in this save.
         // Save update report (if any)
