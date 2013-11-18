@@ -54,7 +54,7 @@ public class DownloadData extends HttpServlet {
     
     protected String fileName = ""; //$NON-NLS-1$
     
-    private String multipleValueSeperator = null;
+    private String multipleValueSeparator = null;
     
     protected String dataCluster = ""; //$NON-NLS-1$
     
@@ -135,7 +135,7 @@ public class DownloadData extends HttpServlet {
         criteria = request.getParameter("criteria"); //$NON-NLS-1$
         language = request.getParameter("language"); //$NON-NLS-1$
         fkDisplay = request.getParameter("fkDisplay"); //$NON-NLS-1$
-        multipleValueSeperator = request.getParameter("multipleValueSeperator"); //$NON-NLS-1$
+        multipleValueSeparator = request.getParameter("multipleValueSeparator"); //$NON-NLS-1$
         
         if (request.getParameter("itemIdsListString") != null && !request.getParameter("itemIdsListString").isEmpty()) { //$NON-NLS-1$ //$NON-NLS-2$
             idsList = org.talend.mdm.webapp.base.shared.util.CommonUtil.convertStrigToList(request.getParameter("itemIdsListString"), Constants.FILE_EXPORT_IMPORT_SEPARATOR); //$NON-NLS-1$
@@ -237,7 +237,7 @@ public class DownloadData extends HttpServlet {
             return ""; //$NON-NLS-1$
         } else {
             if (valueList.size() > 1) {
-                return CommonUtil.joinStrings(valueList,multipleValueSeperator);
+                return CommonUtil.joinStrings(valueList,multipleValueSeparator);
             } else {
                 return valueList.get(0);
             }

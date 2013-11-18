@@ -58,7 +58,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
     private FileUploadField file;
     
-    private TextField<String> multipleValueSeperatorField; 
+    private TextField<String> multipleValueSeparatorField; 
 
     private CheckBox headerLine;
 
@@ -204,11 +204,12 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         });
         this.add(file);
         
-        multipleValueSeperatorField = new TextField<String>();
-        multipleValueSeperatorField.setId("multipleValueSeperator"); //$NON-NLS-1$
-        multipleValueSeperatorField.setName("multipleValueSeperator"); //$NON-NLS-1$
-        multipleValueSeperatorField.setFieldLabel(MessagesFactory.getMessages().multiple_value_separator_field_label());
-        this.add(multipleValueSeperatorField);
+        multipleValueSeparatorField = new TextField<String>();
+        multipleValueSeparatorField.setId("multipleValueSeparator"); //$NON-NLS-1$
+        multipleValueSeparatorField.setName("multipleValueSeparator"); //$NON-NLS-1$
+        multipleValueSeparatorField.setFieldLabel(MessagesFactory.getMessages().multiple_value_separator_field_label());
+        multipleValueSeparatorField.setValue("|"); //$NON-NLS-1$
+        this.add(multipleValueSeparatorField);
 
         List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
         ItemBaseModel excel = new ItemBaseModel();

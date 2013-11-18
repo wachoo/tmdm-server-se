@@ -60,7 +60,7 @@ public class DownloadFilePanel extends FormPanel {
 
     private TextField<String> fileName;
     
-    private TextField<String> multipleValueSeperatorField;
+    private TextField<String> multipleValueSeparatorField;
 
     private CheckBox fkResovled;
 
@@ -90,11 +90,12 @@ public class DownloadFilePanel extends FormPanel {
         fileName.setValue(viewBean.getBindingEntityModel().getConceptName());
         this.add(fileName, new FormData("90%")); //$NON-NLS-1$
         
-        multipleValueSeperatorField = new TextField<String>();
-        multipleValueSeperatorField.setId("multipleValueSeperator"); //$NON-NLS-1$
-        multipleValueSeperatorField.setName("multipleValueSeperator"); //$NON-NLS-1$
-        multipleValueSeperatorField.setFieldLabel(MessagesFactory.getMessages().multiple_value_separator_field_label());
-        this.add(multipleValueSeperatorField, new FormData("67.3%")); //$NON-NLS-1$
+        multipleValueSeparatorField = new TextField<String>();
+        multipleValueSeparatorField.setId("multipleValueSeparator"); //$NON-NLS-1$
+        multipleValueSeparatorField.setName("multipleValueSeparator"); //$NON-NLS-1$
+        multipleValueSeparatorField.setFieldLabel(MessagesFactory.getMessages().multiple_value_separator_field_label());
+        multipleValueSeparatorField.setValue("|"); //$NON-NLS-1$
+        this.add(multipleValueSeparatorField, new FormData("67.3%")); //$NON-NLS-1$
 
         fkResovled = new CheckBox();
         fkResovled.setFieldLabel(MessagesFactory.getMessages().fkinfo_display_label());
@@ -253,7 +254,7 @@ public class DownloadFilePanel extends FormPanel {
         queryModel.getLanguage();
 
         param.put("fileName", fileName.getValue()); //$NON-NLS-1$
-        param.put("multipleValueSeperator", multipleValueSeperatorField.getValue()); //$NON-NLS-1$
+        param.put("multipleValueSeparator", multipleValueSeparatorField.getValue()); //$NON-NLS-1$
         param.put("fkResovled", fkResovled.getValue().toString()); //$NON-NLS-1$
         param.put("fkDisplay", fkDisplayCombo.getValue().get("key").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         param.put("tableName", viewBean.getViewPK()); //$NON-NLS-1$
