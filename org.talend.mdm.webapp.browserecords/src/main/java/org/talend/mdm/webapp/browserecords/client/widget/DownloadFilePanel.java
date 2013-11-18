@@ -56,10 +56,10 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
  * DOC Administrator class global comment. Detailled comment
  */
 public class DownloadFilePanel extends FormPanel {
-    
+
     private TextField<String> fileName;
-    
-    private TextField<String> multipleValueSeperatorField;
+
+    private TextField<String> multipleValueSeparatorField;
 
     private CheckBox fkResovled;
 
@@ -72,10 +72,10 @@ public class DownloadFilePanel extends FormPanel {
     private Window window;
 
     private ViewBean viewBean = null;
-    
-    private Map<String,List<String>> inheritanceNodeMap = null;
 
-    public DownloadFilePanel(ViewBean viewBean,QueryModel queryModel, Window window) {
+    private Map<String, List<String>> inheritanceNodeMap = null;
+
+    public DownloadFilePanel(ViewBean viewBean, QueryModel queryModel, Window window) {
         this.viewBean = viewBean;
         this.queryModel = queryModel;
         this.window = window;
@@ -89,18 +89,20 @@ public class DownloadFilePanel extends FormPanel {
         fileName.setAllowBlank(false);
         fileName.setValue(viewBean.getBindingEntityModel().getConceptName());
         this.add(fileName, new FormData("90%")); //$NON-NLS-1$
-        
-        multipleValueSeperatorField = new TextField<String>();
-        multipleValueSeperatorField.setId("multipleValueSeperator"); //$NON-NLS-1$
-        multipleValueSeperatorField.setName("multipleValueSeperator"); //$NON-NLS-1$
-        multipleValueSeperatorField.setFieldLabel(MessagesFactory.getMessages().multiple_value_separator_field_label());
-        this.add(multipleValueSeperatorField, new FormData("67.3%")); //$NON-NLS-1$
+
+        multipleValueSeparatorField = new TextField<String>();
+        multipleValueSeparatorField.setId("multipleValueSeparator"); //$NON-NLS-1$
+        multipleValueSeparatorField.setName("multipleValueSeparator"); //$NON-NLS-1$
+        multipleValueSeparatorField.setFieldLabel(MessagesFactory.getMessages().multiple_value_separator_field_label());
+        multipleValueSeparatorField.setValue("|"); //$NON-NLS-1$
+        this.add(multipleValueSeparatorField, new FormData("67.3%")); //$NON-NLS-1$
 
         fkResovled = new CheckBox();
         fkResovled.setFieldLabel(MessagesFactory.getMessages().fkinfo_display_label());
         fkResovled.setLabelStyle("width:90px"); //$NON-NLS-1$
         fkResovled.addListener(Events.Change, new Listener<BaseEvent>() {
 
+            @Override
             public void handleEvent(BaseEvent be) {
                 if (fkResovled.getValue().booleanValue()) {
                     fkDisplayCombo.setEnabled(true);
@@ -151,8 +153,8 @@ public class DownloadFilePanel extends FormPanel {
                     final Map<String, String> param = buildExportParameter();
                     if (inheritanceNodeMap.keySet().size() > 0) {
                         StringBuilder errorMessage = new StringBuilder();
-                         Set<Entry<String, List<String>>> entrySet = inheritanceNodeMap.entrySet();
-                         for (Entry<String, List<String>> entry : entrySet) {
+                        Set<Entry<String, List<String>>> entrySet = inheritanceNodeMap.entrySet();
+                        for (Entry<String, List<String>> entry : entrySet) {
                             List<String> xpathList = entry.getValue();
                             for (String xpath : xpathList) {
                                 errorMessage.append(entry.getKey());
@@ -161,18 +163,20 @@ public class DownloadFilePanel extends FormPanel {
                                 errorMessage.append("\r\n"); //$NON-NLS-1$
                             }
                         }
-                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages().missing_attribute(errorMessage.toString()), new Listener<MessageBoxEvent>() {
+                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                .missing_attribute(errorMessage.toString()), new Listener<MessageBoxEvent>() {
 
                             @Override
                             public void handleEvent(MessageBoxEvent be) {
                                 PostDataUtil.postData(getActionUrl(), param);
-                            }                        
+                            }
                         });
                     } else {
-                        PostDataUtil.postData(getActionUrl(), param);                     
+                        PostDataUtil.postData(getActionUrl(), param);
                     }
                 } catch (Exception e) {
-                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().export_error(), null);
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().export_error(),
+                            null);
                 }
                 DownloadFilePanel.this.window.hide();
             }
@@ -186,7 +190,7 @@ public class DownloadFilePanel extends FormPanel {
         EntityModel entityModel = viewBean.getBindingEntityModel();
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
         List<String> inheritanceNodePathList = CommonUtil.findInheritanceNodePath(entityModel);
-        inheritanceNodeMap = new HashMap<String, List<String>>(); 
+        inheritanceNodeMap = new HashMap<String, List<String>>();
         List<String> xsiTypeList = new LinkedList<String>();
         List<String> headerList = new ArrayList<String>();
         List<String> xPathList = new ArrayList<String>();
@@ -207,10 +211,10 @@ public class DownloadFilePanel extends FormPanel {
                             inheritanceNodeMap.put(xsiType, subPathList);
                         } else {
                             inheritanceNodeMap.get(xsiType).add(xpath);
-                        } 
+                        }
                     }
                 }
-            }  
+            }
             xPathList.add(xpath);
             TypeModel typeModel = dataTypes.get(xpath);
             if (typeModel != null) {
@@ -229,10 +233,10 @@ public class DownloadFilePanel extends FormPanel {
                 }
             }
         }
-        
+
         for (String xsiType : xsiTypeList) {
             inheritanceNodeMap.remove(xsiType);
-        }       
+        }
 
         List<String> selectItemIdsList = new ArrayList<String>();
         Grid<ItemBean> grid = ItemsListPanel.getInstance().getGrid();
@@ -250,7 +254,7 @@ public class DownloadFilePanel extends FormPanel {
         queryModel.getLanguage();
 
         param.put("fileName", fileName.getValue()); //$NON-NLS-1$
-        param.put("multipleValueSeperator", multipleValueSeperatorField.getValue()); //$NON-NLS-1$
+        param.put("multipleValueSeparator", multipleValueSeparatorField.getValue()); //$NON-NLS-1$
         param.put("fkResovled", fkResovled.getValue().toString()); //$NON-NLS-1$
         param.put("fkDisplay", fkDisplayCombo.getValue().get("key").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         param.put("tableName", viewBean.getViewPK()); //$NON-NLS-1$
@@ -259,9 +263,10 @@ public class DownloadFilePanel extends FormPanel {
         param.put("fkColXPath", CommonUtil.convertList2Xml(fkColXPathList, "fkColXPath")); //$NON-NLS-1$ //$NON-NLS-2$
         param.put("fkInfo", CommonUtil.convertList2Xml(fkInfoList, "fkInfo")); //$NON-NLS-1$ //$NON-NLS-2$
         if (selectItemIdsList.size() > 0) {
-            param.put("itemIdsListString",org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(selectItemIdsList, Constants.FILE_EXPORT_IMPORT_SEPARATOR));  //$NON-NLS-1$
+            param.put(
+                    "itemIdsListString", org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(selectItemIdsList, Constants.FILE_EXPORT_IMPORT_SEPARATOR)); //$NON-NLS-1$
         } else {
-            param.put("itemIdsListString","");  //$NON-NLS-1$//$NON-NLS-2$
+            param.put("itemIdsListString", ""); //$NON-NLS-1$//$NON-NLS-2$
         }
         param.put("dataCluster", queryModel.getDataClusterPK()); //$NON-NLS-1$
         param.put("criteria", queryModel.getCriteria()); //$NON-NLS-1$
@@ -298,7 +303,7 @@ public class DownloadFilePanel extends FormPanel {
         param.put("limit", Integer.toString(pagingLoad.getLimit())); //$NON-NLS-1$
         return param;
     }
-    
+
     protected String getActionUrl() {
         return "/browserecords/download"; //$NON-NLS-1$
     }

@@ -113,7 +113,7 @@ public class UploadData extends HttpServlet {
     
     private String mandatoryField = ""; //$NON-NLS-1$
     
-    private String multipleValueSeperator = null;
+    private String multipleValueSeparator = null;
     
     private Locale locale = null;
     
@@ -193,8 +193,8 @@ public class UploadData extends HttpServlet {
                 else if (name.equals("headersOnFirstLine")) { //$NON-NLS-1$
                     headersOnFirstLine = "on".equals(item.getString());//$NON-NLS-1$
                 }
-                else if (name.equals("multipleValueSeperator")) { //$NON-NLS-1$
-                    multipleValueSeperator = item.getString();
+                else if (name.equals("multipleValueSeparator")) { //$NON-NLS-1$
+                    multipleValueSeparator = item.getString();
                 }
             } else {
                 fileType = FileUtil.getFileType(item.getName());
@@ -506,8 +506,8 @@ public class UploadData extends HttpServlet {
                 currentElement = currentElement.element(xpathPartArray[i]);
                 if (i == xpathPartArray.length -1) {
                     if (fieldValue != null && !fieldValue.isEmpty()) {
-                        if (multipleValueSeperator != null && !multipleValueSeperator.isEmpty() && fieldValue.contains(multipleValueSeperator)) {
-                            List<String> valueList = CommonUtil.splitString(fieldValue, multipleValueSeperator);
+                        if (multipleValueSeparator != null && !multipleValueSeparator.isEmpty() && fieldValue.contains(multipleValueSeparator)) {
+                            List<String> valueList = CommonUtil.splitString(fieldValue, multipleValueSeparator);
                             for (int j = 0; j < valueList.size(); j++) {
                                 List<Element> contentList = currentElement.getParent().content();
                                 Element copyElement = currentElement.createCopy();

@@ -44,6 +44,7 @@ import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+
 /**
  * DOC Administrator class global comment. Detailled comment
  */
@@ -56,11 +57,11 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     private ComboBox<ItemBaseModel> encodingCombo;
 
     private FileUploadField file;
-    
-    private TextField<String> multipleValueSeperatorField; 
+
+    private TextField<String> multipleValueSeparatorField;
 
     private CheckBox headerLine;
-    
+
     private HiddenField<String> clusterField;
 
     private HiddenField<String> conceptField;
@@ -82,10 +83,10 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     private ViewBean viewBean;
 
     private Window window;
-    
+
     private String dataCluster;
 
-    public UploadFileFormPanel(String dataCluster,ViewBean viewBean, Window window) {
+    public UploadFileFormPanel(String dataCluster, ViewBean viewBean, Window window) {
         this.dataCluster = dataCluster;
         this.viewBean = viewBean;
         this.window = window;
@@ -113,13 +114,15 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
             if (!headerStringBuilder.toString().isEmpty()) {
                 headerStringBuilder.append(Constants.FILE_EXPORT_IMPORT_SEPARATOR);
             }
-            headerStringBuilder.append(org.talend.mdm.webapp.base.shared.util.CommonUtil.escape(viewableXpath + Constants.HEADER_VISIBILITY_SEPARATOR + typeModel.isVisible()));
+            headerStringBuilder.append(org.talend.mdm.webapp.base.shared.util.CommonUtil.escape(viewableXpath
+                    + Constants.HEADER_VISIBILITY_SEPARATOR + typeModel.isVisible()));
         }
         return headerStringBuilder.toString();
     }
-    
+
     protected String getViewableXpathString() {
-        return org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(viewBean.getViewableXpaths(), Constants.FILE_EXPORT_IMPORT_SEPARATOR);
+        return org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(viewBean.getViewableXpaths(),
+                Constants.FILE_EXPORT_IMPORT_SEPARATOR);
     }
 
     private String getMandatoryStr() {
@@ -143,12 +146,12 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     }
 
     private void renderForm() {
-        
+
         clusterField = new HiddenField<String>();
         clusterField.setName("cluster"); //$NON-NLS-1$
         clusterField.setValue(dataCluster);
         this.add(clusterField);
-        
+
         conceptField = new HiddenField<String>();
         conceptField.setName("concept");//$NON-NLS-1$
         conceptField.setValue(viewBean.getBindingEntityModel().getConceptName());
@@ -173,10 +176,12 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         viewableXpathField.setName("viewableXpath");//$NON-NLS-1$
         viewableXpathField.setValue(getViewableXpathString());
         this.add(viewableXpathField);
-        
+
         inheritanceNodePath = new HiddenField<String>();
         inheritanceNodePath.setName("inheritanceNodePath");//$NON-NLS-1$
-        inheritanceNodePath.setValue(org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(org.talend.mdm.webapp.browserecords.client.util.CommonUtil.findInheritanceNodePath(viewBean.getBindingEntityModel()), Constants.FILE_EXPORT_IMPORT_SEPARATOR));
+        inheritanceNodePath.setValue(org.talend.mdm.webapp.base.shared.util.CommonUtil.convertListToString(
+                org.talend.mdm.webapp.browserecords.client.util.CommonUtil.findInheritanceNodePath(viewBean
+                        .getBindingEntityModel()), Constants.FILE_EXPORT_IMPORT_SEPARATOR));
         this.add(inheritanceNodePath);
 
         file = new FileUploadField();
@@ -212,12 +217,13 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
             }
         });
         this.add(file);
-        
-        multipleValueSeperatorField = new TextField<String>();
-        multipleValueSeperatorField.setId("multipleValueSeperator"); //$NON-NLS-1$
-        multipleValueSeperatorField.setName("multipleValueSeperator"); //$NON-NLS-1$
-        multipleValueSeperatorField.setFieldLabel(MessagesFactory.getMessages().multiple_value_separator_field_label());
-        this.add(multipleValueSeperatorField);
+
+        multipleValueSeparatorField = new TextField<String>();
+        multipleValueSeparatorField.setId("multipleValueSeparator"); //$NON-NLS-1$
+        multipleValueSeparatorField.setName("multipleValueSeparator"); //$NON-NLS-1$
+        multipleValueSeparatorField.setFieldLabel(MessagesFactory.getMessages().multiple_value_separator_field_label());
+        multipleValueSeparatorField.setValue("|"); //$NON-NLS-1$
+        this.add(multipleValueSeparatorField);
 
         List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
         ItemBaseModel excel = new ItemBaseModel();
@@ -390,7 +396,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
         return errMsg;
     }
-    
+
     protected String getActionUrl() {
         return "/browserecords/upload"; //$NON-NLS-1$
     }
