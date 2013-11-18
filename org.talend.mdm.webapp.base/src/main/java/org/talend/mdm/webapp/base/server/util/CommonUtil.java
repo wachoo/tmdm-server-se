@@ -19,6 +19,7 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
@@ -91,12 +92,12 @@ public class CommonUtil {
         return res;
     }
     
-    public static List<String> splitString(String valueString,String separator) {
+    public static List<String> splitString(String valueString, char separator) {
         if (valueString == null || valueString.isEmpty()) {
             return null;
         }
         List<String> valueList = new ArrayList<String>();
-        String[] valueArray = valueString.split(separator);
+        String[] valueArray = StringUtils.split(valueString, separator);
         for (String value : valueArray) {
             valueList.add(value);
         }

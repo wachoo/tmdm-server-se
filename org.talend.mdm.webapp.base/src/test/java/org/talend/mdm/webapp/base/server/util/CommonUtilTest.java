@@ -335,4 +335,25 @@ public class CommonUtilTest extends TestCase {
         assertEquals("1", id[0]);
         assertEquals("2", id[1]);        
     }
+
+    public void testSplitString() {
+        String s = "Small;Medium;Large";
+        List<String> result = CommonUtil.splitString(s, ';');
+        assertEquals(3, result.size());
+        assertTrue(result.contains("Small"));
+        assertTrue(result.contains("Medium"));
+        assertTrue(result.contains("Large"));
+        result = CommonUtil.splitString(s, '|');
+        assertEquals(1, result.size());
+        assertEquals(s, result.get(0));
+
+        s = "Small|Medium|Large";
+        result = CommonUtil.splitString(s, '|');
+        assertEquals(3, result.size());
+        assertTrue(result.contains("Small"));
+        assertTrue(result.contains("Medium"));
+        assertTrue(result.contains("Large"));
+        result = CommonUtil.splitString(s, ';');
+        assertEquals(1, result.size());
+        assertEquals(s, result.get(0));
 }
