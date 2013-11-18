@@ -681,6 +681,7 @@ public class HibernateStorage implements Storage {
             LOGGER.error("Can not reindex storage '" + storageName + "': datasource '" + dataSource.getName() + "' does not support full text.");
             return;
         }
+        LOGGER.info("Reindexing full-text for " + storageName + "...");
         Session session = factory.getCurrentSession();
         MassIndexer indexer = Search.getFullTextSession(session).createIndexer();
         indexer.optimizeOnFinish(true);
@@ -692,6 +693,8 @@ public class HibernateStorage implements Storage {
             indexer.startAndWait();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
+        } finally {
+            LOGGER.info("Reindexing done.");
         }
     }
 
