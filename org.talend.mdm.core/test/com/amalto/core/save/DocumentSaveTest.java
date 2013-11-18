@@ -2496,7 +2496,7 @@ public class DocumentSaveTest extends TestCase {
         }
 
         @Override
-        public MutableDocument get(String dataClusterName, String typeName, String revisionId, String[] key) {
+        public MutableDocument get(String dataClusterName, String dataModelName, String typeName, String revisionId, String[] key) {
             try {
                 ComplexTypeMetadata type = repository.getComplexType(typeName);
                 DocumentBuilder documentBuilder;
@@ -2532,7 +2532,7 @@ public class DocumentSaveTest extends TestCase {
         }
 
         @Override
-        public boolean exist(String dataCluster, String typeName, String revisionId, String[] key) {
+        public boolean exist(String dataCluster, String dataModelName, String typeName, String revisionId, String[] key) {
             return exist;
         }
 

@@ -94,7 +94,7 @@ public class DefaultSaverSource implements SaverSource {
         }
     }
 
-    public MutableDocument get(String dataClusterName, String typeName, String revisionId, String[] key) {
+    public MutableDocument get(String dataClusterName, String dataModelName, String typeName, String revisionId, String[] key) {
         try {
             StringBuilder builder = new StringBuilder();
             builder.append(dataClusterName).append('.').append(typeName).append('.');
@@ -111,10 +111,10 @@ public class DefaultSaverSource implements SaverSource {
             }
             DocumentBuilder documentBuilder;
             documentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOCUMENT_BUILDER, false);
-            ComplexTypeMetadata type = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(dataClusterName).getComplexType(typeName);
+            ComplexTypeMetadata type = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(dataModelName).getComplexType(typeName);
             Document databaseDomDocument = documentBuilder.parse(new ByteArrayInputStream(documentAsString.getBytes("UTF-8")));
             Element userXmlElement = getUserXmlElement(databaseDomDocument);
-            return new DOMDocument(userXmlElement, type, revisionId, dataClusterName, dataClusterName);
+            return new DOMDocument(userXmlElement, type, revisionId, dataClusterName, dataModelName);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -141,8 +141,8 @@ public class DefaultSaverSource implements SaverSource {
         throw new IllegalStateException("Element 'p' is expected to have an XML element as child.");
     }
 
-    public boolean exist(String dataCluster, String typeName, String revisionId, String[] key) {
-        return get(dataCluster, typeName, revisionId, key) != null;
+    public boolean exist(String dataCluster, String dataModelName, String typeName, String revisionId, String[] key) {
+        return get(dataCluster, dataModelName, typeName, revisionId, key) != null;
     }
 
     public MetadataRepository getMetadataRepository(String dataModelName) {

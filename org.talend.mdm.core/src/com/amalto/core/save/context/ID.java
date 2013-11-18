@@ -46,6 +46,7 @@ class ID implements DocumentSaver {
         Collection<FieldMetadata> keyFields = type.getKeyFields();
         SaverSource database = session.getSaverSource();
         String dataCluster = context.getDataCluster();
+        String dataModelName = context.getDataModelName();
         MutableDocument userDocument = context.getUserDocument();
         String typeName = type.getName();
         for (FieldMetadata keyField : keyFields) {
@@ -80,12 +81,12 @@ class ID implements DocumentSaver {
         // now has an id, so load database document
         String[] xmlDocumentId = ids.toArray(new String[ids.size()]);
         String revisionID = context.getRevisionID();
-        if (xmlDocumentId.length > 0 && database.exist(dataCluster, typeName, revisionID, xmlDocumentId)) {
+        if (xmlDocumentId.length > 0 && database.exist(dataCluster, dataModelName, typeName, revisionID, xmlDocumentId)) {
             if (context.getUserAction() == UserAction.AUTO) {
                 context.setUserAction(UserAction.UPDATE);
             }
             context.setId(xmlDocumentId);
-            context.setDatabaseDocument(database.get(dataCluster, typeName, revisionID, xmlDocumentId));
+            context.setDatabaseDocument(database.get(dataCluster, dataModelName, typeName, revisionID, xmlDocumentId));
         } else {
             // Throw an exception if trying to update a document that does not exist.
             switch (context.getUserAction()) {

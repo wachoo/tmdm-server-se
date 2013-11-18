@@ -75,7 +75,7 @@ public class StorageSaverSource implements SaverSource {
     }
 
     @Override
-    public MutableDocument get(String dataClusterName, String typeName, String revisionId, String[] key) {
+    public MutableDocument get(String dataClusterName, String dataModelName, String typeName, String revisionId, String[] key) {
         Storage storage = getStorage(dataClusterName, revisionId);
         StorageResults results = storage.fetch(buildQueryByID(storage, typeName, key));
         try {
@@ -97,7 +97,7 @@ public class StorageSaverSource implements SaverSource {
     }
 
     @Override
-    public boolean exist(String dataCluster, String typeName, String revisionId, String[] key) {
+    public boolean exist(String dataCluster, String dataModelName, String typeName, String revisionId, String[] key) {
         Storage storage = getStorage(dataCluster, revisionId);
         if (storage == null) {
             return false;
