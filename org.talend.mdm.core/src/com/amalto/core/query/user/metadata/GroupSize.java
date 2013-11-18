@@ -23,9 +23,9 @@ public class GroupSize implements TypedExpression, MetadataField {
 
     public static final GroupSize INSTANCE = new GroupSize();
 
-    public static final String GROUP_SIZE_ALIAS = "group_size"; //$NON-NLS-1$
+    public static final String GROUP_SIZE_ALIAS = "staging_group_size"; //$NON-NLS-1$
 
-    private static final String[] GROUP_SIZE_FIELD = new String[]{"metadata:group_size"}; //$NON-NLS-1$
+    private static final String[] GROUP_SIZE_FIELD = new String[]{"metadata:staging_group_size"}; //$NON-NLS-1$
 
     private GroupSize() {
     }
