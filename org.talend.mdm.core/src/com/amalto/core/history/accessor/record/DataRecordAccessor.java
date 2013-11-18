@@ -29,6 +29,8 @@ public class DataRecordAccessor implements Accessor {
 
     private LinkedList<PathElement> pathElements = null;
 
+    private Boolean cachedExist;
+
     public DataRecordAccessor(MetadataRepository repository, DataRecord dataRecord, String path) {
         this.repository = repository;
         this.dataRecord = dataRecord;
@@ -98,35 +100,39 @@ public class DataRecordAccessor implements Accessor {
 
     @Override
     public void set(String value) {
-        initPath();
-        DataRecord current = dataRecord;
-        ListIterator<PathElement> listIterator = pathElements.listIterator();
-        PathElement pathElement = null;
-        while (listIterator.hasNext()) {
-            pathElement = listIterator.next();
-            if (!listIterator.hasNext()) {
-                break;
+        try {
+            initPath();
+            DataRecord current = dataRecord;
+            ListIterator<PathElement> listIterator = pathElements.listIterator();
+            PathElement pathElement = null;
+            while (listIterator.hasNext()) {
+                pathElement = listIterator.next();
+                if (!listIterator.hasNext()) {
+                    break;
+                }
+                if (!pathElement.field.isMany()) {
+                    if (pathElement.field instanceof ContainedTypeFieldMetadata) {
+                        current = (DataRecord) current.get(pathElement.field);
+                    }
+                } else {
+                    List<Object> list = (List) current.get(pathElement.field);
+                    if (list == null) {
+                        list = new ArrayList<Object>();
+                        current.set(pathElement.field, list);
+                    }
+                    while (pathElement.index > list.size() - 1) { // Expand list size
+                        list.add(null);
+                    }
+                    if (pathElement.field instanceof ContainedTypeFieldMetadata) {
+                        current = (DataRecord) ((List) current.get(pathElement.field)).get(pathElement.index);
+                    }
+                }
             }
-            if (!pathElement.field.isMany()) {
-                if (pathElement.field instanceof ContainedTypeFieldMetadata) {
-                    current = (DataRecord) current.get(pathElement.field);
-                }
-            } else {
-                List<Object> list = (List) current.get(pathElement.field);
-                if (list == null) {
-                    list = new ArrayList<Object>();
-                    current.set(pathElement.field, list);
-                }
-                while (pathElement.index > list.size() - 1) { // Expand list size
-                    list.add(null);
-                }
-                if (pathElement.field instanceof ContainedTypeFieldMetadata) {
-                    current = (DataRecord) ((List) current.get(pathElement.field)).get(pathElement.index);
-                }
+            if (pathElement != null) {
+                pathElement.setter.set(repository, current, pathElement, value);
             }
-        }
-        if (pathElement != null) {
-            pathElement.setter.set(repository, current, pathElement, value);
+        } finally {
+            cachedExist = true;
         }
     }
 
@@ -172,92 +178,100 @@ public class DataRecordAccessor implements Accessor {
 
     @Override
     public void create() {
-        StringTokenizer tokenizer = new StringTokenizer(path, "/"); //$NON-NLS-1$
-        DataRecord current = dataRecord;
-        while (tokenizer.hasMoreElements()) {
-            String element = tokenizer.nextToken();
-            if (element.indexOf('@') < 0) {
-                if (current == null) {
-                    throw new IllegalStateException(); // TODO Message
-                }
-                if (element.indexOf('[') > 0) {
-                    FieldMetadata field = current.getType().getField(StringUtils.substringBefore(element, "[")); //$NON-NLS-1$
-                    if (!field.isMany()) {
-                        throw new IllegalStateException("Expected a repeatable field for '" + element + "' in path '" + path + "'.");
+        try {
+            StringTokenizer tokenizer = new StringTokenizer(path, "/"); //$NON-NLS-1$
+            DataRecord current = dataRecord;
+            while (tokenizer.hasMoreElements()) {
+                String element = tokenizer.nextToken();
+                if (element.indexOf('@') < 0) {
+                    if (current == null) {
+                        throw new IllegalStateException(); // TODO Message
                     }
-                    int indexStart = element.indexOf('[');
-                    int indexEnd = element.indexOf(']');
-                    if (indexStart < 0 || indexEnd < 0) {
-                        throw new RuntimeException("Field name '" + element + "' did not match many field pattern in path '" + path + "'.");
-                    }
-                    int index = Integer.parseInt(element.substring(indexStart + 1, indexEnd)) - 1;
-                    List list = (List) current.get(field);
-                    boolean newList = list == null;
-                    if (newList) {
-                        list = new LinkedList();
-                    }
-                    while (index >= list.size()) {
-                        if (field instanceof ContainedTypeFieldMetadata) {
-                            DataRecord record = new DataRecord((ComplexTypeMetadata) field.getType(), UnsupportedDataRecordMetadata.INSTANCE);
-                            list.add(record);
-                        } else if(field instanceof ReferenceFieldMetadata) {
-                            DataRecord record = new DataRecord(((ReferenceFieldMetadata) field).getReferencedType(), UnsupportedDataRecordMetadata.INSTANCE);
-                            list.add(record);
-                        } else {
-                            list.add(null);
+                    if (element.indexOf('[') > 0) {
+                        FieldMetadata field = current.getType().getField(StringUtils.substringBefore(element, "[")); //$NON-NLS-1$
+                        if (!field.isMany()) {
+                            throw new IllegalStateException("Expected a repeatable field for '" + element + "' in path '" + path + "'.");
                         }
-                    }
-                    if (newList) {
-                        current.set(field, list);
-                    }
-                    Object value = list.get(index);
-                    if (value instanceof DataRecord) {
-                        current = (DataRecord) value;
-                    }
-                } else {
-                    FieldMetadata field = current.getType().getField(element);
-                    if (field instanceof ContainedTypeFieldMetadata) {
-                        Object value = current.get(field);
-                        if(value == null) {
-                            DataRecord record = new DataRecord(((ContainedTypeFieldMetadata) field).getContainedType(), UnsupportedDataRecordMetadata.INSTANCE);
-                            current.set(field, record);
-                            current = record;
-                        } else {
+                        int indexStart = element.indexOf('[');
+                        int indexEnd = element.indexOf(']');
+                        if (indexStart < 0 || indexEnd < 0) {
+                            throw new RuntimeException("Field name '" + element + "' did not match many field pattern in path '" + path + "'.");
+                        }
+                        int index = Integer.parseInt(element.substring(indexStart + 1, indexEnd)) - 1;
+                        List list = (List) current.get(field);
+                        boolean newList = list == null;
+                        if (newList) {
+                            list = new LinkedList();
+                        }
+                        while (index >= list.size()) {
+                            if (field instanceof ContainedTypeFieldMetadata) {
+                                DataRecord record = new DataRecord((ComplexTypeMetadata) field.getType(), UnsupportedDataRecordMetadata.INSTANCE);
+                                list.add(record);
+                            } else if(field instanceof ReferenceFieldMetadata) {
+                                DataRecord record = new DataRecord(((ReferenceFieldMetadata) field).getReferencedType(), UnsupportedDataRecordMetadata.INSTANCE);
+                                list.add(record);
+                            } else {
+                                list.add(null);
+                            }
+                        }
+                        if (newList) {
+                            current.set(field, list);
+                        }
+                        Object value = list.get(index);
+                        if (value instanceof DataRecord) {
                             current = (DataRecord) value;
+                        }
+                    } else {
+                        FieldMetadata field = current.getType().getField(element);
+                        if (field instanceof ContainedTypeFieldMetadata) {
+                            Object value = current.get(field);
+                            if(value == null) {
+                                DataRecord record = new DataRecord(((ContainedTypeFieldMetadata) field).getContainedType(), UnsupportedDataRecordMetadata.INSTANCE);
+                                current.set(field, record);
+                                current = record;
+                            } else {
+                                current = (DataRecord) value;
+                            }
                         }
                     }
                 }
             }
+        } finally {
+            cachedExist = true;
         }
     }
 
     @Override
     public void insert() {
-        if (!exist()) {
-            create();
-        } else {
-            DataRecord current = dataRecord;
-            ListIterator<PathElement> elements = getPath(dataRecord, path).listIterator();
-            PathElement pathElement = null;
-            while (elements.hasNext()) {
-                pathElement = elements.next();
-                if (!elements.hasNext()) {
-                    break;
-                }
-                if (pathElement.field instanceof ContainedTypeFieldMetadata) {
-                    Object o = current.get(pathElement.field);
-                    if (pathElement.field.isMany()) {
-                        List list = (List) o;
-                        current = (DataRecord) list.get(pathElement.index);
-                    } else {
-                        current = (DataRecord) o;
+        try {
+            if (!exist()) {
+                create();
+            } else {
+                DataRecord current = dataRecord;
+                ListIterator<PathElement> elements = getPath(dataRecord, path).listIterator();
+                PathElement pathElement = null;
+                while (elements.hasNext()) {
+                    pathElement = elements.next();
+                    if (!elements.hasNext()) {
+                        break;
+                    }
+                    if (pathElement.field instanceof ContainedTypeFieldMetadata) {
+                        Object o = current.get(pathElement.field);
+                        if (pathElement.field.isMany()) {
+                            List list = (List) o;
+                            current = (DataRecord) list.get(pathElement.index);
+                        } else {
+                            current = (DataRecord) o;
+                        }
                     }
                 }
+                if (pathElement != null && pathElement.field.isMany()) {
+                    List list = (List) current.get(pathElement.field);
+                    list.add(pathElement.index, null);
+                }
             }
-            if (pathElement != null && pathElement.field.isMany()) {
-                List list = (List) current.get(pathElement.field);
-                list.add(pathElement.index, null);
-            }
+        } finally {
+            cachedExist = true;
         }
     }
 
@@ -274,58 +288,68 @@ public class DataRecordAccessor implements Accessor {
         if (!exist()) {
             return; // Value is already deleted.
         }
-        initPath();
-        DataRecord current = dataRecord;
-        ListIterator<PathElement> listIterator = pathElements.listIterator();
-        PathElement pathElement = null;
-        while (listIterator.hasNext()) {
-            pathElement = listIterator.next();
-            if (!listIterator.hasNext()) {
-                break;
-            }
-            if (!pathElement.field.isMany()) {
-                if (pathElement.field instanceof ContainedTypeFieldMetadata) {
-                    current = (DataRecord) current.get(pathElement.field);
+        try {
+            initPath();
+            DataRecord current = dataRecord;
+            ListIterator<PathElement> listIterator = pathElements.listIterator();
+            PathElement pathElement = null;
+            while (listIterator.hasNext()) {
+                pathElement = listIterator.next();
+                if (!listIterator.hasNext()) {
+                    break;
                 }
-            } else {
-                List<Object> list = (List) dataRecord.get(pathElement.field);
-                if (list == null) {
-                    list = new ArrayList<Object>();
-                    dataRecord.set(pathElement.field, list);
-                }
-                if (pathElement.field instanceof ContainedTypeFieldMetadata) {
-                    current = (DataRecord) ((List) current.get(pathElement.field)).get(pathElement.index);
-                }
-            }
-        }
-        if (pathElement != null) {
-            if (pathElement.field.isMany()) {
-                if (pathElement.index < 0) {
-                    ((List) current.get(pathElement.field)).clear();
+                if (!pathElement.field.isMany()) {
+                    if (pathElement.field instanceof ContainedTypeFieldMetadata) {
+                        current = (DataRecord) current.get(pathElement.field);
+                    }
                 } else {
-                    ((List) current.get(pathElement.field)).remove(pathElement.index);
+                    List<Object> list = (List) dataRecord.get(pathElement.field);
+                    if (list == null) {
+                        list = new ArrayList<Object>();
+                        dataRecord.set(pathElement.field, list);
+                    }
+                    if (pathElement.field instanceof ContainedTypeFieldMetadata) {
+                        current = (DataRecord) ((List) current.get(pathElement.field)).get(pathElement.index);
+                    }
                 }
-            } else {
-                current.set(pathElement.field, null);
             }
+            if (pathElement != null) {
+                if (pathElement.field.isMany()) {
+                    if (pathElement.index < 0) {
+                        ((List) current.get(pathElement.field)).clear();
+                    } else {
+                        ((List) current.get(pathElement.field)).remove(pathElement.index);
+                    }
+                } else {
+                    current.set(pathElement.field, null);
+                }
+            }
+        } finally {
+            cachedExist = false;
         }
     }
 
     @Override
     public boolean exist() {
+        if (cachedExist != null) {
+            return cachedExist;
+        }
         StringTokenizer tokenizer = new StringTokenizer(path, "/"); //$NON-NLS-1$
         DataRecord current = dataRecord;
         while (tokenizer.hasMoreElements()) {
             String element = tokenizer.nextToken();
             if (element.indexOf('@') == 0) {
+                cachedExist = true;
                 return true;
             } else {
                 if (current == null) {
+                    cachedExist = false;
                     return false;
                 }
                 if (element.indexOf('[') > 0) {
                     String fieldName = StringUtils.substringBefore(element, "[");
                     if (!current.getType().hasField(fieldName)) {
+                        cachedExist = false;
                         return false;
                     }
                     FieldMetadata field = current.getType().getField(fieldName); //$NON-NLS-1$
@@ -340,6 +364,7 @@ public class DataRecordAccessor implements Accessor {
                     int index = Integer.parseInt(element.substring(indexStart + 1, indexEnd)) - 1;
                     List list = (List) current.get(field);
                     if (list == null || index > list.size() - 1) {
+                        cachedExist = false;
                         return false;
                     }
                     Object value = list.get(index);
@@ -348,6 +373,7 @@ public class DataRecordAccessor implements Accessor {
                     }
                 } else {
                     if (!current.getType().hasField(element) || current.get(element) == null) {
+                        cachedExist = false;
                         return false;
                     }
                     FieldMetadata field = current.getType().getField(element);
@@ -360,6 +386,7 @@ public class DataRecordAccessor implements Accessor {
                 }
             }
         }
+        cachedExist = true;
         return true;
     }
 
