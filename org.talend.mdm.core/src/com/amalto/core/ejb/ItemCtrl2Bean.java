@@ -1039,25 +1039,25 @@ public class ItemCtrl2Bean implements SessionBean {
                 throw new RemoteException("Unauthorized read access on data cluster " + dataClusterPOJOPK.getUniqueId()
                         + " by user " + user.getUsername());
             }
-            if (!Util.isSystemDC(dataClusterPOJOPK)) {
-                // Check the threshold number
-                long totalItemsInDataContainer = count(dataClusterPOJOPK, "*", null, -1);
-                int threshold = MDMConfiguration.getAutoEntityFindThreshold();
-                if (totalItemsInDataContainer > threshold) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Won't calculate concepts in DataCluster \"" + dataClusterPOJOPK.getUniqueId() //$NON-NLS-1$
-                        + "\", because total items in data container " + totalItemsInDataContainer //$NON-NLS-1$
-                        + " is over the limit " + threshold + "! "); //$NON-NLS-1$ //$NON-NLS-2$
-                    }
-                    return null;
-                }
-            }
             // This should be moved to ItemCtrl
             // get the universe
             if (universe == null) {
                 universe = user.getUniverse();
             }
             if (storage == null) {
+                // Check the threshold number (but only for XML DB)
+                if (!Util.isSystemDC(dataClusterPOJOPK)) {
+                    long totalItemsInDataContainer = count(dataClusterPOJOPK, "*", null, -1);
+                    int threshold = MDMConfiguration.getAutoEntityFindThreshold();
+                    if (totalItemsInDataContainer > threshold) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Won't calculate concepts in DataCluster \"" + dataClusterPOJOPK.getUniqueId() //$NON-NLS-1$
+                            + "\", because total items in data container " + totalItemsInDataContainer //$NON-NLS-1$
+                            + " is over the limit " + threshold + "! "); //$NON-NLS-1$ //$NON-NLS-2$
+                        }
+                        return Collections.emptyMap();
+                    }
+                }
                 // make sure we do not check a revision twice
                 Set<String> revisionsChecked = new HashSet<String>();
                 // First go through every revision
