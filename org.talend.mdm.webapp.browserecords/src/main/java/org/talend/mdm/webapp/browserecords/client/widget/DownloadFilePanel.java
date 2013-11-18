@@ -94,6 +94,7 @@ public class DownloadFilePanel extends FormPanel {
         multipleValueSeparatorField.setId("multipleValueSeparator"); //$NON-NLS-1$
         multipleValueSeparatorField.setName("multipleValueSeparator"); //$NON-NLS-1$
         multipleValueSeparatorField.setFieldLabel(MessagesFactory.getMessages().multiple_value_separator_field_label());
+        multipleValueSeparatorField.setMaxLength(1);
         multipleValueSeparatorField.setValue("|"); //$NON-NLS-1$
         this.add(multipleValueSeparatorField, new FormData("67.3%")); //$NON-NLS-1$
 

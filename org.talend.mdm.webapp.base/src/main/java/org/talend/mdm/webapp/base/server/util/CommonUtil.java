@@ -19,6 +19,7 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
@@ -50,10 +51,10 @@ public class CommonUtil {
 
     public static final String OR = "OR"; //$NON-NLS-1$ 
 
-    public static final String EQUALS = "EQUALS";  //$NON-NLS-1$
+    public static final String EQUALS = "EQUALS"; //$NON-NLS-1$
 
     private static final Pattern extractIdPattern = Pattern.compile("\\[.*?\\]"); //$NON-NLS-1$
-    
+
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.base.client.i18n.BaseMessages", CommonUtil.class.getClassLoader()); //$NON-NLS-1$    
 
@@ -90,13 +91,13 @@ public class CommonUtil {
         }
         return res;
     }
-    
-    public static List<String> splitString(String valueString,String separator) {
+
+    public static List<String> splitString(String valueString, char separator) {
         if (valueString == null || valueString.isEmpty()) {
             return null;
         }
         List<String> valueList = new ArrayList<String>();
-        String[] valueArray = valueString.split(separator);
+        String[] valueArray = StringUtils.split(valueString, separator);
         for (String value : valueArray) {
             valueList.add(value);
         }
@@ -113,7 +114,8 @@ public class CommonUtil {
             }
 
             String modifyString = criteria.substring(criteria.indexOf("../../t")); //$NON-NLS-1$
-            modifyString = modifyString.lastIndexOf(')') == -1 ? modifyString : modifyString.substring(0, modifyString.length() -1);
+            modifyString = modifyString.lastIndexOf(')') == -1 ? modifyString : modifyString.substring(0,
+                    modifyString.length() - 1);
             String[] modifyArr = modifyString.split("AND"); //$NON-NLS-1$
             for (String str : modifyArr) {
                 conditions.add(buildWhereItem(str.trim()));
@@ -202,11 +204,11 @@ public class CommonUtil {
             BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(concept);
             businessConcept.load();
             String type = businessConcept.getXpathTypeMap().get(filterXpaths);
-            if(type != null && type.equals("xsd:boolean")) { //$NON-NLS-1$
+            if (type != null && type.equals("xsd:boolean")) { //$NON-NLS-1$
                 wc.setStringPredicate(WSStringPredicate.OR);
                 conditions.add(new WSWhereItem(new WSWhereCondition(filterXpaths, Util.getOperator("EMPTY_NULL"),//$NON-NLS-1$ 
                         filterValues, WSStringPredicate.NONE, false), null, null));
-            }        
+            }
         }
 
         if (conditions.size() == 0) {
@@ -230,8 +232,8 @@ public class CommonUtil {
                 .getStrings();
         return results;
     }
-    
-    public static String[] extractFKRefValue(String ids,String language) {
+
+    public static String[] extractFKRefValue(String ids, String language) {
         List<String> idList = new ArrayList<String>();
         Matcher matcher = extractIdPattern.matcher(ids);
         boolean hasMatchedOnce = false;
@@ -250,7 +252,7 @@ public class CommonUtil {
     }
 
     public static String buildCriteriaByIds(String[] keys, String[] ids) {
-        if(keys == null || ids == null) {
+        if (keys == null || ids == null) {
             return null;
         }
         if (keys.length > 0 && keys.length < ids.length) {
@@ -270,9 +272,9 @@ public class CommonUtil {
         }
 
         StringBuilder criteria = new StringBuilder();
-        if(keys.length == 1 && ids.length == 1) {
+        if (keys.length == 1 && ids.length == 1) {
             criteria.append(keys[0]).append(" ").append(EQUALS).append(" ").append(ids[0]); //$NON-NLS-1$ //$NON-NLS-2$
-            return criteria.toString(); 
+            return criteria.toString();
         }
 
         criteria.append("((").append(keys[0]).append(" ").append(EQUALS).append(" ").append(ids[0]).append(")"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -282,7 +284,7 @@ public class CommonUtil {
         criteria.append(")"); //$NON-NLS-1$
         return criteria.toString();
     }
-    
+
     public static String[] extractIdWithDots(String[] keys, String ids) throws WebBaseException {
         List<String> idList = new ArrayList<String>();
         if (keys.length == 1) {
@@ -294,7 +296,7 @@ public class CommonUtil {
             }
             while (tokenizer.hasMoreTokens()) {
                 idList.add(tokenizer.nextToken());
-            }    
+            }
         }
         return idList.toArray(new String[idList.size()]);
     }

@@ -507,7 +507,7 @@ public class UploadData extends HttpServlet {
                 if (i == xpathPartArray.length -1) {
                     if (fieldValue != null && !fieldValue.isEmpty()) {
                         if (multipleValueSeparator != null && !multipleValueSeparator.isEmpty() && fieldValue.contains(multipleValueSeparator)) {
-                            List<String> valueList = CommonUtil.splitString(fieldValue, multipleValueSeparator);
+                            List<String> valueList = CommonUtil.splitString(fieldValue, multipleValueSeparator.charAt(0));
                             for (int j = 0; j < valueList.size(); j++) {
                                 List<Element> contentList = currentElement.getParent().content();
                                 Element copyElement = currentElement.createCopy();
