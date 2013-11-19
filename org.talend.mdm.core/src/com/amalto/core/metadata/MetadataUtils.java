@@ -343,9 +343,10 @@ public class MetadataUtils {
     }
 
     public static Object convert(String dataAsString, String type) {
-        if (dataAsString == null || dataAsString.isEmpty()) {
+        if (dataAsString == null || (dataAsString.isEmpty() && !Types.STRING.equals(type))) {
             return null;
         }
+        
         if (Types.STRING.equals(type)) {
             return dataAsString;
         } else if (Types.INTEGER.equals(type)
