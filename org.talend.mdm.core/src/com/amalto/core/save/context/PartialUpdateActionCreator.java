@@ -12,6 +12,7 @@
 package com.amalto.core.save.context;
 
 import com.amalto.core.history.DOMMutableDocument;
+import com.amalto.core.load.io.ResettableStringWriter;
 import org.w3c.dom.Node;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
@@ -37,7 +38,11 @@ public class PartialUpdateActionCreator extends UpdateActionCreator {
 
     private final Stack<String> leftPath = new Stack<String>();
 
+    private final ResettableStringWriter leftCache = new ResettableStringWriter();
+
     private final Stack<String> rightPath = new Stack<String>();
+
+    private final ResettableStringWriter rightCache = new ResettableStringWriter();
 
     private final Map<String, String> keyValueToPath = new HashMap<String, String>();
 
@@ -171,26 +176,25 @@ public class PartialUpdateActionCreator extends UpdateActionCreator {
     }
 
     String getLeftPath() {
-        return computePath(leftPath);
+        return computePath(leftPath, leftCache);
     }
 
     String getRightPath() {
-        return computePath(rightPath);
+        return computePath(rightPath, rightCache);
     }
 
-    private String computePath(Stack<String> path) {
+    private String computePath(Stack<String> path, ResettableStringWriter cache) {
         if (path.isEmpty()) {
             return StringUtils.EMPTY;
         } else {
-            StringBuilder builder = new StringBuilder();
             Iterator<String> pathIterator = path.iterator();
             while (pathIterator.hasNext()) {
-                builder.append(pathIterator.next());
+                cache.append(pathIterator.next());
                 if (pathIterator.hasNext()) {
-                    builder.append('/');
+                    cache.append('/');
                 }
             }
-            return builder.toString();
+            return cache.reset();
         }
     }
 

@@ -22,6 +22,7 @@ import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
+import org.apache.commons.collections.map.LRUMap;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -33,12 +34,15 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class StorageDocument implements MutableDocument {
 
     private final String dataModelName;
 
     private final MetadataRepository repository;
+
+    private final Map<String, Accessor> accessorCache = new LRUMap(20);
 
     private DataRecord dataRecord;
 
@@ -53,7 +57,12 @@ public class StorageDocument implements MutableDocument {
 
     @Override
     public Accessor createAccessor(String path) {
-        return new DataRecordAccessor(repository, getDataRecord(), path);
+        Accessor accessor = accessorCache.get(path);
+        if (accessor == null) {
+            accessor = new DataRecordAccessor(repository, getDataRecord(), path);
+            accessorCache.put(path, accessor);
+        }
+        return accessor;
     }
 
     @Override
