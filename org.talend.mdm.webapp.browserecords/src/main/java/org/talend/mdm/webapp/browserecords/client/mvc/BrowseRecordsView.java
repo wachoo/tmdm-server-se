@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -154,13 +154,27 @@ public class BrowseRecordsView extends View {
         detailPanel.setOutMost(!openTab);
         String pkInfo = fkItemBean.getDisplayPKInfo().equals(fkItemBean.getLabel()) ? null : fkItemBean.getDisplayPKInfo();
         detailPanel.appendBreadCrumb(fkItemBean.getConcept(), fkItemBean.getLabel(), fkItemBean.getIds(), pkInfo);
-        ItemPanel itemPanel = new ItemPanel(fkViewBean, fkItemBean, ItemDetailToolBar.VIEW_OPERATION, detailPanel, openTab);
+        String operation = getOperation(fkItemBean);
+        ItemPanel itemPanel = new ItemPanel(fkViewBean, fkItemBean, operation, detailPanel, openTab);
         itemPanel.getToolBar().setOutMost(!openTab);
         itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
         itemPanel.getToolBar().setFkToolBar(true);
         detailPanel.initBanner(fkItemBean.getPkInfoList(), fkItemBean.getDescription());
         detailPanel.addTabItem(fkItemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, fkItemBean.getIds());
         CommonUtil.setCurrentCachedEntity(fkItemBean.getConcept() + fkItemBean.getIds() + detailPanel.isOutMost(), itemPanel);
+    }
+
+    private String getOperation(ItemBean itemBean) {
+        String operation;
+        String smartViewMode = itemBean.getSmartViewMode();
+        if (smartViewMode.equals(ItemBean.PERSOMODE)) {
+            operation = ItemDetailToolBar.PERSONALEVIEW_OPERATION;
+        } else if (smartViewMode.equals(ItemBean.SMARTMODE)) {
+            operation = ItemDetailToolBar.SMARTVIEW_OPERATION;
+        } else {
+            operation = ItemDetailToolBar.VIEW_OPERATION;
+        }
+        return operation;
     }
 
     private void onViewItem(AppEvent event) {
@@ -173,12 +187,7 @@ public class BrowseRecordsView extends View {
         List<String> itemPkInfoList = null;
         String itemDescription = null;
 
-        String operation = ItemDetailToolBar.VIEW_OPERATION;
-        String smartViewMode = item.getSmartViewMode();
-        if (smartViewMode.equals(ItemBean.PERSOMODE))
-            operation = ItemDetailToolBar.PERSONALEVIEW_OPERATION;
-        else if (smartViewMode.equals(ItemBean.SMARTMODE))
-            operation = ItemDetailToolBar.SMARTVIEW_OPERATION;
+        String operation = getOperation(item);
 
         ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
         List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
@@ -296,7 +305,7 @@ public class BrowseRecordsView extends View {
         ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
         ItemPanel itemPanelWidget = (ItemPanel) detailPanel.getCurrentlySelectedTabWidget();
         String concept = viewBean.getBindingEntityModel().getConceptName();
-        EntityModel entityModel = (EntityModel) BrowseRecords.getSession().getCurrentEntityModel();
+        EntityModel entityModel = BrowseRecords.getSession().getCurrentEntityModel();
         ItemBean itemBean = ItemCreator.createDefaultItemBean(concept, entityModel);
         // set label
         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept);
@@ -333,8 +342,9 @@ public class BrowseRecordsView extends View {
     }
 
     private void onInitFrame(AppEvent event) {
-        if (Log.isInfoEnabled())
+        if (Log.isInfoEnabled()) {
             Log.info("Init frame... ");//$NON-NLS-1$
+        }
         GenerateContainer.getContentPanel().setLayout(new FitLayout());
         GenerateContainer.getContentPanel().setStyleAttribute("height", "100%");//$NON-NLS-1$ //$NON-NLS-2$       
         Dispatcher.forwardEvent(BrowseRecordsEvents.InitSearchContainer);
@@ -342,8 +352,9 @@ public class BrowseRecordsView extends View {
 
     protected void onInitSearchContainer(AppEvent ae) {
         // create search panel
-        if (Log.isInfoEnabled())
+        if (Log.isInfoEnabled()) {
             Log.info("Init items-search-container... ");//$NON-NLS-1$
+        }
         GenerateContainer.getContentPanel().add(ItemsSearchContainer.getInstance());
         GenerateContainer.getContentPanel().layout(true);
     }
@@ -387,8 +398,9 @@ public class BrowseRecordsView extends View {
                     cc.setRenderer(renderer);
                 }
             }
-            if (typeModel == null || typeModel.isVisible())
-            ccList.add(cc);
+            if (typeModel == null || typeModel.isVisible()) {
+                ccList.add(cc);
+            }
         }
 
         ItemsListPanel.getInstance().updateGrid(sm, ccList);
