@@ -92,6 +92,7 @@ public class StorageDocument implements MutableDocument {
     @Override
     public MutableDocument create(MutableDocument content) {
         dataRecord = new DataRecord(dataRecord.getType(), new DataRecordMetadataImpl(System.currentTimeMillis(), null));
+        accessorCache.clear();
         return this;
     }
 
@@ -99,6 +100,7 @@ public class StorageDocument implements MutableDocument {
     public MutableDocument setContent(MutableDocument content) {
         XmlStringDataRecordReader reader = new XmlStringDataRecordReader();
         dataRecord = reader.read(content.getRevision(), repository, dataRecord.getType(), content.exportToString());
+        accessorCache.clear();
         return this;
     }
 
