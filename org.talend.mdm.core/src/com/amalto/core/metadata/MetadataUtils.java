@@ -334,9 +334,10 @@ public class MetadataUtils {
     }
 
     public static Object convert(String dataAsString, String type) {
-        if (dataAsString.isEmpty()) {
+        if (dataAsString == null || (dataAsString.isEmpty() && !Types.STRING.equals(type))) {
             return null;
         }
+        
         if ("string".equals(type)) { //$NON-NLS-1$
             return dataAsString;
         } else if ("integer".equals(type) //$NON-NLS-1$

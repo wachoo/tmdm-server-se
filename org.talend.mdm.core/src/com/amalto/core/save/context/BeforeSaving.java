@@ -10,18 +10,22 @@
 
 package com.amalto.core.save.context;
 
+import java.io.StringReader;
+
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.DOMDocument;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.UserAction;
+import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.util.BeforeSavingErrorException;
 import com.amalto.core.util.BeforeSavingFormatException;
 import com.amalto.core.util.OutputReport;
@@ -84,7 +88,8 @@ public class BeforeSaving implements DocumentSaver {
                 // handle output_item
                 if (outputreport.getItem() != null) {
                     xpath = "//exchange/item"; //$NON-NLS-1$
-                    doc = Util.parse(outputreport.getItem());
+                    SkipAttributeDocumentBuilder builder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOCUMENT_BUILDER, false);
+                    doc =  builder.parse(new InputSource(new StringReader(outputreport.getItem())));
                     Node item;
                     synchronized (XPATH) {
                         item = (Node) XPATH.evaluate(xpath, doc, XPathConstants.NODE);
