@@ -136,7 +136,8 @@ public class ItemsListPanel4Staging extends ItemsListPanel {
                         ItemBean item = (ItemBean) model;
                         String matchGroup = model.get(item.getConcept() + StagingConstant.STAGING_TASKID);
                         if (matchGroup != null && matchGroup.length() != 0) {
-                            if ("205".equals(model.get(item.getConcept() + StagingConstant.STAGING_STATUS))) { //$NON-NLS-1$
+                            String status = model.get(item.getConcept() + StagingConstant.STAGING_STATUS);
+                            if ("205".equals(status) || "203".equals(status)) { //$NON-NLS-1$ //$NON-NLS-2$
                                 return "<b>" + value + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
                             }
                         }
