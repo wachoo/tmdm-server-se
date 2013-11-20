@@ -3,85 +3,82 @@
  */
 package com.amalto.core.delegator;
 
+import org.apache.log4j.Logger;
+
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 
 public class BeanDelegatorContainer {
 
-	/** unique instance */
-	private static BeanDelegatorContainer sInstance = null;
-	/** delegator instances */
-	private Map<String,IBeanDelegator> delegatorInstancePool = new HashMap<String, IBeanDelegator>();
+    private static final Logger LOGGER = Logger.getLogger(BeanDelegatorContainer.class);
 
-	/** 
-	 * Private constuctor
-	 */
-	private BeanDelegatorContainer() {
-		super();
-		init();
-	}
+    private static final Map<String, IBeanDelegator> delegatorInstancePool = new HashMap<String, IBeanDelegator>();
 
-	/** 
-	 * Get the unique instance of this class.
-	 * In order to improve the performance, removed synchronized, using pseudo singleton mode
-	 */
-	public static BeanDelegatorContainer getUniqueInstance() {
+    private static final String LOCAL_USER = "LocalUser"; //$NON-NLS-1$
 
-		if (sInstance == null) {
-			sInstance = new BeanDelegatorContainer();
-		}
+    private static final String VALIDATION = "Validation"; //$NON-NLS-1$
 
-		return sInstance;
+    private static final String ITEM_CTRL = "ItemCtrl"; //$NON-NLS-1$
 
-	}
-	
-	private void init() {
-		
-		BeanDelegatorConfigReader.init();
-		Map<String, String> beanImplNamesMap=BeanDelegatorConfigReader.getBeanImplNamesMap();
-		for (Iterator<String> iterator = beanImplNamesMap.keySet().iterator(); iterator.hasNext();) {
-			String interfaceShortName = iterator.next();
-			String implName=beanImplNamesMap.get(interfaceShortName);
-			
-			//add to pool
-			try {
-				Object[] instanceParams=new Object[0];
-				IBeanDelegator beanDelegator=(IBeanDelegator) newInstance(implName,instanceParams);
-				delegatorInstancePool.put(interfaceShortName, beanDelegator);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			
-			org.apache.log4j.Logger.getLogger(this.getClass()).info("Init instance:"+implName);
-		}
+    private static final String XTENTIS_WS = "XtentisWS"; //$NON-NLS-1$
 
-	}
-	
-	private Object newInstance(String className, Object[] args) throws Exception {
-        Class newoneClass = Class.forName(className);
-        Class[] argsClass = new Class[args.length];
-        for (int i = 0, j = args.length; i < j; i++) {
-            argsClass[i] = args[i].getClass();
-        }
-        Constructor cons = newoneClass.getConstructor(argsClass);
-        return cons.newInstance(args);
+    private static BeanDelegatorContainer instance;
+
+    private BeanDelegatorContainer() {
+        init();
     }
-	
-	//TODO add more delegator get method
-	public ILocalUser getLocalUserDelegator() {
-		return (ILocalUser) delegatorInstancePool.get("LocalUser");
-	}
-	public IValidation getValidationDelegator() {
-		return (IValidation) delegatorInstancePool.get("Validation");
-	}
-	public IItemCtrlDelegator getItemCtrlDelegator() {
-		return (IItemCtrlDelegator) delegatorInstancePool.get("ItemCtrl");
-	}
-	public IXtentisWSDelegator getXtentisWSDelegator() {
-		return (IXtentisWSDelegator) delegatorInstancePool.get("XtentisWS");
-	}
+
+    /**
+     * Get the unique instance of this class.
+     * In order to improve the performance, removed synchronized, using pseudo singleton mode
+     */
+    public static synchronized BeanDelegatorContainer getInstance() {
+        if (instance == null) {
+            instance = new BeanDelegatorContainer();
+        }
+        return instance;
+    }
+
+    private void init() {
+        synchronized (delegatorInstancePool) {
+            Map<String, String> beanImplNamesMap = BeanDelegatorConfigReader.readConfiguration();
+            for (Map.Entry<String, String> currentBean : beanImplNamesMap.entrySet()) {
+                try {
+                    Class clazz = Class.forName(currentBean.getValue());
+                    Constructor cons = clazz.getConstructor();
+                    IBeanDelegator beanDelegator = (IBeanDelegator) cons.newInstance();
+                    delegatorInstancePool.put(currentBean.getKey(), beanDelegator);
+                    LOGGER.info("Init instance:" + currentBean.getValue());
+                } catch (Exception e) {
+                    LOGGER.error("Init exception for '" + currentBean.getValue() + "'.", e);
+                }
+            }
+        }
+    }
+
+    public ILocalUser getLocalUserDelegator() {
+        synchronized (delegatorInstancePool) {
+            return (ILocalUser) delegatorInstancePool.get(LOCAL_USER);
+        }
+    }
+
+    public IValidation getValidationDelegator() {
+        synchronized (delegatorInstancePool) {
+            return (IValidation) delegatorInstancePool.get(VALIDATION);
+        }
+    }
+
+    public IItemCtrlDelegator getItemCtrlDelegator() {
+        synchronized (delegatorInstancePool) {
+            return (IItemCtrlDelegator) delegatorInstancePool.get(ITEM_CTRL);
+        }
+    }
+
+    public IXtentisWSDelegator getXtentisWSDelegator() {
+        synchronized (delegatorInstancePool) {
+            return (IXtentisWSDelegator) delegatorInstancePool.get(XTENTIS_WS);
+        }
+    }
 }
