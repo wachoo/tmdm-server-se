@@ -42,6 +42,7 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Namespace;
@@ -169,10 +170,10 @@ import com.sun.xml.xsom.parser.XSOMParser;
 public class BrowseRecordsAction implements BrowseRecordsService {
 
     private final Logger LOG = Logger.getLogger(BrowseRecordsAction.class);
-    
+
     private final Messages BASEMESSAGE = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.base.client.i18n.BaseMessages", this.getClass().getClassLoader()); //$NON-NLS-1$
-    
+
     private final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages", this.getClass().getClassLoader()); //$NON-NLS-1$
 
@@ -205,7 +206,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     if (wsItem != null && !dataClusterPK.endsWith(StorageAdmin.STAGING_SUFFIX)) {
                         pushUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE);
                     } else if (wsItem != null && dataClusterPK.endsWith(StorageAdmin.STAGING_SUFFIX)) {
-                        //do nothing
+                        // do nothing
                     } else {
                         throw new ServiceException(MESSAGES.getMessage("delete_record_failure")); //$NON-NLS-1$
                     }
@@ -238,7 +239,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             LOG.error(e.getMessage(), e);
             throw e;
         } catch (WebBaseException e) {
-            throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language),e.getMessage(), e.getArgs()));
+            throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language), e.getMessage(), e.getArgs()));
         } catch (Exception exception) {
             String errorMessage;
             if (WebCoreException.class.isInstance(exception.getCause())) {
@@ -273,7 +274,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String concept = selectedItem.getConcept();
                 if (key == null) {
                     key = CommonUtil.getPort().getBusinessConceptKey(
-                            new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));   
+                            new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));
                 }
                 String[] ids = CommonUtil.extractIdWithDots(key.getFields(), selectedItem.getIds());
 
@@ -474,7 +475,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             return itemBean;
         } catch (WebBaseException e) {
-            throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language),e.getMessage(), e.getArgs()));
+            throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language), e.getMessage(), e.getArgs()));
         } catch (Exception exception) {
             String errorMessage;
             if (WebCoreException.class.isInstance(exception.getCause())) {
@@ -517,7 +518,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 for (int t = 0; t < nodes.getLength(); t++) {
                                     if (nodes.item(t) instanceof Element) {
                                         Node node = nodes.item(t);
-                                        org.talend.mdm.webapp.browserecords.server.util.CommonUtil.migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
+                                        org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                                                .migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
                                         list.add(node.getTextContent());
                                     }
 
@@ -529,12 +531,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                     String modelType = value.getAttribute("tmdm:type"); //$NON-NLS-1$
                                     itemBean.set(path, path + "-" + value.getTextContent()); //$NON-NLS-1$
                                     itemBean.setForeignkeyDesc(
-                                            path + "-" + value.getTextContent(),org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel,  //$NON-NLS-1$
-                                                    value.getTextContent(), false, modelType, getEntityModel(typeModel.getForeignkey().split("/")[0], language), language, isStaging())); //$NON-NLS-1$
+                                            path + "-" + value.getTextContent(), org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel, //$NON-NLS-1$
+                                                            value.getTextContent(),
+                                                            false,
+                                                            modelType,
+                                                            getEntityModel(typeModel.getForeignkey().split("/")[0], language), language, isStaging())); //$NON-NLS-1$
 
                                 } else {
                                     itemBean.set(path, value.getTextContent());
-                                    org.talend.mdm.webapp.browserecords.server.util.CommonUtil.migrationMultiLingualFieldValue(itemBean, typeModel, value, path, false, null);
+                                    org.talend.mdm.webapp.browserecords.server.util.CommonUtil.migrationMultiLingualFieldValue(
+                                            itemBean, typeModel, value, path, false, null);
                                 }
                             }
                         }
@@ -545,23 +551,25 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
             // set pkinfo and description on entity
             TypeModel conceptTypeModel = types.get(itemBean.getConcept());
-            List<String> pkInfoList = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getPKInfoList(entityModel, conceptTypeModel, itemBean, docXml, language);
+            List<String> pkInfoList = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getPKInfoList(entityModel,
+                    conceptTypeModel, itemBean, docXml, language);
             itemBean.setPkInfoList(pkInfoList);
             itemBean.setLabel(conceptTypeModel.getLabel(language));
             itemBean.setDisplayPKInfo(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getPKInfos(pkInfoList));
             itemBean.setDescription(conceptTypeModel.getDescriptionMap().get(language));
         }
     }
-    
+
     protected boolean isStaging() throws ServiceException {
         return false;
     }
-    
+
     public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel,
             Map<String, EntityModel> map, String language) throws Exception {
-        org.talend.mdm.webapp.browserecords.server.util.CommonUtil.dynamicAssembleByResultOrder(itemBean, viewBean.getViewableXpaths(), entityModel, map, language, isStaging());
+        org.talend.mdm.webapp.browserecords.server.util.CommonUtil.dynamicAssembleByResultOrder(itemBean,
+                viewBean.getViewableXpaths(), entityModel, map, language, isStaging());
     }
-    
+
     @Override
     public EntityModel getEntityModel(String concept, String language) throws ServiceException {
         try {
@@ -738,7 +746,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public ItemBean queryItemBeanById(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String ids,
             String language) throws ServiceException {
         try {
-            String[] idArr = ids.split("\\."); //$NON-NLS-1$
+            String[] idArr = StringUtils.splitPreserveAllTokens(ids, '.'); // String.split() omits the last '' if ends
+                                                                           // with delimiter
             String criteria = CommonUtil.buildCriteriaByIds(entityModel.getKeys(), idArr);
             Object[] result = getItemBeans(dataClusterPK, viewBean, entityModel, criteria, -1, 20,
                     ItemHelper.SEARCH_DIRECTION_ASC, null, language);
@@ -750,7 +759,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 return null;
             }
         } catch (WebBaseException e) {
-            throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language),e.getMessage(), e.getArgs()));
+            throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language), e.getMessage(), e.getArgs()));
         } catch (Exception exception) {
             String errorMessage;
             if (WebCoreException.class.isInstance(exception.getCause())) {
@@ -1586,7 +1595,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (modelType != null && modelType.trim().length() > 0) {
                 nodeModel.setTypeName(modelType);
             }
-            ForeignKeyBean fkBean = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(model, el.getTextContent(), true, modelType,
+            ForeignKeyBean fkBean = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(model,
+                    el.getTextContent(), true, modelType,
                     getEntityModel(foreignKey.split("/")[0], language), language, isStaging()); //$NON-NLS-1$
             if (fkBean != null) {
                 String fkNotFoundMessage = fkBean.get("foreignKeyDeleteMessage"); //$NON-NLS-1$
@@ -1600,7 +1610,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
         } else if (model.isSimpleType()) {
             nodeModel.setObjectValue(el.getTextContent());
-            org.talend.mdm.webapp.browserecords.server.util.CommonUtil.migrationMultiLingualFieldValue(null, model, el, typePath, false, nodeModel);
+            org.talend.mdm.webapp.browserecords.server.util.CommonUtil.migrationMultiLingualFieldValue(null, model, el, typePath,
+                    false, nodeModel);
         }
         if (isCreate && model.getDefaultValueExpression() != null && model.getDefaultValueExpression().trim().length() > 0) {
             nodeModel.setChangeValue(true);
@@ -1745,7 +1756,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             LOG.error(e.getMessage(), e);
             throw e;
         } catch (WebBaseException e) {
-            throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language),e.getMessage(), e.getArgs()));
+            throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language), e.getMessage(), e.getArgs()));
         } catch (Exception exception) {
             String errorMessage;
             if (WebCoreException.class.isInstance(exception.getCause())) {
@@ -1799,7 +1810,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             return saveItem(concept, ids, doc.asXML(), false, language);
         } catch (WebBaseException e) {
-            throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language),e.getMessage(), e.getArgs()));
+            throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language), e.getMessage(), e.getArgs()));
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
