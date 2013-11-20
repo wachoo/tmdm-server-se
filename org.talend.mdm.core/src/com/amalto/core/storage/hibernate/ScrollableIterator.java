@@ -38,6 +38,8 @@ class ScrollableIterator implements CloseableIterator<DataRecord> {
 
     private final MappingRepository storageRepository;
 
+    private boolean isClosed;
+
     public ScrollableIterator(MappingRepository storageRepository, StorageClassLoader storageClassLoader, ScrollableResults results, Set<EndOfResultsCallback> callbacks) {
         this.storageRepository = storageRepository;
         this.storageClassLoader = storageClassLoader;
@@ -101,13 +103,22 @@ class ScrollableIterator implements CloseableIterator<DataRecord> {
     }
 
     private void notifyCallbacks() {
-        for (EndOfResultsCallback callback : callbacks) {
+        if (!isClosed) {
+            // TMDM-6712: Ensure resources used by iterator are released.
             try {
-                callback.onEndOfResults();
+                results.close();
             } catch (Throwable t) {
-                // Catch Throwable and log it (to ensure all callbacks get called).
-                LOGGER.error("End of result callback exception", t);
+                LOGGER.error(t);
             }
+            for (EndOfResultsCallback callback : callbacks) {
+                try {
+                    callback.onEndOfResults();
+                } catch (Throwable t) {
+                    // Catch Throwable and log it (to ensure all callbacks get called).
+                    LOGGER.error("End of result callback exception", t);
+                }
+            }
+            isClosed = true;
         }
     }
 
