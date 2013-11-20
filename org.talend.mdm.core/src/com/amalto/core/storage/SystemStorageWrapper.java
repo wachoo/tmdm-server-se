@@ -347,6 +347,14 @@ public class SystemStorageWrapper extends StorageWrapper {
                 }
                 dataRecordXmlWriter.write(result, output);
                 if (iterator.hasNext()) {
+                    int recordsLeft = 1;
+                    while (iterator.hasNext()) { // TMDM-6712: Consumes all results in iterator
+                        iterator.next();
+                        if (recordsLeft % 10 == 0) {
+                            LOGGER.warn("Processing system query lead to unexpected number of results (" + recordsLeft + " so far).");
+                        }
+                        recordsLeft++;
+                    }
                     throw new IllegalStateException("Expected only 1 result.");
                 }
                 if (isUserFormat) {

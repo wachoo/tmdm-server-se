@@ -139,14 +139,22 @@ class ScrollableIterator implements CloseableIterator<DataRecord> {
     }
 
     private void notifyCallbacks() {
-        for (ResultsCallback callback : callbacks) {
+        if (!isClosed) {
+            // TMDM-6712: Ensure resources used by iterator are released.
             try {
-                callback.onEndOfResults();
+                results.close();
             } catch (Throwable t) {
-                // Catch Throwable and log it (to ensure all callbacks get called).
-                LOGGER.error("End of result callback exception", t);
-            } finally {
-                isClosed = true;
+                LOGGER.error(t);
+            }
+            for (ResultsCallback callback : callbacks) {
+                try {
+                    callback.onEndOfResults();
+                } catch (Throwable t) {
+                    // Catch Throwable and log it (to ensure all callbacks get called).
+                    LOGGER.error("End of result callback exception", t);
+                } finally {
+                    isClosed = true;
+                }
             }
         }
     }

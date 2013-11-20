@@ -29,7 +29,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
 
     private static final Logger LOGGER = Logger.getLogger(ProjectionIterator.class);
 
-    private final Iterator iterator;
+    private final CloseableIterator<Object> iterator;
 
     private final List<TypedExpression> selectedFields;
 
@@ -39,8 +39,10 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
 
     private boolean firstNextCall = true;
 
+    private boolean isClosed;
+
     public ProjectionIterator(MappingRepository mappingMetadataRepository,
-                              Iterator<Object> iterator,
+                              CloseableIterator<Object> iterator,
                               List<TypedExpression> selectedFields,
                               Set<ResultsCallback> callbacks) {
         this.iterator = iterator;
@@ -53,7 +55,9 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
                               final ScrollableResults results,
                               List<TypedExpression> selectedFields,
                               final Set<ResultsCallback> callbacks) {
-        this(mappingMetadataRepository, new Iterator<Object>() {
+        this(mappingMetadataRepository, new CloseableIterator<Object>() {
+            private boolean isClosed = false;
+
             public boolean hasNext() {
                 return results.next();
             }
@@ -63,6 +67,17 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
             }
 
             public void remove() {
+            }
+
+            @Override
+            public void close() throws IOException {
+                if (!isClosed) {
+                    try {
+                        results.close();
+                    } finally {
+                        isClosed = true;
+                    }
+                }
             }
         }, selectedFields, callbacks);
     }
@@ -76,12 +91,21 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
     }
 
     private void notifyCallbacks() {
-        for (ResultsCallback callback : callbacks) {
+        if (!isClosed) {
+            // TMDM-6712: Ensure all iterator resources are released.
             try {
-                callback.onEndOfResults();
+                iterator.close();
             } catch (Throwable t) {
                 LOGGER.error(t);
             }
+            for (ResultsCallback callback : callbacks) {
+                try {
+                    callback.onEndOfResults();
+                } catch (Throwable t) {
+                    LOGGER.error(t);
+                }
+            }
+            isClosed = true;
         }
     }
 
