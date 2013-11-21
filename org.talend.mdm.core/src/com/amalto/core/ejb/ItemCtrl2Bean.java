@@ -74,16 +74,16 @@ import com.amalto.xmlserver.interfaces.XmlServerException;
 
 /**
  * @author Bruno Grieder
- *
+ * 
  * @ejb.bean name="ItemCtrl2" display-name="Name for ItemCtrl2" description="Description for ItemCtrl2"
  * jndi-name="amalto/remote/core/itemctrl2" local-jndi-name = "amalto/local/core/itemctrl2" type="Stateless"
  * view-type="both"
- *
+ * 
  * @ejb.remote-facade
- *
+ * 
  * @ejb.permission view-type = "remote" role-name = "administration"
  * @ejb.permission view-type = "local" unchecked = "true"
- *
+ * 
  */
 
 @SuppressWarnings("deprecation")
@@ -98,15 +98,19 @@ public class ItemCtrl2Bean implements SessionBean {
     public ItemCtrl2Bean() {
     }
 
+    @Override
     public void setSessionContext(SessionContext ctx) throws EJBException, RemoteException {
     }
 
+    @Override
     public void ejbRemove() throws EJBException, RemoteException {
     }
 
+    @Override
     public void ejbActivate() throws EJBException, RemoteException {
     }
 
+    @Override
     public void ejbPassivate() throws EJBException, RemoteException {
     }
 
@@ -125,42 +129,42 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Creates or updates a item
-     *
+     * 
      * @param item The new item, null is not allowed.
      * @param dataModel Null is allowed.
      * @throws XtentisException In case of error in MDM code.
      * @return A PK to the newly created record.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
     public ItemPOJOPK putItem(ItemPOJO item, DataModelPOJO dataModel) throws XtentisException {
         String schema = dataModel == null ? null : dataModel.getSchema();
         String dataModelName = dataModel == null ? null : dataModel.getName();
-        return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().putItem(item, schema, dataModelName);
+        return BeanDelegatorContainer.getInstance().getItemCtrlDelegator().putItem(item, schema, dataModelName);
     }
 
     /**
      * updates a item taskId. Is equivalent to {@link #putItem(ItemPOJO, DataModelPOJO)}.
-     *
+     * 
      * @param item The item to update
      * @throws XtentisException In case of error in MDM code.
      * @return A PK to the updated item.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
     public ItemPOJOPK updateItemMetadata(ItemPOJO item) throws XtentisException {
-        return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().putItem(item, null, null);
+        return BeanDelegatorContainer.getInstance().getItemCtrlDelegator().putItem(item, null, null);
     }
 
     /**
      * Get item
-     *
+     * 
      * @param pk The item PK.
      * @return The MDM record for the provided PK.
      * @throws XtentisException In case of error in MDM code.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -185,9 +189,9 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Get item with revisionID
-     *
+     * 
      * @param revisionID The item revision
-     * @param pk         The item PK
+     * @param pk The item PK
      * @return The MDM record for the PK.
      * @throws XtentisException In case of error in MDM code.
      * @ejb.interface-method view-type = "both"
@@ -214,12 +218,12 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Is Item modified by others - no exception is thrown: true|false.
-     *
+     * 
      * @param item A record PK.
      * @param time Time of modification.
      * @return True is last modification of record is after time, false otherwise.
      * @throws XtentisException In case of error in MDM code.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -230,11 +234,11 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Get an item - no exception is thrown: returns null if not found
-     *
+     * 
      * @param pk MDM record PK
      * @return True if item with PK exists in database.
      * @throws XtentisException In case of error in MDM code.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -245,8 +249,8 @@ public class ItemCtrl2Bean implements SessionBean {
             return null;
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String info = "Could not check whether this item exists:  " + pk.toString() + ": " + e.getClass().getName() + ": "
-                    + e.getLocalizedMessage();
+                String info = "Could not check whether this item exists:  " + pk.toString() + ": " + e.getClass().getName()
+                        + ": " + e.getLocalizedMessage();
                 LOGGER.debug(info, e);
             }
             return null;
@@ -255,10 +259,10 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Remove an item - returns null if no item was deleted
-     *
-     * @param pk       PK of the item to be deleted.
+     * 
+     * @param pk PK of the item to be deleted.
      * @param override Override FK integrity when deleting instance. Please note that this parameter is only taken into
-     *                 account if the data model allows override.
+     * account if the data model allows override.
      * @return The PK of the deleted item.
      * @throws XtentisException In case of error in MDM code.
      * @ejb.interface-method view-type = "both"
@@ -273,7 +277,8 @@ public class ItemCtrl2Bean implements SessionBean {
         }
         boolean allowDelete = FKIntegrityChecker.getInstance().allowDelete(dataClusterName, conceptName, ids, override);
         if (!allowDelete) {
-            throw new RuntimeException("Cannot delete instance '" + pk.getUniqueID() + "' (concept name: " + conceptName + ") due to FK integrity constraints.");
+            throw new RuntimeException("Cannot delete instance '" + pk.getUniqueID() + "' (concept name: " + conceptName
+                    + ") due to FK integrity constraints.");
         }
         try {
             return ItemPOJO.remove(pk);
@@ -289,7 +294,7 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Delete items in a stateless mode: open a connection --> perform delete --> close the connection
-     *
+     * 
      * @param dataClusterPOJOPK Data cluster where items will be deleted.
      * @param conceptName Concept name of the soon-to-be-deleted items.
      * @param search A condition for items to be deleted.
@@ -298,13 +303,13 @@ public class ItemCtrl2Bean implements SessionBean {
      * account if the data model allows override.
      * @return Number of deleted items.
      * @throws XtentisException In case of error in MDM code.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
     // TODO override is not taken into account here?
-    public int deleteItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem search, int spellThreshold, boolean override)
-            throws XtentisException {
+    public int deleteItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem search, int spellThreshold,
+            boolean override) throws XtentisException {
         // get the universe and revision ID
         UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
         if (universe == null) {
@@ -323,7 +328,7 @@ public class ItemCtrl2Bean implements SessionBean {
         XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
         try {
             int count = server.deleteItems(patternsToRevisionID, patternsToClusterName, conceptName, search);
-            if (count > 0){
+            if (count > 0) {
                 ItemPOJO.clearCache();
             }
             return count;
@@ -338,14 +343,15 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Drop an item - returns null if no item was dropped. This is logical delete (i.e. send to trash)
-     *
+     * 
      * @param itemPOJOPK PK of item to be sent to trash.
-     * @param partPath Use this parameter too only drop a part of the document (a XPath evaluated from the document's root).
+     * @param partPath Use this parameter too only drop a part of the document (a XPath evaluated from the document's
+     * root).
      * @param override Override FK integrity when deleting instance. Please note that this parameter is only taken into
      * account if the data model allows override.
      * @return A PK to the item in the MDM trash.
      * @throws XtentisException In case of error in MDM code.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -359,7 +365,8 @@ public class ItemCtrl2Bean implements SessionBean {
         }
         boolean allowDelete = FKIntegrityChecker.getInstance().allowDelete(dataClusterName, conceptName, ids, override);
         if (!allowDelete) {
-            throw new RuntimeException("Cannot delete instance '" + itemPOJOPK.getUniqueID() + "' (concept name: " + conceptName + ") due to FK integrity constraints.");
+            throw new RuntimeException("Cannot delete instance '" + itemPOJOPK.getUniqueID() + "' (concept name: " + conceptName
+                    + ") due to FK integrity constraints.");
         }
         try {
             return ItemPOJO.drop(itemPOJOPK, partPath);
@@ -373,10 +380,9 @@ public class ItemCtrl2Bean implements SessionBean {
         }
     }
 
-
     /**
      * Search Items through a view in a cluster and specifying a condition
-     *
+     * 
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param viewPOJOPK The View
      * @param whereItem The condition
@@ -385,7 +391,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param limit The maximum number of items to return
      * @return The ordered list of results
      * @throws XtentisException In case of error in MDM code.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -396,7 +402,7 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Search ordered Items through a view in a cluster and specifying a condition
-     *
+     * 
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param viewPOJOPK The View
      * @param whereItem The condition
@@ -408,13 +414,13 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param limit The maximum number of items to return
      * @return The ordered list of results
      * @throws XtentisException In case of error in MDM code.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
     public ArrayList<String> viewSearch(DataClusterPOJOPK dataClusterPOJOPK, ViewPOJOPK viewPOJOPK, IWhereItem whereItem,
             int spellThreshold, String orderBy, String direction, int start, int limit) throws XtentisException {
-        return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator()
+        return BeanDelegatorContainer.getInstance().getItemCtrlDelegator()
                 .viewSearch(dataClusterPOJOPK, viewPOJOPK, whereItem, spellThreshold, orderBy, direction, start, limit);
 
     }
@@ -422,7 +428,7 @@ public class ItemCtrl2Bean implements SessionBean {
     /**
      * Returns an ordered collection of results searched in a cluster and specifying an optional condition<br/>
      * The results are xml objects made of elements constituted by the specified viewablePaths
-     *
+     * 
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param forceMainPivot An optional pivot that will appear first in the list of pivots in the query<br>
      * : This allows forcing cartesian products: for instance Order Header vs Order Line
@@ -434,20 +440,21 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param returnCount True if total search count should be returned as first result.
      * @return The ordered list of results
      * @throws XtentisException In case of error in MDM code.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
     public ArrayList<String> xPathsSearch(DataClusterPOJOPK dataClusterPOJOPK, String forceMainPivot,
             ArrayList<String> viewablePaths, IWhereItem whereItem, int spellThreshold, int start, int limit, boolean returnCount)
             throws XtentisException {
-        return xPathsSearch(dataClusterPOJOPK, forceMainPivot, viewablePaths, whereItem, spellThreshold, null, null, start, limit, returnCount);
+        return xPathsSearch(dataClusterPOJOPK, forceMainPivot, viewablePaths, whereItem, spellThreshold, null, null, start,
+                limit, returnCount);
     }
 
     /**
      * Returns an ordered collection of results searched in a cluster and specifying an optional condition<br/>
      * The results are xml objects made of elements constituted by the specified viewablePaths
-     *
+     * 
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param forceMainPivot An optional pivot that will appear first in the list of pivots in the query<br>
      * : This allows forcing cartesian products: for instance Order Header vs Order Line
@@ -462,7 +469,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param returnCount True if total search count should be returned as first result.
      * @return The ordered list of results
      * @throws XtentisException In case of error in MDM code.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -484,8 +491,8 @@ public class ItemCtrl2Bean implements SessionBean {
                 authorized = true;
             }
             if (!authorized) {
-                throw new XtentisException("Unauthorized read access on data cluster '" + dataClusterPOJOPK.getUniqueId() + "' by user '"
-                        + user.getUsername() + "'");
+                throw new XtentisException("Unauthorized read access on data cluster '" + dataClusterPOJOPK.getUniqueId()
+                        + "' by user '" + user.getUsername() + "'");
             }
             // get the universe and revision ID
             UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
@@ -510,7 +517,8 @@ public class ItemCtrl2Bean implements SessionBean {
                 conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
                 XmlServerSLWrapperLocal xmlServer = Util.getXmlServerCtrlLocal();
                 String query = xmlServer.getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot,
-                        viewablePaths, whereItem, orderBy, direction, start, limit, spellThreshold, returnCount, Collections.<String, ArrayList<String>>emptyMap());
+                        viewablePaths, whereItem, orderBy, direction, start, limit, spellThreshold, returnCount,
+                        Collections.<String, ArrayList<String>> emptyMap());
                 return xmlServer.runQuery(null, null, query, null);
             } else {
                 MetadataRepository repository = storage.getMetadataRepository();
@@ -520,7 +528,8 @@ public class ItemCtrl2Bean implements SessionBean {
                 qb.start(start);
                 qb.limit(limit);
                 if (orderBy != null) {
-                    List<TypedExpression> fields = UserQueryHelper.getFields(repository, typeName, StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
+                    List<TypedExpression> fields = UserQueryHelper.getFields(repository, typeName,
+                            StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
                     if (fields == null) {
                         throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
                     }
@@ -541,7 +550,8 @@ public class ItemCtrl2Bean implements SessionBean {
                     if (!viewableFieldName.isEmpty()) {
                         qb.select(repository.getComplexType(viewableTypeName), viewableFieldName);
                     } else {
-                        qb.selectId(repository.getComplexType(viewableTypeName)); // Select id if xPath is 'typeName' and not 'typeName/field'
+                        qb.selectId(repository.getComplexType(viewableTypeName)); // Select id if xPath is 'typeName'
+                                                                                  // and not 'typeName/field'
                     }
                 }
                 StorageResults results;
@@ -551,7 +561,7 @@ public class ItemCtrl2Bean implements SessionBean {
                     resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 results = storage.fetch(qb.getSelect());
-                DataRecordWriter writer = new DataRecordDefaultWriter(); 
+                DataRecordWriter writer = new DataRecordDefaultWriter();
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 for (DataRecord result : results) {
                     try {
@@ -576,7 +586,7 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Get items hierarchical tree according to pivots
-     *
+     * 
      * @param clusterName The Data Cluster where to run the query
      * @param mainPivotName The main Business Concept name
      * @param pivotWithKeys The pivots with their IDs which selected to be the catalog of the hierarchical tree
@@ -590,7 +600,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param limit The maximum number of items to return
      * @return The ordered list of results
      * @throws XtentisException In case of error in MDM code.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -598,7 +608,7 @@ public class ItemCtrl2Bean implements SessionBean {
             LinkedHashMap<String, String[]> pivotWithKeys, String[] indexPaths, IWhereItem whereItem, String[] pivotDirections,
             String[] indexDirections, int start, int limit) throws XtentisException {
         return BeanDelegatorContainer
-                .getUniqueInstance()
+                .getInstance()
                 .getItemCtrlDelegator()
                 .getItemsPivotIndex(clusterName, mainPivotName, pivotWithKeys, indexPaths, whereItem, pivotDirections,
                         indexDirections, start, limit);
@@ -615,20 +625,20 @@ public class ItemCtrl2Bean implements SessionBean {
      */
     public ArrayList<String> getChildrenItems(String clusterName, String conceptName, String PKXpaths[], String FKXpath,
             String labelXpath, String fatherPK, IWhereItem whereItem, int start, int limit) throws XtentisException {
-        return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator()
+        return BeanDelegatorContainer.getInstance().getItemCtrlDelegator()
                 .getChildrenItems(clusterName, conceptName, PKXpaths, FKXpath, labelXpath, fatherPK, whereItem, start, limit);
     }
 
     /**
      * Count the items denoted by concept name meeting the optional condition whereItem
-     *
+     * 
      * @param dataClusterPOJOPK A data cluster PK.
      * @param conceptName A concept name.
      * @param whereItem A condition on returned count.
      * @param spellThreshold Unused parameter.
      * @return The number of items found
      * @throws XtentisException In case of error in MDM code.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -649,8 +659,9 @@ public class ItemCtrl2Bean implements SessionBean {
                 // build the patterns to revision ID map
                 LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
                         universe.getItemsRevisionIDs());
-                if (universe.getDefaultItemRevisionID() != null)
+                if (universe.getDefaultItemRevisionID() != null) {
                     conceptPatternsToRevisionID.put(".*", universe.getDefaultItemRevisionID());
+                }
 
                 // build the patterns to cluster map - only one cluster at this stage
                 LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
@@ -692,14 +703,14 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Search ordered Items through a view in a cluster and specifying a condition
-     *
+     * 
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param viewPOJOPK The View
-     * @param searchValue The value searched. If empty, null or equals to "*", this method is equivalent to a view search
-     * with no filter.
-     * @param matchWholeSentence If <code>false</code>, the searchValue is separated into keywords using " " (white space) as
-     * separator. Match will be done with a OR condition on each field. If <code>true</code>, the keyword is considered
-     * as a whole sentence and matching is done on the whole sentence (not each word).
+     * @param searchValue The value searched. If empty, null or equals to "*", this method is equivalent to a view
+     * search with no filter.
+     * @param matchWholeSentence If <code>false</code>, the searchValue is separated into keywords using " " (white
+     * space) as separator. Match will be done with a OR condition on each field. If <code>true</code>, the keyword is
+     * considered as a whole sentence and matching is done on the whole sentence (not each word).
      * @param spellThreshold The condition spell checking threshold. A negative value de-activates spell
      * @param orderBy An optional full path of the item used to order results.
      * @param direction One of {@link IXmlServerSLWrapper#ORDER_ASCENDING} or
@@ -708,7 +719,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param limit The maximum number of items to return
      * @return The ordered list of results
      * @throws XtentisException In case of error in MDM code.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -717,7 +728,8 @@ public class ItemCtrl2Bean implements SessionBean {
             throws XtentisException {
         try {
             // check if there actually is a search value
-            if ((searchValue == null) || "".equals(searchValue) || "*".equals(searchValue)) { // $NON-NLS-1$ // $NON-NLS-2$
+            if ((searchValue == null) || "".equals(searchValue) || "*".equals(searchValue)) { // $NON-NLS-1$ //
+                                                                                              // $NON-NLS-2$
                 return viewSearch(dataClusterPOJOPK, viewPOJOPK, null, spellThreshold, orderBy, direction, start, limit);
             } else {
                 ViewPOJO view = Util.getViewCtrlLocal().getView(viewPOJOPK);
@@ -748,7 +760,8 @@ public class ItemCtrl2Bean implements SessionBean {
                     for (String fieldName : searchableFields) {
                         WhereOr nestedOr = new WhereOr();
                         for (String keyword : keywords) {
-                            WhereCondition nestedCondition = new WhereCondition(fieldName, WhereCondition.CONTAINS, keyword.trim(), WhereCondition.PRE_OR, false);
+                            WhereCondition nestedCondition = new WhereCondition(fieldName, WhereCondition.CONTAINS,
+                                    keyword.trim(), WhereCondition.PRE_OR, false);
                             nestedOr.add(nestedCondition);
                         }
                         whereOr.add(nestedOr);
@@ -770,7 +783,7 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Get the possible value for the business Element Path, optionally filtered by a condition
-     *
+     * 
      * @param dataClusterPOJOPK The data cluster where to run the query
      * @param businessElementPath The business element path. Must be of the form
      * <code>ConceptName/[optional sub elements]/element</code>
@@ -781,14 +794,13 @@ public class ItemCtrl2Bean implements SessionBean {
      * {@link IXmlServerSLWrapper#ORDER_DESCENDING}
      * @return The list of values
      * @throws XtentisException In case of error in MDM code.
-     *
-     *
+     * 
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
-    public ArrayList<String> getFullPathValues(DataClusterPOJOPK dataClusterPOJOPK,
-            String businessElementPath, IWhereItem whereItem, int spellThreshold, String orderBy, String direction)
-            throws XtentisException {
+    public ArrayList<String> getFullPathValues(DataClusterPOJOPK dataClusterPOJOPK, String businessElementPath,
+            IWhereItem whereItem, int spellThreshold, String orderBy, String direction) throws XtentisException {
 
         ArrayList<String> res = new ArrayList<String>();
         try {
@@ -801,16 +813,17 @@ public class ItemCtrl2Bean implements SessionBean {
             }
 
             ArrayList<String> col = xPathsSearch(dataClusterPOJOPK, null,
-                    new ArrayList<String>(Arrays.asList(businessElementPath)), whereItem, spellThreshold,
-                    orderBy, direction, 0, -1, false);
+                    new ArrayList<String>(Arrays.asList(businessElementPath)), whereItem, spellThreshold, orderBy, direction, 0,
+                    -1, false);
 
             Pattern p = Pattern.compile("<.*>(.*?)</.*>", Pattern.DOTALL);
             for (String li : col) {
                 Matcher m = p.matcher(li);
-                if (m.matches())
+                if (m.matches()) {
                     res.add(StringEscapeUtils.unescapeXml(m.group(1)));
-                else
+                } else {
                     throw new XtentisException("Result values were not understood for business element: " + conceptName);
+                }
             }
 
             return res;
@@ -826,7 +839,7 @@ public class ItemCtrl2Bean implements SessionBean {
     /**
      * Extract results through a view and transform them using a transformer<br/>
      * This call is asynchronous and results will be pushed via the passed {@link TransformerCallBack}
-     *
+     * 
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param context The {@link TransformerContext} contains the initial context and the transformer name
      * @param globalCallBack The callback function called by the transformer when it completes a step
@@ -839,7 +852,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param start The first item index (starts at zero)
      * @param limit The maximum number of items to return
      * @throws com.amalto.core.util.XtentisException In case of error in MDM code.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -854,20 +867,16 @@ public class ItemCtrl2Bean implements SessionBean {
             context.put("com.amalto.core.ejb.itemctrl.globalCallBack", globalCallBack); //$NON-NLS-1$
             context.put("com.amalto.core.ejb.itemctrl.count", 0); //$NON-NLS-1$
             // perform search
-            ArrayList<String> rows = viewSearch(dataClusterPOJOPK,
-                    viewPOJOPK,
-                    whereItem,
-                    spellThreshold,
-                    orderBy,
-                    direction,
-                    start,
-                    limit);
+            ArrayList<String> rows = viewSearch(dataClusterPOJOPK, viewPOJOPK, whereItem, spellThreshold, orderBy, direction,
+                    start, limit);
 
             // transform
             for (String raw : rows) {
                 Util.getTransformerV2CtrlLocal().execute(context,
                         new TypedContent(raw.getBytes("utf-8"), "text/xml; charset=\"utf-8\""), //$NON-NLS-1$ //$NON-NLS-2$
                         new TransformerCallBack() {
+
+                            @Override
                             public void contentIsReady(TransformerContext context) throws XtentisException {
                                 // add numbered content to the pipeline
                                 TypedContent content = context.getFromPipeline(DEFAULT_VARIABLE);
@@ -880,6 +889,7 @@ public class ItemCtrl2Bean implements SessionBean {
                                 globalCallBack.contentIsReady(context);
                             }
 
+                            @Override
                             public void done(TransformerContext context) throws XtentisException {
                                 // do not notify
                             }
@@ -901,7 +911,7 @@ public class ItemCtrl2Bean implements SessionBean {
     /**
      * Extract results through a view and transform them using a transformer<br/>
      * This call is asynchronous and results will be pushed via the passed {@link TransformerCallBack}
-     *
+     * 
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param transformerPOJOPK The transformer to use
      * @param viewPOJOPK A filtering view
@@ -912,7 +922,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * {@link IXmlServerSLWrapper#ORDER_DESCENDING}
      * @param start The first item index (starts at zero)
      * @param limit The maximum number of items to return
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -928,23 +938,18 @@ public class ItemCtrl2Bean implements SessionBean {
             context.put("com.amalto.core.itemctrl2.content", content); //$NON-NLS-1$
             context.put("com.amalto.core.itemctrl2.ready", false); //$NON-NLS-1$
             TransformerCallBack globalCallBack = new TransformerCallBack() {
+
+                @Override
                 public void contentIsReady(TransformerContext context) throws XtentisException {
                 }
 
+                @Override
                 public void done(TransformerContext context) throws XtentisException {
                     context.put("com.amalto.core.itemctrl2.ready", true); //$NON-NLS-1$
                 }
             };
-            extractUsingTransformerThroughView(dataClusterPOJOPK,
-                    context,
-                    globalCallBack,
-                    viewPOJOPK,
-                    whereItem,
-                    spellThreshold,
-                    orderBy,
-                    direction,
-                    start,
-                    limit);
+            extractUsingTransformerThroughView(dataClusterPOJOPK, context, globalCallBack, viewPOJOPK, whereItem, spellThreshold,
+                    orderBy, direction, start, limit);
             while (!(Boolean) context.get("com.amalto.core.itemctrl2.ready")) {
                 try {
                     Thread.sleep(50);
@@ -969,7 +974,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param query The query in the native language
      * @param parameters Optional parameter values to replace the %n in the query before execution
      * @return Query results as list of String.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -977,8 +982,8 @@ public class ItemCtrl2Bean implements SessionBean {
             throws XtentisException {
         XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
         try {
-            return server.runQuery(revisionID,
-                    (dataClusterPOJOPK == null ? null : dataClusterPOJOPK.getUniqueId()), query, parameters);
+            return server.runQuery(revisionID, (dataClusterPOJOPK == null ? null : dataClusterPOJOPK.getUniqueId()), query,
+                    parameters);
         } catch (Exception e) {
             String err = "Unable to perform a direct query: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             LOGGER.error(err, e);
@@ -999,11 +1004,11 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
-     *
+     * 
      * @param dataClusterPOJOPK A data cluster PK.
      * @return A {@link TreeMap} of concept names to revision IDs
      * @throws XtentisException In case of error in MDM code.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -1013,7 +1018,7 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
-     *
+     * 
      * @param dataClusterPOJOPK A data cluster PK.
      * @param universe Universe
      * @return A {@link TreeMap} of concept names to revision IDs
@@ -1052,8 +1057,8 @@ public class ItemCtrl2Bean implements SessionBean {
                     if (totalItemsInDataContainer > threshold) {
                         if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("Won't calculate concepts in DataCluster \"" + dataClusterPOJOPK.getUniqueId() //$NON-NLS-1$
-                            + "\", because total items in data container " + totalItemsInDataContainer //$NON-NLS-1$
-                            + " is over the limit " + threshold + "! "); //$NON-NLS-1$ //$NON-NLS-2$
+                                    + "\", because total items in data container " + totalItemsInDataContainer //$NON-NLS-1$
+                                    + " is over the limit " + threshold + "! "); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                         return Collections.emptyMap();
                     }
@@ -1124,7 +1129,7 @@ public class ItemCtrl2Bean implements SessionBean {
     public long countItemsByCustomFKFilters(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, String injectedXpath)
             throws XtentisException {
         try {
-            IWhereItem whereItem = new WhereAnd(Arrays.<IWhereItem>asList(new CustomWhereCondition(injectedXpath)));
+            IWhereItem whereItem = new WhereAnd(Arrays.<IWhereItem> asList(new CustomWhereCondition(injectedXpath)));
             return count(dataClusterPOJOPK, conceptName, whereItem, 0);
         } catch (Exception e) {
             String err = "Unable to count the elements! "; //$NON-NLS-1$
@@ -1135,23 +1140,23 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * @param dataClusterPOJOPK A data cluster name
-     * @param viewablePaths     Viewable paths in the result
-     * @param customXPath       A custom XPath-based condition to be added as-is to the XQuery (no validation)
-     * @param whereItem         A addition where condition
-     * @param start             A start position for paging results
-     * @param limit             Size of results page.
-     * @param orderBy           A optional order by
-     * @param direction         Direction for the order by.
-     * @param returnCount       If true, returns total match count as first result.
-     * @return The equivalent of a {@link #xPathsSearch(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)} using a
-     *         custom XPath as additional condition.
+     * @param viewablePaths Viewable paths in the result
+     * @param customXPath A custom XPath-based condition to be added as-is to the XQuery (no validation)
+     * @param whereItem A addition where condition
+     * @param start A start position for paging results
+     * @param limit Size of results page.
+     * @param orderBy A optional order by
+     * @param direction Direction for the order by.
+     * @param returnCount If true, returns total match count as first result.
+     * @return The equivalent of a
+     * {@link #xPathsSearch(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)}
+     * using a custom XPath as additional condition.
      * @throws XtentisException In case of MDM server error.
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
     public ArrayList<String> getItemsByCustomFKFilters(DataClusterPOJOPK dataClusterPOJOPK, ArrayList<String> viewablePaths,
-                                                       String customXPath, IWhereItem whereItem, int start, int limit,
-                                                       String orderBy, String direction, boolean returnCount)
+            String customXPath, IWhereItem whereItem, int start, int limit, String orderBy, String direction, boolean returnCount)
             throws XtentisException {
         IWhereItem customWhereCondition = new CustomWhereCondition(customXPath);
         IWhereItem xPathSearchCondition;
@@ -1160,7 +1165,8 @@ public class ItemCtrl2Bean implements SessionBean {
         } else {
             xPathSearchCondition = customWhereCondition;
         }
-        return xPathsSearch(dataClusterPOJOPK, null, viewablePaths, xPathSearchCondition, 0, orderBy, direction, start, limit, returnCount);
+        return xPathsSearch(dataClusterPOJOPK, null, viewablePaths, xPathSearchCondition, 0, orderBy, direction, start, limit,
+                returnCount);
     }
 
     public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
@@ -1175,7 +1181,7 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Get unordered items of a Concept using an optional where condition
-     *
+     * 
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param conceptName The name of the concept
      * @param whereItem The condition
@@ -1185,10 +1191,10 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param totalCountOnFirstRow If true, return total search count as first result.
      * @return The ordered list of results
      * @throws XtentisException In case of error in MDM code.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
-     *
+     * 
      */
     public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
             int spellThreshold, int start, int limit, boolean totalCountOnFirstRow) throws XtentisException {
@@ -1197,7 +1203,7 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Get potentially ordered items of a Concept using an optional where condition
-     *
+     * 
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param conceptName The name of the concept
      * @param whereItem The condition
@@ -1210,15 +1216,19 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param totalCountOnFirstRow If true, return total search count as first result.
      * @return The ordered list of results
      * @throws XtentisException In case of error in MDM code.
-     *
+     * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
-     *
+     * 
      */
     public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
             int spellThreshold, String orderBy, String direction, int start, int limit, boolean totalCountOnFirstRow)
             throws XtentisException {
-    	return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().getItems(dataClusterPOJOPK, conceptName, whereItem, spellThreshold, orderBy, direction, start, limit, totalCountOnFirstRow);
+        return BeanDelegatorContainer
+                .getInstance()
+                .getItemCtrlDelegator()
+                .getItems(dataClusterPOJOPK, conceptName, whereItem, spellThreshold, orderBy, direction, start, limit,
+                        totalCountOnFirstRow);
     }
 
     public FKIntegrityCheckResult checkFKIntegrity(String dataCluster, String concept, String[] ids) throws XtentisException {
