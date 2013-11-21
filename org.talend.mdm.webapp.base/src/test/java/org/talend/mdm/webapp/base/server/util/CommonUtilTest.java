@@ -251,7 +251,7 @@ public class CommonUtilTest extends TestCase {
 
             assertEquals("MyEntity/id", condition.getLeftPath());
             assertEquals("CONTAINS", condition.getOperator().getValue());
-            //assertEquals("H/F Sundbyvester", condition.getRightValueOrPath());
+            // assertEquals("H/F Sundbyvester", condition.getRightValueOrPath());
             assertEquals("NONE", condition.getStringPredicate().getValue());
         }
     }
@@ -311,14 +311,14 @@ public class CommonUtilTest extends TestCase {
         String[] keys = null;
         String[] ids = null;
         assertNull(CommonUtil.buildCriteriaByIds(keys, ids));
-        
+
         keys = new String[1];
         ids = new String[1];
         keys[0] = "Product/Id";
         ids[0] = "10001";
         String criteria = CommonUtil.buildCriteriaByIds(keys, ids);
         assertEquals("Product/Id EQUALS 10001", criteria);
-        
+
         keys = new String[2];
         ids = new String[2];
         keys[0] = "Product/Id";
@@ -328,12 +328,12 @@ public class CommonUtilTest extends TestCase {
         criteria = CommonUtil.buildCriteriaByIds(keys, ids);
         assertEquals("((Product/Id EQUALS 10001) AND (Product/Name EQUALS Test))", criteria);
     }
-    
+
     public void testExtractFKRefValue() {
         String ids = "[1][2]";
         String[] id = CommonUtil.extractFKRefValue(ids, "en");
         assertEquals("1", id[0]);
-        assertEquals("2", id[1]);        
+        assertEquals("2", id[1]);
     }
 
     public void testSplitString() {
@@ -356,4 +356,5 @@ public class CommonUtilTest extends TestCase {
         result = CommonUtil.splitString(s, ';');
         assertEquals(1, result.size());
         assertEquals(s, result.get(0));
+    }
 }
