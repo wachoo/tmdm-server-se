@@ -111,7 +111,7 @@ public class ImageLoadFrontFilter {
                 .getAttribute(SsimServlet.PATTERN_REPLACEMENT_MAP_APPKEY);
 
         if (patternReplacementMap != null) {
-            patternReplacementMap.addMapping(Pattern.compile(input), "file:" + path); //$NON-NLS-1$
+            patternReplacementMap.addMapping(Pattern.compile(getServletPath()), "file:" + path); //$NON-NLS-1$
         }
         return path;
     }
