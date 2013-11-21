@@ -43,8 +43,14 @@ public class TaskFactory {
                     Storage.class,
                     MetadataRepository.class,
                     ClosureExecutionStats.class,
-                    Filter.class);
-            Object task = constructor.newInstance(stagingStorage, destinationStorage, userRepository, stats, filter);
+                    Filter.class,
+                    String.class);
+            Object task = constructor.newInstance(stagingStorage,
+                    destinationStorage,
+                    userRepository,
+                    stats,
+                    filter,
+                    source.getUserName());
             tasks.add((Task) task);
         } catch (ClassNotFoundException e) {
             LOGGER.warn("Could not find match & merge extension, feature will be disabled.");
