@@ -13,16 +13,13 @@
 
 package com.amalto.core.query;
 
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.transaction.Transaction;
-import com.amalto.core.storage.transaction.TransactionManager;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -427,7 +424,43 @@ public class StorageRecordCreationTest extends StorageTestCase {
         } finally {
             storage.end();
         }
+    }
 
+    public void testInstanceDelete() throws Exception {
+        UserQueryBuilder qb = from(product);
+        storage.begin();
+        StorageResults results = storage.fetch(qb.getSelect());
+        int productCount;
+        try {
+            productCount = results.getCount();
+        } finally {
+            results.close();
+            storage.commit();
+        }
+        assertTrue(productCount > 0);
 
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.rollback(); // Rollback should cancel delete
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(productCount, results.getCount());
+        } finally {
+            results.close();
+            storage.commit();
+        }
+
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit(); // Commit should delete
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+            storage.commit();
+        }
     }
 }
