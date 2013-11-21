@@ -43,6 +43,7 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Namespace;
@@ -266,7 +267,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String concept = selectedItem.getConcept();
                 if (key == null) {
                     key = CommonUtil.getPort().getBusinessConceptKey(
-                            new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));   
+                            new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));
                 }
                 String[] ids = extractIdWithDots(key.getFields(), selectedItem.getIds());
 
@@ -726,7 +727,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public ItemBean queryItemBeanById(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String ids,
             String language) throws ServiceException {
         try {
-            String[] idArr = ids.split("\\."); //$NON-NLS-1$
+            String[] idArr = StringUtils.splitPreserveAllTokens(ids, '.'); // String.split() omits the last '' if ends
+                                                                           // with delimiter
             String criteria = CommonUtil.buildCriteriaByIds(entityModel.getKeys(), idArr);
             Object[] result = getItemBeans(dataClusterPK, viewBean, entityModel, criteria, -1, 20,
                     ItemHelper.SEARCH_DIRECTION_ASC, null, language);
@@ -1279,9 +1281,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             while (tokenizer.hasMoreTokens()) {
                 idList.add(tokenizer.nextToken());
-            }    
+            }
         }
-        
+
         return idList.toArray(new String[idList.size()]);
     }
 
