@@ -12,6 +12,7 @@
 package com.amalto.core.storage.task.staging;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserStagingQueryBuilder.status;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -19,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.storage.task.*;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -26,7 +28,6 @@ import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.query.user.UserStagingQueryBuilder;
 import com.amalto.core.save.DefaultCommitter;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
@@ -288,6 +289,18 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
                 if (currentType.isInstantiable() && !EXECUTION_LOG_TYPE.equals(currentType.getName())) {
                     UserQueryBuilder qb = from(currentType)
                             .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
+                    if (hasMatchMergeConfiguration(currentType.getName())) {
+                        // Don't include generated golden records in global statistics.
+                        qb.where(
+                                or(
+                                        or(
+                                                eq(status(), StagingConstants.NEW),
+                                                isNull(status())
+                                        ),
+                                        eq(status(), StagingConstants.SUCCESS_MERGE_CLUSTERS)
+                                )
+                        );
+                    }
                     StorageResults results = storage.fetch(qb.getSelect()); // Expects an active transaction here
                     try {
                         for (DataRecord result : results) {
@@ -306,6 +319,32 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         return totalCount;
     }
 
+    // TODO Move to a better place (this method is more a helper/util method)
+    public static boolean hasMatchMergeConfiguration(String typeName) {
+        // Read configuration from database
+        Server server = ServerContext.INSTANCE.get();
+        Storage systemStorage = server.getStorageAdmin().get(StorageAdmin.SYSTEM_STORAGE, null);
+        if (systemStorage == null) {
+            return false;
+        }
+        systemStorage.begin();
+        try {
+            MetadataRepository metadataRepository = systemStorage.getMetadataRepository();
+            String internalTypeName = ClassRepository.format("MatchRulePOJO"); //$NON-NLS-1$
+            ComplexTypeMetadata matchRuleType = metadataRepository.getComplexType(internalTypeName);
+            if (matchRuleType == null) {
+                return false; // Might happen for CE edition.
+            }
+            UserQueryBuilder qb = from(matchRuleType).where(eq(matchRuleType.getField("unique-id"), typeName)); //$NON-NLS-1$
+            StorageResults results = systemStorage.fetch(qb.getSelect());
+            return results.getSize() != 0;
+        } catch (Exception e) {
+            throw new RuntimeException("Unexpected exception during configuration read.", e);
+        } finally {
+            systemStorage.commit();
+        }
+    }
+
     private static int countInstancesByStatus(Storage storage, MetadataRepository repository, String status) {
         int totalCount = 0;
         try {
@@ -315,9 +354,9 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
                     UserQueryBuilder qb = from(currentType)
                             .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
                     if (StagingConstants.NEW.equals(status)) {
-                        qb.where(or(eq(UserStagingQueryBuilder.status(), status), isNull(UserStagingQueryBuilder.status())));
+                        qb.where(or(eq(status(), status), isNull(status())));
                     } else {
-                        qb.where(eq(UserStagingQueryBuilder.status(), status));
+                        qb.where(eq(status(), status));
                     }
                     StorageResults results = storage.fetch(qb.getSelect());
                     try {
@@ -346,9 +385,9 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
                     UserQueryBuilder qb = from(currentType)
                             .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
                     if (valid) {
-                        qb.where(eq(UserStagingQueryBuilder.status(), StagingConstants.SUCCESS_VALIDATE));
+                        qb.where(eq(status(), StagingConstants.SUCCESS_VALIDATE));
                     } else {
-                        qb.where(gte(UserStagingQueryBuilder.status(), StagingConstants.FAIL));
+                        qb.where(gte(status(), StagingConstants.FAIL));
                     }
 
                     StorageResults results = storage.fetch(qb.getSelect());

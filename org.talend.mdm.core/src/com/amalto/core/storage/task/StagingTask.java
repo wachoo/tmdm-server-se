@@ -70,11 +70,7 @@ public class StagingTask implements Task {
 
     public int getRecordCount() {
         synchronized (currentTaskMonitor) {
-            if (currentTask != null) {
-                return currentTask.getRecordCount();
-            } else {
-                return tasks.get(0).getRecordCount();
-            }
+            return recordCount.get();
         }
     }
 
@@ -170,13 +166,13 @@ public class StagingTask implements Task {
             }
             // Start recording the execution
             recordExecutionStart();
-            recordCount.set(0);
             for (Task task : tasks) {
                 synchronized (currentTaskMonitor) {
                     if (isCancelled) {
                         break;
                     }
                     currentTask = task;
+                    recordCount.addAndGet(currentTask.getRecordCount());
                 }
                 LOGGER.info("--> " + task.toString());
                 long taskExecTime = System.currentTimeMillis();
