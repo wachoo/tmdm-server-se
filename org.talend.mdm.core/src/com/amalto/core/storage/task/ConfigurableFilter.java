@@ -95,7 +95,7 @@ public class ConfigurableFilter implements Filter {
     }
 
     @Override
-    public Select doFilter(Task task, ComplexTypeMetadata type) {
+    public Select doFilter(Filterable task, ComplexTypeMetadata type) {
         Condition filterCondition;
         if (!statusCodes.isEmpty()) {
             Condition condition = null;

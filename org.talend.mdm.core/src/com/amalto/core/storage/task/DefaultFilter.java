@@ -24,7 +24,7 @@ public class DefaultFilter implements Filter {
     }
 
     @Override
-    public Select doFilter(Task task, ComplexTypeMetadata type) {
+    public Select doFilter(Filterable task, ComplexTypeMetadata type) {
         return from(type).where(task.getDefaultFilter()).getSelect();
     }
 

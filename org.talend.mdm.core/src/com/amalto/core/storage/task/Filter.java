@@ -25,10 +25,10 @@ public interface Filter {
      * @param type A entity type used to build the query. The returned {@link Select} must include the <code>type</code>
      *             in its type arguments.
      * @return A select clause the <code>task</code> can use to get records.
-     * @see com.amalto.core.storage.task.Task#getDefaultFilter()
+     * @see Filterable#getDefaultFilter()
      * @see com.amalto.core.query.user.Select#getTypes()
      */
-    Select doFilter(Task task, ComplexTypeMetadata type);
+    Select doFilter(Filterable task, ComplexTypeMetadata type);
 
     /**
      * @param type An entity type.

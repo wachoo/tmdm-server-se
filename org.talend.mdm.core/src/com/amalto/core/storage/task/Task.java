@@ -11,7 +11,6 @@
 
 package com.amalto.core.storage.task;
 
-import com.amalto.core.query.user.Condition;
 import org.quartz.Job;
 
 import java.util.Date;
@@ -19,7 +18,7 @@ import java.util.Date;
 /**
  *
  */
-public interface Task extends Job, Runnable {
+public interface Task extends Job, Runnable, Filterable {
 
     /**
      * @return Returns a unique ID for this task.
@@ -78,7 +77,6 @@ public interface Task extends Job, Runnable {
      */
     boolean hasFinished();
 
-    Condition getDefaultFilter();
 
     /**
      * @return <code>true</code> if the task failed (did not finish without an error), <code>false</code> otherwise.
