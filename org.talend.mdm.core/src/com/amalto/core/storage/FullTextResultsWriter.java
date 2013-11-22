@@ -15,14 +15,16 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class FullTextResultsWriter implements DataRecordWriter {
     private final String keyword;
@@ -58,25 +60,7 @@ public class FullTextResultsWriter implements DataRecordWriter {
             }
             {
                 writer.write("<text>"); //$NON-NLS-1$
-                String[] snippetWords = new String[] {StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY}; // Prevent "null" values in results
-                boolean hasMetKeyword = false;
-                for (FieldMetadata field : record.getSetFields()) {
-                    if (field instanceof SimpleTypeFieldMetadata) {
-                        Object recordFieldValue = record.get(field);
-                        if (recordFieldValue != null) {
-                            String value = String.valueOf(recordFieldValue);
-                            if (value.contains(keyword)) {
-                                snippetWords[1] = "<b>" + StringEscapeUtils.escapeXml(value) + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
-                                hasMetKeyword = true;
-                            } else {
-                                snippetWords[hasMetKeyword ? 0 : 2] = StringEscapeUtils.escapeXml(value);
-                                if (hasMetKeyword) {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
+                String[] snippetWords = record.getType().accept(new SnippetCreator(record));
                 StringBuilder builder = new StringBuilder();
                 for (String snippetWord : snippetWords) {
                     builder.append(snippetWord).append(" ... "); //$NON-NLS-1$
@@ -92,5 +76,73 @@ public class FullTextResultsWriter implements DataRecordWriter {
         }
         writer.write("</item>"); //$NON-NLS-1$
         writer.flush();
+    }
+
+    private class SnippetCreator extends DefaultMetadataVisitor<String[]> {
+
+        private final DataRecord record;
+
+        private final String[] snippetWords = new String[]{StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY}; // Prevent "null" values in results
+
+        boolean hasMetKeyword;
+
+        boolean done;
+
+        public SnippetCreator(DataRecord record) {
+            this.record = record;
+            hasMetKeyword = false;
+            done = false;
+        }
+
+        @Override
+        public String[] visit(ComplexTypeMetadata complexType) {
+            super.visit(complexType);
+            return snippetWords;
+        }
+
+        @Override
+        public String[] visit(ContainedComplexTypeMetadata containedType) {
+            super.visit(containedType);
+            return snippetWords;
+        }
+
+        @Override
+        public String[] visit(ContainedTypeFieldMetadata containedField) {
+            super.visit(containedField);
+            return snippetWords;
+        }
+
+        @Override
+        public String[] visit(SimpleTypeFieldMetadata simpleField) {
+            if (!done) {
+                List<String> values;
+                Object valueAsObject = record.get(simpleField);
+                if (valueAsObject != null) {
+                    if (simpleField.isMany()) {
+                        List list = (List) valueAsObject;
+                        values = new ArrayList<String>(list.size());
+                        for (Object o : list) {
+                            values.add(String.valueOf(o));
+                        }
+                    } else {
+                        values = Collections.singletonList(String.valueOf(valueAsObject));
+                    }
+                    for (String value : values) {
+                        if (value.contains(keyword)) {
+                            snippetWords[1] = "<b>" + StringEscapeUtils.escapeXml(value) + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
+                            hasMetKeyword = true;
+                            break;
+                        } else {
+                            snippetWords[hasMetKeyword ? 0 : 2] = StringEscapeUtils.escapeXml(value);
+                            if (hasMetKeyword) {
+                                done = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            return snippetWords;
+        }
     }
 }

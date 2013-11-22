@@ -554,6 +554,27 @@ public class StorageFullTextTest extends StorageTestCase {
         }
     }
 
+    public void testFullTextResultsInNestedFormat() throws Exception {
+        UserQueryBuilder qb = from(product).where(fullText("Klein"));
+
+        StorageResults results = null;
+        try {
+            results = storage.fetch(qb.getSelect());
+            assertEquals(1, results.getCount());
+
+            DataRecordWriter writer = new FullTextResultsWriter("Klein");
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            for (DataRecord result : results) {
+                writer.write(result, output);
+            }
+            assertTrue(output.toString().contains("<b>Klein blue2</b>"));
+        } finally {
+            if (results != null) {
+                results.close();
+            }
+        }
+    }
+
     public void testNoFullText() throws Exception {
         Storage storage = new HibernateStorage("noFullText");
         try {
