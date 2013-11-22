@@ -1705,9 +1705,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String concept = wsDeleteItem.getWsItemPK().getConceptName();
             String[] ids = wsDeleteItem.getWsItemPK().getIds();
 
-            ItemPOJO pojo = Util.getItemCtrl2Local().getItem(new ItemPOJOPK(new DataClusterPOJOPK(dataClusterPK), concept, ids));
+            ItemPOJOPK pk = new ItemPOJOPK(new DataClusterPOJOPK(dataClusterPK), concept, ids);
+            ItemPOJO pojo = Util.getItemCtrl2Local().getItem(pk);
             if (pojo == null) {
-                throw new EntityNotFoundException("Could not find record.");
+                throw new EntityNotFoundException(pk);
             }
             String dataModelPK = pojo.getDataModelName();
 

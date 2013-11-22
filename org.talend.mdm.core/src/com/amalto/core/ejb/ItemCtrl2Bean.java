@@ -171,7 +171,7 @@ public class ItemCtrl2Bean implements SessionBean {
             if (pojo == null) {
                 String err = "The item '" + pk.getUniqueID() + "' cannot be found.";
                 LOGGER.error(err);
-                throw new EntityNotFoundException(err);
+                throw new EntityNotFoundException(pk);
             }
             return pojo;
         } catch (XtentisException e) {

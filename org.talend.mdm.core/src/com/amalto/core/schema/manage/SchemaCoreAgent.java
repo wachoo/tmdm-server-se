@@ -68,11 +68,10 @@ public class SchemaCoreAgent extends SchemaManager {
         if (dataModelBean == null) {
             // reload it
             try {
-                DataModelPOJO dataModelPOJO = ObjectPOJO.load(dataModelID.getRevisionID(), DataModelPOJO.class, new ObjectPOJOPK(
-                        dataModelID.getUniqueID()));
+                ObjectPOJOPK pk = new ObjectPOJOPK(dataModelID.getUniqueID());
+                DataModelPOJO dataModelPOJO = ObjectPOJO.load(dataModelID.getRevisionID(), DataModelPOJO.class, pk);
                 if (dataModelPOJO == null) {
-                    throw new EntityNotFoundException(
-                            "Unable to get the DataModel '" + dataModelID.getUniqueID() + "' in revision '" + dataModelID.getRevisionID() + "'."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    throw new EntityNotFoundException(pk);
                 }
                 String dataModelSchema = dataModelPOJO.getSchema();
                 dataModelBean = updateToDatamodelPool(dataModelID.getRevisionID(), dataModelID.getUniqueID(), dataModelSchema);
