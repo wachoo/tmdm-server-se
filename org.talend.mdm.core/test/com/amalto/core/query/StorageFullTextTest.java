@@ -25,7 +25,6 @@ import com.amalto.core.query.user.Expression;
 import org.apache.log4j.Logger;
 
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.FullTextResultsWriter;
@@ -495,7 +494,8 @@ public class StorageFullTextTest extends StorageTestCase {
             for (DataRecord result : results) {
                 writer.write(result, resultWriter);
             }
-            assertEquals("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" + "\t<Family>[1]</Family>\n"
+            assertEquals("<result xmlns:metadata=\"http://www.talend.com/mdm/metadata\" " +
+                    "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" + "\t<Family>[1]</Family>\n"
                     + "</result>", resultWriter.toString());
         } finally {
             results.close();

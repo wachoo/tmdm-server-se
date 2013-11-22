@@ -36,7 +36,8 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
 
     @Override
     public void write(DataRecord record, Writer writer) throws IOException {
-        writer.write("<result xmlns:xsi=\"" + XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI + "\">\n"); //$NON-NLS-1$ //$NON-NLS-2$
+        writer.write("<result xmlns:metadata=\"" + DataRecordReader.METADATA_NAMESPACE + "\"" //$NON-NLS-1$ //$NON-NLS-2$
+                + " xmlns:xsi=\"" + XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI + "\">\n"); //$NON-NLS-1$ //$NON-NLS-2$
         for (FieldMetadata fieldMetadata : record.getSetFields()) {
             Object value = record.get(fieldMetadata);
             String name = fieldMetadata.getName();

@@ -23,9 +23,9 @@ public class TaskId implements TypedExpression, MetadataField {
 
     public static final TaskId INSTANCE = new TaskId();
 
-    private static final String[] TASK_ID_FIELD = new String[]{"../../taskId", "metadata:task_id"}; //$NON-NLS-1$ //$NON-NLS-2$
+    public static final String TASK_ID_ALIAS = "taskId"; //$NON-NLS-1$
 
-    private static final String TASK_ID_ALIAS = "taskId"; //$NON-NLS-1$
+    private static final String[] TASK_ID_FIELD = new String[]{"../../taskId", "metadata:task_id"}; //$NON-NLS-1$ //$NON-NLS-2$
 
     private TaskId() {
     }

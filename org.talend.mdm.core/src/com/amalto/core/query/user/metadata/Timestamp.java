@@ -23,9 +23,9 @@ public class Timestamp implements TypedExpression, MetadataField {
 
     public static final Timestamp INSTANCE = new Timestamp();
 
-    private static final String[] TIMESTAMP_FIELD = new String[]{"../../t", "metadata:timestamp"}; //$NON-NLS-1$ //$NON-NLS-2$
+    public static final String TIMESTAMP_ALIAS = "timestamp"; //$NON-NLS-1$
 
-    private static final String TIMESTAMP_ALIAS = "timestamp"; //$NON-NLS-1$
+    private static final String[] TIMESTAMP_FIELD = new String[]{"../../t", "metadata:timestamp"}; //$NON-NLS-1$ //$NON-NLS-2$
 
     private Timestamp() {
     }

@@ -16,6 +16,7 @@ import com.amalto.core.query.user.metadata.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import oracle.sql.TIMESTAMP;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.ScrollableResults;
@@ -279,7 +280,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
 
         public ProjectionElement visit(Timestamp timestamp) {
             if (!isAlias) {
-                createElement(timestamp.getTypeName(), Storage.METADATA_TIMESTAMP);
+                createElement(timestamp.getTypeName(), "metadata:" + Timestamp.TIMESTAMP_ALIAS); //$NON-NLS-1$
             }
             currentElement.value = values[currentIndex++];
             return currentElement;
@@ -287,7 +288,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
 
         public ProjectionElement visit(TaskId taskId) {
             if (!isAlias) {
-                createElement(taskId.getTypeName(), Storage.METADATA_TASK_ID);
+                createElement(taskId.getTypeName(), "metadata:" + TaskId.TASK_ID_ALIAS); //$NON-NLS-1$
             }
             currentElement.value = values[currentIndex++];
             return currentElement;
@@ -296,7 +297,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
         @Override
         public ProjectionElement visit(GroupSize groupSize) {
             if (!isAlias) {
-                createElement(groupSize.getTypeName(), GroupSize.GROUP_SIZE_ALIAS);
+                createElement(groupSize.getTypeName(), "metadata:" + GroupSize.GROUP_SIZE_ALIAS); //$NON-NLS-1$
             }
             currentElement.value = values[currentIndex++];
             return currentElement;
@@ -339,7 +340,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
 
         public ProjectionElement visit(StagingStatus stagingStatus) {
             if (!isAlias) {
-                createElement(stagingStatus.getTypeName(), Storage.METADATA_STAGING_STATUS);
+                createElement(stagingStatus.getTypeName(), "metadata:" + StagingStatus.STAGING_STATUS_ALIAS); //$NON-NLS-1$
             }
             currentElement.value = values[currentIndex++];
             return currentElement;
@@ -347,7 +348,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
 
         public ProjectionElement visit(StagingError stagingError) {
             if (!isAlias) {
-                createElement(stagingError.getTypeName(), Storage.METADATA_STAGING_ERROR);
+                createElement(stagingError.getTypeName(), "metadata:" + StagingError.STAGING_ERROR_ALIAS); //$NON-NLS-1$
             }
             currentElement.value = values[currentIndex++];
             return currentElement;
@@ -355,7 +356,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
 
         public ProjectionElement visit(StagingSource stagingSource) {
             if (!isAlias) {
-                createElement(stagingSource.getTypeName(), Storage.METADATA_STAGING_SOURCE);
+                createElement(stagingSource.getTypeName(), "metadata:" + StagingSource.STAGING_SOURCE_ALIAS); //$NON-NLS-1$
             }
             currentElement.value = values[currentIndex++];
             return currentElement;
@@ -364,7 +365,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
         @Override
         public ProjectionElement visit(StagingBlockKey stagingBlockKey) {
             if (!isAlias) {
-                createElement(stagingBlockKey.getTypeName(), Storage.METADATA_STAGING_BLOCK_KEY);
+                createElement(stagingBlockKey.getTypeName(), "metadata:" + StagingBlockKey.STAGING_BLOCK_ALIAS); //$NON-NLS-1$
             }
             currentElement.value = values[currentIndex++];
             return currentElement;

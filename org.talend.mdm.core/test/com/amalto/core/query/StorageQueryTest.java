@@ -1424,7 +1424,8 @@ public class StorageQueryTest extends StorageTestCase {
             for (DataRecord result : results) {
                 writer.write(result, resultWriter);
             }
-            assertEquals("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" + "\t<id>1</id>\n"
+            assertEquals("<result xmlns:metadata=\"http://www.talend.com/mdm/metadata\" " +
+                    "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" + "\t<id>1</id>\n"
                     + "\t<creationDate>2010-10-10</creationDate>\n" + "\t<creationTime>2010-10-10T00:00:01</creationTime>\n"
                     + "\t<name>France</name>\n" + "</result>", resultWriter.toString());
         } finally {
@@ -2462,10 +2463,10 @@ public class StorageQueryTest extends StorageTestCase {
         }
         assertEquals(2, strings.size());
         assertEquals(
-                "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t<Id>1</Id>\n\t<Name>Product name</Name>\n\t<Family>[2]</Family>\n\t<Id>2</Id>\n\t<Name>Product family #2</Name>\n</result>",
+                "<result xmlns:metadata=\"http://www.talend.com/mdm/metadata\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t<Id>1</Id>\n\t<Name>Product name</Name>\n\t<Family>[2]</Family>\n\t<Id>2</Id>\n\t<Name>Product family #2</Name>\n</result>",
                 strings.get(0));
         assertEquals(
-                "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t<Id>2</Id>\n\t<Name>Renault car</Name>\n\t<Family/>\n\t<Id/>\n\t<Name/>\n</result>",
+                "<result xmlns:metadata=\"http://www.talend.com/mdm/metadata\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t<Id>2</Id>\n\t<Name>Renault car</Name>\n\t<Family/>\n\t<Id/>\n\t<Name/>\n</result>",
                 strings.get(1));
     }
 
@@ -2513,7 +2514,7 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(2, resultsAsString.size());
 
         StringBuilder sb = new StringBuilder();
-        sb.append("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
+        sb.append("<result xmlns:metadata=\"http://www.talend.com/mdm/metadata\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
         sb.append("\t<Id>1</Id>\n");
         sb.append("\t<Name>Product name</Name>\n");
         sb.append("\t<ProductFamily_Name>Product family #2</ProductFamily_Name>\n");
@@ -2521,7 +2522,7 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(sb.toString(), resultsAsString.get(0));
 
         sb = new StringBuilder();
-        sb.append("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
+        sb.append("<result xmlns:metadata=\"http://www.talend.com/mdm/metadata\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
         sb.append("\t<Id>2</Id>\n");
         sb.append("\t<Name>Renault car</Name>\n");
         sb.append("\t<ProductFamily_Name/>\n");
@@ -2552,7 +2553,7 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(1, resultsAsString.size());
 
         sb = new StringBuilder();
-        sb.append("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
+        sb.append("<result xmlns:metadata=\"http://www.talend.com/mdm/metadata\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
         sb.append("\t<Id>1</Id>\n");
         sb.append("\t<Name>Product name</Name>\n");
         sb.append("\t<ProductFamily_Name>Product family #2</ProductFamily_Name>\n");
@@ -2580,7 +2581,7 @@ public class StorageQueryTest extends StorageTestCase {
 
         assertEquals(7, resultsAsString.size());
 
-        String startRoot = "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
+        String startRoot = "<result xmlns:metadata=\"http://www.talend.com/mdm/metadata\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
         String endRoot = "</result>";
 
         Set<String> expectedResults = new HashSet<String>();
