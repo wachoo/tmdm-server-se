@@ -88,7 +88,7 @@ public class UserQueryHelper {
             if (fields == null) {
                 fields = getFields(repository, leftTypeName, leftFieldName);
             }
-            List<Condition> conditions = new LinkedList<Condition>();
+            Condition condition = null;
             for (TypedExpression field : fields) {
                 // Field comparisons
                 if (!whereCondition.isRightValueXPath()) { // Value based comparison
@@ -108,7 +108,7 @@ public class UserQueryHelper {
                             throw new IllegalArgumentException("Expected alias '" + leftFieldName + "' to be an alias of type.");
                         }
                         Type fieldExpression = (Type) alias.getTypedExpression();
-                        conditions.add(isa(fieldExpression.getField().getFieldMetadata(), ((ComplexTypeMetadata) typeForCheck)));
+                        condition = isa(fieldExpression.getField().getFieldMetadata(), ((ComplexTypeMetadata) typeForCheck));
                     }
                     String fieldTypeName = field.getTypeName();
                     boolean isFk = field instanceof Field && ((Field) field).getFieldMetadata() instanceof ReferenceFieldMetadata;
@@ -117,23 +117,23 @@ public class UserQueryHelper {
                         continue;
                     }
                     if (WhereCondition.CONTAINS.equals(operator) || WhereCondition.STRICTCONTAINS.equals(operator)) {
-                        conditions.add(contains(field, value));
+                        condition = add(condition, contains(field, value));
                     } else if (WhereCondition.EQUALS.equals(operator)) {
-                        conditions.add(eq(field, value));
+                        condition = add(condition, eq(field, value));
                     } else if (WhereCondition.GREATER_THAN.equals(operator)) {
-                        conditions.add(gt(field, value));
+                        condition = add(condition, gt(field, value));
                     } else if (WhereCondition.GREATER_THAN_OR_EQUAL.equals(operator)) {
-                        conditions.add(gte(field, value));
+                        condition = add(condition, gte(field, value));
                     } else if (WhereCondition.LOWER_THAN.equals(operator)) {
-                        conditions.add(lt(field, value));
+                        condition = add(condition, lt(field, value));
                     } else if (WhereCondition.LOWER_THAN_OR_EQUAL.equals(operator)) {
-                        conditions.add(lte(field, value));
+                        condition = add(condition, lte(field, value));
                     } else if (WhereCondition.NOT_EQUALS.equals(operator)) {
-                        conditions.add(neq(field, value));
+                        condition = add(condition, neq(field, value));
                     } else if (WhereCondition.STARTSWITH.equals(operator)) {
-                        conditions.add(startsWith(field, value));
+                        condition = add(condition, startsWith(field, value));
                     } else if (WhereCondition.EMPTY_NULL.equals(operator)) {
-                        conditions.add(emptyOrNull(field));
+                        condition = add(condition, emptyOrNull(field));
                     } else {
                         throw new NotImplementedException("'" + operator + "' support not implemented.");
                     }
@@ -149,9 +149,9 @@ public class UserQueryHelper {
                     }
                     FieldMetadata rightField = rightType.getField(rightFieldName);
                     if (WhereCondition.EQUALS.equals(operator)) {
-                        conditions.add(eq(leftField, rightField));
+                        condition = add(condition, eq(leftField, rightField));
                     } else if (WhereCondition.LOWER_THAN_OR_EQUAL.equals(operator)) {
-                        conditions.add(lte(leftField, rightField));
+                        condition = add(condition, lte(leftField, rightField));
                     } else if (WhereCondition.JOINS.equals(operator)) {
                         if (field instanceof Field) {
                             FieldMetadata fieldMetadata = ((Field) field).getFieldMetadata();
@@ -167,22 +167,22 @@ public class UserQueryHelper {
                     }
                 }
             }
-            Iterator<Condition> conditionIterator = conditions.iterator();
-            if (conditions.isEmpty()) {
+            if (condition == null) {
                 return NO_OP_CONDITION;
-            }
-            Condition condition = null;
-            while (conditionIterator.hasNext()) {
-                if (condition == null) {
-                    condition = conditionIterator.next();
-                } else {
-                    condition = and(condition, conditionIterator.next());
-                }
             }
             return condition;
         } else {
             throw new NotImplementedException("No support for where item of type " + whereItem.getClass().getName());
         }
+    }
+
+    private static Condition add(Condition condition, Condition newCondition) {
+        if (condition == null) {
+            condition = newCondition;
+        } else {
+            condition = or(newCondition, condition);
+        }
+        return condition;
     }
 
     public static List<TypedExpression> getInnerField(String fieldName) {
