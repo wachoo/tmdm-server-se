@@ -339,14 +339,17 @@ public class MetadataUtils {
     }
 
     public static Object convert(String dataAsString, TypeMetadata type) {
-        return convert(dataAsString, getSuperConcreteType(type).getName());
+        String typeName = type.getName();
+        if (dataAsString == null || 
+                (dataAsString.isEmpty() && !Types.STRING.equals(typeName) && !typeName.contains("limitedString"))) { //$NON-NLS-1$
+            return null;
+        } else {
+            return convert(dataAsString, getSuperConcreteType(type).getName());
+        }
     }
 
     public static Object convert(String dataAsString, String type) {
-        if (dataAsString == null || (dataAsString.isEmpty() && !Types.STRING.equals(type))) {
-            return null;
-        }
-        
+
         if (Types.STRING.equals(type)) {
             return dataAsString;
         } else if (Types.INTEGER.equals(type)
