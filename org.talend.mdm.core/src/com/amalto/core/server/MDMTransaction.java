@@ -12,6 +12,7 @@
 package com.amalto.core.server;
 
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.Transaction;
 import org.apache.commons.collections.MapIterator;
@@ -162,6 +163,15 @@ class MDMTransaction implements Transaction {
 
     private StorageTransaction getStorageTransaction(Storage storage, Thread thread) {
         synchronized (storageTransactions) {
+            if (storage.getType() == StorageType.SYSTEM) {
+                for (Object storageTransactionAsObject : storageTransactions.values()) {
+                    StorageTransaction storageTransaction = (StorageTransaction) storageTransactionAsObject;
+                    Storage associatedStorage = storageTransaction.getStorage();
+                    if (associatedStorage.getType() == StorageType.SYSTEM) {
+                        return storageTransaction;
+                    }
+                }
+            }
             return (StorageTransaction) storageTransactions.get(storage, thread);
         }
     }

@@ -19,6 +19,7 @@ import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.TransactionManager;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Level;
+import org.hibernate.Session;
 import org.hibernate.cfg.Environment;
 import org.hibernate.search.FullTextSession;
 import org.talend.mdm.commmon.metadata.*;
@@ -146,7 +147,9 @@ public class HibernateStorage implements Storage {
     @Override
     public synchronized StorageTransaction newStorageTransaction() {
         assertPrepared();
-        return new HibernateStorageTransaction(this, factory.openSession());
+        org.hibernate.classic.Session session = factory.openSession();
+        session.setFlushMode(FlushMode.MANUAL);
+        return new HibernateStorageTransaction(this, session);
     }
 
     @Override

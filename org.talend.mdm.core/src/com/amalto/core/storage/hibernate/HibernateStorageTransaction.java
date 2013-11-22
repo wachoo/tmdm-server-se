@@ -70,7 +70,6 @@ class HibernateStorageTransaction extends StorageTransaction {
         }
         if (!transaction.isActive()) {
             session.beginTransaction();
-            session.setFlushMode(FlushMode.AUTO);
         }
     }
 
@@ -87,6 +86,7 @@ class HibernateStorageTransaction extends StorageTransaction {
             }
             try {
                 if (!transaction.wasCommitted()) {
+                    session.flush();
                     transaction.commit();
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Commit done.");
@@ -110,18 +110,31 @@ class HibernateStorageTransaction extends StorageTransaction {
                         LOGGER.info("Transaction failed, dumps transaction content for diagnostic.");
                         dumpTransactionContent(session, storage); // Dumps all the faulty session information.
                     }
-                    if (e instanceof org.hibernate.exception.ConstraintViolationException || e instanceof ObjectNotFoundException) {
-                        throw new ConstraintViolationException(e);
-                    } else {
-                        throw new RuntimeException(e);
-                    }
+                    processCommitException(e);
                 } finally {
                     hasFailed = true; // Mark this storage transaction as "failed".
                 }
             }
+        } else {
+            try {
+                if (session.isDirty()) {
+                    session.flush();
+                }
+            } catch (Exception e) {
+                hasFailed = true; // Mark this storage transaction as "failed".
+                processCommitException(e);
+            }
         }
         super.commit();
         storage.getClassLoader().reset(Thread.currentThread());
+    }
+
+    private static void processCommitException(Exception e) {
+        if (e instanceof org.hibernate.exception.ConstraintViolationException || e instanceof ObjectNotFoundException) {
+            throw new ConstraintViolationException(e);
+        } else {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
