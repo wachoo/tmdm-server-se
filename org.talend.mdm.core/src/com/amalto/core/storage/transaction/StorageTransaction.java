@@ -46,7 +46,8 @@ public abstract class StorageTransaction {
     }
 
     /**
-     * Rollbacks (revert) all pending changes on the underlying storage.
+     * Rollbacks (revert) all pending changes on the underlying storage. After this method completes, the method
+     * {@link #hasFailed()} <b>must</b> return <code>false</code>.
      * @see #autonomous()
      * @see #dependent()
      */
@@ -76,4 +77,11 @@ public abstract class StorageTransaction {
         isAutonomous = false;
         return this;
     }
+
+    /**
+     * @return <code>true</code> if any {@link #commit()} previously failed and no {@link #rollback()} was consequently
+     * called. <code>false</code> if no commit was previously done OR if commit completed without any problem OR if
+     * rollback was called to revert all commit changes.
+     */
+    public abstract boolean hasFailed();
 }

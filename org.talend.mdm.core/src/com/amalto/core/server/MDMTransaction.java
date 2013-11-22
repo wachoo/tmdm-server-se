@@ -14,6 +14,7 @@ package com.amalto.core.server;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.Transaction;
+import org.apache.commons.collections.MapIterator;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
@@ -37,8 +38,18 @@ class MDMTransaction implements Transaction {
 
     private void transactionComplete() {
         synchronized (storageTransactions) {
-            storageTransactions.clear();
-            ServerContext.INSTANCE.get().getTransactionManager().remove(this);
+            MapIterator iterator = storageTransactions.mapIterator();
+            while (iterator.hasNext()) {
+                iterator.next();
+                StorageTransaction storageTransaction = (StorageTransaction) iterator.getValue();
+                if (!storageTransaction.hasFailed()) {
+                    iterator.remove();
+                }
+            }
+            if (storageTransactions.isEmpty()) {
+                storageTransactions.clear();
+                ServerContext.INSTANCE.get().getTransactionManager().remove(this);
+            }
         }
     }
 
@@ -71,6 +82,9 @@ class MDMTransaction implements Transaction {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Commit done.");
                 }
+            } catch (Throwable t) {
+                LOGGER.warn("Commit failed for transaction " + getId() + ". Perform automatic rollback.");
+                rollback();
             } finally {
                 transactionComplete();
             }
@@ -109,6 +123,19 @@ class MDMTransaction implements Transaction {
             }
         }
         return transaction;
+    }
+
+    @Override
+    public boolean hasFailed() {
+        synchronized (storageTransactions) {
+            for (Object storageTransactionAsObject : storageTransactions.values()) {
+                StorageTransaction storageTransaction = (StorageTransaction) storageTransactionAsObject;
+                if (storageTransaction.hasFailed()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public StorageTransaction include(Storage storage) {

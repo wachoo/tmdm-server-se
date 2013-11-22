@@ -45,6 +45,8 @@ class HibernateStorageTransaction extends StorageTransaction {
 
     private final Thread initiatorThread;
 
+    private boolean hasFailed;
+
     public HibernateStorageTransaction(HibernateStorage storage, Session session) {
         this.storage = storage;
         this.session = session;
@@ -103,14 +105,18 @@ class HibernateStorageTransaction extends StorageTransaction {
                     session.close();
                 }
             } catch (Exception e) {
-                if (LOGGER.isInfoEnabled()) {
-                    LOGGER.info("Transaction failed, dumps transaction content for diagnostic.");
-                    dumpTransactionContent(session, storage); // Dumps all the faulty session information.
-                }
-                if (e instanceof org.hibernate.exception.ConstraintViolationException) {
-                    throw new ConstraintViolationException(e);
-                } else {
-                    throw new RuntimeException(e);
+                try {
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("Transaction failed, dumps transaction content for diagnostic.");
+                        dumpTransactionContent(session, storage); // Dumps all the faulty session information.
+                    }
+                    if (e instanceof org.hibernate.exception.ConstraintViolationException || e instanceof ObjectNotFoundException) {
+                        throw new ConstraintViolationException(e);
+                    } else {
+                        throw new RuntimeException(e);
+                    }
+                } finally {
+                    hasFailed = true; // Mark this storage transaction as "failed".
                 }
             }
         }
@@ -141,17 +147,19 @@ class HibernateStorageTransaction extends StorageTransaction {
                 try {
                     storage.getClassLoader().bind(Thread.currentThread());
                     Wrapper o = (Wrapper) ((SessionImpl) session).getPersistenceContext().getEntity(failedKey);
-                    if (o != null) {
-                        ComplexTypeMetadata type = classLoader.getTypeFromClass(classLoader.loadClass(failedKey.getEntityName()));
-                        if (type != null) {
-                            DataRecord record = reader.read(mappingRepository.getMappingFromDatabase(type), o);
-                            writer.write(record, xmlContent);
-                            LOGGER.log(currentLevel, xmlContent + "\n(taskId='" + o.taskId() + "', timestamp='" + o.timestamp() + "')");
+                    if (!session.isReadOnly(o)) {
+                        if (o != null) {
+                            ComplexTypeMetadata type = classLoader.getTypeFromClass(classLoader.loadClass(failedKey.getEntityName()));
+                            if (type != null) {
+                                DataRecord record = reader.read(mappingRepository.getMappingFromDatabase(type), o);
+                                writer.write(record, xmlContent);
+                                LOGGER.log(currentLevel, xmlContent + "\n(taskId='" + o.taskId() + "', timestamp='" + o.timestamp() + "')");
+                            } else {
+                                LOGGER.warn("Could not find data model type for object " + o);
+                            }
                         } else {
-                            LOGGER.warn("Could not find data model type for object " + o);
+                            LOGGER.warn("Could not find an object for entity " + failedKey);
                         }
-                    } else {
-                        LOGGER.warn("Could not find an object for entity " + failedKey);
                     }
                 } catch (ObjectNotFoundException missingRefException) {
                     LOGGER.log(currentLevel, "Can not log entity: contains a unresolved reference to '"
@@ -218,10 +226,16 @@ class HibernateStorageTransaction extends StorageTransaction {
                     session.clear();
                     session.close();
                 }
+                hasFailed = false;
             }
         }
         super.rollback();
         storage.getClassLoader().reset(Thread.currentThread());
+    }
+
+    @Override
+    public boolean hasFailed() {
+        return hasFailed;
     }
 
     public Session getSession() {

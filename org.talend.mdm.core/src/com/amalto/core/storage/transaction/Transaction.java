@@ -77,4 +77,10 @@ public interface Transaction {
      */
     StorageTransaction exclude(Storage storage);
 
+    /**
+     * @return <code>true</code> if any of the contained storage transaction has failed. <code>false</code> otherwise.
+     * @see StorageTransaction#hasFailed()
+     */
+    boolean hasFailed();
+
 }

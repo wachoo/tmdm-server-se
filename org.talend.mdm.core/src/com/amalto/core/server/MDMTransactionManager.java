@@ -80,6 +80,10 @@ public class MDMTransactionManager implements TransactionManager {
         if (transaction == null) {
             throw new IllegalArgumentException("Transaction cannot be null.");
         }
+        if (transaction.hasFailed()) {
+            LOGGER.error("Transaction " + transaction.getId() + " should not be removed from current transactions (it has failed).");
+            transaction.rollback();
+        }
         synchronized (currentTransactions) {
             if(currentTransactions.remove(Thread.currentThread()) != null) {
                 if (LOGGER.isDebugEnabled()) {

@@ -299,6 +299,11 @@ public class TransactionTest extends TestCase {
             @Override
             public void begin() {
             }
+
+            @Override
+            public boolean hasFailed() {
+                return false;
+            }
         }
     }
 }
