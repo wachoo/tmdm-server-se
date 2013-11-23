@@ -192,21 +192,24 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     protected void checkEntitlement(ViewBean viewBean) {
-        if (deleteButton == null)
+        if (deleteButton == null) {
             return;
+        }
         String concept = this.itemBean.getConcept();
         boolean denyLogicalDelete = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyLogicalDeletable();
         boolean denyPhysicalDelete = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyPhysicalDeleteable();
 
-        if (denyLogicalDelete && denyPhysicalDelete)
+        if (denyLogicalDelete && denyPhysicalDelete) {
             deleteButton.setEnabled(false);
-        else {
+        } else {
             deleteButton.setEnabled(true);
             if (delete_SendToTrash != null && delete_Delete != null) {
-                if (denyLogicalDelete)
+                if (denyLogicalDelete) {
                     delete_SendToTrash.setEnabled(false);
-                if (denyPhysicalDelete)
+                }
+                if (denyPhysicalDelete) {
                     delete_Delete.setEnabled(false);
+                }
             }
         }
     }
@@ -251,8 +254,8 @@ public class ItemDetailToolBar extends ToolBar {
         if (isUseRelations()) {
             this.addRelationButton();
         }
-        this.addWorkFlosCombo();    
         this.addOpenTaskButton();
+        this.addWorkFlosCombo();
         checkEntitlement(viewBean);
     }
 
@@ -273,7 +276,7 @@ public class ItemDetailToolBar extends ToolBar {
         }
         return isUseRelations;
     }
-    
+
     /**
      * call it only when save the foreignKey in primaryKey view or save the outMost entity
      */
@@ -290,6 +293,7 @@ public class ItemDetailToolBar extends ToolBar {
             service.getForeignKeyModel(itemBean.getConcept(), ids, Locale.getLanguage(),
                     new SessionAwareAsyncCallback<ForeignKeyModel>() {
 
+                        @Override
                         public void onSuccess(ForeignKeyModel model) {
                             itemBean = model.getItemBean();
                             // refresh toolBar
@@ -382,7 +386,7 @@ public class ItemDetailToolBar extends ToolBar {
         }
         add(saveAndCloseButton);
     }
-    
+
     protected void addDeleteButton() {
         if (deleteButton == null) {
             deleteButton = new Button(MessagesFactory.getMessages().delete_btn());
@@ -422,15 +426,16 @@ public class ItemDetailToolBar extends ToolBar {
 
             @Override
             public void componentSelected(MenuEvent ce) {
-                MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
-                        .delete_confirm(), new Listener<MessageBoxEvent>() {
+                MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages().delete_confirm(),
+                        new Listener<MessageBoxEvent>() {
 
-                    public void handleEvent(MessageBoxEvent be) {
-                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                            deleteRecord();
-                        }
-                    }
-                });
+                            @Override
+                            public void handleEvent(MessageBoxEvent be) {
+                                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                    deleteRecord();
+                                }
+                            }
+                        });
             }
         });
 
@@ -444,7 +449,8 @@ public class ItemDetailToolBar extends ToolBar {
             duplicateButton.setId("duplicateButton"); //$NON-NLS-1$
             duplicateButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.duplicate()));
             duplicateButton.setToolTip(MessagesFactory.getMessages().duplicate_tip());
-            duplicateButton.setEnabled(!viewBean.getBindingEntityModel().getMetaDataTypes().get(itemBean.getConcept()).isDenyCreatable());
+            duplicateButton.setEnabled(!viewBean.getBindingEntityModel().getMetaDataTypes().get(itemBean.getConcept())
+                    .isDenyCreatable());
             duplicateButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 @Override
@@ -518,7 +524,7 @@ public class ItemDetailToolBar extends ToolBar {
             refreshTree(null, fkTree, root);
         } else {
             ItemPanel itemPanel = (ItemPanel) widget;
-            ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getRootModel();
+            ItemNodeModel root = itemPanel.getTree().getRootModel();
             refreshTree(itemPanel, null, root);
         }
     }
@@ -544,6 +550,7 @@ public class ItemDetailToolBar extends ToolBar {
         ItemBean itemBean = itemPanel.getItem();
         service.isItemModifiedByOthers(itemBean, new SessionAwareAsyncCallback<Boolean>() {
 
+            @Override
             public void onSuccess(Boolean result) {
                 if (TreeDetailUtil.isChangeValue(root) || result) {
                     MessageBox
@@ -551,6 +558,7 @@ public class ItemDetailToolBar extends ToolBar {
                                     MessagesFactory.getMessages().msg_confirm_refresh_tree_detail(),
                                     new Listener<MessageBoxEvent>() {
 
+                                        @Override
                                         public void handleEvent(MessageBoxEvent be) {
                                             if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
                                                 itemPanel.refreshTree();
@@ -572,18 +580,18 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     protected void addRelationButton() {
-        @SuppressWarnings("unchecked")
         final Map<String, List<String>> lineageEntityMap = (Map<String, List<String>>) BrowseRecords.getSession().get(
                 UserSession.CURRENT_LINEAGE_ENTITY_LIST);
-        if (lineageEntityMap != null && lineageEntityMap.containsKey(itemBean.getConcept()))
+        if (lineageEntityMap != null && lineageEntityMap.containsKey(itemBean.getConcept())) {
             setRelation(lineageEntityMap.get(itemBean.getConcept()));
-        else
+        } else {
             service.getLineageEntity(itemBean.getConcept(), new SessionAwareAsyncCallback<List<String>>() {
 
+                @Override
                 public void onSuccess(List<String> list) {
-                    if (lineageEntityMap != null)
+                    if (lineageEntityMap != null) {
                         lineageEntityMap.put(itemBean.getConcept(), list);
-                    else {
+                    } else {
                         Map<String, List<String>> map = new HashMap<String, List<String>>(1);
                         map.put(itemBean.getConcept(), list);
                         BrowseRecords.getSession().put(UserSession.CURRENT_LINEAGE_ENTITY_LIST, map);
@@ -592,6 +600,7 @@ public class ItemDetailToolBar extends ToolBar {
                 }
 
             });
+        }
     }
 
     private void setRelation(List<String> list) {
@@ -609,12 +618,14 @@ public class ItemDetailToolBar extends ToolBar {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 StringBuilder entityStr = new StringBuilder();
-                for (String str : lineageList)
+                for (String str : lineageList) {
                     entityStr.append(str).append(","); //$NON-NLS-1$
+                }
                 String arrStr = entityStr.toString().substring(0, entityStr.length() - 1);
                 String ids = itemBean.getIds();
-                if (ids == null || ids.trim() == "") //$NON-NLS-1$
+                if (ids == null || ids.trim().isEmpty()) {
                     ids = ""; //$NON-NLS-1$
+                }
                 initSearchEntityPanel(arrStr, ids, itemBean.getConcept());
             }
         });
@@ -651,19 +662,19 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     protected void addWorkFlosCombo() {
-        @SuppressWarnings("unchecked")
         final Map<String, List<ItemBaseModel>> runnableProcessListMap = (Map<String, List<ItemBaseModel>>) BrowseRecords
                 .getSession().get(UserSession.CURRENT_RUNNABLE_PROCESS_LIST);
-        if (runnableProcessListMap != null && runnableProcessListMap.containsKey(itemBean.getConcept()))
+        if (runnableProcessListMap != null && runnableProcessListMap.containsKey(itemBean.getConcept())) {
             setWorkFlowCombo(runnableProcessListMap.get(itemBean.getConcept()));
-        else
+        } else {
             service.getRunnableProcessList(itemBean.getConcept(), Locale.getLanguage(),
                     new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
 
+                        @Override
                         public void onSuccess(List<ItemBaseModel> processList) {
-                            if (runnableProcessListMap != null)
+                            if (runnableProcessListMap != null) {
                                 runnableProcessListMap.put(itemBean.getConcept(), processList);
-                            else {
+                            } else {
                                 Map<String, List<ItemBaseModel>> map = new HashMap<String, List<ItemBaseModel>>(1);
                                 map.put(itemBean.getConcept(), processList);
                                 BrowseRecords.getSession().put(UserSession.CURRENT_RUNNABLE_PROCESS_LIST, map);
@@ -671,6 +682,7 @@ public class ItemDetailToolBar extends ToolBar {
                             setWorkFlowCombo(processList);
                         }
                     });
+        }
     }
 
     private void setWorkFlowCombo(List<ItemBaseModel> processList) {
@@ -711,16 +723,18 @@ public class ItemDetailToolBar extends ToolBar {
                     final MessageBox waitBar = MessageBox.wait(MessagesFactory.getMessages().process_progress_bar_title(),
                             MessagesFactory.getMessages().process_progress_bar_message(), MessagesFactory.getMessages()
                                     .process_progress_bar_title() + "..."); //$NON-NLS-1$
-                    String[] ids = new String [] { itemBean.getIds() }; //$NON-NLS-1$
+                    String[] ids = new String[] { itemBean.getIds() };
 
                     service.processItem(itemBean.getConcept(), ids,
                             (String) selectItem.get("key"), new SessionAwareAsyncCallback<String>() { //$NON-NLS-1$
 
+                                @Override
                                 public void onSuccess(final String urlResult) {
                                     waitBar.close();
                                     MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
                                             .process_done(), new Listener<MessageBoxEvent>() {
 
+                                        @Override
                                         public void handleEvent(MessageBoxEvent be) {
                                             if (urlResult != null && urlResult.length() > 0) {
                                                 openWindow(urlResult);
@@ -785,6 +799,7 @@ public class ItemDetailToolBar extends ToolBar {
             ItemDetailToolBar.this.addSeparator();
             this.taskButton = new Button(MessagesFactory.getMessages().open_task());
             taskButton.setId("taskButton"); //$NON-NLS-1$
+            taskButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTask()));
 
             taskButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
@@ -879,19 +894,21 @@ public class ItemDetailToolBar extends ToolBar {
                         ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getFirstTabWidget();
                         String frameUrl = "/browserecords/secure/SmartViewServlet?ids=" + URL.encodeQueryString(itemBean.getIds()) + "&concept=" //$NON-NLS-1$ //$NON-NLS-2$
                                 + itemBean.getConcept() + "&language=" + Locale.getLanguage(); //$NON-NLS-1$
-                        if (se.getSelectedItem().get("key") != null) //$NON-NLS-1$
-                            frameUrl += ("&name=" + se.getSelectedItem().get("key"));//$NON-NLS-1$ //$NON-NLS-2$
+                        if (se.getSelectedItem().get("key") != null) { //$NON-NLS-1$
+                            frameUrl += ("&name=" + se.getSelectedItem().get("key")); //$NON-NLS-1$ //$NON-NLS-2$
+                        }
                         itemPanel.getSmartPanel().setUrl(frameUrl);
                         itemPanel.getSmartPanel().layout(true);
                     }
                 }
-                
+
             });
         }
 
         String regex = itemBean.getConcept() + "&" + Locale.getLanguage(); //$NON-NLS-1$
         service.getSmartViewList(regex, new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
 
+            @Override
             public void onSuccess(List<ItemBaseModel> list) {
                 smartViewList.add(list);
                 smartViewList.sort("value", SortDir.ASC); //$NON-NLS-1$
@@ -903,7 +920,7 @@ public class ItemDetailToolBar extends ToolBar {
         });
         add(smartViewCombo);
     }
-    
+
     protected void addPrintButton() {
         Button printBtn = new Button(MessagesFactory.getMessages().print_btn());
         printBtn.setId("printBtn"); //$NON-NLS-1$
@@ -933,12 +950,12 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     public void updateToolBar() {
-
+        // do nothing
     }
 
     private native boolean initJournal(String ids, String concept)/*-{
-        $wnd.amalto.journal.Journal
-                .browseJournalWithCriteria(ids, concept, true);
+        $wnd.amalto.journal.Journal.browseJournalWithCriteria(ids, concept,
+                true);
         return true;
     }-*/;
 
@@ -959,12 +976,14 @@ public class ItemDetailToolBar extends ToolBar {
 
         service.isItemModifiedByOthers(itemBean, new SessionAwareAsyncCallback<Boolean>() {
 
+            @Override
             public void onSuccess(Boolean result) {
                 if (result) {
                     MessageBox
                             .confirm(MessagesFactory.getMessages().confirm_title(),
                                     MessagesFactory.getMessages().save_concurrent_fail(), new Listener<MessageBoxEvent>() {
 
+                                        @Override
                                         public void handleEvent(MessageBoxEvent be) {
                                             if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
                                                 saveItem(isClose);
@@ -983,20 +1002,23 @@ public class ItemDetailToolBar extends ToolBar {
         Widget widget = itemsDetailPanel.getFirstTabWidget();
         if (widget instanceof ItemPanel) {
             ItemPanel itemPanel = (ItemPanel) widget;
-            ItemNodeModel model = (ItemNodeModel) itemPanel.getTree().getRootModel();
-            String[] keyArray = CommonUtil.extractIDs(model,viewBean);
+            ItemNodeModel model = itemPanel.getTree().getRootModel();
+            String[] keyArray = CommonUtil.extractIDs(model, viewBean);
 
-            service.isExistId(this.itemBean.getConcept(), keyArray, Locale.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
+            service.isExistId(this.itemBean.getConcept(), keyArray, Locale.getLanguage(),
+                    new SessionAwareAsyncCallback<Boolean>() {
 
-                public void onSuccess(Boolean flag) {
-                    if (flag){
-                        MessageBox.alert(MessagesFactory.getMessages().info_title(),
-                                MessagesFactory.getMessages().record_exists(), null).getDialog().setWidth(400);
-                    }else{
-                        saveItem(isClose);
-                    }
-                }
-            });
+                        @Override
+                        public void onSuccess(Boolean flag) {
+                            if (flag) {
+                                MessageBox
+                                        .alert(MessagesFactory.getMessages().info_title(),
+                                                MessagesFactory.getMessages().record_exists(), null).getDialog().setWidth(400);
+                            } else {
+                                saveItem(isClose);
+                            }
+                        }
+                    });
 
         } else {
             saveItem(isClose);
@@ -1012,7 +1034,7 @@ public class ItemDetailToolBar extends ToolBar {
         if (widget instanceof ItemPanel) {// save primary key
             ItemPanel itemPanel = (ItemPanel) widget;
             validate = true;
-            model = (ItemNodeModel) itemPanel.getTree().getRootModel();
+            model = itemPanel.getTree().getRootModel();
             app.setData("ItemBean", itemPanel.getItem()); //$NON-NLS-1$
             app.setData(
                     "isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) || itemPanel.getOperation().equals(ItemDetailToolBar.DUPLICATE_OPERATION) ? true : false); //$NON-NLS-1$
@@ -1036,8 +1058,9 @@ public class ItemDetailToolBar extends ToolBar {
             dispatch.dispatch(app);
         } else {
             // TMDM-3349 button 'save and close' function
-            if (isClose && !isOutMost && !isHierarchyCall)
+            if (isClose && !isOutMost && !isHierarchyCall) {
                 ItemsListPanel.getInstance().initSpecialVariable();
+            }
             MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().save_error(), null);
         }
     }
@@ -1091,13 +1114,14 @@ public class ItemDetailToolBar extends ToolBar {
      */
     public void refreshNodeStatus() {
         ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getFirstTabWidget();
-        ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getRootModel();
+        ItemNodeModel root = itemPanel.getTree().getRootModel();
         setChangeValue(root);
     }
 
     private void setChangeValue(ItemNodeModel model) {
-        if (model.isChangeValue())
+        if (model.isChangeValue()) {
             model.setChangeValue(false);
+        }
         for (ModelData node : model.getChildren()) {
             setChangeValue((ItemNodeModel) node);
         }
@@ -1123,6 +1147,7 @@ public class ItemDetailToolBar extends ToolBar {
 
     public class ToolBarExLayout extends ToolBarLayout {
 
+        @Override
         protected void onComponentShow(Component component) {
             if (component.isRendered()) {
                 if (component.el().getParent() != null) {
@@ -1131,11 +1156,13 @@ public class ItemDetailToolBar extends ToolBar {
             }
         }
 
+        @Override
         protected void initMore() {
             if (more == null) {
                 moreMenu = new MenuEx();
                 moreMenu.addListener(Events.BeforeShow, new Listener<MenuEvent>() {
 
+                    @Override
                     public void handleEvent(MenuEvent be) {
                         clearMenu();
                         for (Component c : container.getItems()) {
@@ -1172,6 +1199,7 @@ public class ItemDetailToolBar extends ToolBar {
             return this.@com.extjs.gxt.ui.client.widget.layout.ToolBarLayout::extrasTr;
         }-*/;
 
+        @Override
         @SuppressWarnings("unchecked")
         protected void addComponentToMenu(Menu menu, Component c) {
             if (c instanceof SeparatorToolItem) {
@@ -1214,8 +1242,9 @@ public class ItemDetailToolBar extends ToolBar {
                         cb.setValue(se.getSelectedItem());
                     }
                 });
-                if (cb.getValue() != null)
+                if (cb.getValue() != null) {
                     comboBoxClone.setValue(cb.getValue());
+                }
                 menu.add(comboBoxClone);
             } else if (c instanceof ComboBoxField<?>) {
                 final ComboBoxField<ItemBaseModel> cb = (ComboBoxField<ItemBaseModel>) c;
@@ -1232,8 +1261,9 @@ public class ItemDetailToolBar extends ToolBar {
                         cb.setValue(se.getSelectedItem());
                     }
                 });
-                if (cb.getValue() != null)
+                if (cb.getValue() != null) {
                     comboBoxClone.setValue(cb.getValue());
+                }
                 menu.add(comboBoxClone);
             } else if (c instanceof Button) {
                 final Button b = (Button) c;
@@ -1300,14 +1330,12 @@ public class ItemDetailToolBar extends ToolBar {
     public void setFkToolBar(boolean isFkToolBar) {
         this.isFkToolBar = isFkToolBar;
     }
-    
+
     protected void deleteRecord() {
-        PostDeleteAction postDeleteAction = new CloseTabPostDeleteAction(ItemDetailToolBar.this,
-                new ListRefresh(ItemDetailToolBar.this, new ContainerUpdate(ItemDetailToolBar.this,
-                        NoOpPostDeleteAction.INSTANCE)));
+        PostDeleteAction postDeleteAction = new CloseTabPostDeleteAction(ItemDetailToolBar.this, new ListRefresh(
+                ItemDetailToolBar.this, new ContainerUpdate(ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE)));
         List<ItemBean> list = new ArrayList<ItemBean>();
         list.add(itemBean);
-        service.checkFKIntegrity(list, new DeleteCallback(DeleteAction.PHYSICAL, postDeleteAction,
-                service));
+        service.checkFKIntegrity(list, new DeleteCallback(DeleteAction.PHYSICAL, postDeleteAction, service));
     }
 }

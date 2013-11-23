@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -26,7 +26,7 @@ public interface Icons extends ClientBundle {
 
     @Source("funnel.png")
     ImageResource funnel();
-    
+
     @Source("edit.png")
     ImageResource Edit();
 
@@ -74,15 +74,15 @@ public interface Icons extends ClientBundle {
 
     @Source("dosearch.png")
     ImageResource dosearch();
-    
+
     @Source("journal.png")
     ImageResource journal();
-    
+
     @Source("duplicate.png")
     ImageResource duplicate();
-    
+
     @Source("refreshToolbar.png")
-    ImageResource refreshToolbar();    
+    ImageResource refreshToolbar();
 
     @Source("link_go.png")
     ImageResource link_go();
@@ -95,16 +95,19 @@ public interface Icons extends ClientBundle {
 
     @Source("save_and_close.png")
     ImageResource save_and_close();
-    
+
     @Source("launch_process.png")
     ImageResource launch_process();
-    
+
     @Source("relations.png")
     ImageResource relations();
-    
+
     @Source("page_excel.png")
     ImageResource page_excel();
 
     @Source("opentab.png")
     ImageResource openTab();
+
+    @Source("opentask.png")
+    ImageResource openTask();
 }
