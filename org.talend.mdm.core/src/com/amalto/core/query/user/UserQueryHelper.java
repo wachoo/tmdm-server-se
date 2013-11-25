@@ -58,6 +58,9 @@ public class UserQueryHelper {
             }
             String leftPath = whereCondition.getLeftPath();
             String leftTypeName = leftPath.substring(0, leftPath.indexOf('/')); //$NON-NLS-1$
+            if (".".equals(leftTypeName)) { //$NON-NLS-1$
+                leftTypeName = queryBuilder.getSelect().getTypes().get(0).getName(); // When using ".", uses first type in select
+            }
             String leftFieldName = StringUtils.substringAfter(leftPath, "/"); //$NON-NLS-1$
             boolean isPerformingTypeCheck = false;
             ComplexTypeMetadata leftType = repository.getComplexType(leftTypeName);
