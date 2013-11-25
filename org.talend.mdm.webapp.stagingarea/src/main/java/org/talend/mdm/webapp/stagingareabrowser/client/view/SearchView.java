@@ -239,6 +239,7 @@ public class SearchView extends AbstractView {
                 statusCodeField.setValue(null);
                 startDate.setValue(null);
                 endDate.setValue(null);
+                defaultDoSearch(ALL_RECORDS);
             }
         });
     }
