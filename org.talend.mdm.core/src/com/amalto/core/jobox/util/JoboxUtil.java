@@ -46,7 +46,9 @@ public class JoboxUtil {
             delAllFile(folderPath);
             File myFilePath = new File(folderPath);
             if (!myFilePath.delete()) {
-                LOGGER.error("Delete folder failed for '" + folderPath + "'."); //$NON-NLS-1$ //$NON-NLS-2$
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Delete folder failed for '" + folderPath + "'."); //$NON-NLS-1$ //$NON-NLS-2$
+                }
             }
         } catch (Exception e) {
             throw new JoboxException(e);
