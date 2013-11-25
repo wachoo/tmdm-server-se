@@ -12,6 +12,7 @@
 package com.amalto.core.query.optimization;
 
 import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.metadata.*;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -341,6 +342,41 @@ public class ConfigurableContainsOptimizer implements Optimizer {
         @Override
         public Boolean visit(Condition condition) {
             return false;
+        }
+
+        @Override
+        public Boolean visit(TaskId taskId) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(Timestamp timestamp) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(StagingStatus stagingStatus) {
+            return true;
+        }
+
+        @Override
+        public Boolean visit(StagingError stagingError) {
+            return true;
+        }
+
+        @Override
+        public Boolean visit(StagingSource stagingSource) {
+            return true;
+        }
+
+        @Override
+        public Boolean visit(StagingBlockKey stagingBlockKey) {
+            return true;
+        }
+
+        @Override
+        public Boolean visit(GroupSize groupSize) {
+            return true;
         }
 
         @Override
