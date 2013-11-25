@@ -62,6 +62,9 @@ public class UserQueryHelper {
                 throw new IllegalArgumentException("Incorrect XPath '" + leftPath + "'. An XPath like 'Entity/element'"); //$NON-NLS-1$ //$NON-NLS-2$
             }
             String leftTypeName = leftPath.substring(0, leftPath.indexOf('/')); //$NON-NLS-1$
+            if (".".equals(leftTypeName)) { //$NON-NLS-1$
+                leftTypeName = queryBuilder.getSelect().getTypes().get(0).getName(); // When using ".", uses first type in select
+            }
             String leftFieldName = StringUtils.substringAfter(leftPath, "/"); //$NON-NLS-1$
             boolean isPerformingTypeCheck = false;
             ComplexTypeMetadata leftType = repository.getComplexType(leftTypeName);
