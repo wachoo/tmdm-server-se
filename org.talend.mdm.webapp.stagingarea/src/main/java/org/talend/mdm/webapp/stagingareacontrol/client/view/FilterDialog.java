@@ -33,6 +33,7 @@ import com.extjs.gxt.ui.client.widget.ListViewSelectionModel;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.DateField;
+import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.dom.client.Style.Cursor;
@@ -360,21 +361,25 @@ public class FilterDialog extends Window {
                     timeLabel.getElement().getStyle().setColor("black"); //$NON-NLS-1$
                     timeLabel.getElement().getStyle().setFontWeight(FontWeight.BOLD);
 
+                    DateTimePropertyEditor editor = new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss"); //$NON-NLS-1$
+                    startDate.setPropertyEditor(editor);
+                    endDate.setPropertyEditor(editor);
+
                     if (timeLabel == all) {
                         startDate.setValue(null);
                         endDate.setValue(null);
                     } else if (timeLabel == today) {
                         startDate.setValue(new Date(now.getTime()));
-                        endDate.setValue(null);
+                        endDate.setValue(getEndOfDay(now.getTime()));
                     } else if (timeLabel == yesterday) {
                         startDate.setValue(new Date(now.getTime() - DAY));
-                        endDate.setValue(null);
+                        endDate.setValue(getEndOfDay(now.getTime() - DAY));
                     } else if (timeLabel == lastWeek) {
                         startDate.setValue(new Date(now.getTime() - (7 * DAY)));
-                        endDate.setValue(null);
+                        endDate.setValue(getEndOfDay(now.getTime() - DAY));
                     } else if (timeLabel == lastMonth) {
                         startDate.setValue(new Date(now.getTime() - (30 * DAY)));
-                        endDate.setValue(null);
+                        endDate.setValue(getEndOfDay(now.getTime() - DAY));
                     }
 
                     if (timeLabel == custom) {
@@ -385,6 +390,14 @@ public class FilterDialog extends Window {
 
                     selectedLabel = timeLabel;
                 }
+            }
+
+            private Date getEndOfDay(long timeNow) {
+                Date end = new Date(timeNow);
+                end.setHours(23);
+                end.setMinutes(59);
+                end.setSeconds(59);
+                return end;
             }
         };
 
