@@ -13,35 +13,23 @@
 
 package com.amalto.core.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
+import com.amalto.core.query.optimization.UpdateReportOptimizer;
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.metadata.Timestamp;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.StorageWrapper;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
+import com.amalto.core.storage.hibernate.HibernateStorage;
+import com.amalto.core.storage.record.*;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -49,25 +37,11 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
-import com.amalto.core.metadata.MetadataUtils;
-import com.amalto.core.query.optimization.UpdateReportOptimizer;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.hibernate.HibernateStorage;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordReader;
-import com.amalto.core.storage.record.DataRecordWriter;
-import com.amalto.core.storage.record.DataRecordXmlWriter;
-import com.amalto.core.storage.record.ViewSearchResultsWriter;
-import com.amalto.core.storage.record.XmlStringDataRecordReader;
-import com.amalto.core.storage.record.metadata.DataRecordMetadata;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.ItemPKCriteria;
-import com.amalto.xmlserver.interfaces.WhereAnd;
-import com.amalto.xmlserver.interfaces.WhereCondition;
-import com.amalto.xmlserver.interfaces.XmlServerException;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.*;
+
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 @SuppressWarnings("nls")
 public class StorageQueryTest extends StorageTestCase {
@@ -2931,6 +2905,65 @@ public class StorageQueryTest extends StorageTestCase {
         optimizer.optimize(select);
         assertTrue(select.getCondition() instanceof FieldFullText);
         assertEquals("test note", ((FieldFullText) select.getCondition()).getValue());
+    }
+
+    public void testContainsWithDash() throws Exception {
+        DataSource datasource = getDatasource(DATABASE + "-Default");
+        assertTrue(datasource instanceof RDBMSDataSource);
+        RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) datasource;
+        TestRDBMSDataSource testDataSource = new TestRDBMSDataSource(rdbmsDataSource);
+        testDataSource.setCaseSensitiveSearch(false);
+        testDataSource.setSupportFullText(true);
+        testDataSource.setOptimization(RDBMSDataSource.ContainsOptimization.FULL_TEXT);
+        ConfigurableContainsOptimizer optimizer = new ConfigurableContainsOptimizer(testDataSource);
+        // Only '-' should disable contains optimization
+        UserQueryBuilder qb = UserQueryBuilder.from(person)
+                .where(contains(person.getField("id"), "-"));
+        Select copy = qb.getSelect().copy();
+        optimizer.optimize(copy);
+        assertFalse(copy.getCondition() instanceof FieldFullText);
+        StorageResults records = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, records.getCount());
+        } finally {
+            records.close();
+        }
+        // Contains optimization should be enabled for next query
+        qb = UserQueryBuilder.from(person)
+                .where(contains(person.getField("id"), "1-1"));
+        copy = qb.getSelect().copy();
+        optimizer.optimize(copy);
+        assertTrue(copy.getCondition() instanceof FieldFullText);
+        records = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, records.getCount());
+        } finally {
+            records.close();
+        }
+        // Contains optimization should also be enabled
+        qb = UserQueryBuilder.from(person)
+                .where(contains(person.getField("id"), "_"));
+        copy = qb.getSelect().copy();
+        optimizer.optimize(copy);
+        assertTrue(copy.getCondition() instanceof FieldFullText);
+        records = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, records.getCount());
+        } finally {
+            records.close();
+        }
+        // Contains optimization should also be enabled
+        qb = UserQueryBuilder.from(person)
+                .where(contains(person.getField("id"), "1_1"));
+        copy = qb.getSelect().copy();
+        optimizer.optimize(copy);
+        assertTrue(copy.getCondition() instanceof FieldFullText);
+        records = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, records.getCount());
+        } finally {
+            records.close();
+        }
     }
     
     public void testQueryWithFK() throws Exception {

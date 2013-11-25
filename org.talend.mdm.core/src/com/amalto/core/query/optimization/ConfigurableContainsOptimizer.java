@@ -270,7 +270,7 @@ public class ConfigurableContainsOptimizer implements Optimizer {
     private static class HasContains extends VisitorAdapter<Boolean> {
         @Override
         public Boolean visit(Compare condition) {
-            return condition.getPredicate() == Predicate.CONTAINS;
+            return condition.getPredicate() == Predicate.CONTAINS && condition.getRight().accept(this);
         }
 
         @Override
@@ -325,6 +325,66 @@ public class ConfigurableContainsOptimizer implements Optimizer {
 
         @Override
         public Boolean visit(Isa isa) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(StringConstant constant) {
+            return !constant.getValue().startsWith("-");
+        }
+
+        @Override
+        public Boolean visit(IntegerConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(DateConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(DateTimeConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BooleanConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BigDecimalConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(TimeConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(ShortConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(ByteConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(LongConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(DoubleConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(FloatConstant constant) {
             return false;
         }
     }
