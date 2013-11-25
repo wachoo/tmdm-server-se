@@ -18,9 +18,13 @@
     <Features>
         <Sizes>
             <Size>Small</Size>
+            <Size/>
+            <Size/>            
         </Sizes>
         <Colors>
             <Color>White</Color>
+            <Color/>
+            <Color/>            
         </Colors>
     </Features>
     <Availability>false</Availability>
