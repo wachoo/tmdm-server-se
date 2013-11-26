@@ -45,10 +45,14 @@ public class JoboxUtil {
         try {
             delAllFile(folderPath);
             File myFilePath = new File(folderPath);
-            if (!myFilePath.delete()) {
+            if (!myFilePath.exists()) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Delete folder failed for '" + folderPath + "'."); //$NON-NLS-1$ //$NON-NLS-2$
+                    LOGGER.debug("Delete folder failed for '" + folderPath + "' (path does not exist)."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
+                return;
+            }
+            if (!myFilePath.delete()) {
+                LOGGER.error("Delete folder failed for '" + folderPath + "'."); //$NON-NLS-1$ //$NON-NLS-2$
             }
         } catch (Exception e) {
             throw new JoboxException(e);
