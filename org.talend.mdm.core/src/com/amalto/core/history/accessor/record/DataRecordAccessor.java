@@ -1,23 +1,31 @@
 /*
  * Copyright (C) 2006-2013 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.history.accessor.record;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.StringTokenizer;
+
+import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
-import org.apache.commons.lang.StringUtils;
-import org.talend.mdm.commmon.metadata.*;
-
-import java.util.*;
 
 public class DataRecordAccessor implements Accessor {
 
@@ -61,12 +69,14 @@ public class DataRecordAccessor implements Accessor {
                 if (element.indexOf('[') > 0) {
                     pathElement.field = current.getType().getField(StringUtils.substringBefore(element, "[")); //$NON-NLS-1$
                     if (!pathElement.field.isMany()) {
-                        throw new IllegalStateException("Expected a repeatable field for '" + element + "' in path '" + path + "'.");
+                        throw new IllegalStateException("Expected a repeatable field for '" + element + "' in path '" + path
+                                + "'.");
                     }
                     int indexStart = element.indexOf('[');
                     int indexEnd = element.indexOf(']');
                     if (indexStart < 0 || indexEnd < 0) {
-                        throw new RuntimeException("Field name '" + element + "' did not match many field pattern in path '" + path + "'.");
+                        throw new RuntimeException("Field name '" + element + "' did not match many field pattern in path '"
+                                + path + "'.");
                     }
                     pathElement.index = Integer.parseInt(element.substring(indexStart + 1, indexEnd)) - 1;
                     pathElement.setter = ManyValue.SET;
@@ -190,12 +200,14 @@ public class DataRecordAccessor implements Accessor {
                     if (element.indexOf('[') > 0) {
                         FieldMetadata field = current.getType().getField(StringUtils.substringBefore(element, "[")); //$NON-NLS-1$
                         if (!field.isMany()) {
-                            throw new IllegalStateException("Expected a repeatable field for '" + element + "' in path '" + path + "'.");
+                            throw new IllegalStateException("Expected a repeatable field for '" + element + "' in path '" + path
+                                    + "'.");
                         }
                         int indexStart = element.indexOf('[');
                         int indexEnd = element.indexOf(']');
                         if (indexStart < 0 || indexEnd < 0) {
-                            throw new RuntimeException("Field name '" + element + "' did not match many field pattern in path '" + path + "'.");
+                            throw new RuntimeException("Field name '" + element + "' did not match many field pattern in path '"
+                                    + path + "'.");
                         }
                         int index = Integer.parseInt(element.substring(indexStart + 1, indexEnd)) - 1;
                         List list = (List) current.get(field);
@@ -205,10 +217,12 @@ public class DataRecordAccessor implements Accessor {
                         }
                         while (index >= list.size()) {
                             if (field instanceof ContainedTypeFieldMetadata) {
-                                DataRecord record = new DataRecord((ComplexTypeMetadata) field.getType(), UnsupportedDataRecordMetadata.INSTANCE);
+                                DataRecord record = new DataRecord((ComplexTypeMetadata) field.getType(),
+                                        UnsupportedDataRecordMetadata.INSTANCE);
                                 list.add(record);
-                            } else if(field instanceof ReferenceFieldMetadata) {
-                                DataRecord record = new DataRecord(((ReferenceFieldMetadata) field).getReferencedType(), UnsupportedDataRecordMetadata.INSTANCE);
+                            } else if (field instanceof ReferenceFieldMetadata) {
+                                DataRecord record = new DataRecord(((ReferenceFieldMetadata) field).getReferencedType(),
+                                        UnsupportedDataRecordMetadata.INSTANCE);
                                 list.add(record);
                             } else {
                                 list.add(null);
@@ -225,8 +239,9 @@ public class DataRecordAccessor implements Accessor {
                         FieldMetadata field = current.getType().getField(element);
                         if (field instanceof ContainedTypeFieldMetadata) {
                             Object value = current.get(field);
-                            if(value == null) {
-                                DataRecord record = new DataRecord(((ContainedTypeFieldMetadata) field).getContainedType(), UnsupportedDataRecordMetadata.INSTANCE);
+                            if (value == null) {
+                                DataRecord record = new DataRecord(((ContainedTypeFieldMetadata) field).getContainedType(),
+                                        UnsupportedDataRecordMetadata.INSTANCE);
                                 current.set(field, record);
                                 current = record;
                             } else {
@@ -303,13 +318,14 @@ public class DataRecordAccessor implements Accessor {
                         current = (DataRecord) current.get(pathElement.field);
                     }
                 } else {
-                    List<Object> list = (List) dataRecord.get(pathElement.field);
-                    if (list == null) {
-                        list = new ArrayList<Object>();
-                        dataRecord.set(pathElement.field, list);
-                    }
                     if (pathElement.field instanceof ContainedTypeFieldMetadata) {
                         current = (DataRecord) ((List) current.get(pathElement.field)).get(pathElement.index);
+                    } else {
+                        List<Object> list = (List) dataRecord.get(pathElement.field);
+                        if (list == null) {
+                            list = new ArrayList<Object>();
+                            dataRecord.set(pathElement.field, list);
+                        }
                     }
                 }
             }
@@ -352,14 +368,16 @@ public class DataRecordAccessor implements Accessor {
                         cachedExist = false;
                         return false;
                     }
-                    FieldMetadata field = current.getType().getField(fieldName); //$NON-NLS-1$
+                    FieldMetadata field = current.getType().getField(fieldName);
                     if (!field.isMany()) {
-                        throw new IllegalStateException("Expected a repeatable field for '" + element + "' in path '" + path + "'.");
+                        throw new IllegalStateException("Expected a repeatable field for '" + element + "' in path '" + path
+                                + "'.");
                     }
                     int indexStart = element.indexOf('[');
                     int indexEnd = element.indexOf(']');
                     if (indexStart < 0 || indexEnd < 0) {
-                        throw new RuntimeException("Field name '" + element + "' did not match many field pattern in path '" + path + "'.");
+                        throw new RuntimeException("Field name '" + element + "' did not match many field pattern in path '"
+                                + path + "'.");
                     }
                     int index = Integer.parseInt(element.substring(indexStart + 1, indexEnd)) - 1;
                     List list = (List) current.get(field);
