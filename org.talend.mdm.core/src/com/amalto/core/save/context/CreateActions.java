@@ -59,8 +59,6 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
     private final SaverSource saverSource;
 
     private final String dataCluster;
-    
-    private final String dataModel;
 
     private final Map<String, String> idValueMap = new HashMap<String, String>();
 
@@ -89,7 +87,6 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
                   String source,
                   String userName,
                   String dataCluster,
-                  String dataModel,
                   String universe,
                   SaverSource saverSource,
                   Map<String, String> autoIncrementFieldMap) {
@@ -98,7 +95,6 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
         this.source = source;
         this.userName = userName;
         this.dataCluster = dataCluster;
-        this.dataModel = dataModel;
         this.universe = universe;
         this.saverSource = saverSource;
         this.autoIncrementFieldMap = autoIncrementFieldMap;
@@ -260,7 +256,7 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
             if (autoIncrementFieldMap.containsKey(currentPath)) {
                 autoIncrementValue = autoIncrementFieldMap.get(currentPath);
             } else {
-                autoIncrementValue = saverSource.nextAutoIncrementId(universe, dataCluster, dataModel, conceptName);
+                autoIncrementValue = saverSource.nextAutoIncrementId(universe, dataCluster, conceptName);
                 autoIncrementFieldMap.put(currentPath, autoIncrementValue);
             }
             actions.add(new FieldUpdateAction(date, source, userName, currentPath, StringUtils.EMPTY, autoIncrementValue,
