@@ -278,7 +278,6 @@ public class MetadataUtils {
             if (xmlData == null) {
                 return null;
             }
-            xmlData = xmlData.trim();
             if (xmlData.trim().isEmpty()) { // Empty string is considered as null value
                 return null;
             }
