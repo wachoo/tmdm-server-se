@@ -1,9 +1,9 @@
 package com.amalto.core.util;
 
+import org.apache.commons.lang.StringUtils;
 
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJOPK;
-import com.mysql.jdbc.StringUtils;
 
 public class EntityNotFoundException extends XtentisException {
 
@@ -29,10 +29,10 @@ public class EntityNotFoundException extends XtentisException {
     @Override
     public String getMessage() {
         if (itemPK != null) {
-            if (StringUtils.isNullOrEmpty(itemPK.getDataClusterPOJOPK().getUniqueId())) {
+            if (StringUtils.isEmpty(itemPK.getDataClusterPOJOPK().getUniqueId())) {
                 return "No container specified in id '" + itemPK.getUniqueID() + "'.";
             }
-            if (StringUtils.isNullOrEmpty(itemPK.getConceptName())) {
+            if (StringUtils.isEmpty(itemPK.getConceptName())) {
                 return "No data model specified in '" + itemPK.getUniqueID() + "'.";
             } else {
                 return "Could not find item '" + itemPK.getUniqueID() + "'.";
