@@ -52,7 +52,17 @@ public class MappingExpressionTransformer extends VisitorAdapter<Expression> {
             return new CompoundFieldMetadata(mappedFields);
         } else {
             if (mapping != null) {
-                return mapping.getDatabase(fieldMetadata);
+                ComplexTypeMetadata databaseType = mapping.getDatabase();
+                FieldMetadata databaseField = mapping.getDatabase(fieldMetadata);
+                if (databaseField == null) {
+                    // Look if database type contains field (in case a database field was used in user query).
+                    if (databaseType.hasField(fieldMetadata.getName())) {
+                        databaseField = fieldMetadata;
+                    } else {
+                        throw new IllegalArgumentException("Field '" + fieldMetadata.getName() + "' does not exist in database mapping.");
+                    }
+                }
+                return databaseField;
             } else {
                 throw new IllegalStateException();
             }
