@@ -61,6 +61,8 @@ public class DataRecord {
         if (containingType != this.getType() && !this.getType().isAssignableFrom(containingType)) {
             if (fieldToValue.containsKey(field)) {
                 return fieldToValue.get(field);
+            } else if (recordMetadata.getRecordProperties().containsKey(field.getName())) { // Try to read from metadata
+                return recordMetadata.getRecordProperties().get(field.getName());
             }
             Iterator<FieldMetadata> path = MetadataUtils.path(type, field, false).iterator();
             if (!path.hasNext()) {
@@ -95,7 +97,12 @@ public class DataRecord {
             }
             return null; // Not found.
         } else {
-            return fieldToValue.get(field);
+            if (fieldToValue.containsKey(field)) {
+                return fieldToValue.get(field);
+            } else if (recordMetadata.getRecordProperties().containsKey(field.getName())) { // Try to read from metadata
+                return recordMetadata.getRecordProperties().get(field.getName());
+            }
+            return null;
         }
     }
 
