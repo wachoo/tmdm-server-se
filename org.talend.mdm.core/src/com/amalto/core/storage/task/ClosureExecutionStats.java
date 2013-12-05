@@ -22,12 +22,18 @@ public class ClosureExecutionStats {
 
     private final AtomicInteger successCount = new AtomicInteger();
 
+    private long endMatchTime = 0;
+
     public void reportError() {
         errorCount.incrementAndGet();
     }
 
     public void reportSuccess() {
         successCount.incrementAndGet();
+    }
+
+    public void reportEndMatchTime() {
+        endMatchTime = System.currentTimeMillis();
     }
 
     public int getErrorCount() {
@@ -40,5 +46,9 @@ public class ClosureExecutionStats {
 
     public void reportSuccess(int success) {
         successCount.getAndAdd(success);
+    }
+
+    public long getEndMatchTime() {
+        return endMatchTime;
     }
 }
