@@ -24,13 +24,12 @@ import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.user.client.Timer;
 
-
 public class CurrentValidationController extends AbstractController {
 
     private CurrentValidationView view;
 
     private Timer summaryTimer;
-    
+
     private Timer currentValidationTimer;
 
     private boolean auto = true;
@@ -44,7 +43,7 @@ public class CurrentValidationController extends AbstractController {
         setBindingView(view);
         this.view = (CurrentValidationView) bindingView;
         summaryTimer = new Timer() {
-            
+
             @Override
             public void run() {
                 if (isOrHasChild(Document.get().getBody(), view.getElement())) {
@@ -63,10 +62,10 @@ public class CurrentValidationController extends AbstractController {
             public void run() {
                 if (isOrHasChild(Document.get().getBody(), view.getElement())) {
                     refreshView(new Callback() {
+
+                        @Override
                         public void callback() {
-                            if (auto) {
-                                schedule(StagingareaControl.getStagingAreaConfig().getRefreshIntervals());
-                            }
+                            schedule(StagingareaControl.getStagingAreaConfig().getRefreshIntervals());
                         }
                     });
                 } else {
@@ -108,15 +107,20 @@ public class CurrentValidationController extends AbstractController {
         UserContextModel ucx = UserContextUtil.getUserContext();
         RestServiceHandler.get().getValidationTaskStatus(ucx.getDataContainer(),
                 new SessionAwareAsyncCallback<StagingAreaValidationModel>() {
+
+                    @Override
                     public void onSuccess(StagingAreaValidationModel result) {
                         if (result != null) {
                             ControllerContainer.get().getSummaryController().setEnabledStartValidation(false);
                             view.setStatus(CurrentValidationView.Status.HasValidation);
-                            view.refresh(result);
+                            if (auto) {
+                                view.refresh(result);
+                            }
                             if (callback != null) {
                                 callback.callback();
                             }
                         } else {
+                            ControllerContainer.get().getSummaryController().refreshView();
                             ControllerContainer.get().getSummaryController().setEnabledStartValidation(true);
                             view.setStatus(CurrentValidationView.Status.None);
                             ControllerContainer.get().getPreviousExecutionController().searchByBeforeDate();
@@ -134,10 +138,11 @@ public class CurrentValidationController extends AbstractController {
 
     public void cancelValidation() {
         UserContextModel ucx = UserContextUtil.getUserContext();
-        RestServiceHandler.get().cancelValidationTask(ucx.getDataContainer(),
-                new SessionAwareAsyncCallback<Boolean>() {
+        RestServiceHandler.get().cancelValidationTask(ucx.getDataContainer(), new SessionAwareAsyncCallback<Boolean>() {
+
+            @Override
             public void onSuccess(Boolean result) {
-                if (result){
+                if (result) {
                     ControllerContainer.get().getSummaryController().setEnabledStartValidation(true);
                     ControllerContainer.get().getSummaryController().refreshView();
                     view.setStatus(CurrentValidationView.Status.None);

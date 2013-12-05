@@ -64,6 +64,8 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private Provider provider;
 
+    private int totalRecordCount = 0;
+
     @Override
     protected void initComponents() {
         StringBuilder buffer = new StringBuilder();
@@ -96,6 +98,7 @@ public class StagingContainerSummaryView extends AbstractView {
     @Override
     protected void registerEvent() {
         startValidate.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
             @Override
             public void componentSelected(ButtonEvent ce) {
 
@@ -164,23 +167,28 @@ public class StagingContainerSummaryView extends AbstractView {
             waitingEl.setInnerHTML(messages.waiting_desc("<b>" + waiting + "</b>")); //$NON-NLS-1$ //$NON-NLS-2$
 
             Element invalidEl = detailPanel.getElementById(STAGING_AREA_INVALID);
-            invalidEl.setInnerHTML(messages.invalid_desc("<span id=\"open_invalid_record\" style=\"color:red; text-decoration:underline; cursor:pointer;\">", "<b>" + invalid + "</b>", "</span>")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            invalidEl
+                    .setInnerHTML(messages
+                            .invalid_desc(
+                                    "<span id=\"open_invalid_record\" style=\"color:red; text-decoration:underline; cursor:pointer;\">", "<b>" + invalid + "</b>", "</span>")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             Element open_invalid_record = detailPanel.getElementById("open_invalid_record"); //$NON-NLS-1$
             addClickForRecord(2, open_invalid_record);
 
             Element validEl = detailPanel.getElementById(STAGING_AREA_VALID);
-            validEl.setInnerHTML(messages.valid_desc("<span id=\"open_valid_record\" style=\"color:green; text-decoration:underline; cursor:pointer;\">", "<b>" + valid + "</b>", "</span>")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            validEl.setInnerHTML(messages
+                    .valid_desc(
+                            "<span id=\"open_valid_record\" style=\"color:green; text-decoration:underline; cursor:pointer;\">", "<b>" + valid + "</b>", "</span>")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             Element open_valid_record = detailPanel.getElementById("open_valid_record"); //$NON-NLS-1$
             addClickForRecord(3, open_valid_record);
         }
     }
 
     private native void addClickForRecord(int state, Element el)/*-{
-		var instance = this;
-		el.onclick = function() {
-			instance.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::onOpenRecord(I)(state);
-		};
-    }-*/;
+                                                                var instance = this;
+                                                                el.onclick = function() {
+                                                                instance.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::onOpenRecord(I)(state);
+                                                                };
+                                                                }-*/;
 
     void onOpenRecord(int state) {
         ControllerContainer.get().getSummaryController().openInvalidRecordToBrowseRecord(state);
@@ -191,7 +199,6 @@ public class StagingContainerSummaryView extends AbstractView {
         initDetailPanel();
         updateChartData();
     }
-
 
     private void updateChartData() {
         int valid = stagingContainerModel.getValidRecords();
@@ -206,11 +213,11 @@ public class StagingContainerSummaryView extends AbstractView {
         double percentage = valid * 1D / total;
         NumberFormat format = NumberFormat.getFormat("#0.00"); //$NON-NLS-1$
         final double validPercentage = format.parse(format.format(valid * 100D / total));
-        if (gaugesBar.getValue() < 1.0) {
+        if (gaugesBar.getValue() < 1.0 || totalRecordCount != total) {
             gaugesBar.updateProgress(percentage, messages.percentage(valid, total, validPercentage));
         }
+        totalRecordCount = total;
     }
-
 
     public StagingContainerModel getStagingContainerModel() {
         return stagingContainerModel;
@@ -223,7 +230,6 @@ public class StagingContainerSummaryView extends AbstractView {
     public boolean isEnabledStartValidation() {
         return startValidate.isEnabled();
     }
-
 
     public Button getStartValidateButton() {
         return startValidate;
