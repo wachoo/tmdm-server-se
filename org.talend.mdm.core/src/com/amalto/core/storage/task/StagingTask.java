@@ -1,20 +1,21 @@
 package com.amalto.core.storage.task;
 
-import com.amalto.core.query.user.Condition;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.log4j.Logger;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.amalto.core.query.user.Condition;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 
 /**
  *
@@ -51,11 +52,8 @@ public class StagingTask implements Task {
 
     private boolean isFinished;
 
-    public StagingTask(TaskSubmitter taskSubmitter,
-                       Storage stagingStorage,
-                       MetadataRepository stagingRepository,
-                       List<Task> tasks,
-                       ClosureExecutionStats stats) {
+    public StagingTask(TaskSubmitter taskSubmitter, Storage stagingStorage, MetadataRepository stagingRepository,
+            List<Task> tasks, ClosureExecutionStats stats) {
         this.taskSubmitter = taskSubmitter;
         this.stagingStorage = stagingStorage;
         this.stats = stats;
@@ -64,12 +62,17 @@ public class StagingTask implements Task {
         this.tasks = tasks;
     }
 
+    @Override
     public String getId() {
         return executionId;
     }
 
+    @Override
     public int getRecordCount() {
         synchronized (currentTaskMonitor) {
+            if (currentTask != null && currentTask instanceof MDMValidationTask) {
+                recordCount.set(currentTask.getRecordCount());
+            }
             return recordCount.get();
         }
     }
@@ -79,10 +82,12 @@ public class StagingTask implements Task {
         return stats.getErrorCount();
     }
 
+    @Override
     public double getPerformance() {
         return (getRecordCount()) / ((System.currentTimeMillis() - startTime) / 1000f);
     }
 
+    @Override
     public void cancel() {
         synchronized (currentTaskMonitor) {
             isCancelled = true;
@@ -96,10 +101,11 @@ public class StagingTask implements Task {
                 executionLock.notifyAll();
             }
             // Ensure cancel execution stats are stored to database.
-            recordExecutionEnd();
+            recordExecutionEnd(stats);
         }
     }
 
+    @Override
     public void waitForCompletion() throws InterruptedException {
         while (!startLock.get()) {
             synchronized (startLock) {
@@ -145,6 +151,7 @@ public class StagingTask implements Task {
         return stats.getErrorCount() + stats.getSuccessCount();
     }
 
+    @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         try {
             run();
@@ -172,20 +179,20 @@ public class StagingTask implements Task {
                         break;
                     }
                     currentTask = task;
-                    recordCount.addAndGet(currentTask.getRecordCount());
                 }
                 LOGGER.info("--> " + task.toString());
                 long taskExecTime = System.currentTimeMillis();
                 {
                     taskSubmitter.submitAndWait(currentTask);
                 }
-                LOGGER.info("<-- DONE " + task.toString() + " (elapsed time: " + (System.currentTimeMillis() - taskExecTime) + " ms)");
+                LOGGER.info("<-- DONE " + task.toString() + " (elapsed time: " + (System.currentTimeMillis() - taskExecTime)
+                        + " ms)");
                 if (currentTask.hasFailed()) {
                     LOGGER.warn("Task '" + currentTask + "' failed: abort staging validation task.");
                     break;
                 }
             }
-            recordExecutionEnd();
+            recordExecutionEnd(stats);
         } finally {
             synchronized (executionLock) {
                 executionLock.set(true);
@@ -213,10 +220,11 @@ public class StagingTask implements Task {
         }
     }
 
-    private void recordExecutionEnd() {
+    private void recordExecutionEnd(ClosureExecutionStats stats) {
         DataRecord execution = new DataRecord(executionType, UnsupportedDataRecordMetadata.INSTANCE);
         execution.set(executionType.getField("id"), executionId); //$NON-NLS-1$
         execution.set(executionType.getField("start_time"), startTime); //$NON-NLS-1$
+        execution.set(executionType.getField("end_match_time"), stats.getEndMatchTime()); //$NON-NLS-1$
         execution.set(executionType.getField("end_time"), System.currentTimeMillis()); //$NON-NLS-1$
         execution.set(executionType.getField("error_count"), new BigDecimal(getErrorCount())); //$NON-NLS-1$
         execution.set(executionType.getField("record_count"), new BigDecimal(getProcessedRecords())); //$NON-NLS-1$
