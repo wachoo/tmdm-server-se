@@ -47,7 +47,16 @@ class FlatTypeMapping extends TypeMapping {
     }
 
     public FieldMetadata getDatabase(FieldMetadata from) {
-        return userToDatabase.get(from.getDeclaringType().getName() + '_' + from.getName());
+        FieldMetadata field = userToDatabase.get(from.getDeclaringType().getName() + '_' + from.getName());
+        // TMDM-6802: Look for field by name (declaring type might be wrong).
+        if (field == null) {
+            for (FieldMetadata fieldMetadata : userToDatabase.values()) {
+                if (fieldMetadata.getName().endsWith(from.getName().toLowerCase())) {
+                    return fieldMetadata;
+                }
+            }
+        }
+        return field;
     }
 
     public FieldMetadata getUser(FieldMetadata to) {
