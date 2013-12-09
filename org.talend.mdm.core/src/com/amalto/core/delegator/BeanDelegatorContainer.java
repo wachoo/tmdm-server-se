@@ -59,6 +59,10 @@ public class BeanDelegatorContainer {
                     IBeanDelegator beanDelegator = (IBeanDelegator) cons.newInstance();
                     delegatorInstancePool.put(currentBean.getKey(), beanDelegator);
                     LOGGER.info("Init instance:" + currentBean.getValue()); //$NON-NLS-1$
+                } catch (ClassNotFoundException e) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Class '" + currentBean.getValue() + "' cannot be found.", e);
+                    }
                 } catch (Exception e) {
                     LOGGER.error("Init exception for '" + currentBean.getValue() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
                 }
