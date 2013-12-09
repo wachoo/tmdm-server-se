@@ -12,6 +12,7 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.metadata.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.NotImplementedException;
@@ -123,6 +124,36 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
                 currentRangeEnd,
                 true,
                 true);
+    }
+
+    @Override
+    public Query visit(StagingStatus stagingStatus) {
+        currentFieldName = Storage.METADATA_STAGING_STATUS;
+        return null;
+    }
+
+    @Override
+    public Query visit(TaskId taskId) {
+        currentFieldName = Storage.METADATA_TASK_ID;
+        return null;
+    }
+
+    @Override
+    public Query visit(StagingError stagingError) {
+        currentFieldName = Storage.METADATA_STAGING_ERROR;
+        return null;
+    }
+
+    @Override
+    public Query visit(StagingSource stagingSource) {
+        currentFieldName = Storage.METADATA_STAGING_SOURCE;
+        return null;
+    }
+
+    @Override
+    public Query visit(StagingBlockKey stagingBlockKey) {
+        currentFieldName = Storage.METADATA_STAGING_BLOCK_KEY;
+        return null;
     }
 
     @Override
