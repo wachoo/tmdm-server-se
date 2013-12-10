@@ -2998,6 +2998,28 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testMin() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(person).select(min(person.getField("age"))).limit(1);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            for (DataRecord result : results) {
+                assertEquals(10, result.get("min"));
+            }
+        } finally {
+            results.close();
+        }
+
+        qb = UserQueryBuilder.from(person).select(min(timestamp())).limit(1);
+        results = storage.fetch(qb.getSelect());
+        try {
+            for (DataRecord result : results) {
+                assertTrue(((Long) result.get("min")) < System.currentTimeMillis());
+            }
+        } finally {
+            results.close();
+        }
+    }
+
     public void testRangeOptimization() throws Exception {
         RangeOptimizer optimizer = new RangeOptimizer();
         // No optimization

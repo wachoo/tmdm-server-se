@@ -112,6 +112,11 @@ public class MappingExpressionTransformer extends VisitorAdapter<Expression> {
     }
 
     @Override
+    public Expression visit(Min min) {
+        return new Min((TypedExpression) min.getExpression().accept(this));
+    }
+
+    @Override
     public Expression visit(Compare condition) {
         Expression previousLeft = condition.getLeft();
         Expression left = previousLeft.accept(this);

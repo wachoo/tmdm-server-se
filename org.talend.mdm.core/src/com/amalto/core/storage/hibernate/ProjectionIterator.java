@@ -240,6 +240,13 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
             return null;
         }
 
+        @Override
+        public ProjectionElement visit(Min min) {
+            // Do nothing on field creation, min is expected to be nested in a com.amalto.core.query.user.Alias.
+            currentElement.value = values[currentIndex++];
+            return null;
+        }
+
         public ProjectionElement visit(Alias alias) {
             isAlias = true;
             if (alias.getTypedExpression() instanceof Field) {
