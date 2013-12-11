@@ -330,7 +330,7 @@ public class ConfigurableContainsOptimizer implements Optimizer {
 
         @Override
         public Boolean visit(StringConstant constant) {
-            return !constant.getValue().startsWith("-");
+            return !constant.getValue().contains("-"); //$NON-NLS-1$
         }
 
         @Override
