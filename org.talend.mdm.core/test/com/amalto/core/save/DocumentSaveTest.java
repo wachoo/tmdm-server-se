@@ -2640,7 +2640,7 @@ public class DocumentSaveTest extends TestCase {
         }
 
         @Override
-        public String nextAutoIncrementId(String universe, String dataCluster, String conceptName) {
+        public String nextAutoIncrementId(String universe, String dataCluster, String dataModel, String conceptName) {
             return String.valueOf(currentId++);
         }
 
@@ -2655,6 +2655,7 @@ public class DocumentSaveTest extends TestCase {
         public void setUserName(String userName) {
             this.userName = userName;
         }
+
     }
 
     private static class AlterRecordTestSaverSource extends DocumentSaveTest.TestSaverSource {
