@@ -2933,7 +2933,7 @@ public class StorageQueryTest extends StorageTestCase {
                 .where(contains(person.getField("id"), "1-1"));
         copy = qb.getSelect().copy();
         optimizer.optimize(copy);
-        assertTrue(copy.getCondition() instanceof FieldFullText);
+        assertFalse(copy.getCondition() instanceof FieldFullText);
         records = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, records.getCount());
