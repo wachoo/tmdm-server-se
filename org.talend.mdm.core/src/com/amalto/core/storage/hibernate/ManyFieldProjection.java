@@ -22,9 +22,11 @@ import org.hibernate.type.Type;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
+import java.util.Set;
+
 class ManyFieldProjection extends SimpleProjection {
 
-    private final String alias;
+    private final Set<String> aliases;
 
     private final FieldMetadata field;
 
@@ -32,8 +34,8 @@ class ManyFieldProjection extends SimpleProjection {
 
     private final RDBMSDataSource dataSource;
 
-    ManyFieldProjection(String alias, FieldMetadata field, TableResolver resolver, RDBMSDataSource dataSource) {
-        this.alias = alias;
+    ManyFieldProjection(Set<String> aliases, FieldMetadata field, TableResolver resolver, RDBMSDataSource dataSource) {
+        this.aliases = aliases;
         this.field = field;
         this.resolver = resolver;
         this.dataSource = dataSource;
@@ -41,7 +43,7 @@ class ManyFieldProjection extends SimpleProjection {
 
     @Override
     public String toSqlString(Criteria criteria, int position, CriteriaQuery criteriaQuery) throws HibernateException {
-        Criteria subCriteria = StandardQueryHandler.findCriteria(criteria, alias);
+        Criteria subCriteria = StandardQueryHandler.findCriteria(criteria, aliases);
         ComplexTypeMetadata containingType = field.getContainingType();
         String containerTable = MappingGenerator.formatSQLName(resolver.get(containingType), resolver.getNameMaxLength());
         String collectionTable = MappingGenerator.formatSQLName((containerTable + '_' + field.getName()).toUpperCase(), resolver.getNameMaxLength());

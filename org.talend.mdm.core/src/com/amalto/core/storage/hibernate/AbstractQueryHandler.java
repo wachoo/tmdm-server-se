@@ -234,7 +234,7 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
 
         boolean isMany;
 
-        String criterionFieldName;
+        List<String> criterionFieldNames = new LinkedList<String>();
 
         FieldMetadata fieldMetadata;
 

@@ -50,7 +50,7 @@ public class MetadataUtils {
      * <ul>
      * <li>ER(E) is the entity rank of E.</li>
      * <li>N the number of entities in <code>repository</code></li>
-     * <li>d an adjustement factor (between 0 and 1)</li>
+     * <li>d an adjustment factor (between 0 and 1)</li>
      * <li>ER(Ei) is the entity rank for entity Ei that E references via a reference field</li>
      * <li>C(Ei) the number of entities in <code>repository</code> that reference Ei in the repository.</li>
      * </ul>
@@ -118,100 +118,154 @@ public class MetadataUtils {
      * </ul>
      * </p>
      *
-     * @param origin Point of entry in the metadata graph.
+     * @param type Point of entry in the metadata graph.
      * @param target Field to look for as end of path.
-     * @return A path from type <code>origin</code> to field <code>target</code>. Returns empty stack if no path could be found.
+     * @return A path from type <code>origin</code> to field <code>target</code>. Returns empty list if no path could be found.
      * @throws IllegalArgumentException If either <code>origin</code> or <code>path</code> is null.
      */
-    public static List<FieldMetadata> path(ComplexTypeMetadata origin, FieldMetadata target, boolean includeReferences) {
-        if (origin == null) {
+    public static List<FieldMetadata> path(ComplexTypeMetadata type, FieldMetadata target, boolean includeReferences) {
+        Stack<FieldMetadata> path = new Stack<FieldMetadata>();
+        _path(type, target, path, new HashSet<ComplexTypeMetadata>(), includeReferences);
+        return path;
+    }
+
+    private static void _path(ComplexTypeMetadata type,
+                              FieldMetadata target,
+                              Stack<FieldMetadata> path,
+                              Set<ComplexTypeMetadata> processedTypes,
+                              boolean includeReferences) {
+        // Various optimizations for very simple cases
+        if (type == null) {
             throw new IllegalArgumentException("Origin can not be null");
         }
         if (target == null) {
             throw new IllegalArgumentException("Target field can not be null");
         }
-        if (Storage.PROJECTION_TYPE.equals(origin.getName()) && origin.hasField(target.getName())) {
-            return Collections.singletonList(origin.getField(target.getName()));
+        if (Storage.PROJECTION_TYPE.equals(type.getName()) && type.hasField(target.getName())) {
+            path.push(type.getField(target.getName()));
         }
-        if (target.getContainingType().equals(origin)) { // Optimization: don't compute paths if field is defined in origin type.
-            return Collections.singletonList(origin.getField(target.getName()));
+        //
+        if (processedTypes.contains(type)) {
+            return;
         }
-        Stack<FieldMetadata> processStack = new Stack<FieldMetadata>();
-        LinkedList<FieldMetadata> path = new LinkedList<FieldMetadata>();
-        processStack.addAll(origin.getFields());
-        Set<FieldMetadata> processedFields = new HashSet<FieldMetadata>();
-        while (!processStack.isEmpty()) {
-            FieldMetadata current = processStack.pop();
-            if (!path.isEmpty() && path.getLast().getContainingType().equals(current.getContainingType())) {
-                path.removeLast();
+        processedTypes.add(type);
+        Collection<FieldMetadata> fields = type.getFields();
+        for (FieldMetadata current : fields) {
+            path.push(current);
+            if (current == target) {
+                return;
             }
-            if (current.equals(target)) {
-                path.add(current);
-                int lastIndex = path.size() - 1;
-                Iterator<FieldMetadata> iterator = path.descendingIterator();
-                while (iterator.hasNext()) {
-                    if (iterator.next().getContainingType().equals(origin)) {
-                        break;
+            if (current instanceof ContainedTypeFieldMetadata) {
+                ContainedComplexTypeMetadata containedType = ((ContainedTypeFieldMetadata) current).getContainedType();
+                _path(containedType, target, path, processedTypes, includeReferences);
+                if (path.peek() == target) {
+                    return;
+                }
+                for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
+                    for (FieldMetadata field : subType.getFields()) {
+                        if (field.getDeclaringType() == subType) {
+                            _path(subType, target, path, processedTypes, includeReferences);
+                            if (path.peek() == target) {
+                                return;
+                            }
+                        }
                     }
-                    lastIndex--;
                 }
-                for (int j = 0; j < lastIndex; j++) {
-                    path.remove(0);
-                }
-                return path;
-            } else if (!(current instanceof SimpleTypeFieldMetadata || current instanceof EnumerationFieldMetadata)) {
-                path.add(current);
-            }
-            if (!processedFields.contains(current)) {
-                processedFields.add(current);
-                if (current instanceof ContainedTypeFieldMetadata) {
-                    ContainedComplexTypeMetadata containedType = ((ContainedTypeFieldMetadata) current).getContainedType();
-                    if (includeReferences) {
-                        processStack.addAll(containedType.getFields());
-                        for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
-                            for (FieldMetadata field : subType.getFields()) {
-                                if (field.getDeclaringType() == subType) {
-                                    processStack.add(field);
+            } else if (current instanceof ReferenceFieldMetadata) {
+                if (includeReferences) {
+                    ComplexTypeMetadata referencedType = ((ReferenceFieldMetadata) current).getReferencedType();
+                    _path(referencedType, target, path, processedTypes, true);
+                    if (path.peek() == target) {
+                        return;
+                    }
+                    for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
+                        for (FieldMetadata field : subType.getFields()) {
+                            if (field.getDeclaringType() == subType) {
+                                _path(subType, target, path,processedTypes,  true);
+                                if (path.peek() == target) {
+                                    return;
                                 }
                             }
                         }
-                    } else {
-                        for (FieldMetadata fieldMetadata : containedType.getFields()) {
-                            if (includeFieldInPath(fieldMetadata, target)) {
-                                processStack.add(fieldMetadata);
+                    }
+                }
+            }
+            path.pop();
+        }
+    }
+
+    /**
+     * <p>
+     * Find <b>all</b> paths from type <code>origin</code> to field <code>target</code>.
+     * </p>
+     * <p>
+     * This is a rather expensive operation, so use this method only when needed. When you need only <b>a</b> path to
+     * field <code>target</code>, prefer usage of {@link #path(org.talend.mdm.commmon.metadata.ComplexTypeMetadata, org.talend.mdm.commmon.metadata.FieldMetadata)}.
+     * </p>
+     * <p>
+     * This method follows references to other type <b>only</b> when type is not instantiable (see {@link org.talend.mdm.commmon.metadata.TypeMetadata#isInstantiable()}).
+     * </p>
+     *
+     * @param type Point of entry in the metadata graph.
+     * @param target Field to look for as end of path.
+     * @return A path from type <code>origin</code> to field <code>target</code>. Returns empty list if no path could be found.
+     * @throws IllegalArgumentException If either <code>origin</code> or <code>path</code> is null.
+     * @see #path(org.talend.mdm.commmon.metadata.ComplexTypeMetadata, org.talend.mdm.commmon.metadata.FieldMetadata)
+     */
+    public static Set<List<FieldMetadata>> paths(ComplexTypeMetadata type, FieldMetadata target) {
+        Stack<FieldMetadata> path = new Stack<FieldMetadata>();
+        HashSet<List<FieldMetadata>> foundPaths = new HashSet<List<FieldMetadata>>();
+        _paths(type, target, path, foundPaths);
+        return foundPaths;
+    }
+
+    private static void _paths(ComplexTypeMetadata type,
+                               FieldMetadata target,
+                               Stack<FieldMetadata> currentPath,
+                               Set<List<FieldMetadata>> foundPaths) {
+            // Various optimizations for very simple cases
+            if (type == null) {
+                throw new IllegalArgumentException("Origin can not be null");
+            }
+            if (target == null) {
+                throw new IllegalArgumentException("Target field can not be null");
+            }
+            if (Storage.PROJECTION_TYPE.equals(type.getName()) && type.hasField(target.getName())) {
+                currentPath.push(type.getField(target.getName()));
+            }
+            //
+            Collection<FieldMetadata> fields = type.getFields();
+            for (FieldMetadata current : fields) {
+                currentPath.push(current);
+                if (current == target) {
+                    foundPaths.add(new ArrayList<FieldMetadata>(currentPath));
+                }
+                if (current instanceof ContainedTypeFieldMetadata) {
+                    ContainedComplexTypeMetadata containedType = ((ContainedTypeFieldMetadata) current).getContainedType();
+                    _paths(containedType, target, currentPath, foundPaths);
+                    for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
+                        for (FieldMetadata field : subType.getFields()) {
+                            if (field.getDeclaringType() == subType) {
+                                _paths(subType, target, currentPath, foundPaths);
                             }
                         }
                     }
                 } else if (current instanceof ReferenceFieldMetadata) {
                     ComplexTypeMetadata referencedType = ((ReferenceFieldMetadata) current).getReferencedType();
-                    if (includeReferences) {
-                        processStack.addAll(referencedType.getFields());
+                    if (!referencedType.isInstantiable()) {
+                        _paths(referencedType, target, currentPath, foundPaths);
                         for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
                             for (FieldMetadata field : subType.getFields()) {
                                 if (field.getDeclaringType() == subType) {
-                                    processStack.add(field);
+                                    _paths(subType, target, currentPath, foundPaths);
                                 }
-                            }
-                        }
-                    } else {
-                        for (FieldMetadata fieldMetadata : referencedType.getFields()) {
-                            if (includeFieldInPath(fieldMetadata, target)) {
-                                processStack.add(fieldMetadata);
                             }
                         }
                     }
                 }
+                currentPath.pop();
             }
         }
-        return path;
-    }
-
-    private static boolean includeFieldInPath(FieldMetadata fieldMetadata, FieldMetadata target) {
-        Collection<FieldMetadata> keyFields = fieldMetadata.getContainingType().getKeyFields();
-        return fieldMetadata.equals(target)
-                || !(fieldMetadata instanceof ReferenceFieldMetadata)
-                || (!keyFields.isEmpty() && "x_talend_id".equals(keyFields.iterator().next().getName())); //$NON-NLS-1$
-    }
 
     /**
      * Creates a value from <code>dataAsString</code>. Type and/or format of the returned value depends on <code>field</code>.
