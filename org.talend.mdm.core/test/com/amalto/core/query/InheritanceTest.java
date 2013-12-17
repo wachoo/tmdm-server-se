@@ -11,10 +11,7 @@
 package com.amalto.core.query;
 
 import com.amalto.core.metadata.MetadataUtils;
-import com.amalto.core.query.user.OrderBy;
-import com.amalto.core.query.user.TypedExpression;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.core.query.user.*;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
@@ -24,6 +21,7 @@ import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -521,6 +519,41 @@ public class InheritanceTest extends StorageTestCase {
             fail("Expected exception: can perform 'is a' on a FK");
         } catch (Exception e) {
             // Expected.
+        }
+    }
+
+    public void testXsiIsEmptyOrNull() throws Exception {
+        ComplexTypeMetadata subNested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "SubNested");
+        assertNotNull(subNested);
+        ComplexTypeMetadata nested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "Nested");
+        assertNotNull(nested);
+        // Test 1
+        UserQueryBuilder qb = UserQueryBuilder.from(ss)
+                .where(
+                        or(
+                                isEmpty(type(ss.getField("nestedB"))),
+                                isNull(type(ss.getField("nestedB")))
+                        )
+                );
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        // Test 2
+        qb = from(ss);
+        List<IWhereItem> conditions = new ArrayList<IWhereItem>();
+        conditions.add(new WhereCondition("SS/nestedB/@xsi:type", WhereCondition.EMPTY_NULL, "", "&"));
+        IWhereItem fullWhere = new WhereAnd(conditions);
+        BinaryLogicOperator condition = (BinaryLogicOperator) UserQueryHelper.buildCondition(qb, fullWhere, repository);
+        assertNotNull(condition);
+        qb.where(condition);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
         }
     }
 
