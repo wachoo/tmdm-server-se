@@ -267,6 +267,11 @@ public class UserQueryBuilder {
 
     public static Condition emptyOrNull(TypedExpression field) {
         assertNullField(field);
+        if (field instanceof Type) {
+            // TMDM-6831: Consider a "emptyOrNull(type)" as a "isa(field, actual_field_type)" (aka a restriction).
+            FieldMetadata testedField = ((Type) field).getField().getFieldMetadata();
+            return new Isa(new Field(testedField), ((ContainedTypeFieldMetadata) testedField).getContainedType());
+        }
         // Only do a isEmpty operator if field type is string, for all other known cases, isNull is enough.
         if (Types.STRING.equals(field.getTypeName())) {
             return new BinaryLogicOperator(isEmpty(field), Predicate.OR, isNull(field));
