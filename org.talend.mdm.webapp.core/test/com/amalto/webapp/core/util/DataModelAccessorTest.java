@@ -31,22 +31,22 @@ import org.w3c.dom.Document;
  */
 public class DataModelAccessorTest extends TestCase {
     
-    private static final List<String> ROLES = Arrays.asList(new String[] { "System_Admin" }); //$NON-NLS-1$
+    private static final List<String> ROLES = Arrays.asList("System_Admin"); //$NON-NLS-1$
 
     public void testCheckRestoreAccessHelper() throws Exception {
         String modelXSD = getXSDModel("DataModelAccessorTest.xsd"); //$NON-NLS-1$
-        assertFalse(DataModelAccessor.getInstance().checkRestoreAccessHelper(modelXSD, "M26_E01", ROLES)); //$NON-NLS-1$
-        assertTrue(DataModelAccessor.getInstance().checkRestoreAccessHelper(modelXSD, "M26_E02", ROLES)); //$NON-NLS-1$
-        assertFalse(DataModelAccessor.getInstance().checkRestoreAccessHelper(modelXSD, "M26_E03", ROLES)); //$NON-NLS-1$
-        assertFalse(DataModelAccessor.getInstance().checkRestoreAccessHelper(modelXSD, "M26_E04", ROLES)); //$NON-NLS-1$
+        assertFalse(DataModelAccessor.getInstance().checkRestoreAccess(modelXSD, "M26_E01", ROLES)); //$NON-NLS-1$
+        assertTrue(DataModelAccessor.getInstance().checkRestoreAccess(modelXSD, "M26_E02", ROLES)); //$NON-NLS-1$
+        assertFalse(DataModelAccessor.getInstance().checkRestoreAccess(modelXSD, "M26_E03", ROLES)); //$NON-NLS-1$
+        assertFalse(DataModelAccessor.getInstance().checkRestoreAccess(modelXSD, "M26_E04", ROLES)); //$NON-NLS-1$
     }
 
     public void testCheckReadAccessHelper() throws Exception {
         String modelXSD = getXSDModel("DataModelAccessorTest.xsd"); //$NON-NLS-1$
-        assertTrue(DataModelAccessor.getInstance().checkReadAccessHelper(modelXSD, "M26_E01", ROLES)); //$NON-NLS-1$
-        assertTrue(DataModelAccessor.getInstance().checkReadAccessHelper(modelXSD, "M26_E02", ROLES)); //$NON-NLS-1$
-        assertFalse(DataModelAccessor.getInstance().checkReadAccessHelper(modelXSD, "M26_E03", ROLES)); //$NON-NLS-1$
-        assertFalse(DataModelAccessor.getInstance().checkReadAccessHelper(modelXSD, "M26_E04", ROLES)); //$NON-NLS-1$
+        assertTrue(DataModelAccessor.getInstance().checkReadAccess(modelXSD, "M26_E01", ROLES)); //$NON-NLS-1$
+        assertTrue(DataModelAccessor.getInstance().checkReadAccess(modelXSD, "M26_E02", ROLES)); //$NON-NLS-1$
+        assertFalse(DataModelAccessor.getInstance().checkReadAccess(modelXSD, "M26_E03", ROLES)); //$NON-NLS-1$
+        assertFalse(DataModelAccessor.getInstance().checkReadAccess(modelXSD, "M26_E04", ROLES)); //$NON-NLS-1$
     }
 
     private String getXSDModel(String filename) throws Exception {
@@ -55,8 +55,7 @@ public class DataModelAccessorTest extends TestCase {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(is);
-        String XSDModel = Util.nodeToString(doc);
-        return XSDModel;
+        return Util.nodeToString(doc);
     }
 
 }
