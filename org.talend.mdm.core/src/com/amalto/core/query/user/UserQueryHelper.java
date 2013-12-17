@@ -25,6 +25,7 @@ import org.talend.mdm.commmon.metadata.*;
 import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.emptyOrNull;
 
 public class UserQueryHelper {
 
@@ -92,23 +93,33 @@ public class UserQueryHelper {
             for (TypedExpression field : fields) {
                 // Field comparisons
                 if (!whereCondition.isRightValueXPath()) { // Value based comparison
-                    if (isPerformingTypeCheck && !WhereCondition.EMPTY_NULL.equals(whereCondition.getOperator())) {
-                        TypeMetadata typeForCheck = repository.getNonInstantiableType(repository.getUserNamespace(), value);
-                        if (typeForCheck == null) {
-                            throw new IllegalArgumentException("Type '" + value + "' was not found.");
+                    if (isPerformingTypeCheck) {
+                        if (!WhereCondition.EMPTY_NULL.equals(whereCondition.getOperator())) {
+                            TypeMetadata typeForCheck = repository.getNonInstantiableType(repository.getUserNamespace(), value);
+                            if (typeForCheck == null) {
+                                throw new IllegalArgumentException("Type '" + value + "' was not found.");
+                            }
+                            if (!(typeForCheck instanceof ComplexTypeMetadata)) {
+                                throw new IllegalArgumentException("Expected type '" + value + "' to be a complex type.");
+                            }
+                            if (!(field instanceof Alias)) {
+                                throw new IllegalArgumentException("Expected field '" + leftFieldName + "' to be an alias.");
+                            }
+                            Alias alias = (Alias) field;
+                            if (!(alias.getTypedExpression() instanceof Type)) {
+                                throw new IllegalArgumentException("Expected alias '" + leftFieldName + "' to be an alias of type.");
+                            }
+                            Type fieldExpression = (Type) alias.getTypedExpression();
+                            condition = isa(fieldExpression.getField().getFieldMetadata(), ((ComplexTypeMetadata) typeForCheck));
+                        } else {
+                            // TMDM-6831: Consider a "emptyOrNull(type)" as a "isa(field, actual_field_type)".
+                            Alias alias = (Alias) field;
+                            if (!(alias.getTypedExpression() instanceof Type)) {
+                                throw new IllegalArgumentException("Expected alias '" + leftFieldName + "' to be an alias of type.");
+                            }
+                            Type fieldExpression = (Type) alias.getTypedExpression();
+                            condition = emptyOrNull(fieldExpression);
                         }
-                        if (!(typeForCheck instanceof ComplexTypeMetadata)) {
-                            throw new IllegalArgumentException("Expected type '" + value + "' to be a complex type.");
-                        }
-                        if (!(field instanceof Alias)) {
-                            throw new IllegalArgumentException("Expected field '" + leftFieldName + "' to be an alias.");
-                        }
-                        Alias alias = (Alias) field;
-                        if (!(alias.getTypedExpression() instanceof Type)) {
-                            throw new IllegalArgumentException("Expected alias '" + leftFieldName + "' to be an alias of type.");
-                        }
-                        Type fieldExpression = (Type) alias.getTypedExpression();
-                        condition = isa(fieldExpression.getField().getFieldMetadata(), ((ComplexTypeMetadata) typeForCheck));
                     }
                     String fieldTypeName = field.getTypeName();
                     boolean isFk = field instanceof Field && ((Field) field).getFieldMetadata() instanceof ReferenceFieldMetadata;
