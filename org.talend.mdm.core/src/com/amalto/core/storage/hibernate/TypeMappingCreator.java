@@ -29,6 +29,8 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private final MappingRepository mappings;
 
+    private final MappingCreatorContext context;
+
     private TypeMapping typeMapping;
 
     private boolean forceKey = false;
@@ -36,19 +38,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     public TypeMappingCreator(MetadataRepository repository, MappingRepository mappings) {
         this.mappings = mappings;
         this.internalRepository = repository;
-    }
-
-    String getColumnName(FieldMetadata field) {
-        StringBuilder buffer = new StringBuilder();
-        for (String currentPrefix : prefix) {
-            buffer.append(currentPrefix).append('_');
-        }
-        String name = field.getName();
-        // Note #1: Hibernate (starting from 4.0) internally sets a lower case letter as first letter if field starts with a
-        // upper case character. To prevent any error due to missing field, lower case the field name.
-        // Note #2: Prefix everything with "x_" so there won't be any conflict with database internal type names.
-        // Note #3: Having '-' character is bad for Java code generation, so replace it with '_'.
-        return "x_" + (buffer.toString().replace('-', '_') + name.replace('-', '_')).toLowerCase(); //$NON-NLS-1$
+        this.context = new StatelessContext(prefix);
     }
 
     private static boolean isDatabaseMandatory(FieldMetadata field, TypeMetadata declaringType) {
@@ -61,7 +51,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(ReferenceFieldMetadata referenceField) {
-        String name = getColumnName(referenceField);
+        String name = context.getFieldColumn(referenceField);
         String typeName = referenceField.getReferencedType().getName().replace('-', '_');
         ComplexTypeMetadata referencedType = new SoftTypeRef(internalRepository, referenceField.getReferencedType().getNamespace(), typeName, true);
         FieldMetadata referencedField = new SoftIdFieldRef(internalRepository, typeName);
@@ -86,7 +76,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     name);
             database.addField(newFlattenField);
         } else {
-            newFlattenField = new SoftFieldRef(internalRepository, getColumnName(referenceField), referenceField.getContainingType());
+            newFlattenField = new SoftFieldRef(internalRepository, context.getFieldColumn(referenceField), referenceField.getContainingType());
         }
         typeMapping.map(referenceField, newFlattenField);
         return typeMapping;
@@ -128,12 +118,12 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     false,
                     simpleField.isMany(),
                     isDatabaseMandatory(simpleField, declaringType),
-                    getColumnName(simpleField),
+                    context.getFieldColumn(simpleField),
                     simpleField.getType(),
                     simpleField.getWriteUsers(),
                     simpleField.getHideUsers(),
                     simpleField.getWorkflowAccessRights(),
-                    getColumnName(simpleField));
+                    context.getFieldColumn(simpleField));
             database.addField(newFlattenField);
         } else {
             SoftTypeRef internalDeclaringType;
@@ -146,12 +136,12 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     false,
                     simpleField.isMany(),
                     isDatabaseMandatory(simpleField, declaringType),
-                    getColumnName(simpleField),
+                    context.getFieldColumn(simpleField),
                     simpleField.getType(),
                     simpleField.getWriteUsers(),
                     simpleField.getHideUsers(),
                     simpleField.getWorkflowAccessRights(),
-                    getColumnName(simpleField));
+                    context.getFieldColumn(simpleField));
             newFlattenField.setDeclaringType(internalDeclaringType);
             database.addField(newFlattenField);
         }
@@ -170,15 +160,17 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     isKey,
                     enumField.isMany(),
                     isDatabaseMandatory(enumField, enumField.getDeclaringType()),
-                    getColumnName(enumField),
+                    context.getFieldColumn(enumField),
                     enumField.getType(),
                     enumField.getWriteUsers(),
                     enumField.getHideUsers(),
                     enumField.getWorkflowAccessRights(),
-                    getColumnName(enumField));
+                    context.getFieldColumn(enumField));
             database.addField(newFlattenField);
         } else {
-            newFlattenField = new SoftFieldRef(internalRepository, getColumnName(enumField), enumField.getContainingType());
+            newFlattenField = new SoftFieldRef(internalRepository,
+                    context.getFieldColumn(enumField),
+                    enumField.getContainingType());
         }
         typeMapping.map(enumField, newFlattenField);
         return typeMapping;
@@ -204,7 +196,17 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         forceKey = false;
         if (typeMapping.getUser().getKeyFields().isEmpty() && typeMapping.getUser().getSuperTypes().isEmpty()) { // Assumes super type defines key field.
             SoftTypeRef type = new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING, false);
-            database.addField(new SimpleTypeFieldMetadata(database, true, false, true, "X_TALEND_ID", type, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), "X_TALEND_ID")); //$NON-NLS-1$ //$NON-NLS-2$
+            SimpleTypeFieldMetadata fieldMetadata = new SimpleTypeFieldMetadata(database,
+                    true,
+                    false,
+                    true,
+                    ScatteredMappingCreator.GENERATED_ID,
+                    type,
+                    Collections.<String>emptyList(),
+                    Collections.<String>emptyList(),
+                    Collections.<String>emptyList(),
+                    ScatteredMappingCreator.GENERATED_ID);
+            database.addField(fieldMetadata);
         }
         return typeMapping;
     }

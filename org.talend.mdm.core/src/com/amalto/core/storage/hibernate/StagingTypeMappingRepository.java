@@ -17,6 +17,7 @@ import com.amalto.core.storage.Storage;
 
 import javax.xml.XMLConstants;
 import java.util.Collections;
+import java.util.UUID;
 
 class StagingTypeMappingRepository extends InternalRepository {
     public StagingTypeMappingRepository(TypeMappingStrategy mappingStrategy) {
@@ -33,7 +34,7 @@ class StagingTypeMappingRepository extends InternalRepository {
             TypeMetadata longType = new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.LONG, false);
             TypeMetadata stringType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING);
             TypeMetadata limitedStringType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING);
-            limitedStringType.setData(MetadataRepository.DATA_MAX_LENGTH, 255);
+            limitedStringType.setData(MetadataRepository.DATA_MAX_LENGTH, UUID.randomUUID().toString().length());
             database.addField(new SimpleTypeFieldMetadata(database, false, false, true, Storage.METADATA_TIMESTAMP, longType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), StringUtils.EMPTY));
             database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_TASK_ID, limitedStringType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), StringUtils.EMPTY));
             database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_STAGING_STATUS, intType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), StringUtils.EMPTY));

@@ -22,6 +22,8 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
 
     private MetadataRepository userRepository;
 
+    private final MappingCreatorContext scatteredContext = new StatefulContext();
+
     final TypeMappingStrategy strategy;
 
     MappingRepository mappings;
@@ -83,6 +85,7 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
                 }
                 return new ScatteredMappingCreator(internalRepository,
                         mappings,
+                        scatteredContext,
                         strategy.preferClobUse(),
                         strategy.useTechnicalFk());
             default:

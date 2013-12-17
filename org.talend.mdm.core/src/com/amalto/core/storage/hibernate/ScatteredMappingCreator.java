@@ -21,6 +21,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     public static final String GENERATED_ID = "x_talend_id"; //$NON-NLS-1$
 
+    protected static final int UUID_LENGTH = UUID.randomUUID().toString().length() + 10;
+
     private final MetadataRepository internalRepository;
 
     private final MappingRepository mappings;
@@ -35,14 +37,18 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private final Set<TypeMetadata> processedTypes = new HashSet<TypeMetadata>();
 
+    private final MappingCreatorContext context;
+
     private TypeMapping entityMapping;
 
     public ScatteredMappingCreator(MetadataRepository repository,
                                    MappingRepository mappings,
+                                   MappingCreatorContext context,
                                    boolean shouldCompressLongStrings,
                                    boolean enforceTechnicalFK) {
-        internalRepository = repository;
+        this.internalRepository = repository;
         this.mappings = mappings;
+        this.context = context;
         this.preferClobUse = shouldCompressLongStrings;
         this.enforceTechnicalFK = enforceTechnicalFK;
     }
@@ -53,7 +59,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 false,
                 field.isMany(),
                 field.isMandatory(),
-                getFieldName(field),
+                context.getFieldColumn(field),
                 field.getType(),
                 field.getWriteUsers(),
                 field.getHideUsers(),
@@ -78,24 +84,16 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         return null;
     }
 
-    private static String getPath(FieldMetadata field) {
-        StringTokenizer tokenizer = new StringTokenizer(field.getPath(), "/");
+    private String getPath(FieldMetadata field) {
+        StringTokenizer tokenizer = new StringTokenizer(field.getPath(), "/"); //$NON-NLS-1$
         StringBuilder path = new StringBuilder();
         while (tokenizer.hasMoreTokens()) {
-            path.append(getFieldColumn(tokenizer.nextToken()));
+            path.append(context.getFieldColumn(tokenizer.nextToken()));
             if (tokenizer.hasMoreTokens()) {
                 path.append('/');
             }
         }
         return path.toString();
-    }
-
-    private static String getFieldName(FieldMetadata field) {
-        return getFieldColumn(field.getName());
-    }
-
-    private static String getFieldColumn(String name) {
-        return "x_" + name.replace('-', '_').toLowerCase(); //$NON-NLS-1$
     }
 
     private static String newNonInstantiableTypeName(ComplexTypeMetadata fieldReferencedType) {
@@ -137,7 +135,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 referenceField.isKey(),
                 referenceField.isMany(),
                 referenceField.isMandatory(),
-                getFieldName(referenceField),
+                context.getFieldColumn(referenceField),
                 referencedType,
                 referencedFieldCopy,
                 Collections.<FieldMetadata>emptyList(),
@@ -148,6 +146,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 referenceField.getHideUsers(),
                 referenceField.getWorkflowAccessRights(),
                 getPath(referenceField));
+        newFlattenField.setData(MetadataRepository.DATA_MAX_LENGTH, UUID_LENGTH); // TODO Not very true...
         database.addField(newFlattenField);
         entityMapping.map(referenceField, newFlattenField);
         currentMapping.peek().map(referenceField, newFlattenField);
@@ -181,8 +180,9 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     false,
                     originalContainedType.getWorkflowAccessRights());
             internalRepository.addTypeMetadata(internalContainedType);
-            if (superTypeName == null) {  // Generate a technical ID only if contained type does not have super type (subclasses will inherit it).
-                internalContainedType.addField(new SimpleTypeFieldMetadata(internalContainedType,
+            if (superTypeName == null) {
+                // Generate a technical ID only if contained type does not have super type (subclasses will inherit it).
+                SimpleTypeFieldMetadata fieldMetadata = new SimpleTypeFieldMetadata(internalContainedType,
                         true,
                         false,
                         true,
@@ -191,9 +191,15 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                         originalContainedType.getWriteUsers(),
                         originalContainedType.getHideUsers(),
                         originalContainedType.getWorkflowAccessRights(),
-                        StringUtils.EMPTY)); // TODO Compute path for generated id.
+                        internalContainedType.getName() + '/' + GENERATED_ID);
+                internalContainedType.addField(fieldMetadata);
+                fieldMetadata.setData(MetadataRepository.DATA_MAX_LENGTH, UUID_LENGTH);
             } else {
-                internalContainedType.addSuperType(new SoftTypeRef(internalRepository, internalContainedType.getNamespace(), superTypeName, false), internalRepository);
+                SoftTypeRef type = new SoftTypeRef(internalRepository,
+                        internalContainedType.getNamespace(),
+                        superTypeName,
+                        false);
+                internalContainedType.addSuperType(type, internalRepository);
             }
             internalRepository.addTypeMetadata(internalContainedType);
         }
@@ -226,7 +232,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 false,
                 containedField.isMany(),
                 containedField.isMandatory(),
-                getFieldName(containedField),
+                context.getFieldColumn(containedField),
                 typeRef,
                 new SoftIdFieldRef(internalRepository, containedTypeName),
                 Collections.<FieldMetadata>emptyList(),
@@ -237,7 +243,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 containedField.getHideUsers(),
                 containedField.getWorkflowAccessRights(),
                 getPath(containedField));
-        newFlattenField.setData(MappingGenerator.SQL_DELETE_CASCADE, "true"); //$NON-NLS-1$
+        newFlattenField.setData(MetadataRepository.DATA_MAX_LENGTH, UUID_LENGTH);
+        newFlattenField.setData(MappingGenerator.SQL_DELETE_CASCADE, Boolean.TRUE.toString());
         currentType.peek().addField(newFlattenField);
         currentMapping.peek().map(containedField, newFlattenField);
         entityMapping.map(containedField, newFlattenField);
@@ -271,9 +278,10 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         currentType.push(database);
         {
             internalRepository.addTypeMetadata(database);
-            if (complexType.getKeyFields().isEmpty() && complexType.getSuperTypes().isEmpty()) { // Assumes super type will define an id.
+            if (complexType.getKeyFields().isEmpty() && complexType.getSuperTypes().isEmpty()) {
+                // Assumes super type will define an id.
                 SoftTypeRef type = new SoftTypeRef(internalRepository, StringUtils.EMPTY, Types.UUID, false);
-                database.addField(new SimpleTypeFieldMetadata(database,
+                SimpleTypeFieldMetadata fieldMetadata = new SimpleTypeFieldMetadata(database,
                         true,
                         false,
                         true,
@@ -282,7 +290,9 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                         Collections.<String>emptyList(),
                         Collections.<String>emptyList(),
                         Collections.<String>emptyList(),
-                        StringUtils.EMPTY));
+                        database.getName() + '/' + GENERATED_ID);
+                database.addField(fieldMetadata);
+                fieldMetadata.setData(MetadataRepository.DATA_MAX_LENGTH, UUID_LENGTH);
             }
             for (TypeMetadata superType : complexType.getSuperTypes()) {
                 if (superType.isInstantiable()) {
@@ -301,7 +311,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             }
             super.visit(complexType);
             for (FieldMetadata keyField : complexType.getKeyFields()) {
-                database.registerKey(database.getField(getFieldColumn(keyField.getName()))); //$NON-NLS-1$
+                database.registerKey(database.getField(context.getFieldColumn(keyField.getName())));
             }
         }
         currentType.pop();

@@ -44,7 +44,8 @@ class SimpleValue implements Setter, Getter {
         if (element.field instanceof ReferenceFieldMetadata) {
             StringBuilder builder = new StringBuilder();
             for (FieldMetadata keyField : ((ReferenceFieldMetadata) element.field).getReferencedType().getKeyFields()) {
-                builder.append('[').append(record.get(keyField)).append(']');
+                DataRecord referencedRecord = (DataRecord) record.get(element.field);
+                builder.append('[').append(referencedRecord.get(keyField)).append(']');
             }
             return builder.toString();
         } else {
