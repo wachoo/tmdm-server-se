@@ -162,6 +162,17 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(Min min) {
+        print("[MIN]"); //$NON-NLS-1$
+        increaseIndent();
+        {
+            min.getExpression().accept(this);
+        }
+        decreaseIndent();
+        return null;
+    }
+
     public Void visit(Compare condition) {
         print("[COMPARE]"); //$NON-NLS-1$
         increaseIndent();

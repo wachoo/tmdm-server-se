@@ -88,6 +88,17 @@ public class UserQueryBuilder {
         return new Alias(new Max(typedExpression), "max"); //$NON-NLS-1$
     }
 
+    public static TypedExpression min(FieldMetadata field) {
+        assertNullField(field);
+        Field userField = new Field(field);
+        return min(userField);
+    }
+
+    public static TypedExpression min(TypedExpression typedExpression) {
+        assertNullField(typedExpression);
+        return new Alias(new Min(typedExpression), "min"); //$NON-NLS-1$
+    }
+
     public static Condition gt(FieldMetadata field, String constant) {
         assertValueConditionArguments(field, constant);
         Field userField = new Field(field);
