@@ -347,11 +347,18 @@ public class ForeignKeyHelper {
     }
 
     private static void initFKBean(String dataClusterPK,EntityModel entityModel,Element ele, ForeignKeyBean bean, String fk, List<String> getForeignKeyInfos, Map<String, String> xpathTypeMap, String language) throws Exception {
+        int positionIndex = 0;
         for (int i = 0; i < ele.getChildNodes().getLength(); i++) {
             if (ele.getChildNodes().item(i) instanceof Element) {
+                positionIndex++;
                 Element curEle = (Element) ele.getChildNodes().item(i);
                 String value = curEle.getTextContent().trim();
-                String fkInfo = fk + "/" + curEle.getNodeName(); //$NON-NLS-1$
+                String fkInfo;
+                if (positionIndex <= getForeignKeyInfos.size()) {
+                    fkInfo = getForeignKeyInfos.get(positionIndex-1);
+                } else {
+                    fkInfo = fk + "/" + curEle.getNodeName(); //$NON-NLS-1$
+                }
                 if (getForeignKeyInfos != null && getForeignKeyInfos.contains(fkInfo)) {
                     if (entityModel != null) {
                         value = getDisplayValue(curEle.getTextContent().trim(),fkInfo,dataClusterPK,entityModel,language);
