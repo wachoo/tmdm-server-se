@@ -200,6 +200,8 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
         document = new DOMDocument(getDocument(id), typeMetadata, revisionId, clusterName, modelName);
 
         transformer = new ForeignKeyInfoTransformer(typeMetadata, clusterName);
+        ((ForeignKeyInfoTransformer) transformer).setMetadataRepository(metadataRepository);
+
         transformedDocument = document.transform(transformer);
 
         String path = fkPaths.get(id);
@@ -343,5 +345,9 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
         xmlDomRecordInputs.put("a9", "<A><A_Id>a9</A_Id><A_Name>aname1</A_Name><E1><C>[c1]</C></E1></A>");
         // case 10:
         xmlDomRecordInputs.put("a10", "<A><A_Id>a10</A_Id><A_Name>aname1</A_Name><E2><C>[c1]</C></E2></A>");
+        // case 11:
+        xmlDomRecordInputs
+                .put("a11",
+                        "<A><A_Id>a1</A_Id><A_Name>aName1</A_Name><FK_to_B>[b1]</FK_to_B><FK_to_C>[c1]</FK_to_C><BCollection1><B>[b1]</B><B>[b2]</B></BCollection1><BCollection2><B>[b1]</B><B>[b2]</B></BCollection2><CCollection1><C>[c1]</C><C>[c2]</C></CCollection1><CCollection2><C>[c1]</C><C>[c2]</C></CCollection2><D1><B>[b1]</B></D1><D2><B>[b1]</B></D2><E1><C>[c1]</C></E1><E2><C>[c1]</C></E2></A>");
     }
 }

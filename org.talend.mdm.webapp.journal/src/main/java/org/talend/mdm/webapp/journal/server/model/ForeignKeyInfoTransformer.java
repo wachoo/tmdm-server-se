@@ -9,13 +9,17 @@
  */
 package org.talend.mdm.webapp.journal.server.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
@@ -37,23 +41,30 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
     private final TypeMetadata metadata;
 
     private final String dataClusterName;
+    
+    private MetadataRepository metadataRepository = null;
 
     private final static Logger LOG = Logger.getLogger(ForeignKeyInfoTransformer.class);
 
     public ForeignKeyInfoTransformer(TypeMetadata metadata, String dataClusterName) {
         this.metadata = metadata;
         this.dataClusterName = dataClusterName;
+        this.metadataRepository = new MetadataRepository();
+    }
+    public void setMetadataRepository (MetadataRepository metadataRepository) {
+        this.metadataRepository = metadataRepository;
     }
 
     @Override
     public Document transform(MutableDocument document) {
-        List<ReferenceFieldMetadata> referenceFieldMetadatas = metadata.accept(new ForeignKeyInfoResolver());
+        Map<ReferenceFieldMetadata, String> referenceFieldMetadataAndPaths = metadata.accept(new ForeignKeyInfoResolver());
 
-        for (ReferenceFieldMetadata referenceFieldMetadata : referenceFieldMetadatas) {
+        for (ReferenceFieldMetadata referenceFieldMetadata : referenceFieldMetadataAndPaths.keySet()) {
             String path = referenceFieldMetadata.getPath();
-            // FIXME
-            // path can contain repeatable elements in the middle
-            // path should be taken from instance document and not metadata (case of non-anonymous types)
+            if (path.equals("")) { //$NON-NLS-1$
+                path = referenceFieldMetadataAndPaths.get(referenceFieldMetadata);
+            }
+
             if (referenceFieldMetadata.isMany()) {
                 boolean occurrencePathExists = true;
                 for (int i = 1; occurrencePathExists == true; i++) {
@@ -118,7 +129,13 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
             Element element = item.getProjection();
             StringBuilder foreignKeyInfo = new StringBuilder();
             for (FieldMetadata fieldMetadata : foreignKeyField.getForeignKeyInfoFields()) {
-                NodeList nodeList = Util.getNodeList(element, "/" + referencedTypeName + "/" + fieldMetadata.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+                String xpathToForeignKeyInfoField = null;
+                if (referencedTypeName.equals(fieldMetadata.getContainingType().getName())) {
+                    xpathToForeignKeyInfoField = "/" + referencedTypeName + "/" + fieldMetadata.getName();//$NON-NLS-1$ //$NON-NLS-2$
+                } else {//for fkInfo fields defined in reusable types
+                    xpathToForeignKeyInfoField = getXpath(referencedTypeName, fieldMetadata);
+                }
+                NodeList nodeList = Util.getNodeList(element, xpathToForeignKeyInfoField);
                 if (nodeList.getLength() == 1 && nodeList.item(0).getTextContent() != null
                         && !nodeList.item(0).getTextContent().isEmpty()) {
                     if (foreignKeyInfo.length() > 0) {
@@ -137,35 +154,77 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
         }
     }
 
-    private static class ForeignKeyInfoResolver extends DefaultMetadataVisitor<List<ReferenceFieldMetadata>> {
+    private String getXpath(String referencedTypeName, FieldMetadata fieldMetadata) {
+        String xpath = ""; //$NON-NLS-1$
+        ComplexTypeMetadata referenceTypeMeta = (ComplexTypeMetadata) metadataRepository.getType(referencedTypeName);
+        if (referenceTypeMeta == null) {
+            throw new IllegalArgumentException(
+                    "Cannot find type information for type '" + referencedTypeName + "' in data cluster '" + dataClusterName + "', in data model '" + dataClusterName + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        }
 
-        private final List<ReferenceFieldMetadata> references = new ArrayList<ReferenceFieldMetadata>();
+        for (FieldMetadata entityField : referenceTypeMeta.getFields()) {
+            if (entityField.getType().getName().equals(fieldMetadata.getContainingType().getName())) {
+                xpath += "/" + referencedTypeName + "/" + entityField.getName() + "/" + fieldMetadata.getName(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            }
+        }
+        return xpath;
+    }
+
+    private static class ForeignKeyInfoResolver extends DefaultMetadataVisitor<Map<ReferenceFieldMetadata, String>> {
+
+        private final Map<ReferenceFieldMetadata, String> references = new HashMap<ReferenceFieldMetadata, String>();
+
+        private StringBuilder path = null;
 
         @Override
-        public List<ReferenceFieldMetadata> visit(ComplexTypeMetadata metadata) {
+        public Map<ReferenceFieldMetadata, String> visit(ComplexTypeMetadata metadata) {
             super.visit(metadata);
             return references;
         }
 
         @Override
-        public List<ReferenceFieldMetadata> visit(ReferenceFieldMetadata metadata) {
+        public Map<ReferenceFieldMetadata, String> visit(ReferenceFieldMetadata metadata) {
             if (metadata.hasForeignKeyInfo()) {
-                references.add(metadata);
+                if (!metadata.getPath().equals("")) { //$NON-NLS-1$
+                    references.put(metadata, metadata.getPath());
+                } else {
+                    references.put(metadata, path.toString());
+                }
             }
             super.visit(metadata);
             return references;
         }
 
         @Override
-        public List<ReferenceFieldMetadata> visit(FieldMetadata fieldMetadata) {
+        public Map<ReferenceFieldMetadata, String> visit(FieldMetadata fieldMetadata) {
             super.visit(fieldMetadata);
             return references;
         }
 
         @Override
-        public List<ReferenceFieldMetadata> visit(SimpleTypeFieldMetadata metadata) {
+        public Map<ReferenceFieldMetadata, String> visit(SimpleTypeFieldMetadata metadata) {
             super.visit(metadata);
             return references;
         }
+
+        @Override
+        public Map<ReferenceFieldMetadata, String> visit(ContainedTypeFieldMetadata containedField) {
+            path = new StringBuilder(""); //$NON-NLS-1$
+            path.append(containedField.getName());
+            super.visit(containedField);
+            return null;
+        }
+
+        @Override
+        public Map<ReferenceFieldMetadata, String> visit(ContainedComplexTypeMetadata containedType) {
+            Collection<FieldMetadata> fields = containedType.getFields();
+            for (FieldMetadata field : fields) {
+                path.append("/" + field.getName()); //$NON-NLS-1$
+                field.accept(this);
+            }
+
+            return null;
+        }
+
     }
 }

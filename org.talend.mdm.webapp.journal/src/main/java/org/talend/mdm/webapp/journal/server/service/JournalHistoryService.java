@@ -122,8 +122,11 @@ public class JournalHistoryService {
             throw new ServletException(new IllegalArgumentException("Action '" + parameter.getAction() + " is not supported.")); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
+        ForeignKeyInfoTransformer foreignKeyInfoTransformer = new ForeignKeyInfoTransformer(documentTypeMetadata, parameter.getDataClusterName());
+        foreignKeyInfoTransformer.setMetadataRepository(metadataRepository);
+        
         List<DocumentTransformer> transformers = Arrays.asList(
-                new ForeignKeyInfoTransformer(documentTypeMetadata, parameter.getDataClusterName()), new UniqueIdTransformer(),
+                foreignKeyInfoTransformer, new UniqueIdTransformer(),
                 new ModificationMarker(modificationMarkersAction));
         com.amalto.core.history.Document transformedDocument = document;
         for (DocumentTransformer transformer : transformers) {
