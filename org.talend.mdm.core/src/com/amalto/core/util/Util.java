@@ -84,7 +84,6 @@ import org.apache.commons.jxpath.Pointer;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.xerces.jaxp.DocumentBuilderFactoryImpl;
 import org.talend.mdm.commmon.util.core.ITransformerConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
@@ -193,7 +192,6 @@ public class Util {
     private static DocumentBuilderFactory nonValidatingDocumentBuilderFactory;
 
     static {
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory", DocumentBuilderFactoryImpl.class.getName()); //$NON-NLS-1$
         LoginModuleDelegator.setDelegateClassLoader(Util.class.getClassLoader());
     }
 
@@ -315,7 +313,6 @@ public class Util {
         SAXErrorHandler seh = new SAXErrorHandler();
 
         // initialize the sax parser which uses Xerces
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl"); //$NON-NLS-1$ //$NON-NLS-2$
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         // Schema validation based on schemaURL
         factory.setNamespaceAware(true);
@@ -1237,7 +1234,8 @@ public class Util {
         return getItemCtrl2LocalHome().create();
     }
 
-    public static ItemCtrl2 getItemCtrl2Home(String host, String jndiPort) throws NamingException, CreateException, XtentisException {
+    public static ItemCtrl2 getItemCtrl2Home(String host, String jndiPort) throws NamingException, CreateException,
+            XtentisException {
         ItemCtrl2 itemContrl2;
         try {
             itemContrl2 = ((ItemCtrl2Home) getHome(host, jndiPort, com.amalto.core.ejb.remote.ItemCtrl2Home.JNDI_NAME)).create();
@@ -1247,7 +1245,7 @@ public class Util {
         }
         return itemContrl2;
     }
-    
+
     public static DroppedItemCtrlLocalHome getDroppedItemCtrlLocalHome() throws NamingException {
         return (DroppedItemCtrlLocalHome) getLocalHome(DroppedItemCtrlLocalHome.JNDI_NAME);
     }
@@ -1281,7 +1279,7 @@ public class Util {
         InitialContext initialContext = new InitialContext(props);
         return (EJBHome) initialContext.lookup(jndi);
     }
-    
+
     public static XmlServerSLWrapper getXmlServerCtrlHome(String host, String jndiPort) throws XtentisException {
         XmlServerSLWrapper server;
         try {
@@ -1291,7 +1289,7 @@ public class Util {
             throw new XtentisException(err, e);
         }
         return server;
-    }    
+    }
 
     public static DataClusterCtrlLocalHome getDataClusterCtrlLocalHome() throws NamingException {
         return (DataClusterCtrlLocalHome) getLocalHome(DataClusterCtrlLocalHome.JNDI_NAME);
@@ -1644,8 +1642,8 @@ public class Util {
                 } else {
                     xml = pojo.getProjectionAsString();
                 }
-                String resultUpdateReport = Util.createUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE, null, //$NON-NLS-1$
-                        "", clusterName); //$NON-NLS-1$
+                String resultUpdateReport = Util.createUpdateReport(ids, concept,
+                        UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE, null, "", clusterName); //$NON-NLS-1$
                 String exchangeData = mergeExchangeData(xml, resultUpdateReport);
                 final String RUNNING = "XtentisWSBean.executeTransformerV2.beforeDeleting.running";
                 TransformerContext context = new TransformerContext(new TransformerV2POJOPK("beforeDeleting_" + concept));
