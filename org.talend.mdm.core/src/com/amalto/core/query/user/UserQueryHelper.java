@@ -59,7 +59,7 @@ public class UserQueryHelper {
             }
             String leftPath = whereCondition.getLeftPath();
             if (leftPath.indexOf('/') == -1) {
-                throw new IllegalArgumentException("Incorrect XPath '" + leftPath + "'. An XPath like 'Entity/element'"); //$NON-NLS-1$ //$NON-NLS-2$
+                throw new IllegalArgumentException("Incorrect XPath '" + leftPath + "'. An XPath like 'Entity/element' was expected."); //$NON-NLS-1$ //$NON-NLS-2$
             }
             String leftTypeName = leftPath.substring(0, leftPath.indexOf('/')); //$NON-NLS-1$
             if (".".equals(leftTypeName)) { //$NON-NLS-1$
@@ -201,7 +201,10 @@ public class UserQueryHelper {
         }
         int position = -1;
         if (fieldName.indexOf('[') > 0) {
-            // TODO Check if there's multiple [] in path (unsupported).
+            // Check if there's multiple [] in path (unsupported).
+            if (fieldName.indexOf('[', fieldName.indexOf('[') + 1) > 0) {
+                throw new IllegalArgumentException("Does not support multiple index in path.");
+            }
             position = Integer.parseInt(fieldName.substring(fieldName.indexOf('[') + 1, fieldName.indexOf(']'))) - 1;
             fieldName = fieldName.substring(0, fieldName.indexOf('['));
         }
@@ -238,6 +241,12 @@ public class UserQueryHelper {
             return Collections.singletonList(UserStagingQueryBuilder.source());
         } else if (UserQueryBuilder.STAGING_ERROR_FIELD.equals(fieldName)) {
             return Collections.singletonList(UserStagingQueryBuilder.error());
+        } else if ("/*".equals(fieldName)) { //$NON-NLS-1$
+            List<TypedExpression> expressions = new LinkedList<TypedExpression>();
+            for (FieldMetadata field : type.getFields()) {
+                expressions.add(new Field(field));
+            }
+            return expressions;
         }
         FieldMetadata field = type.getField(fieldName);
         if (field == null) {
