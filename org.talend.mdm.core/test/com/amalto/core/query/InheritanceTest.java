@@ -499,16 +499,14 @@ public class InheritanceTest extends StorageTestCase {
         ComplexTypeMetadata nested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "Nested");
         assertNotNull(nested);
         // Test 1
-        UserQueryBuilder qb = UserQueryBuilder.from(ss)
-                .where(
-                        or(
-                                isEmpty(type(ss.getField("nestedB"))),
-                                isNull(type(ss.getField("nestedB")))
-                        )
-                );
+        UserQueryBuilder qb = UserQueryBuilder.from(ss).where(emptyOrNull(type(ss.getField("nestedB"))));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(0, results.getCount());
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                DataRecord value = (DataRecord) result.get("nestedB");
+                assertEquals("Nested", value.getType().getName());
+            }
         } finally {
             results.close();
         }
@@ -522,7 +520,7 @@ public class InheritanceTest extends StorageTestCase {
         qb.where(condition);
         results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(0, results.getCount());
+            assertEquals(1, results.getCount());
         } finally {
             results.close();
         }
