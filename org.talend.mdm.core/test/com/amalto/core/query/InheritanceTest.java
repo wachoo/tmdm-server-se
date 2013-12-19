@@ -10,8 +10,10 @@
 
 package com.amalto.core.query;
 
+import com.amalto.core.query.user.BinaryLogicOperator;
 import static com.amalto.core.query.user.UserQueryBuilder.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -85,7 +87,7 @@ public class InheritanceTest extends StorageTestCase {
         List<ComplexTypeMetadata> sortedList = MetadataUtils.sortTypes(repository);
         // New order following XML schema library
         String[] expectedOrder = {"Group", "Persons", "Employee", "Update", "SS", "Country", "Address", "Supplier", "B",
-                "D", "A", "C", "Person", "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "ProductFamily",
+                "D", "A", "C", "Person", "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "ProductFamily"};
         int i = 0;
         for (ComplexTypeMetadata sortedType : sortedList) {
             assertEquals(expectedOrder[i++], sortedType.getName());
