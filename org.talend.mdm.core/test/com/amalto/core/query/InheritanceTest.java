@@ -86,7 +86,6 @@ public class InheritanceTest extends StorageTestCase {
         // New order following XML schema library
         String[] expectedOrder = {"Group", "Persons", "Employee", "Update", "SS", "Country", "Address", "Supplier", "B",
                 "D", "A", "C", "Person", "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "ProductFamily",
-                "TypeA", "ff", "E1", "E2", "Manager", "Store", "Product", "a2", "a1" };
         int i = 0;
         for (ComplexTypeMetadata sortedType : sortedList) {
             assertEquals(expectedOrder[i++], sortedType.getName());
@@ -491,6 +490,41 @@ public class InheritanceTest extends StorageTestCase {
             fail("Expected exception: can perform 'is a' on a FK");
         } catch (Exception e) {
             // Expected.
+        }
+    }
+
+    public void testXsiIsEmptyOrNull() throws Exception {
+        ComplexTypeMetadata subNested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "SubNested");
+        assertNotNull(subNested);
+        ComplexTypeMetadata nested = (ComplexTypeMetadata) repository.getNonInstantiableType("", "Nested");
+        assertNotNull(nested);
+        // Test 1
+        UserQueryBuilder qb = UserQueryBuilder.from(ss)
+                .where(
+                        or(
+                                isEmpty(type(ss.getField("nestedB"))),
+                                isNull(type(ss.getField("nestedB")))
+                        )
+                );
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        // Test 2
+        qb = from(ss);
+        List<IWhereItem> conditions = new ArrayList<IWhereItem>();
+        conditions.add(new WhereCondition("SS/nestedB/@xsi:type", WhereCondition.EMPTY_NULL, "", "&"));
+        IWhereItem fullWhere = new WhereAnd(conditions);
+        BinaryLogicOperator condition = (BinaryLogicOperator) UserQueryHelper.buildCondition(qb, fullWhere, repository);
+        assertNotNull(condition);
+        qb.where(condition);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
         }
     }
 

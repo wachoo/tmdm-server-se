@@ -91,7 +91,7 @@ public class UserQueryHelper {
             for (TypedExpression field : fields) {
                 // Field comparisons
                 if (!whereCondition.isRightValueXPath()) { // Value based comparison
-                    if (isPerformingTypeCheck) {
+                    if (isPerformingTypeCheck && !WhereCondition.EMPTY_NULL.equals(whereCondition.getOperator())) {
                         TypeMetadata typeForCheck = repository.getNonInstantiableType(repository.getUserNamespace(), value);
                         if (typeForCheck == null) {
                             throw new IllegalArgumentException("Type '" + value + "' was not found.");
