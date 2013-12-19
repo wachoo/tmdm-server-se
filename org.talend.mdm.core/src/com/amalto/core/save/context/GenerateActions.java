@@ -82,7 +82,7 @@ class GenerateActions implements DocumentSaver {
         UserAction userAction = context.getUserAction();
         switch (userAction) {
         case CREATE:
-            CreateActions createActions = new CreateActions(userDocument, date, source, userName, context.getDataCluster(),
+            CreateActions createActions = new CreateActions(userDocument, date, source, userName, context.getDataCluster(), context.getDataModelName(),
                     universe, saverSource, context.getAutoIncrementFieldMap());
             Action createAction = new OverrideCreateAction(date, source, userName, userDocument, type);
             // Builds action list (be sure to include actual creation as first action).

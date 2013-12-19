@@ -56,5 +56,5 @@ public interface SaverSource {
 
     void saveAutoIncrement();
 
-    String nextAutoIncrementId(String universe, String dataCluster, String conceptName);
+    String nextAutoIncrementId(String universe, String dataCluster, String dataModel, String conceptName);
 }

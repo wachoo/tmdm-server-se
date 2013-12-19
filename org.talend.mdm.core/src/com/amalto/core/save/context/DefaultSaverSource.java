@@ -255,7 +255,7 @@ public class DefaultSaverSource implements SaverSource {
         AutoIncrementGenerator.saveToDB();
     }
 
-    public String nextAutoIncrementId(String universe, String dataCluster, String conceptName) {
+    public String nextAutoIncrementId(String universe, String dataCluster, String dataModelName, String conceptName) {
         long autoIncrementId = -1;        
         String concept;
         String field;
@@ -267,7 +267,7 @@ public class DefaultSaverSource implements SaverSource {
             concept = conceptName;
             field = null;
         }
-        MetadataRepository metadataRepository = getMetadataRepository(dataCluster);
+        MetadataRepository metadataRepository = getMetadataRepository(dataModelName);
         if (metadataRepository != null) {
             ComplexTypeMetadata complexType = metadataRepository.getComplexType(concept);
             if (complexType != null) {
