@@ -65,14 +65,14 @@ public class InClauseOptimization extends StandardQueryHandler {
 
     @Override
     public StorageResults visit(Select select) {
-	// Keep select class loader (for result creation)
+        // Keep select class loader (for result creation)
         ClassLoader resultClassLoader = Thread.currentThread().getContextClassLoader();
         // Create in clause for the id
         ComplexTypeMetadata mainType = select.getTypes().get(0);
         Paging paging = select.getPaging();
         int start = paging.getStart();
         int limit = paging.getLimit();
-	Criterion criterion = null;
+        Criterion criterion = null;
         switch (mode) {
             case SUB_QUERY:
                 throw new NotImplementedException("Not supported in this MDM version");
@@ -118,29 +118,27 @@ public class InClauseOptimization extends StandardQueryHandler {
         }
         // Create results
         final ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
-	Thread.currentThread().setContextClassLoader(resultClassLoader);
-	try {
-		this.session = ((HibernateStorage) storage).getFactory().getCurrentSession();
-		final Transaction transaction = session.getTransaction();
-		transaction.begin();
-		Criteria criteria = createCriteria(select);
-		if(criterion != null) {
-		    criteria.add(criterion);
-		}
-		List list = criteria.list();
-		this.callbacks = Collections.<EndOfResultsCallback>singleton(new EndOfResultsCallback() {
-		        @Override
-		        public void onEndOfResults() {
-			    if (transaction.isActive()) {
-				transaction.commit();
-		            }
-		            Thread.currentThread().setContextClassLoader(previousClassLoader);
-		        }
-		});
-		return createResults(list, select.isProjection());
-	} catch(Exception e) {
-	    throw new RuntimeException("Could not create 'in clause' result", e);
-	}
+        Thread.currentThread().setContextClassLoader(resultClassLoader);
+        try {
+            HibernateStorage hibernateStorage = (HibernateStorage) storage;
+            this.session = hibernateStorage.getFactory().getCurrentSession();
+            final Transaction transaction = session.getTransaction();
+            transaction.begin();
+            Criteria criteria = createCriteria(select);
+            criteria.add(criterion);
+            List list = criteria.list();
+            if (!hibernateStorage.isPerformingDelete.get()) {
+                this.callbacks = Collections.<EndOfResultsCallback>singleton(new EndOfResultsCallback() {
+                    @Override
+                    public void onEndOfResults() {
+                        Thread.currentThread().setContextClassLoader(previousClassLoader);
+                    }
+                });
+            }
+            return createResults(list, select.isProjection());
+        } catch (Exception e) {
+            throw new RuntimeException("Could not create 'in clause' result", e);
+        }
     }
 
     private static class IdInConstantClause implements Criterion {

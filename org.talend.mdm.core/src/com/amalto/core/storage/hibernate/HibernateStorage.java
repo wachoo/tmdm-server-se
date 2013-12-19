@@ -103,6 +103,13 @@ public class HibernateStorage implements Storage {
 
     private int batchSize;
 
+    public final ThreadLocal<Boolean> isPerformingDelete = new ThreadLocal<Boolean>() {
+        @Override
+        protected Boolean initialValue() {
+            return false;
+        }
+    };
+
     /**
      * Create a {@link StorageType#MASTER} storage.
      *
@@ -550,20 +557,26 @@ public class HibernateStorage implements Storage {
                 transaction.begin();
             }
             // Call back closes session once calling code has consumed all results.
-            Set<EndOfResultsCallback> callbacks = Collections.<EndOfResultsCallback>singleton(new EndOfResultsCallback() {
-
-                @Override
-                public void onEndOfResults() {
-		    if (transaction.isActive()) {
-			transaction.commit();
-                    } else {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Attempted to close session on end of query result, but it has already been done.");
+            Set<EndOfResultsCallback> callbacks;
+            if (isPerformingDelete.get()) {
+                callbacks = Collections.emptySet();
+            } else {
+                callbacks = Collections.<EndOfResultsCallback>singleton(new EndOfResultsCallback() {
+                    @Override
+                    public void onEndOfResults() {
+                        if (!isPerformingDelete.get()) {
+                            if (transaction.isActive()) {
+                                transaction.commit();
+                            } else {
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("Attempted to close session on end of query result, but it has already been done.");
+                                }
+                            }
+                            Thread.currentThread().setContextClassLoader(previousClassLoader);
                         }
                     }
-                    Thread.currentThread().setContextClassLoader(previousClassLoader);
-                }
-            });
+                });
+            }
             return internalFetch(session, userQuery, callbacks);
         } catch (Exception e) {
             Thread.currentThread().setContextClassLoader(previousClassLoader);
@@ -681,11 +694,11 @@ public class HibernateStorage implements Storage {
             } catch (ConstraintViolationException e) {
                 throw new com.amalto.core.storage.exception.ConstraintViolationException(e);
             }
-	} finally {
-	    if(session.isOpen()) {
+        } finally {
+            if (session.isOpen() && session.getTransaction().isActive()) {
                 session.clear(); // TMDM-6192: Evicts cache in case session is reused without being closed.
-	    }
-	}
+            }
+        }
     }
 
     @Override
@@ -809,6 +822,7 @@ public class HibernateStorage implements Storage {
         ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(storageClassLoader);
+            isPerformingDelete.set(true);
             Session session = factory.getCurrentSession();
             Iterable<DataRecord> records = internalFetch(session, userQuery, Collections.<EndOfResultsCallback>emptySet());
             for (DataRecord currentDataRecord : records) {
@@ -845,6 +859,7 @@ public class HibernateStorage implements Storage {
             throw new RuntimeException(e);
         } finally {
             Thread.currentThread().setContextClassLoader(previousClassLoader);
+            isPerformingDelete.set(false);
         }
     }
 
