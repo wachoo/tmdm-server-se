@@ -17,7 +17,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -27,8 +30,10 @@ import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.w3c.dom.Element;
 
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
@@ -425,5 +430,38 @@ public class ForeignKeyHelperTest extends TestCase {
         assertTrue(schemaMockAgent.isPolymorphismTypeFK("Company"));
         assertFalse(schemaMockAgent.isPolymorphismTypeFK("Family"));
         
+    }
+    
+    public void testInitFKBean() throws Exception {
+        String[] results = new String[] {
+                "<result>\n\t<C_Name>cname1</C_Name>\n\t<C_Title>ctitle1</C_Title>\n\t<C_Sub_Name>csubname1</C_Sub_Name>\n\t<C_Sub_Title>csubtitle1</C_Sub_Title>\n\t<i>c1</i>\n</result>",
+                "<result>\n\t<C_Name>cname2</C_Name>\n\t<C_Title>ctitle2</C_Title>\n\t<C_Sub_Name>csubname2</C_Sub_Name>\n\t<C_Sub_Title>csubtitle2</C_Sub_Title>\n\t<i>c2</i>\n</result>" };
+        String[] fKInfoExpected = new String[] { "cname1-ctitle1-csubname1-csubtitle1", "cname2-ctitle2-csubname2-csubtitle2" };
+
+        String dataClusterPK = "TestFK";
+        EntityModel entityModel = new EntityModel();
+        entityModel.setConceptName("C");
+        entityModel.setKeys(new String[] { "C/C_Id" });
+        String fk = "C";
+        List<String> foreignKeyInfos = Arrays.asList("C/C_Name", "C/C_Title", "C/C_SubInfo/C_Sub_Name", "C/C_SubInfo/C_Sub_Title");
+        Map<String, String> xpathTypeMap = new HashMap<String, String>();
+        String language = "zh";
+        ForeignKeyBean[] fkBeans = new ForeignKeyBean[] { new ForeignKeyBean(), new ForeignKeyBean() };
+        fkBeans[0].setId("c1");
+        fkBeans[1].setId("c2");
+
+        Element[] resultAsDOM = new Element[2];
+        for (int i = 0; i < fkBeans.length; i++) {
+            resultAsDOM[i] = Util.parse(results[i]).getDocumentElement();
+
+            ForeignKeyHelper.initFKBean(dataClusterPK, entityModel, resultAsDOM[i], fkBeans[i], fk, foreignKeyInfos,
+                    xpathTypeMap, language);
+            ForeignKeyHelper.convertFKInfo2DisplayInfo(fkBeans[i], foreignKeyInfos);
+        }
+
+        for (int i = 0; i < fkBeans.length; i++) {
+            assertEquals(fkBeans[i].getId() + "->Expected displayInfo is not equal to acutal displayInfo", fKInfoExpected[i],
+                    fkBeans[i].getDisplayInfo());
+        }
     }
 }

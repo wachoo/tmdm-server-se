@@ -346,7 +346,7 @@ public class ForeignKeyHelper {
         return null;
     }
 
-    private static void initFKBean(String dataClusterPK,EntityModel entityModel,Element ele, ForeignKeyBean bean, String fk, List<String> getForeignKeyInfos, Map<String, String> xpathTypeMap, String language) throws Exception {
+    protected static void initFKBean(String dataClusterPK,EntityModel entityModel,Element ele, ForeignKeyBean bean, String fk, List<String> getForeignKeyInfos, Map<String, String> xpathTypeMap, String language) throws Exception {
         int positionIndex = 0;
         for (int i = 0; i < ele.getChildNodes().getLength(); i++) {
             if (ele.getChildNodes().item(i) instanceof Element) {
