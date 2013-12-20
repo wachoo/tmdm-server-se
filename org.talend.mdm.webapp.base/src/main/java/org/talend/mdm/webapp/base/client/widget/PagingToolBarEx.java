@@ -54,7 +54,7 @@ public class PagingToolBarEx extends PagingToolBar {
     boolean isFireKeyEnter;
 
     boolean isBrowseRecordsGridCall;
-    
+
     public static String BROWSERECORD_PAGESIZE = "browseRecord_pagesize"; //$NON-NLS-1$
 
     public PagingToolBarEx(int pageSize) {
@@ -73,21 +73,9 @@ public class PagingToolBarEx extends PagingToolBar {
         sizeField.setWidth(30);
         sizeField.setValue(pageSize);
         sizeField.setValidator(validator);
-        sizeField.addListener(Events.Change, new Listener<BaseEvent>() {
-
-            public void handleEvent(BaseEvent be) {
-                if (isFireKeyEnter) {
-                    isFireKeyEnter = false;
-                    return;
-                }
-                if (isBrowseRecordsGridCall) {
-                    Cookies.setCookie(BROWSERECORD_PAGESIZE, String.valueOf(sizeField.getValue().intValue()));
-                }
-                refreshData();
-            }
-        });
         sizeField.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
+            @Override
             public void handleEvent(FieldEvent fe) {
                 if (fe.getKeyCode() == KeyCodes.KEY_ENTER) {
                     isFireKeyEnter = true;
@@ -124,6 +112,7 @@ public class PagingToolBarEx extends PagingToolBar {
 
     private Validator validator = new Validator() {
 
+        @Override
         public String validate(Field<?> field, String value) {
             String valueStr = value == null ? "" : value.toString(); //$NON-NLS-1$
             boolean success = true;
@@ -141,18 +130,18 @@ public class PagingToolBarEx extends PagingToolBar {
             return null;
         }
     };
-    
-    public void lastAfterCreate(){
-    	if (totalLength == 0){
-    		refresh();
-    		return;
-    	}
+
+    public void lastAfterCreate() {
+        if (totalLength == 0) {
+            refresh();
+            return;
+        }
         int extra = totalLength % pageSize;
-        if (extra == 0){
-        	pages++;
-        	setActivePage(pages);
-        }else{
-        	last();
+        if (extra == 0) {
+            pages++;
+            setActivePage(pages);
+        } else {
+            last();
         }
     }
 
@@ -223,6 +212,7 @@ public class PagingToolBarEx extends PagingToolBar {
                     sizeF.setValidator(validator);
                     sizeF.addListener(Events.Change, new Listener<BaseEvent>() {
 
+                        @Override
                         public void handleEvent(BaseEvent be) {
                             sizeField.setValue((int) Double.parseDouble(sizeF.getValue() + "")); //$NON-NLS-1$
                             if (!sizeField.isFireChangeEventOnSetValue()) {
@@ -234,6 +224,7 @@ public class PagingToolBarEx extends PagingToolBar {
 
                     sizeF.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
+                        @Override
                         public void handleEvent(FieldEvent fe) {
                             if (fe.getKeyCode() == KeyCodes.KEY_ENTER) {
                                 blur(tempInputEl.dom);
