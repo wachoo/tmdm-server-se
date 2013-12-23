@@ -305,7 +305,8 @@ public class BrowseRecordsView extends View {
         ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
         ItemPanel itemPanelWidget = (ItemPanel) detailPanel.getCurrentlySelectedTabWidget();
         String concept = viewBean.getBindingEntityModel().getConceptName();
-        EntityModel entityModel = BrowseRecords.getSession().getCurrentEntityModel();
+        EntityModel entityModel = (BrowseRecords.getSession().getCurrentEntityModel() != null ? BrowseRecords.getSession()
+                .getCurrentEntityModel() : viewBean.getBindingEntityModel());
         ItemBean itemBean = ItemCreator.createDefaultItemBean(concept, entityModel);
         // set label
         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept);
