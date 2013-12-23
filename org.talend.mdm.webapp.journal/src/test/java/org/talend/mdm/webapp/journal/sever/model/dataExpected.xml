@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataExpected>
+    <D><D_Id>d1</D_Id><D_Name>dName1</D_Name><FK_to_E>ename1-etitle1</FK_to_E></D>
+    <A><A_Id>a1</A_Id><A_Name>aName1</A_Name><FK_to_B>bname1-btitle1-bsubname1-bsubtitle1-bsubsubname1-bsubsubtitle1</FK_to_B></A>
+    <A><A_Id>a2</A_Id><A_Name>aName1</A_Name><FK_to_C>cname1-ctitle1-csubname1-csubtitle1-csubsubname1-csubsubtitle1</FK_to_C></A>
+    <A><A_Id>a3</A_Id><A_Name>aname1</A_Name><BCollection1><FK_to_B>bname1-btitle1-bsubname1-bsubtitle1-bsubsubname1-bsubsubtitle1</FK_to_B><FK_to_B>bname2-btitle2-bsubname2-bsubtitle2-bsubsubname2-bsubsubtitle2</FK_to_B></BCollection1></A>
+    <A><A_Id>a4</A_Id><A_Name>aname1</A_Name><BCollection2><FK_to_B>bname1-btitle1-bsubname1-bsubtitle1-bsubsubname1-bsubsubtitle1</FK_to_B><FK_to_B>bname2-btitle2-bsubname2-bsubtitle2-bsubsubname2-bsubsubtitle2</FK_to_B></BCollection2></A>
+    <A><A_Id>a5</A_Id><A_Name>aname1</A_Name><CCollection1><FK_to_C>cname1-ctitle1-csubname1-csubtitle1-csubsubname1-csubsubtitle1</FK_to_C><FK_to_C>cname2-ctitle2-csubname2-csubtitle2-csubsubname2-csubsubtitle2</FK_to_C></CCollection1></A>
+    <A><A_Id>a6</A_Id><A_Name>aname1</A_Name><CCollection2><FK_to_C>cname1-ctitle1-csubname1-csubtitle1-csubsubname1-csubsubtitle1</FK_to_C><FK_to_C>cname2-ctitle2-csubname2-csubtitle2-csubsubname2-csubsubtitle2</FK_to_C></CCollection2></A>
+    <A><A_Id>a7</A_Id><A_Name>aname1</A_Name><D1><FK_to_B>bname1-btitle1-bsubname1-bsubtitle1-bsubsubname1-bsubsubtitle1</FK_to_B></D1></A>
+    <A><A_Id>a8</A_Id><A_Name>aname1</A_Name><D2><FK_to_B>bname1-btitle1-bsubname1-bsubtitle1-bsubsubname1-bsubsubtitle1</FK_to_B></D2></A>
+    <A><A_Id>a9</A_Id><A_Name>aname1</A_Name><E1><FK_to_C>cname1-ctitle1-csubname1-csubtitle1-csubsubname1-csubsubtitle1</FK_to_C></E1></A>
+    <A><A_Id>a10</A_Id><A_Name>aname1</A_Name><E2><FK_to_C>cname1-ctitle1-csubname1-csubtitle1-csubsubname1-csubsubtitle1</FK_to_C></E2></A>
+    <G><G_Id>g1</G_Id><G_Name>gName1</G_Name><FK_to_F>fname1-ftitle1-fsubname1-fsubtitle1-fsubsubname1-fsubsubtitle1</FK_to_F></G>
+</DataExpected>
