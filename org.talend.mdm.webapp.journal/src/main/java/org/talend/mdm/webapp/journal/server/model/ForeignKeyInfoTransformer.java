@@ -11,7 +11,9 @@ package org.talend.mdm.webapp.journal.server.model;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Stack;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -41,8 +43,12 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
     private final TypeMetadata metadata;
 
     private final String dataClusterName;
-    
+
     private MetadataRepository metadataRepository = null;
+
+    Stack<String> xpath = new Stack<String>();
+
+    String xpathStr = null;
 
     private final static Logger LOG = Logger.getLogger(ForeignKeyInfoTransformer.class);
 
@@ -51,7 +57,8 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
         this.dataClusterName = dataClusterName;
         this.metadataRepository = new MetadataRepository();
     }
-    public void setMetadataRepository (MetadataRepository metadataRepository) {
+
+    public void setMetadataRepository(MetadataRepository metadataRepository) {
         this.metadataRepository = metadataRepository;
     }
 
@@ -132,8 +139,8 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
                 String xpathToForeignKeyInfoField = null;
                 if (referencedTypeName.equals(fieldMetadata.getContainingType().getName())) {
                     xpathToForeignKeyInfoField = "/" + referencedTypeName + "/" + fieldMetadata.getName();//$NON-NLS-1$ //$NON-NLS-2$
-                } else {//for fkInfo fields defined in reusable types
-                    xpathToForeignKeyInfoField = getXpath(referencedTypeName, fieldMetadata);
+                } else {// for fkInfo fields defined in reusable types or annoymous types
+                    xpathToForeignKeyInfoField = getResolvedXpath(referencedTypeName, fieldMetadata);
                 }
                 NodeList nodeList = Util.getNodeList(element, xpathToForeignKeyInfoField);
                 if (nodeList.getLength() == 1 && nodeList.item(0).getTextContent() != null
@@ -154,20 +161,58 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
         }
     }
 
-    private String getXpath(String referencedTypeName, FieldMetadata fieldMetadata) {
-        String xpath = ""; //$NON-NLS-1$
-        ComplexTypeMetadata referenceTypeMeta = (ComplexTypeMetadata) metadataRepository.getType(referencedTypeName);
-        if (referenceTypeMeta == null) {
-            throw new IllegalArgumentException(
-                    "Cannot find type information for type '" + referencedTypeName + "' in data cluster '" + dataClusterName + "', in data model '" + dataClusterName + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+    private String getResolvedXpath(String referencedTypeName, FieldMetadata fieldMetadata) {
+        if (this.xpath.empty()) {
+            ComplexTypeMetadata referenceTypeMeta = (ComplexTypeMetadata) metadataRepository.getType(referencedTypeName);
+
+            if (referenceTypeMeta == null) {
+                throw new IllegalArgumentException(
+                        "Cannot find type information for type '" + referencedTypeName + "' in data cluster '" + dataClusterName + "', in data model '" + dataClusterName + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            }
+
+            xpath.push(referencedTypeName);
+            buildXpath(referenceTypeMeta, fieldMetadata);
+            setXPathString();
+            xpath.clear();
         }
+        return this.xpathStr;
+    }
+
+    private void buildXpath(ComplexTypeMetadata referenceTypeMeta, FieldMetadata fieldMetadata) {
 
         for (FieldMetadata entityField : referenceTypeMeta.getFields()) {
-            if (entityField.getType().getName().equals(fieldMetadata.getContainingType().getName())) {
-                xpath += "/" + referencedTypeName + "/" + entityField.getName() + "/" + fieldMetadata.getName(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            String currentFieldTypeName;
+            if (entityField instanceof ContainedTypeFieldMetadata) {
+                currentFieldTypeName = entityField.getType().getName();
+                ComplexTypeMetadata containedType = ((ContainedTypeFieldMetadata) entityField).getContainedType();
+
+                xpath.push(entityField.getName());
+                if (currentFieldTypeName.equals(fieldMetadata.getContainingType().getName())) {
+                    xpath.push(fieldMetadata.getName());
+                    return;
+                } else {
+                    buildXpath(containedType, fieldMetadata);
+                    if (xpath.peek().equals(fieldMetadata.getName())) {
+                        return;
+                    } else {
+                        xpath.pop();
+                    }
+                }
             }
         }
-        return xpath;
+    }
+
+    private void setXPathString() {
+        StringBuilder path = new StringBuilder("/"); //$NON-NLS-1$
+        Iterator<String> iterator = xpath.iterator();
+        while (iterator.hasNext()) {
+            path.append(iterator.next());
+            if (iterator.hasNext()) {
+                path.append('/');
+            }
+        }
+
+        this.xpathStr = path.toString();
     }
 
     private static class ForeignKeyInfoResolver extends DefaultMetadataVisitor<Map<ReferenceFieldMetadata, String>> {

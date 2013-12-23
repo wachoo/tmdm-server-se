@@ -110,7 +110,7 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
 
         stub(method(Util.class, "getItemCtrl2Local")).toReturn(itemCtrl2Local);
 
-        String[] fks = new String[] { "b1", "b2", "c1", "c2", "e1" };
+        String[] fks = new String[] { "b1", "b2", "c1", "c2", "e1", "f1" };
 
         ItemPOJO item = null;
         for (String fk : fks) {
@@ -176,7 +176,7 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
         executeTestFor(recordId, conceptName);
     }
 
-    public void testCase8_subElementD2_as_reusabletype__FK_defined_in_anonymoustype() {
+    public void testCase8_subElementD2_as_reusabletype_FK_defined_in_anonymoustype() {
         String recordId = "a8";
         String conceptName = "A";
         executeTestFor(recordId, conceptName);
@@ -191,6 +191,14 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
     public void testCase10_subElementE2_as_reusabletype_FK_defined_in_reusabletype() {
         String recordId = "a10";
         String conceptName = "A";
+        executeTestFor(recordId, conceptName);
+    }
+
+    // this extra test case is for each level of SubInfo is of annoymous types(see F entity), its counterpart(see B and
+    // C entities) are covered in previous cases.
+    public void testCase11_FK_defined_in_anonymoustype_and_fKInfo_defined_in_mulit_level_anonymoustype() {
+        String recordId = "g1";
+        String conceptName = "G";
         executeTestFor(recordId, conceptName);
     }
 
@@ -212,8 +220,10 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
         assertEquals(actualFKInfo.size(), expectedFKInfo.size());
 
         for (int i = 0; i < expectedFKInfo.size(); i++) {
-            assertTrue(expectedFKInfo.get(i).contains(actualFKInfo.get(i)));
-            assertTrue(expectedFKInfo.get(i).equals(actualFKInfo.get(i)));
+            assertTrue("Expected FKInfo doesn't contains acutal FKInfo for when id=" + id,
+                    expectedFKInfo.get(i).contains(actualFKInfo.get(i)));
+            assertTrue("Expected FKInfo is not equal to acutal FKInfo for when id=" + id,
+                    expectedFKInfo.get(i).equals(actualFKInfo.get(i)));
         }
     }
 
@@ -260,6 +270,9 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
         case 'e':
             referencedTypeName = "E";
             break;
+        case 'f':
+            referencedTypeName = "F";
+            break;
         }
 
         pk.setConceptName(referencedTypeName);
@@ -279,9 +292,7 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
         Element root = null;
         try {
             builder = factory.newDocumentBuilder();
-            InputSource inputSource = new InputSource(new StringReader(recordXML));
-
-            doc = builder.parse(inputSource);
+            doc = builder.parse(new InputSource(new StringReader(recordXML)));
             root = doc.getDocumentElement();
         } catch (Exception e) {
             throw new RuntimeException("Exception during initial content build", e);
@@ -295,29 +306,34 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
         fkPaths.put("d1", "//D[D_Id='d1']/FK_to_E/text()");
         fkPaths.put("a1", "//A[A_Id='a1']/FK_to_B/text()");
         fkPaths.put("a2", "//A[A_Id='a2']/FK_to_C/text()");
-        fkPaths.put("a3", "//A[A_Id='a3']/BCollection1/B/text()");
-        fkPaths.put("a4", "//A[A_Id='a4']/BCollection2/B/text()");
-        fkPaths.put("a5", "//A[A_Id='a5']/CCollection1/C/text()");
-        fkPaths.put("a6", "//A[A_Id='a6']/CCollection2/C/text()");
-        fkPaths.put("a7", "//A[A_Id='a7']/D1/B/text()");
-        fkPaths.put("a8", "//A[A_Id='a8']/D2/B/text()");
-        fkPaths.put("a9", "//A[A_Id='a9']/E1/C/text()");
-        fkPaths.put("a10", "//A[A_Id='a10']/E2/C/text()");
+        fkPaths.put("a3", "//A[A_Id='a3']/BCollection1/FK_to_B/text()");
+        fkPaths.put("a4", "//A[A_Id='a4']/BCollection2/FK_to_B/text()");
+        fkPaths.put("a5", "//A[A_Id='a5']/CCollection1/FK_to_C/text()");
+        fkPaths.put("a6", "//A[A_Id='a6']/CCollection2/FK_to_C/text()");
+        fkPaths.put("a7", "//A[A_Id='a7']/D1/FK_to_B/text()");
+        fkPaths.put("a8", "//A[A_Id='a8']/D2/FK_to_B/text()");
+        fkPaths.put("a9", "//A[A_Id='a9']/E1/FK_to_C/text()");
+        fkPaths.put("a10", "//A[A_Id='a10']/E2/FK_to_C/text()");
+        fkPaths.put("g1", "//G[G_Id='g1']/FK_to_F/text()");
 
         // entity data to be referenced by other entity data
         xmlDomRecordInputs.put("e1", "<E><E_Id>e1</E_Id><E_Name>ename1</E_Name><E_Title>etitle1</E_Title></E>");
         xmlDomRecordInputs
+                .put("f1",
+                        "<F><F_Id>f1</F_Id><F_Name>fname1</F_Name><F_Title>ftitle1</F_Title><F_SubInfo><F_SubInfo_Id>fsubId1</F_SubInfo_Id><F_Sub_Name>fsubname1</F_Sub_Name><F_Sub_Title>fsubtitle1</F_Sub_Title><F_SubSubInfo><F_SubSubInfo_Id>fsubsubId1</F_SubSubInfo_Id><F_Sub_Sub_Name>fsubsubname1</F_Sub_Sub_Name><F_Sub_Sub_Title>fsubsubtitle1</F_Sub_Sub_Title></F_SubSubInfo></F_SubInfo></F>");
+
+        xmlDomRecordInputs
                 .put("b1",
-                        "<B><B_Id>b1</B_Id><B_Name>bname1</B_Name><B_Title>btitle1</B_Title><B_SubInfo><B_SubInfo_Id>bsubId1</B_SubInfo_Id><B_Sub_Name>bsubname1</B_Sub_Name><B_Sub_Title>bsubtitle1</B_Sub_Title></B_SubInfo></B>");
+                        "<B><B_Id>b1</B_Id><B_Name>bname1</B_Name><B_Title>btitle1</B_Title><B_SubInfo><B_SubInfo_Id>bsubId1</B_SubInfo_Id><B_Sub_Name>bsubname1</B_Sub_Name><B_Sub_Title>bsubtitle1</B_Sub_Title><B_SubSubInfo><B_BBSubInfo_Id>bsubsubId1</B_BBSubInfo_Id><B_Sub_Sub_Name>bsubsubname1</B_Sub_Sub_Name><B_Sub_Sub_Title>bsubsubtitle1</B_Sub_Sub_Title></B_SubSubInfo></B_SubInfo></B>");
         xmlDomRecordInputs
                 .put("b2",
-                        "<B><B_Id>b2</B_Id><B_Name>bname2</B_Name><B_Title>btitle2</B_Title><B_SubInfo><B_SubInfo_Id>bsubId2</B_SubInfo_Id><B_Sub_Name>bsubname2</B_Sub_Name><B_Sub_Title>bsubtitle2</B_Sub_Title></B_SubInfo></B>");
+                        "<B><B_Id>b2</B_Id><B_Name>bname2</B_Name><B_Title>btitle2</B_Title><B_SubInfo><B_SubInfo_Id>bsubId2</B_SubInfo_Id><B_Sub_Name>bsubname2</B_Sub_Name><B_Sub_Title>bsubtitle2</B_Sub_Title><B_SubSubInfo><B_BBSubInfo_Id>bsubsubId2</B_BBSubInfo_Id><B_Sub_Sub_Name>bsubsubname2</B_Sub_Sub_Name><B_Sub_Sub_Title>bsubsubtitle2</B_Sub_Sub_Title></B_SubSubInfo></B_SubInfo></B>");
         xmlDomRecordInputs
                 .put("c1",
-                        "<C><C_Id>c1</C_Id><C_Name>cname1</C_Name><C_Title>ctitle1</C_Title><C_SubInfo><C_SubInfo_Id>csubId1</C_SubInfo_Id><C_Sub_Name>csubname1</C_Sub_Name><C_Sub_Title>csubtitle1</C_Sub_Title></C_SubInfo></C>");
+                        "<C><C_Id>c1</C_Id><C_Name>cname1</C_Name><C_Title>ctitle1</C_Title><C_SubInfo><C_SubInfo_Id>csubId1</C_SubInfo_Id><C_Sub_Name>csubname1</C_Sub_Name><C_Sub_Title>csubtitle1</C_Sub_Title><C_SubSubInfo><C_SubSubInfo_Id>csubsubId1</C_SubSubInfo_Id><C_Sub_Sub_Name>csubsubname1</C_Sub_Sub_Name><C_Sub_Sub_Title>csubsubtitle1</C_Sub_Sub_Title></C_SubSubInfo></C_SubInfo></C>");
         xmlDomRecordInputs
                 .put("c2",
-                        "<C><C_Id>c2</C_Id><C_Name>cname2</C_Name><C_Title>ctitle2</C_Title><C_SubInfo><C_SubInfo_Id>csubId2</C_SubInfo_Id><C_Sub_Name>csubname2</C_Sub_Name><C_Sub_Title>csubtitle2</C_Sub_Title></C_SubInfo></C>");
+                        "<C><C_Id>c2</C_Id><C_Name>cname2</C_Name><C_Title>ctitle2</C_Title><C_SubInfo><C_SubInfo_Id>csubId2</C_SubInfo_Id><C_Sub_Name>csubname2</C_Sub_Name><C_Sub_Title>csubtitle2</C_Sub_Title><C_SubSubInfo><C_SubSubInfo_Id>csubsubId2</C_SubSubInfo_Id><C_Sub_Sub_Name>csubsubname2</C_Sub_Sub_Name><C_Sub_Sub_Title>csubsubtitle2</C_Sub_Sub_Title></C_SubSubInfo></C_SubInfo></C>");
 
         // case 0:
         xmlDomRecordInputs.put("d1", "<D><D_Id>d1</D_Id><D_Name>dName1</D_Name><FK_to_E>[e1]</FK_to_E></D>");
@@ -326,24 +342,30 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
         // case 2:
         xmlDomRecordInputs.put("a2", "<A><A_Id>a2</A_Id><A_Name>aName1</A_Name><FK_to_C>[c1]</FK_to_C></A>");
         // case 3:
-        xmlDomRecordInputs.put("a3",
-                "<A><A_Id>a3</A_Id><A_Name>aname1</A_Name><BCollection1><B>[b1]</B><B>[b2]</B></BCollection1></A>");
+        xmlDomRecordInputs
+                .put("a3",
+                        "<A><A_Id>a3</A_Id><A_Name>aname1</A_Name><BCollection1><FK_to_B>[b1]</FK_to_B><FK_to_B>[b2]</FK_to_B></BCollection1></A>");
         // case 4:
-        xmlDomRecordInputs.put("a4",
-                "<A><A_Id>a4</A_Id><A_Name>aname1</A_Name><BCollection2><B>[b1]</B><B>[b2]</B></BCollection2></A>");
+        xmlDomRecordInputs
+                .put("a4",
+                        "<A><A_Id>a4</A_Id><A_Name>aname1</A_Name><BCollection2><FK_to_B>[b1]</FK_to_B><FK_to_B>[b2]</FK_to_B></BCollection2></A>");
         // case 5:
-        xmlDomRecordInputs.put("a5",
-                "<A><A_Id>a5</A_Id><A_Name>aname1</A_Name><CCollection1><C>[c1]</C><C>[c2]</C></CCollection1></A>");
+        xmlDomRecordInputs
+                .put("a5",
+                        "<A><A_Id>a5</A_Id><A_Name>aname1</A_Name><CCollection1><FK_to_C>[c1]</FK_to_C><FK_to_C>[c2]</FK_to_C></CCollection1></A>");
         // case 6:
-        xmlDomRecordInputs.put("a6",
-                "<A><A_Id>a6</A_Id><A_Name>aname1</A_Name><CCollection2><C>[c1]</C><C>[c2]</C></CCollection2></A>");
+        xmlDomRecordInputs
+                .put("a6",
+                        "<A><A_Id>a6</A_Id><A_Name>aname1</A_Name><CCollection2><FK_to_C>[c1]</FK_to_C><FK_to_C>[c2]</FK_to_C></CCollection2></A>");
         // case 7:
-        xmlDomRecordInputs.put("a7", "<A><A_Id>a7</A_Id><A_Name>aname1</A_Name><D1><B>[b1]</B></D1></A>");
+        xmlDomRecordInputs.put("a7", "<A><A_Id>a7</A_Id><A_Name>aname1</A_Name><D1><FK_to_B>[b1]</FK_to_B></D1></A>");
         // case 8:
-        xmlDomRecordInputs.put("a8", "<A><A_Id>a8</A_Id><A_Name>aname1</A_Name><D2><B>[b1]</B></D2></A>");
+        xmlDomRecordInputs.put("a8", "<A><A_Id>a8</A_Id><A_Name>aname1</A_Name><D2><FK_to_B>[b1]</FK_to_B></D2></A>");
         // case 9:
-        xmlDomRecordInputs.put("a9", "<A><A_Id>a9</A_Id><A_Name>aname1</A_Name><E1><C>[c1]</C></E1></A>");
+        xmlDomRecordInputs.put("a9", "<A><A_Id>a9</A_Id><A_Name>aname1</A_Name><E1><FK_to_C>[c1]</FK_to_C></E1></A>");
         // case 10:
-        xmlDomRecordInputs.put("a10", "<A><A_Id>a10</A_Id><A_Name>aname1</A_Name><E2><C>[c1]</C></E2></A>");
+        xmlDomRecordInputs.put("a10", "<A><A_Id>a10</A_Id><A_Name>aname1</A_Name><E2><FK_to_C>[c1]</FK_to_C></E2></A>");
+        // case 11:
+        xmlDomRecordInputs.put("g1", "<G><G_Id>g1</G_Id><G_Name>gName1</G_Name><FK_to_F>[f1]</FK_to_F></G>");
     }
 }
