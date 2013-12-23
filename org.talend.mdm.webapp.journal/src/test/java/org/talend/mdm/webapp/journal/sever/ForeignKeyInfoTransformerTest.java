@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.journal.sever.model;
+package org.talend.mdm.webapp.journal.sever;
 
 import static org.mockito.Mockito.*;
 import static org.powermock.api.support.membermodification.MemberMatcher.*;
@@ -34,7 +34,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit3.PowerMockSuite;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.webapp.journal.server.model.ForeignKeyInfoTransformer;
+import org.talend.mdm.webapp.journal.server.ForeignKeyInfoTransformer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -99,10 +99,10 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
         documentBuilderFactory.setNamespaceAware(true);
         documentBuilderFactory.setValidating(false);
 
-        InputStream dataExpectedStream = this.getClass().getResourceAsStream("dataExpected.xml");
+        InputStream dataExpectedStream = this.getClass().getResourceAsStream("/dataExpected.xml");
         dataExpected = documentBuilderFactory.newDocumentBuilder().parse(new InputSource(dataExpectedStream));
 
-        InputStream dataModelStream = this.getClass().getResourceAsStream("TestFKs.xsd");
+        InputStream dataModelStream = this.getClass().getResourceAsStream("/TestFKs.xsd");
         metadataRepository = new MetadataRepository();
         metadataRepository.load(dataModelStream);
 
