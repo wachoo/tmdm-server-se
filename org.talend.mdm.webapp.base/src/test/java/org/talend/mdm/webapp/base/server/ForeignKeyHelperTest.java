@@ -433,16 +433,16 @@ public class ForeignKeyHelperTest extends TestCase {
     
     public void testInitFKBean() throws Exception {
         String[] results = new String[] {
-                "<result>\n\t<C_Name>cname1</C_Name>\n\t<C_Title>ctitle1</C_Title>\n\t<C_Sub_Name>csubname1</C_Sub_Name>\n\t<C_Sub_Title>csubtitle1</C_Sub_Title>\n\t<i>c1</i>\n</result>",
-                "<result>\n\t<C_Name>cname2</C_Name>\n\t<C_Title>ctitle2</C_Title>\n\t<C_Sub_Name>csubname2</C_Sub_Name>\n\t<C_Sub_Title>csubtitle2</C_Sub_Title>\n\t<i>c2</i>\n</result>" };
-        String[] fKInfoExpected = new String[] { "cname1-ctitle1-csubname1-csubtitle1", "cname2-ctitle2-csubname2-csubtitle2" };
+                "<result>\n\t<C_Name>cname1</C_Name>\n\t<C_Title>ctitle1</C_Title>\n\t<C_Sub_Name>csubname1</C_Sub_Name>\n\t<C_Sub_Title>csubtitle1</C_Sub_Title>\n\t<C_Sub_Sub_Name>csubsubname1</C_Sub_Sub_Name>\n\t<C_Sub_Sub_Title>csubsubtitle1</C_Sub_Sub_Title>\n\t<i>c1</i>\n</result>",
+                "<result>\n\t<C_Name>cname2</C_Name>\n\t<C_Title>ctitle2</C_Title>\n\t<C_Sub_Name>csubname2</C_Sub_Name>\n\t<C_Sub_Title>csubtitle2</C_Sub_Title>\n\t<C_Sub_Sub_Name>csubsubname2</C_Sub_Sub_Name>\n\t<C_Sub_Sub_Title>csubsubtitle2</C_Sub_Sub_Title>\n\t<i>c2</i>\n</result>" };
+        String[] fKInfoExpected = new String[] { "cname1-ctitle1-csubname1-csubtitle1-csubsubname1-csubsubtitle1", "cname2-ctitle2-csubname2-csubtitle2-csubsubname2-csubsubtitle2" };
 
         String dataClusterPK = "TestFK";
         EntityModel entityModel = new EntityModel();
         entityModel.setConceptName("C");
         entityModel.setKeys(new String[] { "C/C_Id" });
         String fk = "C";
-        List<String> foreignKeyInfos = Arrays.asList("C/C_Name", "C/C_Title", "C/C_SubInfo/C_Sub_Name", "C/C_SubInfo/C_Sub_Title");
+        List<String> foreignKeyInfos = Arrays.asList("C/C_Name", "C/C_Title", "C/C_SubInfo/C_Sub_Name", "C/C_SubInfo/C_Sub_Title","C/C_SubInfo/C_SubSubInfo/C_Sub_Sub_Name", "C/C_SubInfo/C_SubSubInfo/C_Sub_Sub_Title");
         Map<String, String> xpathTypeMap = new HashMap<String, String>();
         String language = "zh";
         ForeignKeyBean[] fkBeans = new ForeignKeyBean[] { new ForeignKeyBean(), new ForeignKeyBean() };
