@@ -23,7 +23,7 @@ import javax.servlet.ServletException;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
-import org.talend.mdm.webapp.journal.server.model.ForeignKeyInfoTransformer;
+import org.talend.mdm.webapp.journal.server.ForeignKeyInfoTransformer;
 import org.talend.mdm.webapp.journal.shared.JournalParameters;
 
 import com.amalto.core.ejb.DroppedItemPOJO;
