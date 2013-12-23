@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.journal.sever.service;
+package org.talend.mdm.webapp.journal.server.service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
