@@ -79,11 +79,13 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -170,8 +172,9 @@ public class ItemsListPanel extends ContentPanel {
                 return;
             }
 
-            service.queryItemBeans(qm,Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
+            service.queryItemBeans(qm, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
 
+                @Override
                 public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
                     isPagingAccurate = result.isPagingAccurate();
                     callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result
@@ -216,6 +219,7 @@ public class ItemsListPanel extends ContentPanel {
 
     ModelKeyProvider<ItemBean> keyProvidernew = new ModelKeyProvider<ItemBean>() {
 
+        @Override
         public String getKey(ItemBean model) {
             return model.getIds();
         }
@@ -254,7 +258,7 @@ public class ItemsListPanel extends ContentPanel {
     public static void initialize(ItemsListPanel instanceImpl) {
         ItemsListPanel.instance = instanceImpl;
     }
-    
+
     public static ItemsListPanel getInstance() {
         if (instance == null) {
             instance = new ItemsListPanel();
@@ -298,13 +302,13 @@ public class ItemsListPanel extends ContentPanel {
         gridContainer = new ContentPanel(new FitLayout());
         gridContainer.setBodyBorder(false);
         gridContainer.setHeaderVisible(false);
-        
+
         loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);
         loader.setRemoteSort(true);
-        
+
         store = new ListStore<ItemBean>(loader);
         store.setKeyProvider(keyProvidernew);
-     
+
         loader.addLoadListener(new LoadListener() {
 
             @Override
@@ -338,7 +342,7 @@ public class ItemsListPanel extends ContentPanel {
         if (Cookies.getCookie(PagingToolBarEx.BROWSERECORD_PAGESIZE) != null) {
             usePageSize = Integer.parseInt(Cookies.getCookie(PagingToolBarEx.BROWSERECORD_PAGESIZE));
         }
-        
+
         pagingBar = new PagingToolBarEx(usePageSize) {
 
             @Override
@@ -354,18 +358,24 @@ public class ItemsListPanel extends ContentPanel {
 
         pagingBar.setVisible(false);
         pagingBar.bind(loader);
+        // TMDM-6628 Remove tooltip for bottom toolbar button
+        for (Component c : pagingBar.getItems()) {
+            if (c instanceof Button) {
+                c.removeToolTip();
+            }
+        }
         gridContainer.setBottomComponent(pagingBar);
         grid = new ColumnAlignGrid<ItemBean>(store, cm);
         grid.setSelectionModel(sm);
-        
+
         {
             grid.setStateful(true);
             AppHeader header = (AppHeader) BrowseRecords.getSession().get(UserSession.APP_HEADER);
             ViewBean vb = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
             EntityModel em = vb.getBindingEntityModel();
-            grid.setStateId(header.getDatamodel() + "." + em.getConceptName() + "." + vb.getViewPK());  //$NON-NLS-1$//$NON-NLS-2$
+            grid.setStateId(header.getDatamodel() + "." + em.getConceptName() + "." + vb.getViewPK()); //$NON-NLS-1$//$NON-NLS-2$
         }
-        
+
         re = new SaveRowEditor();
         grid.getView().setForceFit(true);
         if (cm.getColumnCount() > 0) {
@@ -374,6 +384,7 @@ public class ItemsListPanel extends ContentPanel {
 
         grid.addListener(Events.HeaderClick, new Listener<GridEvent<?>>() {
 
+            @Override
             public void handleEvent(GridEvent<?> be) {
                 if (be.getColIndex() == 0) {
                     ItemsListPanel.this.isCheckbox = true;
@@ -386,6 +397,7 @@ public class ItemsListPanel extends ContentPanel {
 
         grid.addListener(Events.OnMouseOver, new Listener<GridEvent<ItemBean>>() {
 
+            @Override
             public void handleEvent(GridEvent<ItemBean> ge) {
                 int rowIndex = ge.getRowIndex();
                 if (rowIndex != -1) {
@@ -408,12 +420,14 @@ public class ItemsListPanel extends ContentPanel {
                 if (se.getSelectedItem() != null) {
                     DeferredCommand.addCommand(new Command() {
 
+                        @Override
                         public void execute() {
                             if (isCurrentRecordChange()) {
                                 MessageBox msgBox = MessageBox.confirm(MessagesFactory.getMessages().confirm_title(),
                                         MessagesFactory.getMessages().msg_confirm_save_tree_detail(root.getLabel()),
                                         new Listener<MessageBoxEvent>() {
 
+                                            @Override
                                             public void handleEvent(MessageBoxEvent be) {
                                                 if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
                                                     saveCurrentChangeBeforeSwitching = true;
@@ -437,6 +451,7 @@ public class ItemsListPanel extends ContentPanel {
 
         grid.addListener(Events.Attach, new Listener<GridEvent<ItemBean>>() {
 
+            @Override
             public void handleEvent(GridEvent<ItemBean> be) {
                 PagingLoadConfig config = new BasePagingLoadConfig();
                 config.setOffset(0);
@@ -461,6 +476,7 @@ public class ItemsListPanel extends ContentPanel {
 
         re.addListener(Events.AfterEdit, new Listener<RowEditorEvent>() {
 
+            @Override
             public void handleEvent(RowEditorEvent be) {
                 Map<String, Object> changes = be.getChanges();
                 Iterator<String> iterator = changes.keySet().iterator();
@@ -538,6 +554,7 @@ public class ItemsListPanel extends ContentPanel {
                                 }
                             }
 
+                            @Override
                             public void onSuccess(ItemResult result) {
                                 Record record;
                                 Store<ItemBean> store = grid.getStore();
@@ -701,6 +718,7 @@ public class ItemsListPanel extends ContentPanel {
                 service.queryItemBeanById(dataCluster, viewbean, entityModel, ids, Locale.getLanguage(),
                         new SessionAwareAsyncCallback<ItemBean>() {
 
+                            @Override
                             public void onSuccess(ItemBean result) {
                                 if (result == null) {
                                     ItemsMainTabPanel.getInstance().removeAll();
@@ -863,6 +881,7 @@ public class ItemsListPanel extends ContentPanel {
                         String ids[] = { itemBean.getIds() };
                         service.getItemBeanById(itemBean.getConcept(), ids, Locale.getLanguage(), new AsyncCallback<ItemBean>() {
 
+                            @Override
                             public void onSuccess(ItemBean result) {
                                 if (!"NONE".equals(pagingLoadConfig.getSortField())) { //$NON-NLS-1$
                                     createItemBean = result;
@@ -873,6 +892,7 @@ public class ItemsListPanel extends ContentPanel {
                                 }
                             }
 
+                            @Override
                             public void onFailure(Throwable exception) {
                                 pagingBar.last();
                             }
