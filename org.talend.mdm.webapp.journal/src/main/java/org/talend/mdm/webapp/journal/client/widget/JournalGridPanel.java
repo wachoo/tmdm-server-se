@@ -50,12 +50,10 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -197,12 +195,6 @@ public class JournalGridPanel extends ContentPanel {
             usePageSize = Integer.valueOf(((Map<?, ?>) StateManager.get().get("journalgrid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         }
         pagetoolBar = new PagingToolBarEx(usePageSize);
-        // TMDM-6628 Remove tooltip for bottom toolbar button
-        for (Component c : pagetoolBar.getItems()) {
-            if (c instanceof Button) {
-                c.removeToolTip();
-            }
-        }
         pagetoolBar.bind(loader);
         grid.setLoadMask(true);
         grid.setStateful(true);
