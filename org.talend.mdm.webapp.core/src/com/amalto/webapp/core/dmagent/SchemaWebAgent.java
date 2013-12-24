@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.xml.xsom.XSComplexType;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelBean;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
@@ -39,6 +38,7 @@ import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSUniverse;
 import com.amalto.webapp.util.webservices.WSUniverseXtentisObjectsRevisionIDs;
 import com.sun.xml.xsom.XSAnnotation;
+import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSParticle;
 
@@ -103,6 +103,7 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
         return dataModelBean;
     }
 
+    @Override
     public BusinessConcept getBusinessConcept(String conceptName) throws Exception {
         DataModelID dataModelID = getMyDataModelTicket();
         return super.getBusinessConcept(conceptName, dataModelID);
@@ -122,15 +123,18 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
         return targetBusinessConcept;
     }
 
+    @Override
     public ReusableType getReusableType(String typeName) throws Exception {
         DataModelID dataModelID = getMyDataModelTicket();
         return super.getReusableType(typeName, dataModelID);
     }
 
+    @Override
     public List<ReusableType> getMySubtypes(String parentTypeName) throws Exception {
         return getMySubtypes(parentTypeName, false);
     }
 
+    @Override
     public List<ReusableType> getMySubtypes(String parentTypeName, boolean deep) throws Exception {
         return getMySubtypes(parentTypeName, deep, getFromPool(getMyDataModelTicket()));
     }
@@ -172,6 +176,21 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
         return subTypes.contains(new ReusableType(subTypeName));
     }
 
+    public boolean equalOrInheritanceEntities(String superEntityName, String subEntityName) throws Exception {
+        if (superEntityName.equals(subEntityName)) {
+            return true;
+        } else {
+            DataModelBean dataModelBean = getFromPool(getMyDataModelTicket());
+            BusinessConcept superBusinessConcept = dataModelBean.getBusinessConcept(superEntityName);
+            BusinessConcept subBusinessConcept = dataModelBean.getBusinessConcept(subEntityName);
+            if (superBusinessConcept != null && subBusinessConcept != null) {
+                return isMySubType(superBusinessConcept.getCorrespondTypeName(), subBusinessConcept.getCorrespondTypeName());
+            } else {
+                return false;
+            }
+        }
+    }
+
     private DataModelID getMyDataModelTicket() throws Exception {
         Configuration config = Configuration.getConfiguration();
         String dataModelPK = config.getModel();
@@ -189,8 +208,9 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
                 .getXtentisObjectsRevisionIDs();
         for (WSUniverseXtentisObjectsRevisionIDs wsUniverseXtentisObjectsRevisionIDs : wsUniverseXtentisObjectsRevisionIDsArray) {
             String objectName = wsUniverseXtentisObjectsRevisionIDs.getXtentisObjectName();
-            if (objectName != null && objectName.equals("Data Model")) //$NON-NLS-1$
+            if (objectName != null && objectName.equals("Data Model")) {
                 revision = wsUniverseXtentisObjectsRevisionIDs.getRevisionID();
+            }
         }
         return revision;
     }
@@ -211,8 +231,9 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
                     for (int k = 0; k < annotList.getLength(); k++) {
                         if ("appinfo".equals(annotList.item(k).getLocalName())) { //$NON-NLS-1$
                             Node source = annotList.item(k).getAttributes().getNamedItem("source"); //$NON-NLS-1$
-                            if (source == null)
+                            if (source == null) {
                                 continue;
+                            }
                             String appinfoSource = annotList.item(k).getAttributes().getNamedItem("source").getNodeValue(); //$NON-NLS-1$
                             if ("X_ForeignKey".equals(appinfoSource)) { //$NON-NLS-1$
                                 String nodeValue = annotList.item(k).getFirstChild().getNodeValue();
@@ -241,7 +262,7 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
             type.load(reusableTypeMap);// load/parse the reusableType
         }
         // Find possible ReusableTypes which has FK to point to the target entity
-        Map<String,ReusableType> possibleReusableTypeMap = new HashMap<String,ReusableType>();
+        Map<String, ReusableType> possibleReusableTypeMap = new HashMap<String, ReusableType>();
         for (ReusableType type : reuseTypeList) {
             Map<String, String> foreignKeyMap = type.getForeignKeyMap();
             // does this reUsableType point to the target entity
@@ -249,7 +270,8 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
                 for (String xpathOnEntity : foreignKeyMap.keySet()) {
                     String fkPath = foreignKeyMap.get(xpathOnEntity);
                     String myEntityName = getEntityNameFromXPath(fkPath);
-                    if (isValidatedEntityName(myEntityName, dataModelBean) && myEntityName.equals(entityName)) {
+                    if (isValidatedEntityName(myEntityName, dataModelBean)
+                            && equalOrInheritanceEntities(myEntityName, entityName)) {
                         // if true, add it to the possible map
                         possibleReusableTypeMap.put(getEntityNameFromXPath(xpathOnEntity), type);
                         // find all types which has this type
@@ -335,14 +357,14 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
         return containTypes;
     }
 
-    private boolean isValidatedEntityName(String entityName,DataModelBean dataModelBean) {
+    private boolean isValidatedEntityName(String entityName, DataModelBean dataModelBean) {
         if (entityName == null || entityName.trim().length() == 0) {
             return false;
         }
         return dataModelBean.getBusinessConceptMap().containsKey(entityName);
     }
 
-    private String getEntityNameFromXPath(String xpath) {
+    public String getEntityNameFromXPath(String xpath) {
         if (xpath == null || xpath.trim().length() == 0) {
             return null;
         }
@@ -366,8 +388,7 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
             XSParticle[] subParticles = e.getType().asComplexType().getContentType().asParticle().getTerm().asModelGroup()
                     .getChildren();
             if (subParticles != null) {
-                for (int i = 0; i < subParticles.length; i++) {
-                    XSParticle xsParticle = subParticles[i];
+                for (XSParticle xsParticle : subParticles) {
                     if (xsParticle.getTerm().asElementDecl() == null) {
                         continue;
                     }
@@ -384,14 +405,17 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
     }
 
     private boolean isFkPoint2Entity(String fkPath, List<String> extendType) {
-        if (fkPath == null || fkPath.length() == 0)
+        if (fkPath == null || fkPath.length() == 0) {
             return false;
-        if (fkPath.startsWith("/")) //$NON-NLS-1$
+        }
+        if (fkPath.startsWith("/")) {
             fkPath = fkPath.substring(1);
+        }
         boolean contained = false;
         for (String type : extendType) {
-            if (fkPath.startsWith(type + "/") || fkPath.equals(type)) //$NON-NLS-1$
+            if (fkPath.startsWith(type + "/") || fkPath.equals(type)) {
                 contained = true;
+            }
         }
 
         return contained;
@@ -446,8 +470,9 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
                 getChildrenXpath2Particle(xsp1, xpathParent, xpathToParticle);
             }
         }
-        if (xsp.getTerm().asElementDecl() == null)
+        if (xsp.getTerm().asElementDecl() == null) {
             return;
+        }
         String xpath = xpathParent + "/" + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$
         if (xsp.getTerm().asElementDecl().getType().isComplexType()) {
             XSParticle particle = xsp.getTerm().asElementDecl().getType().asComplexType().getContentType().asParticle();
@@ -465,6 +490,7 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
 
     }
 
+    @Override
     public List<BusinessConcept> getAllBusinessConcepts() throws Exception {
         return super.getBusinessConcepts(getMyDataModelTicket());
     }

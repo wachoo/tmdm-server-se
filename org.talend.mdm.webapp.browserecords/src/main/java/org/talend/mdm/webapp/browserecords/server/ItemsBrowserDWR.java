@@ -42,6 +42,7 @@ import com.amalto.webapp.util.webservices.WSItemPKsByCriteriaResponse;
  */
 
 public class ItemsBrowserDWR {
+
     public ListRange getItems(int start, int limit, String sort, String dir, String regex) throws Exception {
         ListRange listRange = new ListRange();
         WSDataClusterPK wsDataClusterPK = new WSDataClusterPK();
@@ -90,7 +91,8 @@ public class ItemsBrowserDWR {
 
         for (String path : foreignKeyXpath) {
             String dataObjectPath = foreignKeyMap.get(path);
-            if (dataObjectPath.indexOf(dataObject) != -1) {
+            String entityName = SchemaWebAgent.getInstance().getEntityNameFromXPath(dataObjectPath);
+            if (SchemaWebAgent.getInstance().equalOrInheritanceEntities(entityName, dataObject)) {
                 xpathes.add(path.substring(1));
             }
         }
@@ -120,7 +122,7 @@ public class ItemsBrowserDWR {
                 }
             }
         }
-        
+
         StringBuilder sb = new StringBuilder();
         sb.append(keys);
         sb.append("$");//$NON-NLS-1$
@@ -155,8 +157,9 @@ public class ItemsBrowserDWR {
     }
 
     private String joinSet(Set<String> set, String decollator) {
-        if (set == null)
+        if (set == null) {
             return ""; //$NON-NLS-1$
+        }
         StringBuffer sb = new StringBuffer();
         boolean isFirst = true;
         for (String str : set) {
