@@ -14,6 +14,7 @@ package com.amalto.core.util;
 
 import java.util.Locale;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 public class LocaleUtil {
@@ -26,6 +27,17 @@ public class LocaleUtil {
         }
         if (language == null) {
             language = request.getHeader("X-MDM-Language"); //$NON-NLS-1$
+        }
+        if (language == null) {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().equals("Form_Locale")) { //$NON-NLS-1$
+                        language = cookie.getValue();
+                        break;
+                    }
+                }
+            }
         }
         if (language == null) {
             locale = request.getLocale();
