@@ -50,10 +50,12 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -70,7 +72,7 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
  * DOC Administrator class global comment. Detailled comment
  */
 public class JournalGridPanel extends ContentPanel {
-    
+
     private static JournalGridPanel instance;
 
     private JournalServiceAsync service = Registry.get(Journal.JOURNAL_SERVICE);
@@ -84,11 +86,11 @@ public class JournalGridPanel extends ContentPanel {
     private PagingLoader<PagingLoadResult<JournalGridModel>> loader;
 
     private final static int PAGE_SIZE = 20;
-    
+
     private PagingLoadConfig pagingLoadConfig;
-    
+
     private final String BEFORE_ACTION = "before"; //$NON-NLS-1$
-    
+
     public static JournalGridPanel getInstance() {
         if (instance == null) {
             instance = new JournalGridPanel();
@@ -162,11 +164,12 @@ public class JournalGridPanel extends ContentPanel {
 
             @Override
             protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<JournalGridModel>> callback) {
-                pagingLoadConfig = (PagingLoadConfig)loadConfig;
+                pagingLoadConfig = (PagingLoadConfig) loadConfig;
                 pagingLoadConfig.setLimit(pagetoolBar.getPageSize());
                 service.getJournalList(criteria, BasePagingLoadConfigImpl.copyPagingLoad(pagingLoadConfig),
                         new SessionAwareAsyncCallback<ItemBasePageLoadResult<JournalGridModel>>() {
 
+                            @Override
                             public void onSuccess(ItemBasePageLoadResult<JournalGridModel> result) {
                                 callback.onSuccess(new BasePagingLoadResult<JournalGridModel>(result.getData(), result
                                         .getOffset(), result.getTotalLength()));
@@ -194,12 +197,19 @@ public class JournalGridPanel extends ContentPanel {
             usePageSize = Integer.valueOf(((Map<?, ?>) StateManager.get().get("journalgrid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         }
         pagetoolBar = new PagingToolBarEx(usePageSize);
+        // TMDM-6628 Remove tooltip for bottom toolbar button
+        for (Component c : pagetoolBar.getItems()) {
+            if (c instanceof Button) {
+                c.removeToolTip();
+            }
+        }
         pagetoolBar.bind(loader);
         grid.setLoadMask(true);
         grid.setStateful(true);
         grid.setStateId("journalgrid");//$NON-NLS-1$
         grid.addListener(Events.Attach, new Listener<GridEvent<JournalGridModel>>() {
 
+            @Override
             public void handleEvent(GridEvent<JournalGridModel> be) {
                 PagingLoadConfig config = new BasePagingLoadConfig();
                 config.setOffset(0);
@@ -215,21 +225,23 @@ public class JournalGridPanel extends ContentPanel {
 
         grid.addListener(Events.RowDoubleClick, new Listener<GridEvent<JournalGridModel>>() {
 
+            @Override
             public void handleEvent(GridEvent<JournalGridModel> be) {
                 final JournalGridModel gridModel = be.getModel();
-                service.isJournalHistoryExist(JournalSearchUtil.buildParameter(gridModel,BEFORE_ACTION, true), new SessionAwareAsyncCallback<Boolean>() {
+                service.isJournalHistoryExist(JournalSearchUtil.buildParameter(gridModel, BEFORE_ACTION, true),
+                        new SessionAwareAsyncCallback<Boolean>() {
 
-                    @Override
-                    public void onSuccess(Boolean result) {
-                        if (result) {
-                            JournalGridPanel.this.openTabPanel(gridModel);
-                        }
-                    }
-                });
+                            @Override
+                            public void onSuccess(Boolean result) {
+                                if (result) {
+                                    JournalGridPanel.this.openTabPanel(gridModel);
+                                }
+                            }
+                        });
             }
         });
-                
-        addContextMenu();     
+
+        addContextMenu();
         this.add(grid);
         this.setBottomComponent(pagetoolBar);
     }
@@ -237,7 +249,7 @@ public class JournalGridPanel extends ContentPanel {
     public void refreshGrid() {
         pagetoolBar.first();
     }
-    
+
     public void lastPage() {
         pagetoolBar.last();
     }
@@ -245,9 +257,11 @@ public class JournalGridPanel extends ContentPanel {
     public void openTabPanel(final JournalGridModel gridModel) {
         service.getDetailTreeModel(gridModel.getIds(), new SessionAwareAsyncCallback<JournalTreeModel>() {
 
+            @Override
             public void onSuccess(final JournalTreeModel root) {
                 service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
 
+                    @Override
                     public void onSuccess(Boolean isEnterprise) {
                         if (GWT.isScript()) {
                             JournalGridPanel.this.openGWTPanel(isEnterprise, gridModel, root);
@@ -382,7 +396,7 @@ public class JournalGridPanel extends ContentPanel {
             journalDataPanel.getTree().setExpanded(root, true);
         }
     }
-    
+
     private void addContextMenu() {
         final Menu contextMenu = new Menu();
         final MenuItem viewChagesMenuItem = new MenuItem();
@@ -393,11 +407,11 @@ public class JournalGridPanel extends ContentPanel {
 
             @Override
             public void componentSelected(MenuEvent ce) {
-                JournalGridPanel.this.openTabPanel(grid.getSelectionModel().getSelectedItem());                
-            }            
+                JournalGridPanel.this.openTabPanel(grid.getSelectionModel().getSelectedItem());
+            }
         });
         contextMenu.add(viewChagesMenuItem);
-        
+
         service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
 
             @Override
@@ -410,44 +424,49 @@ public class JournalGridPanel extends ContentPanel {
 
                         @Override
                         public void componentSelected(MenuEvent ce) {
-                            JournalGridPanel.this.restore(JournalSearchUtil.buildParameter(grid.getSelectionModel().getSelectedItem(), BEFORE_ACTION, true),false);
+                            JournalGridPanel.this.restore(JournalSearchUtil.buildParameter(grid.getSelectionModel()
+                                    .getSelectedItem(), BEFORE_ACTION, true), false);
                         }
                     });
                     contextMenu.add(restoreMenuItem);
-                    grid.addListener(Events.ContextMenu, new Listener<GridEvent<JournalGridModel>>(){
+                    grid.addListener(Events.ContextMenu, new Listener<GridEvent<JournalGridModel>>() {
 
                         @Override
                         public void handleEvent(GridEvent<JournalGridModel> be) {
-                            final JournalGridModel gridModel = be.getModel();  
-                                                                          
+                            final JournalGridModel gridModel = be.getModel();
+
                             service.isAdmin(new SessionAwareAsyncCallback<Boolean>() {
-        
+
                                 @Override
                                 public void onSuccess(Boolean isAdmin) {
-                                    if (isAdmin && (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(gridModel.getOperationType()) || UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(gridModel.getOperationType()))) {
+                                    if (isAdmin
+                                            && (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(gridModel.getOperationType()) || UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE
+                                                    .equals(gridModel.getOperationType()))) {
                                         restoreMenuItem.setEnabled(true);
                                     } else {
                                         restoreMenuItem.setEnabled(false);
                                     }
-                                    
-                                    service.isJournalHistoryExist(JournalSearchUtil.buildParameter(gridModel, BEFORE_ACTION, true), new SessionAwareAsyncCallback<Boolean>() {
-        
-                                        @Override
-                                        public void onSuccess(Boolean result) {
-                                            if (result) {
-                                                viewChagesMenuItem.setEnabled(true);
-                                            } else {
-                                                viewChagesMenuItem.setEnabled(false);
-                                                restoreMenuItem.setEnabled(false);
-                                            }
-                                        }
-                                    });
-                                 }
+
+                                    service.isJournalHistoryExist(
+                                            JournalSearchUtil.buildParameter(gridModel, BEFORE_ACTION, true),
+                                            new SessionAwareAsyncCallback<Boolean>() {
+
+                                                @Override
+                                                public void onSuccess(Boolean result) {
+                                                    if (result) {
+                                                        viewChagesMenuItem.setEnabled(true);
+                                                    } else {
+                                                        viewChagesMenuItem.setEnabled(false);
+                                                        restoreMenuItem.setEnabled(false);
+                                                    }
+                                                }
+                                            });
+                                }
                             });
-                         }
+                        }
                     });
-                } 
-            }            
+                }
+            }
         });
         grid.setContextMenu(contextMenu);
     }
@@ -469,78 +488,83 @@ public class JournalGridPanel extends ContentPanel {
     public int getLimit() {
         return loader.getLimit();
     }
-    
-    public void restore(final JournalParameters parameter,final boolean isCloseTabPanel) {
-        MessageBox.confirm(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().restore_confirm(), new Listener<MessageBoxEvent>() {
 
-            @Override
-            public void handleEvent(MessageBoxEvent be) {
-                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                    if (UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(parameter.getOperationType())) {
-                        service.checkConflict(parameter.getDataClusterName(), parameter.getConceptName(), parameter.getId()[0], new SessionAwareAsyncCallback<Boolean>() {
+    public void restore(final JournalParameters parameter, final boolean isCloseTabPanel) {
+        MessageBox.confirm(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().restore_confirm(),
+                new Listener<MessageBoxEvent>() {
 
-                            @Override
-                            public void onSuccess(Boolean result) {
-                                if (result) {
-                                    MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(),
-                                            BaseMessagesFactory.getMessages().overwrite_confirm(),
-                                            new Listener<MessageBoxEvent>() {
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
+                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                            if (UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(parameter.getOperationType())) {
+                                service.checkConflict(parameter.getDataClusterName(), parameter.getConceptName(),
+                                        parameter.getId()[0], new SessionAwareAsyncCallback<Boolean>() {
 
-                                                public void handleEvent(MessageBoxEvent be) {
-                                                    if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                                        restoreRecord(parameter, isCloseTabPanel);
-                                                    }
+                                            @Override
+                                            public void onSuccess(Boolean result) {
+                                                if (result) {
+                                                    MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(),
+                                                            BaseMessagesFactory.getMessages().overwrite_confirm(),
+                                                            new Listener<MessageBoxEvent>() {
+
+                                                                @Override
+                                                                public void handleEvent(MessageBoxEvent be) {
+                                                                    if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                                                        restoreRecord(parameter, isCloseTabPanel);
+                                                                    }
+                                                                }
+                                                            });
+                                                } else {
+                                                    restoreRecord(parameter, isCloseTabPanel);
                                                 }
-                                            });
-                                } else {
-                                    restoreRecord(parameter, isCloseTabPanel);
-                                }
+                                            }
+                                        });
+                            } else {
+                                restoreRecord(parameter, isCloseTabPanel);
                             }
-                        });
-                    } else {
-                        restoreRecord(parameter, isCloseTabPanel);
+                        }
                     }
-                }
-            }
-        });
+                });
     }
-    
-    private void restoreRecord(final JournalParameters parameter,final boolean isCloseTabPanel) {
+
+    private void restoreRecord(final JournalParameters parameter, final boolean isCloseTabPanel) {
         service.restoreRecord(parameter, UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Void>() {
 
             @Override
             public void onSuccess(Void result) {
-                MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().restore_success(), new Listener<MessageBoxEvent>(){
+                MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().restore_success(),
+                        new Listener<MessageBoxEvent>() {
 
-                    @Override
-                    public void handleEvent(MessageBoxEvent be) {
-                        if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
-                            if (isCloseTabPanel) {
-                                closeTabPanel();
+                            @Override
+                            public void handleEvent(MessageBoxEvent be) {
+                                if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
+                                    if (isCloseTabPanel) {
+                                        closeTabPanel();
+                                    }
+                                    lastPage();
+                                }
                             }
-                            lastPage();
-                        }
-                    }
-                });
+                        });
             }
-            
+
             @Override
             protected void doOnFailure(Throwable caught) {
-                MessageBox.alert(MessagesFactory.getMessages().error_level(), caught.getMessage(), new Listener<MessageBoxEvent>(){
+                MessageBox.alert(MessagesFactory.getMessages().error_level(), caught.getMessage(),
+                        new Listener<MessageBoxEvent>() {
 
-                    @Override
-                    public void handleEvent(MessageBoxEvent be) {
-                        if (be.getButtonClicked().getItemId().equals(Dialog.OK) && isCloseTabPanel) {
-                            closeTabPanel();
-                        }
-                    }
-                });
+                            @Override
+                            public void handleEvent(MessageBoxEvent be) {
+                                if (be.getButtonClicked().getItemId().equals(Dialog.OK) && isCloseTabPanel) {
+                                    closeTabPanel();
+                                }
+                            }
+                        });
             }
         });
     }
-    
+
     private native void closeTabPanel()/*-{
-        var tabPanel = $wnd.amalto.core.getTabPanel();
-        tabPanel.closeCurrentTab();
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		tabPanel.closeCurrentTab();
     }-*/;
 }

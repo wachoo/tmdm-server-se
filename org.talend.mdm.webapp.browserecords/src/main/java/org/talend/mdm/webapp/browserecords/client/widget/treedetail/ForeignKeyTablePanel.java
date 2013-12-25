@@ -45,6 +45,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
@@ -166,6 +167,12 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         pagingBar = new PagingToolBarEx(PAGE_SIZE);
         pagingBar.setHideMode(HideMode.VISIBILITY);
         pagingBar.getMessages().setDisplayMsg(MessagesFactory.getMessages().page_displaying_records());
+        // TMDM-6628 Remove tooltip for bottom toolbar button
+        for (Component c : pagingBar.getItems()) {
+            if (c instanceof Button) {
+                c.removeToolTip();
+            }
+        }
         bottomPanel.add(pagingBar);
         this.setBottomComponent(new WidgetComponent(bottomPanel));
     }
