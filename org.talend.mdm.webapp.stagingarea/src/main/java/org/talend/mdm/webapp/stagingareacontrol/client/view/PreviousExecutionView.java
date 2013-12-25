@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
+import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.PreviousExecutionController;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaExecutionModel;
@@ -31,15 +32,14 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.i18n.client.DateTimeFormat;
 
 public class PreviousExecutionView extends AbstractView {
 
     private static final int PAGE_SIZE = 10;
-    
-    private PagingToolBar taskPagingBar;
+
+    private PagingToolBarEx taskPagingBar;
 
     private ToolBar bar;
 
@@ -58,12 +58,14 @@ public class PreviousExecutionView extends AbstractView {
     private void buildColumns() {
         List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
         ColumnConfig startDateColumn = new ColumnConfig("start_date", messages.start_date(), 100); //$NON-NLS-1$
-        if (ucx.getDateTimeFormat() != null)
+        if (ucx.getDateTimeFormat() != null) {
             startDateColumn.setDateTimeFormat(DateTimeFormat.getFormat(ucx.getDateTimeFormat()));
+        }
         columns.add(startDateColumn);
         ColumnConfig endDateColumn = new ColumnConfig("end_date", messages.end_date(), 100); //$NON-NLS-1$
-        if (ucx.getDateTimeFormat() != null)
+        if (ucx.getDateTimeFormat() != null) {
             endDateColumn.setDateTimeFormat(DateTimeFormat.getFormat(ucx.getDateTimeFormat()));
+        }
         columns.add(endDateColumn);
         ColumnConfig processRecordsColumn = new ColumnConfig("processed_records", messages.process_records(), 100); //$NON-NLS-1$
         columns.add(processRecordsColumn);
@@ -73,7 +75,7 @@ public class PreviousExecutionView extends AbstractView {
         ColumnConfig recordLeftColumn = new ColumnConfig("total_record", messages.total_record(), 100); //$NON-NLS-1$
         columns.add(recordLeftColumn);
 
-        taskColumnModel =  new ColumnModel(columns);
+        taskColumnModel = new ColumnModel(columns);
     }
 
     @Override
@@ -85,7 +87,7 @@ public class PreviousExecutionView extends AbstractView {
         beforeDateField = new DateField();
         searchButton = new Button(messages.search());
         bar = new ToolBar();
-        taskPagingBar = new PagingToolBar(PAGE_SIZE);
+        taskPagingBar = new PagingToolBarEx(PAGE_SIZE);
         taskGrid = new Grid<StagingAreaExecutionModel>(PreviousExecutionController.getClearStore(), taskColumnModel);
         taskGrid.setAutoHeight(true);
     }
@@ -116,9 +118,11 @@ public class PreviousExecutionView extends AbstractView {
         return searchButton;
     }
 
+    @Override
     protected void registerEvent() {
         searchButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 ControllerContainer.get().getPreviousExecutionController().searchByBeforeDate();
             }

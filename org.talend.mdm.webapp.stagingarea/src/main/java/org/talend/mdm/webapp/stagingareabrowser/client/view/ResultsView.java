@@ -20,6 +20,7 @@ import java.util.Map;
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.base.client.widget.ColumnAlignGrid;
+import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.stagingareabrowser.client.controller.ResultsController;
 import org.talend.mdm.webapp.stagingareabrowser.client.model.RecordStatus;
 import org.talend.mdm.webapp.stagingareabrowser.client.model.RecordStatusWrapper;
@@ -36,7 +37,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
@@ -46,14 +46,14 @@ public class ResultsView extends AbstractView {
 
     private Grid<ResultItem> resultGrid;
 
-    private PagingToolBar pagingBar;
+    private PagingToolBarEx pagingBar;
 
     public static final int PAGE_SIZE = 20;
 
     private ColumnModel columnModel;
 
     UserContextModel ucx;
-    
+
     private Map<Integer, String> errorTitles;
 
     private void initErrorTitles() {
@@ -61,7 +61,8 @@ public class ResultsView extends AbstractView {
         errorTitles.put(RecordStatus.NEW.getStatusCode(), messages.status_000());
         errorTitles.put(RecordStatus.SUCCESS_IDENTIFIED_CLUSTERS.getStatusCode(), messages.status_201(ucx.getDataContainer()));
         errorTitles.put(RecordStatus.SUCCESS_MERGE_CLUSTERS.getStatusCode(), messages.status_202(ucx.getDataContainer()));
-        errorTitles.put(RecordStatus.SUCCESS_MERGE_CLUSTER_TO_RESOLVE.getStatusCode(), messages.status_203(ucx.getDataContainer()));
+        errorTitles.put(RecordStatus.SUCCESS_MERGE_CLUSTER_TO_RESOLVE.getStatusCode(),
+                messages.status_203(ucx.getDataContainer()));
         errorTitles.put(RecordStatus.SUCCESS_MERGED_RECORD.getStatusCode(), messages.status_204(ucx.getDataContainer()));
         errorTitles.put(RecordStatus.SUCCESS_VALIDATE.getStatusCode(), messages.status_205());
         errorTitles.put(RecordStatus.FAIL_IDENTIFIED_CLUSTERS.getStatusCode(), messages.status_401(ucx.getDataContainer()));
@@ -72,11 +73,11 @@ public class ResultsView extends AbstractView {
 
     @Override
     protected void initComponents() {
-        ucx = UserContextUtil.getUserContext();;
+        ucx = UserContextUtil.getUserContext();
         initErrorTitles();
         initColumnModel();
         resultGrid = new ColumnAlignGrid<ResultItem>(ResultsController.getClearStore(), columnModel);
-        pagingBar = new PagingToolBar(PAGE_SIZE);
+        pagingBar = new PagingToolBarEx(PAGE_SIZE);
         pagingBar.bind(ResultsController.getLoader());
     }
 
@@ -104,20 +105,26 @@ public class ResultsView extends AbstractView {
         ColumnConfig statusColumn = new ColumnConfig("status", messages.status(), 100); //$NON-NLS-1$
         statusColumn.setRenderer(new GridCellRenderer<ResultItem>() {
 
+            @Override
             public Object render(ResultItem model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ResultItem> store, Grid<ResultItem> grid) {
 
                 com.google.gwt.user.client.ui.Grid g = new com.google.gwt.user.client.ui.Grid(1, 2);
-                if (model.getStatus() == null)
+                if (model.getStatus() == null) {
                     return null;
+                }
 
                 RecordStatusWrapper wrapper = new RecordStatusWrapper(RecordStatus.newStatus(model.getStatus().intValue()));
-         
+
                 String color = wrapper.getColor();
                 Image icon = new Image(wrapper.getIcon());
-      
-                if(color!=null)g.getElement().getStyle().setColor(color);
-                if(icon!=null)g.setWidget(0, 0, icon);
+
+                if (color != null) {
+                    g.getElement().getStyle().setColor(color);
+                }
+                if (icon != null) {
+                    g.setWidget(0, 0, icon);
+                }
                 g.setText(0, 1, Integer.toString(model.getStatus()));
                 g.setTitle(model.getStatus()
                         + ": " + (errorTitles.get(model.getStatus()) == null ? "" : errorTitles.get(model.getStatus()))); //$NON-NLS-1$ //$NON-NLS-2$
@@ -133,6 +140,7 @@ public class ResultsView extends AbstractView {
     protected void registerEvent() {
         resultGrid.addListener(Events.RowDoubleClick, new Listener<GridEvent<ResultItem>>() {
 
+            @Override
             public void handleEvent(GridEvent<ResultItem> ge) {
                 ResultItem item = ge.getGrid().getStore().getAt(ge.getRowIndex());
                 StringBuffer title = new StringBuffer();

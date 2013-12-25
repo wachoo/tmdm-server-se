@@ -79,13 +79,11 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -358,12 +356,6 @@ public class ItemsListPanel extends ContentPanel {
 
         pagingBar.setVisible(false);
         pagingBar.bind(loader);
-        // TMDM-6628 Remove tooltip for bottom toolbar button
-        for (Component c : pagingBar.getItems()) {
-            if (c instanceof Button) {
-                c.removeToolTip();
-            }
-        }
         gridContainer.setBottomComponent(pagingBar);
         grid = new ColumnAlignGrid<ItemBean>(store, cm);
         grid.setSelectionModel(sm);

@@ -98,6 +98,7 @@ public class PagingToolBarEx extends PagingToolBar {
 
         this.insert(new SeparatorToolItem(), this.getItemCount() - 2);
         this.insert(sizeComp, this.getItemCount() - 2);
+        removeButtonToolTip();
     }
 
     @Override
@@ -154,6 +155,14 @@ public class PagingToolBarEx extends PagingToolBar {
 
     public void setBrowseRecordsGridCall(boolean isBrowseRecordsGridCall) {
         this.isBrowseRecordsGridCall = isBrowseRecordsGridCall;
+    }
+
+    private void removeButtonToolTip() {
+        this.first.removeToolTip();
+        this.prev.removeToolTip();
+        this.next.removeToolTip();
+        this.last.removeToolTip();
+        this.refresh.removeToolTip();
     }
 
     class PagingToolBarExLayout extends ToolBarLayout {
