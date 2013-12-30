@@ -75,4 +75,6 @@ public interface StagingareaBrowseMessages extends Messages {
     public String staging_area_exception();
 
     public String underlying_cause();
+
+    public String date_time_title();
 }

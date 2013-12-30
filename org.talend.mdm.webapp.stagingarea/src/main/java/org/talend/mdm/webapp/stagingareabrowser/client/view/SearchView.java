@@ -50,6 +50,8 @@ public class SearchView extends AbstractView {
 
     private ContentPanel leftPanel;
 
+    private ContentPanel centerPanel;
+
     private ContentPanel rightPanel;
 
     private ComboBox<BaseModel> entityCombo;
@@ -67,6 +69,8 @@ public class SearchView extends AbstractView {
     private TextField<String> statusCodeField;
 
     private FieldSet fieldSet;
+
+    private FieldSet dateTimeFieldSet;
 
     private Button searchButton;
 
@@ -134,12 +138,18 @@ public class SearchView extends AbstractView {
         leftPanel.setHeaderVisible(false);
         leftPanel.setBodyBorder(false);
 
+        centerPanel = new ContentPanel();
+        centerPanel.setHeaderVisible(false);
+        centerPanel.setBodyBorder(false);
+
         rightPanel = new ContentPanel();
         rightPanel.setHeaderVisible(false);
         rightPanel.setBodyBorder(false);
 
         fieldSet = new FieldSet();
         fieldSet.setHeading(messages.status());
+        dateTimeFieldSet = new FieldSet();
+        dateTimeFieldSet.setHeading(messages.date_time_title());
 
         buttonPanel = new ContentPanel();
         buttonPanel.setHeaderVisible(false);
@@ -166,22 +176,29 @@ public class SearchView extends AbstractView {
         leftLayout.setLabelWidth(80);
         leftPanel.setLayout(leftLayout);
 
-        rightPanel.setLayout(new FormLayout());
-        FormLayout setLayout = new FormLayout();
-        setLayout.setLabelWidth(80);
-        fieldSet.setLayout(setLayout);
+        centerPanel.setLayout(new FormLayout());
+        FormLayout centerLayout = new FormLayout();
+        centerLayout.setLabelWidth(80);
+        fieldSet.setLayout(centerLayout);
 
         FormData formData = new FormData();
         formData.setMargins(new Margins(0, 0, 5, 0));
         leftPanel.add(entityCombo, formData);
         leftPanel.add(sourceField, formData);
         leftPanel.add(keyField, formData);
-        leftPanel.add(startDate, formData);
+
+        rightPanel.setLayout(new FormLayout());
+        FormLayout rightLayout = new FormLayout();
+        rightLayout.setLabelWidth(80);
+        dateTimeFieldSet.setLayout(rightLayout);
 
         fieldSet.add(stateCombo);
         fieldSet.add(statusCodeField);
-        rightPanel.add(fieldSet);
-        rightPanel.add(endDate, formData);
+        centerPanel.add(fieldSet);
+
+        dateTimeFieldSet.add(startDate);
+        dateTimeFieldSet.add(endDate);
+        rightPanel.add(dateTimeFieldSet);
 
         TableLayout buttonLayout = new TableLayout(3);
         buttonLayout.setWidth("100%"); //$NON-NLS-1$
@@ -198,7 +215,8 @@ public class SearchView extends AbstractView {
         td2.setHorizontalAlign(HorizontalAlignment.CENTER);
         buttonPanel.add(resetButton, td2);
 
-        hp.add(leftPanel, new HBoxLayoutData(10, 20, 0, 10));
+        hp.add(leftPanel, new HBoxLayoutData(10, 0, 0, 10));
+        hp.add(centerPanel, new HBoxLayoutData(5, 0, 0, 10));
         hp.add(rightPanel, new HBoxLayoutData(5, 0, 0, 10));
 
         mainPanel.add(hp, new RowData(1, -1));
