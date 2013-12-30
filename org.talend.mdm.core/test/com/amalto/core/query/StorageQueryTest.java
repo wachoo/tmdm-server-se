@@ -162,6 +162,12 @@ public class StorageQueryTest extends StorageTestCase {
                 + "    <Name>Product family #1</Name>\n" + "</ProductFamily>"));
         allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>2</Id>\n"
                 + "    <Name>Product family #2</Name>\n" + "</ProductFamily>"));
+        allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>3</Id>\n"
+                + "    <Name>test name3</Name>\n" + "</ProductFamily>"));
+        allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>4</Id>\n"
+                + "    <Name>test_name4</Name>\n" + "</ProductFamily>"));
+        allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>5</Id>\n"
+                + "    <Name>test name5</Name>\n" + "</ProductFamily>"));
         allRecords.add(factory.read("1", repository, store, "<Store>\n" + "    <Id>1</Id>\n" + "    <Name>Store #1</Name>\n"
                 + "</Store>"));
         allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
@@ -2963,6 +2969,69 @@ public class StorageQueryTest extends StorageTestCase {
             assertEquals(0, records.getCount());
         } finally {
             records.close();
+        }
+    }
+    
+    public void testContainsWithUnderscoreInSearchWords1() throws Exception {
+        UserQueryBuilder qb = from(productFamily).where(contains(productFamily.getField("Name"), "test"));
+
+        Select select = qb.getSelect();
+        assertNotNull(select);
+        Condition condition = select.getCondition();
+        assertNotNull(condition);
+        assertTrue(condition instanceof Compare);
+        Compare compareCondition = (Compare) condition;
+        Expression right = compareCondition.getRight();
+        assertTrue(right instanceof StringConstant);
+        assertEquals("test", ((StringConstant) right).getValue());
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+    
+    public void testContainsWithoutUnderscoreInSearchWords2() throws Exception {
+        UserQueryBuilder qb = from(productFamily).where(contains(productFamily.getField("Name"), "test name"));
+
+        Select select = qb.getSelect();
+        assertNotNull(select);
+        Condition condition = select.getCondition();
+        assertNotNull(condition);
+        assertTrue(condition instanceof Compare);
+        Compare compareCondition = (Compare) condition;
+        Expression right = compareCondition.getRight();
+        assertTrue(right instanceof StringConstant);
+        assertEquals("test name", ((StringConstant) right).getValue());
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+    
+    public void testContainsWithUnderscoreInSearchWords3() throws Exception {
+        UserQueryBuilder qb = from(productFamily).where(contains(productFamily.getField("Name"), "te*t_nam*"));
+
+        Select select = qb.getSelect();
+        assertNotNull(select);
+        Condition condition = select.getCondition();
+        assertNotNull(condition);
+        assertTrue(condition instanceof Compare);
+        Compare compareCondition = (Compare) condition;
+        Expression right = compareCondition.getRight();
+        assertTrue(right instanceof StringConstant);
+        assertEquals("te*t_nam*", ((StringConstant) right).getValue());
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
         }
     }
     
