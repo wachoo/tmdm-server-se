@@ -17,13 +17,27 @@ package com.amalto.webapp.core.util;
  */
 public class WebCoreException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
+    public static int INFO = 1;
+
+    public static int Error = 2;
+
     private String title;
 
     private boolean client;
 
+    private int level = 2;
+
     public WebCoreException(String title, Throwable cause) {
         super(cause);
         this.title = title;
+    }
+
+    public WebCoreException(String title, String message, int level) {
+        super(message);
+        this.title = title;
+        this.level = level;
     }
 
     /**
@@ -51,6 +65,15 @@ public class WebCoreException extends RuntimeException {
      */
     public void setClient(boolean client) {
         this.client = client;
+    }
+
+    /**
+     * Getter for level.
+     * 
+     * @return the level
+     */
+    public int getLevel() {
+        return this.level;
     }
 
 }
