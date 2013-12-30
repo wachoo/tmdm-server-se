@@ -119,7 +119,6 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
 
             Annotation analyzerAnnotation = new Annotation(Analyzer.class.getName(), cp);
             analyzerAnnotation.addMemberValue("impl", new ClassMemberValue(MDMStandardAnalyzer.class.getName(), cp)); //$NON-NLS-1$
-            //AnnotationsAttribute attribute = (AnnotationsAttribute) classFile.getAttribute(AnnotationsAttribute.visibleTag);
             annotationsAttribute.addAnnotation(analyzerAnnotation);
             classFile.addAttribute(annotationsAttribute);
             
