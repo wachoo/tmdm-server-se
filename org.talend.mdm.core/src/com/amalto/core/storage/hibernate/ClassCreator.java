@@ -116,8 +116,12 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(cp, AnnotationsAttribute.visibleTag);
             Annotation indexedAnnotation = new Annotation(Indexed.class.getName(), cp);
             annotationsAttribute.setAnnotation(indexedAnnotation);
-            classFile.addAttribute(annotationsAttribute);
 
+            Annotation analyzerAnnotation = new Annotation(Analyzer.class.getName(), cp);
+            analyzerAnnotation.addMemberValue("impl", new ClassMemberValue(MDMStandardAnalyzer.class.getName(), cp)); //$NON-NLS-1$
+            annotationsAttribute.addAnnotation(analyzerAnnotation);
+            classFile.addAttribute(annotationsAttribute);
+            
             Collection<FieldMetadata> keyFields = complexType.getKeyFields();
             // Composite id class.
             if (keyFields.size() > 1) {

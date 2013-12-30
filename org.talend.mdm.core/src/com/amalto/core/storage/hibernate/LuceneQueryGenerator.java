@@ -18,7 +18,6 @@ import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.KeywordAnalyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
@@ -318,7 +317,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         if (!caseSensitiveSearch) {
             return new KeywordAnalyzer();
         } else {
-            return new StandardAnalyzer(Version.LUCENE_29, Collections.emptySet());
+            return new MDMStandardAnalyzer(Version.LUCENE_29);
         }
     }
 
