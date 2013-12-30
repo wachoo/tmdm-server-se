@@ -87,7 +87,13 @@ public class WebSaverTest extends TestCase {
             } catch (RemoteException exception) {
                 WebCoreException webCoreException = (WebCoreException) exception.getCause();
                 assertEquals(titleList.get(i), webCoreException.getTitle());
-                assertEquals(messageList.get(i), webCoreException.getCause().getLocalizedMessage());
+                if (i == 0) {
+                    assertEquals(messageList.get(i), webCoreException.getLocalizedMessage());
+                    assertEquals(WebCoreException.INFO, webCoreException.getLevel());
+                } else {
+                    assertEquals(messageList.get(i), webCoreException.getCause().getLocalizedMessage());
+                    assertEquals(WebCoreException.Error, webCoreException.getLevel());
+                }
             }
         }
     }

@@ -1765,10 +1765,15 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (webCoreException.isClient()) {
                     throw new ServiceException(errorMessage);
                 }
+                if (webCoreException.getLevel() == WebCoreException.INFO) {
+                    LOG.info(errorMessage);
+                } else {
+                    LOG.error(errorMessage, exception);
+                }
             } else {
                 errorMessage = exception.getLocalizedMessage();
+                LOG.error(errorMessage, exception);
             }
-            LOG.error(errorMessage, exception);
             return new ItemResult(ItemResult.FAILURE, errorMessage);
         }
     }
@@ -2334,6 +2339,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         String localizedMessage = ""; //$NON-NLS-1$
         if (webCoreException.getCause() != null && webCoreException.getCause().getLocalizedMessage() != null) {
             localizedMessage = webCoreException.getCause().getLocalizedMessage();
+        } else {
+            localizedMessage = webCoreException.getLocalizedMessage();
         }
         String errorMessage = MESSAGES.getMessage(locale, webCoreException.getTitle(), concept
                 + ((ids != null && !"".equals(ids)) ? "." + ids : ""), localizedMessage); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

@@ -16,6 +16,8 @@ import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+
 import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
@@ -29,7 +31,6 @@ import com.amalto.core.util.RoutingException;
 import com.amalto.core.util.ValidateException;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItemWithReport;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 /**
  * DOC talend2 class global comment. Detailled comment
@@ -41,7 +42,7 @@ public class WebSaver {
 
     // don't exist job was called
     public static final String JOBNOTFOUND_EXCEPTION_MESSAGE = "save_failure_job_notfound"; //$NON-NLS-1$
-    
+
     // don't exist job was called
     public static final String JOBOX_EXCEPTION_MESSAGE = "save_failure_job_ox"; //$NON-NLS-1$
 
@@ -55,10 +56,10 @@ public class WebSaver {
 
     // define beforesaving report xml format error in studio
     public static final String BEFORESAVING_FORMATE_ERROR_MESSAGE = "save_failure_beforesaving_format_error"; //$NON-NLS-1$ 
-    
+
     // define trigger to excute process error in studio
     public static final String ROUTING_ERROR_MESSAGE = "save_success_rounting_fail"; //$NON-NLS-1$
-    
+
     public static final String OUTPUT_REPORT_MISSING_ERROR_MESSAGE = "output_report_missing"; //$NON-NLS-1$
 
     String dataClusterName;
@@ -101,8 +102,7 @@ public class WebSaver {
                 new ByteArrayInputStream(xmlString.getBytes("UTF-8")), //$NON-NLS-1$
                 isReplace, true, // Always validate
                 true, // Always generate an update report
-                beforeSaving,
-                XSystemObjects.DC_PROVISIONING.getName().equals(dataClusterName));
+                beforeSaving, XSystemObjects.DC_PROVISIONING.getName().equals(dataClusterName));
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         return saver;
@@ -110,10 +110,10 @@ public class WebSaver {
 
     public static RemoteException handleException(Throwable throwable) {
         WebCoreException webCoreException;
-        if (WebCoreException.class.isInstance(throwable)) { 
+        if (WebCoreException.class.isInstance(throwable)) {
             webCoreException = (WebCoreException) throwable;
         } else if (ValidateException.class.isInstance(throwable)) {
-            webCoreException = new WebCoreException(VALIDATE_EXCEPTION_MESSAGE, throwable);
+            webCoreException = new WebCoreException(VALIDATE_EXCEPTION_MESSAGE, throwable.getMessage(), WebCoreException.INFO);
         } else if (CVCException.class.isInstance(throwable)) {
             webCoreException = new WebCoreException(CVC_EXCEPTION_MESSAGE, throwable);
         } else if (JobNotFoundException.class.isInstance(throwable)) {
@@ -122,8 +122,7 @@ public class WebSaver {
             webCoreException = new WebCoreException(JOBOX_EXCEPTION_MESSAGE, throwable);
         } else if (BeforeSavingErrorException.class.isInstance(throwable)) {
             webCoreException = new WebCoreException(SAVE_PROCESS_BEFORESAVING_FAILURE_MESSAGE, throwable);
-        }            
-        else if (BeforeSavingFormatException.class.isInstance(throwable)) {
+        } else if (BeforeSavingFormatException.class.isInstance(throwable)) {
             webCoreException = new WebCoreException(BEFORESAVING_FORMATE_ERROR_MESSAGE, throwable);
             webCoreException.setClient(true);
         } else if (OutputReportMissingException.class.isInstance(throwable)) {
