@@ -269,7 +269,7 @@ public class ForeignKeyHelper {
             value = value == null ? "" : value; //$NON-NLS-1$
 
             // build query - add a content condition on the pivot if we search for a particular value
-            if (value != null && !"".equals(value.trim()) && !".*".equals(value.trim())) { //$NON-NLS-1$ //$NON-NLS-2$
+            if (value != null && !"".equals(value.trim()) && !".*".equals(value.trim()) && !"'*'".equals(value.trim())) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
                 if (whereItem != null) {
                     condition.add(whereItem);
