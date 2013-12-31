@@ -22,6 +22,7 @@ import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.model.MultiLanguageModel;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
+import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
@@ -78,7 +79,6 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
-import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Element;
@@ -217,21 +217,23 @@ public class ForeignKeyListWindow extends Window {
                 }
                 baseConfig.set("language", Locale.getLanguage()); //$NON-NLS-1$
                 service.getForeignKeyList(baseConfig, typeModel, BrowseRecords.getSession().getAppHeader().getDatacluster(),
-                        hasForeignKeyFilter, currentFilterText,Locale.getLanguage(),
+                        hasForeignKeyFilter, currentFilterText, Locale.getLanguage(),
                         new SessionAwareAsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
 
                             @Override
                             protected void doOnFailure(Throwable caught) {
                                 String err = caught.getMessage();
-                                if (err != null) {                                
+                                if (err != null) {
                                     MessageBox.alert(MessagesFactory.getMessages().error_title(),
                                             MultilanguageMessageParser.pickOutISOMessage(err), null);
-                                    callback.onSuccess(new BasePagingLoadResult<ForeignKeyBean>(new ArrayList<ForeignKeyBean>(),0,0));
+                                    callback.onSuccess(new BasePagingLoadResult<ForeignKeyBean>(new ArrayList<ForeignKeyBean>(),
+                                            0, 0));
                                 } else {
                                     callback.onFailure(caught);
                                 }
                             }
 
+                            @Override
                             public void onSuccess(ItemBasePageLoadResult<ForeignKeyBean> result) {
                                 isPagingAccurate = result.isPagingAccurate();
                                 if (currentFilterText.equals(getFilterValue())) {
@@ -257,6 +259,7 @@ public class ForeignKeyListWindow extends Window {
                                 callback.onFailure(caught);
                             }
 
+                            @Override
                             public void onSuccess(List<Restriction> result) {
                                 List<BaseModel> list = new ArrayList<BaseModel>();
                                 for (Restriction re : result) {
@@ -285,6 +288,7 @@ public class ForeignKeyListWindow extends Window {
 
         filter.addListener(Events.KeyUp, new Listener<FieldEvent>() {
 
+            @Override
             public void handleEvent(FieldEvent be) {
                 if (be.getKeyCode() == KeyCodes.KEY_UP) {
                     ForeignKeyBean fkBean = relatedRecordGrid.getSelectionModel().getSelectedItem();
@@ -383,7 +387,7 @@ public class ForeignKeyListWindow extends Window {
 
         List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
         // build columns by specify store
-        final PagingToolBar pageToolBar = new PagingToolBar(pageSize) {
+        final PagingToolBarEx pageToolBar = new PagingToolBarEx(pageSize) {
 
             @Override
             protected void onLoad(LoadEvent event) {
@@ -411,6 +415,7 @@ public class ForeignKeyListWindow extends Window {
 
                     columnConfig.setRenderer(new GridCellRenderer<ForeignKeyBean>() {
 
+                        @Override
                         public Object render(final ForeignKeyBean fkBean, String property, ColumnData config, int rowIndex,
                                 int colIndex, ListStore<ForeignKeyBean> store, Grid<ForeignKeyBean> grid) {
                             String multiLanguageString = (String) fkBean.get(property);
@@ -437,6 +442,7 @@ public class ForeignKeyListWindow extends Window {
             final String fkInfo = typeModel.getForeignKeyInfo().get(0);
             columnConfig.setRenderer(new GridCellRenderer<ForeignKeyBean>() {
 
+                @Override
                 public Object render(final ForeignKeyBean fkBean, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ForeignKeyBean> store, Grid<ForeignKeyBean> grid) {
                     String result = ""; //$NON-NLS-1$
@@ -465,6 +471,7 @@ public class ForeignKeyListWindow extends Window {
         relatedRecordGrid.setStateId("relatedRecordGrid"); //$NON-NLS-1$
         relatedRecordGrid.addListener(Events.Attach, new Listener<GridEvent<ForeignKeyBean>>() {
 
+            @Override
             public void handleEvent(GridEvent<ForeignKeyBean> be) {
                 config.setOffset(0);
                 config.setLimit(pageSize);
@@ -474,6 +481,7 @@ public class ForeignKeyListWindow extends Window {
 
         relatedRecordGrid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ForeignKeyBean>>() {
 
+            @Override
             public void handleEvent(final GridEvent<ForeignKeyBean> be) {
                 ForeignKeyBean fkBean = be.getModel();
                 fkBean.setForeignKeyPath(xPath);
