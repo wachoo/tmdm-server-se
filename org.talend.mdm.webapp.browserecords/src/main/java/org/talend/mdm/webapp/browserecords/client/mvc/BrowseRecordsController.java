@@ -144,14 +144,23 @@ public class BrowseRecordsController extends Controller {
                         }
                     }
 
+                    @Override
                     public void onSuccess(ItemResult result) {
                         itemBean.setLastUpdateTime(result);
                         progressBar.close();
                         MessageBox msgBox = null;
                         if (result.getStatus() == ItemResult.FAILURE) {
-                            MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                    "".equals(MultilanguageMessageParser.pickOutISOMessage(result.getDescription())) ? MessagesFactory.getMessages().output_report_null() : MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null).setIcon( //$NON-NLS-1$
-                                    MessageBox.ERROR);
+                            MessageBox
+                                    .alert(MessagesFactory.getMessages().error_title(),
+                                            "".equals(MultilanguageMessageParser.pickOutISOMessage(result.getDescription())) ? MessagesFactory.getMessages().output_report_null() : MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null).setIcon( //$NON-NLS-1$
+                                            MessageBox.ERROR);
+                            return;
+                        }
+                        if (result.getStatus() == ItemResult.WARNING) {
+                            MessageBox
+                                    .alert(MessagesFactory.getMessages().warning_title(),
+                                            "".equals(MultilanguageMessageParser.pickOutISOMessage(result.getDescription())) ? MessagesFactory.getMessages().output_report_null() : MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null).setIcon( //$NON-NLS-1$
+                                            MessageBox.WARNING);
                             return;
                         }
                         if (result.getDescription() != "") { //$NON-NLS-1$
@@ -203,7 +212,7 @@ public class BrowseRecordsController extends Controller {
                         // TMDM-4112 : JavaScript Error on IE8
                         if (detailToolBar.isHierarchyCall()) {
                             CallbackAction.getInstance().doAction(CallbackAction.HIERARCHY_SAVEITEM_CALLBACK,
-                                    viewBean.getBindingEntityModel().getConceptName(), result.getReturnValue(),isClose);
+                                    viewBean.getBindingEntityModel().getConceptName(), result.getReturnValue(), isClose);
                         }
                     }
                 });
@@ -222,6 +231,7 @@ public class BrowseRecordsController extends Controller {
         final ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
         service.getForeignKeyModel(concept, ids, Locale.getLanguage(), new SessionAwareAsyncCallback<ForeignKeyModel>() {
 
+            @Override
             public void onSuccess(ForeignKeyModel fkModel) {
                 AppEvent ae = new AppEvent(event.getType(), fkModel);
                 ae.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, detailPanel);
@@ -235,6 +245,7 @@ public class BrowseRecordsController extends Controller {
         String concept = event.getData().toString();
         service.getEntityModel(concept, Locale.getLanguage(), new SessionAwareAsyncCallback<EntityModel>() {
 
+            @Override
             public void onSuccess(EntityModel entityModel) {
                 AppEvent ae = new AppEvent(event.getType(), entityModel);
                 ae.setSource(event.getSource());
@@ -255,6 +266,7 @@ public class BrowseRecordsController extends Controller {
             service.getItem(item, viewbean.getViewPK(), entityModel, Locale.getLanguage(),
                     new SessionAwareAsyncCallback<ItemBean>() {
 
+                        @Override
                         public void onSuccess(ItemBean result) {
                             AppEvent ae = new AppEvent(event.getType(), result);
                             String itemsFormTarget = event.getData(BrowseRecordsView.ITEMS_FORM_TARGET);
@@ -272,6 +284,7 @@ public class BrowseRecordsController extends Controller {
         final ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
         service.getView(viewFkName, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() {
 
+            @Override
             public void onSuccess(ViewBean viewBean) {
                 // forward
                 AppEvent ae = new AppEvent(event.getType(), viewBean);
@@ -287,6 +300,7 @@ public class BrowseRecordsController extends Controller {
         String viewName = event.getData();
         service.getView(viewName, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() {
 
+            @Override
             public void onSuccess(ViewBean viewbean) {
 
                 // Init CURRENT_VIEW
@@ -327,6 +341,7 @@ public class BrowseRecordsController extends Controller {
                     (new ItemTreeHandler(model, viewBean, ItemTreeHandlingStatus.InUse)).serializeItem(),
                     new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
+                        @Override
                         public void onSuccess(List<VisibleRuleResult> arg0) {
                             AppEvent app = new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule);
                             app.setData(arg0);
