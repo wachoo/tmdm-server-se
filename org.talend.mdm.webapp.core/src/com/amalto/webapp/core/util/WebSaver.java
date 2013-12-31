@@ -28,6 +28,7 @@ import com.amalto.core.util.BeforeSavingFormatException;
 import com.amalto.core.util.CVCException;
 import com.amalto.core.util.OutputReportMissingException;
 import com.amalto.core.util.RoutingException;
+import com.amalto.core.util.SchematronValidateException;
 import com.amalto.core.util.ValidateException;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItemWithReport;
@@ -83,8 +84,8 @@ public class WebSaver {
         String xmlString = wsPutItemWithReport.getWsPutItem().getXmlString();
         boolean isUpdate = wsPutItemWithReport.getWsPutItem().getIsUpdate();
         try {
-            saver = this.saveItemWithReport(xmlString, session, !isUpdate, dataClusterName, dataModelName,
-                    wsPutItemWithReport.getSource(), wsPutItemWithReport.getInvokeBeforeSaving());
+            saver = this.saveItemWithReport(xmlString, !isUpdate, wsPutItemWithReport.getSource(),
+                    wsPutItemWithReport.getInvokeBeforeSaving());
             wsPutItemWithReport.setSource(saver.getBeforeSavingMessage());
             session.end();
             String[] savedId = saver.getSavedId();
@@ -95,8 +96,8 @@ public class WebSaver {
         }
     }
 
-    protected DocumentSaver saveItemWithReport(String xmlString, SaverSession session, boolean isReplace, String dataClusterName,
-            String dataModelName, String changeSource, boolean beforeSaving) throws UnsupportedEncodingException {
+    protected DocumentSaver saveItemWithReport(String xmlString, boolean isReplace, String changeSource, boolean beforeSaving)
+            throws UnsupportedEncodingException {
         SaverContextFactory contextFactory = session.getContextFactory();
         DocumentSaverContext context = contextFactory.create(dataClusterName, dataModelName, changeSource,
                 new ByteArrayInputStream(xmlString.getBytes("UTF-8")), //$NON-NLS-1$
@@ -113,6 +114,8 @@ public class WebSaver {
         if (WebCoreException.class.isInstance(throwable)) {
             webCoreException = (WebCoreException) throwable;
         } else if (ValidateException.class.isInstance(throwable)) {
+            webCoreException = new WebCoreException(VALIDATE_EXCEPTION_MESSAGE, throwable);
+        } else if (SchematronValidateException.class.isInstance(throwable)) {
             webCoreException = new WebCoreException(VALIDATE_EXCEPTION_MESSAGE, throwable.getMessage(), WebCoreException.INFO);
         } else if (CVCException.class.isInstance(throwable)) {
             webCoreException = new WebCoreException(CVC_EXCEPTION_MESSAGE, throwable);

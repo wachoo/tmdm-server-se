@@ -9,13 +9,13 @@ import junit.framework.TestCase;
 
 import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.save.SaveException;
-import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.util.BeforeSavingErrorException;
 import com.amalto.core.util.BeforeSavingFormatException;
 import com.amalto.core.util.CVCException;
 import com.amalto.core.util.OutputReportMissingException;
 import com.amalto.core.util.RoutingException;
+import com.amalto.core.util.SchematronValidateException;
 import com.amalto.core.util.ValidateException;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
@@ -27,11 +27,11 @@ import com.amalto.webapp.util.webservices.WSPutItemWithReport;
  */
 public class WebSaverTest extends TestCase {
 
-    List exceptionList = new ArrayList();
+    List<RuntimeException> exceptionList = new ArrayList<RuntimeException>();
 
-    List titleList = new ArrayList();
+    List<String> titleList = new ArrayList<String>();
 
-    List messageList = new ArrayList();
+    List<String> messageList = new ArrayList<String>();
 
     RuntimeException currentException;
 
@@ -40,6 +40,7 @@ public class WebSaverTest extends TestCase {
     public void init() {
 
         saver = new TestWebSaver();
+        exceptionList.add(new RuntimeException(new SchematronValidateException("SchematronValidateException"))); //$NON-NLS-1$
         exceptionList.add(new RuntimeException(new ValidateException("ValidateException"))); //$NON-NLS-1$
         exceptionList.add(new RuntimeException(new CVCException("CVCException"))); //$NON-NLS-1$
         exceptionList.add(new RuntimeException(new JobNotFoundException("job", "0.1"))); //$NON-NLS-1$ //$NON-NLS-2$       
@@ -50,9 +51,10 @@ public class WebSaverTest extends TestCase {
 
         // beforesaving exception
         BeforeSavingErrorException beforesavingException = new BeforeSavingErrorException("Error beforesaving"); //$NON-NLS-1$
-        SaveException saveException = new SaveException("beforesaing xml", beforesavingException);
+        SaveException saveException = new SaveException("beforesaing xml", beforesavingException); //$NON-NLS-1$
         exceptionList.add(saveException);
 
+        titleList.add(WebSaver.VALIDATE_EXCEPTION_MESSAGE);
         titleList.add(WebSaver.VALIDATE_EXCEPTION_MESSAGE);
         titleList.add(WebSaver.CVC_EXCEPTION_MESSAGE);
         titleList.add(WebSaver.JOBNOTFOUND_EXCEPTION_MESSAGE);
@@ -62,6 +64,7 @@ public class WebSaverTest extends TestCase {
         titleList.add(WebSaver.JOBOX_EXCEPTION_MESSAGE);
         titleList.add(WebSaver.SAVE_PROCESS_BEFORESAVING_FAILURE_MESSAGE);
 
+        messageList.add("SchematronValidateException"); //$NON-NLS-1$
         messageList.add("ValidateException"); //$NON-NLS-1$
         messageList.add("CVCException"); //$NON-NLS-1$
         messageList.add("job 0.1"); //$NON-NLS-1$
@@ -81,7 +84,7 @@ public class WebSaverTest extends TestCase {
 
         // testing catch Exception
         for (int i = 0; i < exceptionList.size(); i++) {
-            currentException = (RuntimeException) exceptionList.get(i);
+            currentException = exceptionList.get(i);
             try {
                 saver.saveItemWithReport(wsPutItemWithReport);
             } catch (RemoteException exception) {
@@ -105,8 +108,7 @@ public class WebSaverTest extends TestCase {
         }
 
         @Override
-        protected DocumentSaver saveItemWithReport(String xmlString, SaverSession session, boolean isReplace,
-                String dataClusterName, String dataModelName, String changeSource, boolean beforeSaving)
+        protected DocumentSaver saveItemWithReport(String xmlString, boolean isReplace, String changeSource, boolean beforeSaving)
                 throws UnsupportedEncodingException {
             throw currentException;
         }
