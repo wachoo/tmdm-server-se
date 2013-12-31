@@ -298,6 +298,33 @@ public class ForeignKeyHelperTest extends TestCase {
 
     }
     
+    public void testGetForeignKeyHolder_given_userInputAs_starWildcard_only_shouldReturn_null_for_WhereItem() throws Exception {
+
+        TypeModel model = new SimpleTypeModel("family", DataTypeConstants.STRING); //$NON-NLS-1$
+        model.setForeignkey("ProductFamily/Id"); //$NON-NLS-1$
+        List<String> foreignKeyInfos = new ArrayList<String>();
+        foreignKeyInfos.add("ProductFamily/Name"); //$NON-NLS-1$
+        model.setForeignKeyInfo(foreignKeyInfos);
+        model.setRetrieveFKinfos(true);
+        model.setXpath("Product/Family"); //$NON-NLS-1$
+        boolean ifFKFilter = false;
+        String value = "'*'"; //$NON-NLS-1$
+        String xml = null;
+        String dataCluster = "Product";
+        String currentXpath = "Product/Family";
+
+        InputStream stream = getClass().getResourceAsStream("product.xsd");
+        String xsd = inputStream2String(stream);
+        
+        ForeignKeyHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID("Product", null)));
+        
+        // ForeignKeyInfo = ProductFamily/Name, user user "*" as only filter value
+        ForeignKeyHelper.ForeignKeyHolder result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model,
+                ifFKFilter, value);
+        WSWhereItem whereItem = result.whereItem;
+        assertNull(whereItem);
+    }
+    
     private String inputStream2String(InputStream is) {
 
         BufferedReader in = new BufferedReader(new InputStreamReader(is));
