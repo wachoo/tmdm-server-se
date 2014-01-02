@@ -29,8 +29,6 @@ public class ItemResult implements IsSerializable, Serializable {
 
     public static final int UNCHANGED = 2;
 
-    public static final int WARNING = 3;
-
     private int status;
 
     private long insertionTime;

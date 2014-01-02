@@ -1759,7 +1759,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language), e.getMessage(), e.getArgs()));
         } catch (Exception exception) {
             String errorMessage;
-            int itemResult = ItemResult.FAILURE;
             if (WebCoreException.class.isInstance(exception.getCause())) {
                 WebCoreException webCoreException = (WebCoreException) exception.getCause();
                 errorMessage = getErrorMessageFromWebCoreException(webCoreException, concept, ids, locale);
@@ -1768,7 +1767,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
                 if (webCoreException.getLevel() == WebCoreException.INFO) {
                     LOG.info(errorMessage);
-                    itemResult = ItemResult.WARNING;
                 } else {
                     LOG.error(errorMessage, exception);
                 }
@@ -1776,7 +1774,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 errorMessage = exception.getLocalizedMessage();
                 LOG.error(errorMessage, exception);
             }
-            return new ItemResult(itemResult, errorMessage);
+            return new ItemResult(ItemResult.FAILURE, errorMessage);
         }
     }
 
