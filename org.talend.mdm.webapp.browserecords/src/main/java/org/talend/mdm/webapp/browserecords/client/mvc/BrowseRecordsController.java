@@ -156,13 +156,6 @@ public class BrowseRecordsController extends Controller {
                                             MessageBox.ERROR);
                             return;
                         }
-                        if (result.getStatus() == ItemResult.WARNING) {
-                            MessageBox
-                                    .alert(MessagesFactory.getMessages().warning_title(),
-                                            "".equals(MultilanguageMessageParser.pickOutISOMessage(result.getDescription())) ? MessagesFactory.getMessages().output_report_null() : MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null).setIcon( //$NON-NLS-1$
-                                            MessageBox.WARNING);
-                            return;
-                        }
                         if (result.getDescription() != "") { //$NON-NLS-1$
                             msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(),
                                     MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null);
