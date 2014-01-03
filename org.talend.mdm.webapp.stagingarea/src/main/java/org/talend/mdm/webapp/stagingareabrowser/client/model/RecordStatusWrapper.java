@@ -34,22 +34,23 @@ public class RecordStatusWrapper implements IsSerializable {
     }
 
     private void checkStatus(RecordStatus status) {
-        if (status == null)
+        if (status == null) {
             throw new IllegalArgumentException("Record status can be empty! "); //$NON-NLS-1$
+        }
 
-        if (status.equals(RecordStatus.SUCCESS) 
-                || status.equals(RecordStatus.SUCCESS_IDENTIFIED_CLUSTERS)
+        if (status.equals(RecordStatus.SUCCESS) || status.equals(RecordStatus.SUCCESS_IDENTIFIED_CLUSTERS)
                 || status.equals(RecordStatus.SUCCESS_MERGE_CLUSTERS)
                 || status.equals(RecordStatus.SUCCESS_MERGE_CLUSTER_TO_RESOLVE)
-                || status.equals(RecordStatus.SUCCESS_MERGED_RECORD)
-                || status.equals(RecordStatus.SUCCESS_VALIDATE)) {
+                || status.equals(RecordStatus.SUCCESS_MERGED_RECORD) || status.equals(RecordStatus.SUCCESS_VALIDATE)) {
             isValid = true;
             icon = Resources.ICONS.statusValid();
             color = "green"; //$NON-NLS-1$
-        } else if (status.equals(RecordStatus.FAIL) 
-                || status.equals(RecordStatus.FAIL_IDENTIFIED_CLUSTERS)
-                || status.equals(RecordStatus.FAIL_MERGE_CLUSTERS)
-                || status.equals(RecordStatus.FAIL_VALIDATE_VALIDATION)
+        } else if (status.equals(RecordStatus.SUCCESS_DELETED)) {
+            isValid = true;
+            icon = Resources.ICONS.statusDeleted();
+            color = "red"; //$NON-NLS-1$
+        } else if (status.equals(RecordStatus.FAIL) || status.equals(RecordStatus.FAIL_IDENTIFIED_CLUSTERS)
+                || status.equals(RecordStatus.FAIL_MERGE_CLUSTERS) || status.equals(RecordStatus.FAIL_VALIDATE_VALIDATION)
                 || status.equals(RecordStatus.FAIL_VALIDATE_CONSTRAINTS)) {
             isValid = false;
             icon = Resources.ICONS.statusInvalid();

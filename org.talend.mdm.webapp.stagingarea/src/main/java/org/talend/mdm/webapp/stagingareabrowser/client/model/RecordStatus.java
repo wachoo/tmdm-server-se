@@ -15,7 +15,7 @@ package org.talend.mdm.webapp.stagingareabrowser.client.model;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public enum RecordStatus implements IsSerializable {
-    
+
     NEW(000),
     SUCCESS(200),
     SUCCESS_IDENTIFIED_CLUSTERS(201),
@@ -23,20 +23,20 @@ public enum RecordStatus implements IsSerializable {
     SUCCESS_MERGE_CLUSTER_TO_RESOLVE(203),
     SUCCESS_MERGED_RECORD(204),
     SUCCESS_VALIDATE(205),
+    SUCCESS_DELETED(206),
     FAIL(400),
     FAIL_IDENTIFIED_CLUSTERS(401),
     FAIL_MERGE_CLUSTERS(402),
     FAIL_VALIDATE_VALIDATION(403),
     FAIL_VALIDATE_CONSTRAINTS(404),
     UNKNOWN(999);
-    
+
     private int statusCode;
 
     RecordStatus(int statusCode) {
         this.statusCode = statusCode;
     }
 
-    
     public int getStatusCode() {
         return statusCode;
     }
@@ -58,6 +58,8 @@ public enum RecordStatus implements IsSerializable {
             return SUCCESS_MERGED_RECORD;
         case 205:
             return SUCCESS_VALIDATE;
+        case 206:
+            return SUCCESS_DELETED;
         case 400:
             return FAIL;
         case 401:
@@ -72,8 +74,6 @@ public enum RecordStatus implements IsSerializable {
             return UNKNOWN;
         }
 
-
     }
-
 
 }

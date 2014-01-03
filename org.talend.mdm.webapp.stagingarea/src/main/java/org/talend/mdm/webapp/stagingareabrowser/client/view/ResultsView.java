@@ -117,13 +117,12 @@ public class ResultsView extends AbstractView {
                 RecordStatusWrapper wrapper = new RecordStatusWrapper(RecordStatus.newStatus(model.getStatus().intValue()));
 
                 String color = wrapper.getColor();
-                Image icon = new Image(wrapper.getIcon());
 
                 if (color != null) {
                     g.getElement().getStyle().setColor(color);
                 }
-                if (icon != null) {
-                    g.setWidget(0, 0, icon);
+                if (wrapper.getIcon() != null) {
+                    g.setWidget(0, 0, new Image(wrapper.getIcon()));
                 }
                 g.setText(0, 1, Integer.toString(model.getStatus()));
                 g.setTitle(model.getStatus()

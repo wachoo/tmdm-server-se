@@ -45,6 +45,7 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
 
     private static final Logger LOG = Logger.getLogger(StagingAreaBrowseAction.class);
 
+    @Override
     public List<BaseModel> getConcepts(String language) throws ServiceException {
         try {
             String model = getCurrentDataModel();
@@ -95,17 +96,27 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
         Integer state = searchModel.getState();
         if (state != null) {
             WSWhereItem stateWhere = null;
+            WSWhereItem stateWhereAnd = null;
             if (state.equals(SearchView.INVALID_RECORDS)) {
                 stateWhere = new WSWhereItem();
                 stateWhere.setWhereCondition(new WSWhereCondition(searchModel.getEntity() + "/$staging_status$", //$NON-NLS-1$
                         WSWhereOperator.GREATER_THAN_OR_EQUAL, "400", WSStringPredicate.NONE, false)); //$NON-NLS-1$
+                stateWhereAnd = new WSWhereItem();
+                stateWhereAnd.setWhereCondition(new WSWhereCondition(searchModel.getEntity() + "/$staging_status$", //$NON-NLS-1$
+                        WSWhereOperator.LOWER_THAN_OR_EQUAL, "404", WSStringPredicate.NONE, false)); //$NON-NLS-1$
             } else if (state.equals(SearchView.VALID_RECORDS)) {
                 stateWhere = new WSWhereItem();
                 stateWhere.setWhereCondition(new WSWhereCondition(searchModel.getEntity() + "/$staging_status$", //$NON-NLS-1$
-                        WSWhereOperator.LOWER_THAN, "400", WSStringPredicate.NONE, false)); //$NON-NLS-1$
+                        WSWhereOperator.GREATER_THAN_OR_EQUAL, "200", WSStringPredicate.NONE, false)); //$NON-NLS-1$
+                stateWhereAnd = new WSWhereItem();
+                stateWhereAnd.setWhereCondition(new WSWhereCondition(searchModel.getEntity() + "/$staging_status$", //$NON-NLS-1$
+                        WSWhereOperator.LOWER_THAN_OR_EQUAL, "205", WSStringPredicate.NONE, false)); //$NON-NLS-1$
             }
             if (stateWhere != null) {
                 whereItems.add(stateWhere);
+            }
+            if (stateWhereAnd != null) {
+                whereItems.add(stateWhereAnd);
             }
         }
 
@@ -131,6 +142,7 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
         return whereItem;
     }
 
+    @Override
     public PagingLoadResult<ResultItem> searchStaging(SearchModel searchModel) throws ServiceException {
         int totalSize = 0;
         List<ResultItem> items = new ArrayList<ResultItem>();
@@ -170,7 +182,9 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
                 String status = Util.getFirstTextNode(doc, "/result/staging_status"); //$NON-NLS-1$
                 String error = Util.getFirstTextNode(doc, "/result/staging_error"); //$NON-NLS-1$
                 String taskId = Util.getFirstTextNode(doc, "/result/taskId"); //$NON-NLS-1$
-                if (taskId == null || taskId.equals("null"))taskId = "";//$NON-NLS-1$//$NON-NLS-2$
+                if (taskId == null || taskId.equals("null")) {
+                    taskId = "";//$NON-NLS-1$//$NON-NLS-2$
+                }
                 ResultItem item = new ResultItem();
                 item.setKey(Util.joinStrings(key, ".")); //$NON-NLS-1$
                 item.setEntity(searchModel.getEntity());
