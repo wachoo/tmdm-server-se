@@ -23,6 +23,8 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.compare.HibernateStorageImpactAnalyzer;
+import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -297,6 +299,11 @@ public class MetadataRepositoryTaskTest extends TestCase {
         @Override
         public StorageType getType() {
             return null;
+        }
+
+        @Override
+        public ImpactAnalyzer getImpactAnalyzer() {
+            return new HibernateStorageImpactAnalyzer();
         }
 
         /*

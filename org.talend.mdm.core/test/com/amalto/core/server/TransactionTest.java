@@ -22,6 +22,8 @@ import com.amalto.core.storage.transaction.Transaction;
 import com.amalto.core.storage.transaction.TransactionManager;
 import junit.framework.TestCase;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.compare.HibernateStorageImpactAnalyzer;
+import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
 import java.util.Collections;
 import java.util.Set;
@@ -288,6 +290,11 @@ public class TransactionTest extends TestCase {
         @Override
         public StorageType getType() {
             return StorageType.MASTER;
+        }
+
+        @Override
+        public ImpactAnalyzer getImpactAnalyzer() {
+            return new HibernateStorageImpactAnalyzer();
         }
 
         private class MockStorageTransaction extends StorageTransaction {

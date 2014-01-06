@@ -1,5 +1,6 @@
 package com.amalto.core.objects.datamodel.ejb;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -8,6 +9,9 @@ import com.amalto.core.metadata.LongString;
 import com.amalto.core.query.user.Expression;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.compare.Change;
+import org.talend.mdm.commmon.metadata.compare.Compare;
+import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
@@ -26,6 +30,8 @@ public class DataModelPOJO extends ObjectPOJO{
     private static final Logger LOGGER = Logger.getLogger(DataModelPOJO.class);
 
     private static final Map<String, XSystemObjects> SYSTEM_OBJECTS = XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
+
+    private static final boolean ENABLE_MODEL_UPDATE_CHECKS = false; // TODO Temp: aimed to be enabled.
 
     private String name;
 
@@ -104,6 +110,7 @@ public class DataModelPOJO extends ObjectPOJO{
 
     @Override
     public ObjectPOJOPK store(String revisionID) throws XtentisException {
+        String previousSchema = getSchema();
         ObjectPOJOPK objectPK = super.store(revisionID);
         // TMDM-4621: Update operation has to be synchronous
         String updatedDataModelName = getPK().getUniqueId();
@@ -116,6 +123,21 @@ public class DataModelPOJO extends ObjectPOJO{
             if (storage != null) {
                 // Storage already exists so update it.
                 MetadataRepository repository = metadataRepositoryAdmin.get(updatedDataModelName);
+                // Check if data model update is possible without issues
+                if (ENABLE_MODEL_UPDATE_CHECKS) {
+                    Compare.DiffResults diffResults = Compare.compare(storage.getMetadataRepository(), repository);
+                    ImpactAnalyzer impactAnalyzer = storage.getImpactAnalyzer();
+                    Map<ImpactAnalyzer.Impact, List<Change>> impacts = impactAnalyzer.analyzeImpacts(diffResults);
+                    List<Change> changes = impacts.get(ImpactAnalyzer.Impact.HIGH);
+                    if (!changes.isEmpty()) {
+                        // Restore previous version
+                        setSchema(previousSchema);
+                        super.store(revisionID);
+                        throw new IllegalArgumentException("Can not update '" + updatedDataModelName
+                                + "': " + changes.size()
+                                + " changes cause storage issues.");
+                    }
+                }
                 Set<Expression> indexedExpressions = metadataRepositoryAdmin.getIndexedExpressions(updatedDataModelName);
                 storage.prepare(repository, indexedExpressions, true, false);
             } else {

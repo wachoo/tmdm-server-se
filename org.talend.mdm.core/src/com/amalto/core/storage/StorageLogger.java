@@ -19,6 +19,7 @@ import com.amalto.core.storage.transaction.StorageTransaction;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ConsoleDumpMetadataVisitor;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
 import java.util.Set;
 
@@ -178,5 +179,10 @@ public class StorageLogger implements Storage {
     @Override
     public StorageType getType() {
         return delegate.getType();
+    }
+
+    @Override
+    public ImpactAnalyzer getImpactAnalyzer() {
+        return delegate.getImpactAnalyzer();
     }
 }
