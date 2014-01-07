@@ -24,10 +24,7 @@ import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.Criteria;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
+import org.hibernate.*;
 import org.hibernate.criterion.*;
 import org.hibernate.impl.CriteriaImpl;
 import org.hibernate.sql.JoinFragment;
@@ -1003,7 +1000,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     } else {
                         Criterion current = null;
                         for (String fieldName : leftFieldCondition.criterionFieldNames) {
-                            Criterion newCriterion = eq(fieldName, compareValue);
+                            Criterion newCriterion = eq(fieldName, applyDatabaseType(leftFieldCondition, compareValue));
                             if (current == null) {
                                 current = newCriterion;
                             } else {
@@ -1024,10 +1021,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     } else {
                         value = "%"; //$NON-NLS-1$
                     }
-                    if (datasource.isCaseSensitiveSearch()) {
+                    Object databaseValue = applyDatabaseType(leftFieldCondition, value); // Converts to CLOB if needed
+                    if (datasource.isCaseSensitiveSearch() || !(databaseValue instanceof String)) { // Can't use ilike on CLOBs
                         Criterion current = null;
                         for (String fieldName : leftFieldCondition.criterionFieldNames) {
-                            Criterion newCriterion = like(fieldName, value);
+                            Criterion newCriterion = like(fieldName, databaseValue);
                             if (current == null) {
                                 current = newCriterion;
                             } else {
@@ -1038,7 +1036,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     } else {
                         Criterion current = null;
                         for (String fieldName : leftFieldCondition.criterionFieldNames) {
-                            Criterion newCriterion = ilike(fieldName, value, MatchMode.ANYWHERE);
+                            Criterion newCriterion = ilike(fieldName, databaseValue);
                             if (current == null) {
                                 current = newCriterion;
                             } else {
@@ -1048,8 +1046,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         return current;
                     }
                 } else if (predicate == Predicate.STARTS_WITH) {
-                    String value = compareValue + "%";
-                    if (datasource.isCaseSensitiveSearch()) {
+                    Object value = applyDatabaseType(leftFieldCondition, compareValue + "%"); //$NON-NLS-1$
+                    if (datasource.isCaseSensitiveSearch() || !(value instanceof String)) {
                         Criterion current = null;
                         for (String fieldName : leftFieldCondition.criterionFieldNames) {
                             Criterion newCriterion = like(fieldName, value);
@@ -1063,7 +1061,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     } else {
                         Criterion current = null;
                         for (String fieldName : leftFieldCondition.criterionFieldNames) {
-                            Criterion newCriterion = ilike(fieldName, value, MatchMode.START);
+                            Criterion newCriterion = ilike(fieldName, value);
                             if (current == null) {
                                 current = newCriterion;
                             } else {
@@ -1192,6 +1190,13 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 }
             }
         }
+    }
+
+    private Object applyDatabaseType(FieldCondition field, Object value) {
+        if ("clob".equals(field.fieldMetadata.getType().getData(TypeMapping.SQL_TYPE))) { //$NON-NLS-1$
+            return Hibernate.createClob(String.valueOf(value), session);
+        }
+        return value;
     }
 
     public static Criteria findCriteria(Criteria mainCriteria, Set<String> aliases) {
