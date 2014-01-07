@@ -16,6 +16,7 @@ import com.amalto.core.initdb.InitDBUtil;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.query.user.Expression;
+import com.amalto.core.storage.hibernate.TypeMappingStrategy;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import com.amalto.core.objects.menu.ejb.MenuEntryPOJO;
@@ -48,6 +49,8 @@ import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 public class SystemStorageTest extends TestCase {
 
@@ -198,6 +201,114 @@ public class SystemStorageTest extends TestCase {
             }
         }
         assertEquals(0, error);
+    }
+
+    public void testClobQuery() throws Exception {
+        LOG.info("Setting up MDM server environment...");
+        ServerContext.INSTANCE.get(new MockServerLifecycle());
+        LOG.info("MDM server environment set.");
+
+        LOG.info("Preparing storage for tests...");
+        HibernateStorage hibernateStorage = new HibernateStorage("MDM", StorageType.SYSTEM) {
+            @Override
+            protected TypeMappingStrategy getMappingStrategy() {
+                return TypeMappingStrategy.SCATTERED_CLOB;
+            }
+        };
+        Storage storage = new SecuredStorage(hibernateStorage, new SecuredStorage.UserDelegator() {
+            @Override
+            public boolean hide(FieldMetadata field) {
+                return false;
+            }
+
+            @Override
+            public boolean hide(ComplexTypeMetadata type) {
+                return false;
+            }
+        });
+        ClassRepository repository = buildRepository();
+        storage.init(getDatasource("RDBMS-1-NO-FT"));
+        storage.prepare(repository, Collections.<Expression>emptySet(), true, true);
+        LOG.info("Storage prepared.");
+        // Test CONTAINS
+        ComplexTypeMetadata type = repository.getComplexType("failed-routing-order-v2-pOJO");
+        UserQueryBuilder qb = from(type).where(contains(type.getField("message"), "test"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        // Test EQUALS
+        qb = from(type).where(eq(type.getField("message"), "test"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        // Test STARTS_WITH
+        qb = from(type).where(startsWith(type.getField("message"), "test"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testClobQueryWithFT() throws Exception {
+        LOG.info("Setting up MDM server environment...");
+        ServerContext.INSTANCE.get(new MockServerLifecycle());
+        LOG.info("MDM server environment set.");
+
+        LOG.info("Preparing storage for tests...");
+        HibernateStorage hibernateStorage = new HibernateStorage("MDM", StorageType.SYSTEM) {
+            @Override
+            protected TypeMappingStrategy getMappingStrategy() {
+                return TypeMappingStrategy.SCATTERED_CLOB;
+            }
+        };
+        Storage storage = new SecuredStorage(hibernateStorage, new SecuredStorage.UserDelegator() {
+            @Override
+            public boolean hide(FieldMetadata field) {
+                return false;
+            }
+
+            @Override
+            public boolean hide(ComplexTypeMetadata type) {
+                return false;
+            }
+        });
+        ClassRepository repository = buildRepository();
+        storage.init(getDatasource("H2-Default"));
+        storage.prepare(repository, Collections.<Expression>emptySet(), true, true);
+        LOG.info("Storage prepared.");
+        // Test CONTAINS
+        ComplexTypeMetadata type = repository.getComplexType("failed-routing-order-v2-pOJO");
+        UserQueryBuilder qb = from(type).where(contains(type.getField("message"), "test"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        // Test EQUALS
+        qb = from(type).where(eq(type.getField("message"), "test"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        // Test STARTS_WITH
+        qb = from(type).where(startsWith(type.getField("message"), "test"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
     }
 
     public void testStorageInitPopulate() throws Exception {

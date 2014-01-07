@@ -492,30 +492,36 @@ public class HibernateStorage implements Storage {
         }
     }
 
+    protected TypeMappingStrategy getMappingStrategy() {
+        switch (storageType) {
+            case SYSTEM:
+                switch (dataSource.getDialectName()) {
+                    case ORACLE_10G: // Oracle needs to store long string values to CLOBs.
+                        return TypeMappingStrategy.SCATTERED_CLOB;
+                    default:
+                        return TypeMappingStrategy.SCATTERED;
+                }
+            case MASTER:
+            case STAGING:
+                return TypeMappingStrategy.AUTO;
+            default:
+                throw new IllegalArgumentException("Storage type '" + storageType + "' is not supported.");
+        }
+    }
+
     public InternalRepository getTypeEnhancer() {
         if (typeMappingRepository == null) {
-            TypeMappingStrategy mappingStrategy;
+            TypeMappingStrategy mappingStrategy = getMappingStrategy();
+            mappingStrategy.setUseTechnicalFK(dataSource.generateTechnicalFK());
+            // TODO Not nice to setUseTechnicalFK, change this
             switch (storageType) {
                 case SYSTEM:
-                    switch (dataSource.getDialectName()) {
-                        case ORACLE_10G: // Oracle needs to store long string values to CLOBs.
-                            mappingStrategy = TypeMappingStrategy.SCATTERED_CLOB;
-                            break;
-                        default:
-                            mappingStrategy = TypeMappingStrategy.SCATTERED;
-                            break;
-                    }
-                    mappingStrategy.setUseTechnicalFK(dataSource.generateTechnicalFK());
                     typeMappingRepository = new SystemTypeMappingRepository(mappingStrategy);
                     break;
                 case MASTER:
-                    mappingStrategy = TypeMappingStrategy.AUTO;
-                    mappingStrategy.setUseTechnicalFK(dataSource.generateTechnicalFK());
                     typeMappingRepository = new UserTypeMappingRepository(mappingStrategy);
                     break;
                 case STAGING:
-                    mappingStrategy = TypeMappingStrategy.AUTO;
-                    mappingStrategy.setUseTechnicalFK(dataSource.generateTechnicalFK());
                     typeMappingRepository = new StagingTypeMappingRepository(mappingStrategy);
                     break;
                 default:

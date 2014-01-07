@@ -10,6 +10,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import org.hibernate.Hibernate;
 import static org.hibernate.criterion.Restrictions.*;
 
 import java.io.IOException;
@@ -767,7 +768,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         }
                         return makeAnd(keyValueCriteria);
                     } else {
-                        return eq(leftFieldCondition.criterionFieldName, compareValue);
+                        return eq(leftFieldCondition.criterionFieldName, applyDatabaseType(leftFieldCondition, compareValue));
                     }
                 } else if (predicate == Predicate.CONTAINS) {
                     String value = String.valueOf(compareValue);
@@ -781,17 +782,18 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     } else {
                         value = "%"; //$NON-NLS-1$
                     }
-                    if (datasource.isCaseSensitiveSearch()) {
-                        return like(leftFieldCondition.criterionFieldName, value);
+                    Object databaseValue = applyDatabaseType(leftFieldCondition, value); // Converts to CLOB if needed
+                    if (datasource.isCaseSensitiveSearch() || !(databaseValue instanceof String)) { // Can't use ilike on CLOBs
+                        return like(leftFieldCondition.criterionFieldName, databaseValue);
                     } else {
-                        return ilike(leftFieldCondition.criterionFieldName, value, MatchMode.ANYWHERE);
+                        return ilike(leftFieldCondition.criterionFieldName, databaseValue);
                     }
                 } else if (predicate == Predicate.STARTS_WITH) {
-                    String value = compareValue + "%";
-                    if (datasource.isCaseSensitiveSearch()) {
+                    Object value = applyDatabaseType(leftFieldCondition, compareValue + "%"); // Converts to CLOB if needed
+                    if (datasource.isCaseSensitiveSearch() || !(value instanceof String)) { // Can't use ilike on CLOBs
                         return like(leftFieldCondition.criterionFieldName, value);
                     } else {
-                        return ilike(leftFieldCondition.criterionFieldName, String.valueOf(value), MatchMode.START);
+                        return ilike(leftFieldCondition.criterionFieldName, value);
                     }
                 } else if (predicate == Predicate.GREATER_THAN) {
                     return gt(leftFieldCondition.criterionFieldName, compareValue);
@@ -827,6 +829,13 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 }
             }
         }
+    }
+
+    private Object applyDatabaseType(FieldCondition field, Object value) {
+        if (field.fieldMetadata != null && "clob".equals(field.fieldMetadata.getType().getData(TypeMapping.SQL_TYPE))) { //$NON-NLS-1$
+            return Hibernate.createClob(String.valueOf(value), session);
+        }
+        return value;
     }
 
     public static Criteria findCriteria(Criteria mainCriteria, String alias) {
