@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.journal.server;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -225,6 +226,47 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         } else {
             return true;
         }
+    }
+
+    @Override
+    public List<JournalGridModel> getJournalList(JournalGridModel journalGridModel) throws ServiceException {
+        String sortDir = "ASC"; //$NON-NLS-1$
+        JournalSearchCriteria criteria = new JournalSearchCriteria();
+        criteria.setEntity(journalGridModel.getEntity());
+        criteria.setKey(journalGridModel.getKey());
+        int start = 0;
+        int limit = 0;
+        String field = "TimeInMillis"; //$NON-NLS-1$
+
+        Object[] result = null;
+        try {
+            result = service.getResultListByCriteria(criteria, start, limit, sortDir, field);
+            @SuppressWarnings("unchecked")
+            List<JournalGridModel> resultList = (List<JournalGridModel>) result[1];
+            return extractPrevAndNextJounals(resultList, journalGridModel);
+        } catch (ServiceException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getMessage());
+        }
+    }
+
+    private List<JournalGridModel> extractPrevAndNextJounals(List<JournalGridModel> dataList, JournalGridModel journalGridModel) {
+        List<JournalGridModel> navigateContextList = new ArrayList<JournalGridModel>(2);
+
+        int index = 0;
+        for (int i = 0; i < dataList.size(); i++) {
+            if (journalGridModel.getOperationTime().equals(dataList.get(i).getOperationTime())) {
+                index = i;
+            }
+        }
+
+        navigateContextList.add(index == 0 ? null : dataList.get(index - 1));
+        navigateContextList.add(index == dataList.size() - 1 ? null : dataList.get(index + 1));
+
+        return navigateContextList;
     }
 
     private JournalSearchCriteria buildCriteria(String entity, String key, String source, String operationType, String startDate,

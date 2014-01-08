@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.client.widget;
 
+import java.util.List;
+
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.journal.client.Journal;
 import org.talend.mdm.webapp.journal.client.JournalServiceAsync;
@@ -42,6 +44,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 /**
@@ -56,6 +59,12 @@ public class JournalDataPanel extends FormPanel {
     private Button openRecordButton;
     
     private Button viewUpdateReportButton;
+
+    private List<JournalGridModel> journalNavigateList;
+    
+    private Button prevUpdateReportButton;
+
+    private Button nextUpdateReportButton;
     
     private TreePanel<JournalTreeModel> tree;
     
@@ -112,7 +121,37 @@ public class JournalDataPanel extends FormPanel {
             }
         });
 
+        prevUpdateReportButton = new Button(MessagesFactory.getMessages().prev_updatereport_button());
+        prevUpdateReportButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.prev()));        
+        prevUpdateReportButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                if (journalNavigateList.get(0) != null) {
+                    JournalDataPanel.this.closeHistoryTabPanel(JournalDataPanel.this.journalGridModel.getIds());
+                    JournalDataPanel.this.openTabPanel(journalNavigateList.get(0));
+                }
+            }
+        });
+
+        nextUpdateReportButton = new Button(MessagesFactory.getMessages().next_updatereport_button());
+        nextUpdateReportButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.next()));
+        nextUpdateReportButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                if (journalNavigateList.get(1) != null) {
+                    JournalDataPanel.this.closeHistoryTabPanel(JournalDataPanel.this.journalGridModel.getIds());
+                    JournalDataPanel.this.openTabPanel(journalNavigateList.get(1));
+                }
+            }
+        });
+
+        this.setJournalNavigateList();
+        
         this.addButton(viewUpdateReportButton);
+        this.addButton(prevUpdateReportButton);
+        this.addButton(nextUpdateReportButton);
         this.addButton(openRecordButton);
 
         treeWindow = new Window();
@@ -208,7 +247,107 @@ public class JournalDataPanel extends FormPanel {
 
     public String getHeadingString() {
         return MessagesFactory.getMessages().data_change_viewer();
+    }    
+
+    public void openTabPanel(final JournalGridModel gridModel) {
+        service.getDetailTreeModel(gridModel.getIds(), new SessionAwareAsyncCallback<JournalTreeModel>() {
+
+            @Override
+            public void onSuccess(final JournalTreeModel root) {
+                service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
+
+                    @Override
+                    public void onSuccess(Boolean isEnterprise) {
+                        if (GWT.isScript()) {
+                            JournalDataPanel.this.openGWTPanel(isEnterprise, gridModel, root);
+                        } else {
+                            JournalDataPanel.this.openDebugPanel(isEnterprise, gridModel, root);
+                        }
+                    }
+                });
+            }
+        });
     }
+
+    private void openGWTPanel(Boolean isEnterprise, JournalGridModel gridModel, JournalTreeModel root) {
+        if (isEnterprise) {
+            int width = JournalTabPanel.getInstance().getWidth() / 2 - 2;
+            JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, root.isAuth(), width);
+            this.openHistoryTabPanel(gridModel.getIds(), journalHistoryPanel);
+            journalHistoryPanel.getJournalDataPanel().getTree().setExpanded(root, true);
+        } else {
+            JournalDataPanel journalDataPanel = new JournalDataPanel(root, gridModel);
+            this.openDataTabPanel(gridModel.getIds(), journalDataPanel);
+            journalDataPanel.getTree().setExpanded(root, true);
+        }
+    }
+
+    private void openDebugPanel(Boolean isEnterprise, JournalGridModel gridModel, JournalTreeModel root) {
+        if (isEnterprise) {
+            JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, root.isAuth(), 550);
+            Window window = new Window();
+            window.setLayout(new FitLayout());
+            window.add(journalHistoryPanel);
+            window.setSize(1100, 700);
+            window.setMaximizable(true);
+            window.setModal(false);
+            window.show();
+            journalHistoryPanel.getJournalDataPanel().getTree().setExpanded(root, true);
+        } else {
+            JournalDataPanel journalDataPanel = new JournalDataPanel(root, gridModel);
+            Window window = new Window();
+            window.setLayout(new FitLayout());
+            window.add(journalDataPanel);
+            window.setSize(1100, 700);
+            window.setMaximizable(true);
+            window.setModal(false);
+            window.show();
+            journalDataPanel.getTree().setExpanded(root, true);
+        }
+    }
+
+    
+    private void setJournalNavigateList() {
+
+        service.getJournalList(this.journalGridModel, new SessionAwareAsyncCallback<List<JournalGridModel>>() {
+
+            @Override
+            public void onSuccess(List<JournalGridModel> gridModels) {
+                    journalNavigateList = gridModels;
+                    if (journalNavigateList.get(0) == null) {
+                        prevUpdateReportButton.setEnabled(false);
+                    }
+                    if (journalNavigateList.get(1) == null) {
+                        nextUpdateReportButton.setEnabled(false);
+                    }
+            }
+        });
+    }
+    
+    private native void closeHistoryTabPanel(String ids)/*-{
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        tabPanel.remove(ids);
+    }-*/;    
+
+    private native void openHistoryTabPanel(String ids, JournalHistoryPanel source)/*-{
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        var dataLogViewer = tabPanel.getItem(ids);
+        if (dataLogViewer == undefined) {
+            var panel = @org.talend.mdm.webapp.journal.client.widget.JournalGridPanel::convertHistoryPanel(Lorg/talend/mdm/webapp/journal/client/widget/JournalHistoryPanel;)(source);
+            tabPanel.add(panel);
+        }
+        tabPanel.setSelection(ids);
+    }-*/;
+
+    private native void openDataTabPanel(String ids, JournalDataPanel source)/*-{
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        var dataLogViewer = tabPanel.getItem(ids);
+        if (dataLogViewer == undefined) {
+            var panel = @org.talend.mdm.webapp.journal.client.widget.JournalGridPanel::convertDataPanel(Lorg/talend/mdm/webapp/journal/client/widget/JournalDataPanel;)(source);
+            tabPanel.add(panel);
+        }
+        tabPanel.setSelection(ids);
+    }-*/;
     
     private native void openBrowseRecordPanel(String title, String key, String concept)/*-{
         var arr = key.split("\.");

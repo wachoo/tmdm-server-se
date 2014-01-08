@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.client;
 
+import java.util.List;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
@@ -28,6 +29,8 @@ public interface JournalServiceAsync {
 
     void getJournalList(JournalSearchCriteria criteria, BasePagingLoadConfigImpl load,
             AsyncCallback<ItemBasePageLoadResult<JournalGridModel>> callback);
+    
+    void getJournalList(JournalGridModel journalGridModel, AsyncCallback<List<JournalGridModel>> callback);
 
     void getDetailTreeModel(String ids, AsyncCallback<JournalTreeModel> callback);
 

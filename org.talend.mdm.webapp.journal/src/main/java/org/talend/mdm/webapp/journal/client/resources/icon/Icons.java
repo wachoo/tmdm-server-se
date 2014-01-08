@@ -41,6 +41,12 @@ public interface Icons extends ClientBundle {
     @Source("view.png")
     ImageResource view();
 
+    @Source("prev.png")
+    ImageResource prev();
+
+    @Source("next.png")
+    ImageResource next();
+
     @Source("up.png")
     ImageResource up();
 

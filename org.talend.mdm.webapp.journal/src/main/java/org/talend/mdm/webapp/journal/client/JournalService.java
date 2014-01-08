@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.client;
 
+import java.util.List;
+
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
@@ -51,4 +53,6 @@ public interface JournalService extends RemoteService {
     boolean isJournalHistoryExist(JournalParameters parameter) throws ServiceException;
     
     boolean checkConflict(String itemPk, String conceptName, String id) throws ServiceException;
+    
+    List<JournalGridModel>getJournalList(JournalGridModel journalGridModel) throws ServiceException;
 }
