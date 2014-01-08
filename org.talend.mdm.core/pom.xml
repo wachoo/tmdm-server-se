@@ -19,6 +19,7 @@
         <lib>z.mdm.core</lib>
         <service>org.talend.mdm.jullog4jservice</service>
         <jaas>org.talend.mdm.jaas</jaas>
+        <util>org.talend.mdm.util</util>
         <version.properties>product_version.properties</version.properties>
     </properties>
 
@@ -151,7 +152,20 @@
                         <goals>
                             <goal>jar</goal>
                         </goals>                        
-                    </execution>                                                                      
+                    </execution>
+                    <execution>
+                        <id>jar-util</id>
+                        <phase>package</phase>                        
+                        <configuration>
+                            <classifier>util</classifier>
+                            <includes>
+                                <include>com/amalto/core/util/LocaleUtil.class</include>
+                            </includes>
+                        </configuration>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>                        
+                    </execution>                                                                        
                 </executions>
             </plugin>
 
@@ -213,7 +227,7 @@
                                     tofile="${jboss.lib.dir}/${service}.jar" />
                                 <copy
                                     file="${project.build.directory}/${project.build.finalName}-jaas.jar"
-                                    tofile="${jboss.lib.dir}/${jaas}.jar" />                                    
+                                    tofile="${jboss.lib.dir}/${jaas}.jar" />
                                 <copy
                                     file="${project.build.directory}/${project.build.finalName}-ejbs.jar"
                                     tofile="${jboss.deploy.dir}/${ejbs}.jar" />
