@@ -6,6 +6,7 @@ import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
@@ -13,6 +14,7 @@ import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -20,6 +22,8 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -83,8 +87,9 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             }
         }
 
-        if (itemNode.isKey() || (typeModel.getMinOccurs() == 1 && typeModel.getMaxOccurs() == 1))
+        if (itemNode.isKey() || (typeModel.getMinOccurs() == 1 && typeModel.getMaxOccurs() == 1)) {
             html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
+        }
 
         if (null != itemNode.getDescription() && (itemNode.getDescription().trim().length() > 0) && xPath.indexOf("/") > -1) { //$NON-NLS-1$
             html = html
@@ -95,28 +100,34 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         if (typeModel.isSimpleType()
                 || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
 
-            if ((typeModel.getType().equals(DataTypeConstants.AUTO_INCREMENT) || typeModel.getType().equals(DataTypeConstants.UUID))
+            if ((typeModel.getType().equals(DataTypeConstants.AUTO_INCREMENT) || typeModel.getType().equals(
+                    DataTypeConstants.UUID))
                     && ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
                 itemNode.setObjectValue(""); //$NON-NLS-1$
             }
-            field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage(), fieldMap,
-                    operation, itemsDetailPanel);
+            field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage(), fieldMap, operation,
+                    itemsDetailPanel);
             field.setWidth(200);
-            field.addListener(Events.Change, new Listener<FieldEvent>() {
 
-                public void handleEvent(FieldEvent be) {
-                    AppEvent app = new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule);
-                    ItemNodeModel parent = CommonUtil.recrusiveRoot(itemNode);
-                    // maybe need other methods to get entire tree
-                    if (parent == null || parent.getChildCount() == 0) {
-                        return;
+            if (field instanceof ComboBoxField) {
+                @SuppressWarnings("unchecked")
+                ComboBoxField<ComboBoxModel> comboBoxField = (ComboBoxField<ComboBoxModel>) field;
+                comboBoxField.addSelectionChangedListener(new SelectionChangedListener<ComboBoxModel>() {
+
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent<ComboBoxModel> se) {
+                        executeVisibleRule(itemNode, itemsDetailPanel);
                     }
-                    app.setData(parent);
-                    app.setData("viewBean", viewBean); //$NON-NLS-1$
-                    app.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
-                    Dispatcher.forwardEvent(app);
-                }
-            });
+                });
+            } else {
+                field.addListener(Events.Change, new Listener<FieldEvent>() {
+
+                    @Override
+                    public void handleEvent(FieldEvent be) {
+                        executeVisibleRule(itemNode, itemsDetailPanel);
+                    }
+                });
+            }
             this.add(field);
         }
 
@@ -126,15 +137,17 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             addNodeImg.setTitle(MessagesFactory.getMessages().clone_title());
             addNodeImg.getElement().getStyle().setMarginLeft(20D, Unit.PX);
             addNodeImg.getElement().getStyle().setMarginTop(5D, Unit.PX);
-            if (!typeModel.isReadOnly())
+            if (!typeModel.isReadOnly()) {
                 addNodeImg.addClickHandler(handler);
+            }
             removeNodeImg = new Image("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
             removeNodeImg.getElement().setId("Remove"); //$NON-NLS-1$
             removeNodeImg.setTitle(MessagesFactory.getMessages().remove_title());
             removeNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
             addNodeImg.getElement().getStyle().setMarginTop(5D, Unit.PX);
-            if (!typeModel.isReadOnly())
+            if (!typeModel.isReadOnly()) {
                 removeNodeImg.addClickHandler(handler);
+            }
 
             this.add(addNodeImg);
             this.setCellVerticalAlignment(addNodeImg, VerticalPanel.ALIGN_BOTTOM);
@@ -145,8 +158,9 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                 cloneNodeImg.getElement().setId("Clone"); //$NON-NLS-1$
                 cloneNodeImg.setTitle(MessagesFactory.getMessages().deepclone_title());
                 cloneNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
-                if (!typeModel.isReadOnly())
+                if (!typeModel.isReadOnly()) {
                     cloneNodeImg.addClickHandler(handler);
+                }
                 this.add(cloneNodeImg);
                 this.setCellVerticalAlignment(cloneNodeImg, VerticalPanel.ALIGN_BOTTOM);
             }
@@ -164,7 +178,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         this.getElement().getStyle().setMarginBottom(6D, Unit.PX);
         this.setVisible(typeModel.isVisible());
     }
-    
+
     public void clearValue() {
         if (field != null) {
             field.clear();
@@ -188,7 +202,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             }
         }
     }
-    
+
     public void setAddIconVisible(boolean visible) {
         if (addNodeImg != null) {
             addNodeImg.setVisible(visible);
@@ -203,7 +217,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             warnImg.setVisible(true);    
         }
     }
-    
+
     public void clearWarning() {
         if (warnImg != null) {
             warnImg.setVisible(false);            
@@ -213,17 +227,19 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
     public void setTreeDetail(TreeDetail treeDetail){
         this.treeDetail = treeDetail;
     }
-    
-    public boolean isAddRemoveHandlerNull(){
+
+    public boolean isAddRemoveHandlerNull() {
         return addRemoveHandler == null;
     }
 
     private ClickHandler handler = new ClickHandler() {
 
+        @Override
         public void onClick(ClickEvent arg0) {
             final DynamicTreeItem selectedItem = treeDetail.getSelectedItem();
-            if (selectedItem == null)
+            if (selectedItem == null) {
                 return;
+            }
 
             if (addRemoveHandler != null) {
                 if ("Add".equals(arg0.getRelativeElement().getId()) || "Clone".equals(arg0.getRelativeElement().getId())) { //$NON-NLS-1$ //$NON-NLS-2$ 
@@ -236,4 +252,17 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             }
         }
     };
+
+    private void executeVisibleRule(final ItemNodeModel itemNode, final ItemsDetailPanel itemsDetailPanel) {
+        AppEvent app = new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule);
+        ItemNodeModel parent = CommonUtil.recrusiveRoot(itemNode);
+        // maybe need other methods to get entire tree
+        if (parent == null || parent.getChildCount() == 0) {
+            return;
+        }
+        app.setData(parent);
+        app.setData("viewBean", viewBean); //$NON-NLS-1$
+        app.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
+        Dispatcher.forwardEvent(app);
+    }
 }
