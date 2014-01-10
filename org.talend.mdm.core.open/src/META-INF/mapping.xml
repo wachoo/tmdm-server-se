@@ -516,6 +516,33 @@
     </variable-mapping>
   </java-xml-type-mapping>
   <java-xml-type-mapping>
+    <java-type>com.amalto.core.webservice.WSUpdateItemArrayMetadata</java-type>
+    <root-type-qname xmlns:typeNS="urn-com-amalto-xtentis-webservice">typeNS:WSUpdateItemArrayMetadata</root-type-qname>
+    <qname-scope>complexType</qname-scope>
+    <variable-mapping>
+      <java-variable-name>wsUpdateMetadataItem</java-variable-name>
+      <xml-element-name>wsUpdateMetadataItem</xml-element-name>
+    </variable-mapping>
+  </java-xml-type-mapping>
+  <java-xml-type-mapping>
+    <java-type>com.amalto.core.webservice.WSUpdateMetadataItem</java-type>
+    <root-type-qname xmlns:typeNS="urn-com-amalto-xtentis-webservice">typeNS:WSUpdateMetadataItem</root-type-qname>
+    <qname-scope>complexType</qname-scope>
+    <variable-mapping>
+      <java-variable-name>wsItemPK</java-variable-name>
+      <xml-element-name>wsItemPK</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>taskId</java-variable-name>
+      <xml-element-name>taskId</xml-element-name>
+    </variable-mapping>
+  </java-xml-type-mapping>
+  <java-xml-type-mapping>
+    <java-type>com.amalto.core.webservice.WSUpdateMetadataItem[]</java-type>
+    <anonymous-type-qname>urn-com-amalto-xtentis-webservice:WSUpdateItemArrayMetadata&gt;wsUpdateMetadataItem[1,unbounded]</anonymous-type-qname>
+    <qname-scope>complexType</qname-scope>
+  </java-xml-type-mapping>  
+  <java-xml-type-mapping>
     <java-type>com.amalto.core.webservice.WSInitData</java-type>
     <root-type-qname xmlns:typeNS="urn-com-amalto-xtentis-webservice">typeNS:WSInitData</root-type-qname>
     <qname-scope>complexType</qname-scope>
@@ -3685,6 +3712,24 @@
     <service-endpoint-interface>com.amalto.core.webservice.XtentisPort</service-endpoint-interface>
     <wsdl-port-type xmlns:portTypeNS="urn-com-amalto-xtentis-webservice">portTypeNS:XtentisPort</wsdl-port-type>
     <wsdl-binding xmlns:bindingNS="urn-com-amalto-xtentis-webservice">bindingNS:XtentisBinding</wsdl-binding>
+    <service-endpoint-method-mapping>
+      <java-method-name>updateItemMetadata</java-method-name>
+      <wsdl-operation>updateItemMetadata</wsdl-operation>
+      <method-param-parts-mapping>
+        <param-position>0</param-position>
+        <param-type>com.amalto.core.webservice.WSUpdateMetadataItem</param-type>
+        <wsdl-message-mapping>
+          <wsdl-message xmlns:wsdlMsgNS="urn-com-amalto-xtentis-webservice">wsdlMsgNS:updateItemMetadataRequest</wsdl-message>
+          <wsdl-message-part-name>wsUpdateMetadataItem</wsdl-message-part-name>
+          <parameter-mode>IN</parameter-mode>
+        </wsdl-message-mapping>
+      </method-param-parts-mapping>
+      <wsdl-return-value-mapping>
+        <method-return-value>com.amalto.core.webservice.WSItemPK</method-return-value>
+        <wsdl-message xmlns:wsdlMsgNS="urn-com-amalto-xtentis-webservice">wsdlMsgNS:putItemResponse</wsdl-message>
+        <wsdl-message-part-name>wsItemPK</wsdl-message-part-name>
+      </wsdl-return-value-mapping>
+    </service-endpoint-method-mapping>
     <service-endpoint-method-mapping>
       <java-method-name>getComponentVersion</java-method-name>
       <wsdl-operation>getComponentVersion</wsdl-operation>

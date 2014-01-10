@@ -416,6 +416,9 @@
 	<message name="putItemResponse">
 		<part name="wsItemPK" element="tns:WSItemPK"/>
 	</message>
+	<message name="updateItemMetadataRequest">
+		<part name="wsUpdateMetadataItem" element="tns:WSUpdateMetadataItem"/>
+	</message>
 	<message name="partialPutItemRequest">
 		<part name="wsPartialPutItem" element="tns:WSPartialPutItem"/>
 	</message>
@@ -1612,7 +1615,11 @@
          <operation name="getAutoIncrement">
             <input message="tns:getAutoIncrementRequest"/>
             <output message="tns:getAutoIncrementResponse"></output>
-        </operation>        
+         </operation>   
+		<operation name="updateItemMetadata">
+			<input message="tns:updateItemMetadataRequest"/>
+			<output message="tns:putItemResponse"/>
+		</operation>
 	</portType>
 	
 
@@ -1909,7 +1916,11 @@
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>
 		</operation>
-		
+		<operation name="updateItemMetadata">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
 		<operation name="partialPutItem">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>

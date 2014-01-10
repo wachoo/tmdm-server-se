@@ -1146,6 +1146,18 @@
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSPutItem" type="tns:WSPutItem"/>
+	<xsd:complexType name="WSUpdateMetadataItem">
+		<xsd:annotation>
+			<xsd:documentation>
+				Update an item's metadata in the xml storage.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsItemPK" nillable="false" type="tns:WSItemPK"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="taskId" nillable="true" type="xsd:string"/>
+		</xsd:sequence>     
+	</xsd:complexType>
+	<xsd:element name="WSUpdateMetadataItem" type="tns:WSUpdateMetadataItem"/>
 	
 	<xsd:complexType name="WSPutItemArray">
 		<xsd:sequence>
@@ -1153,7 +1165,12 @@
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSPutItemArray" type="tns:WSPutItemArray"/>
-		
+	<xsd:complexType name="WSUpdateItemArrayMetadata">
+		<xsd:sequence>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsUpdateMetadataItem" nillable="true" type="tns:WSUpdateMetadataItem"/>
+		</xsd:sequence>     
+	</xsd:complexType>
+	<xsd:element name="WSUpdateItemArrayMetadata" type="tns:WSUpdateItemArrayMetadata"/>
 	<xsd:complexType name="WSUpdateReportItemPOJO">
 		<xsd:sequence>
 			<xsd:element maxOccurs="1" minOccurs="1" name="path" nillable="false" type="xsd:string"/>

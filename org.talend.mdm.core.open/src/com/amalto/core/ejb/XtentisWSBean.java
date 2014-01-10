@@ -38,6 +38,7 @@ import sun.misc.BASE64Decoder;
 import com.amalto.connector.jca.InteractionSpecImpl;
 import com.amalto.connector.jca.RecordFactoryImpl;
 import com.amalto.core.delegator.BeanDelegatorContainer;
+import com.amalto.core.delegator.impl.DefaultXtentisWSDelegator;
 import com.amalto.core.webservice.*;
 
 /**
@@ -1554,6 +1555,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    @Override
     public WSBoolean isXmlDB() throws RemoteException {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().isXmlDB();
     }
@@ -1562,6 +1564,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    @Override
     public WSDigest getDigest(WSDigestKey wsDigestKey) throws RemoteException {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getDigest(wsDigestKey);
     }
@@ -1570,7 +1573,17 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    @Override
     public WSLong updateDigest(WSDigest wsDigest) throws RemoteException {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().updateDigest(wsDigest);
+    }
+
+    /**
+     * @ejb.interface-method view-type = "service-endpoint"
+     * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
+     */
+    public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException {
+        return ((DefaultXtentisWSDelegator) BeanDelegatorContainer.getInstance().getXtentisWSDelegator())
+                .updateItemMetadata(wsUpdateMetadataItem);
     }
 }
