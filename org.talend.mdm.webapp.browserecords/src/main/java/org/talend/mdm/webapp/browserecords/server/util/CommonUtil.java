@@ -63,41 +63,49 @@ public class CommonUtil {
     private static final Logger LOG = Logger.getLogger(CommonUtil.class);
 
     public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, boolean isCreate, String language) {
-        return org.talend.mdm.webapp.browserecords.client.util.CommonUtil.getDefaultTreeModel(model, language, false, isCreate, true);
+        return org.talend.mdm.webapp.browserecords.client.util.CommonUtil.getDefaultTreeModel(model, language, false, isCreate,
+                true);
     }
 
-    public static int getFKFormatType(String str){
-        if(str == null)
+    public static int getFKFormatType(String str) {
+        if (str == null) {
             return 0;
-        
-        if(str.trim().equalsIgnoreCase("")) //$NON-NLS-1$
+        }
+
+        if (str.trim().equalsIgnoreCase("")) { //$NON-NLS-1$
             return 0;
-        
+        }
+
         Pattern p = Pattern.compile("^\\[.+\\]$"); //$NON-NLS-1$
         Matcher m = p.matcher(str);
-        if(m.matches())
+        if (m.matches()) {
             return 1;
-        
+        }
+
         p = Pattern.compile("^\\[.+\\]-.+"); //$NON-NLS-1$
         m = p.matcher(str);
-        if(m.matches())
+        if (m.matches()) {
             return 2;
-        
+        }
+
         return 0;
     }
-    
-    public static String getForeignKeyId(String str, int type){
-        if(type == 1)
+
+    public static String getForeignKeyId(String str, int type) {
+        if (type == 1) {
             return str;
-        if(type == 2){
-            int index = str.indexOf("-"); //$NON-NLS-1$
-            if(index > 0)
-                return str.substring(0, index);
         }
-        return null;            
+        if (type == 2) {
+            int index = str.indexOf("-"); //$NON-NLS-1$
+            if (index > 0) {
+                return str.substring(0, index);
+            }
+        }
+        return null;
     }
 
-    public static Document getSubXML(TypeModel typeModel, String realType, Map<String, List<String>> map, String language) throws ServiceException {
+    public static Document getSubXML(TypeModel typeModel, String realType, Map<String, List<String>> map, String language)
+            throws ServiceException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -122,8 +130,8 @@ public class CommonUtil {
         return XmlUtil.parseDocument(doc);
     }
 
-    private static List<Element> _getDefaultXML(TypeModel model, TypeModel parentModel, String realType, Document doc, Map<String, List<String>> map, 
-            String language) {
+    private static List<Element> _getDefaultXML(TypeModel model, TypeModel parentModel, String realType, Document doc,
+            Map<String, List<String>> map, String language) {
         List<Element> itemNodes = new ArrayList<Element>();
         if (model.getMinOccurs() > 1) {
             for (int i = 0; i < model.getMinOccurs(); i++) {
@@ -136,16 +144,16 @@ public class CommonUtil {
             applySimpleTypesDefaultValue(model, parentModel, el);
             itemNodes.add(el);
         }
-    	if (model.getForeignkey() != null && model.getForeignkey().trim().length() > 0){
-    		if (map != null && map.containsKey(model.getXpath()) && map.get(model.getXpath()).size() > 0) {
+        if (model.getForeignkey() != null && model.getForeignkey().trim().length() > 0) {
+            if (map != null && map.containsKey(model.getXpath()) && map.get(model.getXpath()).size() > 0) {
                 int count = map.get(model.getXpath()).size() - itemNodes.size();
                 for (int i = 0; i < count; i++) {
-    				Element el = doc.createElement(model.getName());
+                    Element el = doc.createElement(model.getName());
                     applySimpleTypesDefaultValue(model, parentModel, el);
                     itemNodes.add(el);
-    			}
-    		}
-    	}
+                }
+            }
+        }
         if (!model.isSimpleType()) {
             ComplexTypeModel complexModel = (ComplexTypeModel) model;
             ComplexTypeModel realTypeModel = complexModel.getRealType(realType);
@@ -158,8 +166,10 @@ public class CommonUtil {
             for (Element node : itemNodes) {
                 if (realTypeModel != null) {
                     node.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xsi:type", realType); //$NON-NLS-1$ //$NON-NLS-2$
-                } else if (parentModel != null && !model.isAbstract() && model.getType() != null && complexModel.getReusableComplexTypes().size() > 0) {
-                    // When create a record, if the node is not root node and it is reusable type(but not abstract type), it need to record the xsi:type value.
+                } else if (parentModel != null && !model.isAbstract() && model.getType() != null
+                        && complexModel.getReusableComplexTypes().size() > 0) {
+                    // When create a record, if the node is not root node and it is reusable type(but not abstract
+                    // type), it need to record the xsi:type value.
                     node.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xsi:type", model.getType().getTypeName()); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 for (TypeModel typeModel : children) {
@@ -177,8 +187,9 @@ public class CommonUtil {
 
         // if parent node is not root node, also is non-mandatory, don't apply system default value
         if (parentModel != null && parentModel.getParentTypeModel() != null && parentModel instanceof ComplexTypeModel
-                && parentModel.getMinOccurs() == 0)
+                && parentModel.getMinOccurs() == 0) {
             return;
+        }
 
         if (nodeTypeModel != null && el != null) {
             // only assist system default value for mandatory node
@@ -191,12 +202,12 @@ public class CommonUtil {
 
         }
     }
-    
+
     public static Map<String, String> handleProcessMessage(String outputMessage, String language) throws Exception {
         Map<String, String> messageMap = new HashMap<String, String>();
         messageMap.put("typeCode", null); //$NON-NLS-1$
         messageMap.put("message", null); //$NON-NLS-1$
-        
+
         Document doc = Util.parse(outputMessage);
         String xpath = "//report/message"; //$NON-NLS-1$
         NodeList checkList = Util.getNodeList(doc, xpath);
@@ -206,19 +217,24 @@ public class CommonUtil {
                 Element messageElement = (Element) messageNode;
                 messageMap.put("typeCode", messageElement.getAttribute("type")); //$NON-NLS-1$ //$NON-NLS-2$
                 NodeList childList = messageElement.getChildNodes();
-                if(childList.getLength() == 1) {
+                if (childList.getLength() == 1) {
                     Node contentNode = childList.item(0);
-                    if(contentNode.getNodeType() == Node.TEXT_NODE) 
-                        messageMap.put("message", MultilanguageMessageParser.pickOutISOMessage(contentNode.getTextContent(), language)); //$NON-NLS-1$
-                    else if(contentNode.getNodeType() == Node.ELEMENT_NODE)
-                        if(contentNode.getChildNodes().getLength() == 1 && contentNode.getChildNodes().item(0).getNodeType() == Node.TEXT_NODE)
-                            messageMap.put("message", MultilanguageMessageParser.pickOutISOMessage(contentNode.getTextContent(), language)); //$NON-NLS-1$
+                    if (contentNode.getNodeType() == Node.TEXT_NODE) {
+                        messageMap.put(
+                                "message", MultilanguageMessageParser.pickOutISOMessage(contentNode.getTextContent(), language)); //$NON-NLS-1$
+                    } else if (contentNode.getNodeType() == Node.ELEMENT_NODE) {
+                        if (contentNode.getChildNodes().getLength() == 1
+                                && contentNode.getChildNodes().item(0).getNodeType() == Node.TEXT_NODE) {
+                            messageMap
+                                    .put("message", MultilanguageMessageParser.pickOutISOMessage(contentNode.getTextContent(), language)); //$NON-NLS-1$
+                        }
+                    }
                 }
             }
         }
         return messageMap;
     }
-    
+
     public static void dynamicAssembleByResultOrder(ItemBean itemBean, List<String> viewableXpaths, EntityModel entityModel,
             Map<String, EntityModel> map, String language, boolean isStaging) throws Exception {
 
@@ -236,39 +252,42 @@ public class CommonUtil {
                                     .element(
                                             new QName(xsiType[1], new Namespace(xsiType[0],
                                                     "http://www.w3.org/2001/XMLSchema-instance"))).getText()); //$NON-NLS-1$
-                    continue;
-                }
-
-                TypeModel typeModel = entityModel.getMetaDataTypes().get(path);
-                org.dom4j.Element el = (org.dom4j.Element) els.get(i);
-                if (typeModel != null && typeModel.getForeignkey() != null) {
-                    String modelType = el.attributeValue(new QName("type", new Namespace("tmdm", "http://www.talend.com/mdm"))); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
-                    itemBean.set(path, path + "-" + el.getText()); //$NON-NLS-1$
-                    itemBean.setForeignkeyDesc(
-                            path + "-" + el.getText(), org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel, 
-                                    el.getText(), false, modelType, map.get(typeModel.getXpath()), language, isStaging)); //$NON-NLS-1$
                 } else {
-                    itemBean.set(path, el.getText());
+                    TypeModel typeModel = entityModel.getMetaDataTypes().get(path);
+                    org.dom4j.Element el = (org.dom4j.Element) els.get(i);
+                    if (typeModel != null && typeModel.getForeignkey() != null) {
+                        String modelType = el
+                                .attributeValue(new QName("type", new Namespace("tmdm", "http://www.talend.com/mdm"))); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+                        itemBean.set(path, path + "-" + el.getText()); //$NON-NLS-1$
+                        itemBean.setForeignkeyDesc(
+                                path + "-" + el.getText(), //$NON-NLS-1$
+                                org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel,
+                                        el.getText(), false, modelType, map.get(typeModel.getXpath()), language, isStaging));
+                    } else {
+                        itemBean.set(path, el.getText());
+                    }
                 }
                 i++;
             }
-        }    
+        }
     }
-    
-    public static Map<String,EntityModel> getForeignKeyEntityMap (EntityModel entityModel,List<String> viewableXpaths,String language) throws Exception {
+
+    public static Map<String, EntityModel> getForeignKeyEntityMap(EntityModel entityModel, List<String> viewableXpaths,
+            String language) throws Exception {
         Map<String, EntityModel> foreignKeyEntityMap = null;
         if (viewableXpaths != null) {
             foreignKeyEntityMap = new HashMap<String, EntityModel>();
             for (String xpath : viewableXpaths) {
                 TypeModel typeModel = entityModel.getMetaDataTypes().get(xpath);
                 if (typeModel != null && typeModel.getForeignkey() != null) {
-                    foreignKeyEntityMap.put(xpath, org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getEntityModel(typeModel.getForeignkey().split("/")[0], language)); //$NON-NLS-1$
+                    foreignKeyEntityMap.put(xpath, org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getEntityModel(
+                            typeModel.getForeignkey().split("/")[0], language)); //$NON-NLS-1$
                 }
             }
         }
         return foreignKeyEntityMap;
     }
-    
+
     public static ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids, boolean isNeedExceptionMessage, String modelType,
             EntityModel entityModel, String language, boolean isStaging) throws Exception {
         String xpathForeignKey = model.getForeignkey();
@@ -348,8 +367,8 @@ public class CommonUtil {
             bean.set("foreignKeyDeleteMessage", e.getMessage()); //$NON-NLS-1$
             return bean;
         }
-    } 
-    
+    }
+
     public static String getPKInfos(List<String> xPathList) {
         StringBuilder gettedValue = new StringBuilder();
         for (String pkInfo : xPathList) {
@@ -363,9 +382,9 @@ public class CommonUtil {
         }
         return gettedValue.toString();
     }
-    
-    public static List<String> getPKInfoList(EntityModel entityModel, TypeModel model, ItemBean itemBean, Document document, String language)
-            throws Exception {
+
+    public static List<String> getPKInfoList(EntityModel entityModel, TypeModel model, ItemBean itemBean, Document document,
+            String language) throws Exception {
         List<String> xpathPKInfos = model.getPrimaryKeyInfo();
         List<String> xPathList = new ArrayList<String>();
         if (xpathPKInfos != null && xpathPKInfos.size() > 0 && itemBean.getIds() != null) {
@@ -381,7 +400,7 @@ public class CommonUtil {
                         } else if (entityModel.getTypeModel(pkInfoPath).getForeignkey() != null) {
                             ForeignKeyBean fkBean = itemBean.getForeignkeyDesc(pkInfoPath + "-" + pkInfo); //$NON-NLS-1$
                             if (fkBean != null) {
-                                xPathList.add(fkBean.toString());    
+                                xPathList.add(fkBean.toString());
                             }
                         } else {
                             xPathList.add(pkInfo);
@@ -394,7 +413,7 @@ public class CommonUtil {
         }
         return xPathList;
     }
-    
+
     public static void migrationMultiLingualFieldValue(ItemBean itemBean, TypeModel typeModel, Node node, String path,
             boolean isMultiOccurence, ItemNodeModel nodeModel) {
         String value = node.getTextContent();
@@ -420,7 +439,7 @@ public class CommonUtil {
             }
         }
     }
-    
+
     public static Document parseResultDocument(String result, String expectedRootElement) throws Exception {
         Document doc = Util.parse(result);
         Element rootElement = doc.getDocumentElement();
@@ -433,7 +452,7 @@ public class CommonUtil {
         }
         return doc;
     }
-    
+
     public static EntityModel getEntityModel(String concept, String language) throws Exception {
         // bind entity model
         String model = getCurrentDataModel();
@@ -441,12 +460,12 @@ public class CommonUtil {
         DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
         return entityModel;
     }
-    
+
     public static String getCurrentDataCluster() throws Exception {
         Configuration config = Configuration.getConfiguration();
         return config.getCluster();
     }
-    
+
     public static String getCurrentDataModel() throws Exception {
         Configuration config = Configuration.getConfiguration();
         return config.getModel();
