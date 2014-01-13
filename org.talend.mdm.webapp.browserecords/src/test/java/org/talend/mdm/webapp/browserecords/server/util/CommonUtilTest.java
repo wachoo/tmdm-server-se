@@ -16,8 +16,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +39,7 @@ import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.SchemaMockAgent;
@@ -306,6 +309,30 @@ public class CommonUtilTest extends TestCase {
                 + "<e xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id/><b xsi:type=\"a2\"><subelement/></b></e>";
         String actualXML = doc4j.asXML();
         assertEquals(expectedXML, actualXML);
+    }
+
+    public void testDynamicAssembleByResultOrder() throws Exception {
+        ItemBean itemBean = new ItemBean(
+                "Contract",
+                "1",
+                "<result xmlns:metadata=\"http://www.talend.com/mdm/metadata\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>1</id><comment>comment1</comment><detail/><code>code1</code><xsi:type>ContractDetailType</xsi:type><enumEle>pending</enumEle></result>");
+        List<String> viewableXpaths = new ArrayList<String>();
+        viewableXpaths.add("Contract/id");
+        viewableXpaths.add("Contract/comment");
+        viewableXpaths.add("Contract/detail");
+        viewableXpaths.add("Contract/detail/code");
+        viewableXpaths.add("Contract/detail/@xsi:type");
+        viewableXpaths.add("Contract/enumEle");
+        EntityModel entityModel = new EntityModel();
+        entityModel.setMetaDataTypes(new LinkedHashMap<String, TypeModel>());
+        CommonUtil.dynamicAssembleByResultOrder(itemBean, viewableXpaths, entityModel, new HashMap<String, EntityModel>(), "en",
+                false);
+        assertEquals("1", itemBean.get("Contract/id"));
+        assertEquals("comment1", itemBean.get("Contract/comment"));
+        assertEquals("", itemBean.get("Contract/detail"));
+        assertEquals("code1", itemBean.get("Contract/detail/code"));
+        assertEquals("ContractDetailType", itemBean.get("Contract/detail/@xsi:type"));
+        assertEquals("pending", itemBean.get("Contract/enumEle"));
     }
 
     private String inputStream2String(InputStream is) {
