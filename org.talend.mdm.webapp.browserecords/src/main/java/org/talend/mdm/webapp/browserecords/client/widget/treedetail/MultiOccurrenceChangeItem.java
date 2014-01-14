@@ -36,6 +36,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class MultiOccurrenceChangeItem extends HorizontalPanel {
 
@@ -122,7 +123,6 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             } else {
                 field.addListener(Events.Change, new Listener<FieldEvent>() {
 
-                    @Override
                     public void handleEvent(FieldEvent be) {
                         executeVisibleRule(itemNode, itemsDetailPanel);
                     }
@@ -234,7 +234,6 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
 
     private ClickHandler handler = new ClickHandler() {
 
-        @Override
         public void onClick(ClickEvent arg0) {
             final DynamicTreeItem selectedItem = treeDetail.getSelectedItem();
             if (selectedItem == null) {
