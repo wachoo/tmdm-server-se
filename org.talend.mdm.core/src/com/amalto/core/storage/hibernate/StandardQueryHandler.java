@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.*;
 
 import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.Distinct;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.Type;
 import com.amalto.core.query.user.metadata.*;
@@ -203,6 +204,13 @@ class StandardQueryHandler extends AbstractQueryHandler {
         currentAliasName = alias.getAliasName();
         alias.getTypedExpression().accept(this);
         currentAliasName = null;
+        return null;
+    }
+
+    @Override
+    public StorageResults visit(Distinct distinct) {
+        PropertyProjection property = Projections.property(distinct.getField().getFieldMetadata().getName());
+        projectionList.add(Projections.distinct(property));
         return null;
     }
 
@@ -1193,7 +1201,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
     }
 
     private Object applyDatabaseType(FieldCondition field, Object value) {
-        if ("clob".equals(field.fieldMetadata.getType().getData(TypeMapping.SQL_TYPE))) { //$NON-NLS-1$
+        if (field.fieldMetadata != null && "clob".equals(field.fieldMetadata.getType().getData(TypeMapping.SQL_TYPE))) { //$NON-NLS-1$
             return Hibernate.createClob(String.valueOf(value), session);
         }
         return value;

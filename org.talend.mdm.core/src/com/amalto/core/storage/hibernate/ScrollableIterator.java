@@ -162,4 +162,12 @@ class ScrollableIterator implements CloseableIterator<DataRecord> {
     public void close() throws IOException {
         notifyCallbacks();
     }
+
+    @Override
+    public String toString() {
+        return "ScrollableIterator{" +
+                "isClosed=" + isClosed +
+                ", results=" + results +
+                '}';
+    }
 }

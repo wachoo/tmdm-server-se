@@ -688,4 +688,8 @@ public class UserQueryBuilder {
             return new Type(new Field(field));
         }
     }
+
+    public static TypedExpression distinct(FieldMetadata field) {
+        return new Distinct(new Field(field));
+    }
 }

@@ -238,6 +238,11 @@ public class MappingExpressionTransformer extends VisitorAdapter<Expression> {
     }
 
     @Override
+    public Expression visit(Distinct distinct) {
+        return new Distinct((Field) distinct.getField().accept(this));
+    }
+
+    @Override
     public Expression visit(Id id) {
         return new Id(getMapping(id.getType()), id.getId());
     }

@@ -107,6 +107,11 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         return null;
     }
 
+    @Override
+    public StorageResults visit(Distinct distinct) {
+        return null;
+    }
+
     class ValueAdapter extends VisitorAdapter<Object> {
 
         @Override

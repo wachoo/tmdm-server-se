@@ -254,6 +254,15 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(Distinct distinct) {
+        print("[DISTINCT]"); //$NON-NLS-1$
+        increaseIndent();
+        distinct.getField().accept(this);
+        decreaseIndent();
+        return null;
+    }
+
     public Void visit(StagingStatus stagingStatus) {
         print("[Technical field: STAGING_STATUS]"); //$NON-NLS-1$
         return null;

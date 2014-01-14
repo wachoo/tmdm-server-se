@@ -52,6 +52,8 @@ public interface Visitor<T> {
 
     T visit(Type type);
 
+    T visit(Distinct distinct);
+
     T visit(Join join);
 
     T visit(Expression expression);
