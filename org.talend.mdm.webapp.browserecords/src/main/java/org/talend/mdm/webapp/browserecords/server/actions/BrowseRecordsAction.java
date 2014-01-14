@@ -61,6 +61,7 @@ import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.ForeignKeyHelper;
 import org.talend.mdm.webapp.base.server.exception.WebBaseException;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
+import org.talend.mdm.webapp.base.server.util.DateUtil;
 import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -2322,7 +2323,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     @Override
     public String formatValue(FormatModel model) throws ServiceException {
-        return String.format(new Locale(model.getLanguage()), model.getFormat(), model.getObject());
+        return DateUtil.getFormatedDate(new Locale(model.getLanguage()), model.getFormat(), (Date) model.getObject());
     }
 
     private TypeModel findTypeModelByTypePath(Map<String, TypeModel> metaDataTypes, String typePath, String language)
