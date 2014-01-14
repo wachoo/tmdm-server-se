@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.base.server.util;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -299,5 +300,13 @@ public class CommonUtil {
             }
         }
         return idList.toArray(new String[idList.size()]);
+    }
+
+    public static String getFormatedDate(Locale locale, String format, Date date) {
+        String formatAfter = format;
+        if (format != null && format.contains("%")) { //$NON-NLS-1$
+            formatAfter = StringUtils.replace(format, "%", "%1$"); //$NON-NLS-1$//$NON-NLS-2$
+        }
+        return String.format(locale, formatAfter, date);
     }
 }
