@@ -304,8 +304,8 @@ public class CommonUtil {
 
     public static String getFormatedDate(Locale locale, String format, Date date) {
         String formatAfter = format;
-        if (format != null && format.contains("%")) { //$NON-NLS-1$
-            formatAfter = StringUtils.replace(format, "%", "%1$"); //$NON-NLS-1$//$NON-NLS-2$
+        if (formatAfter != null && formatAfter.contains("%")) { //$NON-NLS-1$
+            formatAfter = StringUtils.replace(formatAfter, "%", "%1$"); //$NON-NLS-1$//$NON-NLS-2$
         }
         return String.format(locale, formatAfter, date);
     }
