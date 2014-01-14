@@ -186,32 +186,4 @@ public final class DateUtil {
 
         return yes;
     }
-
-    public static String getFormatedDate(Locale locale, String format, Date date) {
-        String formatResult = format;
-        if (format != null && !"".equals(formatResult)) { //$NON-NLS-1$
-            if (locale != null && !"".equals(locale)) { //$NON-NLS-1$
-                if (formatResult.contains("%td")) { //$NON-NLS-1$
-                    formatResult = formatResult.replaceAll("%td", String.format(java.util.Locale.FRENCH, "%td", date)); //$NON-NLS-1$//$NON-NLS-2$
-                }
-                if (formatResult.contains("%tm")) { //$NON-NLS-1$
-                    formatResult = formatResult.replaceAll("%tm", String.format(java.util.Locale.FRENCH, "%tm", date)); //$NON-NLS-1$ //$NON-NLS-2$
-                }
-                if (formatResult.contains("%ty")) { //$NON-NLS-1$
-                    formatResult = formatResult.replaceAll("%ty", String.format(java.util.Locale.FRENCH, "%ty", date)); //$NON-NLS-1$//$NON-NLS-2$
-                }
-            } else {
-                if (formatResult.contains("%td")) { //$NON-NLS-1$
-                    formatResult = formatResult.replaceAll("%td", String.format("%td", date)); //$NON-NLS-1$//$NON-NLS-2$
-                }
-                if (formatResult.contains("%tm")) { //$NON-NLS-1$
-                    formatResult = formatResult.replaceAll("%tm", String.format("%tm", date)); //$NON-NLS-1$ //$NON-NLS-2$
-                }
-                if (formatResult.contains("%ty")) { //$NON-NLS-1$
-                    formatResult = formatResult.replaceAll("%ty", String.format("%ty", date)); //$NON-NLS-1$//$NON-NLS-2$
-                }
-            }
-        }
-        return formatResult;
-    }
 }
