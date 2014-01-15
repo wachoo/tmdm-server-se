@@ -717,11 +717,12 @@ public class BrowseRecordsActionTest extends TestCase {
     }
 
     public void testFormatValue() throws Exception {
+        String result = "";
         FormatModel formatModel = new FormatModel();
 
         formatModel.setObject(new Date());
         formatModel.setFormat("%tD");
-        String result = action.formatValue(formatModel);
+        result = action.formatValue(formatModel);
         assertTrue(result.indexOf("/") != -1);
 
         formatModel.setLanguage("en");
@@ -729,6 +730,20 @@ public class BrowseRecordsActionTest extends TestCase {
         formatModel.setFormat("%03d");
         result = action.formatValue(formatModel);
         assertEquals(result, "001");
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String dstr = "2013-01-15";
+        formatModel.setLanguage("zh");
+        formatModel.setObject(sdf.parse(dstr));
+        formatModel.setFormat("%td/%tm/%ty");
+        result = action.formatValue(formatModel);
+        assertEquals(result, "15/01/13");
+
+        formatModel.setLanguage("en");
+        formatModel.setObject(new String("Hello"));
+        formatModel.setFormat("%s World!");
+        result = action.formatValue(formatModel);
+        assertEquals(result, "Hello World!");
     }
 
     private String parsingNodeValue(Document docXml, String xpath, String conceptName) throws Exception {
