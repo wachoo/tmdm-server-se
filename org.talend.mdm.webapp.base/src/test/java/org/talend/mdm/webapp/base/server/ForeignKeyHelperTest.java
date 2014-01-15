@@ -490,4 +490,41 @@ public class ForeignKeyHelperTest extends TestCase {
                     fkBeans[i].getDisplayInfo());
         }
     }
+    
+    public void testInitFKBean_for_missing_values_In_FKInfos() throws Exception {
+        String[] results = new String[] {
+                "<result>\n\t<Name>bname0</Name>\n\t<CF>cname1</CF>\n\t<i>b0</i>\n</result>",
+                "<result>\n\t<CF>cname1</CF>\n\t<i>b1</i>\n</result>",
+                "<result>\n\t<Name>bname2</Name>\n\t<i>b2</i>\n</result>",
+                "<result>\n\t<i>b2</i>\n</result>"};
+        String[] fKInfoExpected = new String[] { "bname0-cname1", "null-cname1", "bname2-null", "null-null"};
+
+        String dataClusterPK = "TestFK";
+        EntityModel entityModel = new EntityModel();
+        entityModel.setConceptName("B");
+        entityModel.setKeys(new String[] { "B/subelement" });
+        String fk = "B";
+        List<String> foreignKeyInfos = Arrays.asList("B/Name", "B/CF");
+        Map<String, String> xpathTypeMap = new HashMap<String, String>();
+        String language = "zh";
+        ForeignKeyBean[] fkBeans = new ForeignKeyBean[] { new ForeignKeyBean(), new ForeignKeyBean(), new ForeignKeyBean(), new ForeignKeyBean() };
+        fkBeans[0].setId("b0");
+        fkBeans[1].setId("b1");
+        fkBeans[2].setId("b2");
+        fkBeans[3].setId("b3");
+
+        Element[] resultAsDOM = new Element[4];
+        for (int i = 0; i < fkBeans.length; i++) {
+            resultAsDOM[i] = Util.parse(results[i]).getDocumentElement();
+
+            ForeignKeyHelper.initFKBean(dataClusterPK, entityModel, resultAsDOM[i], fkBeans[i], fk, foreignKeyInfos,
+                    xpathTypeMap, language);
+            ForeignKeyHelper.convertFKInfo2DisplayInfo(fkBeans[i], foreignKeyInfos);
+        }
+
+        for (int i = 0; i < fkBeans.length; i++) {            
+            assertEquals(fkBeans[i].getId() + "->Expected displayInfo is not equal to acutal displayInfo", fKInfoExpected[i],
+                    fkBeans[i].getDisplayInfo());
+        }
+    }
 }
