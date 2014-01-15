@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2006-2013 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage;
@@ -68,7 +67,7 @@ public class SystemStorageWrapper extends StorageWrapper {
     private static final String FAILED_ROUTING_ORDER = "failed-routing-order-v2-pOJO"; //$NON-NLS-1$
 
     private static final String ACTIVE_ROUTING_ORDER = "active-routing-order-v2-pOJO"; //$NON-NLS-1$
-    
+
     private static final String PROVISIONING_PREFIX_INFO = "PROVISIONING.User."; //$NON-NLS-1$
 
     private static final Logger LOGGER = Logger.getLogger(SystemStorageWrapper.class);
@@ -84,7 +83,7 @@ public class SystemStorageWrapper extends StorageWrapper {
 
     private ComplexTypeMetadata getType(String clusterName, Storage storage, String uniqueId) {
         MetadataRepository repository = storage.getMetadataRepository();
-        if (uniqueId != null  && uniqueId.startsWith("amalto_local_service_")) { //$NON-NLS-1$
+        if (uniqueId != null && uniqueId.startsWith("amalto_local_service_")) { //$NON-NLS-1$
             return repository.getComplexType("service-bMP"); //$NON-NLS-1$
         }
         if (clusterName.startsWith(SYSTEM_PREFIX)) {
@@ -170,6 +169,7 @@ public class SystemStorageWrapper extends StorageWrapper {
     private static Collection<ComplexTypeMetadata> filter(MetadataRepository repository, String... typeNames) {
         final Set<ComplexTypeMetadata> filteredTypes = new HashSet<ComplexTypeMetadata>();
         MetadataVisitor<Void> transitiveTypeClosure = new DefaultMetadataVisitor<Void>() {
+
             @Override
             public Void visit(ComplexTypeMetadata complexType) {
                 if (complexType.isInstantiable()) {
@@ -226,7 +226,8 @@ public class SystemStorageWrapper extends StorageWrapper {
     }
 
     @Override
-    public long putDocumentFromDOM(Element root, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
+    public long putDocumentFromDOM(Element root, String uniqueID, String clusterName, String revisionID)
+            throws XmlServerException {
         long start = System.currentTimeMillis();
         {
             DataRecordReader<Element> reader = new XmlDOMDataRecordReader();
@@ -253,7 +254,8 @@ public class SystemStorageWrapper extends StorageWrapper {
     }
 
     @Override
-    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId) throws XmlServerException {
+    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId)
+            throws XmlServerException {
         long start = System.currentTimeMillis();
         {
             Storage storage = getStorage(dataClusterName);
@@ -270,12 +272,14 @@ public class SystemStorageWrapper extends StorageWrapper {
     }
 
     @Override
-    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
+    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID)
+            throws XmlServerException {
         return putDocumentFromString(xmlString, uniqueID, clusterName, revisionID, null);
     }
 
     @Override
-    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID, String documentType) throws XmlServerException {
+    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID,
+            String documentType) throws XmlServerException {
         try {
             InputSource source = new InputSource(new StringReader(xmlString));
             Document document = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder().parse(source);
@@ -291,7 +295,8 @@ public class SystemStorageWrapper extends StorageWrapper {
     }
 
     @Override
-    public String getDocumentAsString(String revisionID, String clusterName, String uniqueID, String encoding) throws XmlServerException {
+    public String getDocumentAsString(String revisionID, String clusterName, String uniqueID, String encoding)
+            throws XmlServerException {
         if (encoding == null) {
             encoding = "UTF-8"; //$NON-NLS-1$
         }
@@ -310,8 +315,7 @@ public class SystemStorageWrapper extends StorageWrapper {
             // String revisionId = StringUtils.substringBefore(uniqueID, ".");
             String documentUniqueId = StringUtils.substringAfter(uniqueID, "."); //$NON-NLS-1$
             qb = from(type).where(eq(type.getKeyFields().iterator().next(), documentUniqueId));
-        } else if(COMPLETED_ROUTING_ORDER.equals(type.getName())
-                || FAILED_ROUTING_ORDER.equals(type.getName())
+        } else if (COMPLETED_ROUTING_ORDER.equals(type.getName()) || FAILED_ROUTING_ORDER.equals(type.getName())
                 || ACTIVE_ROUTING_ORDER.equals(type.getName())) {
             isUserFormat = false;
             qb = from(type).where(eq(type.getKeyFields().iterator().next(), uniqueID));
@@ -334,7 +338,8 @@ public class SystemStorageWrapper extends StorageWrapper {
             ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
             Iterator<DataRecord> iterator = records.iterator();
             // Enforce root element name in case query returned instance of a subtype.
-            DataRecordWriter dataRecordXmlWriter = isUserFormat ?  new DataRecordXmlWriter(type) : new SystemDataRecordXmlWriter((ClassRepository) storage.getMetadataRepository(), type);
+            DataRecordWriter dataRecordXmlWriter = isUserFormat ? new DataRecordXmlWriter(type) : new SystemDataRecordXmlWriter(
+                    (ClassRepository) storage.getMetadataRepository(), type);
             if (iterator.hasNext()) {
                 DataRecord result = iterator.next();
                 if (isUserFormat) {
@@ -351,7 +356,8 @@ public class SystemStorageWrapper extends StorageWrapper {
                     while (iterator.hasNext()) { // TMDM-6712: Consumes all results in iterator
                         iterator.next();
                         if (recordsLeft % 10 == 0) {
-                            LOGGER.warn("Processing system query lead to unexpected number of results (" + recordsLeft + " so far).");
+                            LOGGER.warn("Processing system query lead to unexpected number of results (" + recordsLeft
+                                    + " so far).");
                         }
                         recordsLeft++;
                     }
@@ -379,19 +385,21 @@ public class SystemStorageWrapper extends StorageWrapper {
     }
 
     @Override
-    public long deleteDocument(String revisionID, String clusterName, String uniqueID, String documentType) throws XmlServerException {
+    public long deleteDocument(String revisionID, String clusterName, String uniqueID, String documentType)
+            throws XmlServerException {
         Storage storage = getStorage(clusterName);
         ComplexTypeMetadata type = getType(clusterName, storage, uniqueID);
+        if (type == null) {
+            return -1;
+        }
         if (DROPPED_ITEM_TYPE.equals(type.getName())) {
             // head.Product.Product.0-
             uniqueID = uniqueID.substring(0, uniqueID.length() - 1);
             // TODO Filter by revision
             // String revisionId = StringUtils.substringBefore(uniqueID, ".");
             uniqueID = StringUtils.substringAfter(uniqueID, "."); //$NON-NLS-1$
-        } else if (!COMPLETED_ROUTING_ORDER.equals(type.getName())
-                && !FAILED_ROUTING_ORDER.equals(type.getName())
-                && !ACTIVE_ROUTING_ORDER.equals(type.getName())
-                && !CUSTOM_FORM_TYPE.equals(type.getName())) {
+        } else if (!COMPLETED_ROUTING_ORDER.equals(type.getName()) && !FAILED_ROUTING_ORDER.equals(type.getName())
+                && !ACTIVE_ROUTING_ORDER.equals(type.getName()) && !CUSTOM_FORM_TYPE.equals(type.getName())) {
             if (uniqueID.startsWith(PROVISIONING_PREFIX_INFO)) {
                 uniqueID = StringUtils.substringAfter(uniqueID, PROVISIONING_PREFIX_INFO);
             } else if (uniqueID.contains(".")) { //$NON-NLS-1$
