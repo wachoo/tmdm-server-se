@@ -43,7 +43,7 @@
         </init-param>
         <init-param>
             <param-name>bak-in-db</param-name>
-            <param-value>true</param-value>
+            <param-value>false</param-value>
         </init-param>
         <init-param>
             <param-name>db-delegate-class</param-name>
@@ -63,7 +63,7 @@
         </init-param>
         <init-param>
             <param-name>delete-in-db</param-name>
-            <param-value>true</param-value>
+            <param-value>false</param-value>
         </init-param>
         <init-param>
             <param-name>db-delegate-class</param-name>
