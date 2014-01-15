@@ -2322,7 +2322,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     @Override
     public String formatValue(FormatModel model) throws ServiceException {
-        return CommonUtil.getFormatedDate(new Locale(model.getLanguage()), model.getFormat(), (Date) model.getObject());
+        String formatedValue = ""; //$NON-NLS-1$
+        Locale locale = new Locale(model.getLanguage());
+        try {
+            formatedValue = CommonUtil.getFormatedString(locale, model.getFormat(), model.getObject());
+            return formatedValue;
+        } catch (IllegalArgumentException ex) {
+            LOG.error(ex.getMessage(), ex);
+            throw new ServiceException(MESSAGES.getMessage(locale,
+                    "format_exception_failure", model.getFormat(), model.getObject().toString())); //$NON-NLS-1$
+        }
     }
 
     private TypeModel findTypeModelByTypePath(Map<String, TypeModel> metaDataTypes, String typePath, String language)

@@ -13,7 +13,6 @@
 package org.talend.mdm.webapp.base.server.util;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -302,11 +301,15 @@ public class CommonUtil {
         return idList.toArray(new String[idList.size()]);
     }
 
-    public static String getFormatedDate(Locale locale, String format, Date date) {
+    public static String getFormatedString(Locale locale, String format, Object o) throws IllegalArgumentException {
         String formatAfter = format;
-        if (formatAfter != null && formatAfter.contains("%")) { //$NON-NLS-1$
-            formatAfter = StringUtils.replace(formatAfter, "%", "%1$"); //$NON-NLS-1$//$NON-NLS-2$
+        try {
+            if (formatAfter != null && formatAfter.contains("%")) { //$NON-NLS-1$
+                formatAfter = StringUtils.replace(formatAfter, "%", "%1$"); //$NON-NLS-1$//$NON-NLS-2$
+            }
+            return String.format(locale, formatAfter, o);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException();
         }
-        return String.format(locale, formatAfter, date);
     }
 }
