@@ -352,13 +352,23 @@ public class ForeignKeyHelper {
             if (ele.getChildNodes().item(i) instanceof Element) {
                 positionIndex++;
                 Element curEle = (Element) ele.getChildNodes().item(i);
-                String value = curEle.getTextContent().trim();
+                String value = curEle.getTextContent().trim();                
+                String nodeName = curEle.getNodeName();
                 String fkInfo;
-                if (positionIndex <= getForeignKeyInfos.size()) {
-                    fkInfo = getForeignKeyInfos.get(positionIndex-1);
+                int keyInfoIndex = positionIndex-1;
+                
+                if (positionIndex <= getForeignKeyInfos.size()) {                    
+                    fkInfo = getForeignKeyInfos.get(keyInfoIndex);
+                    while (!fkInfo.endsWith(nodeName) && keyInfoIndex < getForeignKeyInfos.size() - 1) {
+                        fkInfo = getForeignKeyInfos.get(++keyInfoIndex);
+                    }
+                    if (!fkInfo.endsWith(nodeName)) {
+                        fkInfo = fk + "/" + curEle.getNodeName(); //$NON-NLS-1$ 
+                    }
                 } else {
                     fkInfo = fk + "/" + curEle.getNodeName(); //$NON-NLS-1$
                 }
+                
                 if (getForeignKeyInfos != null && getForeignKeyInfos.contains(fkInfo)) {
                     if (entityModel != null) {
                         value = getDisplayValue(curEle.getTextContent().trim(),fkInfo,dataClusterPK,entityModel,language);
