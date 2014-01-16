@@ -17,6 +17,7 @@ import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.hibernate.TypeMappingStrategy;
+import org.apache.commons.io.IOUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import com.amalto.core.objects.menu.ejb.MenuEntryPOJO;
@@ -35,6 +36,7 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -43,8 +45,12 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -402,6 +408,38 @@ public class SystemStorageTest extends TestCase {
             }
         }
         assertEquals(files.size() - ignore, total);
+    }
+
+    public void test50UserParse() throws Exception {
+        ClassRepository repository = buildRepository();
+        // Additional setup to get User type in repository
+        String[] models = new String[]{
+                "/com/amalto/core/initdb/data/datamodel/PROVISIONING", //$NON-NLS-1$
+        };
+        for (String model : models) {
+            InputStream builtInStream = this.getClass().getResourceAsStream(model);
+            if (builtInStream == null) {
+                throw new RuntimeException("Built in model '" + model + "' cannot be found.");
+            }
+            try {
+                DataModelPOJO modelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, IOUtils.toString(builtInStream, "UTF-8")); //$NON-NLS-1$
+                repository.load(new ByteArrayInputStream(modelPOJO.getSchema().getBytes("UTF-8"))); //$NON-NLS-1$
+            } catch (Exception e) {
+                throw new RuntimeException("Could not parse builtin data model '" + model + "'.", e);
+            } finally {
+                try {
+                    builtInStream.close();
+                } catch (IOException e) {
+                    // Ignored
+                }
+            }
+        }
+        // Parse a user XML from a 5.0 install
+        XmlDOMDataRecordReader reader = new XmlDOMDataRecordReader();
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document document = builder.parse(SystemStorageTest.class.getResourceAsStream("user.xml"));
+        Element element = (Element) document.getElementsByTagName("User").item(0);
+        reader.read(null, repository, repository.getComplexType("User"), element);
     }
 
     private static Collection<File> getConfigFiles() throws URISyntaxException {
