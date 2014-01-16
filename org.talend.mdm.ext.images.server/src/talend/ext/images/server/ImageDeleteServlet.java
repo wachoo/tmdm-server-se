@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import talend.ext.images.server.backup.DBDelegate;
@@ -133,13 +132,9 @@ public class ImageDeleteServlet extends HttpServlet {
         return uri;
     }
 
-    public static String buildDeleteFilePath(String uri) throws Exception {
+    public String buildDeleteFilePath(String uri) throws Exception {
         try {
-            StringBuffer fullFilename = new StringBuffer();
-            String filename = URLDecoder.decode(uri, "UTF-8").substring(uri.indexOf("/") + 1); //$NON-NLS-1$ //$NON-NLS-2$
-            filename = StringUtils.replace(filename, "/", File.separator); //$NON-NLS-1$
-            fullFilename.append(ImageUploadServlet.getUploadPath()).append(File.separator).append(filename);
-            return fullFilename.toString();
+            return getServletContext().getRealPath(URLDecoder.decode(uri, "UTF-8")); //$NON-NLS-1$
         } catch (UnsupportedEncodingException e) {
             logger.error("Exception occured during decoding URI:" + uri, e); //$NON-NLS-1$
             throw new Exception(e);
