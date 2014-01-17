@@ -6,6 +6,7 @@ import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
@@ -13,6 +14,7 @@ import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -20,6 +22,8 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -100,21 +104,24 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, viewBean, Locale.getLanguage(), fieldMap,
                     operation, itemsDetailPanel);
             field.setWidth(200);
-            field.addListener(Events.Change, new Listener<FieldEvent>() {
+            if (field instanceof ComboBoxField) {
+                @SuppressWarnings("unchecked")
+                ComboBoxField<ComboBoxModel> comboBoxField = (ComboBoxField<ComboBoxModel>) field;
+                comboBoxField.addSelectionChangedListener(new SelectionChangedListener<ComboBoxModel>() {
 
-                public void handleEvent(FieldEvent be) {
-                    AppEvent app = new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule);
-                    ItemNodeModel parent = CommonUtil.recrusiveRoot(itemNode);
-                    // maybe need other methods to get entire tree
-                    if (parent == null || parent.getChildCount() == 0) {
-                        return;
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent<ComboBoxModel> se) {
+                        executeVisibleRule(itemNode, itemsDetailPanel);
                     }
-                    app.setData(parent);
-                    app.setData("viewBean", viewBean); //$NON-NLS-1$
-                    app.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
-                    Dispatcher.forwardEvent(app);
-                }
-            });
+                });
+            } else {
+                field.addListener(Events.Change, new Listener<FieldEvent>() {
+
+                    public void handleEvent(FieldEvent be) {
+                        executeVisibleRule(itemNode, itemsDetailPanel);
+                    }
+                });
+            }
             this.add(field);
             field.getElement().getParentElement().getStyle().setPaddingTop(3D, Unit.PX);
             field.getElement().getParentElement().getStyle().setPaddingBottom(3D, Unit.PX);
@@ -243,4 +250,17 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             }
         }
     };
+
+    private void executeVisibleRule(final ItemNodeModel itemNode, final ItemsDetailPanel itemsDetailPanel) {
+        AppEvent app = new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule);
+        ItemNodeModel parent = CommonUtil.recrusiveRoot(itemNode);
+        // maybe need other methods to get entire tree
+        if (parent == null || parent.getChildCount() == 0) {
+            return;
+        }
+        app.setData(parent);
+        app.setData("viewBean", viewBean); //$NON-NLS-1$
+        app.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
+        Dispatcher.forwardEvent(app);
+    }
 }
