@@ -164,6 +164,10 @@ public class PagingToolBarEx extends PagingToolBar {
         this.last.removeToolTip();
         this.refresh.removeToolTip();
     }
+    
+    public void doLoadRequest(int offset, int limit) {
+        super.doLoadRequest(offset, limit);
+    }
 
     class PagingToolBarExLayout extends ToolBarLayout {
 

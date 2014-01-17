@@ -246,6 +246,14 @@ public class JournalGridPanel extends ContentPanel {
         pagetoolBar.last();
     }
 
+    public ListStore<JournalGridModel> getStore() {
+        return this.store;
+    }
+
+    public PagingToolBarEx getPagetoolBar() {
+        return this.pagetoolBar;
+    }
+    
     public void openTabPanel(final JournalGridModel gridModel) {
         service.getDetailTreeModel(gridModel.getIds(), new SessionAwareAsyncCallback<JournalTreeModel>() {
 

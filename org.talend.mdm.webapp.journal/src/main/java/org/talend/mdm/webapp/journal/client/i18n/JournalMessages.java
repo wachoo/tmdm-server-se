@@ -80,7 +80,11 @@ public interface JournalMessages extends Messages {
     public String prev_updatereport_button();
     
     public String next_updatereport_button();
-
+    
+    public String no_prev_report_msg();
+    
+    public String no_next_report_msg();
+    
     public String updatereport_label();
 
     public String change_properties();
