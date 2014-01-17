@@ -38,8 +38,10 @@ public class InheritanceTest extends StorageTestCase {
         allRecords.add(factory.read("1", repository, b, "<B><id>1</id><textB>TextB</textB></B>"));
         allRecords.add(factory.read("1", repository, d, "<D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D>"));
         allRecords.add(factory.read("1", repository, persons, "<Persons><name>person</name><age>20</age></Persons>"));
-        allRecords.add(factory.read("1", repository, employee, "<Employee><name>employee</name><age>21</age><jobTitle>Test</jobTitle></Employee>"));
-        allRecords.add(factory.read("1", repository, manager, "<Manager><name>manager</name><age>25</age><jobTitle>Test</jobTitle><dept>manager</dept></Manager>"));
+        allRecords.add(factory.read("1", repository, employee,
+                "<Employee><name>employee</name><age>21</age><jobTitle>Test</jobTitle></Employee>"));
+        allRecords.add(factory.read("1", repository, manager,
+                "<Manager><name>manager</name><age>25</age><jobTitle>Test</jobTitle><dept>manager</dept></Manager>"));
         allRecords
                 .add(factory
                         .read("1",
@@ -52,11 +54,12 @@ public class InheritanceTest extends StorageTestCase {
                                 repository,
                                 c,
                                 "<C xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>2</id><refB tmdm:type=\"D\">[2]</refB><textA>TextAC</textA><nestedB xsi:type=\"SubNested\"><text>Text</text><subText>SubText</subText></nestedB><textC>TextCC</textC></C>"));
-        allRecords.add(factory
-                .read("1",
-                        repository,
-                        ss,
-                        "<SS xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>1</id><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></SS>"));
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                ss,
+                                "<SS xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>1</id><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></SS>"));
         allRecords
                 .add(factory
                         .read("1",
@@ -80,9 +83,9 @@ public class InheritanceTest extends StorageTestCase {
 
     public void testTypeOrdering() throws Exception {
         List<ComplexTypeMetadata> sortedList = MetadataUtils.sortTypes(repository);
-        String[] expectedOrder = {"Group", "Persons", "Employee", "Update", "SS", "Country", "Address", "Supplier", "B",
-                "D", "A", "C", "Person", "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "ProductFamily",
-                "TypeA", "ff", "E1", "E2", "Manager", "Store", "Product", "a2", "a1"};
+        String[] expectedOrder = { "Group", "Persons", "Employee", "Update", "SS", "Country", "Address", "Supplier", "B", "D",
+                "A", "C", "Person", "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "ProductFamily", "TypeA", "ff",
+                "E1", "E2", "Manager", "Store", "Product", "a2", "a1" };
         int i = 0;
         for (ComplexTypeMetadata sortedType : sortedList) {
             assertEquals(expectedOrder[i++], sortedType.getName());
@@ -350,7 +353,7 @@ public class InheritanceTest extends StorageTestCase {
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getCount());
-            String[] expected = new String[]{"Nested", "SubNested"};
+            String[] expected = new String[] { "Nested", "SubNested" };
             int i = 0;
             for (DataRecord result : results) {
                 assertEquals(expected[i++], result.get("type"));
@@ -364,7 +367,7 @@ public class InheritanceTest extends StorageTestCase {
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getCount());
-            String[] expected = new String[]{"SubNested", "Nested"};
+            String[] expected = new String[] { "SubNested", "Nested" };
             int i = 0;
             for (DataRecord result : results) {
                 assertEquals(expected[i++], result.get("type"));
@@ -378,7 +381,7 @@ public class InheritanceTest extends StorageTestCase {
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getCount());
-            String[] expected = new String[]{"Nested", "SubNested"};
+            String[] expected = new String[] { "Nested", "SubNested" };
             int i = 0;
             for (DataRecord result : results) {
                 assertEquals(expected[i++], result.get("type"));
@@ -406,8 +409,7 @@ public class InheritanceTest extends StorageTestCase {
             results.close();
         }
         // Test 2
-        qb = UserQueryBuilder.from(a).select(alias(type(a.getField("nestedB")), "type"))
-                .where(eq(a.getField("id"), "1"));
+        qb = UserQueryBuilder.from(a).select(alias(type(a.getField("nestedB")), "type")).where(eq(a.getField("id"), "1"));
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
@@ -467,7 +469,7 @@ public class InheritanceTest extends StorageTestCase {
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getCount());
-            String[] expected = new String[]{"Nested", "SubNested"};
+            String[] expected = new String[] { "Nested", "SubNested" };
             int i = 0;
             for (DataRecord result : results) {
                 assertEquals(expected[i++], result.get("type"));
@@ -481,7 +483,7 @@ public class InheritanceTest extends StorageTestCase {
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getCount());
-            String[] expected = new String[]{"SubNested", "Nested"};
+            String[] expected = new String[] { "SubNested", "Nested" };
             int i = 0;
             for (DataRecord result : results) {
                 assertEquals(expected[i++], result.get("type"));
@@ -495,7 +497,7 @@ public class InheritanceTest extends StorageTestCase {
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getCount());
-            String[] expected = new String[]{"Nested", "SubNested"};
+            String[] expected = new String[] { "Nested", "SubNested" };
             int i = 0;
             for (DataRecord result : results) {
                 assertEquals(expected[i++], result.get("type"));
