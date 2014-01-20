@@ -27,7 +27,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.*;
 import org.hibernate.criterion.*;
 import org.hibernate.impl.CriteriaImpl;
-import org.hibernate.sql.JoinFragment;
 import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import com.amalto.core.metadata.MetadataUtils;
@@ -1193,7 +1192,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
     }
 
     private Object applyDatabaseType(FieldCondition field, Object value) {
-        if ("clob".equals(field.fieldMetadata.getType().getData(TypeMapping.SQL_TYPE))) { //$NON-NLS-1$
+        if (field.fieldMetadata != null && "clob".equals(field.fieldMetadata.getType().getData(TypeMapping.SQL_TYPE))) { //$NON-NLS-1$
             return Hibernate.createClob(String.valueOf(value), session);
         }
         return value;
