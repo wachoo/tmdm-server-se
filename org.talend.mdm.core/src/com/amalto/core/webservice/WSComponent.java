@@ -6,23 +6,20 @@
 package com.amalto.core.webservice;
 
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 public class WSComponent {
     private java.lang.String value;
     private static Map valueMap = new HashMap();
     public static final String _DataManagerString = "DataManager";
     public static final String _ServiceString = "Service";
-    public static final String _ConnectorString = "Connector";
     
     public static final java.lang.String _DataManager = new java.lang.String(_DataManagerString);
     public static final java.lang.String _Service = new java.lang.String(_ServiceString);
-    public static final java.lang.String _Connector = new java.lang.String(_ConnectorString);
     
     public static final WSComponent DataManager = new WSComponent(_DataManager);
     public static final WSComponent Service = new WSComponent(_Service);
-    public static final WSComponent Connector = new WSComponent(_Connector);
     
     protected WSComponent(java.lang.String value) {
         this.value = value;
@@ -39,8 +36,6 @@ public class WSComponent {
             return DataManager;
         } else if (Service.value.equals(value)) {
             return Service;
-        } else if (Connector.value.equals(value)) {
-            return Connector;
         }
         throw new IllegalArgumentException();
     }
@@ -55,8 +50,6 @@ public class WSComponent {
             return DataManager;
         } else if (value.equals(_ServiceString)) {
             return Service;
-        } else if (value.equals(_ConnectorString)) {
-            return Connector;
         }
         throw new IllegalArgumentException();
     }

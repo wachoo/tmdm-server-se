@@ -132,8 +132,7 @@
 	    <xsd:simpleType name="WSComponent"> 
 	      <xsd:restriction base="xsd:NMTOKEN"> 
 	        <xsd:enumeration value="DataManager"/>  
-	        <xsd:enumeration value="Service"/>  
-	        <xsd:enumeration value="Connector"/> 
+	        <xsd:enumeration value="Service"/>
 	      </xsd:restriction> 
 	    </xsd:simpleType>  
 	    <xsd:complexType name="WSGetComponentVersion"> 
