@@ -1335,57 +1335,7 @@
 	</xsd:complexType>
 	<xsd:element name="WSRunQuery" type="tns:WSRunQuery"/>
 	
-	
-	
-	<!-- *****************************************************
-		C O N N E C T O R
-		*******************************************************-->
-	
-	<xsd:complexType name="WSBase64KeyValue">
-		<xsd:sequence>
-			<xsd:element maxOccurs="1" minOccurs="1" name="key" nillable="false" type="xsd:string"/>
-			<xsd:element maxOccurs="1" minOccurs="1" name="base64StringValue" nillable="false" type="xsd:string"/>
-		</xsd:sequence>		
-	</xsd:complexType>
-	
-	<xsd:simpleType name="WSConnectorFunction">
-		<xsd:restriction base="xsd:NMTOKEN">
-			<xsd:enumeration value="GET_STATUS"/>
-			<xsd:enumeration value="START"/>
-			<xsd:enumeration value="STOP"/>
-			<xsd:enumeration value="PULL"/>
-			<xsd:enumeration value="PUSH"/>
-		</xsd:restriction>
-	</xsd:simpleType>
-	
-	<xsd:complexType name="WSConnectorInteraction">
-		<xsd:sequence>
-			<xsd:element maxOccurs="1" minOccurs="1" name="JNDIName" nillable="false" type="xsd:string"/>
-			<xsd:element maxOccurs="1" minOccurs="1" name="function" nillable="true" type="tns:WSConnectorFunction"/>
-			<xsd:element maxOccurs="unbounded" minOccurs="0" name="parameters" nillable="true" type="tns:WSBase64KeyValue"/>
-		</xsd:sequence>		
-	</xsd:complexType>
-	<xsd:element name="WSConnectorInteraction" type="tns:WSConnectorInteraction"/>
 
-	<xsd:simpleType name="WSConnectorResponseCode">
-		<xsd:restriction base="xsd:NMTOKEN">
-			<xsd:enumeration value="OK"/>
-			<xsd:enumeration value="STOPPED"/>
-			<xsd:enumeration value="ERROR"/>
-		</xsd:restriction>
-	</xsd:simpleType>
-
-	<xsd:complexType name="WSConnectorInteractionResponse">
-		<xsd:sequence>
-			<xsd:element maxOccurs="1" minOccurs="1" name="code" nillable="true" type="tns:WSConnectorResponseCode"/>
-			<xsd:element maxOccurs="unbounded" minOccurs="0" name="parameters" nillable="true" type="tns:WSBase64KeyValue"/>
-		</xsd:sequence>		
-	</xsd:complexType>
-	<xsd:element name="WSConnectorInteractionResponse" type="tns:WSConnectorInteractionResponse"/>
-
-
-
-	
 	<!-- *****************************************************
 		SERVICES
 		*******************************************************-->

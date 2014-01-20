@@ -3283,54 +3283,7 @@ public class XtentisPort_Stub
             }
         }
     }
-    
-    /*
-     *  implementation of connectorInteraction
-     */
-    public com.amalto.webapp.util.webservices.WSConnectorInteractionResponse connectorInteraction(com.amalto.webapp.util.webservices.WSConnectorInteraction wsConnectorInteraction)
-        throws java.rmi.RemoteException {
-        
-        try {
-            
-            StreamingSenderState _state = _start(_handlerChain);
-            
-            InternalSOAPMessage _request = _state.getRequest();
-            _request.setOperationCode(connectorInteraction_OPCODE);
-            
-            
-            SOAPBlockInfo _bodyBlock = new SOAPBlockInfo(ns1_connectorInteraction_WSConnectorInteraction_QNAME);
-            _bodyBlock.setValue(wsConnectorInteraction);
-            _bodyBlock.setSerializer(ns1_myWSConnectorInteraction_LiteralSerializer);
-            _request.setBody(_bodyBlock);
-            
-            _state.getMessageContext().setProperty(HttpClientTransport.HTTP_SOAPACTION_PROPERTY, "");
-            
-            _send((String) _getProperty(ENDPOINT_ADDRESS_PROPERTY), _state);
-            
-            com.amalto.webapp.util.webservices.WSConnectorInteractionResponse _result = null;
-            Object _responseObj = _state.getResponse().getBody().getValue();
-            if (_responseObj instanceof SOAPDeserializationState) {
-                _result = (com.amalto.webapp.util.webservices.WSConnectorInteractionResponse)((SOAPDeserializationState) _responseObj).getInstance();
-            } else {
-                _result = (com.amalto.webapp.util.webservices.WSConnectorInteractionResponse)_responseObj;
-            }
-            
-            return _result;
-            
-        } catch (RemoteException e) {
-            // let this one through unchanged
-            throw e;
-        } catch (JAXRPCException e) {
-            throw new RemoteException(e.getMessage(), e);
-        } catch (Exception e) {
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException)e;
-            } else {
-                throw new RemoteException(e.getMessage(), e);
-            }
-        }
-    }
-    
+
     /*
      *  implementation of recoverDroppedItem
      */
@@ -9338,9 +9291,6 @@ public class XtentisPort_Stub
             case countItemsByCustomFKFilters_OPCODE:
                 _deserialize_countItemsByCustomFKFilters(bodyReader, deserializationContext, state);
                 break;
-            case connectorInteraction_OPCODE:
-                _deserialize_connectorInteraction(bodyReader, deserializationContext, state);
-                break;
             case recoverDroppedItem_OPCODE:
                 _deserialize_recoverDroppedItem(bodyReader, deserializationContext, state);
                 break;
@@ -10666,19 +10616,6 @@ public class XtentisPort_Stub
         
         SOAPBlockInfo bodyBlock = new SOAPBlockInfo(ns1_countItemsByCustomFKFilters_WSString_QNAME);
         bodyBlock.setValue(myWSStringObj);
-        state.getResponse().setBody(bodyBlock);
-    }
-    
-    /*
-     * This method deserializes the body of the connectorInteraction operation.
-     */
-    private void _deserialize_connectorInteraction(XMLReader bodyReader, SOAPDeserializationContext deserializationContext, StreamingSenderState state) throws Exception {
-        Object myWSConnectorInteractionResponseObj =
-            ns1_myWSConnectorInteractionResponse_LiteralSerializer.deserialize(ns1_connectorInteraction_WSConnectorInteractionResponse_QNAME,
-                bodyReader, deserializationContext);
-        
-        SOAPBlockInfo bodyBlock = new SOAPBlockInfo(ns1_connectorInteraction_WSConnectorInteractionResponse_QNAME);
-        bodyBlock.setValue(myWSConnectorInteractionResponseObj);
         state.getResponse().setBody(bodyBlock);
     }
     
@@ -12415,7 +12352,6 @@ public class XtentisPort_Stub
         ns1_myWSExtractThroughTransformerV2_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSExtractThroughTransformerV2.class, ns1_WSExtractThroughTransformerV2_TYPE_QNAME);
         ns1_myWSGetItem_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSGetItem.class, ns1_WSGetItem_TYPE_QNAME);
         ns1_myWSExistsTransformerPluginV2_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSExistsTransformerPluginV2.class, ns1_WSExistsTransformerPluginV2_TYPE_QNAME);
-        ns1_myWSConnectorInteractionResponse_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSConnectorInteractionResponse.class, ns1_WSConnectorInteractionResponse_TYPE_QNAME);
         ns1_myWSVersioningInfo_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSVersioningInfo.class, ns1_WSVersioningInfo_TYPE_QNAME);
         ns1_myWSSynchronizationItemPK_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSSynchronizationItemPK.class, ns1_WSSynchronizationItemPK_TYPE_QNAME);
         ns1_myWSGetTransformerV2_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSGetTransformerV2.class, ns1_WSGetTransformerV2_TYPE_QNAME);
@@ -12541,7 +12477,6 @@ public class XtentisPort_Stub
         ns1_myWSExistsDataCluster_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSExistsDataCluster.class, ns1_WSExistsDataCluster_TYPE_QNAME);
         ns1_myWSExecuteTransformerV2_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSExecuteTransformerV2.class, ns1_WSExecuteTransformerV2_TYPE_QNAME);
         ns1_myWSDeleteMenu_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSDeleteMenu.class, ns1_WSDeleteMenu_TYPE_QNAME);
-        ns1_myWSConnectorInteraction_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSConnectorInteraction.class, ns1_WSConnectorInteraction_TYPE_QNAME);
         ns1_myWSVersioningGetItemHistory_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSVersioningGetItemHistory.class, ns1_WSVersioningGetItemHistory_TYPE_QNAME);
         ns1_myWSTransformerContext_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSTransformerContext.class, ns1_WSTransformerContext_TYPE_QNAME);
         ns1_myWSRemoveDroppedItem_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSRemoveDroppedItem.class, ns1_WSRemoveDroppedItem_TYPE_QNAME);
@@ -12690,7 +12625,6 @@ public class XtentisPort_Stub
     private static final int versioningRestoreUniverse_OPCODE = 70;
     private static final int extractUsingTransformerThruView_OPCODE = 71;
     private static final int countItemsByCustomFKFilters_OPCODE = 72;
-    private static final int connectorInteraction_OPCODE = 73;
     private static final int recoverDroppedItem_OPCODE = 74;
     private static final int versioningGetItemHistory_OPCODE = 75;
     private static final int deleteTransformerV2_OPCODE = 76;
@@ -13188,12 +13122,6 @@ public class XtentisPort_Stub
     private static final QName ns1_WSCountItemsByCustomFKFilters_TYPE_QNAME = new QName("urn-com-amalto-xtentis-webservice", "WSCountItemsByCustomFKFilters");
     private CombinedSerializer ns1_myWSCountItemsByCustomFKFilters_LiteralSerializer;
     private static final QName ns1_countItemsByCustomFKFilters_WSString_QNAME = new QName("urn-com-amalto-xtentis-webservice", "WSString");
-    private static final QName ns1_connectorInteraction_WSConnectorInteraction_QNAME = new QName("urn-com-amalto-xtentis-webservice", "WSConnectorInteraction");
-    private static final QName ns1_WSConnectorInteraction_TYPE_QNAME = new QName("urn-com-amalto-xtentis-webservice", "WSConnectorInteraction");
-    private CombinedSerializer ns1_myWSConnectorInteraction_LiteralSerializer;
-    private static final QName ns1_connectorInteraction_WSConnectorInteractionResponse_QNAME = new QName("urn-com-amalto-xtentis-webservice", "WSConnectorInteractionResponse");
-    private static final QName ns1_WSConnectorInteractionResponse_TYPE_QNAME = new QName("urn-com-amalto-xtentis-webservice", "WSConnectorInteractionResponse");
-    private CombinedSerializer ns1_myWSConnectorInteractionResponse_LiteralSerializer;
     private static final QName ns1_recoverDroppedItem_WSRecoverDroppedItem_QNAME = new QName("urn-com-amalto-xtentis-webservice", "WSRecoverDroppedItem");
     private static final QName ns1_WSRecoverDroppedItem_TYPE_QNAME = new QName("urn-com-amalto-xtentis-webservice", "WSRecoverDroppedItem");
     private CombinedSerializer ns1_myWSRecoverDroppedItem_LiteralSerializer;

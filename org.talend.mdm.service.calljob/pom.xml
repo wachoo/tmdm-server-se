@@ -50,10 +50,6 @@
         <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.connector.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.commmon</artifactId>
         </dependency>        
         <dependency>

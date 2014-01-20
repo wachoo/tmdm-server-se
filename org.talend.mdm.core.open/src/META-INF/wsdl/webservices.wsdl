@@ -510,17 +510,6 @@
 	<message name="runQueryResponse">
 		<part name="wsStringArray" element="tns:WSStringArray"/>
 	</message>
-	
-	
-	<!-- ************************ CONNECTOR *************************** -->
-	<message name="connectorInteractionRequest">
-		<part name="wsConnectorInteraction" element="tns:WSConnectorInteraction"/>
-	</message>
-	<message name="connectorInteractionResponse">
-		<part name="wsConnectorInteractionResponse" element="tns:WSConnectorInteractionResponse"/>
-	</message>
-
-
 
 	<!-- ************************ Services  *************************** -->
 	
@@ -1293,15 +1282,7 @@
 		<operation name="runQuery">
 			<input message="tns:runQueryRequest"/>
 			<output message="tns:runQueryResponse"/>
-		</operation>				
-		
-		<!-- *********************  CONNECTOR  ************************ -->
-		
-		<operation name="connectorInteraction">
-			<input message="tns:connectorInteractionRequest"/>
-			<output message="tns:connectorInteractionResponse"/>
-		</operation>		
-		
+		</operation>
 
 		<!-- *********************  SERVICES  ************************ -->
 		
@@ -2009,15 +1990,6 @@
 			<output><soap:body use="literal"/></output>
 		</operation>
 
-		<!-- *********************  CONNECTOR  ************************ -->
-		
-		<operation name="connectorInteraction">
-			<soap:operation/>
-			<input><soap:body use="literal"/></input>
-			<output><soap:body use="literal"/></output>
-		</operation>
-
-		
 		<!-- *********************  SERVICES  ************************ -->
 		
 		<operation name="serviceAction">

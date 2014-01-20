@@ -361,12 +361,6 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSStringArray _retVal = null;
         return _retVal;
     }
-    public com.amalto.core.webservice.WSConnectorInteractionResponse connectorInteraction(com.amalto.core.webservice.WSConnectorInteraction wsConnectorInteraction) throws 
-         java.rmi.RemoteException {
-        
-        com.amalto.core.webservice.WSConnectorInteractionResponse _retVal = null;
-        return _retVal;
-    }
     public com.amalto.core.webservice.WSString serviceAction(com.amalto.core.webservice.WSServiceAction wsServiceAction) throws 
          java.rmi.RemoteException {
         

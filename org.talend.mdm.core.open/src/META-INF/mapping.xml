@@ -606,23 +606,6 @@
     </variable-mapping>
   </java-xml-type-mapping>
   <java-xml-type-mapping>
-    <java-type>com.amalto.core.webservice.WSConnectorInteraction</java-type>
-    <root-type-qname xmlns:typeNS="urn-com-amalto-xtentis-webservice">typeNS:WSConnectorInteraction</root-type-qname>
-    <qname-scope>complexType</qname-scope>
-    <variable-mapping>
-      <java-variable-name>JNDIName</java-variable-name>
-      <xml-element-name>JNDIName</xml-element-name>
-    </variable-mapping>
-    <variable-mapping>
-      <java-variable-name>function</java-variable-name>
-      <xml-element-name>function</xml-element-name>
-    </variable-mapping>
-    <variable-mapping>
-      <java-variable-name>parameters</java-variable-name>
-      <xml-element-name>parameters</xml-element-name>
-    </variable-mapping>
-  </java-xml-type-mapping>
-  <java-xml-type-mapping>
     <java-type>com.amalto.core.webservice.WSExistsTransformerV2</java-type>
     <root-type-qname xmlns:typeNS="urn-com-amalto-xtentis-webservice">typeNS:WSExistsTransformerV2</root-type-qname>
     <qname-scope>complexType</qname-scope>
@@ -1027,19 +1010,6 @@
     <variable-mapping>
       <java-variable-name>wsViewPK</java-variable-name>
       <xml-element-name>wsViewPK</xml-element-name>
-    </variable-mapping>
-  </java-xml-type-mapping>
-  <java-xml-type-mapping>
-    <java-type>com.amalto.core.webservice.WSConnectorInteractionResponse</java-type>
-    <root-type-qname xmlns:typeNS="urn-com-amalto-xtentis-webservice">typeNS:WSConnectorInteractionResponse</root-type-qname>
-    <qname-scope>complexType</qname-scope>
-    <variable-mapping>
-      <java-variable-name>code</java-variable-name>
-      <xml-element-name>code</xml-element-name>
-    </variable-mapping>
-    <variable-mapping>
-      <java-variable-name>parameters</java-variable-name>
-      <xml-element-name>parameters</xml-element-name>
     </variable-mapping>
   </java-xml-type-mapping>
   <java-xml-type-mapping>
@@ -3411,11 +3381,6 @@
     <qname-scope>complexType</qname-scope>
   </java-xml-type-mapping>
   <java-xml-type-mapping>
-    <java-type>com.amalto.core.webservice.WSBase64KeyValue[]</java-type>
-    <anonymous-type-qname>urn-com-amalto-xtentis-webservice:WSConnectorInteraction&gt;parameters[0,unbounded]</anonymous-type-qname>
-    <qname-scope>complexType</qname-scope>
-  </java-xml-type-mapping>
-  <java-xml-type-mapping>
     <java-type>com.amalto.core.webservice.WSWhereItem[]</java-type>
     <anonymous-type-qname>urn-com-amalto-xtentis-webservice:WSWhereAnd&gt;whereItems[1,unbounded]</anonymous-type-qname>
     <qname-scope>complexType</qname-scope>
@@ -3443,11 +3408,6 @@
   <java-xml-type-mapping>
     <java-type>com.amalto.core.webservice.WSPipelineTypedContentEntry[]</java-type>
     <anonymous-type-qname>urn-com-amalto-xtentis-webservice:WSPipeline&gt;typedContentEntry[1,unbounded]</anonymous-type-qname>
-    <qname-scope>complexType</qname-scope>
-  </java-xml-type-mapping>
-  <java-xml-type-mapping>
-    <java-type>com.amalto.core.webservice.WSBase64KeyValue[]</java-type>
-    <anonymous-type-qname>urn-com-amalto-xtentis-webservice:WSConnectorInteractionResponse&gt;parameters[0,unbounded]</anonymous-type-qname>
     <qname-scope>complexType</qname-scope>
   </java-xml-type-mapping>
   <java-xml-type-mapping>
@@ -3658,11 +3618,6 @@
   <java-xml-type-mapping>
     <java-type>com.amalto.core.webservice.WSLanguage</java-type>
     <root-type-qname xmlns:typeNS="urn-com-amalto-xtentis-webservice">typeNS:WSLanguage</root-type-qname>
-    <qname-scope>simpleType</qname-scope>
-  </java-xml-type-mapping>
-  <java-xml-type-mapping>
-    <java-type>com.amalto.core.webservice.WSConnectorFunction</java-type>
-    <root-type-qname xmlns:typeNS="urn-com-amalto-xtentis-webservice">typeNS:WSConnectorFunction</root-type-qname>
     <qname-scope>simpleType</qname-scope>
   </java-xml-type-mapping>
   <java-xml-type-mapping>
@@ -4808,24 +4763,6 @@
         <method-return-value>com.amalto.core.webservice.WSStringArray</method-return-value>
         <wsdl-message xmlns:wsdlMsgNS="urn-com-amalto-xtentis-webservice">wsdlMsgNS:runQueryResponse</wsdl-message>
         <wsdl-message-part-name>wsStringArray</wsdl-message-part-name>
-      </wsdl-return-value-mapping>
-    </service-endpoint-method-mapping>
-    <service-endpoint-method-mapping>
-      <java-method-name>connectorInteraction</java-method-name>
-      <wsdl-operation>connectorInteraction</wsdl-operation>
-      <method-param-parts-mapping>
-        <param-position>0</param-position>
-        <param-type>com.amalto.core.webservice.WSConnectorInteraction</param-type>
-        <wsdl-message-mapping>
-          <wsdl-message xmlns:wsdlMsgNS="urn-com-amalto-xtentis-webservice">wsdlMsgNS:connectorInteractionRequest</wsdl-message>
-          <wsdl-message-part-name>wsConnectorInteraction</wsdl-message-part-name>
-          <parameter-mode>IN</parameter-mode>
-        </wsdl-message-mapping>
-      </method-param-parts-mapping>
-      <wsdl-return-value-mapping>
-        <method-return-value>com.amalto.core.webservice.WSConnectorInteractionResponse</method-return-value>
-        <wsdl-message xmlns:wsdlMsgNS="urn-com-amalto-xtentis-webservice">wsdlMsgNS:connectorInteractionResponse</wsdl-message>
-        <wsdl-message-part-name>wsConnectorInteractionResponse</wsdl-message-part-name>
       </wsdl-return-value-mapping>
     </service-endpoint-method-mapping>
     <service-endpoint-method-mapping>

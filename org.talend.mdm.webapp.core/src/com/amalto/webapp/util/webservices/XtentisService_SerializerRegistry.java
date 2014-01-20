@@ -654,11 +654,6 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSPutBusinessConceptSchema.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSConnectorInteraction");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSConnectorInteraction_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSConnectorInteraction.class, type, serializer);
-        }
-        {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSGetCurrentUniverse");
             CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSGetCurrentUniverse_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSGetCurrentUniverse.class, type, serializer);
@@ -909,12 +904,6 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSGetChildrenItems");
             CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSGetChildrenItems_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSGetChildrenItems.class, type, serializer);
-        }
-        {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSConnectorFunction");
-            CombinedSerializer serializer = new LiteralSimpleTypeSerializer(type, "",
-                com.amalto.webapp.util.webservices.WSConnectorFunction_Encoder.getInstance());
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSConnectorFunction.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSGetUniverseByRevision");
@@ -1283,12 +1272,6 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSExistsTransformerV2.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSConnectorResponseCode");
-            CombinedSerializer serializer = new LiteralSimpleTypeSerializer(type, "",
-                com.amalto.webapp.util.webservices.WSConnectorResponseCode_Encoder.getInstance());
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSConnectorResponseCode.class, type, serializer);
-        }
-        {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSPutItemByOperatorType");
             CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSPutItemByOperatorType_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSPutItemByOperatorType.class, type, serializer);
@@ -1429,11 +1412,6 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSMenuEntry.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSBase64KeyValue");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSBase64KeyValue_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSBase64KeyValue.class, type, serializer);
-        }
-        {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSGetRole");
             CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSGetRole_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSGetRole.class, type, serializer);
@@ -1547,11 +1525,6 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSDeleteUniverse");
             CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSDeleteUniverse_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSDeleteUniverse.class, type, serializer);
-        }
-        {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSConnectorInteractionResponse");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSConnectorInteractionResponse_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSConnectorInteractionResponse.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSResolveSynchronizationItem");
