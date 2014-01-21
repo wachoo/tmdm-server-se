@@ -34,6 +34,8 @@ public interface Webapp {
 
     public boolean isEnterpriseVersion();
 
+    public String getLicenseWarning(String language) throws Exception;
+
     public static final Webapp INSTANCE = WebappFactory.createWebapp();
 
     public static final class WebappFactory {

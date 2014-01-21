@@ -70,6 +70,7 @@ public class MainFramePanel extends Portal {
     private void itemClick(final String context, final String application) {
         service.isExpired(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
 
+            @Override
             public void onSuccess(Boolean result) {
                 initUI(context, application);
             }
@@ -91,6 +92,7 @@ public class MainFramePanel extends Portal {
         final MainFramePanel mainFramePanel = this;
         service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
 
+            @Override
             public void onSuccess(Boolean isEnterprise) {
                 if (isEnterprise) { // This feature is MDM EE only.
                     String name = WelcomePortal.SEARCH;
@@ -105,6 +107,7 @@ public class MainFramePanel extends Portal {
                     final TextBox textBox = new TextBox();
                     textBox.addKeyUpHandler(new KeyUpHandler() {
 
+                        @Override
                         public void onKeyUp(KeyUpEvent keyUpEvent) {
                             if (keyUpEvent.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
                                 doSearch(textBox);
@@ -141,6 +144,7 @@ public class MainFramePanel extends Portal {
     private void applyStartPortlet(final Portlet start) {
         service.getMenuLabel(UrlUtil.getLanguage(), WelcomePortal.BROWSEAPP, new SessionAwareAsyncCallback<String>() {
 
+            @Override
             public void onSuccess(String id) {
                 FieldSet set = (FieldSet) start.getItemByItemId(WelcomePortal.START + "Set"); //$NON-NLS-1$                
                 set.removeAll();
@@ -152,6 +156,7 @@ public class MainFramePanel extends Portal {
                 HTML browseHtml = new HTML(sb1.toString());
                 browseHtml.addClickHandler(new ClickHandler() {
 
+                    @Override
                     public void onClick(ClickEvent event) {
                         itemClick(WelcomePortal.BROWSECONTEXT, WelcomePortal.BROWSEAPP);
                     }
@@ -166,6 +171,7 @@ public class MainFramePanel extends Portal {
                 HTML journalHtml = new HTML(sb2.toString());
                 journalHtml.addClickHandler(new ClickHandler() {
 
+                    @Override
                     public void onClick(ClickEvent event) {
                         itemClick(WelcomePortal.JOURNALCONTEXT, WelcomePortal.JOURNALAPP);
                     }
@@ -182,6 +188,7 @@ public class MainFramePanel extends Portal {
 
         service.isHiddenLicense(new SessionAwareAsyncCallback<Boolean>() {
 
+            @Override
             public void onSuccess(Boolean hidden) {
                 if (!hidden) {
                     String name = WelcomePortal.ALERT;
@@ -206,35 +213,49 @@ public class MainFramePanel extends Portal {
         final HTML alertHtml = new HTML();
         final StringBuilder sb = new StringBuilder(
                 "<span id=\"licenseAlert\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().alerts_title() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
+        final String alertIcon = "<IMG SRC=\"/talendmdm/secure/img/genericUI/alert-icon.png\"/>&nbsp;"; //$NON-NLS-1$
 
         service.getAlertMsg(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<String>() {
 
+            @Override
             public void onSuccess(String msg) {
                 if (msg == null) {
-                    label.setText(MessagesFactory.getMessages().no_alerts());
-                    set.setVisible(false);
+                    service.getLicenseWarning(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<String>() {
+
+                        @Override
+                        public void onSuccess(String message) {
+                            if (!message.isEmpty()) {
+                                sb.append(alertIcon);
+                                sb.append(message);
+                                label.setText(MessagesFactory.getMessages().alerts_desc());
+                            } else {
+                                label.setText(MessagesFactory.getMessages().no_alerts());
+                                set.setVisible(false);
+                            }
+                            sb.append("</span>"); //$NON-NLS-1$
+                            alertHtml.setHTML(sb.toString());
+                        }
+                    });
                 } else {
                     if (msg.equals(WelcomePortal.NOLICENSE)) {
-                        String noStr = "<IMG SRC=\"/talendmdm/secure/img/genericUI/alert-icon.png\"/>&nbsp;" //$NON-NLS-1$
-                                + MessagesFactory.getMessages().no_license_msg();
-                        sb.append(noStr);
+                        sb.append(alertIcon);
+                        sb.append(MessagesFactory.getMessages().no_license_msg());
                     } else if (msg.equals(WelcomePortal.EXPIREDLICENSE)) {
-                        String expiredStr = "<IMG SRC=\"/talendmdm/secure/img/genericUI/alert-icon.png\"/>&nbsp;" //$NON-NLS-1$
-                                + MessagesFactory.getMessages().license_expired_msg();
-                        sb.append(expiredStr);
+                        sb.append(alertIcon);
+                        sb.append(MessagesFactory.getMessages().license_expired_msg());
                     } else {
                         // error msg
                         sb.append(msg);
                     }
                     label.setText(MessagesFactory.getMessages().alerts_desc());
+                    sb.append("</span>"); //$NON-NLS-1$
+                    alertHtml.setHTML(sb.toString());
                 }
-                sb.append("</span>"); //$NON-NLS-1$
-                alertHtml.setHTML(sb.toString());
             }
-
         });
         alertHtml.addClickHandler(new ClickHandler() {
 
+            @Override
             public void onClick(ClickEvent event) {
                 initUI(WelcomePortal.LICENSECONTEXT, WelcomePortal.LICENSEAPP);
             }
@@ -247,6 +268,7 @@ public class MainFramePanel extends Portal {
     private void initTaskPortlet() {
         service.isHiddenTask(new SessionAwareAsyncCallback<Boolean>() {
 
+            @Override
             public void onSuccess(Boolean hidden) {
                 if (!hidden) {
                     String name = WelcomePortal.TASK;
@@ -273,6 +295,7 @@ public class MainFramePanel extends Portal {
                 "<span id=\"workflowtasks\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().tasks_title() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
         service.getTaskMsg(new SessionAwareAsyncCallback<Integer>() {
 
+            @Override
             public void onSuccess(Integer num) {
 
                 if (num.equals(0)) {
@@ -297,6 +320,7 @@ public class MainFramePanel extends Portal {
         });
         taskHtml.addClickHandler(new ClickHandler() {
 
+            @Override
             public void onClick(ClickEvent event) {
                 itemClick(WelcomePortal.TASKCONTEXT, WelcomePortal.TASKAPP);
             }
@@ -324,6 +348,7 @@ public class MainFramePanel extends Portal {
         set.removeAll();
         service.getStandaloneProcess(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<List<String>>() {
 
+            @Override
             public void onSuccess(List<String> list) {
                 if (list.isEmpty()) {
                     label.setText(MessagesFactory.getMessages().no_standalone_process());
@@ -343,9 +368,11 @@ public class MainFramePanel extends Portal {
                         processHtml.setHTML(sb.toString());
                         processHtml.addClickHandler(new ClickHandler() {
 
+                            @Override
                             public void onClick(ClickEvent arg0) {
                                 service.isExpired(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
 
+                                    @Override
                                     public void onSuccess(Boolean result) {
                                         final MessageBox box = MessageBox.wait(null, MessagesFactory.getMessages().waiting_msg(),
                                                 MessagesFactory.getMessages().waiting_desc());
@@ -367,11 +394,13 @@ public class MainFramePanel extends Portal {
 
                                             }
 
+                                            @Override
                                             public void onSuccess(final String result) {
                                                 box.close();
                                                 MessageBox.alert(MessagesFactory.getMessages().run_status(), MessagesFactory
                                                         .getMessages().run_done(), new Listener<MessageBoxEvent>() {
 
+                                                    @Override
                                                     public void handleEvent(MessageBoxEvent be) {
                                                         if (result.length() > 0) {
                                                             openWindow(result);

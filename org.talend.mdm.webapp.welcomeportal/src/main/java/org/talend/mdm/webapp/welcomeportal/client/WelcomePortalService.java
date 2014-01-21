@@ -42,4 +42,6 @@ public interface WelcomePortalService extends RemoteService {
     boolean isEnterpriseVersion() throws ServiceException;
 
     public String getMenuLabel(String language, String id) throws Exception;
+
+    public String getLicenseWarning(String language) throws ServiceException;
 }

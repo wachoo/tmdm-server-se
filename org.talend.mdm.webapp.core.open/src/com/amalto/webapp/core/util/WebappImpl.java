@@ -18,35 +18,48 @@ import com.amalto.webapp.core.util.dwr.WebappInfo;
 
 public class WebappImpl implements Webapp {
 
+    @Override
     public void getInfo(WebappInfo info, String language) {
         return;
     }
-    
+
+    @Override
     public Map<String, String> getProductInfo() {
         return null;
     }
 
+    @Override
     public int getTaskMsg() {
         return 0;
     }
 
+    @Override
     public boolean isExpired() throws Exception {
         return isExpired(null);
     }
 
+    @Override
     public boolean isExpired(String language) throws Exception {
         return false;
     }
 
+    @Override
     public boolean isShowMsg() throws Exception {
         return false;
     }
 
+    @Override
     public boolean isDataSteWardShip() throws Exception {
         return false;
     }
 
+    @Override
     public boolean isEnterpriseVersion() {
         return false;
+    }
+
+    @Override
+    public String getLicenseWarning(String language) throws Exception {
+        return null;
     }
 }

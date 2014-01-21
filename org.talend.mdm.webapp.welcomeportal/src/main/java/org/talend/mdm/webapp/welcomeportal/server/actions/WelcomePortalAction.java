@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.welcomeportal.server.actions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -55,6 +54,7 @@ public class WelcomePortalAction implements WelcomePortalService {
      * 
      * @return
      */
+    @Override
     public boolean isHiddenLicense() throws ServiceException {
         return isHiddenMenu(WelcomePortal.LICENSEAPP);
     }
@@ -64,6 +64,7 @@ public class WelcomePortalAction implements WelcomePortalService {
      * 
      * @return
      */
+    @Override
     public boolean isHiddenTask() throws ServiceException {
         return isHiddenMenu(WelcomePortal.TASKAPP);
     }
@@ -101,8 +102,7 @@ public class WelcomePortalAction implements WelcomePortalService {
     private boolean isHiddenMenu(String menu) throws ServiceException {
         try {
             TreeMap<String, Menu> subMenus = Menu.getRootMenu().getSubMenus();
-            for (Iterator<String> iter = subMenus.keySet().iterator(); iter.hasNext();) {
-                String key = iter.next();
+            for (String key : subMenus.keySet()) {
                 Menu subMenu = subMenus.get(key);
 
                 if (menu.equals(subMenu.getApplication())) {
@@ -116,18 +116,30 @@ public class WelcomePortalAction implements WelcomePortalService {
         }
     }
 
+    @Override
     public String getAlertMsg(String language) throws ServiceException {
         try {
             WebappInfo webappInfo = new WebappInfo();
             Webapp.INSTANCE.getInfo(webappInfo, language);
-            if (webappInfo.getLicense() == null)
+            if (webappInfo.getLicense() == null) {
                 return WelcomePortal.NOLICENSE;
-            else if (!webappInfo.isLicenseValid())
+            } else if (!webappInfo.isLicenseValid()) {
                 return WelcomePortal.EXPIREDLICENSE;
+            }
             return null;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             return e.getMessage();
+        }
+    }
+
+    @Override
+    public String getLicenseWarning(String language) throws ServiceException {
+        try {
+            return Webapp.INSTANCE.getLicenseWarning(language);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
     }
 
@@ -136,10 +148,12 @@ public class WelcomePortalAction implements WelcomePortalService {
      * 
      * @return
      */
+    @Override
     public int getTaskMsg() {
         return Webapp.INSTANCE.getTaskMsg();
     }
 
+    @Override
     public List<String> getStandaloneProcess(String language) throws ServiceException {
         try {
             List<String> process = new ArrayList<String>();
@@ -152,10 +166,11 @@ public class WelcomePortalAction implements WelcomePortalService {
                     // add transformer pk, and then add its desc
                     process.add(wstransformerpk.getPk());
                     String desc = getDescriptionByLau(language, wsTransformer.getDescription());
-                    if (desc == null || desc.equals("")) //$NON-NLS-1$
+                    if (desc == null || desc.equals("")) { //$NON-NLS-1$
                         process.add(wstransformerpk.getPk());
-                    else
+                    } else {
                         process.add(desc);
+                    }
                 }
             }
             return process;
@@ -172,6 +187,7 @@ public class WelcomePortalAction implements WelcomePortalService {
      * @param transformerPK
      * @return
      */
+    @Override
     public String runProcess(String transformerPK) throws ServiceException {
         try {
             WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
@@ -205,6 +221,7 @@ public class WelcomePortalAction implements WelcomePortalService {
 
     }
 
+    @Override
     public boolean isExpired(String language) throws ServiceException {
         try {
             return Webapp.INSTANCE.isExpired(language);
@@ -214,10 +231,12 @@ public class WelcomePortalAction implements WelcomePortalService {
         }
     }
 
+    @Override
     public boolean isEnterpriseVersion() throws ServiceException {
         return Webapp.INSTANCE.isEnterpriseVersion();
     }
 
+    @Override
     public String getMenuLabel(String language, String id) throws Exception {
         return Menu.getMenuLabel(language, id);
     }

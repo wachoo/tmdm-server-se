@@ -12,7 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.client;
 
-//============================================================================
+// ============================================================================
 //
 // Copyright (C) 2006-2012 Talend Inc. - www.talend.com
 //
@@ -50,5 +50,7 @@ public interface WelcomePortalServiceAsync {
     void isEnterpriseVersion(AsyncCallback<Boolean> callback);
 
     void getMenuLabel(String language, String id, AsyncCallback<String> callback);
+
+    void getLicenseWarning(String language, AsyncCallback<String> callback);
 
 }
