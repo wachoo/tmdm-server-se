@@ -379,14 +379,10 @@ public class MetadataUtils {
         // in this case, the XSD type is interesting, not the custom one).
         if (!XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(type.getNamespace())) {
             while (!type.getSuperTypes().isEmpty()) {
-                TypeMetadata superType = type.getSuperTypes().iterator().next();
-                if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(superType.getNamespace())
-                        && (Types.ANY_TYPE.equals(superType.getName())
-                        || Types.ANY_SIMPLE_TYPE.equals(superType.getName())
-                        || Types.DECIMAL.equals(superType.getName()))) {
+                type = type.getSuperTypes().iterator().next();
+                if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(type.getNamespace())) {
                     break;
                 }
-                type = superType;
             }
         }
         return type;
@@ -394,7 +390,7 @@ public class MetadataUtils {
 
     public static Object convert(String dataAsString, TypeMetadata type) {
         String typeName = type.getName();
-        if (dataAsString == null || 
+        if (dataAsString == null ||
                 (dataAsString.isEmpty() && !Types.STRING.equals(typeName) && !typeName.contains("limitedString"))) { //$NON-NLS-1$
             return null;
         } else {
