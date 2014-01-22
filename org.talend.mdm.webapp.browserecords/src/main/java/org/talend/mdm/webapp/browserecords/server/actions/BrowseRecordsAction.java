@@ -2322,11 +2322,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     @Override
     public String formatValue(FormatModel model) throws ServiceException {
-        String formatedValue = ""; //$NON-NLS-1$
         Locale locale = new Locale(model.getLanguage());
         try {
-            formatedValue = CommonUtil.getFormatedString(locale, model.getFormat(), model.getObject());
-            return formatedValue;
+            return String.format(new Locale(model.getLanguage()), model.getFormat(), model.getObject());
         } catch (IllegalArgumentException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new ServiceException(MESSAGES.getMessage(locale,
