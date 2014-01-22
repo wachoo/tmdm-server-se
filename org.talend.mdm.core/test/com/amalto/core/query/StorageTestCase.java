@@ -16,6 +16,7 @@ import java.util.List;
 
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
@@ -27,8 +28,6 @@ import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.SecuredStorage;
 import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 
 import static com.amalto.core.query.user.UserQueryBuilder.isNull;
@@ -130,8 +129,8 @@ public class StorageTestCase extends TestCase {
 
     private ClassLoader previous;
 
-    protected static DataSource getDatasource(String dataSourceName) {
-        return ServerContext.INSTANCE.get().getDataSource(dataSourceName, "MDM", StorageType.MASTER);
+    protected static DataSourceDefinition getDatasource(String dataSourceName) {
+        return ServerContext.INSTANCE.get().getDefinition(dataSourceName, "MDM");
     }
 
     public void test() throws Exception {

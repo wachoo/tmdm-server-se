@@ -16,6 +16,7 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.Transaction;
@@ -204,7 +205,7 @@ public class TransactionTest extends TestCase {
         }
 
         @Override
-        public void init(DataSource dataSource) {
+        public void init(DataSourceDefinition dataSource) {
         }
 
         @Override

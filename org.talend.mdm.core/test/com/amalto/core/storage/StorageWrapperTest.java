@@ -69,7 +69,7 @@ public class StorageWrapperTest extends TestCase {
 
     private Storage prepareStorage(MetadataRepository repository) {
         Storage storage = new HibernateStorage("Product"); //$NON-NLS-1$
-        storage.init(ServerContext.INSTANCE.get().getDataSource(StorageTestCase.DATABASE + "-Default", "MDM", StorageType.MASTER)); //$NON-NLS-1$//$NON-NLS-2$
+        storage.init(ServerContext.INSTANCE.get().getDefinition(StorageTestCase.DATABASE + "-Default", "MDM")); //$NON-NLS-1$//$NON-NLS-2$
         storage.prepare(repository, true);
         return storage;
     }

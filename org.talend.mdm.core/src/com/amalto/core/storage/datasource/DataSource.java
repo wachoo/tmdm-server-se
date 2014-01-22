@@ -13,7 +13,7 @@ package com.amalto.core.storage.datasource;
 
 /**
  * Represents a "datasource": a representation of how to connect to the underlying database.
- * @see com.amalto.core.storage.Storage#init(DataSource)
+ * @see com.amalto.core.storage.Storage#init(DataSourceDefinition)
  */
 public interface DataSource {
     /**
@@ -29,5 +29,9 @@ public interface DataSource {
      */
     boolean isShared();
 
+    /**
+     * Flags the data source as "shared" (see {@link #isShared()}).
+     * @param isShared <code>true</code> is data source is shared, <code>false</code> otherwise.
+     */
     void setShared(boolean isShared);
 }

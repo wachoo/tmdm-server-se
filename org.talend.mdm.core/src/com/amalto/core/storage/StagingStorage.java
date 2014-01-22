@@ -14,6 +14,7 @@ package com.amalto.core.storage;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.task.StagingConstants;
@@ -72,7 +73,7 @@ public class StagingStorage implements Storage {
     }
 
     @Override
-    public void init(DataSource dataSource) {
+    public void init(DataSourceDefinition dataSource) {
         delegate.init(dataSource);
     }
 

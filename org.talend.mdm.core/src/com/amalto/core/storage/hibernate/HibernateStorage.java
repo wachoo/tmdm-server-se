@@ -15,6 +15,7 @@ import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.optimization.*;
 import com.amalto.core.query.user.*;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.TransactionManager;
 import org.apache.commons.lang.ObjectUtils;
@@ -155,10 +156,12 @@ public class HibernateStorage implements Storage {
     }
 
     @Override
-    public void init(DataSource dataSource) {
+    public void init(DataSourceDefinition dataSourceDefinition) {
+        // Pick the correct datasource based on storage's type.
+        DataSource dataSource = dataSourceDefinition.get(storageType);
         // Stateless components
         if (dataSource == null) {
-            throw new IllegalArgumentException("Data source can not be null.");
+            throw new IllegalArgumentException("Data source does not declare a section for type '" + storageType + "'.");
         }
         if (!(dataSource instanceof RDBMSDataSource)) {
             throw new IllegalArgumentException("Data source is expected to be a RDBMS data source.");

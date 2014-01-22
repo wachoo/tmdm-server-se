@@ -16,6 +16,7 @@ import com.amalto.core.initdb.InitDBUtil;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.query.user.Expression;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.hibernate.TypeMappingStrategy;
 import org.apache.commons.io.IOUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -478,8 +479,8 @@ public class SystemStorageTest extends TestCase {
         );
     }
 
-    protected static DataSource getDatasource(String dataSourceName) {
-        return ServerContext.INSTANCE.get().getDataSource(dataSourceName, "MDM", StorageType.MASTER);
+    protected static DataSourceDefinition getDatasource(String dataSourceName) {
+        return ServerContext.INSTANCE.get().getDefinition(dataSourceName, "MDM");
     }
 
 }

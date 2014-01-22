@@ -18,12 +18,12 @@ import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.StagingStorage;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
 import org.apache.commons.io.IOUtils;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceFactory;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.hibernate.HibernateStorage;
@@ -182,7 +182,7 @@ public class StorageAdminImpl implements StorageAdmin {
         // Init system storage
         Storage storage = new HibernateStorage(SYSTEM_STORAGE, StorageType.SYSTEM);
         ServerContext instance = ServerContext.INSTANCE;
-        DataSource dataSource = instance.get().getDataSource(dataSourceName, SYSTEM_STORAGE, StorageType.SYSTEM);
+        DataSourceDefinition dataSource = instance.get().getDefinition(dataSourceName, SYSTEM_STORAGE);
         storage.init(dataSource);
         storage.prepare(repository, Collections.<Expression>emptySet(), false, false);
         registerStorage(SYSTEM_STORAGE, null, storage);
@@ -191,10 +191,17 @@ public class StorageAdminImpl implements StorageAdmin {
 
     // Returns null if storage can not be created (e.g. because of missing data source configuration).
     private Storage internalCreateStorage(String dataModelName, String storageName, String dataSourceName, StorageType storageType, String revisionId) {
+        Map<String, Storage> revisionToStorage = storages.get(storageName);
+        if (revisionToStorage != null) { // Look for already created storages.
+            Storage storage = revisionToStorage.get(revisionId);
+            if (storage != null && storage.getType() == storageType) {
+                return storage;
+            }
+        }
         ServerContext instance = ServerContext.INSTANCE;
-        DataSource dataSource = instance.get().getDataSource(dataSourceName, storageName, revisionId, storageType);
+        DataSourceDefinition definition = instance.get().getDefinition(dataSourceName, storageName, revisionId);
         String registeredStorageName = storageName;
-        if (dataSource instanceof RDBMSDataSource) {
+        if (definition == null) {
             // May get request for "StorageName/Concept", but for SQL it does not make any sense.
             // See com.amalto.core.storage.StorageWrapper.createCluster()
             storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
@@ -212,37 +219,50 @@ public class StorageAdminImpl implements StorageAdmin {
                 return get(storageName, revisionId);
             }
             // Replace all container name, so re-read the configuration.
-            dataSource = instance.get().getDataSource(dataSourceName, storageName, revisionId, storageType);
+            definition = instance.get().getDefinition(dataSourceName, storageName, revisionId);
         }
         if (!instance.get().hasDataSource(dataSourceName, storageName, storageType)) {
             LOGGER.warn("Can not initialize " + storageType + " storage for '" + storageName + "': data source '" + dataSourceName + "' configuration is incomplete.");
             return null;
         }
         // Create storage
-        if (XSystemObjects.DC_UPDATE_PREPORT.getName().equals(storageName) && dataSource instanceof RDBMSDataSource) {
-            final RDBMSDataSource previousDataSource = (RDBMSDataSource) dataSource;
-            dataSource = new RDBMSDataSource(previousDataSource) {
-                @Override
-                public boolean supportFullText() {
-                    if (LOGGER.isDebugEnabled() && super.supportFullText()) {
-                        LOGGER.debug("Disabling full text for update report storage.");
+        if (XSystemObjects.DC_UPDATE_PREPORT.getName().equals(storageName)) {
+            if (definition.get(storageType) instanceof RDBMSDataSource) {
+                final RDBMSDataSource previousDataSource = (RDBMSDataSource) definition.get(storageType);
+                RDBMSDataSource dataSource = new RDBMSDataSource(previousDataSource) {
+                    @Override
+                    public boolean supportFullText() {
+                        if (LOGGER.isDebugEnabled() && super.supportFullText()) {
+                            LOGGER.debug("Disabling full text for update report storage.");
+                        }
+                        return false;
                     }
-                    return false;
-                }
 
-                @Override
-                public boolean isShared() {
-                    return previousDataSource.isShared();
-                }
+                    @Override
+                    public boolean isShared() {
+                        return previousDataSource.isShared();
+                    }
 
-                @Override
-                public void setShared(boolean isShared) {
-                    previousDataSource.setShared(isShared);
+                    @Override
+                    public void setShared(boolean isShared) {
+                        previousDataSource.setShared(isShared);
+                    }
+                };
+                switch (storageType) {
+                    case MASTER:
+                        definition = new DataSourceDefinition(dataSource, definition.getStaging(), definition.getSystem());
+                        break;
+                    case STAGING:
+                        definition = new DataSourceDefinition(definition.getMaster(), dataSource, definition.getSystem());
+                        break;
+                    case SYSTEM:
+                        definition = new DataSourceDefinition(definition.getMaster(), definition.getStaging(), dataSource);
+                        break;
                 }
-            };
+            }
         }
         Storage dataModelStorage = instance.getLifecycle().createStorage(storageName, dataSourceName, storageType);
-        dataModelStorage.init(dataSource);
+        dataModelStorage.init(definition);
         MetadataRepositoryAdmin metadataRepositoryAdmin = instance.get().getMetadataRepositoryAdmin();
         boolean hasDataModel = metadataRepositoryAdmin.exist(dataModelName);
         if (!hasDataModel) {
@@ -332,6 +352,12 @@ public class StorageAdminImpl implements StorageAdmin {
 
     @Override
     public String getDatasource(String storageName) {
+        Set<Map.Entry<String, Map<String, Storage>>> entries = storages.entrySet();
+        for (Map.Entry<String, Map<String, Storage>> entry : entries) {
+            if (storageName.equals(entry.getKey())) {
+                return entry.getValue().values().iterator().next().getDataSource().getName();
+            }
+        }
         // This is not customized: in fact, there should be a way to customize storage -> datasource mapping (like
         // MDM container configuration).
         return DEFAULT_USER_DATA_SOURCE_NAME;

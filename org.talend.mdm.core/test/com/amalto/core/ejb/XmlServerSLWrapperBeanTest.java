@@ -38,7 +38,7 @@ public class XmlServerSLWrapperBeanTest extends TestCase {
     }
 
     public void testSupportStaging() {
-        
+
         Server server = ServerContext.INSTANCE.get();
         assertNotNull(server);
 
@@ -52,10 +52,16 @@ public class XmlServerSLWrapperBeanTest extends TestCase {
         Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS2", null);
         assertNotNull(storage);
 
+        Storage newStorage = storageAdmin.create(metadataRepositoryId, "NewStorage", "H2-DS1", null);
+        assertNotNull(newStorage);
+
         boolean isSupport = xmlServerSLWrapperBean.supportStaging(null);
         assertFalse(isSupport);
 
         isSupport = xmlServerSLWrapperBean.supportStaging("NewStorage");
+        assertFalse(isSupport);
+
+        isSupport = xmlServerSLWrapperBean.supportStaging("StorageThatDoesNotExist");
         assertFalse(isSupport);
 
         isSupport = xmlServerSLWrapperBean.supportStaging("Storage");

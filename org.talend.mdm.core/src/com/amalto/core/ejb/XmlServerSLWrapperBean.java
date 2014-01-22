@@ -566,7 +566,12 @@ public class XmlServerSLWrapperBean implements SessionBean, XmlServer {
             return false;
         }
         Server server = ServerContext.INSTANCE.get();
-        Storage storage = server.getStorageAdmin().get(dataCluster + StorageAdmin.STAGING_SUFFIX, null);
-        return storage != null;
+        StorageAdmin storageAdmin = server.getStorageAdmin();
+        try {
+            String dataSourceName = storageAdmin.getDatasource(dataCluster);
+            return server.getDefinition(dataSourceName, dataCluster).hasStaging();
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

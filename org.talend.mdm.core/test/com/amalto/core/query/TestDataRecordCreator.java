@@ -71,11 +71,11 @@ class TestDataRecordCreator extends DefaultMetadataVisitor<DataRecord> {
         if (field.isKey()) {
             TypeMetadata type = MetadataUtils.getSuperConcreteType(field.getType());
             if ("string".equals(type.getName())) {
-                return String.valueOf(currentId++);
+                return "1";
             } else if ("int".equals(type.getName())
                     || "integer".equals(type.getName())
                     || "unsignedInt".equals(type.getName())) {
-                return currentId++;
+                return 1;
             } else if ("unsignedShort".equals(type.getName())) {
                 return ((short) currentId++);
             } else if ("boolean".equals(type.getName())) {

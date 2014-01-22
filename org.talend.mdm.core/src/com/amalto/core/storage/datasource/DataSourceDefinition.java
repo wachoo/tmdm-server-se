@@ -11,8 +11,20 @@
 
 package com.amalto.core.storage.datasource;
 
+import com.amalto.core.storage.StorageType;
+
 import java.util.Arrays;
 
+/**
+ * Represents a set of {@link com.amalto.core.storage.datasource.DataSource datasource} that can be used by a
+ * {@link com.amalto.core.storage.Storage storage}.
+ * It contains at least one of:
+ * <ul>
+ *     <li>{@link StorageType#MASTER master}</li>
+ *     <li>{@link StorageType#STAGING staging}</li>
+ *     <li>{@link StorageType#SYSTEM system}</li>
+ * </ul>
+ */
 public class DataSourceDefinition {
 
     private final DataSource master;
@@ -68,22 +80,49 @@ public class DataSourceDefinition {
         return false;
     }
 
+    /**
+     * @param type A {@link com.amalto.core.storage.StorageType storage type}.
+     * @return The {@link com.amalto.core.storage.datasource.DataSource datasource} for the given <code>type</code> or
+     * <code>null</code> if it does not exist.
+     */
+    public DataSource get(StorageType type) {
+        switch (type) {
+            case MASTER:
+                return getMaster();
+            case STAGING:
+                return getStaging();
+            case SYSTEM:
+                return getSystem();
+            default:
+                throw new UnsupportedOperationException("No support for '" + type + "'.");
+        }
+    }
+
+    /**
+     * @return The {@link com.amalto.core.storage.datasource.DataSource datasource} for the {@link com.amalto.core.storage.StorageType#MASTER master} type.
+     */
     public DataSource getMaster() {
         return master;
     }
 
+    /**
+     * @return <code>true</code> if definition has information for {@link com.amalto.core.storage.StorageType#MASTER master}
+     * storage, <code>false</code> otherwise.
+     */
     public boolean hasStaging() {
         return staging != null;
     }
 
+    /**
+     * @return The {@link com.amalto.core.storage.datasource.DataSource datasource} for the {@link com.amalto.core.storage.StorageType#STAGING staging} type.
+     */
     public DataSource getStaging() {
         return staging;
     }
 
-    public boolean hasSystem() {
-        return system != null;
-    }
-
+    /**
+     * @return The {@link com.amalto.core.storage.datasource.DataSource datasource} for the {@link com.amalto.core.storage.StorageType#SYSTEM system} type.
+     */
     public DataSource getSystem() {
         return system;
     }

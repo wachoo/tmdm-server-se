@@ -14,7 +14,6 @@
 package com.amalto.core.server;
 
 import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.datasource.DataSourceFactory;
 import com.amalto.core.storage.transaction.TransactionManager;
@@ -51,28 +50,13 @@ class ServerImpl implements Server {
     }
 
     @Override
-    public DataSource getDataSource(String dataSourceName, String container, StorageType type) {
-        return getDataSource(dataSourceName, container, null, type);
+    public DataSourceDefinition getDefinition(String dataSourceName, String container) {
+        return getDefinition(dataSourceName, container, null);
     }
 
-    public DataSource getDataSource(String dataSourceName, String container, String revisionId, StorageType type) {
-        DataSourceDefinition configuration = dataSourceFactory.getDataSource(dataSourceName, container, revisionId);
-        switch (type) {
-            case MASTER:
-                return configuration.getMaster();
-            case STAGING:
-                if (!configuration.hasStaging()) {
-                    throw new IllegalArgumentException("Datasource '" + dataSourceName + "' does not declare a staging area.");
-                }
-                return configuration.getStaging();
-            case SYSTEM:
-                if (!configuration.hasSystem()) {
-                    throw new IllegalArgumentException("Datasource '" + dataSourceName + "' does not declare a system section.");
-                }
-                return configuration.getSystem();
-            default:
-                throw new NotImplementedException("Not supported: " + type);
-        }
+    @Override
+    public DataSourceDefinition getDefinition(String dataSourceName, String container, String revisionId) {
+        return dataSourceFactory.getDataSource(dataSourceName, container, revisionId);
     }
 
     public StorageAdmin getStorageAdmin() {

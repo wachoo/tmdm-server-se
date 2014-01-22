@@ -13,6 +13,7 @@ package com.amalto.core.storage;
 
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -65,7 +66,7 @@ public class SecuredStorage implements Storage {
         return delegate.newStorageTransaction();
     }
 
-    public void init(DataSource dataSource) {
+    public void init(DataSourceDefinition dataSource) {
         delegate.init(dataSource);
     }
 

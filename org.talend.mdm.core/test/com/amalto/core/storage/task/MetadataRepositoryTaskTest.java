@@ -18,6 +18,7 @@ import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.amalto.core.storage.datasource.DataSourceDefinition;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
@@ -180,7 +181,7 @@ public class MetadataRepositoryTaskTest extends TestCase {
         }
 
         @Override
-        public void init(DataSource dataSource) {
+        public void init(DataSourceDefinition dataSource) {
 
         }
 

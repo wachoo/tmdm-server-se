@@ -12,6 +12,7 @@ package com.amalto.core.storage;
 
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -101,9 +102,9 @@ public interface Storage {
      * this storage should take care of (usually stateless components).
      *
      * @param dataSource Represents the underlying data storage (e.g. RDBMS, XML DB...)
-     * @see com.amalto.core.server.Server#getDataSource(String, String, StorageType)
+     * @see com.amalto.core.server.Server#getDefinition(String, String)
      */
-    void init(DataSource dataSource);
+    void init(DataSourceDefinition dataSource);
 
     /**
      * Prepare storage to handle types located in {@link MetadataRepository}.

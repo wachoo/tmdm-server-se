@@ -57,7 +57,7 @@ public class RTETestCase extends TestCase {
         MetadataRepository repository = new MetadataRepository();
         repository.load(resourceAsStream);
 
-        storage.init(ServerContext.INSTANCE.get().getDataSource("RDBMS-1", "MDM", StorageType.MASTER));
+        storage.init(ServerContext.INSTANCE.get().getDefinition("RDBMS-1", "MDM"));
         storage.prepare(repository, true);
         LOG.info("Storage prepared.");
 

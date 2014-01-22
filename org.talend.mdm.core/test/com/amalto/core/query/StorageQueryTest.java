@@ -25,6 +25,7 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.StorageWrapper;
 import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.*;
@@ -2697,10 +2698,10 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testContainsCaseSensitivity() throws Exception {
         Storage s1 = new HibernateStorage("MDM1", StorageType.MASTER);
-        s1.init(ServerContext.INSTANCE.get().getDataSource(StorageTestCase.DATABASE + "-DS1", "MDM", StorageType.MASTER));
+        s1.init(ServerContext.INSTANCE.get().getDefinition(StorageTestCase.DATABASE + "-DS1", "MDM"));
         s1.prepare(repository, true);
         Storage s2 = new HibernateStorage("MDM2", StorageType.MASTER);
-        s2.init(ServerContext.INSTANCE.get().getDataSource(StorageTestCase.DATABASE + "-DS2", "MDM", StorageType.MASTER));
+        s2.init(ServerContext.INSTANCE.get().getDefinition(StorageTestCase.DATABASE + "-DS2", "MDM"));
         s2.prepare(repository, true);
         // Create country instance on both storages.
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
@@ -2744,10 +2745,10 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testStartsWithCaseSensitivity() throws Exception {
         Storage s1 = new HibernateStorage("MDM1", StorageType.MASTER);
-        s1.init(ServerContext.INSTANCE.get().getDataSource(StorageTestCase.DATABASE + "-DS1", "MDM", StorageType.MASTER));
+        s1.init(ServerContext.INSTANCE.get().getDefinition(StorageTestCase.DATABASE + "-DS1", "MDM"));
         s1.prepare(repository, true);
         Storage s2 = new HibernateStorage("MDM2", StorageType.MASTER);
-        s2.init(ServerContext.INSTANCE.get().getDataSource(StorageTestCase.DATABASE + "-DS2", "MDM", StorageType.MASTER));
+        s2.init(ServerContext.INSTANCE.get().getDefinition(StorageTestCase.DATABASE + "-DS2", "MDM"));
         s2.prepare(repository, true);
         // Create country instance on both storages.
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
@@ -2871,7 +2872,8 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testContainsOptimization() throws Exception {
-        DataSource datasource = getDatasource(DATABASE + "-Default");
+        DataSourceDefinition definition = getDatasource(DATABASE + "-Default");
+        DataSource datasource = definition.getMaster();
         assertTrue(datasource instanceof RDBMSDataSource);
         RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) datasource;
         TestRDBMSDataSource testDataSource = new TestRDBMSDataSource(rdbmsDataSource);
@@ -2914,7 +2916,8 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testContainsWithDash() throws Exception {
-        DataSource datasource = getDatasource(DATABASE + "-Default");
+        DataSourceDefinition definition = getDatasource(DATABASE + "-Default");
+        DataSource datasource = definition.getMaster();
         assertTrue(datasource instanceof RDBMSDataSource);
         RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) datasource;
         TestRDBMSDataSource testDataSource = new TestRDBMSDataSource(rdbmsDataSource);

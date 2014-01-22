@@ -21,7 +21,6 @@ import com.amalto.core.storage.transaction.TransactionManager;
 import org.apache.commons.lang.NotImplementedException;
 
 import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.datasource.DataSourceFactory;
 
@@ -55,6 +54,16 @@ public class MockServer implements Server {
     }
 
     @Override
+    public DataSourceDefinition getDefinition(String dataSourceName, String container) {
+        return dataSourceFactory.getDataSource(getDatasourcesInputStream(), dataSourceName, container, null);
+    }
+
+    @Override
+    public DataSourceDefinition getDefinition(String dataSourceName, String container, String revisionId) {
+        return dataSourceFactory.getDataSource(getDatasourcesInputStream(), dataSourceName, container, revisionId);
+    }
+
+    @Override
     public boolean hasDataSource(String dataSourceName, String container, StorageType type) {
         boolean isDataSourceDefinitionPresent = dataSourceFactory.hasDataSource(getDatasourcesInputStream(), dataSourceName);
         if (isDataSourceDefinitionPresent) {
@@ -69,28 +78,6 @@ public class MockServer implements Server {
             }
         }
         return isDataSourceDefinitionPresent;
-    }
-
-    @Override
-    public DataSource getDataSource(String dataSourceName, String container, StorageType type) {
-        return getDataSource(dataSourceName, container, null, type);
-    }
-
-    @Override
-    public DataSource getDataSource(String dataSourceName, String container, String revisionId, StorageType type) {
-        DataSourceDefinition configuration = dataSourceFactory.getDataSource(getDatasourcesInputStream(), dataSourceName,
-                container, revisionId);
-        switch (type) {
-        case MASTER:
-            return configuration.getMaster();
-        case STAGING:
-            if (!configuration.hasStaging()) {
-                throw new IllegalArgumentException("Datasource '" + dataSourceName + "' does not declare a staging area.");
-            }
-            return configuration.getStaging();
-        default:
-            throw new NotImplementedException("Not supported: " + type);
-        }
     }
 
     @Override
