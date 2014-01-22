@@ -12,7 +12,7 @@
 package com.amalto.core.storage;
 
 import com.amalto.core.load.io.ResettableStringWriter;
-import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.server.ServerContext;
@@ -682,7 +682,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                     if (keys.length == 1 || keys.length > 2) {
                         throw new IllegalArgumentException("The key format is 'Source.TimeInMillis' for type " + type.getName()); //$NON-NLS-1$
                     } else if (keys.length == 2) {
-                        if (keys[1] == null || keys[1].trim().isEmpty() || !MetadataUtils.isValueAssignable(keys[1], Timestamp.INSTANCE.getTypeName())) {
+                        if (keys[1] == null || keys[1].trim().isEmpty() || !StorageMetadataUtils.isValueAssignable(keys[1], Timestamp.INSTANCE.getTypeName())) {
                             throw new IllegalArgumentException("The key format is 'Source.TimeInMillis' for type '" + type.getName() + "'" +  //$NON-NLS-1$//$NON-NLS-2$
                             		" and the TimeInMillis key value must be a long type."); //$NON-NLS-1$
                         }
@@ -717,7 +717,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             } else {
                 Condition condition = null;
                 for (FieldMetadata field : type.getFields()) {
-                    if (MetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
+                    if (StorageMetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
                         if (!(field instanceof ContainedTypeFieldMetadata)) {
                             if (condition == null) {
                                 condition = contains(field, contentKeywords);

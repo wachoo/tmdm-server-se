@@ -15,7 +15,8 @@ import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldInsertAction;
 import com.amalto.core.history.action.FieldUpdateAction;
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
@@ -279,8 +280,8 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                     } else if (oldValue != null && !oldValue.equals(newValue)) {
                         if (!Types.STRING.equals(comparedField.getType().getName()) && !(comparedField instanceof ReferenceFieldMetadata)) {
                             // Field is not string. To ensure false positive difference detection, creates a typed value.
-                            Object oldObject = MetadataUtils.convert(oldValue, comparedField);
-                            Object newObject = MetadataUtils.convert(newValue, comparedField);
+                            Object oldObject = StorageMetadataUtils.convert(oldValue, comparedField);
+                            Object newObject = StorageMetadataUtils.convert(newValue, comparedField);
                             if (oldObject != null && newObject != null && oldObject instanceof Comparable) {
                                 if (((Comparable) oldObject).compareTo(newObject) == 0) {
                                     // Objects are the 'same' (e.g. 10.0 is same as 10).

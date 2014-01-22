@@ -20,6 +20,7 @@ import com.amalto.core.query.user.Distinct;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.Type;
 import com.amalto.core.query.user.metadata.*;
+import com.amalto.core.storage.StorageMetadataUtils;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.NotImplementedException;
@@ -31,7 +32,7 @@ import org.hibernate.impl.CriteriaImpl;
 import org.hibernate.sql.JoinFragment;
 import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
-import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
@@ -143,7 +144,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             throw new NotImplementedException("No support for join type " + join.getJoinType());
         }
         // Select a path from mainType to the selected field (properties are '.' separated).
-        List<FieldMetadata> path = MetadataUtils.path(mainType, join.getLeftField().getFieldMetadata());
+        List<FieldMetadata> path = StorageMetadataUtils.path(mainType, join.getLeftField().getFieldMetadata());
         // Empty path means no path then this is an error (all joined entities should be reachable from main type).
         if (path.isEmpty()) {
             String destinationFieldName;
@@ -375,9 +376,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
         String alias = null;
         Set<List<FieldMetadata>> paths;
         if (databaseField instanceof ReferenceFieldMetadata && !databaseField.getContainingType().isInstantiable()) {
-            paths = MetadataUtils.paths(type, databaseField);
+            paths = StorageMetadataUtils.paths(type, databaseField);
         } else {
-            paths = Collections.singleton(MetadataUtils.path(type, databaseField, true));
+            paths = Collections.singleton(StorageMetadataUtils.path(type, databaseField, true));
         }
         Set<String> aliases = new HashSet<String>(paths.size());
         for (List<FieldMetadata> path : paths) {
@@ -664,7 +665,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             } else {
                 // Case #2: doing a instance type check on a field reachable from main selected type.
                 // First, need to join with all tables to get to the table that stores the type
-                List<FieldMetadata> path = MetadataUtils.path(mainType, fieldCondition.fieldMetadata);
+                List<FieldMetadata> path = StorageMetadataUtils.path(mainType, fieldCondition.fieldMetadata);
                 if (path.isEmpty()) {
                     throw new IllegalStateException("Expected field '" + fieldCondition.fieldMetadata.getName()
                             + "' to be reachable from '"
@@ -838,11 +839,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
             if (expression instanceof Field) {
                 Field field = (Field) expression;
                 FieldMetadata fieldMetadata = field.getFieldMetadata();
-                start = MetadataUtils.convert(startValue, fieldMetadata);
-                end = MetadataUtils.convert(endValue, fieldMetadata);
+                start = StorageMetadataUtils.convert(startValue, fieldMetadata);
+                end = StorageMetadataUtils.convert(endValue, fieldMetadata);
             } else {
-                start = MetadataUtils.convert(startValue, expression.getTypeName());
-                end = MetadataUtils.convert(endValue, expression.getTypeName());
+                start = StorageMetadataUtils.convert(startValue, expression.getTypeName());
+                end = StorageMetadataUtils.convert(endValue, expression.getTypeName());
             }
             if (condition != null) {
                 if (condition.criterionFieldNames.isEmpty()) {
@@ -957,7 +958,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     Field leftField = (Field) condition.getLeft();
                     FieldMetadata fieldMetadata = leftField.getFieldMetadata();
                     if (!fieldMetadata.getType().equals(fieldMetadata.getType())) {
-                        compareValue = MetadataUtils.convert(String.valueOf(compareValue), fieldMetadata);
+                        compareValue = StorageMetadataUtils.convert(String.valueOf(compareValue), fieldMetadata);
                     }
                 }
                 if (compareValue instanceof Boolean && predicate == Predicate.EQUALS) {
@@ -993,7 +994,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                             Criterion[] keyValueCriteria = new Criterion[keyValues.length];
                             int i = 0;
                             for (FieldMetadata keyField : fields) {
-                                Object keyValue = MetadataUtils.convert(String.valueOf(keyValues[i]), keyField);
+                                Object keyValue = StorageMetadataUtils.convert(String.valueOf(keyValues[i]), keyField);
                                 keyValueCriteria[i] = eq(alias + '.' + keyField.getName(), keyValue);
                                 i++;
                             }

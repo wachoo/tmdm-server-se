@@ -10,8 +10,9 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.integrity.ForeignKeyIntegrity;
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.commmon.metadata.InboundReferences;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.query.optimization.*;
 import com.amalto.core.query.user.*;
 import com.amalto.core.server.ServerContext;
@@ -300,7 +301,7 @@ public class HibernateStorage implements Storage {
                             if (!databaseField.getContainingType().isInstantiable()) {
                                 Collection<ComplexTypeMetadata> roots = RecommendedIndexes.getRoots(optimizedExpression);
                                 for (ComplexTypeMetadata root : roots) {
-                                    List<FieldMetadata> path = MetadataUtils.path(mappingRepository.getMappingFromUser(root).getDatabase(), databaseField);
+                                    List<FieldMetadata> path = StorageMetadataUtils.path(mappingRepository.getMappingFromUser(root).getDatabase(), databaseField);
                                     if (path.size() > 1) {
                                         databaseIndexedFields.addAll(path.subList(0, path.size() - 1));
                                     } else {
@@ -635,7 +636,7 @@ public class HibernateStorage implements Storage {
                     String value = currentProperty.getValue();
                     ComplexTypeMetadata database = mapping.getDatabase();
                     if (database.hasField(key)) {
-                        Object convertedValue = MetadataUtils.convert(value, database.getField(key));
+                        Object convertedValue = StorageMetadataUtils.convert(value, database.getField(key));
                         if (!ObjectUtils.equals(convertedValue, o.get(key))) {
                             o.set(key, convertedValue);
                         }
@@ -809,7 +810,7 @@ public class HibernateStorage implements Storage {
                             }
                         }
                         for (ComplexTypeMetadata typeToDelete : typesToDelete) {
-                            Set<ReferenceFieldMetadata> references = internalRepository.accept(new ForeignKeyIntegrity(typeToDelete));
+                            Set<ReferenceFieldMetadata> references = internalRepository.accept(new InboundReferences(typeToDelete));
                             // Empty values from intermediate tables to this non instantiable type and unset inbound references
                             for (ReferenceFieldMetadata reference : references) {
                                 if (reference.isMany()) {

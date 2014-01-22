@@ -13,17 +13,14 @@
 
 package com.amalto.core.query;
 
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.*;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.optimization.UpdateReportOptimizer;
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.StorageWrapper;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
@@ -1790,7 +1787,7 @@ public class StorageQueryTest extends StorageTestCase {
         Condition condition = null;
         UserQueryBuilder qb = from(updateReport);
         for (FieldMetadata field : updateReport.getFields()) {
-            if (MetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
+            if (StorageMetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
                 if (!(field instanceof ContainedTypeFieldMetadata)) {
                     if (condition == null) {
                         condition = contains(field, contentKeywords);
@@ -1844,7 +1841,7 @@ public class StorageQueryTest extends StorageTestCase {
         Condition condition = null;
         UserQueryBuilder qb = from(updateReport);
         for (FieldMetadata field : updateReport.getFields()) {
-            if (MetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
+            if (StorageMetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
                 if (!(field instanceof ContainedTypeFieldMetadata)) {
                     if (condition == null) {
                         condition = contains(field, contentKeywords);

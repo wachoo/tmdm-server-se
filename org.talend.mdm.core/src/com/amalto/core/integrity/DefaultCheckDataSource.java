@@ -15,7 +15,7 @@ package com.amalto.core.integrity;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.StorageMetadataUtils;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
@@ -80,7 +80,7 @@ class DefaultCheckDataSource implements FKIntegrityCheckDataSource {
         if (storage != null) {
             MetadataRepository repository = storage.getMetadataRepository();
             ComplexTypeMetadata complexType = repository.getComplexType(fromTypeName);
-            Set<List<FieldMetadata>> paths = MetadataUtils.paths(complexType, fromReference);
+            Set<List<FieldMetadata>> paths = StorageMetadataUtils.paths(complexType, fromReference);
             long inboundReferenceCount = 0;
             for (List<FieldMetadata> path : paths) {
                 StringBuilder builder = new StringBuilder();
@@ -118,7 +118,7 @@ class DefaultCheckDataSource implements FKIntegrityCheckDataSource {
         MetadataRepository mr = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(dataModel);
         TypeMetadata type = mr.getType(concept);
         if (type != null) {
-            return mr.accept(new ForeignKeyIntegrity(type));
+            return mr.accept(new InboundReferences(type));
         } else {
             logger.warn("Type '" + concept + "' does not exist anymore in data model '" + dataModel + "'. No integrity check will be performed."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             return Collections.emptySet();

@@ -11,9 +11,9 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 
-import org.apache.log4j.Logger;
 import org.apache.lucene.document.NumericField;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.Storage;
@@ -141,7 +141,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                 Iterator<FieldMetadata> keyFieldIterator = keyFields.iterator();
                 while (keyFieldIterator.hasNext()) {
                     FieldMetadata currentKeyField = keyFieldIterator.next();
-                    initConstructorBody.append(MetadataUtils.getJavaType(currentKeyField.getType())).append(' ').append(currentKeyField.getName());
+                    initConstructorBody.append(StorageMetadataUtils.getJavaType(currentKeyField.getType())).append(' ').append(currentKeyField.getName());
                     if (keyFieldIterator.hasNext()) {
                         initConstructorBody.append(", "); //$NON-NLS-1$
                     }
@@ -395,7 +395,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         try {
             CtClass currentClass = classCreationStack.peek();
             ClassFile currentClassFile = currentClass.getClassFile();
-            CtClass fieldType = classPool.get(MetadataUtils.getJavaType(metadata.getType()));
+            CtClass fieldType = classPool.get(StorageMetadataUtils.getJavaType(metadata.getType()));
             CtField field = addNewField(metadata.getName(), metadata.isMany(), fieldType, currentClass);
             if (!currentClass.getName().endsWith("_ID")) { //$NON-NLS-1$
                 ConstPool cp = currentClassFile.getConstPool();

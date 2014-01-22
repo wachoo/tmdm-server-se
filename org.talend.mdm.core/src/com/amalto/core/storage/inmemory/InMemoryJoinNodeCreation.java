@@ -1,6 +1,7 @@
 package com.amalto.core.storage.inmemory;
 
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
 import org.apache.commons.lang.NotImplementedException;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
@@ -23,7 +24,7 @@ class InMemoryJoinNodeCreation extends VisitorAdapter<Void> {
     private static void buildExecutionTree(InMemoryJoinNode root, FieldMetadata field, Condition condition) {
         // Build nodes (based on path)
         InMemoryJoinNode current = root;
-        List<FieldMetadata> path = MetadataUtils.path(root.type, field);
+        List<FieldMetadata> path = StorageMetadataUtils.path(root.type, field);
         for (FieldMetadata fieldMetadata : path) {
             InMemoryJoinNode node = new InMemoryJoinNode();
             node.name = fieldMetadata.getName();
@@ -59,8 +60,8 @@ class InMemoryJoinNodeCreation extends VisitorAdapter<Void> {
         condition.getRight().accept(this);
         FieldMetadata rightField = fieldMetadata;
         // Union and Intersection
-        List<FieldMetadata> leftPath = MetadataUtils.path(root.type, leftField);
-        List<FieldMetadata> rightPath = MetadataUtils.path(root.type, rightField);
+        List<FieldMetadata> leftPath = StorageMetadataUtils.path(root.type, leftField);
+        List<FieldMetadata> rightPath = StorageMetadataUtils.path(root.type, rightField);
         InMemoryJoinNode lastCommonNode = root;
         for (int i = 0; i < leftPath.size(); i++) {
             if (!rightPath.get(i).equals(leftPath.get(i))) {

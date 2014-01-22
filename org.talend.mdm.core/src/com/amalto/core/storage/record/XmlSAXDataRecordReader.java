@@ -13,7 +13,8 @@ package com.amalto.core.storage.record;
 
 import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.metadata.ClassRepository;
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataHelper;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
@@ -188,7 +189,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
                 isMetadata = false;
             } else if (hasMetUserElement && field != null) {
                 if (!value.isEmpty()) {
-                    dataRecordStack.peek().set(field, value.isEmpty() ? null : MetadataUtils.convert(value, field, currentType.peek()));
+                    dataRecordStack.peek().set(field, value.isEmpty() ? null : StorageMetadataUtils.convert(value, field, currentType.peek()));
                 }
                 if (!currentType.isEmpty()) {
                     TypeMetadata typeMetadata = currentType.pop();

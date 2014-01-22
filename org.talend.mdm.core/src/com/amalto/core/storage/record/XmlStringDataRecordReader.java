@@ -13,7 +13,8 @@ package com.amalto.core.storage.record;
 
 import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.metadata.ClassRepository;
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataHelper;
@@ -184,7 +185,7 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                             Object value;
                             String data = xmlEvent.asCharacters().getData();
                             try {
-                                value = MetadataUtils.convert(data, field, currentType.peek());
+                                value = StorageMetadataUtils.convert(data, field, currentType.peek());
                             } catch (Exception e) {
                                 throw new IllegalArgumentException("Field '" + field.getName() + "' of type '" + field.getType().getName() + "' can not receive value '" + data + "'.", e);
                             }

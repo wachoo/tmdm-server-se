@@ -13,7 +13,7 @@ package com.amalto.core.save.context;
 
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.history.MutableDocument;
-import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.save.DOMDocument;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;

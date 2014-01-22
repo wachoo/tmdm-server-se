@@ -13,7 +13,7 @@ package com.amalto.core.save.context;
 
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.history.MutableDocument;
-import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;

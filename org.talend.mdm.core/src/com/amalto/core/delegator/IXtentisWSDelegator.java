@@ -45,6 +45,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import com.amalto.core.storage.StorageMetadataUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
@@ -72,7 +73,7 @@ import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.metadata.ClassRepository;
-import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.migration.MigrationRepository;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
@@ -4243,7 +4244,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     if (iterator.hasNext()) {
                         DataRecord result = iterator.next();
                         FieldMetadata digestField = storageType.getField("digest"); //$NON-NLS-1$
-                        result.set(digestField, MetadataUtils.convert(wsDigest.getDigestValue(), digestField)); // Using convert ensure type is correct                
+                        result.set(digestField, StorageMetadataUtils.convert(wsDigest.getDigestValue(), digestField)); // Using convert ensure type is correct
                         systemStorage.update(result); // No need to set timestamp (update will update it).
                         systemStorage.commit();
                         return new WSLong(result.getRecordMetadata().getLastModificationTime());

@@ -11,7 +11,8 @@
 
 package com.amalto.core.history.accessor.record;
 
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.storage.record.DataRecord;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.*;
@@ -40,10 +41,10 @@ class ManyValue implements Setter, Getter {
         }
         if (element.field instanceof ReferenceFieldMetadata) {
             ComplexTypeMetadata referencedType = ((ReferenceFieldMetadata) element.field).getReferencedType();
-            DataRecord referencedRecord = (DataRecord) MetadataUtils.convert(String.valueOf(value), element.field, referencedType);
+            DataRecord referencedRecord = (DataRecord) StorageMetadataUtils.convert(String.valueOf(value), element.field, referencedType);
             list.set(element.index, referencedRecord);
         } else {
-            list.set(element.index, MetadataUtils.convert(String.valueOf(value), element.field));
+            list.set(element.index, StorageMetadataUtils.convert(String.valueOf(value), element.field));
         }
     }
 
@@ -62,7 +63,7 @@ class ManyValue implements Setter, Getter {
             }
             return builder.toString();
         } else {
-            return MetadataUtils.toString(item, element.field);
+            return StorageMetadataUtils.toString(item, element.field);
         }
     }
 }

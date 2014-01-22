@@ -36,7 +36,7 @@ import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.integrity.FKIntegrityChecker;
-import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;

@@ -11,7 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.query.user.NativeQuery;
 import com.amalto.core.storage.Storage;

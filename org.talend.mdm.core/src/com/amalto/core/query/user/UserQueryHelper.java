@@ -13,7 +13,8 @@
 
 package com.amalto.core.query.user;
 
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.query.user.metadata.MetadataField;
 import com.amalto.core.webservice.WSStringPredicate;
 import com.amalto.xmlserver.interfaces.*;
@@ -123,7 +124,7 @@ public class UserQueryHelper {
                     }
                     String fieldTypeName = field.getTypeName();
                     boolean isFk = field instanceof Field && ((Field) field).getFieldMetadata() instanceof ReferenceFieldMetadata;
-                    if (!isFk && !MetadataUtils.isValueAssignable(value, fieldTypeName) && !WhereCondition.EMPTY_NULL.equals(operator)) {
+                    if (!isFk && !StorageMetadataUtils.isValueAssignable(value, fieldTypeName) && !WhereCondition.EMPTY_NULL.equals(operator)) {
                         LOGGER.warn("Skip '" + leftFieldName + "' because it can't accept value '" + value + "'");
                         continue;
                     }

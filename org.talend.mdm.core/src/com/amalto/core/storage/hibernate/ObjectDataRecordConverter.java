@@ -11,7 +11,8 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordConverter;
@@ -65,7 +66,7 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
                 } else {
                     List<Object> compositeIdValues = new ArrayList<Object>(keyFields.size());
                     for (FieldMetadata keyField : keyFields) {
-                        compositeIdValues.add(MetadataUtils.convert(String.valueOf(dataRecord.get(keyField)), mapping.getDatabase(keyField)));
+                        compositeIdValues.add(StorageMetadataUtils.convert(String.valueOf(dataRecord.get(keyField)), mapping.getDatabase(keyField)));
                     }
                     id = createCompositeId(storageClassLoader, mainInstanceClass, compositeIdValues);
                     mainInstance = (Wrapper) session.get(mainInstanceClass, id);

@@ -17,10 +17,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
-import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.util.XtentisException;
 
 /**
@@ -48,7 +45,7 @@ class IntegrityCheckDataSourceMock implements FKIntegrityCheckDataSource {
     public Set<ReferenceFieldMetadata> getForeignKeyList(String concept, String dataModel) throws XtentisException {
         TypeMetadata type = repository.getType(concept);
         if (type != null) {
-            return repository.accept(new ForeignKeyIntegrity(type));
+            return repository.accept(new InboundReferences(type));
         } else {
             return Collections.emptySet();
         }

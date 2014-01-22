@@ -11,13 +11,11 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.integrity.ForeignKeyIntegrity;
-import com.amalto.core.storage.Storage;
+import org.talend.mdm.commmon.metadata.InboundReferences;
 import org.apache.lucene.search.*;
 import org.hibernate.*;
 import org.hibernate.Query;
 import org.hibernate.criterion.CriteriaSpecification;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.search.FullTextFilter;
 import org.hibernate.search.FullTextQuery;
@@ -59,7 +57,7 @@ public class EntityFinder {
         if (wrapperType.isInstantiable()) {
             return wrapper;
         }
-        ForeignKeyIntegrity incomingReferences = new ForeignKeyIntegrity(wrapperType);
+        InboundReferences incomingReferences = new InboundReferences(wrapperType);
         InternalRepository internalRepository = storage.getTypeEnhancer();
         Set<ReferenceFieldMetadata> references = internalRepository.getInternalRepository().accept(incomingReferences);
         if (references.isEmpty()) {

@@ -11,7 +11,8 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.io.IOUtils;
@@ -707,13 +708,13 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                         Attr length = document.createAttribute("length"); //$NON-NLS-1$
                         length.setValue(String.valueOf(maxLength));
                         propertyElement.getAttributes().setNamedItem(length);
-                        elementTypeName = MetadataUtils.getJavaType(fieldType);
+                        elementTypeName = StorageMetadataUtils.getJavaType(fieldType);
                     }
                 } else {
-                    elementTypeName = MetadataUtils.getJavaType(fieldType);
+                    elementTypeName = StorageMetadataUtils.getJavaType(fieldType);
                 }
             } else {
-                elementTypeName = MetadataUtils.getJavaType(fieldType);
+                elementTypeName = StorageMetadataUtils.getJavaType(fieldType);
             }
         }
         // TMDM-4975: Oracle doesn't like when there's too much text columns.

@@ -11,7 +11,8 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
@@ -147,11 +148,11 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
             }
             Iterator<FieldMetadata> iterator = keyFields.iterator();
             if (ids.size() == 1) {
-                return MetadataUtils.convert(ids.get(0), iterator.next());
+                return StorageMetadataUtils.convert(ids.get(0), iterator.next());
             } else {
                 Object[] convertedId = new Object[ids.size()];
                 for (int i = 0; i< ids.size(); i++) {
-                    convertedId[i] = MetadataUtils.convert(ids.get(i), iterator.next());
+                    convertedId[i] = StorageMetadataUtils.convert(ids.get(i), iterator.next());
                 }
                 return convertedId;
             }

@@ -11,7 +11,8 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
@@ -187,7 +188,7 @@ class FlatTypeMapping extends TypeMapping {
             if (userField != null) {
                 DataRecord previous = to;
                 if (userField.getContainingType() != getUser()) {
-                    Iterator<FieldMetadata> path = MetadataUtils.path(getUser(), userField).iterator();
+                    Iterator<FieldMetadata> path = StorageMetadataUtils.path(getUser(), userField).iterator();
                     if (!path.hasNext()) {
                         throw new IllegalStateException("No path found from '" + getUser().getName() + "' to field '" + userField.getName() + "'.");
                     }

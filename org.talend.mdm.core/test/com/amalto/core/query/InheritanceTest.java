@@ -10,7 +10,7 @@
 
 package com.amalto.core.query;
 
-import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;

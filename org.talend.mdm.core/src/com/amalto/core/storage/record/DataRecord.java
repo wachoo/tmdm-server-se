@@ -13,7 +13,7 @@ package com.amalto.core.storage.record;
 
 import java.util.*;
 
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.StorageMetadataUtils;
 import com.amalto.core.storage.hibernate.TypeMapping;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import org.talend.mdm.commmon.metadata.*;
@@ -64,7 +64,7 @@ public class DataRecord {
             } else if (recordMetadata.getRecordProperties().containsKey(field.getName())) { // Try to read from metadata
                 return recordMetadata.getRecordProperties().get(field.getName());
             }
-            Iterator<FieldMetadata> path = MetadataUtils.path(type, field, false).iterator();
+            Iterator<FieldMetadata> path = StorageMetadataUtils.path(type, field, false).iterator();
             if (!path.hasNext()) {
                 Object value = get(field.getName());
                 if (value != null) { // Support explicit projection type fields

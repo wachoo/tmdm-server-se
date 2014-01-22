@@ -1,6 +1,6 @@
 package com.amalto.core.storage.task;
 
-import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.storage.Storage;
 import org.apache.log4j.Logger;
 import org.quartz.JobExecutionContext;

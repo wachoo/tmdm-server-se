@@ -11,11 +11,11 @@
 
 package com.amalto.core.storage.record;
 
-import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
+import com.amalto.core.storage.StorageMetadataUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.commmon.metadata.*;
 
@@ -101,14 +101,14 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                     if (!referenceField.isMany()) {
                         DataRecord referencedRecord = (DataRecord) record.get(referenceField);
                         writeReferenceElement(referenceField, referencedRecord);
-                        out.write(MetadataUtils.toString(referencedRecord));
+                        out.write(StorageMetadataUtils.toString(referencedRecord));
                         out.write("</" + referenceField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                     } else {
                         List<DataRecord> valueAsList = (List<DataRecord>) value;
                         for (DataRecord currentValue : valueAsList) {
                             if (currentValue != null) {
                                 writeReferenceElement(referenceField, currentValue);
-                                out.write(MetadataUtils.toString(currentValue));
+                                out.write(StorageMetadataUtils.toString(currentValue));
                                 out.write("</" + referenceField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                             }
                         }

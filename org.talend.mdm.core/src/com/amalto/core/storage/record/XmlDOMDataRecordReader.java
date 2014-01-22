@@ -12,7 +12,8 @@
 package com.amalto.core.storage.record;
 
 import com.amalto.core.metadata.ClassRepository;
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataHelper;
@@ -84,7 +85,7 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
                 continue;
             }
             FieldMetadata field = type.getField(attribute.getNodeName());
-            dataRecord.set(field, MetadataUtils.convert(attribute.getNodeValue(), field));
+            dataRecord.set(field, StorageMetadataUtils.convert(attribute.getNodeValue(), field));
         }
         for (int i = 0; i < children.getLength(); i++) {
             Node currentChild = children.item(i);
@@ -147,9 +148,9 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
                         if (actualType == null) {
                             throw new IllegalArgumentException("Type '" + mdmType + "' does not exist.");
                         }
-                        dataRecord.set(field, MetadataUtils.convert(textContent, field, actualType));
+                        dataRecord.set(field, StorageMetadataUtils.convert(textContent, field, actualType));
                     } else {
-                        dataRecord.set(field, MetadataUtils.convert(textContent, field, type));
+                        dataRecord.set(field, StorageMetadataUtils.convert(textContent, field, type));
                     }
                 }
             }

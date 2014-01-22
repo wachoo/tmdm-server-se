@@ -11,7 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.metadata.TaskId;
 import com.amalto.core.query.user.metadata.Timestamp;

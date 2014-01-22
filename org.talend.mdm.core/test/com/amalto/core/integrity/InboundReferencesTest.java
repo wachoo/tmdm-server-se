@@ -23,7 +23,7 @@ import java.util.Set;
  *
  */
 @SuppressWarnings({"HardCodedStringLiteral", "nls"})
-public class ForeignKeyIntegrityTest extends TestCase {
+public class InboundReferencesTest extends TestCase {
 
     @Override
     public void setUp() throws Exception {
@@ -34,7 +34,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
         TypeMetadata type = repository.getType(typeName);
 
         if (type != null) {
-            ForeignKeyIntegrity keyIntegrity = new ForeignKeyIntegrity(type);
+            InboundReferences keyIntegrity = new InboundReferences(type);
             return repository.accept(keyIntegrity);
         } else {
             return Collections.emptySet();

@@ -13,7 +13,7 @@ package com.amalto.core.query;
 
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import com.amalto.core.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryDumpConsole;
@@ -21,7 +21,6 @@ import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
 import junit.framework.TestCase;
