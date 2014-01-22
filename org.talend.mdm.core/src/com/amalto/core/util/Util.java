@@ -2056,8 +2056,8 @@ public class Util {
             }
         } else if (whereItem instanceof WhereCondition) {
             WhereCondition condition = (WhereCondition) whereItem;
-            whereItem = "*".equals(condition.getRightValueOrPath()) || condition.getRightValueOrPath().length() == 0
-                    || ".*".equals(condition.getRightValueOrPath()) ? null : whereItem;
+            whereItem = "*".equals(condition.getRightValueOrPath()) || condition.getRightValueOrPath().length() == 0 //$NON-NLS-1$
+                    || ".*".equals(condition.getRightValueOrPath()) ? null : whereItem; //$NON-NLS-1$
         } else {
             throw new XmlServerException("Unknown Where Type : " + whereItem.getClass().getName());
         }
