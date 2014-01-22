@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.*;
 import org.hibernate.criterion.*;
 import org.hibernate.impl.CriteriaImpl;
+import org.hibernate.sql.JoinFragment;
 import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import com.amalto.core.metadata.MetadataUtils;
