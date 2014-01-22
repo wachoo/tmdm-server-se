@@ -300,16 +300,4 @@ public class CommonUtil {
         }
         return idList.toArray(new String[idList.size()]);
     }
-
-    public static String getFormatedString(Locale locale, String format, Object o) throws IllegalArgumentException {
-        String formatAfter = format;
-        try {
-            if (formatAfter != null && formatAfter.contains("%")) { //$NON-NLS-1$
-                formatAfter = StringUtils.replace(formatAfter, "%", "%1$"); //$NON-NLS-1$//$NON-NLS-2$
-            }
-            return String.format(locale, formatAfter, o);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException();
-        }
-    }
 }
