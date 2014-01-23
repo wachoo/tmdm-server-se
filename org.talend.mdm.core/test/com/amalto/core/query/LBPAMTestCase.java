@@ -1,18 +1,27 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.query;
 
-import com.amalto.core.metadata.MetadataUtils;
-import org.talend.mdm.commmon.metadata.*;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
+import junit.framework.TestCase;
+
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
+
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryDumpConsole;
@@ -20,15 +29,10 @@ import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
-import junit.framework.TestCase;
-import org.apache.log4j.Logger;
 
-import java.io.InputStream;
-import java.util.*;
-
+@SuppressWarnings("nls")
 public class LBPAMTestCase extends TestCase {
 
     private static Logger LOG = Logger.getLogger(LBPAMTestCase.class);
@@ -54,7 +58,7 @@ public class LBPAMTestCase extends TestCase {
         MetadataRepository repository = new MetadataRepository();
         repository.load(resourceAsStream);
 
-        storage.init(ServerContext.INSTANCE.get().getDataSource("RDBMS-1", "MDM", StorageType.MASTER));
+        storage.init(ServerContext.INSTANCE.get().getDefinition("RDBMS-1", "MDM"));
         storage.prepare(repository, false);
         LOG.info("Storage prepared.");
 
@@ -108,7 +112,7 @@ public class LBPAMTestCase extends TestCase {
             for (Expression failedExpression : failedExpressions) {
                 failedExpression.accept(new UserQueryDumpConsole());
             }
-            //assertEquals(0, failedCreation);
+            // assertEquals(0, failedCreation);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
