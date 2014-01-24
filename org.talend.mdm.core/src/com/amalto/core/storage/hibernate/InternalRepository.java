@@ -73,7 +73,7 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Mapping strategy: " + type.getName() + " -> FLAT");
                 }
-                return new TypeMappingCreator(internalRepository, mappings);
+                return new FlatTypeMappingCreator(internalRepository, mappings);
             case SCATTERED:
             case SCATTERED_CLOB:
                 if (LOGGER.isDebugEnabled()) {

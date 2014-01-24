@@ -12,19 +12,14 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.storage.StorageMetadataUtils;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 // TODO Refactor (+ NON-NLS)
@@ -43,8 +38,6 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     private static final String TEXT_TYPE_NAME = "text"; //$NON-NLS-1$
 
-    private static final String RESERVED_SQL_KEYWORDS = "reservedSQLKeywords.txt"; //$NON-NLS-1$
-
     private final Document document;
 
     private final TableResolver resolver;
@@ -52,8 +45,6 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
     private final RDBMSDataSource dataSource;
 
     private final Stack<String> tableNames = new Stack<String>();
-
-    private static Set<String> reservedKeyWords;
 
     private boolean compositeId;
 
@@ -79,87 +70,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         this.resolver = resolver;
         this.dataSource = dataSource;
         this.generateConstrains = generateConstrains;
-        // Loads reserved SQL keywords.
-        synchronized (MappingGenerator.class) {
-            if (reservedKeyWords == null) {
-                reservedKeyWords = new TreeSet<String>();
-                InputStream reservedKeyWordsList = this.getClass().getResourceAsStream(RESERVED_SQL_KEYWORDS);
-                try {
-                    if (reservedKeyWordsList == null) {
-                        throw new IllegalStateException("File '" + RESERVED_SQL_KEYWORDS + "' was not found.");
-                    }
-                    List list = IOUtils.readLines(reservedKeyWordsList);
-                    for (Object o : list) {
-                        reservedKeyWords.add(String.valueOf(o));
-                    }
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Loaded " + reservedKeyWords.size() + " reserved SQL key words.");
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                } finally {
-                    try {
-                        if (reservedKeyWordsList != null) {
-                            reservedKeyWordsList.close();
-                        }
-                    } catch (IOException e) {
-                        LOGGER.error("Error occurred when closing reserved keyword list.", e);
-                    }
-                }
-            }
-        }
     }
-
-    /**
-     * <p>
-     * Short a string so it doesn't exceed <code>maxLength</code> length. Consecutive calls to this method with same input
-     * always return the same value.
-     * </p>
-     * <p>
-     * This method also makes sure the SQL name is not a reserved SQL key word.
-     * </p>
-     * <p>
-     * Additionally, this method will replace all '-' characters by '_' in the returned string.
-     * </p>
-     * @param s A non null string.
-     * @param maxLength A value greater than 0 that indicates the max length for the returned string.
-     * @return <code>null</code> if <code>s</code> is null, a shorten string so it doesn't exceed <code>maxLength</code>.
-     * @see com.amalto.core.storage.hibernate.TableResolver#getNameMaxLength()
-     */
-    public static String formatSQLName(String s, int maxLength) {
-        if (maxLength < 1) {
-            throw new IllegalArgumentException("Max length must be greater than 0 (was " + maxLength + ").");
-        }
-        if (s == null) {
-            return null;
-        }
-        // Adds a prefix until 's' is no longer a SQL reserved key word.
-        String backup = s;
-        while (reservedKeyWords.contains(s)) {
-            s = "X_" + s; //$NON-NLS-1$
-        }
-        if (LOGGER.isDebugEnabled()) {
-            if (!s.equals(backup)) {
-                LOGGER.debug("Replaced '" + backup + "' with '" + s + "' because it is a reserved SQL keyword.");
-            }
-        }
-        if (s.length() < maxLength) {
-            return s;
-        }
-        char[] chars = s.toCharArray();
-        return __shortString(chars, maxLength);
-    }
-
-    // Internal method for recursion.
-    private static String __shortString(char[] chars, int threshold) {
-        if (chars.length < threshold) {
-            return new String(chars).replace('-', '_');
-        } else {
-            String s = new String(ArrayUtils.subarray(chars, 0, threshold / 2)) + new String(ArrayUtils.subarray(chars, threshold / 2, chars.length)).hashCode();
-            return __shortString(s.toCharArray(), threshold);
-        }
-    }
-
 
     @Override
     public Element visit(MetadataRepository repository) {
@@ -185,7 +96,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             className.setValue(generatedClassName);
             classElement.getAttributes().setNamedItem(className);
             Attr classTable = document.createAttribute("table"); //$NON-NLS-1$
-            classTable.setValue(formatSQLName(tableNames.peek(), resolver.getNameMaxLength()));
+            classTable.setValue(tableNames.peek());
             classElement.getAttributes().setNamedItem(classTable);
             // dynamic-update="true"
             Attr dynamicUpdate = document.createAttribute("dynamic-update");  //$NON-NLS-1$
@@ -276,7 +187,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                         unionSubclass.setAttributeNode(name);
 
                         Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
-                        tableName.setValue(formatSQLName(resolver.get(subType), resolver.getNameMaxLength()));
+                        tableName.setValue(resolver.get(subType));
                         unionSubclass.setAttributeNode(tableName);
 
                         Collection<FieldMetadata> subTypeFields = subType.getFields();
@@ -347,11 +258,9 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             throw new UnsupportedOperationException("FK field '" + referenceField.getName() + "' cannot be key in type '" + referenceField.getDeclaringType().getName() + "'"); // Don't support FK as key
         } else {
             String fieldName = resolver.get(referenceField);
-
             boolean enforceDataBaseIntegrity = generateConstrains && (!referenceField.allowFKIntegrityOverride() && referenceField.isFKIntegrity());
-            TypeMetadata referencedType = referenceField.getReferencedType();
             if (!referenceField.isMany()) {
-                return newManyToOneElement(fieldName, enforceDataBaseIntegrity, referenceField);
+                return newManyToOneElement(referenceField, enforceDataBaseIntegrity);
             } else {
                 /*
                 <list name="bars" table="foo_bar">
@@ -361,7 +270,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                  */
                 Element propertyElement = document.createElement("list"); //$NON-NLS-1$
                 Attr name = document.createAttribute("name"); //$NON-NLS-1$
-                name.setValue(fieldName);
+                name.setValue(referenceField.getName());
                 propertyElement.getAttributes().setNamedItem(name);
                 Attr lazy = document.createAttribute("lazy"); //$NON-NLS-1$
                 lazy.setValue("extra"); //$NON-NLS-1$
@@ -377,7 +286,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     propertyElement.getAttributes().setNamedItem(cascade);
                 }
                 Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
-                tableName.setValue(formatSQLName((referenceField.getContainingType().getName() + '_' + fieldName + '_' + referencedType.getName()).toUpperCase(), resolver.getNameMaxLength()));
+                tableName.setValue(resolver.getCollectionTable(referenceField));
                 propertyElement.getAttributes().setNamedItem(tableName);
                 {
                     // <key column="foo_id"/> (one per key in referenced entity).
@@ -386,7 +295,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     for (FieldMetadata keyField : referenceField.getContainingType().getKeyFields()) {
                         Element elementColumn = document.createElement("column"); //$NON-NLS-1$
                         Attr columnName = document.createAttribute("name"); //$NON-NLS-1$
-                        columnName.setValue(keyField.getName());
+                        columnName.setValue(resolver.get(keyField));
                         elementColumn.getAttributes().setNamedItem(columnName);
                         key.appendChild(elementColumn);
                     }
@@ -405,10 +314,10 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         }
     }
 
-    private Element newManyToOneElement(String fieldName, boolean enforceDataBaseIntegrity, ReferenceFieldMetadata referencedField) {
+    private Element newManyToOneElement(ReferenceFieldMetadata referencedField, boolean enforceDataBaseIntegrity) {
         Element propertyElement = document.createElement("many-to-one"); //$NON-NLS-1$
         Attr propertyName = document.createAttribute("name"); //$NON-NLS-1$
-        propertyName.setValue(fieldName);
+        propertyName.setValue(referencedField.getName());
         Attr className = document.createAttribute("class"); //$NON-NLS-1$
         className.setValue(ClassCreator.getClassName(referencedField.getReferencedType().getName()));
         // fetch="join" lazy="false"
@@ -512,11 +421,10 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
     }
 
     private Element handleSimpleField(FieldMetadata field) {
-        String fieldName = resolver.get(field);
         if (isDoingColumns) {
             Element column = document.createElement("column"); //$NON-NLS-1$
             Attr columnName = document.createAttribute("name"); //$NON-NLS-1$
-            String columnNameValue = formatSQLName(compositeKeyPrefix + "_" + fieldName, resolver.getNameMaxLength());
+            String columnNameValue = resolver.get(field, compositeKeyPrefix);
             columnName.setValue(columnNameValue); //$NON-NLS-1$
             column.getAttributes().setNamedItem(columnName);
             if (generateConstrains) {
@@ -539,7 +447,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             Element idElement;
             if (!compositeId) {
                 idElement = document.createElement("id"); //$NON-NLS-1$
-                if ("UUID".equals(field.getType().getName()) && ScatteredMappingCreator.GENERATED_ID.equals(fieldName)) {  //$NON-NLS-1$
+                if (Types.UUID.equals(field.getType().getName()) && ScatteredMappingCreator.GENERATED_ID.equals(field.getName())) {
                     // <generator class="uuid.hex"/>
                     Element generator = document.createElement("generator"); //$NON-NLS-1$
                     Attr generatorClass = document.createAttribute("class"); //$NON-NLS-1$
@@ -551,9 +459,9 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 idElement = document.createElement("key-property"); //$NON-NLS-1$
             }
             Attr idName = document.createAttribute("name"); //$NON-NLS-1$
-            idName.setValue(fieldName);
+            idName.setValue(field.getName());
             Attr columnName = document.createAttribute("column"); //$NON-NLS-1$
-            columnName.setValue(formatSQLName(fieldName, resolver.getNameMaxLength()));
+            columnName.setValue(resolver.get(field));
 
             idElement.getAttributes().setNamedItem(idName);
             idElement.getAttributes().setNamedItem(columnName);
@@ -562,16 +470,15 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             if (!field.isMany()) {
                 Element propertyElement = document.createElement("property"); //$NON-NLS-1$
                 Attr propertyName = document.createAttribute("name"); //$NON-NLS-1$
-                propertyName.setValue(fieldName);
+                propertyName.setValue(field.getName());
                 Attr columnName = document.createAttribute("column"); //$NON-NLS-1$
-                String columnNameValue = formatSQLName(fieldName, resolver.getNameMaxLength());
-                columnName.setValue(columnNameValue);
+                columnName.setValue(resolver.get(field));
                 if (resolver.isIndexed(field)) { // Create indexes for fields that should be indexed.
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Creating index for field '" + field.getName() + "'.");
                     }
                     Attr indexName = document.createAttribute("index"); //$NON-NLS-1$
-                    setIndexName(field, columnNameValue, indexName);
+                    setIndexName(field, field.getName(), indexName);
                     propertyElement.getAttributes().setNamedItem(indexName);
                 } else {
                     if (LOGGER.isDebugEnabled()) {
@@ -601,9 +508,9 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             } else {
                 Element listElement = document.createElement("list"); //$NON-NLS-1$
                 Attr name = document.createAttribute("name"); //$NON-NLS-1$
-                name.setValue(fieldName);
+                name.setValue(field.getName());
                 Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
-                tableName.setValue(formatSQLName((field.getContainingType().getName() + '_' + fieldName).toUpperCase(), resolver.getNameMaxLength()));
+                tableName.setValue(resolver.getCollectionTable(field));
                 listElement.getAttributes().setNamedItem(tableName);
                 if (field.getContainingType().getKeyFields().size() == 1) {
                     // lazy="extra"
@@ -647,7 +554,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     Element column = document.createElement("column"); //$NON-NLS-1$
                     Attr columnName = document.createAttribute("name"); //$NON-NLS-1$
                     column.getAttributes().setNamedItem(columnName);
-                    columnName.setValue(keyField.getName());
+                    columnName.setValue(resolver.get(keyField));
                     key.appendChild(column);
                 }
                 // <element column="name" type="string"/>
@@ -679,9 +586,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         if (!tableNames.isEmpty()) {
             prefix = tableNames.peek();
         }
-        indexName.setValue(formatSQLName(prefix + '_'
-                + fieldName + "_index", //$NON-NLS-1$
-                resolver.getNameMaxLength()));
+        indexName.setValue(resolver.getIndex(fieldName, prefix)); //
     }
 
     private static void addFieldTypeAttribute(FieldMetadata field,

@@ -44,13 +44,15 @@ public abstract class TypeMapping {
 
     protected boolean isFrozen;
 
-    TypeMapping(ComplexTypeMetadata user, MappingRepository mappings) {
-        this(user, (ComplexTypeMetadata) user.copyShallow(), mappings);
+    protected TypeMapping(ComplexTypeMetadata user, MappingRepository mappings) {
+        this.user = user;
+        this.database = (ComplexTypeMetadata) user.copyShallow();
+        this.mappings = mappings;
         // Make sure internal type (database) does not have any '-' that blocks Java classes generation.
         database.setName(database.getName().replace('-', '_'));
     }
 
-    TypeMapping(ComplexTypeMetadata user, ComplexTypeMetadata database, MappingRepository mappings) {
+    protected TypeMapping(ComplexTypeMetadata user, ComplexTypeMetadata database, MappingRepository mappings) {
         this.user = user;
         this.database = database;
         this.mappings = mappings;

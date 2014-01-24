@@ -15,8 +15,10 @@ package com.amalto.core.storage.hibernate;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
+import java.util.Set;
+
 /**
- *
+ * This interface provides all API to create table/columns names for the database schema (based on the data model elements).
  */
 interface TableResolver {
     /**
@@ -36,15 +38,33 @@ interface TableResolver {
     String get(FieldMetadata field);
 
     /**
+     * Similar to {@link #get(org.talend.mdm.commmon.metadata.FieldMetadata)} but the additional <code>prefix</code> can
+     * be used to make column name unique.
+     * @param field A field from a type of data model.
+     * @param prefix A prefix to add (to be use to make column name unique for instance).
+     * @return A proposed column name to store values of field <code>field</code>.
+     */
+    String get(FieldMetadata field, String prefix);
+
+    /**
      * @param field A field from a type of data model.
      * @return <code>true</code> if field should be indexed for fast search, <code>false</code> in other cases.
      */
     boolean isIndexed(FieldMetadata field);
 
     /**
-     * @return The max length for table / column names. This differs from a database to another (e.g. Oracle does not
-     * like names longer than 30).
+     * Returns a index name valid for the database (right length and syntax).
+     *
+     * @param fieldName The field's name to use for the index.
+     * @param prefix    A prefix to add (to be use to make index name unique for instance).
+     * @return A string that can be used as index name on the database.
      */
-    int getNameMaxLength();
+    String getIndex(String fieldName, String prefix);
 
+    /**
+     * Returns name for a table that can store a collection of values.
+     * @param field A many valued field.
+     * @return A string that can be used as table name on the database.
+     */
+    String getCollectionTable(FieldMetadata field);
 }

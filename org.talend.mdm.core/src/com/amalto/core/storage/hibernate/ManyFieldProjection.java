@@ -45,9 +45,9 @@ class ManyFieldProjection extends SimpleProjection {
     public String toSqlString(Criteria criteria, int position, CriteriaQuery criteriaQuery) throws HibernateException {
         Criteria subCriteria = StandardQueryHandler.findCriteria(criteria, aliases);
         ComplexTypeMetadata containingType = field.getContainingType();
-        String containerTable = MappingGenerator.formatSQLName(resolver.get(containingType), resolver.getNameMaxLength());
-        String collectionTable = MappingGenerator.formatSQLName((containerTable + '_' + field.getName()).toUpperCase(), resolver.getNameMaxLength());
-        String containerIdColumn = MappingGenerator.formatSQLName(containingType.getKeyFields().iterator().next().getName(), resolver.getNameMaxLength());
+        String containerTable = resolver.get(containingType);
+        String collectionTable = resolver.getCollectionTable(field);
+        String containerIdColumn = resolver.get(containingType.getKeyFields().iterator().next());
         StringBuilder sqlFragment = new StringBuilder();
         switch (dataSource.getDialectName()) {
             // Following databases support group_concat function
@@ -58,7 +58,7 @@ class ManyFieldProjection extends SimpleProjection {
                         .append(collectionTable)
                         .append(".value separator ',') FROM ").append(containerTable); //$NON-NLS-1$
                 for (FieldMetadata currentKey : containingType.getKeyFields()) {
-                    String keyName = currentKey.getName();
+                    String keyName = resolver.get(currentKey);
                     sqlFragment.append(" INNER JOIN ") //$NON-NLS-1$
                             .append(collectionTable)
                             .append(" on ") //$NON-NLS-1$
@@ -81,7 +81,7 @@ class ManyFieldProjection extends SimpleProjection {
                         .append(collectionTable)
                         .append(".value, ',') WITHIN GROUP (ORDER BY pos) FROM ").append(containerTable); //$NON-NLS-1$
                 for (FieldMetadata currentKey : containingType.getKeyFields()) {
-                    String keyName = currentKey.getName();
+                    String keyName = resolver.get(currentKey);
                     sqlFragment.append(" INNER JOIN ") //$NON-NLS-1$
                             .append(collectionTable)
                             .append(" on ") //$NON-NLS-1$
@@ -104,7 +104,7 @@ class ManyFieldProjection extends SimpleProjection {
                         .append(collectionTable)
                         .append(".value + \'...\' FROM ").append(containerTable); //$NON-NLS-1$
                 for (FieldMetadata currentKey : containingType.getKeyFields()) {
-                    String keyName = currentKey.getName();
+                    String keyName = resolver.get(currentKey);
                     sqlFragment.append(" INNER JOIN ") //$NON-NLS-1$
                             .append(collectionTable)
                             .append(" on ") //$NON-NLS-1$

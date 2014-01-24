@@ -58,12 +58,10 @@ class ManyFieldCriterion extends SQLCriterion {
                 throw new UnsupportedOperationException("Do not support collection search if main type has a composite key.");
             }
             String containingTypeAlias = criteriaQuery.getSQLAlias(typeCriteria);
-            String containingType = type.getName().toUpperCase();
-            String fieldName = field.getName().toUpperCase();
-            String containingTypeKey = type.getKeyFields().iterator().next().getName();
+            String containingType = resolver.get(type);
+            String containingTypeKey = resolver.get(type.getKeyFields().iterator().next());
             StringBuilder builder = new StringBuilder();
-            String joinedTableName = MappingGenerator.formatSQLName(containingType + '_' + fieldName,
-                    resolver.getNameMaxLength());
+            String joinedTableName = resolver.getCollectionTable(field);
             builder.append("(SELECT COUNT(1) FROM ") //$NON-NLS-1$
                     .append(containingType)
                     .append(" INNER JOIN ") //$NON-NLS-1$
@@ -146,9 +144,9 @@ class ManyFieldCriterion extends SQLCriterion {
             query.append("(") //$NON-NLS-1$
                     .append(criteriaQuery.getSQLAlias(typeCriteria))
                     .append(".") //$NON-NLS-1$
-                    .append(simpleField.getName())
+                    .append(resolver.get(simpleField))
                     .append(" = "); //$NON-NLS-1$
-            boolean isStringType = "string".equals(MetadataUtils.getSuperConcreteType(simpleField.getType()).getName()); //$NON-NLS-1$
+            boolean isStringType = Types.STRING.equals(MetadataUtils.getSuperConcreteType(simpleField.getType()).getName());
             if (isStringType) { //$NON-NLS-1$
                 query.append("'"); //$NON-NLS-1$
             }

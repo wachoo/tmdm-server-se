@@ -53,7 +53,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private final MappingRepository mappings;
 
-    private final TableResolver resolver;
+    protected final TableResolver resolver;
 
     private Criteria criteria;
 

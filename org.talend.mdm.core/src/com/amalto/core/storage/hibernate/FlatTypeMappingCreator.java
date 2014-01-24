@@ -19,9 +19,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
-class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
+class FlatTypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
-    private static final Logger LOGGER = Logger.getLogger(TypeMappingCreator.class);
+    private static final Logger LOGGER = Logger.getLogger(FlatTypeMappingCreator.class);
 
     private final LinkedList<String> prefix = new LinkedList<String>();
 
@@ -35,7 +35,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private boolean forceKey = false;
 
-    public TypeMappingCreator(MetadataRepository repository, MappingRepository mappings) {
+    public FlatTypeMappingCreator(MetadataRepository repository, MappingRepository mappings) {
         this.mappings = mappings;
         this.internalRepository = repository;
         this.context = new StatelessContext(prefix);
@@ -178,7 +178,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(ComplexTypeMetadata complexType) {
-        typeMapping = new FlatTypeMapping(complexType, TypeMappingCreator.this.mappings);
+        typeMapping = new FlatTypeMapping(complexType, FlatTypeMappingCreator.this.mappings);
         Collection<FieldMetadata> fields = complexType.getFields();
         for (FieldMetadata field : fields) {
             field.accept(this);

@@ -107,7 +107,7 @@ public class InClauseOptimization extends StandardQueryHandler {
                     constants.add(constant);
                 }
                 if (!constants.isEmpty()) {
-                    criteria.add(new IdInConstantClause(mainType.getKeyFields(), constants));
+                    criteria.add(new IdInConstantClause(mainType.getKeyFields(), resolver, constants));
                 } else {
                     return new HibernateStorageResults(storage, select, EmptyIterator.INSTANCE);
                 }
@@ -122,10 +122,13 @@ public class InClauseOptimization extends StandardQueryHandler {
 
         private final Collection<FieldMetadata> keyFields;
 
+        private final TableResolver resolver;
+
         private final List<String[]> values;
 
-        public IdInConstantClause(Collection<FieldMetadata> keyFields, List<String[]> values) {
+        public IdInConstantClause(Collection<FieldMetadata> keyFields, TableResolver resolver, List<String[]> values) {
             this.keyFields = keyFields;
+            this.resolver = resolver;
             this.values = values;
         }
 
@@ -136,7 +139,7 @@ public class InClauseOptimization extends StandardQueryHandler {
             Iterator<FieldMetadata> keyFieldIterator = keyFields.iterator();
             int i = 0;
             while (keyFieldIterator.hasNext()) {
-                inClause.append(alias).append('.').append(keyFieldIterator.next().getName()).append(" IN ").append('('); //$NON-NLS-1$
+                inClause.append(alias).append('.').append(resolver.get(keyFieldIterator.next())).append(" IN ").append('('); //$NON-NLS-1$
                 Iterator<String[]> valuesIterator = values.iterator();
                 while (valuesIterator.hasNext()) {
                     inClause.append('\'').append(valuesIterator.next()[i]).append('\'');

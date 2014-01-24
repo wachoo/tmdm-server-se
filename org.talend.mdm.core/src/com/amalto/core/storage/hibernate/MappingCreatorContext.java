@@ -14,7 +14,7 @@ package com.amalto.core.storage.hibernate;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
 /**
- * A context interface used by {@link com.amalto.core.storage.hibernate.TypeMappingCreator} instances to get database
+ * A context interface used by {@link FlatTypeMappingCreator} instances to get database
  * column names.
  */
 public interface MappingCreatorContext {
