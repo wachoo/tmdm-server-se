@@ -14,7 +14,6 @@
 package com.amalto.core.query.user;
 
 import com.amalto.core.storage.StorageMetadataUtils;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.query.user.metadata.MetadataField;
 import com.amalto.core.webservice.WSStringPredicate;
 import com.amalto.xmlserver.interfaces.*;

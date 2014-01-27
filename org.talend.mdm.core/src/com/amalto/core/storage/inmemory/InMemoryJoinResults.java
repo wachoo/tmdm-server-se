@@ -188,7 +188,7 @@ class InMemoryJoinResults implements StorageResults {
         }
     }
 
-    static Set<Object> _evaluateConditions(Storage storage, InMemoryJoinNode node) {
+    private static Set<Object> _evaluateConditions(Storage storage, InMemoryJoinNode node) {
         if (node.expression != null) {
             Set<Object> expressionIds = new HashSet<Object>();
             StorageResults results = storage.fetch(node.expression); // Expects an active transaction here
@@ -253,7 +253,7 @@ class InMemoryJoinResults implements StorageResults {
         }
     }
 
-    static Condition buildConditionFromValues(Condition existingCondition, FieldMetadata field, Set<Object> values) {
+    private static Condition buildConditionFromValues(Condition existingCondition, FieldMetadata field, Set<Object> values) {
         Condition condition = null;
         for (Object id : values) {
             Condition newCondition = UserQueryBuilder.eq(field, String.valueOf(id));
@@ -294,7 +294,7 @@ class InMemoryJoinResults implements StorageResults {
         }
     }
 
-    static void debug(InMemoryJoinNode node) {
+    private static void debug(InMemoryJoinNode node) {
         List<InMemoryJoinNode> orderedNodesByTime = new LinkedList<InMemoryJoinNode>();
         listNodes(node, orderedNodesByTime);
         Collections.sort(orderedNodesByTime, new Comparator<InMemoryJoinNode>() {
@@ -309,7 +309,7 @@ class InMemoryJoinResults implements StorageResults {
         }
     }
 
-    static void trace(InMemoryJoinNode node) {
+    private static void trace(InMemoryJoinNode node) {
         LOGGER.trace("====");
         LOGGER.trace("Node " + node);
         LOGGER.trace("Merge: " + node.merge);

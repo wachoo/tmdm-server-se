@@ -44,9 +44,8 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
 
     public DefaultStorageClassLoader(ClassLoader parent,
                                      String storageName,
-                                     RDBMSDataSource.DataSourceDialect dialect,
                                      StorageType type) {
-        super(parent, storageName, dialect, type);
+        super(parent, storageName, type);
     }
 
     public InputStream generateEhCacheConfig() {

@@ -12,7 +12,6 @@
 package com.amalto.core.storage.hibernate;
 
 import org.hibernate.dialect.SQLServer2008Dialect;
-import org.hibernate.dialect.SQLServerDialect;
 
 import java.sql.Types;
 

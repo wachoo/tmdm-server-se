@@ -19,11 +19,9 @@ import com.amalto.core.save.UserAction;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverSource;
 import com.amalto.core.save.context.StorageDocument;
-import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.transaction.Transaction;
 import com.amalto.core.util.User;
 import com.amalto.core.util.UserHelper;
 import org.apache.commons.lang.StringUtils;
@@ -60,8 +58,6 @@ public class MDMValidationTask extends MetadataRepositoryTask {
     private final Storage destinationStorage;
 
     private int recordsCount;
-
-    private boolean hasFailed;
 
     static {
         // staging.validation.updatereport tells whether validation should generate update reports
@@ -144,7 +140,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
 
     @Override
     public boolean hasFailed() {
-        return hasFailed;
+        return false;
     }
 
     private class MDMValidationClosure implements Closure {

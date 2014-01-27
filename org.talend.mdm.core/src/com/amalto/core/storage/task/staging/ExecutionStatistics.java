@@ -11,8 +11,6 @@
 
 package com.amalto.core.storage.task.staging;
 
-import com.amalto.core.query.user.DateTimeConstant;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 

@@ -12,7 +12,6 @@
 package com.amalto.core.storage;
 
 import com.amalto.core.load.io.ResettableStringWriter;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.server.ServerContext;

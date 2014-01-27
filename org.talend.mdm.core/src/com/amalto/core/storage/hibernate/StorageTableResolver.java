@@ -37,7 +37,7 @@ class StorageTableResolver implements TableResolver {
 
     private static Set<String> reservedKeyWords;
 
-    private Set<FieldMetadata> indexedFields;
+    private final Set<FieldMetadata> indexedFields;
 
     private final int maxLength;
 

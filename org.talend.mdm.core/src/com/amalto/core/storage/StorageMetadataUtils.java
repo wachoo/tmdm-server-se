@@ -33,6 +33,10 @@ import java.util.*;
  * in {@link com.amalto.core.storage.Storage} API.
  */
 public class StorageMetadataUtils {
+
+    private StorageMetadataUtils() {
+    }
+
     /**
      * Similar to {@link #path(org.talend.mdm.commmon.metadata.ComplexTypeMetadata, org.talend.mdm.commmon.metadata.FieldMetadata, boolean)}
      * but will remain in entity boundaries (won't follow FK to other MDM entities).

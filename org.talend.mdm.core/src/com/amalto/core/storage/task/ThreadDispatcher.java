@@ -12,7 +12,6 @@
 package com.amalto.core.storage.task;
 
 import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.transaction.Transaction;
 import org.apache.log4j.Logger;
 import org.quartz.SchedulerConfigException;
 import org.quartz.simpl.SimpleThreadPool;

@@ -22,6 +22,7 @@ import java.util.*;
 
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.save.context.DefaultSaverSource;
+import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.task.*;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -34,8 +35,6 @@ import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.task.Filter;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;

@@ -12,7 +12,6 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.storage.StorageMetadataUtils;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
@@ -70,10 +69,10 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
     }
 
     String getFieldName(Field field) {
-        return getFieldName(field.getFieldMetadata(), true, true);
+        return getFieldName(field.getFieldMetadata(), true);
     }
 
-    String getFieldName(FieldMetadata fieldMetadata, boolean includeTypeName, boolean resolveReferencedField) {
+    String getFieldName(FieldMetadata fieldMetadata, boolean includeTypeName) {
         // Move up to the first complex type (contained type do not have any mapping).
         TypeMetadata containingType = fieldMetadata.getContainingType();
         while (containingType != null && containingType instanceof ContainedComplexTypeMetadata) {
@@ -85,10 +84,10 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         String fieldName;
         if (fieldMetadata instanceof ReferenceFieldMetadata) { // Handle query on FK field
             FieldMetadata referencedField = ((ReferenceFieldMetadata) fieldMetadata).getReferencedField();
-            if (!(referencedField instanceof CompoundFieldMetadata) && resolveReferencedField) {
+            if (!(referencedField instanceof CompoundFieldMetadata)) {
                 // If asked to resolve referenced field (to return "country.id" instead of "country" -> useful for
                 // conditions on FKs).
-                fieldName = fieldMetadata.getName() + '.' + getFieldName(referencedField, false, true);
+                fieldName = fieldMetadata.getName() + '.' + getFieldName(referencedField, false);
             } else {
                 fieldName = fieldMetadata.getName();
             }

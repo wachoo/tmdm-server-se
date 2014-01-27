@@ -22,8 +22,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
-import static com.amalto.core.query.user.UserQueryBuilder.and;
-import static com.amalto.core.query.user.UserQueryBuilder.timestamp;
 import static com.amalto.core.query.user.UserStagingQueryBuilder.status;
 
 public class ConfigurableFilter implements Filter {

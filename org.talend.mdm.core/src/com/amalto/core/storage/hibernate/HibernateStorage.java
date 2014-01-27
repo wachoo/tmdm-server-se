@@ -11,8 +11,6 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.storage.StorageMetadataUtils;
-import org.talend.mdm.commmon.metadata.InboundReferences;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.query.optimization.*;
 import com.amalto.core.query.user.*;
 import com.amalto.core.server.ServerContext;
@@ -21,7 +19,6 @@ import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.TransactionManager;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Level;
-import org.hibernate.Session;
 import org.hibernate.cfg.Environment;
 import org.hibernate.search.FullTextSession;
 import org.talend.mdm.commmon.metadata.*;
@@ -220,11 +217,9 @@ public class HibernateStorage implements Storage {
             }
             Constructor<? extends StorageClassLoader> constructor = clazz.getConstructor(ClassLoader.class,
                     String.class,
-                    RDBMSDataSource.DataSourceDialect.class,
                     StorageType.class);
             storageClassLoader = constructor.newInstance(contextClassLoader,
                     storageName,
-                    dataSource.getDialectName(),
                     storageType);
             storageClassLoader.setDataSourceConfiguration(dataSource);
             storageClassLoader.generateHibernateConfig(); // Checks if configuration can be generated.

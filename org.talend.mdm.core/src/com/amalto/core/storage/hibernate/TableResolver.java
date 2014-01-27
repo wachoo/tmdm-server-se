@@ -15,8 +15,6 @@ package com.amalto.core.storage.hibernate;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
-import java.util.Set;
-
 /**
  * This interface provides all API to create table/columns names for the database schema (based on the data model elements).
  */

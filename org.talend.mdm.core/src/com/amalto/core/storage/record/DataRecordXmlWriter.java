@@ -30,8 +30,6 @@ public class DataRecordXmlWriter implements DataRecordWriter {
 
     private ComplexTypeMetadata type;
 
-    private OverrideValue override;
-
     public DataRecordXmlWriter() {
         rootElementName = null;
     }
@@ -45,18 +43,13 @@ public class DataRecordXmlWriter implements DataRecordWriter {
         this.rootElementName = type.getName();
     }
 
-    public DataRecordXmlWriter(OverrideValue override) {
-        this();
-        this.override = override;
-    }
-
     public void write(DataRecord record, OutputStream output) throws IOException {
         Writer out = new BufferedWriter(new OutputStreamWriter(output, "UTF-8")); //$NON-NLS-1$
         write(record, out);
     }
 
     public void write(DataRecord record, Writer writer) throws IOException {
-        DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(record, writer, override);
+        DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(record, writer);
         Collection<FieldMetadata> fields = type == null ? record.getType().getFields() : type.getFields();
         writer.write("<" + getRootElementName(record) + ">"); //$NON-NLS-1$ //$NON-NLS-2$
         for (FieldMetadata field : fields) {
@@ -70,27 +63,15 @@ public class DataRecordXmlWriter implements DataRecordWriter {
         return rootElementName == null ? record.getType().getName() : rootElementName;
     }
 
-    public interface OverrideValue {
-
-        public Object overrideValue(DataRecord record, SimpleTypeFieldMetadata simpleField, Object originalValue);
-    }
-
     private static class FieldPrinter extends DefaultMetadataVisitor<Void> {
 
         private final DataRecord record;
 
         private final Writer out;
 
-        private OverrideValue override;
-
         public FieldPrinter(DataRecord record, Writer out) {
             this.record = record;
             this.out = out;
-        }
-
-        public FieldPrinter(DataRecord record, Writer out, OverrideValue override) {
-            this(record, out);
-            this.override = override;
         }
 
         @Override
@@ -179,9 +160,6 @@ public class DataRecordXmlWriter implements DataRecordWriter {
         public Void visit(SimpleTypeFieldMetadata simpleField) {
             try {
                 Object value = record.get(simpleField);
-                if (override != null) {
-                    value = override.overrideValue(record, simpleField, value);
-                }
                 if (value != null) {
                     if (!simpleField.isMany()) {
                         out.write("<" + simpleField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$

@@ -209,18 +209,6 @@ public class MDMStandardTokenizer extends Tokenizer {
         offsetAtt.setOffset(finalOffset, finalOffset);
     }
 
-    @Deprecated
-    @Override
-    public final Token next(final Token reusableToken) throws IOException {
-        return super.next(reusableToken);
-    }
-
-    @Deprecated
-    @Override
-    public final Token next() throws IOException {
-        return super.next();
-    }
-
     @Override
     public void reset() throws IOException {
         super.reset();

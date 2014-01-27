@@ -12,7 +12,6 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.storage.StorageMetadataUtils;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;

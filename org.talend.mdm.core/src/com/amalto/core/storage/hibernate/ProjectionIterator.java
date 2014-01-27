@@ -16,7 +16,6 @@ import com.amalto.core.query.user.metadata.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
-import oracle.sql.TIMESTAMP;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.ScrollableResults;
@@ -262,8 +261,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
 
         @Override
         public ProjectionElement visit(Distinct distinct) {
-            Object value = values[currentIndex++];
-            currentElement.value = value;
+            currentElement.value = values[currentIndex++];
             return currentElement;
         }
 

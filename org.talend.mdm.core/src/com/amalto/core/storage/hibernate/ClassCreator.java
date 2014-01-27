@@ -12,8 +12,6 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.storage.StorageMetadataUtils;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
-
 import org.apache.lucene.document.NumericField;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.Storage;

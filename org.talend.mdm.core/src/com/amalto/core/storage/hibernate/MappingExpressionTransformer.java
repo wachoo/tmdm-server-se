@@ -12,7 +12,6 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.storage.StorageMetadataUtils;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.metadata.*;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -20,7 +19,7 @@ import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.Types;
 
-public class MappingExpressionTransformer extends VisitorAdapter<Expression> {
+class MappingExpressionTransformer extends VisitorAdapter<Expression> {
 
     private final MappingRepository mappingRepository;
 

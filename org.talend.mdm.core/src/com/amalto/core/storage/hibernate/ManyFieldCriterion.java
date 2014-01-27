@@ -11,7 +11,6 @@
 
 package com.amalto.core.storage.hibernate;
 
-import org.talend.mdm.commmon.metadata.MetadataUtils;
 import org.talend.mdm.commmon.metadata.*;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;

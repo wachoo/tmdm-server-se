@@ -17,7 +17,6 @@ import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
-import java.util.Properties;
 
 class OracleStorageCleaner implements StorageCleaner {
 

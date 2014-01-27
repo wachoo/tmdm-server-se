@@ -44,10 +44,6 @@ public class ClosureExecutionStats {
         return successCount.get();
     }
 
-    public void reportSuccess(int success) {
-        successCount.getAndAdd(success);
-    }
-
     public long getEndMatchTime() {
         return endMatchTime;
     }

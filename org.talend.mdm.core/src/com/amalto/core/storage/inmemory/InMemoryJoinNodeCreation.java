@@ -1,7 +1,6 @@
 package com.amalto.core.storage.inmemory;
 
 import com.amalto.core.storage.StorageMetadataUtils;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
 import org.apache.commons.lang.NotImplementedException;
 import org.talend.mdm.commmon.metadata.FieldMetadata;

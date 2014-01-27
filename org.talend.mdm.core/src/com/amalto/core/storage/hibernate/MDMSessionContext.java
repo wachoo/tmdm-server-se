@@ -303,7 +303,7 @@ public class MDMSessionContext implements CurrentSessionContext {
 			}
 			catch ( InvocationTargetException e ) {
 				if ( e.getTargetException() instanceof RuntimeException ) {
-					throw ( RuntimeException ) e.getTargetException();
+					throw e.getTargetException();
 				}
 				else {
 					throw e;
