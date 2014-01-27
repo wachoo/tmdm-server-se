@@ -108,6 +108,8 @@ public interface StagingareaMessages extends Messages {
 
     String delete_all_concept();
 
+    String reset_concept();
+
     String entity_filter();
 
     String entity_filter_title();
