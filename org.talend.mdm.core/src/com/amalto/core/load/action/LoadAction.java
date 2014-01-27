@@ -29,19 +29,13 @@ public interface LoadAction {
     boolean supportValidation();
 
     /**
-     * @return true if action supports ID generated server side (auto increment), false otherwise.
-     */
-    boolean supportAutoGenPK();
-
-    /**
      * Loads XML documents from <code>request</code> in <code>server</code>.
      * @param stream      The stream that contains all XML documents to be loaded in MDM.
      * @param keyMetadata Key metadata <b>or <code>null</code> in case of autoGenPK</b>.
      * @param server      The database where the documents must be persisted.
      * @param session     The {@link SaverSession} to be used for saving records.
-     * @throws Exception In case anything goes wrong during load.
      */
-    void load(InputStream stream, XSDKey keyMetadata, XmlServer server, SaverSession session) throws Exception;
+    void load(InputStream stream, XSDKey keyMetadata, XmlServer server, SaverSession session);
 
     /**
      * End load and perform all post-load actions (such as save counter state in case of autogen pk).

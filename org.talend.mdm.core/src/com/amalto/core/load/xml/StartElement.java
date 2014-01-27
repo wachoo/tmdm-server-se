@@ -36,6 +36,7 @@ public class StartElement implements State {
 
         if (context.skipElement()) {
             while (reader.next() != XMLEvent.END_ELEMENT) {
+                // Skip element's content until we meet end element
             }
             context.leaveElement();
             context.setCurrent(Selector.INSTANCE);

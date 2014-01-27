@@ -42,9 +42,9 @@ public class StorageSaver extends AbstractDocumentSaverContext {
 
     private UserAction userAction;
 
-    private boolean invokeBeforeSaving;
+    private final boolean invokeBeforeSaving;
 
-    private boolean updateReport;
+    private final boolean updateReport;
 
     private MutableDocument updateReportDocument;
 
@@ -54,9 +54,9 @@ public class StorageSaver extends AbstractDocumentSaverContext {
 
     private String[] ids = new String[0];
 
-    private boolean validate;
+    private final boolean validate;
 
-    private boolean preserveOldCollectionValues;
+    private final boolean preserveOldCollectionValues;
 
     public StorageSaver(Storage storage,
                         MutableDocument userDocument,

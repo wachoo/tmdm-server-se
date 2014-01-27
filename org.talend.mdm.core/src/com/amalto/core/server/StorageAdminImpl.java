@@ -355,7 +355,10 @@ public class StorageAdminImpl implements StorageAdmin {
         Set<Map.Entry<String, Map<String, Storage>>> entries = storages.entrySet();
         for (Map.Entry<String, Map<String, Storage>> entry : entries) {
             if (storageName.equals(entry.getKey())) {
-                return entry.getValue().values().iterator().next().getDataSource().getName();
+                Collection<Storage> values = entry.getValue().values();
+                if (!values.isEmpty()) {
+                    return values.iterator().next().getDataSource().getName();
+                }
             }
         }
         // This is not customized: in fact, there should be a way to customize storage -> datasource mapping (like

@@ -20,7 +20,6 @@ import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldInsertAction;
 import com.amalto.core.history.action.FieldUpdateAction;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
@@ -29,7 +28,7 @@ import java.util.*;
 
 public class PartialUpdateActionCreator extends UpdateActionCreator {
 
-    public static final Logger LOGGER = Logger.getLogger(PartialUpdateActionCreator.class);
+    private static final Logger LOGGER = Logger.getLogger(PartialUpdateActionCreator.class);
 
     private final String partialUpdatePivot;
 
@@ -117,7 +116,7 @@ public class PartialUpdateActionCreator extends UpdateActionCreator {
             if (keyValue != null) {
                 keyValueToPath.put(keyValue, path);
             } else if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Key value at '" + path + "' has no value (was '" + keyValue + "'). Ignoring it.");
+                LOGGER.debug("Key value at '" + path + "' has no value (was null). Ignoring it.");
             }
         }
     }

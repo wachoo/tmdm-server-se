@@ -47,15 +47,10 @@ public class OptimizedLoadAction implements LoadAction {
         return false;
     }
 
-    public boolean supportAutoGenPK() {
-        return true;
-    }
-
-    public void load(InputStream stream, XSDKey keyMetadata, XmlServer server, SaverSession session) throws Exception {
+    public void load(InputStream stream, XSDKey keyMetadata, XmlServer server, SaverSession session) {
         if (!".".equals(keyMetadata.getSelector())) { //$NON-NLS-1$
             throw new UnsupportedOperationException("Selector '" + keyMetadata.getSelector() + "' isn't supported.");
         }
-
         AutoIdGenerator idGenerator = null;
         if (needAutoGenPK) {
             String[] idFieldTypes = keyMetadata.getFieldTypes();

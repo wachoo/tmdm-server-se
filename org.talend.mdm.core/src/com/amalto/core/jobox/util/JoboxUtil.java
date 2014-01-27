@@ -28,6 +28,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import com.amalto.core.jobox.JobInfo;
@@ -43,7 +44,7 @@ public class JoboxUtil {
 
     public static void deleteFolder(String folderPath) {
         try {
-            delAllFile(folderPath);
+            deleteAllFiles(folderPath);
             File myFilePath = new File(folderPath);
             if (!myFilePath.exists()) {
                 if (LOGGER.isDebugEnabled()) {
@@ -61,13 +62,13 @@ public class JoboxUtil {
 
     public static void cleanFolder(String folderPath) {
         try {
-            delAllFile(folderPath);
+            deleteAllFiles(folderPath);
         } catch (Exception e) {
             throw new JoboxException(e);
         }
     }
 
-    private static void delAllFile(String path) {
+    private static void deleteAllFiles(String path) {
         File file = new File(path);
         if (!file.exists()) {
             return;
@@ -89,7 +90,7 @@ public class JoboxUtil {
                 }
             }
             if (temp.isDirectory()) {
-                delAllFile(path + "/" + currentTempFile);//$NON-NLS-1$
+                deleteAllFiles(path + "/" + currentTempFile);//$NON-NLS-1$
                 deleteFolder(path + "/" + currentTempFile);//$NON-NLS-1$
             }
         }
@@ -114,7 +115,6 @@ public class JoboxUtil {
             while ((ze = zipInputStream.getNextEntry()) != null) {
                 File zipFile = new File(destinationPath + ze.getName());
                 File zipFilePath = new File(zipFile.getParentFile().getPath());
-
                 if (ze.isDirectory()) {
                     if (!zipFile.exists()) {
                         if (!zipFile.mkdirs()) {
@@ -129,20 +129,20 @@ public class JoboxUtil {
                         }
                     }
                     FileOutputStream fileOutputStream = new FileOutputStream(zipFile);
-                    int i;
-                    while ((i = zipInputStream.read(ch)) != -1) {
-                        fileOutputStream.write(ch, 0, i);
+                    try {
+                        int i;
+                        while ((i = zipInputStream.read(ch)) != -1) {
+                            fileOutputStream.write(ch, 0, i);
+                        }
+                        zipInputStream.closeEntry();
+                    } finally {
+                        fileOutputStream.close();
                     }
-                    zipInputStream.closeEntry();
-                    fileOutputStream.close();
                 }
             }
         } finally {
-            try {
-                fins.close();
-            } finally {
-                zipInputStream.close();
-            }
+            IOUtils.closeQuietly(fins);
+            IOUtils.closeQuietly(zipInputStream);
         }
 
     }
@@ -151,7 +151,6 @@ public class JoboxUtil {
         if (resultList.size() > 0) {
             return;
         }
-
         if (root.isFile()) {
             if (root.getName().equals(fileName)) {
                 if (jobInfo == null
@@ -162,8 +161,10 @@ public class JoboxUtil {
             }
         } else if (root.isDirectory()) {
             File[] files = root.listFiles();
-            for (File file : files) {
-                findFirstFile(jobInfo, file, fileName, resultList);
+            if (files != null) {
+                for (File file : files) {
+                    findFirstFile(jobInfo, file, fileName, resultList);
+                }
             }
         }
     }
@@ -173,12 +174,9 @@ public class JoboxUtil {
         if (children == null) {
             return;
         }
-
         for (String currentChild : children) {
             File child = new File(dir, currentChild);
-
             String childZipPath = zipPath + File.separator + child.getName();
-
             if (child.isDirectory()) {
                 zipContents(child, childZipPath, zos);
             } else {
@@ -216,10 +214,8 @@ public class JoboxUtil {
         FileInputStream is = null;
         try {
             byte[] buf = new byte[1024];
-
             // Add ZIP entry to output stream.
             zos.putNextEntry(new ZipEntry(zipPath));
-
             // Transfer bytes from the file to the ZIP file
             int len;
             is = new FileInputStream(file);
@@ -227,9 +223,7 @@ public class JoboxUtil {
                 zos.write(buf, 0, len);
             }
         } finally {
-            if (is != null) {
-                is.close();
-            }
+            IOUtils.closeQuietly(is);
         }
     }
 
@@ -262,42 +256,27 @@ public class JoboxUtil {
         return urls.toArray(new URL[urls.size()]);
     }
 
-    /**
-     * DOC Starkey Comment method "parseMainClassFromJCL".
-     * 
-     * @throws IOException
-     */
     public static String parseMainClassFromJCL(String content) throws IOException {
-
         String mainClass = null;
-
         BufferedReader reader = new BufferedReader(new StringReader(content));
         String line;
         while ((line = reader.readLine()) != null) {
-
-            if (line != null && line.length() > 0) {
-
+            if (line.length() > 0) {
                 boolean hasJAL = false;
                 Queue<String> myQueue = new LinkedList<String>();
                 String[] tokens = line.split("\\s"); //$NON-NLS-1$
                 for (String token : tokens) {
-
                     if (hasJAL && token.trim().length() > 0) {
                         myQueue.offer(token.trim());
                     }
-
-                    if (token.equals("java")) { //$NON-NLS-1$
+                    if ("java".equals(token)) { //$NON-NLS-1$
                         hasJAL = true;
                     }
-
-                }// end for
-
+                }
                 if (hasJAL) {
-
                     String str;
                     boolean needConsume = false;
                     while ((str = myQueue.poll()) != null) {
-
                         if (!str.startsWith("-")) { //$NON-NLS-1$
                             if (needConsume) {
                                 needConsume = false;// consume
@@ -306,29 +285,21 @@ public class JoboxUtil {
                                 break;
                             }
                         }
-
                         if (str.startsWith("-")) { //$NON-NLS-1$
-
                             str = str.substring(1);
                             if (str.startsWith("-")) { //$NON-NLS-1$
                                 str = str.substring(1);
                             }
-
                             // FIXME is there any more?
-                            if (str.equals("cp") || str.equals("classpath") || str.equals("jar")) { //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+                            if ("cp".equals(str) || "classpath".equals(str) || "jar".equals(str)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                                 needConsume = true;
                             }
                         }
-
                     }
                 }
-
             }
-
         }
-
         return mainClass;
-
     }
 
 }

@@ -19,6 +19,7 @@ import com.amalto.core.jobox.component.JobAware;
 import com.amalto.core.jobox.component.JobDeploy;
 import com.amalto.core.jobox.util.JoboxException;
 import com.amalto.core.jobox.util.JoboxUtil;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -110,7 +111,6 @@ public class JoboxListener implements DirListener {
     }
 
     public void contextChanged(String jobFile, String context) {
-
         File entity = new File(jobFile);
         String sourcePath = jobFile;
         int dotMark = jobFile.lastIndexOf("."); //$NON-NLS-1$
@@ -121,7 +121,7 @@ public class JoboxListener implements DirListener {
         try {
             JoboxUtil.extract(jobFile, System.getProperty("java.io.tmpdir") + File.separatorChar); //$NON-NLS-1$
         } catch (Exception e1) {
-            e1.printStackTrace();
+            LOGGER.error("Extraction exception occurred.", e1);
             return;
         }
         List<File> resultList = new ArrayList<File>();
@@ -132,7 +132,6 @@ public class JoboxListener implements DirListener {
             try {
                 JarFile jarFile = new JarFile(resultList.get(0));
                 Manifest mf = jarFile.getManifest();
-
                 jarIn = new JarInputStream(new FileInputStream(resultList.get(0)));
                 Manifest newManifest = jarIn.getManifest();
                 if (newManifest == null) {
@@ -144,39 +143,29 @@ public class JoboxListener implements DirListener {
                 byte[] buf = new byte[4096];
                 JarEntry entry;
                 while ((entry = jarIn.getNextJarEntry()) != null) {
-                    if ("META-INF/MANIFEST.MF".equals(entry.getName()))//$NON-NLS-1$
+                    if ("META-INF/MANIFEST.MF".equals(entry.getName())) { //$NON-NLS-1$
                         continue;
+                    }
                     jarOut.putNextEntry(entry);
                     int read;
                     while ((read = jarIn.read(buf)) != -1) {
                         jarOut.write(buf, 0, read);
                     }
                     jarOut.closeEntry();
-
                 }
-
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("Extraction exception occurred.", e);
             } finally {
-                try {
-                    if (jarIn != null)
-                        jarIn.close();
-                    jarIn = null;
-                    if (jarOut != null)
-                        jarOut.close();
-                    jarOut = null;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                IOUtils.closeQuietly(jarIn);
+                IOUtils.closeQuietly(jarOut);
             }
-
             // re-zip file
             if (entity.getName().endsWith(".zip")) { //$NON-NLS-1$
                 File sourceFile = new File(sourcePath);
                 try {
                     JoboxUtil.zip(sourceFile, jobFile);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LOGGER.error("Zip exception occurred.", e);
                 }
             }
         }

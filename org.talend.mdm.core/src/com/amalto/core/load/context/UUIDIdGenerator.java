@@ -12,11 +12,6 @@
 package com.amalto.core.load.context;
 
 import com.amalto.core.server.XmlServer;
-import com.amalto.core.util.AutoIncrementGenerator;
-import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.XtentisException;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import java.util.UUID;
 

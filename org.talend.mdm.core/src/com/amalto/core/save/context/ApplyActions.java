@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
 
 class ApplyActions implements DocumentSaver {
 
-    public static final Logger LOGGER = Logger.getLogger(ApplyActions.class);
+    private static final Logger LOGGER = Logger.getLogger(ApplyActions.class);
 
     private final DocumentSaver next;
 

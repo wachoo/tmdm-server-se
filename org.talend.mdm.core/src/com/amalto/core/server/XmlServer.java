@@ -423,7 +423,7 @@ public interface XmlServer {
      *                                     limit
      * @param spellThreshold               Spell check the whereItem if threshold is greater than zero. The setting is ignored is this
      *                                     not an item query.
-     * @param metaDataTypes
+     * @param metaDataTypes                Additional information about element's types.
      * @return the xquery in the native language of the db
      * @deprecated These method does not allow enough loose coupling with underlying storage (prefer {@link com.amalto.core.delegator.IItemCtrlDelegator#xPathsSearch(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)}).
      */

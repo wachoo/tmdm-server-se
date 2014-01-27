@@ -21,7 +21,7 @@ public class JobNotFoundException extends JoboxException {
 
     @Override
     public String getLocalizedMessage() {
-        return (super.getLocalizedMessage().indexOf(";") != -1) ? super.getLocalizedMessage().substring(0,
+        return (super.getLocalizedMessage().contains(";")) ? super.getLocalizedMessage().substring(0,
                 super.getLocalizedMessage().indexOf(";")) : super.getLocalizedMessage();
     }
 }

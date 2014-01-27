@@ -98,7 +98,7 @@ public class LoadServlet extends HttpServlet {
         if (needValidate && !loadAction.supportValidation()) {
             throw new ServletException(new UnsupportedOperationException("XML Validation isn't supported"));
         }
-        if (needAutoGenPK && !loadAction.supportAutoGenPK()) {
+        if (needAutoGenPK) {
             throw new ServletException(new UnsupportedOperationException("Autogen pk isn't supported"));
         }
         // Get xml server and key information

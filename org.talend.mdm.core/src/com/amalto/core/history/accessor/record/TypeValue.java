@@ -22,7 +22,7 @@ class TypeValue implements Setter, Getter {
 
     static Setter SET = new TypeValue();
 
-    static Getter GET = new TypeValue();
+    static final Getter GET = new TypeValue();
 
     @Override
     public void set(MetadataRepository repository, DataRecord record, PathElement element, String value) {

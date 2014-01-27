@@ -25,25 +25,12 @@ import com.amalto.core.migration.AbstractDataModelMigrationTask;
 import com.amalto.core.objects.configurationinfo.localutil.ConfigurationHelper;
 import com.amalto.core.util.Util;
 
-/**
- * DOC fliu class global comment. Detailled comment
- */
 public class UpdateActionTypeWithNewTypeStrategy extends AbstractDataModelMigrationTask {
 
-    /*
-     * (non-Jsdoc)
-     * 
-     * @see com.amalto.core.migration.AbstractDataModelMigrationTask#getDataModel()
-     */
     protected String getDataModel() {
         return "UpdateReport";//$NON-NLS-1$
     }
 
-    /*
-     * (non-Jsdoc)
-     * 
-     * @see com.amalto.core.migration.AbstractDataModelMigrationTask#updateSchema(org.w3c.dom.Document)
-     */
     protected void updateSchema(Document doc) throws Exception {
 
         NodeList nodeList = Util.getNodeList(doc, "./schema/text()"); //$NON-NLS-1$

@@ -128,7 +128,7 @@ public class ThreadIsolatedSystemProperties extends Properties {
     }
 
     /*
-     * DELEGATE METHODS for Hashtable
+     * DELEGATE METHODS for java.util.Hashtable
      */
     @Override
     public synchronized void putAll(Map<?, ?> map) {

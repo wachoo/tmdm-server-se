@@ -208,17 +208,15 @@ public class JobContainer {
         if (jobInfo == null) {
             throw new JobNotFoundException(jobName, version);
         }
-
         Class jobClass = getJobClass(jobInfo);
         Class[] interfaces = jobClass.getInterfaces();
         if (interfaces.length > 0) {
             for (Class currentInterface : interfaces) {
-                if ("routines.system.api.TalendMDMJob".equals(currentInterface.getName())) {
+                if ("routines.system.api.TalendMDMJob".equals(currentInterface.getName())) { //$NON-NLS-1$
                     return new MDMJobInvoker(jobName, version);
                 }
             }
         }
-
         // Default invocation
         return new JobInvoke(jobName, version);
     }
@@ -271,7 +269,7 @@ public class JobContainer {
      * caller's class loader isn't already the job class loader (as returned by {@link #getJobClassLoader(JobInfo)}).
      * </p>
      * <p>
-     * Once this method is completed {@link Thread#getContextClassLoader()} is equals to the caller's classloader.
+     * Once this method is completed {@link Thread#getContextClassLoader()} is equals to the caller's class loader.
      * </p>
      *
      * @param jobInfo A {@link JobInfo} instance.
@@ -310,7 +308,6 @@ public class JobContainer {
             // remove classpath
             JobContainer.getUniqueInstance().removeFromJobLoadersPool(entryName);
             jobDeploy.deploy(entryName);
-
             // add to classpath
             JobInfo jobInfo = JobContainer.getUniqueInstance().getJobAware().loadJobInfo(JoboxUtil.trimExtension(entryName));
             JobContainer.getUniqueInstance().updateJobLoadersPool(jobInfo);
@@ -410,5 +407,6 @@ public class JobContainer {
 
     public void close() {
         jobLoadersPool.clear();
+        monitor.stop();
     }
 }

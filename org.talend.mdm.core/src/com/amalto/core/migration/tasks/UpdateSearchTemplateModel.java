@@ -20,26 +20,13 @@ import org.w3c.dom.NodeList;
 import com.amalto.core.migration.AbstractDataModelMigrationTask;
 import com.amalto.core.util.Util;
 
-/**
- * DOC HSHU class global comment. Detailled comment
- */
+
 public class UpdateSearchTemplateModel extends AbstractDataModelMigrationTask {
 
-    /*
-     * (non-Jsdoc)
-     * 
-     * @see com.amalto.core.migration.AbstractDataModelMigrationTask#getDataModel()
-     */
     protected String getDataModel() {
         return "SearchTemplate"; //$NON-NLS-1$
     }
 
-    /*
-     * (non-Jsdoc)
-     * 
-     * @see com.amalto.core.migration.AbstractDataModelMigrationTask#updateSchema(org.w3c.dom.Document,
-     * org.w3c.dom.Document)
-     */
     protected void updateSchema(Document doc) throws Exception {
         
         if (Util.getNodeList(doc, "//xsd:element[@name='BrowseItem']//xsd:element[@name='SearchCriteria']").getLength() == 0) {//$NON-NLS-1$

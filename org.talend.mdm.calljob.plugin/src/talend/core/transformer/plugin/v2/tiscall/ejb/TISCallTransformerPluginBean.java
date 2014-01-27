@@ -190,15 +190,11 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
                 jobName = uri.getAuthority();
             }
             String jobVersion = uri.getPath().substring(1);
-            String jobMainClass = uri.getQuery() == null ? StringUtils.EMPTY : uri.getQuery();
 
             if (LTJ_PROTOCOL.equals(protocol)) {
                 jobInvokeConfig = new JobInvokeConfig();
                 jobInvokeConfig.setJobName(jobName);
                 jobInvokeConfig.setJobVersion(jobVersion);
-                if (jobMainClass.length() > 0) {
-                    jobInvokeConfig.setJobMainClass(jobMainClass);
-                }
                 context.put(INVOKE_CONFIG, jobInvokeConfig);
             } else if (HTTP_PROTOCOL.equalsIgnoreCase(protocol)) {
                 URL wsdlResource = TISCallTransformerPluginBean.class.getResource(WSDL_TIS_WSDL);

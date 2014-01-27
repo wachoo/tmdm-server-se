@@ -20,10 +20,8 @@ public class JobInvokeConfig implements Serializable {
     private String jobName=null;
 	
 	private String jobVersion=null;
-	
-	private String jobMainClass=null;
 
-	public String getJobName() {
+    public String getJobName() {
 		return jobName;
 	}
 
@@ -39,11 +37,4 @@ public class JobInvokeConfig implements Serializable {
 		this.jobVersion = jobVersion;
 	}
 
-	public String getJobMainClass() {
-		return jobMainClass;
-	}
-
-	public void setJobMainClass(String jobMainClass) {
-		this.jobMainClass = jobMainClass;
-	}
 }

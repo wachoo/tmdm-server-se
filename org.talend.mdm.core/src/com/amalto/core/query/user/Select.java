@@ -29,11 +29,11 @@ public class Select implements Expression {
 
     private final Paging paging = new Paging();
 
+    private final List<OrderBy> orderBy = new LinkedList<OrderBy>();
+
     private Condition condition;
 
     private String revisionId = "1"; //$NON-NLS-1$
-
-    private List<OrderBy> orderBy = new LinkedList<OrderBy>();
 
     private boolean isProjection;
 

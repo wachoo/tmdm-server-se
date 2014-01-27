@@ -12,7 +12,6 @@
 package com.amalto.core.history;
 
 import com.amalto.core.history.accessor.Accessor;
-import org.w3c.dom.Node;
 
 /**
  * A {@link Document} that is able to change.

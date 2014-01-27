@@ -47,11 +47,7 @@ public class DefaultLoadAction implements LoadAction {
         return true;
     }
 
-    public boolean supportAutoGenPK() {
-        return true;
-    }
-
-    public void load(InputStream stream, XSDKey keyMetadata, XmlServer server, SaverSession session) throws Exception {
+    public void load(InputStream stream, XSDKey keyMetadata, XmlServer server, SaverSession session) {
         try {
             SaverContextFactory contextFactory = session.getContextFactory();
             // If you wish to debug content sent to server evaluate 'IOUtils.toString(request.getInputStream())'

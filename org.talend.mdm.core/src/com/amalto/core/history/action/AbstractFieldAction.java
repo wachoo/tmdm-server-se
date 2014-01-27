@@ -21,11 +21,11 @@ import java.util.Date;
  */
 abstract class AbstractFieldAction implements FieldAction {
 
-    protected final Date date;
+    final Date date;
 
-    protected final String source;
+    final String source;
 
-    protected final String userName;
+    final String userName;
 
     private final FieldMetadata field;
 

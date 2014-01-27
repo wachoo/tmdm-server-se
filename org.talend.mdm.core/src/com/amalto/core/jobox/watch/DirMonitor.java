@@ -100,11 +100,7 @@ public class DirMonitor {
     }
 
     /**
-     * 
      * call listener to change the job context
-     * 
-     * @param entityPath
-     * @param context
      */
     public void changeContextStr(String entityPath, String context) {
         for (DirListener listener : listeners) {

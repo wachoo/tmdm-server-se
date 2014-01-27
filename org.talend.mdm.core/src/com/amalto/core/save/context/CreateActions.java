@@ -70,13 +70,13 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
 
     private String rootTypeName = null;
 
-    private Map<String, String> autoIncrementFieldMap;
+    private final Map<String, String> autoIncrementFieldMap;
 
     private static class PathElement {
 
-        FieldMetadata fieldMetadata;
+        final FieldMetadata fieldMetadata;
 
-        Integer index;
+        final Integer index;
 
         PathElement(FieldMetadata fieldMetadata, Integer index) {
             this.fieldMetadata = fieldMetadata;

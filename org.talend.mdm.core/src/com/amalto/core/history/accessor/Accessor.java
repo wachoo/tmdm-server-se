@@ -49,7 +49,7 @@ public interface Accessor extends Comparable<Accessor> {
 
     /**
      * Do not modify the accessed object but mark the accessed object in the {@link com.amalto.core.history.MutableDocument}.
-     * @see {@link com.amalto.core.history.MutableDocument#getLastAccessedNode()}.
+     * @see {@link com.amalto.core.history.DOMMutableDocument#getLastAccessedNode()}.
      */
     void touch();
 
@@ -117,7 +117,7 @@ public interface Accessor extends Comparable<Accessor> {
      * This method is also a <i>no op</i> if {@link #exist()} returns <code>false</code>.
      * </p>
      *
-     * @see #markModified()
+     * @see #markModified(com.amalto.core.history.accessor.Accessor.Marker)
      */
     void markUnmodified();
 

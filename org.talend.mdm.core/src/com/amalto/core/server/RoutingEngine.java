@@ -18,31 +18,31 @@ public interface RoutingEngine {
     /**
      * Routes a document
      * @return the list of routing rules PKs that matched
-     * @throws XtentisException
+     * @throws com.amalto.core.util.XtentisException
      */
     com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJOPK[] route(com.amalto.core.ejb.ItemPOJOPK itemPOJOPK) throws com.amalto.core.util.XtentisException;
 
     /**
      * Starts/restarts the router
-     * @throws XtentisException
+     * @throws com.amalto.core.util.XtentisException
      */
     void start() throws com.amalto.core.util.XtentisException;
 
     /**
      * Stops the routing queue
-     * @throws XtentisException
+     * @throws com.amalto.core.util.XtentisException
      */
     void stop() throws com.amalto.core.util.XtentisException;
 
     /**
      * Toggle suspend a routing queue
-     * @throws XtentisException
+     * @throws com.amalto.core.util.XtentisException
      */
     void suspend(boolean suspend) throws com.amalto.core.util.XtentisException;
 
     /**
      * Toggle suspend a routing queue
-     * @throws XtentisException
+     * @throws com.amalto.core.util.XtentisException
      */
     int getStatus() throws com.amalto.core.util.XtentisException;
 }

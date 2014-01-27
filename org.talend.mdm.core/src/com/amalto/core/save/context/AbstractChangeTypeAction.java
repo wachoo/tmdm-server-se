@@ -22,11 +22,11 @@ import java.util.Set;
 
 abstract class AbstractChangeTypeAction implements FieldAction {
 
-    protected final Date date;
+    private final Date date;
 
-    protected final String source;
+    private final String source;
 
-    protected final String userName;
+    private final String userName;
 
     protected final String path;
 

@@ -10,17 +10,11 @@ import com.amalto.core.util.Util;
 
 public abstract class AbstractDataModelMigrationTask extends AbstractMigrationTask{
     
-    protected final String cluster = "amaltoOBJECTSDataModel";//$NON-NLS-1$
+    protected final String cluster = "amaltoOBJECTSDataModel"; //$NON-NLS-1$
     
-    
-    /**
-     * DOC HSHU Comment method "getDataModel".
-     */
     protected abstract String getDataModel();
     
     protected Boolean execute() {
-        
-        
         try {
             String dataModelXml = ConfigurationHelper.getServer().getDocumentAsString(null, cluster, getDataModel());
             Document doc = Util.parse(dataModelXml);
@@ -33,7 +27,6 @@ public abstract class AbstractDataModelMigrationTask extends AbstractMigrationTa
 
 
     protected Document getSchemaFromDataModelPojoDocument(Document doc) throws Exception {
-
         NodeList nodeList = Util.getNodeList(doc, "./schema/text()"); //$NON-NLS-1$
         Document schemaRoot = null;
         if (nodeList.getLength() > 0) {
@@ -44,7 +37,6 @@ public abstract class AbstractDataModelMigrationTask extends AbstractMigrationTa
             }
         }
         return schemaRoot;
-
     }
 
     protected abstract void updateSchema(Document doc) throws Exception;

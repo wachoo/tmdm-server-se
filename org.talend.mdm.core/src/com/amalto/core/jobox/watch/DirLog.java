@@ -24,9 +24,11 @@ class DirLog {
     public DirLog(File dir) {
         this.filesModifiedTime = new HashMap<String, Long>();
         File[] files = dir.listFiles();
-        for (File file : files) {
-            long modifiedTime = file.exists() ? file.lastModified() : -1;
-            filesModifiedTime.put(file.getName(), modifiedTime);
+        if (files != null) {
+            for (File file : files) {
+                long modifiedTime = file.exists() ? file.lastModified() : -1;
+                filesModifiedTime.put(file.getName(), modifiedTime);
+            }
         }
     }
 

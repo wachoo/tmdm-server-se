@@ -31,7 +31,6 @@ import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocal;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.storage.Storage;
 import com.amalto.core.util.Util;
 
 /**

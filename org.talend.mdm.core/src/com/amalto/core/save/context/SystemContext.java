@@ -37,10 +37,6 @@ class SystemContext extends AbstractDocumentSaverContext {
 
     private MutableDocument databaseDocument;
 
-    private MutableDocument databaseValidationDocument;
-
-    private ComplexTypeMetadata type;
-
     private UserAction userAction;
 
     public SystemContext(String dataCluster, String dataModelName, MutableDocument document, UserAction userAction) {

@@ -46,7 +46,7 @@ class ServerImpl implements Server {
                     throw new NotImplementedException("Not supported: " + type);
             }
         }
-        return isDataSourceDefinitionPresent;
+        return false;
     }
 
     @Override

@@ -18,13 +18,10 @@ import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.accessor.DOMAccessorFactory;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilder;
-import java.io.StringWriter;
 
 public class DOMDocument implements DOMMutableDocument {
 
@@ -34,7 +31,7 @@ public class DOMDocument implements DOMMutableDocument {
 
     private String rootElementName;
 
-    private ComplexTypeMetadata type;
+    private final ComplexTypeMetadata type;
 
     private final String revisionId;
 
@@ -132,7 +129,7 @@ public class DOMDocument implements DOMMutableDocument {
 
     private static class EmptyElementCleaner implements Cleaner {
 
-        static Cleaner INSTANCE = new EmptyElementCleaner();
+        static final Cleaner INSTANCE = new EmptyElementCleaner();
 
         public boolean clean(Element element) {
             if (element == null) {

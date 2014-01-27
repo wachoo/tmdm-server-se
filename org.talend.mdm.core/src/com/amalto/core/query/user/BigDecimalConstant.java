@@ -49,11 +49,11 @@ public class BigDecimalConstant implements ConstantExpression<BigDecimal> {
             return false;
         }
         BigDecimalConstant that = (BigDecimalConstant) o;
-        return !(constant != null ? !constant.equals(that.constant) : that.constant != null);
+        return constant.equals(that.constant);
     }
 
     @Override
     public int hashCode() {
-        return constant != null ? constant.hashCode() : 0;
+        return constant.hashCode();
     }
 }

@@ -54,7 +54,7 @@ import java.util.Stack;
  */
 public class UniqueIdTransformer implements DocumentTransformer {
 
-    public static final String ID_ATTRIBUTE_NAME = "id"; //$NON-NLS-1$
+    private static final String ID_ATTRIBUTE_NAME = "id"; //$NON-NLS-1$
 
     public UniqueIdTransformer() {
     }

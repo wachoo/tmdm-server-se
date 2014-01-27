@@ -12,7 +12,6 @@
 package com.amalto.core.history.accessor.record;
 
 import com.amalto.core.storage.StorageMetadataUtils;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.storage.record.DataRecord;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.*;
@@ -22,9 +21,9 @@ import java.util.List;
 
 class ManyValue implements Setter, Getter {
 
-    static Setter SET = new ManyValue();
+    static final Setter SET = new ManyValue();
 
-    static Getter GET = new ManyValue();
+    static final Getter GET = new ManyValue();
 
     @Override
     public void set(MetadataRepository repository, DataRecord record, PathElement element, String value) {
@@ -55,15 +54,6 @@ class ManyValue implements Setter, Getter {
         }
         List list = (List) record.get(element.field);
         Object item = list.get(element.index);
-        if (element.field instanceof ReferenceFieldMetadata) {
-            // TODO Replace with MetadataUtils.toString()
-            StringBuilder builder = new StringBuilder();
-            for (FieldMetadata keyField : ((ReferenceFieldMetadata) element.field).getReferencedType().getKeyFields()) {
-                builder.append('[').append(((DataRecord) item).get(keyField)).append(']');
-            }
-            return builder.toString();
-        } else {
-            return StorageMetadataUtils.toString(item, element.field);
-        }
+        return StorageMetadataUtils.toString(item, element.field);
     }
 }

@@ -13,26 +13,10 @@
 package com.amalto.core.history.exception;
 
 
-/**
- * created by yjli on 2013-3-22
- * Detailled comment
- *
- */
 public class UnsupportedUndoPhysicalDeleteException extends RuntimeException {
     
     public UnsupportedUndoPhysicalDeleteException() {
         super();
     }
 
-    public UnsupportedUndoPhysicalDeleteException(String message) {
-        super(message);
-    }
-
-    public UnsupportedUndoPhysicalDeleteException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public UnsupportedUndoPhysicalDeleteException(Throwable cause) {
-        super(cause);
-    }
 }

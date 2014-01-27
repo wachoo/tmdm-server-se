@@ -195,7 +195,7 @@ public class UpdateReportOptimizer implements Optimizer {
             if (condition != null) {
                 return condition.accept(this);
             } else {
-                return condition;
+                return null;
             }
         }
 

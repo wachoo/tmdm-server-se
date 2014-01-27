@@ -51,9 +51,6 @@ public class JobAware {
         this.workDir = joboxConfig.getWorkPath();
     }
 
-    /**
-     * @return
-     */
     public List<JobInfo> findJobsInBox() {
         File[] entities = new File(workDir).listFiles(new FileFilter() {
 
@@ -61,7 +58,6 @@ public class JobAware {
                 return !(pathName.isFile() || JOBOX_RESERVED_FOLDER_NAME.equalsIgnoreCase(pathName.getName()));
             }
         });
-
         List<JobInfo> jobList = new ArrayList<JobInfo>();
         for (File entity : entities) {
             boolean isTISEntry = recognizeTISJob(entity);
@@ -74,11 +70,10 @@ public class JobAware {
                     jobName = m.group(1);
                     jobVersion = m.group(m.groupCount());
                 }
-
                 JobInfo jobInfo = new JobInfo(jobName, jobVersion);
                 setClassPath4TISJob(entity, jobInfo);
                 // get main class from command line
-                guessMainClassFromComandLine(entity, jobInfo);
+                guessMainClassFromCommandLine(entity, jobInfo);
                 //not found then found it in context properties folder
                 if (jobInfo.getMainClass() == null) {
                     String propFilePath = analyzeJobParams(entity, jobInfo);
@@ -95,18 +90,17 @@ public class JobAware {
         File entity = new File(workDir + File.separator + entityName);
         if (entity.exists()) {
             // parse name and version
-            String jobVersion = StringUtils.EMPTY; //$NON-NLS-1$
-            String jobName = StringUtils.EMPTY; //$NON-NLS-1$
+            String jobVersion = StringUtils.EMPTY;
+            String jobName = StringUtils.EMPTY;
             Matcher m = jobVersionNamePattern.matcher(entityName);
             while (m.find()) {
                 jobName = m.group(1);
                 jobVersion = m.group(m.groupCount());
             }
-
             jobInfo = new JobInfo(jobName, jobVersion);
             setClassPath4TISJob(entity, jobInfo);
             // get main class from command line
-            guessMainClassFromComandLine(entity, jobInfo);
+            guessMainClassFromCommandLine(entity, jobInfo);
             //not found then found it in context properties folder
             if (jobInfo.getMainClass() == null) {
                 String propFilePath = analyzeJobParams(entity, jobInfo);
@@ -118,21 +112,17 @@ public class JobAware {
 
     /**
      * get the main class from the command line xxx_run.sh or xxx_run.bat
-     * 
-     * @param jobInfo
      */
-    public void guessMainClassFromComandLine(File entity, JobInfo jobInfo) {
+    public void guessMainClassFromCommandLine(File entity, JobInfo jobInfo) {
         boolean found = false;
-        InputStream in=null;
+        InputStream in = null;
         try {
             List<File> checkList = new ArrayList<File>();
-            String cpStr = "classpath.jar";//$NON-NLS-1$   
-            String contextStr = "--context";//$NON-NLS-1$   
             // try windows .bat file
-            String comandFileName = jobInfo.getName() + "_run.bat";//$NON-NLS-1$   
-            JoboxUtil.findFirstFile(null, entity, comandFileName, checkList); //$NON-NLS-1$
+            String commandFileName = jobInfo.getName() + "_run.bat";//$NON-NLS-1$
+            JoboxUtil.findFirstFile(null, entity, commandFileName, checkList); //$NON-NLS-1$
             if (checkList.size() > 0) {
-                in=new FileInputStream(checkList.get(0));
+                in = new FileInputStream(checkList.get(0));
                 String content = IOUtils.toString(in);
                 String mainClass = JoboxUtil.parseMainClassFromJCL(content);
                 if (mainClass != null) {
@@ -142,33 +132,26 @@ public class JobAware {
             }
             // try linux  .sh file
             if (!found) {
-                comandFileName = jobInfo.getName() + "_run.sh";//$NON-NLS-1$   
-                JoboxUtil.findFirstFile(null, entity, comandFileName, checkList); //$NON-NLS-1$
-                if (checkList.size() > 0) {  
-                    in=new FileInputStream(checkList.get(0));
+                commandFileName = jobInfo.getName() + "_run.sh";//$NON-NLS-1$
+                JoboxUtil.findFirstFile(null, entity, commandFileName, checkList); //$NON-NLS-1$
+                if (checkList.size() > 0) {
+                    in = new FileInputStream(checkList.get(0));
                     String content = IOUtils.toString(in);
                     String mainClass = JoboxUtil.parseMainClassFromJCL(content);
                     if (mainClass != null) {
                         jobInfo.setMainClass(mainClass);
-                        found = true;
                     }
                 }
             }
         } catch (Exception e) {
-            LOGGER.error(e.getLocalizedMessage(), e);
-        }finally{
-            if(in!=null){
-                IOUtils.closeQuietly(in);
-            }
+            LOGGER.error("Exception occurred during executable class search.", e);
+        } finally {
+            IOUtils.closeQuietly(in);
         }
     }
 
     /**
-     * 
      * it can't make sure to get the right main class from 'context' properties folder
-     * 
-     * @param propFilePath
-     * @param jobInfo
      */
     private void guessMainClass(String propFilePath, JobInfo jobInfo) {
         // FIX ME:THIS WAY IS NOT GOOD
@@ -177,13 +160,13 @@ public class JobAware {
             String className = ""; //$NON-NLS-1$
             String packageName = ""; //$NON-NLS-1$
             String splitTag = "/"; //$NON-NLS-1$
-            if (File.separator.equals("\\")) //$NON-NLS-1$
+            if (File.separator.equals("\\")) { //$NON-NLS-1$
                 splitTag = "\\\\"; //$NON-NLS-1$
+            }
             String[] parts = propFilePath.split(splitTag);
             boolean startRecord = false;
             for (String part : parts) {
-                if (part.equals("contexts")) { //$NON-NLS-1$
-                    startRecord = false;
+                if ("contexts".equals(part)) { //$NON-NLS-1$
                     break;
                 }
                 if (part.equals(jobName) && !startRecord) {
@@ -201,7 +184,6 @@ public class JobAware {
             if (packageName.length() > 0) {
                 className = packageName + "." + jobName; //$NON-NLS-1$
             }
-
             if (className.length() > 0) {
                 jobInfo.setMainClass(className);
             }
@@ -217,9 +199,11 @@ public class JobAware {
                 propFilePath = checkList.get(0).getAbsolutePath();
                 Properties paramProperties = new Properties();
                 FileInputStream fileReader = new FileInputStream(checkList.get(0));
-                paramProperties.load(fileReader);
-                fileReader.close();
-
+                try {
+                    paramProperties.load(fileReader);
+                } finally {
+                    fileReader.close();
+                }
                 for (Enumeration e = paramProperties.propertyNames(); e.hasMoreElements();) {
                     String key = (String) e.nextElement();
                     String value = paramProperties.getProperty(key);
@@ -229,7 +213,6 @@ public class JobAware {
         } catch (Exception e) {
             throw new JoboxException(e);
         }
-
         return propFilePath;
     }
 
@@ -247,16 +230,13 @@ public class JobAware {
             } catch (IOException e) {
                 throw new JoboxException(e);
             }
-
         }
         return isTISEntry;
     }
 
     private void setClassPath4TISJob(File entity, JobInfo jobInfo) {
-
         String newClassPath = ""; //$NON-NLS-1$
         String separator = System.getProperty("path.separator"); //$NON-NLS-1$
-
         List<File> checkList = new ArrayList<File>();
         JoboxUtil.findFirstFile(null, entity, "classpath.jar", checkList); //$NON-NLS-1$
         if (checkList.size() > 0) {
@@ -270,24 +250,25 @@ public class JobAware {
                 String[] classPathsArray = classPaths.split("\\s+", 0); //$NON-NLS-1$
                 List<String> classPathsArrayList = new ArrayList<String>(Arrays.asList(classPathsArray));
                 List<String> classPathsExtArray = new ArrayList<String>();
-                if (!classPathsArrayList.contains(".")) //$NON-NLS-1$
+                if (!classPathsArrayList.contains(".")) { //$NON-NLS-1$
                     classPathsExtArray.add("."); //$NON-NLS-1$
-                if (classPathsArrayList.size() > 0)
+                }
+                if (classPathsArrayList.size() > 0) {
                     classPathsExtArray.addAll(classPathsArrayList);
+                }
                 for (String classPath : classPathsExtArray) {
                     File libFile = new File(basePath + File.separator + classPath);
-
                     if (libFile.exists()) {
-                        if (newClassPath.length() == 0)
+                        if (newClassPath.length() == 0) {
                             newClassPath += libFile.getAbsolutePath();
-                        else if (newClassPath.length() > 0)
+                        } else if (newClassPath.length() > 0) {
                             newClassPath += separator + libFile.getAbsolutePath();
+                        }
                     }
                 }
             } catch (IOException e) {
                 throw new JoboxException(e);
             }
-
         }
         jobInfo.setClasspath(newClassPath);
     }

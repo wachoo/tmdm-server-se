@@ -46,11 +46,11 @@ public class LongConstant implements ConstantExpression<Long> {
             return false;
         }
         LongConstant that = (LongConstant) o;
-        return !(constant != null ? !constant.equals(that.constant) : that.constant != null);
+        return constant.equals(that.constant);
     }
 
     @Override
     public int hashCode() {
-        return constant != null ? constant.hashCode() : 0;
+        return constant.hashCode();
     }
 }

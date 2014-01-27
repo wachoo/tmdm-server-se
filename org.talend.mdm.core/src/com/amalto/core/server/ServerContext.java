@@ -23,7 +23,7 @@ import com.amalto.core.storage.hibernate.HibernateStorage;
 
 public class ServerContext {
 
-    public static ServerContext INSTANCE = new ServerContext();
+    public static final ServerContext INSTANCE = new ServerContext();
 
     private Server server;
 

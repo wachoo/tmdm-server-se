@@ -16,7 +16,7 @@ package com.amalto.core.history;
  */
 public class DocumentHistoryFactory {
 
-    public static final String IMPLEMENTATION_CLASS_NAME = "com.amalto.core.history.DocumentHistoryImpl";
+    private static final String IMPLEMENTATION_CLASS_NAME = "com.amalto.core.history.DocumentHistoryImpl";
 
     private static final DocumentHistoryFactory INSTANCE = new DocumentHistoryFactory();
 

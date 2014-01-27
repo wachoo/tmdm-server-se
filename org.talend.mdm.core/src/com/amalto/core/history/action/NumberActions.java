@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 
 public class NumberActions {
 
-    protected static final Logger LOGGER = Logger.getLogger(NumberActions.class);
+    private static final Logger LOGGER = Logger.getLogger(NumberActions.class);
 
     public static Action max(FieldUpdateAction action) {
         String newValueAsString = action.getNewValue();

@@ -25,7 +25,6 @@ import org.talend.mdm.commmon.metadata.*;
 import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
-import static com.amalto.core.query.user.UserQueryBuilder.emptyOrNull;
 
 public class UserQueryHelper {
 

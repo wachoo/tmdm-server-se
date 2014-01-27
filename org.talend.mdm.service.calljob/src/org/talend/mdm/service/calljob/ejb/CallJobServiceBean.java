@@ -219,7 +219,6 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
 
         try {
             WSxml port = null;
-
             //set the parameters
             URI uri = URI.create(parameters.getUrl());
             String protocol = uri.getScheme();
@@ -228,15 +227,10 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
                 jobName = uri.getAuthority();
             }
             String jobVersion = uri.getPath().substring(1);
-            String jobMainClass = uri.getQuery() == null ? StringUtils.EMPTY : uri.getQuery();
-
             if (LTJ_PROTOCOL.equals(protocol)) {
                 jobInvokeConfig = new JobInvokeConfig();
                 jobInvokeConfig.setJobName(jobName);
                 jobInvokeConfig.setJobVersion(jobVersion);
-                if (jobMainClass.length() > 0) {
-                    jobInvokeConfig.setJobMainClass(jobMainClass);
-                }
             } else if (HTTP_PROTOCOL.equalsIgnoreCase(protocol)) {
                 URL wsdlResource = this.getClass().getResource(WSDL_TIS_WSDL);
                 if (wsdlResource == null) {

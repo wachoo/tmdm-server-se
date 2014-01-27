@@ -12,8 +12,6 @@
 package com.amalto.core.save.context;
 
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;

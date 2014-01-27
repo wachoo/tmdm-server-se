@@ -79,21 +79,17 @@ public class JobInfo {
     }
 
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Name:").append(name).append(";Version:").append(version).append(";Classpath:").append(classpath)//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-                .append(";Main class:").append(mainClass).append(";Param:").append(defaultParamMap);//$NON-NLS-1$//$NON-NLS-2$
-        return sb.toString();
+        return "Name:" + name  //$NON-NLS-1$
+                + ";Version:" + version  //$NON-NLS-1$
+                + ";Classpath:" + classpath  //$NON-NLS-1$
+                + ";Main class:" + mainClass  //$NON-NLS-1$
+                + ";Param:" + defaultParamMap;  //$NON-NLS-1$
     }
 
     public int hashCode() {
-        return (this.getName() + "_" + this.getVersion()).hashCode();//$NON-NLS-1$
+        return (this.getName() + "_" + this.getVersion()).hashCode(); //$NON-NLS-1$
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     public boolean equals(Object o) {
         if (o == null) {
             return false;
@@ -102,6 +98,6 @@ public class JobInfo {
             return false;
         }
         JobInfo other = (JobInfo) o;
-        return (this.getName() + "_" + this.getVersion()).equals((other.getName() + "_" + other.getVersion()));//$NON-NLS-1$//$NON-NLS-2$
+        return (this.getName() + "_" + this.getVersion()).equals((other.getName() + "_" + other.getVersion())); //$NON-NLS-1$ //$NON-NLS-2$
     }
 }

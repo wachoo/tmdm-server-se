@@ -33,24 +33,20 @@ public class LoadServletTest extends TestCase {
         MDMConfiguration.getConfiguration().setProperty("xmldb.type", "qizx");
         LoadAction loadAction = servlet.getLoadAction(false);
         assertEquals(OptimizedLoadAction.class, loadAction.getClass());
-        assertTrue(loadAction.supportAutoGenPK());
         assertFalse(loadAction.supportValidation());
 
         loadAction = servlet.getLoadAction(true);
         assertEquals(DefaultLoadAction.class, loadAction.getClass());
-        assertTrue(loadAction.supportAutoGenPK());
         assertTrue(loadAction.supportValidation());
 
         // Exist database
         MDMConfiguration.getConfiguration().setProperty("xmldb.type", "exist");
         loadAction = servlet.getLoadAction(true);
         assertEquals(DefaultLoadAction.class, loadAction.getClass());
-        assertTrue(loadAction.supportAutoGenPK());
         assertTrue(loadAction.supportValidation());
 
         loadAction = servlet.getLoadAction(false);
         assertEquals(DefaultLoadAction.class, loadAction.getClass());
-        assertTrue(loadAction.supportAutoGenPK());
         assertTrue(loadAction.supportValidation());
     }
 
@@ -61,14 +57,12 @@ public class LoadServletTest extends TestCase {
         MDMConfiguration.getConfiguration().setProperty("xmldb.type", "qizx");
         LoadAction loadAction = servlet.getLoadAction(TEST_DATA_CLUSTER, null, null, false);
         assertEquals(OptimizedLoadAction.class, loadAction.getClass());
-        assertTrue(loadAction.supportAutoGenPK());
         assertFalse(loadAction.supportValidation());
 
         // Exist database
         MDMConfiguration.getConfiguration().setProperty("xmldb.type", "exist");
         loadAction = servlet.getLoadAction(TEST_DATA_CLUSTER, null, null, true);
         assertEquals(DefaultLoadAction.class, loadAction.getClass());
-        assertTrue(loadAction.supportAutoGenPK());
         assertTrue(loadAction.supportValidation());
     }
 

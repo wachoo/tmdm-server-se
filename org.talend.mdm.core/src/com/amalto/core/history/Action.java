@@ -49,7 +49,7 @@ public interface Action {
     MutableDocument undo(MutableDocument document);
 
     /**
-     * Add modification marks on all elements this action modifies. See {@link com.amalto.core.history.accessor.Accessor#markModified()}.
+     * Add modification marks on all elements this action modifies. See {@link com.amalto.core.history.accessor.Accessor#markModified(com.amalto.core.history.accessor.Accessor.Marker)}.
      *
      * @param document The {@link Document} to add modifications marks to.
      * @return A modified document.

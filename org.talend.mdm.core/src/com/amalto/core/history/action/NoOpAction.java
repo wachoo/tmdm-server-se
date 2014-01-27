@@ -23,7 +23,7 @@ import java.util.Set;
  */
 public class NoOpAction implements Action {
 
-    private static Action INSTANCE = new NoOpAction();
+    private static final Action INSTANCE = new NoOpAction();
 
     private final Date date;
 

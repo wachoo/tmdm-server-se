@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -30,37 +31,32 @@ public class AddActionInUpdateReportTask extends AbstractMigrationTask {
 								new DataModelPOJOPK(
 										XSystemObjects.DM_UPDATEREPORT
 												.getName()));
-
-				ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-						dataModelPOJO.getSchema().getBytes("UTF-8"));
-
 				SAXReader saxReader = new SAXReader();
 				Document document = saxReader.read(new ByteArrayInputStream(
 						dataModelPOJO.getSchema().getBytes()));
 				Element element = (Element) document
-						.selectSingleNode("xsd:schema/xsd:complexType/xsd:sequence/xsd:element/xsd:simpleType/xsd:restriction");
+						.selectSingleNode("xsd:schema/xsd:complexType/xsd:sequence/xsd:element/xsd:simpleType/xsd:restriction"); //$NON-NLS-1$
 				List list = element.elements();
 
-				for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-					Element elementXsdEnumeration = (Element) iterator.next();
-					Attribute attribute = elementXsdEnumeration.attribute(0);
-					if ("ACTION".equals(attribute.getValue()))
-						return null;
-
-				}
-				Element xsdEnumeration = element.addElement("xsd:enumeration");
-				xsdEnumeration.addAttribute("value", "ACTION");
+                for (Object aList : list) {
+                    Element elementXsdEnumeration = (Element) aList;
+                    Attribute attribute = elementXsdEnumeration.attribute(0);
+                    if ("ACTION".equals(attribute.getValue())) { //$NON-NLS-1$
+                        return null;
+                    }
+                }
+				Element xsdEnumeration = element.addElement("xsd:enumeration"); //$NON-NLS-1$
+				xsdEnumeration.addAttribute("value", "ACTION"); //$NON-NLS-1$ //$NON-NLS-2$
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				OutputFormat format = new OutputFormat(" ", true, "utf-8");
+				OutputFormat format = new OutputFormat(" ", true, "utf-8"); //$NON-NLS-1$ //$NON-NLS-2$
 				XMLWriter writer = new XMLWriter(out, format);
 				writer.write(document);
-				String schema = out.toString("utf-8");
+				String schema = out.toString("utf-8"); //$NON-NLS-1$
 				dataModelPOJO.setSchema(schema);
 				dataModelPOJO.store();
-
 			} catch (Exception e) {
-				e.printStackTrace();
-			}
+                Logger.getLogger(AddActionInUpdateReportTask.class).error("Task exception occurred.", e);
+            }
 		}
 		return null;
 	}

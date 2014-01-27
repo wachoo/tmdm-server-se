@@ -16,7 +16,6 @@ import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldInsertAction;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.storage.StorageMetadataUtils;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
@@ -26,8 +25,6 @@ import java.util.*;
 public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private static final Logger LOGGER = Logger.getLogger(UpdateActionCreator.class);
-
-    protected final Stack<String> path = new Stack<String>();
 
     protected final LinkedList<Action> actions = new LinkedList<Action>();
 
@@ -45,13 +42,15 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     protected final MetadataRepository repository;
 
+    private final Stack<String> path = new Stack<String>();
+
     private final Closure closure = new CompareClosure();
 
     private final Set<String> touchedPaths = new HashSet<String>();
 
     private final Map<FieldMetadata, Integer> originalFieldToLastIndex = new HashMap<FieldMetadata, Integer>();
 
-    protected boolean preserveCollectionOldValues;
+    protected final boolean preserveCollectionOldValues;
 
     private String lastMatchPath;
 

@@ -29,27 +29,26 @@ import java.util.List;
 
 /**
  * Interface for listening to disk file changes.
- * 
- * @see DirMonitor
- * 
+ *
  * @author <a href="mailto:jacob.dreyer@geosoft.no">Jacob Dreyer</a>
+ * @see DirMonitor
  */
 public interface DirListener {
 
     /**
      * Called when one of the monitored files are created, deleted or modified.
      *
-     * @param newFiles
-     * @param deleteFiles
-     * @param modifyFiles
+     * @param newFiles    List of new file names (relative to Jobox container).
+     * @param deleteFiles List of deleted file names (relative to Jobox container).
+     * @param modifyFiles List of modified file names (relative to Jobox container).
      */
     void fileChanged(List<String> newFiles, List<String> deleteFiles, List<String> modifyFiles);
 
     /**
      * Called when the job context are changed
-     * 
-     * @param jobFile
-     * @param context
+     *
+     * @param jobFile Name of the job to reload
+     * @param context Job context to be used.
      */
     void contextChanged(String jobFile, String context);
 }

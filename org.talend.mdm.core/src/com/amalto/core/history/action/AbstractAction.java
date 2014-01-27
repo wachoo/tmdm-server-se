@@ -14,7 +14,6 @@ package com.amalto.core.history.action;
 import com.amalto.core.history.Action;
 
 import java.util.Date;
-import java.util.Set;
 
 /**
  *

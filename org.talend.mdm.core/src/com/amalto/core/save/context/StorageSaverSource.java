@@ -218,8 +218,8 @@ public class StorageSaverSource implements SaverSource {
 
     public String nextAutoIncrementId(String universe, String dataCluster, String dataModelName, String conceptName) {
         long autoIncrementId = -1;        
-        String concept = null;
         String field = null;
+        String concept;
         if (conceptName.contains(".")) { //$NON-NLS-1$
             String[] conceptArray = conceptName.split("\\."); //$NON-NLS-1$
             concept = conceptArray[0];
