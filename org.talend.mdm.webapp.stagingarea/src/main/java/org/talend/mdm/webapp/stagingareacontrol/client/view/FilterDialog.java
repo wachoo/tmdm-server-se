@@ -19,7 +19,6 @@ import java.util.List;
 import org.talend.mdm.webapp.stagingareacontrol.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.ConceptRelationshipModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.FilterModel;
-import org.talend.mdm.webapp.stagingareacontrol.client.view.ConceptSelector.SelectorHandler;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -156,8 +155,6 @@ public class FilterDialog extends Window {
     }
 
     class EntitySet extends FieldSet {
-
-        SelectorHandler selectHandler;
 
         AbsolutePanel wrapPanel = new AbsolutePanel();
 
