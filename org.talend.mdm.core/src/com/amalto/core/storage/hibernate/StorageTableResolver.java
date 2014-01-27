@@ -80,11 +80,11 @@ class StorageTableResolver implements TableResolver {
     }
 
     public String get(ComplexTypeMetadata type) {
-        String tableName = formatSQLName(type.getName().replace('-', '_')).toUpperCase();
+        String tableName = formatSQLName(type.getName().replace('-', '_'));
         if (!type.isInstantiable() && !tableName.startsWith(STANDARD_PREFIX)) {
             tableName = STANDARD_PREFIX + tableName;
         }
-        return formatSQLName(tableName.replace('-', '_')).toUpperCase();
+        return formatSQLName(tableName.replace('-', '_'));
     }
 
     public String get(FieldMetadata field) {
@@ -121,9 +121,9 @@ class StorageTableResolver implements TableResolver {
             ReferenceFieldMetadata referenceField = (ReferenceFieldMetadata) field;
             return formatSQLName(referenceField.getContainingType().getName() + '_'
                     + referenceField.getName() + '_'
-                    + referenceField.getReferencedType().getName()).toUpperCase();
+                    + referenceField.getReferencedType().getName());
         }
-        return formatSQLName(get(field.getContainingType()) + '_' + field.getName()).toUpperCase();
+        return formatSQLName(get(field.getContainingType()) + '_' + field.getName());
     }
 
     /**
