@@ -21,6 +21,8 @@ import org.talend.mdm.commmon.util.core.ITransformerConstants;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import com.amalto.connector.jca.InteractionSpecImpl;
+import com.amalto.connector.jca.RecordFactoryImpl;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
@@ -66,6 +68,8 @@ public class ItemDispatcherBean extends ServiceCtrlBean  implements SessionBean{
 
 	
 	public static final String VARIABLE_THIS_ITEM = "{this}";
+	
+	public static final String JNDI_TYPE_JCA_PREFIX = "java:jca/xtentis/connector";
 	
 	public static final String JNDI_TYPE_SERVICE_PREFIX = "amalto/local/service";
 	
@@ -326,7 +330,40 @@ public class ItemDispatcherBean extends ServiceCtrlBean  implements SessionBean{
 	            
 	            String statusCode="";
 	            //switch jndi type is jca or service
-	            if(jndiName.startsWith(this.JNDI_TYPE_SERVICE_PREFIX)){
+	            if(jndiName.startsWith(this.JNDI_TYPE_JCA_PREFIX)){
+	            	org.apache.log4j.Logger.getLogger(this.getClass()).debug("Processing this item through JCA... ");
+	            	//TODO default get jca configuration from db
+		            //Before call connect
+	    			Connection conx=null;   
+		            try {
+						//TODO check jca is exist&start
+						//Get Connection
+						conx = getConnection(jndiName);
+						Interaction interaction = conx.createInteraction();
+						InteractionSpecImpl interactionSpec = new InteractionSpecImpl();
+						//Create the Record
+						MappedRecord recordIn = new RecordFactoryImpl()
+								.createMappedRecord(RecordFactoryImpl.RECORD_IN);
+						recordIn.put(RecordFactoryImpl.PARAMS_HASHMAP_IN,
+								paramMap);
+						//Process the post
+						interactionSpec
+								.setFunctionName(InteractionSpecImpl.FUNCTION_PUSH);
+						MappedRecord result = (MappedRecord) interaction
+								.execute(interactionSpec, recordIn);
+						statusCode = (String) result
+								.get(RecordFactoryImpl.STATUS_CODE_OUT);
+					} catch (Exception e) {
+						String err = "Unable to process this item through JCA: "+e.getClass().getName()+": "+e.getLocalizedMessage();
+	    	            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+					}finally {
+						try {
+							if(conx!=null)conx.close();
+							} 
+						catch (Exception e) {}
+				    }
+	            	
+	            }else if(jndiName.startsWith(this.JNDI_TYPE_SERVICE_PREFIX)){
 	            	org.apache.log4j.Logger.getLogger(this.getClass()).debug("Processing this item through Service... ");
 	            	//TODO to consider about muti thread work 
 	            	Object service=null;

@@ -12,8 +12,12 @@
 // ============================================================================
 package com.amalto.webapp.core.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
@@ -32,6 +36,11 @@ import java.util.Set;
 import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
+import javax.resource.ResourceException;
+import javax.resource.cci.Connection;
+import javax.resource.cci.ConnectionFactory;
+import javax.resource.cci.Interaction;
+import javax.resource.cci.MappedRecord;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -39,6 +48,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.log4j.Logger;
+import org.jboss.security.Base64Encoder;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
@@ -50,6 +60,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import sun.misc.BASE64Decoder;
+
+import com.amalto.connector.jca.InteractionSpecImpl;
+import com.amalto.connector.jca.RecordFactoryImpl;
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.DroppedItemPOJO;
 import com.amalto.core.ejb.DroppedItemPOJOPK;
@@ -1183,6 +1197,139 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             return new WSString(wsPing.getEcho());
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+        }
+    }
+
+    /***************************************************************************
+     * Xtentis JCA Connector support
+     * **************************************************************************/
+
+    private transient ConnectionFactory cxFactory = null;
+
+    @Override
+    public WSConnectorInteractionResponse connectorInteraction(WSConnectorInteraction wsConnectorInteraction)
+            throws RemoteException {
+        // This one does not call an EJB
+
+        WSConnectorInteractionResponse response = new WSConnectorInteractionResponse();
+        Connection conx = null;
+        try {
+
+            String JNDIName = wsConnectorInteraction.getJNDIName();
+            conx = getConnection(JNDIName);
+
+            Interaction interaction = conx.createInteraction();
+            InteractionSpecImpl interactionSpec = new InteractionSpecImpl();
+
+            MappedRecord recordIn = new RecordFactoryImpl().createMappedRecord(RecordFactoryImpl.RECORD_IN);
+
+            WSConnectorFunction cf = wsConnectorInteraction.getFunction();
+            if ((WSConnectorFunction.GET_STATUS).equals(cf)) {
+                interactionSpec.setFunctionName(InteractionSpecImpl.FUNCTION_GET_STATUS);
+            } else if ((WSConnectorFunction.PULL).equals(cf)) {
+                interactionSpec.setFunctionName(InteractionSpecImpl.FUNCTION_PULL);
+            } else if ((WSConnectorFunction.PUSH).equals(cf)) {
+                interactionSpec.setFunctionName(InteractionSpecImpl.FUNCTION_PUSH);
+            } else if ((WSConnectorFunction.START).equals(cf)) {
+                interactionSpec.setFunctionName(InteractionSpecImpl.FUNCTION_START);
+            } else if ((WSConnectorFunction.STOP).equals(cf)) {
+                interactionSpec.setFunctionName(InteractionSpecImpl.FUNCTION_STOP);
+            }
+
+            recordIn.put(RecordFactoryImpl.PARAMS_HASHMAP_IN, getMapFromKeyValues(wsConnectorInteraction.getParameters()));
+
+            MappedRecord recordOut = (MappedRecord) interaction.execute(interactionSpec, recordIn);
+
+            String code = (String) recordOut.get(RecordFactoryImpl.STATUS_CODE_OUT);
+            HashMap map = (HashMap) recordOut.get(RecordFactoryImpl.PARAMS_HASHMAP_OUT);
+
+            if ("OK".equals(code)) {
+                response.setCode(WSConnectorResponseCode.OK);
+            } else if ("STOPPED".equals(code)) {
+                response.setCode(WSConnectorResponseCode.STOPPED);
+            } else if ("ERROR".equals(code)) {
+                response.setCode(WSConnectorResponseCode.ERROR);
+            } else {
+                throw new RemoteException("Unknown code: " + code);
+            }
+            response.setParameters(getKeyValuesFromMap(map));
+
+        } catch (ResourceException e) {
+            throw new RemoteException(e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+        } finally {
+            try {
+                conx.close();
+            } catch (Exception cx) {
+                org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+                        "connectorInteraction() Connection close exception: " + cx.getLocalizedMessage());
+            }
+        }
+        return response;
+
+    }
+
+    private Connection getConnection(String JNDIName) throws RemoteException {
+        try {
+            if (cxFactory == null) {
+                cxFactory = (ConnectionFactory) (new InitialContext()).lookup(JNDIName);
+            }
+            return cxFactory.getConnection();
+        } catch (Exception e) {
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+        }
+    }
+
+    private HashMap getMapFromKeyValues(WSBase64KeyValue[] params) throws RemoteException {
+        try {
+            HashMap<String, Object> map = new HashMap<String, Object>();
+            if (params != null) {
+                for (WSBase64KeyValue param : params) {
+                    if (param != null) {
+                        String key = param.getKey();
+                        byte[] bytes = (new BASE64Decoder()).decodeBuffer(param.getBase64StringValue());
+                        if (bytes != null) {
+                            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+                            ObjectInputStream ois = new ObjectInputStream(bais);
+                            map.put(key, ois.readObject());
+                        } else {
+                            map.put(key, null);
+                        }
+                    }
+                }
+            }
+            return map;
+        } catch (Exception e) {
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+        }
+    }
+
+    private WSBase64KeyValue[] getKeyValuesFromMap(HashMap params) throws RemoteException {
+        try {
+            if (params == null) {
+                return null;
+            }
+            WSBase64KeyValue[] keyValues = new WSBase64KeyValue[params.size()];
+            Set keys = params.keySet();
+            int i = 0;
+            for (Iterator iter = keys.iterator(); iter.hasNext();) {
+                String key = (String) iter.next();
+                Object value = params.get(key);
+                if (value != null) {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ObjectOutputStream oos = new ObjectOutputStream(baos);
+                    oos.writeObject(value);
+                    String base64Value = Base64Encoder.encode(baos.toByteArray());
+                    keyValues[i] = new WSBase64KeyValue();
+                    keyValues[i].setKey(key);
+                    keyValues[i].setBase64StringValue(base64Value);
+                    i++;
+                }
+            }
+            return keyValues;
+        } catch (Exception e) {
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
         }
     }
 

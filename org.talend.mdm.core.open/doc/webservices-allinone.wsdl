@@ -1083,6 +1083,48 @@
 	      </xsd:sequence> 
 	    </xsd:complexType>  
 	    <xsd:element name="WSRunQuery" type="tns:WSRunQuery"/>  
+	    <!-- ***************************************************** C O N N E C 
+	                T O R ******************************************************* -->  
+	    <xsd:complexType name="WSBase64KeyValue"> 
+	      <xsd:documentation>An object used to pass data to a connector in a connector interaction - see WSConnectorInteraction</xsd:documentation>
+	      <xsd:sequence> 
+	        <xsd:element maxOccurs="1" minOccurs="1" name="key" nillable="false" type="xsd:string"/>  
+	        <xsd:element maxOccurs="1" minOccurs="1" name="base64StringValue" nillable="false" type="xsd:string"/> 
+	      </xsd:sequence> 
+	    </xsd:complexType>  
+	    <xsd:simpleType name="WSConnectorFunction"> 
+	      <xsd:restriction base="xsd:NMTOKEN"> 
+	        <xsd:enumeration value="GET_STATUS"/>  
+	        <xsd:enumeration value="START"/>  
+	        <xsd:enumeration value="STOP"/>  
+	        <xsd:enumeration value="PULL"/>  
+	        <xsd:enumeration value="PUSH"/> 
+	      </xsd:restriction> 
+	    </xsd:simpleType>  
+	    <xsd:complexType name="WSConnectorInteraction"> 
+	      <xsd:documentation>A message to interact with a connector JNDIName: the JNDI name of the connector function: one of the enumerated interactions - see WSConnectorFunction parameters: parameters to pass to the connector - see WSBase64KeyValue</xsd:documentation>
+	      <xsd:sequence> 
+	        <xsd:element maxOccurs="1" minOccurs="1" name="JNDIName" nillable="false" type="xsd:string"/>  
+	        <xsd:element maxOccurs="1" minOccurs="1" name="function" nillable="true" type="tns:WSConnectorFunction"/>  
+	        <xsd:element maxOccurs="unbounded" minOccurs="0" name="parameters" nillable="true" type="tns:WSBase64KeyValue"/> 
+	      </xsd:sequence> 
+	    </xsd:complexType>  
+	    <xsd:element name="WSConnectorInteraction" type="tns:WSConnectorInteraction"/>  
+	    <xsd:simpleType name="WSConnectorResponseCode"> 
+	      <xsd:restriction base="xsd:NMTOKEN"> 
+	        <xsd:enumeration value="OK"/>  
+	        <xsd:enumeration value="STOPPED"/>  
+	        <xsd:enumeration value="ERROR"/> 
+	      </xsd:restriction> 
+	    </xsd:simpleType>  
+	    <xsd:complexType name="WSConnectorInteractionResponse"> 
+	      <xsd:documentation>The response to an interaction with a connector - see WSConnectorInteraction</xsd:documentation>
+	      <xsd:sequence> 
+	        <xsd:element maxOccurs="1" minOccurs="1" name="code" nillable="true" type="tns:WSConnectorResponseCode"/>  
+	        <xsd:element maxOccurs="unbounded" minOccurs="0" name="parameters" nillable="true" type="tns:WSBase64KeyValue"/> 
+	      </xsd:sequence> 
+	    </xsd:complexType>  
+	    <xsd:element name="WSConnectorInteractionResponse" type="tns:WSConnectorInteractionResponse"/>  
 	    <!-- ***************************************************** SERVICES ******************************************************* -->  
 	    <xsd:simpleType name="WSServiceActionCode"> 
 	      <xsd:restriction base="xsd:NMTOKEN"> 
@@ -2740,6 +2782,17 @@
 		<part name="wsStringArray" element="tns:WSStringArray" />
 	</message>
 
+
+	<!-- ************************ CONNECTOR *************************** -->
+	<message name="connectorInteractionRequest">
+		<part name="wsConnectorInteraction" element="tns:WSConnectorInteraction" />
+	</message>
+	<message name="connectorInteractionResponse">
+		<part name="wsConnectorInteractionResponse" element="tns:WSConnectorInteractionResponse" />
+	</message>
+
+
+
 	<!-- ************************ Services *************************** -->
 
 	<message name="serviceActionRequest">
@@ -3556,6 +3609,15 @@
 			<input message="tns:runQueryRequest" />
 			<output message="tns:runQueryResponse" />
 		</operation>
+
+		<!-- ********************* CONNECTOR ************************ -->
+
+		<operation name="connectorInteraction">
+		    <wsdl:documentation>Interact with a Connector: start, stop, get status, etc...</wsdl:documentation>
+			<input message="tns:connectorInteractionRequest" />
+			<output message="tns:connectorInteractionResponse" />
+		</operation>
+
 
 		<!-- ********************* SERVICES ************************ -->
 
@@ -4532,6 +4594,19 @@
 				<soap:body use="literal" />
 			</output>
 		</operation>
+
+		<!-- ********************* CONNECTOR ************************ -->
+
+		<operation name="connectorInteraction">
+			<soap:operation />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+		</operation>
+
 
 		<!-- ********************* SERVICES ************************ -->
 

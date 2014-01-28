@@ -132,6 +132,8 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSStringArray runQuery(com.amalto.webapp.util.webservices.WSRunQuery wsRunQuery) throws 
          java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSConnectorInteractionResponse connectorInteraction(com.amalto.webapp.util.webservices.WSConnectorInteraction wsConnectorInteraction) throws 
+         java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSRoutingRulePKArray getRoutingRulePKs(com.amalto.webapp.util.webservices.WSGetRoutingRulePKs regexp) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSRoutingRule getRoutingRule(com.amalto.webapp.util.webservices.WSGetRoutingRule wsRoutingRulePK) throws 
