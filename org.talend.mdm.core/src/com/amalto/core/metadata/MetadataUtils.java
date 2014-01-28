@@ -313,17 +313,8 @@ public class MetadataUtils {
         }
         // Move up the inheritance tree to find the "most generic" type (used when simple types inherits from XSD types,
         // in this case, the XSD type is interesting, not the custom one).
-        if (!XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(type.getNamespace())) {
-            while (!type.getSuperTypes().isEmpty()) {
-                TypeMetadata superType = type.getSuperTypes().iterator().next();
-                if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(superType.getNamespace())
-                        && ("anyType".equals(superType.getName()) //$NON-NLS-1$
-                        || "anySimpleType".equals(superType.getName()) //$NON-NLS-1$
-                        || "decimal".equals(superType.getName()))) { //$NON-NLS-1$
-                    break;
-                }
-                type = superType;
-            }
+        while (!XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(type.getNamespace()) && !type.getSuperTypes().isEmpty()) {
+            type = type.getSuperTypes().iterator().next();
         }
         return type;
     }
