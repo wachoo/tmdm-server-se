@@ -167,6 +167,7 @@
 		<xsd:restriction base="xsd:NMTOKEN">
 			<xsd:enumeration value="DataManager"/>
 			<xsd:enumeration value="Service"/>
+			<xsd:enumeration value="Connector"/>
 		</xsd:restriction>
 	</xsd:simpleType>
 	
