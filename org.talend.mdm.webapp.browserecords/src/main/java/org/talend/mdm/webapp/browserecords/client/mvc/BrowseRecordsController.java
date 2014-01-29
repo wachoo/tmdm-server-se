@@ -23,6 +23,7 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.BrowseStagingRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandler;
 import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandlingStatus;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
@@ -123,13 +124,20 @@ public class BrowseRecordsController extends Controller {
         final ItemBean itemBean = event.getData("ItemBean"); //$NON-NLS-1$
         final Boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
         final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
+        final Boolean isStaging = event.getData("isStaging"); //$NON-NLS-1$
         final ItemDetailToolBar detailToolBar = event.getData("itemDetailToolBar"); //$NON-NLS-1$
         final MessageBox progressBar = MessageBox.wait(MessagesFactory.getMessages().save_progress_bar_title(), MessagesFactory
                 .getMessages().save_progress_bar_message(), MessagesFactory.getMessages().please_wait());
+        BrowseRecordsServiceAsync saveService;
+        if (isStaging) {
+            saveService = (BrowseStagingRecordsServiceAsync) Registry.get(BrowseRecords.BROWSESTAGINGRECORDS_SERVICE);
+        } else {
+            saveService = service;
+        }
 
-        service.saveItem(viewBean, itemBean.getIds(),
-                (new ItemTreeHandler(model, viewBean, ItemTreeHandlingStatus.ToSave)).serializeItem(), isCreate,
-                Locale.getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
+        saveService.saveItem(viewBean, itemBean.getIds(), (new ItemTreeHandler(model, viewBean,
+                ItemTreeHandlingStatus.ToSave)).serializeItem(), isCreate, Locale.getLanguage(),
+                new SessionAwareAsyncCallback<ItemResult>() {
 
                     @Override
                     protected void doOnFailure(Throwable caught) {

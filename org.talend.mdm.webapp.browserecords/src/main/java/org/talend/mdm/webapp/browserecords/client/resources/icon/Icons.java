@@ -78,6 +78,9 @@ public interface Icons extends ClientBundle {
     @Source("journal.png")
     ImageResource journal();
 
+    @Source("browsestaging.png")
+    ImageResource stagingRecords();
+
     @Source("duplicate.png")
     ImageResource duplicate();
 
@@ -110,4 +113,16 @@ public interface Icons extends ClientBundle {
 
     @Source("opentask.png")
     ImageResource openTask();
+
+    @Source("status_valid.png")
+    ImageResource statusValid();
+
+    @Source("status_invalid.png")
+    ImageResource statusInvalid();
+
+    @Source("status_unknown.png")
+    ImageResource statusUnknown();
+
+    @Source("status_deleted.png")
+    ImageResource statusDeleted();
 }

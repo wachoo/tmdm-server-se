@@ -43,13 +43,12 @@ public class ItemPanel extends ContentPanel {
     private ItemBean item;
 
     private String operation;
-    
+
     private Map<String, List<String>> initDataMap;
 
     private boolean isForeignKeyPanel;
 
     private ContentPanel contenPanel;
-
 
     public ItemPanel(ItemsDetailPanel itemsDetailPanel) {
         tree = new TreeDetail(itemsDetailPanel);
@@ -61,6 +60,16 @@ public class ItemPanel extends ContentPanel {
         this.viewBean = viewBean;
         this.item = item;
         this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(item, operation, viewBean, itemsDetailPanel);
+        this.operation = operation;
+        this.initUI(null);
+    }
+
+    public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ItemsDetailPanel itemsDetailPanel,
+            StagingItemsDetailToolBar stagingItemsDetailToolBar, TreeDetail tree) {
+        this.tree = tree;
+        this.viewBean = viewBean;
+        this.item = item;
+        this.toolBar = stagingItemsDetailToolBar;
         this.operation = operation;
         this.initUI(null);
     }
@@ -85,7 +94,7 @@ public class ItemPanel extends ContentPanel {
         this.contenPanel = contenPanel;
         this.initUI(root);
     }
-    
+
     public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ContentPanel contenPanel, DynamicTreeItem root,
             ItemsDetailPanel itemsDetailPanel, boolean openTab) {
         tree = new TreeDetail(itemsDetailPanel);
@@ -97,14 +106,14 @@ public class ItemPanel extends ContentPanel {
         this.contenPanel = contenPanel;
         this.initUI(root);
     }
-    
+
     private void initUI(DynamicTreeItem root) {
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
         this.setTopComponent(toolBar);
         this.setScrollMode(Scroll.NONE);
         this.setLayout(new RowLayout(Orientation.VERTICAL));
-        if(!isForeignKeyPanel){
+        if (!isForeignKeyPanel) {
             tree.setToolBar(toolBar);
             if (ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
                 tree.initTree(viewBean, null, initDataMap, operation);
@@ -120,12 +129,12 @@ public class ItemPanel extends ContentPanel {
             }
             tree.expand();
             this.add(tree, new RowData(1, 1));
-        }else{
+        } else {
             tree.setRoot(root);
             tree.setViewBean(viewBean);
             this.add(contenPanel, new RowData(1, 1));
         }
-        
+
         smartPanel.setVisible(false);
         smartPanel.setHeaderVisible(false);
         this.add(smartPanel, new RowData(1, 1));
@@ -188,7 +197,8 @@ public class ItemPanel extends ContentPanel {
     public void initTreeDetail(ViewBean viewBean, ItemBean item, String operation) {
         this.viewBean = viewBean;
         this.item = item;
-        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(item, operation, viewBean, tree.getItemsDetailPanel());
+        this.toolBar = ToolBarFactory.getInstance()
+                .createItemDetailToolBar(item, operation, viewBean, tree.getItemsDetailPanel());
         this.operation = operation;
         this.initUI(null);
     }

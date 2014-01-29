@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.browserecordsinstaging.client.model;
+package org.talend.mdm.webapp.browserecords.client.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 

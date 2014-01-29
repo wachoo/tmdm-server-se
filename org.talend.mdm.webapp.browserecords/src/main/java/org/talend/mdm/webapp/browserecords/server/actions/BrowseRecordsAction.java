@@ -174,7 +174,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     private final Messages BASEMESSAGE = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.base.client.i18n.BaseMessages", this.getClass().getClassLoader()); //$NON-NLS-1$
 
-    private final Messages MESSAGES = MessagesFactory.getMessages(
+    protected final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages", this.getClass().getClassLoader()); //$NON-NLS-1$
 
     private final List<String> dateTypeNames = Arrays.asList("date", "dateTime"); //$NON-NLS-1$//$NON-NLS-2$

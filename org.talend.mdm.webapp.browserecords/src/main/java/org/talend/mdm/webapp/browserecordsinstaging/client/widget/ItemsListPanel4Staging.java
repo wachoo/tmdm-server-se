@@ -21,13 +21,13 @@ import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.model.RecordStatus;
+import org.talend.mdm.webapp.browserecords.client.model.RecordStatusWrapper;
+import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecordsinstaging.client.i18n.BrowseRecordsInStagingMessages;
 import org.talend.mdm.webapp.browserecordsinstaging.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.browserecordsinstaging.client.model.RecordStatus;
-import org.talend.mdm.webapp.browserecordsinstaging.client.model.RecordStatusWrapper;
-import org.talend.mdm.webapp.browserecordsinstaging.client.util.StagingConstant;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Events;

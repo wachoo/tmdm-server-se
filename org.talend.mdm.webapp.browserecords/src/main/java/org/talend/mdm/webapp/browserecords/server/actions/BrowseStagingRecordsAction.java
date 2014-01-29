@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.browserecordsinstaging.server.actions;
+package org.talend.mdm.webapp.browserecords.server.actions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,26 +25,23 @@ import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.BrowseStagingRecordsService;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
-import org.talend.mdm.webapp.browserecords.server.actions.BrowseRecordsAction;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
-import org.talend.mdm.webapp.browserecordsinstaging.client.BrowseRecordsInStagingService;
 
 import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.util.Messages;
-import com.amalto.core.util.MessagesFactory;
 
-public class BrowseRecordsInStagingAction extends BrowseRecordsAction implements BrowseRecordsInStagingService {
+/**
+ * created by talend2 on 2014-1-27 Detailled comment
+ * 
+ */
+public class BrowseStagingRecordsAction extends BrowseRecordsAction implements BrowseStagingRecordsService {
 
-    private final Logger LOG = Logger.getLogger(BrowseRecordsInStagingAction.class);
-
-    private final Messages MESSAGES = MessagesFactory
-            .getMessages(
-                    "org.talend.mdm.webapp.browserecordsinstaging.client.i18n.BrowseRecordsInStagingMessages", this.getClass().getClassLoader()); //$NON-NLS-1$
+    private final Logger LOG = Logger.getLogger(BrowseStagingRecordsAction.class);
 
     @Override
     public ViewBean getView(String viewPk, String language) throws ServiceException {
@@ -135,4 +132,5 @@ public class BrowseRecordsInStagingAction extends BrowseRecordsAction implements
     protected boolean isStaging() {
         return true;
     }
+
 }

@@ -68,11 +68,13 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonGroup;
 import com.extjs.gxt.ui.client.widget.button.SplitButton;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.ToolBarLayout;
 import com.extjs.gxt.ui.client.widget.menu.HeaderMenuItem;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
@@ -82,6 +84,8 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -115,6 +119,8 @@ public class ItemDetailToolBar extends ToolBar {
 
     private Button journalButton;
 
+    private Button stagingRecordsButton;
+
     private Button refreshButton;
 
     private Button openTabButton;
@@ -132,8 +138,6 @@ public class ItemDetailToolBar extends ToolBar {
     protected String operation;
 
     protected boolean isFkToolBar;
-
-    private BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
     private ItemBaseModel selectItem;
 
@@ -245,6 +249,9 @@ public class ItemDetailToolBar extends ToolBar {
         this.addDuplicateButton();
         this.addSeparator();
         this.addJournalButton();
+        if (itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty()) {
+            this.addStagingRecordsButton();
+        }
         this.addSeparator();
         this.addFreshButton();
         if (this.openTab) {
@@ -290,7 +297,7 @@ public class ItemDetailToolBar extends ToolBar {
             if (!this.isOutMost) {
                 this.openTab = true;
             }
-            service.getForeignKeyModel(itemBean.getConcept(), ids, Locale.getLanguage(),
+            getBrowseRecordsService().getForeignKeyModel(itemBean.getConcept(), ids, Locale.getLanguage(),
                     new SessionAwareAsyncCallback<ForeignKeyModel>() {
 
                         @Override
@@ -413,7 +420,8 @@ public class ItemDetailToolBar extends ToolBar {
                 // Collections.singletonList(itemBean) --- it could not be sent to backend correctly
                 List<ItemBean> list = new ArrayList<ItemBean>();
                 list.add(itemBean);
-                service.checkFKIntegrity(list, new DeleteCallback(deleteAction, postDeleteAction, service));
+                getBrowseRecordsService().checkFKIntegrity(list,
+                        new DeleteCallback(deleteAction, postDeleteAction, getBrowseRecordsService()));
             }
         });
         delete_SendToTrash.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Send_to_trash()));
@@ -497,6 +505,31 @@ public class ItemDetailToolBar extends ToolBar {
         add(journalButton);
     }
 
+    protected void addStagingRecordsButton() {
+        if (stagingRecordsButton == null) {
+            stagingRecordsButton = new Button(MessagesFactory.getMessages().stagingRecords_btn());
+            stagingRecordsButton.setId("stagingRecordsButton"); //$NON-NLS-1$
+            stagingRecordsButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.stagingRecords()));
+            stagingRecordsButton.setToolTip(MessagesFactory.getMessages().stagingRecords_tip());
+
+            stagingRecordsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                @Override
+                public void componentSelected(ButtonEvent ce) {
+                    if (GWT.isScript()) {
+                        ItemDetailToolBar.this.openBrowseStagingRecordsPanel(itemBean.getIds(),
+                                new StagingGridPanel(itemBean.getConcept(), itemBean.getIds()));
+                    } else {
+                        ItemDetailToolBar.this.openDebugBrowseStagingRecordsPanel(itemBean.getIds(), new StagingGridPanel(
+                                itemBean.getConcept(), itemBean.getIds()));
+                    }
+                    // Dispatcher.forwardEvent(BrowseRecordsEvents.SearchStaingView);
+                }
+            });
+        }
+        add(stagingRecordsButton);
+    }
+
     protected void addFreshButton() {
         if (refreshButton == null) {
             refreshButton = new Button();
@@ -509,7 +542,6 @@ public class ItemDetailToolBar extends ToolBar {
                 public void componentSelected(ButtonEvent ce) {
                     refreshTreeDetail();
                 }
-
             });
         }
         add(refreshButton);
@@ -548,7 +580,7 @@ public class ItemDetailToolBar extends ToolBar {
 
     private void refreshTree(final ItemPanel itemPanel, final ForeignKeyTreeDetail fkTree, final ItemNodeModel root) {
         ItemBean itemBean = itemPanel.getItem();
-        service.isItemModifiedByOthers(itemBean, new SessionAwareAsyncCallback<Boolean>() {
+        getBrowseRecordsService().isItemModifiedByOthers(itemBean, new SessionAwareAsyncCallback<Boolean>() {
 
             @Override
             public void onSuccess(Boolean result) {
@@ -585,7 +617,7 @@ public class ItemDetailToolBar extends ToolBar {
         if (lineageEntityMap != null && lineageEntityMap.containsKey(itemBean.getConcept())) {
             setRelation(lineageEntityMap.get(itemBean.getConcept()));
         } else {
-            service.getLineageEntity(itemBean.getConcept(), new SessionAwareAsyncCallback<List<String>>() {
+            getBrowseRecordsService().getLineageEntity(itemBean.getConcept(), new SessionAwareAsyncCallback<List<String>>() {
 
                 @Override
                 public void onSuccess(List<String> list) {
@@ -667,7 +699,7 @@ public class ItemDetailToolBar extends ToolBar {
         if (runnableProcessListMap != null && runnableProcessListMap.containsKey(itemBean.getConcept())) {
             setWorkFlowCombo(runnableProcessListMap.get(itemBean.getConcept()));
         } else {
-            service.getRunnableProcessList(itemBean.getConcept(), Locale.getLanguage(),
+            getBrowseRecordsService().getRunnableProcessList(itemBean.getConcept(), Locale.getLanguage(),
                     new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
 
                         @Override
@@ -725,7 +757,7 @@ public class ItemDetailToolBar extends ToolBar {
                                     .process_progress_bar_title() + "..."); //$NON-NLS-1$
                     String[] ids = new String[] { itemBean.getIds() };
 
-                    service.processItem(itemBean.getConcept(), ids,
+                    getBrowseRecordsService().processItem(itemBean.getConcept(), ids,
                             (String) selectItem.get("key"), new SessionAwareAsyncCallback<String>() { //$NON-NLS-1$
 
                                 @Override
@@ -814,8 +846,8 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native boolean initDSC(String taskId)/*-{
-        $wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
-        return true;
+		$wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
+		return true;
     }-*/;
 
     protected void initSmartViewToolBar() {
@@ -906,7 +938,7 @@ public class ItemDetailToolBar extends ToolBar {
         }
 
         String regex = itemBean.getConcept() + "&" + Locale.getLanguage(); //$NON-NLS-1$
-        service.getSmartViewList(regex, new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
+        getBrowseRecordsService().getSmartViewList(regex, new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
 
             @Override
             public void onSuccess(List<ItemBaseModel> list) {
@@ -954,27 +986,27 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native boolean initJournal(String ids, String concept)/*-{
-        $wnd.amalto.journal.Journal.browseJournalWithCriteria(ids, concept,
-                true);
-        return true;
+		$wnd.amalto.journal.Journal.browseJournalWithCriteria(ids, concept,
+				true);
+		return true;
     }-*/;
 
     // Please note that this method is duplicated in
     // org.talend.mdm.webapp.browserecords.client.widget.integrity.SingletonDeleteStrategy.initSearchEntityPanel()
     private native boolean initSearchEntityPanel(String arrStr, String ids, String dataObject)/*-{
-        var lineageEntities = arrStr.split(",");
-        $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids,
-                dataObject);
-        return true;
+		var lineageEntities = arrStr.split(",");
+		$wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids,
+				dataObject);
+		return true;
     }-*/;
 
     public void saveItemAndClose(final boolean isClose) {
-        if (itemBean.getIds().trim().equals("")) { //$NON-NLS-1$
+        if (itemBean.getIds().trim().equals("")) {
             saveItemWithIdCheck(isClose);
             return;
         }
 
-        service.isItemModifiedByOthers(itemBean, new SessionAwareAsyncCallback<Boolean>() {
+        getBrowseRecordsService().isItemModifiedByOthers(itemBean, new SessionAwareAsyncCallback<Boolean>() {
 
             @Override
             public void onSuccess(Boolean result) {
@@ -1005,7 +1037,7 @@ public class ItemDetailToolBar extends ToolBar {
             ItemNodeModel model = itemPanel.getTree().getRootModel();
             String[] keyArray = CommonUtil.extractIDs(model, viewBean);
 
-            service.isExistId(this.itemBean.getConcept(), keyArray, Locale.getLanguage(),
+            getBrowseRecordsService().isExistId(this.itemBean.getConcept(), keyArray, Locale.getLanguage(),
                     new SessionAwareAsyncCallback<Boolean>() {
 
                         @Override
@@ -1035,23 +1067,24 @@ public class ItemDetailToolBar extends ToolBar {
             ItemPanel itemPanel = (ItemPanel) widget;
             validate = true;
             model = itemPanel.getTree().getRootModel();
-            app.setData("ItemBean", itemPanel.getItem()); //$NON-NLS-1$
-            app.setData(
-                    "isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) || itemPanel.getOperation().equals(ItemDetailToolBar.DUPLICATE_OPERATION) ? true : false); //$NON-NLS-1$
+            app.setData("ItemBean", itemPanel.getItem());
+            app.setData("isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION)
+                    || itemPanel.getOperation().equals(ItemDetailToolBar.DUPLICATE_OPERATION) ? true : false);
         } else if (widget instanceof ForeignKeyTreeDetail) { // save foreign key
             ForeignKeyTreeDetail fkDetail = (ForeignKeyTreeDetail) widget;
             if (fkDetail.validateTree()) {
                 validate = true;
                 model = fkDetail.getRootModel();
                 app.setData(
-                        "ItemBean", fkDetail.isCreate() ? new ItemBean(fkDetail.getViewBean().getBindingEntityModel().getConceptName(), "", "") : itemBean); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                app.setData("isCreate", fkDetail.isCreate()); //$NON-NLS-1$
+                        "ItemBean", fkDetail.isCreate() ? new ItemBean(fkDetail.getViewBean().getBindingEntityModel().getConceptName(), "", "") : itemBean); //$NON-NLS-1$ 
+                app.setData("isCreate", fkDetail.isCreate());
             }
         }
-        app.setData("viewBean", viewBean); //$NON-NLS-1$
+        app.setData("viewBean", viewBean);
         app.setData(model);
         app.setData("isClose", isClose); //$NON-NLS-1$
-        app.setData("itemDetailToolBar", this); //$NON-NLS-1$
+        app.setData("itemDetailToolBar", this);
+        app.setData("isStaging", isStaging());
         app.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
 
         if (validate) {
@@ -1063,6 +1096,10 @@ public class ItemDetailToolBar extends ToolBar {
             }
             MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().save_error(), null);
         }
+    }
+
+    protected Boolean isStaging() {
+        return false;
     }
 
     public void setSelectItem(ItemBaseModel selectItem) {
@@ -1128,13 +1165,13 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     public native void closeOutTabPanel()/*-{
-        var tabPanel = $wnd.amalto.core.getTabPanel();
-        tabPanel.closeCurrentTab();
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		tabPanel.closeCurrentTab();
     }-*/;
 
     public native void updateOutTabPanel(String tabText)/*-{
-        var tabPanel = $wnd.amalto.core.getTabPanel();
-        tabPanel.updateCurrentTabText(tabText);
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		tabPanel.updateCurrentTabText(tabText);
     }-*/;
 
     class MenuEx extends Menu {
@@ -1179,7 +1216,7 @@ public class ItemDetailToolBar extends ToolBar {
                 });
 
                 more = new Button();
-                more.addStyleName("x-toolbar-more"); //$NON-NLS-1$
+                more.addStyleName("x-toolbar-more");
                 more.setIcon(GXT.IMAGES.toolbar_more());
                 more.setMenu(moreMenu);
 
@@ -1196,7 +1233,7 @@ public class ItemDetailToolBar extends ToolBar {
         }
 
         private native El getExtrasTr()/*-{
-            return this.@com.extjs.gxt.ui.client.widget.layout.ToolBarLayout::extrasTr;
+			return this.@com.extjs.gxt.ui.client.widget.layout.ToolBarLayout::extrasTr;
         }-*/;
 
         @Override
@@ -1232,7 +1269,7 @@ public class ItemDetailToolBar extends ToolBar {
                 ComboBox<ItemBaseModel> comboBoxClone = new ComboBox<ItemBaseModel>();
                 comboBoxClone.setStore(cb.getStore());
                 comboBoxClone.setDisplayField("value");//$NON-NLS-1$
-                comboBoxClone.setValueField("key");//$NON-NLS-1$
+                comboBoxClone.setValueField("key");
                 comboBoxClone.setTypeAhead(true);
                 comboBoxClone.setTriggerAction(TriggerAction.ALL);
                 comboBoxClone.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
@@ -1251,7 +1288,7 @@ public class ItemDetailToolBar extends ToolBar {
                 ComboBoxField<ItemBaseModel> comboBoxClone = new ComboBoxField<ItemBaseModel>();
                 comboBoxClone.setStore(cb.getStore());
                 comboBoxClone.setDisplayField("value");//$NON-NLS-1$
-                comboBoxClone.setValueField("key");//$NON-NLS-1$
+                comboBoxClone.setValueField("key");
                 comboBoxClone.setTypeAhead(true);
                 comboBoxClone.setTriggerAction(TriggerAction.ALL);
                 comboBoxClone.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
@@ -1269,7 +1306,7 @@ public class ItemDetailToolBar extends ToolBar {
                 final Button b = (Button) c;
                 String menuText = b.getText();
                 if (menuText == null || menuText.trim().length() == 0) {
-                    menuText = b.getToolTip().getToolTipConfig() == null ? "" : b.getToolTip().getToolTipConfig().getText(); //$NON-NLS-1$
+                    menuText = b.getToolTip().getToolTipConfig() == null ? "" : b.getToolTip().getToolTipConfig().getText();
                 }
                 MenuItem item = new MenuItem(menuText, b.getIcon());
                 if (b.getToolTip() != null) {
@@ -1297,7 +1334,7 @@ public class ItemDetailToolBar extends ToolBar {
                 g.setItemId(c.getItemId());
                 menu.add(new SeparatorMenuItem());
                 String heading = g.getHeading();
-                if (heading != null && heading.length() > 0 && !heading.equals("&#160;")) { //$NON-NLS-1$
+                if (heading != null && heading.length() > 0 && !heading.equals("&#160;")) {
                     menu.add(new HeaderMenuItem(g.getHeading()));
                 }
                 for (Component c2 : g.getItems()) {
@@ -1320,7 +1357,61 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native void openWindow(String url)/*-{
-        window.open(url);
+		window.open(url);
+    }-*/;
+
+    private void openDebugBrowseStagingRecordsPanel(String ids, StagingGridPanel source) {
+        Window window = new Window();
+        window.setLayout(new FitLayout());
+        window.add(source);
+        window.setSize(1100, 700);
+        window.setMaximizable(true);
+        window.setModal(false);
+        window.show();
+    }
+
+    private native void openBrowseStagingRecordsPanel(String ids, StagingGridPanel source)/*-{
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		var browseStagingRecordsPanel = tabPanel.getItem(ids);
+		if (browseStagingRecordsPanel == undefined) {
+			var panel = @org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar::convertBrowseStagingRecordsPanel(Lorg/talend/mdm/webapp/browserecords/client/widget/StagingGridPanel;)(source);
+			tabPanel.add(panel);
+		}
+		tabPanel.setSelection(ids);
+    }-*/;
+
+    private native static JavaScriptObject convertBrowseStagingRecordsPanel(StagingGridPanel browseStagingRecordsPanel)/*-{
+
+		var panel = {
+			// imitate extjs's render method, really call gxt code.
+			render : function(el) {
+				var rootPanel = @com.google.gwt.user.client.ui.RootPanel::get(Ljava/lang/String;)(el.id);
+				rootPanel.@com.google.gwt.user.client.ui.RootPanel::add(Lcom/google/gwt/user/client/ui/Widget;)(browseStagingRecordsPanel);
+			},
+			// imitate extjs's setSize method, really call gxt code.
+			setSize : function(width, height) {
+				browseStagingRecordsPanel.@org.talend.mdm.webapp.browserecords.client.widget.StagingGridPanel::setSize(II)(width, height);
+			},
+			// imitate extjs's getItemId, really return itemId of ContentPanel of GXT.
+			getItemId : function() {
+				return browseStagingRecordsPanel.@org.talend.mdm.webapp.browserecords.client.widget.StagingGridPanel::getItemId()();
+			},
+			// imitate El object of extjs
+			getEl : function() {
+				var el = browseStagingRecordsPanel.@org.talend.mdm.webapp.browserecords.client.widget.StagingGridPanel::getElement()();
+				return {
+					dom : el
+				};
+			},
+			// imitate extjs's doLayout method, really call gxt code.
+			doLayout : function() {
+				return browseStagingRecordsPanel.@org.talend.mdm.webapp.browserecords.client.widget.StagingGridPanel::doLayout()();
+			},
+			title : function() {
+				return browseStagingRecordsPanel.@org.talend.mdm.webapp.browserecords.client.widget.StagingGridPanel::getHeading()();
+			}
+		};
+		return panel;
     }-*/;
 
     public boolean isFkToolBar() {
@@ -1336,6 +1427,12 @@ public class ItemDetailToolBar extends ToolBar {
                 ItemDetailToolBar.this, new ContainerUpdate(ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE)));
         List<ItemBean> list = new ArrayList<ItemBean>();
         list.add(itemBean);
-        service.checkFKIntegrity(list, new DeleteCallback(DeleteAction.PHYSICAL, postDeleteAction, service));
+        getBrowseRecordsService().checkFKIntegrity(list,
+                new DeleteCallback(DeleteAction.PHYSICAL, postDeleteAction, getBrowseRecordsService()));
+    }
+
+    protected BrowseRecordsServiceAsync getBrowseRecordsService() {
+        return (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
+
     }
 }

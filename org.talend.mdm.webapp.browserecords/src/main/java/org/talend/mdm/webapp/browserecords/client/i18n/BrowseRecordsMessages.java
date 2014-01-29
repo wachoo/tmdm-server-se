@@ -442,8 +442,42 @@ public interface BrowseRecordsMessages extends Messages {
     String output_report_null();
 
     String export_error();
-    
+
     String missing_attribute(String path);
-    
+
     String multiple_value_separator_field_label();
+
+    String stagingRecords_btn();
+
+    String stagingRecords_tip();
+
+    String staging_data_viewer_title();
+
+    String source();
+
+    String browse_staging_records();
+
+    String status_000();
+
+    String status_201(String dataCluser);
+
+    String status_202(String dataContainer);
+
+    String status_203(String dataCluser);
+
+    String status_204(String dataCluser);
+
+    String status_205();
+
+    String status_401(String dataCluser);
+
+    String status_402(String dataCluser);
+
+    String status_403();
+
+    String status_404();
+
+    String mark_as_deleted();
+
+    String mark_deleted_confirm();
 }

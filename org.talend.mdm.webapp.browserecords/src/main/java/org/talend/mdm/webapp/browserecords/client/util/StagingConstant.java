@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.browserecordsinstaging.client.util;
+package org.talend.mdm.webapp.browserecords.client.util;
 
 public class StagingConstant {
 
