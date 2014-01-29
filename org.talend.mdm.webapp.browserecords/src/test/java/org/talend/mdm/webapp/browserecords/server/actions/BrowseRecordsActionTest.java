@@ -735,7 +735,7 @@ public class BrowseRecordsActionTest extends TestCase {
         String dstr = "2013-01-15";
         formatModel.setLanguage("zh");
         formatModel.setObject(sdf.parse(dstr));
-        formatModel.setFormat("%td/%tm/%ty");
+        formatModel.setFormat("%1$td/%1$tm/%1$ty");
         result = action.formatValue(formatModel);
         assertEquals(result, "15/01/13");
 
