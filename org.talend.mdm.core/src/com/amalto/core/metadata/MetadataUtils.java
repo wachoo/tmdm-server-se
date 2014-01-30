@@ -22,6 +22,7 @@ import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
 
 import javax.xml.XMLConstants;
@@ -32,6 +33,8 @@ import java.text.ParseException;
 import java.util.*;
 
 public class MetadataUtils {
+
+    protected static final Logger LOGGER = Logger.getLogger(MetadataUtils.class);
 
     private MetadataUtils() {
     }
@@ -287,7 +290,14 @@ public class MetadataUtils {
 
     public static Object convert(String dataAsString, FieldMetadata field, TypeMetadata actualType) {
         if (actualType == null) {
-            throw new IllegalArgumentException("Actual type for field '" + field.getName() + "' cannot be null.");
+            // Use field's declared type if no actual type (TMDM-6898)
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Type is null, replacing type with field's declared type");
+            }
+            actualType = field.getType();
+            if (actualType == null) {
+                throw new IllegalArgumentException("Actual type for field '" + field.getName() + "' cannot be null.");
+            }
         }
         if (field instanceof ReferenceFieldMetadata) {
             if (dataAsString == null || dataAsString.trim().isEmpty()) {
@@ -336,19 +346,16 @@ public class MetadataUtils {
             }
             return referencedRecord;
         } else {
-            String xmlData = dataAsString;
-            if (xmlData == null) {
+            if (dataAsString == null) {
                 return null;
             }
-            
-            if (xmlData.trim().isEmpty()) { // Empty string is considered as null value
+            if (dataAsString.trim().isEmpty()) { // Empty string is considered as null value
                 return null;
             }
-
             TypeMetadata type = field.getType();
             if (!(field instanceof ContainedTypeFieldMetadata)) {  // Contained (anonymous types) values can't have values
                 try {
-                    return convert(xmlData, type);
+                    return convert(dataAsString, type);
                 } catch (Exception e) {
                     throw new RuntimeException("Could not convert value for field '" + field.getName() + "'", e);
                 }
