@@ -20,6 +20,7 @@ import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
 
 import java.math.BigDecimal;
@@ -33,6 +34,8 @@ import java.util.*;
  * in {@link com.amalto.core.storage.Storage} API.
  */
 public class StorageMetadataUtils {
+
+    protected static final Logger LOGGER = Logger.getLogger(StorageMetadataUtils.class);
 
     private StorageMetadataUtils() {
     }
@@ -247,7 +250,14 @@ public class StorageMetadataUtils {
 
     public static Object convert(String dataAsString, FieldMetadata field, TypeMetadata actualType) {
         if (actualType == null) {
-            throw new IllegalArgumentException("Actual type for field '" + field.getName() + "' cannot be null.");
+            // Use field's declared type if no actual type (TMDM-6898)
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Type is null, replacing type with field's declared type");
+            }
+            actualType = field.getType();
+            if (actualType == null) {
+                throw new IllegalArgumentException("Actual type for field '" + field.getName() + "' cannot be null.");
+            }
         }
         if (field instanceof ReferenceFieldMetadata) {
             if (dataAsString == null || dataAsString.trim().isEmpty()) {
