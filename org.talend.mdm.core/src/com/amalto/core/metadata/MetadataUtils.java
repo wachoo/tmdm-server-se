@@ -20,6 +20,7 @@ import com.amalto.core.storage.hibernate.TypeMapping;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
 
 import javax.xml.XMLConstants;
@@ -30,6 +31,8 @@ import java.text.ParseException;
 import java.util.*;
 
 public class MetadataUtils {
+
+    protected static final Logger LOGGER = Logger.getLogger(MetadataUtils.class);
 
     private MetadataUtils() {
     }
@@ -231,7 +234,14 @@ public class MetadataUtils {
 
     public static Object convert(String dataAsString, FieldMetadata field, TypeMetadata actualType) {
         if (actualType == null) {
-            throw new IllegalArgumentException("Actual type for field '" + field.getName() + "' cannot be null.");
+            // Use field's declared type if no actual type (TMDM-6898)
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Type is null, replacing type with field's declared type");
+            }
+            actualType = field.getType();
+            if (actualType == null) {
+                throw new IllegalArgumentException("Actual type for field '" + field.getName() + "' cannot be null.");
+            }
         }
         if (field instanceof ReferenceFieldMetadata) {
             List<String> ids = new LinkedList<String>();
