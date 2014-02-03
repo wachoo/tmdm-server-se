@@ -58,8 +58,6 @@ public class LoadServlet extends HttpServlet {
 
     private static final String PARAMETER_ACTION = "action"; //$NON-NLS-1$
 
-    private static AtomicInteger counter = new AtomicInteger();
-
     public LoadServlet() {
         super();
     }
@@ -97,9 +95,6 @@ public class LoadServlet extends HttpServlet {
         LoadAction loadAction = getLoadAction(dataClusterName, typeName, dataModelName, needValidate, needAutoGenPK);
         if (needValidate && !loadAction.supportValidation()) {
             throw new ServletException(new UnsupportedOperationException("XML Validation isn't supported"));
-        }
-        if (needAutoGenPK) {
-            throw new ServletException(new UnsupportedOperationException("Autogen pk isn't supported"));
         }
         // Get xml server and key information
         XmlServerSLWrapperLocal server;
