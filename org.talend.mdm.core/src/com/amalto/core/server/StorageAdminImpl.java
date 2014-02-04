@@ -19,6 +19,7 @@ import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.StagingStorage;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.io.IOUtils;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
@@ -63,11 +64,11 @@ public class StorageAdminImpl implements StorageAdmin {
             MATCH_RULE_POJO_CLASS
     };
 
-    private final Map<String, Map<String, Storage>> storages = new StorageMap();
+    private final Map<String, MultiKeyMap> storages = new StorageMap();
 
     public String[] getAll(String revisionID) {
         Set<String> allStorageNames = new HashSet<String>();
-        for (Map.Entry<String, Map<String, Storage>> currentStorage : storages.entrySet()) {
+        for (Map.Entry<String, MultiKeyMap> currentStorage : storages.entrySet()) {
             if (currentStorage.getValue().containsKey(revisionID)) {
                 allStorageNames.add(currentStorage.getKey());
             }
@@ -76,13 +77,18 @@ public class StorageAdminImpl implements StorageAdmin {
     }
 
     public void delete(String revisionID, String storageName, boolean dropExistingData) {
-        Storage storage = getRegisteredStorage(storageName, revisionID);
+        StorageType type = storageName.endsWith(STAGING_SUFFIX) ? StorageType.STAGING : StorageType.MASTER;
+        Storage storage = getRegisteredStorage(storageName, revisionID, type);
         if (storage == null) {
             LOGGER.warn("Storage '" + storageName + "' does not exist.");
             return;
         }
         ServerContext.INSTANCE.getLifecycle().destroyStorage(storage, dropExistingData);
-        storages.get(storageName).remove(revisionID);
+        if (isHead(revisionID)) {
+            storages.get(storageName).remove(StringUtils.EMPTY, storage.getType());
+        } else {
+            storages.get(storageName).remove(revisionID, storage.getType());
+        }
         if (storages.get(storageName).isEmpty()) {
             storages.remove(storageName);
         }
@@ -185,42 +191,24 @@ public class StorageAdminImpl implements StorageAdmin {
         DataSourceDefinition dataSource = instance.get().getDefinition(dataSourceName, SYSTEM_STORAGE);
         storage.init(dataSource);
         storage.prepare(repository, Collections.<Expression>emptySet(), false, false);
-        registerStorage(SYSTEM_STORAGE, null, storage);
+        registerStorage(SYSTEM_STORAGE, StringUtils.EMPTY, storage);
         return storage;
     }
 
     // Returns null if storage can not be created (e.g. because of missing data source configuration).
     private Storage internalCreateStorage(String dataModelName, String storageName, String dataSourceName, StorageType storageType, String revisionId) {
-        Map<String, Storage> revisionToStorage = storages.get(storageName);
-        if (revisionToStorage != null) { // Look for already created storages.
-            Storage storage = revisionToStorage.get(revisionId);
-            if (storage != null && storage.getType() == storageType) {
-                return storage;
-            }
-        }
         ServerContext instance = ServerContext.INSTANCE;
-        DataSourceDefinition definition = instance.get().getDefinition(dataSourceName, storageName, revisionId);
         String registeredStorageName = storageName;
-        if (definition == null) {
-            // May get request for "StorageName/Concept", but for SQL it does not make any sense.
-            // See com.amalto.core.storage.StorageWrapper.createCluster()
-            storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
-            dataModelName = StringUtils.substringBefore(dataModelName, "/"); //$NON-NLS-1$
-            if (storageType == StorageType.STAGING) {
-                if (!dataModelName.endsWith(STAGING_SUFFIX)) {
-                    dataModelName += STAGING_SUFFIX;
-                }
-                if (!storageName.endsWith(STAGING_SUFFIX)) {
-                    registeredStorageName = storageName + STAGING_SUFFIX;
-                }
-            }
-            if (getRegisteredStorage(registeredStorageName, revisionId) != null) {
-                LOGGER.warn("Storage for '" + storageName + "' already exists. This is probably normal. If you want MDM to recreate it from scratch, delete the container and restart.");
-                return get(storageName, revisionId);
-            }
-            // Replace all container name, so re-read the configuration.
-            definition = instance.get().getDefinition(dataSourceName, storageName, revisionId);
+        // May get request for "StorageName/Concept", but for SQL it does not make any sense.
+        // See com.amalto.core.storage.StorageWrapper.createCluster()
+        storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
+        dataModelName = StringUtils.substringBefore(dataModelName, "/"); //$NON-NLS-1$
+        if (getRegisteredStorage(registeredStorageName, revisionId, storageType) != null) {
+            LOGGER.warn("Storage for '" + storageName + "' already exists. This is probably normal. If you want MDM to recreate it from scratch, delete the container and restart.");
+            return get(storageName, revisionId);
         }
+        // Replace all container name, so re-read the configuration.
+        DataSourceDefinition definition = instance.get().getDefinition(dataSourceName, storageName, revisionId);
         if (!instance.get().hasDataSource(dataSourceName, storageName, storageType)) {
             LOGGER.warn("Can not initialize " + storageType + " storage for '" + storageName + "': data source '" + dataSourceName + "' configuration is incomplete.");
             return null;
@@ -229,7 +217,7 @@ public class StorageAdminImpl implements StorageAdmin {
         if (XSystemObjects.DC_UPDATE_PREPORT.getName().equals(storageName)) {
             if (definition.get(storageType) instanceof RDBMSDataSource) {
                 final RDBMSDataSource previousDataSource = (RDBMSDataSource) definition.get(storageType);
-                RDBMSDataSource dataSource = new RDBMSDataSource(previousDataSource) {
+                RDBMSDataSource overriddenDataSource = new RDBMSDataSource(previousDataSource) {
                     @Override
                     public boolean supportFullText() {
                         if (LOGGER.isDebugEnabled() && super.supportFullText()) {
@@ -250,13 +238,13 @@ public class StorageAdminImpl implements StorageAdmin {
                 };
                 switch (storageType) {
                     case MASTER:
-                        definition = new DataSourceDefinition(dataSource, definition.getStaging(), definition.getSystem());
+                        definition = new DataSourceDefinition(overriddenDataSource, definition.getStaging(), definition.getSystem());
                         break;
                     case STAGING:
-                        definition = new DataSourceDefinition(definition.getMaster(), dataSource, definition.getSystem());
+                        definition = new DataSourceDefinition(definition.getMaster(), overriddenDataSource, definition.getSystem());
                         break;
                     case SYSTEM:
-                        definition = new DataSourceDefinition(definition.getMaster(), definition.getStaging(), dataSource);
+                        definition = new DataSourceDefinition(definition.getMaster(), definition.getStaging(), overriddenDataSource);
                         break;
                 }
             }
@@ -319,17 +307,16 @@ public class StorageAdminImpl implements StorageAdmin {
         Storage storage;
         switch (storageType) {
             case STAGING:
-                if (!storageName.endsWith(STAGING_SUFFIX)) {
-                    storage = getRegisteredStorage(storageName + STAGING_SUFFIX, revision);
-                } else {
-                    storage = getRegisteredStorage(storageName, revision);
+                if (storageName.endsWith(STAGING_SUFFIX)) {
+                    storageName = StringUtils.substringBefore(storageName, STAGING_SUFFIX);
                 }
+                storage = getRegisteredStorage(storageName, revision, StorageType.STAGING);
                 break;
             case MASTER:
-                storage = getRegisteredStorage(storageName, revision);
+                storage = getRegisteredStorage(storageName, revision, StorageType.MASTER);
                 break;
             case SYSTEM:
-                storage = getRegisteredStorage(SYSTEM_STORAGE, null);
+                storage = getRegisteredStorage(SYSTEM_STORAGE, null, StorageType.SYSTEM);
                 break;
             default:
                 throw new NotImplementedException("No support for storage type '" + storageType + "'.");
@@ -347,39 +334,39 @@ public class StorageAdminImpl implements StorageAdmin {
     }
 
     public void close() {
-        deleteAll(null, false);
+        deleteAll(StringUtils.EMPTY, false);
     }
 
     @Override
     public String getDatasource(String storageName) {
-        Set<Map.Entry<String, Map<String, Storage>>> entries = storages.entrySet();
-        for (Map.Entry<String, Map<String, Storage>> entry : entries) {
-            if (storageName.equals(entry.getKey())) {
-                Collection<Storage> values = entry.getValue().values();
-                if (!values.isEmpty()) {
-                    return values.iterator().next().getDataSource().getName();
-                }
-            }
-        }
         // This is not customized: in fact, there should be a way to customize storage -> datasource mapping (like
         // MDM container configuration).
         return DEFAULT_USER_DATA_SOURCE_NAME;
     }
 
     public Storage get(String storageName, String revisionId) {
-        Storage storage = getRegisteredStorage(storageName, revisionId);
+        StorageType type;
+        if (SYSTEM_STORAGE.equals(storageName)) {
+            type = StorageType.SYSTEM;
+        } else if (storageName.endsWith(STAGING_SUFFIX)) {
+            type = StorageType.STAGING;
+            storageName = StringUtils.substringBefore(storageName, STAGING_SUFFIX);
+        } else {
+            type = StorageType.MASTER;
+        }
+        Storage storage = getRegisteredStorage(storageName, revisionId, type);
         Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
-        if (getRegisteredStorage(SYSTEM_STORAGE, null) != null
+        if (getRegisteredStorage(SYSTEM_STORAGE, StringUtils.EMPTY, StorageType.SYSTEM) != null
                 && !XSystemObjects.DC_UPDATE_PREPORT.getName().equals(storageName)
                 && !XSystemObjects.DC_CROSSREFERENCING.getName().equals(storageName)
                 && (XSystemObjects.isXSystemObject(xDataClustersMap, storageName)
                     || storageName.startsWith("amaltoOBJECTS"))) { //$NON-NLS-1$
-            return getRegisteredStorage(SYSTEM_STORAGE, null);
+            return getRegisteredStorage(SYSTEM_STORAGE, null, StorageType.SYSTEM);
         }
         if (storage == null) {
             // May get request for "StorageName/Concept", but for SQL it does not make any sense.
             storageName = StringUtils.substringBefore(storageName, "/"); //$NON-NLS-1$
-            storage = getRegisteredStorage(storageName, revisionId);
+            storage = getRegisteredStorage(storageName, revisionId, type);
             if (storage != null && !(storage.getDataSource() instanceof RDBMSDataSource)) {
                 throw new IllegalStateException("Expected a SQL storage for '" + storageName + "' but got a '" + storage.getClass().getName() + "'.");
             }
@@ -399,26 +386,26 @@ public class StorageAdminImpl implements StorageAdmin {
 
     private void registerStorage(String storageName, String revisionId, Storage storage) {
         if (isHead(revisionId)) {
-            storages.get(storageName).put(null, storage);
+            storages.get(storageName).put(StringUtils.EMPTY, storage.getType(), storage);
         } else {
-            storages.get(storageName).put(revisionId, storage);
+            storages.get(storageName).put(revisionId, storage.getType(), storage);
         }
     }
 
-    private Storage getRegisteredStorage(String storageName, String revisionId) {
+    private Storage getRegisteredStorage(String storageName, String revisionId, StorageType storageType) {
         if (isHead(revisionId)) {
-            return storages.get(storageName).get(null);
+            return (Storage) storages.get(storageName).get(StringUtils.EMPTY, storageType);
         } else {
-            return storages.get(storageName).get(revisionId);
+            return (Storage) storages.get(storageName).get(revisionId, storageType);
         }
     }
 
-    private static class StorageMap extends HashMap<String, Map<String, Storage>> {
+    private static class StorageMap extends HashMap<String, MultiKeyMap> {
         @Override
-        public Map<String, Storage> get(Object o) {
-            Map<String, Storage> value = super.get(o);
+        public MultiKeyMap get(Object o) {
+            MultiKeyMap value = super.get(o);
             if (value == null) {
-                value = new HashMap<String, Storage>();
+                value = new MultiKeyMap();
                 super.put((String) o, value);
             }
             return value;
