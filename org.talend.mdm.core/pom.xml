@@ -186,7 +186,7 @@
                         <id>deploy-jboss-dev-libs</id>
                         <phase>install</phase>
                         <configuration>
-                            <includeArtifactIds>mysql-connector-java,ojdbc6,sqljdbc4</includeArtifactIds>
+                            <includeArtifactIds>mysql-connector-java,ojdbc6,sqljdbc4,postgresql</includeArtifactIds>
                         </configuration>
                     </execution>
                     <execution>
@@ -196,7 +196,7 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <includeArtifactIds>mysql-connector-java,ojdbc6,sqljdbc4</includeArtifactIds>
+                            <includeArtifactIds>mysql-connector-java,ojdbc6,sqljdbc4,postgresql</includeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
