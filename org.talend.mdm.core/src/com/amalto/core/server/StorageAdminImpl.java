@@ -118,6 +118,11 @@ public class StorageAdminImpl implements StorageAdmin {
                     internalCreateStorage(actualDataModelName, actualStorageName, dataSourceName, StorageType.STAGING, revisionId);
                 }
             }
+            // Invoke hooks for storage creations
+            ServiceLoader<Hook> hooks =  ServiceLoader.load(Hook.class);
+            for (Hook hook : hooks) {
+                masterDataModelStorage = hook.onStorageCreate(masterDataModelStorage);
+            }
             return masterDataModelStorage;
         } catch (Exception e) {
             throw new RuntimeException("Could not create storage '" + actualStorageName + "' with data model '" + dataModelName + "'.", e);
