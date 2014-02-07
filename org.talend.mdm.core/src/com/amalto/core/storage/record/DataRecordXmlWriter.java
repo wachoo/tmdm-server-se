@@ -1,26 +1,39 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.record;
 
-import com.amalto.core.metadata.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.List;
+
+import javax.xml.XMLConstants;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.talend.mdm.commmon.metadata.Types;
+
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ContainedTypeFieldMetadata;
+import com.amalto.core.metadata.DefaultMetadataVisitor;
+import com.amalto.core.metadata.EnumerationFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.SimpleTypeFieldMetadata;
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
-import org.apache.commons.lang.StringEscapeUtils;
-
-import javax.xml.XMLConstants;
-import java.io.*;
-import java.util.List;
 
 public class DataRecordXmlWriter implements DataRecordWriter {
 
@@ -48,11 +61,13 @@ public class DataRecordXmlWriter implements DataRecordWriter {
         this.override = override;
     }
 
+    @Override
     public void write(DataRecord record, OutputStream output) throws IOException {
         Writer out = new BufferedWriter(new OutputStreamWriter(output, "UTF-8")); //$NON-NLS-1$
         write(record, out);
     }
 
+    @Override
     public void write(DataRecord record, Writer writer) throws IOException {
         DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(record, writer, override);
         List<FieldMetadata> fields = type == null ? record.getType().getFields() : type.getFields();
@@ -112,7 +127,8 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                 }
                 return null;
             } catch (IOException e) {
-                throw new RuntimeException("Could not serialize XML for reference field '" + referenceField.getName() + "' of type '" + referenceField.getContainingType().getName() + "'.", e);
+                throw new RuntimeException("Could not serialize XML for reference field '" + referenceField.getName()
+                        + "' of type '" + referenceField.getContainingType().getName() + "'.", e);
             }
         }
 
@@ -156,7 +172,8 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                 }
                 return null;
             } catch (IOException e) {
-                throw new RuntimeException("Could not serialize XML for contained field '" + containedField.getName() + "' of type '" + containedField.getContainingType().getName() + "'.", e);
+                throw new RuntimeException("Could not serialize XML for contained field '" + containedField.getName()
+                        + "' of type '" + containedField.getContainingType().getName() + "'.", e);
             }
         }
 
@@ -193,7 +210,8 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                 }
                 return null;
             } catch (IOException e) {
-                throw new RuntimeException("Could not serialize XML for simple field '" + simpleField.getName() + "' of type '" + simpleField.getContainingType().getName() + "'.", e);
+                throw new RuntimeException("Could not serialize XML for simple field '" + simpleField.getName() + "' of type '"
+                        + simpleField.getContainingType().getName() + "'.", e);
             }
         }
 
@@ -219,7 +237,8 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                 }
                 return null;
             } catch (IOException e) {
-                throw new RuntimeException("Could not serialize XML for enumeration field '" + enumField.getName() + "' of type '" + enumField.getContainingType().getName() + "'.", e);
+                throw new RuntimeException("Could not serialize XML for enumeration field '" + enumField.getName()
+                        + "' of type '" + enumField.getContainingType().getName() + "'.", e);
             }
         }
 
@@ -247,8 +266,13 @@ public class DataRecordXmlWriter implements DataRecordWriter {
         private String getFK(DataRecord record) {
             StringBuilder builder = new StringBuilder();
             List<FieldMetadata> keyFields = record.getType().getKeyFields();
+            Object keyFieldValue = null;
             for (FieldMetadata keyField : keyFields) {
-                builder.append('[').append(record.get(keyField)).append(']');
+                keyFieldValue = record.get(keyField);
+                if (Types.STRING.equals(MetadataUtils.getSuperConcreteType(keyField.getType()).getName())) {
+                    keyFieldValue = StringEscapeUtils.escapeXml((String) keyFieldValue);
+                }
+                builder.append('[').append(keyFieldValue).append(']');
             }
             return builder.toString();
         }
