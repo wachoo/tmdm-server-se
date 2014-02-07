@@ -25,6 +25,11 @@ public class DoubleConstant implements ConstantExpression<Double> {
         return this;
     }
 
+    @Override
+    public boolean cache() {
+        return false;
+    }
+
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }

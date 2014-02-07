@@ -29,6 +29,11 @@ public class Min implements TypedExpression {
     }
 
     @Override
+    public boolean cache() {
+        return false;
+    }
+
+    @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }

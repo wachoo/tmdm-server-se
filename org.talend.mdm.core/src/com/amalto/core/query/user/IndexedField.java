@@ -39,6 +39,11 @@ public class IndexedField extends Field {
     }
 
     @Override
+    public boolean cache() {
+        return false;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

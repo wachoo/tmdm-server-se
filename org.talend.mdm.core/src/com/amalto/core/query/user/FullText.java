@@ -25,6 +25,11 @@ public class FullText implements Condition {
         return this;
     }
 
+    @Override
+    public boolean cache() {
+        return false;
+    }
+
     public String getValue() {
         return value;
     }

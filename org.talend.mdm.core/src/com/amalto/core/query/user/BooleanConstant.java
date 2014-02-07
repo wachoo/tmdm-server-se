@@ -38,6 +38,11 @@ public class BooleanConstant implements ConstantExpression<Boolean> {
         return this;
     }
 
+    @Override
+    public boolean cache() {
+        return false;
+    }
+
     public String getTypeName() {
         return Types.BOOLEAN;
     }

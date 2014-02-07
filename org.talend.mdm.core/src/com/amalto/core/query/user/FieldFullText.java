@@ -24,6 +24,11 @@ public class FieldFullText extends FullText {
         return this;
     }
 
+    @Override
+    public boolean cache() {
+        return false;
+    }
+
     public Field getField() {
         return field;
     }

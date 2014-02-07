@@ -123,6 +123,11 @@ public class Select implements Expression {
         return this;
     }
 
+    @Override
+    public boolean cache() {
+        return true;
+    }
+
     /**
      * @return A copy of this {@link Select} instance. This is a shallow copy (only Select instance is new, all referenced
      *         objects such as {@link Condition}, {@link Paging}... are not copied).

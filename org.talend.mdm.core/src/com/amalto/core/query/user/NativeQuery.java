@@ -21,6 +21,11 @@ public class NativeQuery implements Expression {
     }
 
     @Override
+    public boolean cache() {
+        return false;
+    }
+
+    @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }

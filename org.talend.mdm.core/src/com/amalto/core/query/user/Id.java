@@ -29,6 +29,11 @@ public class Id implements Expression {
         return this;
     }
 
+    @Override
+    public boolean cache() {
+        return false;
+    }
+
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }

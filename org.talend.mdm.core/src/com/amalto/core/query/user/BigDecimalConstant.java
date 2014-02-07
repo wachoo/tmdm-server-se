@@ -28,6 +28,11 @@ public class BigDecimalConstant implements ConstantExpression<BigDecimal> {
         return this;
     }
 
+    @Override
+    public boolean cache() {
+        return false;
+    }
+
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }

@@ -36,6 +36,11 @@ public class StringConstant implements ConstantExpression<String> {
         return this;
     }
 
+    @Override
+    public boolean cache() {
+        return false;
+    }
+
     public String getTypeName() {
         return Types.STRING;
     }

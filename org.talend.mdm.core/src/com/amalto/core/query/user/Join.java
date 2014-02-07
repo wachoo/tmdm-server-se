@@ -32,6 +32,11 @@ public class Join implements Expression {
         return this;
     }
 
+    @Override
+    public boolean cache() {
+        return false;
+    }
+
     public JoinType getJoinType() {
         return joinType;
     }

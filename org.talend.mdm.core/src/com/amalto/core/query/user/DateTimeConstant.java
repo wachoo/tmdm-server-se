@@ -51,6 +51,11 @@ public class DateTimeConstant implements ConstantExpression<Date> {
         return this;
     }
 
+    @Override
+    public boolean cache() {
+        return false;
+    }
+
     public String getTypeName() {
         return Types.DATETIME;
     }

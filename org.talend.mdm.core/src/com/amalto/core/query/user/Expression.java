@@ -16,6 +16,13 @@ package com.amalto.core.query.user;
  */
 public interface Expression extends Visitable {
 
+    /**
+     * @return A <em>normalized</em> version of the Expression (e.g. prune unnecessary branches in conditions).
+     */
     Expression normalize();
 
+    /**
+     * @return <code>true</code> if the result of the expression can be cached. <code>false</code> otherwise.
+     */
+    boolean cache();
 }

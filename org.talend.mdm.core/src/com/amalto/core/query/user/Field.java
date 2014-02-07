@@ -39,6 +39,11 @@ public class Field implements TypedExpression {
         return this;
     }
 
+    @Override
+    public boolean cache() {
+        return false;
+    }
+
     public String getTypeName() {
         TypeMetadata type = MetadataUtils.getSuperConcreteType(fieldMetadata.getType());
         return type.getName();
@@ -53,11 +58,11 @@ public class Field implements TypedExpression {
             return false;
         }
         Field field = (Field) o;
-        return fieldMetadata.getName().equals(field.fieldMetadata.getName());
+        return fieldMetadata.equals(field.fieldMetadata);
     }
 
     @Override
     public int hashCode() {
-        return fieldMetadata.getName().hashCode();
+        return fieldMetadata.hashCode();
     }
 }

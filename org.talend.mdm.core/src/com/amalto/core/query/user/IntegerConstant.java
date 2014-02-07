@@ -14,6 +14,11 @@ public class IntegerConstant implements ConstantExpression<Integer> {
         return this;
     }
 
+    @Override
+    public boolean cache() {
+        return false;
+    }
+
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
