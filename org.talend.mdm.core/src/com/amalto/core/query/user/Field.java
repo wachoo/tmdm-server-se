@@ -58,11 +58,11 @@ public class Field implements TypedExpression {
             return false;
         }
         Field field = (Field) o;
-        return fieldMetadata.equals(field.fieldMetadata);
+        return fieldMetadata.getName().equals(field.fieldMetadata.getName());
     }
 
     @Override
     public int hashCode() {
-        return fieldMetadata.hashCode();
+        return fieldMetadata.getName().hashCode();
     }
 }
