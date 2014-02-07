@@ -2853,11 +2853,16 @@ public class StorageQueryTest extends StorageTestCase {
 
         UserQueryBuilder qb = UserQueryBuilder.from(person)
                 .where(or(eq(person.getField("knownAddresses/knownAddress/Notes/Note"), "test note"), eq(person.getField("score"), "666")));
-        StorageResults results = storage.fetch(qb.getSelect());
-        // assertEquals(2, results.getCount()); -> should be 3
-        assertEquals(3, results.getCount());
-        for (DataRecord result : results) {
-            assertTrue(result.get("id").equals(5) || result.get("id").equals(6));
+        storage.begin();
+        try {
+            StorageResults results = storage.fetch(qb.getSelect());
+            // assertEquals(2, results.getCount()); -> should be 3
+            assertEquals(3, results.getCount());
+            for (DataRecord result : results) {
+                assertTrue(result.get("id").equals("5") || result.get("id").equals("6"));
+            }
+        } finally {
+            storage.commit();
         }
 
         /*
