@@ -18,6 +18,7 @@ import org.talend.mdm.webapp.base.client.model.MultiLanguageModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.shared.Constants;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -37,6 +38,7 @@ public class CellRendererCreator {
         if (dataType.getType().equals(DataTypeConstants.URL)) {
             GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
 
+                @Override
                 public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ModelData> store, Grid<ModelData> grid) {
                     String value = model.get(property);
@@ -48,19 +50,20 @@ public class CellRendererCreator {
                 }
             };
             return renderer;
-        }
-        if (dataType.isSimpleType() && dataType.isMultiOccurrence()) {
+        } else if (dataType.isSimpleType() && dataType.isMultiOccurrence()) {
             final boolean isMultiLanguageType = dataType.getType().equals(DataTypeConstants.MLS);
             GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
+
+                @Override
                 public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ModelData> store, Grid<ModelData> grid) {
-                    String rootNode = property.substring(0,property.indexOf('/'));
-                    String targetNode = property.substring(property.lastIndexOf('/')+1);
+                    String rootNode = property.substring(0, property.indexOf('/'));
+                    String targetNode = property.substring(property.lastIndexOf('/') + 1);
                     StringBuffer result = new StringBuffer();
                     ItemBean itemBean = (ItemBean) model;
                     Document doc = XMLParser.parse(itemBean.getItemXml());
-                    NodeList nodeList = doc.getElementsByTagName(targetNode) ;
-                    for (int i=0;i<nodeList.getLength();i++){
+                    NodeList nodeList = doc.getElementsByTagName(targetNode);
+                    for (int i = 0; i < nodeList.getLength(); i++) {
                         Node node = nodeList.item(i);
                         String displayValue = node.toString();
                         if (isMultiLanguageType) {
@@ -70,25 +73,26 @@ public class CellRendererCreator {
                         }
 
                         if (node instanceof Element) {
-                            if (rootNode.equals(doc.getFirstChild().getNodeName())){
+                            if (rootNode.equals(doc.getFirstChild().getNodeName())) {
                                 appendContent(result, displayValue, ","); //$NON-NLS-1$                            
-                            }else{
-                                if("result".equals(node.getParentNode().getNodeName())){ //$NON-NLS-1$
+                            } else {
+                                if ("result".equals(node.getParentNode().getNodeName())) { //$NON-NLS-1$
                                     appendContent(result, displayValue, ","); //$NON-NLS-1$         
-                                }   
-                            } 
+                                }
+                            }
                         }
                     }
-                    if (isMultiLanguageType)
+                    if (isMultiLanguageType) {
                         model.set(property, result.toString());
+                    }
                     return result;
                 }
             };
             return renderer;
-        }   
-        if (dataType.getForeignkey() != null) {
+        } else if (dataType.getForeignkey() != null) {
             GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
 
+                @Override
                 public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ModelData> store, Grid<ModelData> grid) {
                     ItemBean itemBean = (ItemBean) model;
@@ -101,20 +105,35 @@ public class CellRendererCreator {
                 }
             };
             return renderer;
-        }
-        if ("string".equals(dataType.getType().getTypeName())){ //$NON-NLS-1$
+        } else if (DataTypeConstants.BOOLEAN.equals(dataType.getType())) {
             GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
 
+                @Override
                 public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ModelData> store, Grid<ModelData> grid) {
-                    return Format.htmlEncode((String)model.get(property));
+                    String value = model.get(property);
+                    if (Constants.BOOLEAN_TRUE_DISPLAY_VALUE.equals(value) || Constants.BOOLEAN_TRUE_VALUE.equals(value)) {
+                        return Constants.BOOLEAN_TRUE_DISPLAY_VALUE;
+                    } else {
+                        return Constants.BOOLEAN_FALSE_DISPLAY_VALUE;
+                    }
                 }
             };
             return renderer;
-        }
-        if (dataType.getType().equals(DataTypeConstants.MLS)) {
+        } else if (DataTypeConstants.STRING.equals(dataType.getType())) {
             GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
 
+                @Override
+                public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
+                        ListStore<ModelData> store, Grid<ModelData> grid) {
+                    return Format.htmlEncode((String) model.get(property));
+                }
+            };
+            return renderer;
+        } else if (DataTypeConstants.MLS.equals(dataType.getType())) {
+            GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
+
+                @Override
                 public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ModelData> store, Grid<ModelData> grid) {
                     String multiLanguageString = (String) model.get(property);
@@ -126,12 +145,12 @@ public class CellRendererCreator {
         }
         return null;
     }
-    
-    private static StringBuffer appendContent(StringBuffer resource,String content,String separater){
-        if (!"".equals(resource.toString())){ //$NON-NLS-1$
+
+    private static StringBuffer appendContent(StringBuffer resource, String content, String separater) {
+        if (!"".equals(resource.toString())) { //$NON-NLS-1$
             resource.append(separater);
         }
         resource.append(content);
-        return resource;         
+        return resource;
     }
 }

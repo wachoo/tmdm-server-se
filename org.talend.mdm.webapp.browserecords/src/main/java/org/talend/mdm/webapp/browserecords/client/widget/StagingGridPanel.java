@@ -20,6 +20,8 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.exception.ParserException;
+import org.talend.mdm.webapp.base.client.model.DataType;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
@@ -47,15 +49,18 @@ import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
+import org.talend.mdm.webapp.browserecords.client.widget.filter.BooleanFilter;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.task.StagingConstants;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HideMode;
-import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
+import com.extjs.gxt.ui.client.data.BaseFilterPagingLoadConfig;
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.LoadEvent;
@@ -78,6 +83,12 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
+import com.extjs.gxt.ui.client.widget.grid.filters.Filter;
+import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
+import com.extjs.gxt.ui.client.widget.grid.filters.ListFilter;
+import com.extjs.gxt.ui.client.widget.grid.filters.NumericFilter;
+import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.Cookies;
@@ -108,6 +119,8 @@ public class StagingGridPanel extends ContentPanel {
 
     private EntityModel entityModel;
 
+    private GridFilters filters;
+
     private BrowseRecordsServiceAsync browseRecordService = (BrowseRecordsServiceAsync) Registry
             .get(BrowseRecords.BROWSERECORDS_SERVICE);
 
@@ -125,7 +138,6 @@ public class StagingGridPanel extends ContentPanel {
             qm.getPagingLoadConfig().setLimit(pageSize);
             qm.setLanguage(Locale.getLanguage());
 
-            // validate criteria on client-side first
             try {
                 if (qm.getCriteria() == null) {
                     return;
@@ -250,6 +262,8 @@ public class StagingGridPanel extends ContentPanel {
 
     private List<ColumnConfig> generateColumnList() {
         List<ColumnConfig> columnConfigList = new ArrayList<ColumnConfig>();
+        filters = new GridFilters();
+        filters.setLocal(true);
         List<String> viewableXpaths = viewBean.getViewableXpaths();
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
         List<String> keys = Arrays.asList(entityModel.getKeys());
@@ -276,18 +290,22 @@ public class StagingGridPanel extends ContentPanel {
             if (typeModel == null || typeModel.isVisible()) {
                 columnConfigList.add(cc);
             }
+
+            filters.addFilter(createFilter(xpath, typeModel != null ? typeModel.getType() : DataTypeConstants.STRING));
         }
 
-        ColumnConfig groupColumn = new ColumnConfig(entityModel.getConceptName() + StagingConstant.STAGING_TASKID,
-                MessagesFactory.getMessages().match_group(), 200);
+        String taskIdPath = entityModel.getConceptName() + StagingConstant.STAGING_TASKID;
+        ColumnConfig groupColumn = new ColumnConfig(taskIdPath, MessagesFactory.getMessages().match_group(), 200);
         columnConfigList.add(groupColumn);
+        filters.addFilter(createFilter(taskIdPath, DataTypeConstants.STRING));
 
-        ColumnConfig statusColumn = new ColumnConfig(entityModel.getConceptName() + StagingConstant.STAGING_STATUS, "Status", 200); //$NON-NLS-1$
+        String statusPath = entityModel.getConceptName() + StagingConstant.STAGING_STATUS;
+        ColumnConfig statusColumn = new ColumnConfig(statusPath, MessagesFactory.getMessages().status(), 200);
         statusColumn.setRenderer(new GridCellRenderer<ItemBean>() {
 
             @Override
             public Object render(ItemBean model, String property, ColumnData config, int rowIndex, int colIndex,
-                    ListStore<ItemBean> store, Grid<ItemBean> aGrid) {
+                    ListStore<ItemBean> statusListStore, Grid<ItemBean> statusGrid) {
                 com.google.gwt.user.client.ui.Grid g = new com.google.gwt.user.client.ui.Grid(1, 2);
                 g.setCellPadding(0);
                 g.setCellSpacing(0);
@@ -313,9 +331,42 @@ public class StagingGridPanel extends ContentPanel {
             }
         });
         columnConfigList.add(statusColumn);
-        ColumnConfig sourceColumn = new ColumnConfig(entityModel.getConceptName() + StagingConstant.STAGING_SOURCE,
-                MessagesFactory.getMessages().source(), 200);
+
+        ListStore<ModelData> statusListFilterStore = new ListStore<ModelData>();
+        statusListFilterStore.add(buildFilterItem(statusPath, String.valueOf(RecordStatus.NEW.getStatusCode())));
+        statusListFilterStore.add(buildFilterItem(statusPath, String.valueOf(RecordStatus.SUCCESS.getStatusCode())));
+        statusListFilterStore.add(buildFilterItem(statusPath,
+                String.valueOf(RecordStatus.SUCCESS_IDENTIFIED_CLUSTERS.getStatusCode())));
+        statusListFilterStore
+                .add(buildFilterItem(statusPath, String.valueOf(RecordStatus.SUCCESS_MERGE_CLUSTERS.getStatusCode())));
+        statusListFilterStore.add(buildFilterItem(statusPath,
+                String.valueOf(RecordStatus.SUCCESS_MERGE_CLUSTER_TO_RESOLVE.getStatusCode())));
+        statusListFilterStore
+                .add(buildFilterItem(statusPath, String.valueOf(RecordStatus.SUCCESS_MERGED_RECORD.getStatusCode())));
+        statusListFilterStore.add(buildFilterItem(statusPath, String.valueOf(RecordStatus.SUCCESS_VALIDATE.getStatusCode())));
+        statusListFilterStore.add(buildFilterItem(statusPath, String.valueOf(RecordStatus.SUCCESS_DELETED.getStatusCode())));
+        statusListFilterStore.add(buildFilterItem(statusPath, String.valueOf(RecordStatus.FAIL.getStatusCode())));
+        statusListFilterStore.add(buildFilterItem(statusPath,
+                String.valueOf(RecordStatus.FAIL_IDENTIFIED_CLUSTERS.getStatusCode())));
+        statusListFilterStore.add(buildFilterItem(statusPath, String.valueOf(RecordStatus.FAIL_MERGE_CLUSTERS.getStatusCode())));
+        statusListFilterStore.add(buildFilterItem(statusPath,
+                String.valueOf(RecordStatus.FAIL_VALIDATE_VALIDATION.getStatusCode())));
+        statusListFilterStore.add(buildFilterItem(statusPath,
+                String.valueOf(RecordStatus.FAIL_VALIDATE_CONSTRAINTS.getStatusCode())));
+        statusListFilterStore.add(buildFilterItem(statusPath, String.valueOf(RecordStatus.UNKNOWN.getStatusCode())));
+        ListFilter statusFilter = new ListFilter(statusPath, statusListFilterStore);
+        statusFilter.setDisplayProperty(statusPath);
+        filters.addFilter(statusFilter);
+
+        String sourcePath = entityModel.getConceptName() + StagingConstant.STAGING_SOURCE;
+        ColumnConfig sourceColumn = new ColumnConfig(sourcePath, MessagesFactory.getMessages().source(), 200);
         columnConfigList.add(sourceColumn);
+
+        ListStore<ModelData> sourceListFilterStore = new ListStore<ModelData>();
+        sourceListFilterStore.add(buildFilterItem(sourcePath, StagingConstants.STAGING_MDM_SOURCE));
+        ListFilter sourceFilter = new ListFilter(sourcePath, sourceListFilterStore);
+        sourceFilter.setDisplayProperty(sourcePath);
+        filters.addFilter(sourceFilter);
 
         for (ColumnConfig cc : columnConfigList) {
             final GridCellRenderer<ModelData> render = cc.getRenderer();
@@ -324,10 +375,10 @@ public class StagingGridPanel extends ContentPanel {
 
                 @Override
                 public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
-                        ListStore<ModelData> store, Grid<ModelData> g) {
+                        ListStore<ModelData> listStore, Grid<ModelData> g) {
                     Object value = null;
                     if (render != null) {
-                        value = render.render(model, property, config, rowIndex, colIndex, store, g);
+                        value = render.render(model, property, config, rowIndex, colIndex, listStore, g);
                     } else {
                         value = model.get(property);
                     }
@@ -388,7 +439,6 @@ public class StagingGridPanel extends ContentPanel {
             grid.setStateful(true);
             AppHeader header = (AppHeader) BrowseRecords.getSession().get(UserSession.APP_HEADER);
             ViewBean vb = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
-            EntityModel entityModel = vb.getBindingEntityModel();
             grid.setStateId(header.getDatamodel() + "." + entityModel.getConceptName() + "." + vb.getViewPK()); //$NON-NLS-1$//$NON-NLS-2$
         }
 
@@ -403,15 +453,9 @@ public class StagingGridPanel extends ContentPanel {
             public void handleEvent(GridEvent<ItemBean> ge) {
                 int rowIndex = ge.getRowIndex();
                 if (rowIndex != -1) {
-                    // if (ge.getColIndex() == 0) {
-                    // ItemsListPanel.this.isCheckbox = true;
-                    // } else {
-                    // ItemsListPanel.this.isCheckbox = false;
-                    // }
                     ItemBean item = grid.getStore().getAt(rowIndex);
                     TreeDetailUtil.initStagingItemsDetailPanelById(MessagesFactory.getMessages().browse_staging_records(),
                             item.getIds(), concept, false, false);
-                    // grid.getView().getRow(item).getStyle().setCursor(Style.Cursor.POINTER);
                 }
             }
         });
@@ -420,7 +464,7 @@ public class StagingGridPanel extends ContentPanel {
 
             @Override
             public void handleEvent(GridEvent<ItemBean> be) {
-                PagingLoadConfig config = new BasePagingLoadConfig();
+                PagingLoadConfig config = new BaseFilterPagingLoadConfig();
                 config.setOffset(0);
                 int pageSize = pagingBar.getPageSize();
                 config.setLimit(pageSize);
@@ -434,6 +478,7 @@ public class StagingGridPanel extends ContentPanel {
         grid.getAriaSupport().setDescribedBy("abcdefg"); //$NON-NLS-1$
         grid.getAriaSupport().setLabelledBy(this.getHeader().getId() + "-label"); //$NON-NLS-1$
 
+        grid.addPlugin(filters);
         gridContainer.add(grid);
         return gridContainer;
     }
@@ -446,5 +491,36 @@ public class StagingGridPanel extends ContentPanel {
         queryModel.setModel(entityModel);
         queryModel.setCriteria(criterion.toString());
         return queryModel;
+    }
+
+    private Filter createFilter(String xpath, DataType type) {
+        Filter filter;
+        if (DataTypeConstants.BOOLEAN.equals(type) || DataTypeConstants.HEXBINARY.equals(type)
+                || DataTypeConstants.BASE64BINARY.equals(type)) {
+            filter = new BooleanFilter(xpath);
+        } else if (DataTypeConstants.DURATION.equals(type) || DataTypeConstants.DATETIME.equals(type)
+                || DataTypeConstants.TIME.equals(type) || DataTypeConstants.DATE.equals(type)
+                || DataTypeConstants.GYEARMONTH.equals(type) || DataTypeConstants.GYEAR.equals(type)
+                || DataTypeConstants.GDAY.equals(type) || DataTypeConstants.GMONTH.equals(type)) {
+            filter = new DateFilter(xpath);
+        } else if (DataTypeConstants.INTEGER.equals(type) || DataTypeConstants.NONPOSITIVEINTEGER.equals(type)
+                || DataTypeConstants.NEGATIVEINTEGER.equals(type) || DataTypeConstants.NONNEGATIVEINTEGER.equals(type)
+                || DataTypeConstants.LONG.equals(type) || DataTypeConstants.INT.equals(type)
+                || DataTypeConstants.SHORT.equals(type) || DataTypeConstants.UNSIGNEDLONG.equals(type)
+                || DataTypeConstants.UNSIGNEDINT.equals(type) || DataTypeConstants.UNSIGNEDSHORT.equals(type)
+                || DataTypeConstants.POSITIVEINTEGER.equals(type) || DataTypeConstants.BYTE.equals(type)
+                || DataTypeConstants.UNSIGNEDBYTE.equals(type) || DataTypeConstants.DECIMAL.equals(type)
+                || DataTypeConstants.FLOAT.equals(type) || DataTypeConstants.DOUBLE.equals(type)) {
+            filter = new NumericFilter(xpath);
+        } else {
+            filter = new StringFilter(xpath);
+        }
+        return filter;
+    }
+
+    private ModelData buildFilterItem(String xpath, String value) {
+        ModelData model = new BaseModelData();
+        model.set(xpath, value);
+        return model;
     }
 }

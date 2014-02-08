@@ -42,6 +42,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
+import org.talend.mdm.webapp.browserecords.shared.Constants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -263,6 +264,14 @@ public class CommonUtil {
                                 path + "-" + el.getText(), //$NON-NLS-1$
                                 org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel,
                                         el.getText(), false, modelType, map.get(typeModel.getXpath()), language, isStaging));
+                    } else if (typeModel != null
+                            && DataTypeConstants.BOOLEAN.equals(typeModel.getType())) {
+                        if (Constants.BOOLEAN_TRUE_DISPLAY_VALUE.equals(el.getText())
+                                || Constants.BOOLEAN_TRUE_VALUE.equals(el.getText())) {
+                            itemBean.set(path, Constants.BOOLEAN_TRUE_VALUE);
+                        } else {
+                            itemBean.set(path, Constants.BOOLEAN_FALSE_VALUE);
+                        }
                     } else {
                         itemBean.set(path, el.getText());
                     }
