@@ -47,6 +47,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import com.amalto.core.storage.StorageType;
 import org.apache.log4j.Logger;
 import org.jboss.security.Base64Encoder;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -2617,7 +2618,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     public WSConceptRelationship getConceptRelation(String cluster) throws RemoteException {
         try {
             Server server = ServerContext.INSTANCE.get();
-            Storage storage = server.getStorageAdmin().get(cluster, null);
+            Storage storage = server.getStorageAdmin().get(cluster, StorageType.MASTER, null);
             MetadataRepository repository = storage.getMetadataRepository();
             Collection<TypeMetadata> conceptTypes = repository.getInstantiableTypes();
 

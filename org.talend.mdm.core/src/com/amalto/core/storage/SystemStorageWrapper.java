@@ -78,7 +78,7 @@ public class SystemStorageWrapper extends StorageWrapper {
         Server server = ServerContext.INSTANCE.get();
         StorageAdmin admin = server.getStorageAdmin();
         String datasource = admin.getDatasource(StorageAdmin.SYSTEM_STORAGE);
-        admin.create(StorageAdmin.SYSTEM_STORAGE, StorageAdmin.SYSTEM_STORAGE, datasource, null);
+        admin.create(StorageAdmin.SYSTEM_STORAGE, StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, datasource, null);
     }
 
     private ComplexTypeMetadata getType(String clusterName, Storage storage, String uniqueId) {
@@ -104,12 +104,12 @@ public class SystemStorageWrapper extends StorageWrapper {
 
     @Override
     protected Storage getStorage(String dataClusterName) {
-        return storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, null);
+        return storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
     }
 
     @Override
     protected Storage getStorage(String dataClusterName, String revisionId) {
-        return storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, null);
+        return storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
     }
 
     @Override

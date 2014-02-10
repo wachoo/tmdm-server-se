@@ -201,13 +201,15 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             String revisionId = universe.getConceptRevisionID(typeName);
             // Try to get storage for revision
             Server server = ServerContext.INSTANCE.get();
-            Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), revisionId);
+            String dataModelName = dataClusterPOJOPK.getUniqueId();
+            StorageAdmin storageAdmin = server.getStorageAdmin();
+            Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName), revisionId);
             if (storage != null) {
                 MetadataRepository repository = storage.getMetadataRepository();
                 // Build query (from 'main' type)
                 ComplexTypeMetadata type = repository.getComplexType(typeName);
                 if (type == null) {
-                    throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data cluster '" + dataClusterPOJOPK.getUniqueId() + "'.");
+                    throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data cluster '" + dataModelName + "'.");
                 }
                 UserQueryBuilder qb = UserQueryBuilder.from(type);
                 // Select fields
@@ -223,7 +225,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                         qb.select(typeExpression);
                     }
                 }
-                if (dataClusterPOJOPK.getUniqueId().endsWith(StorageAdmin.STAGING_SUFFIX)) {
+                if (dataModelName.endsWith(StorageAdmin.STAGING_SUFFIX)) {
                     qb.select(repository.getComplexType(typeName), "../../taskId"); //$NON-NLS-1$
                     qb.select(repository.getComplexType(typeName), "$staging_status$"); //$NON-NLS-1$
                     qb.select(repository.getComplexType(typeName), "$staging_error$"); //$NON-NLS-1$
@@ -282,7 +284,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 }
                 // build the patterns to cluster map - only one cluster at this stage
                 LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-                conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId()); //$NON-NLS-1$
+                conceptPatternsToClusterName.put(".*", dataModelName); //$NON-NLS-1$
 
                 Map<String, ArrayList<String>> metaDataTypes = getMetaTypes(fullWhere);
                 return runItemsQuery(conceptPatternsToRevisionID,
@@ -443,7 +445,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
         isExistDataCluster(dataClusterPOJOPK);
         Server server = ServerContext.INSTANCE.get();
         String revisionId = universe.getConceptRevisionID(conceptName);
-        Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), revisionId);
+        StorageAdmin storageAdmin = server.getStorageAdmin();
+        String dataModelName = dataClusterPOJOPK.getUniqueId();
+        Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName), revisionId);
         if (storage != null) {
             MetadataRepository repository = storage.getMetadataRepository();
             ComplexTypeMetadata type = repository.getComplexType(conceptName);
@@ -518,7 +522,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
 
             // build the patterns to cluster map - only one cluster at this stage
             LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-            conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId()); //$NON-NLS-1$
+            conceptPatternsToClusterName.put(".*", dataModelName); //$NON-NLS-1$
 
             try {
                 ArrayList<String> elements = new ArrayList<String>();

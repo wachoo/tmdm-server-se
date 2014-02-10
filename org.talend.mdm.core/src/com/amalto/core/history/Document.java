@@ -40,7 +40,7 @@ public interface Document {
     ComplexTypeMetadata getType();
 
     /**
-     * @return The data model name in which type information is defined. A call to {@link com.amalto.core.server.MetadataRepositoryAdmin#get(String)}
+     * @return The data model name in which type information is defined. A call to {@link com.amalto.core.server.MetadataRepositoryAdmin#get(String, com.amalto.core.storage.StorageType)}
      * <b>MUST</b> return a non-null value.
      * @see com.amalto.core.server.MetadataRepositoryAdmin
      */

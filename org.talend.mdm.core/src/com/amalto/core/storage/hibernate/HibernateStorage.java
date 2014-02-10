@@ -10,6 +10,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.storage.StorageMetadataUtils;
 import com.amalto.core.query.optimization.*;
 import com.amalto.core.query.user.*;
@@ -205,6 +206,10 @@ public class HibernateStorage implements Storage {
             userMetadataRepository = repository;
         } catch (Exception e) {
             throw new RuntimeException("Exception occurred during unsupported features check.", e);
+        }
+        // Loads additional types for staging area.
+        if (storageType == StorageType.STAGING) {
+            repository.load(MetadataRepositoryAdmin.class.getResourceAsStream("stagingInternalTypes.xsd")); //$NON-NLS-1$
         }
         // Create class loader for storage's dynamically created classes.
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();

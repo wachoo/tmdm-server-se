@@ -257,7 +257,8 @@ public class SaverContextFactory {
         }
         // Choose right context implementation
         DocumentSaverContext context;
-        Storage storage = server.getStorageAdmin().get(dataCluster, null);
+        StorageAdmin storageAdmin = server.getStorageAdmin();
+        Storage storage = storageAdmin.get(dataCluster, storageAdmin.getType(dataCluster), null);
         if (storage != null) {
             //TMDM-6316: disable update report generation & before Checking for Staging data operation: creation,update
             if (dataCluster.endsWith(StorageAdmin.STAGING_SUFFIX)) {

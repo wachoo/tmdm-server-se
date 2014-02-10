@@ -22,6 +22,7 @@ import java.util.*;
 
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.save.context.DefaultSaverSource;
+import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.task.*;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -81,7 +82,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
     public StagingContainerSummary getContainerSummary(String dataContainer, String dataModel) {
         Server server = ServerContext.INSTANCE.get();
-        Storage storage = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX, null);
+        Storage storage = server.getStorageAdmin().get(dataContainer, StorageType.STAGING, null);
         if (storage == null) {
             throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
         }
@@ -113,13 +114,13 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
                 }
             }
             Server server = ServerContext.INSTANCE.get();
-            Storage staging = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX, null);
+            Storage staging = server.getStorageAdmin().get(dataContainer, StorageType.STAGING, null);
             if (staging == null) {
                 throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
             }
-            Storage user = server.getStorageAdmin().get(dataContainer, null);
+            Storage user = server.getStorageAdmin().get(dataContainer, StorageType.MASTER, null);
             if (user == null) {
-                throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
+                throw new IllegalStateException("No master storage available for container '" + dataContainer + "'.");
             }
             String userName;
             try {
@@ -141,7 +142,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
     public List<String> listCompletedExecutions(String dataContainer, String beforeDate, int start, int size) {
         Server server = ServerContext.INSTANCE.get();
-        Storage staging = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX, null);
+        Storage staging = server.getStorageAdmin().get(dataContainer, StorageType.STAGING, null);
         if (staging == null) {
             throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
         }
@@ -235,7 +236,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
     public ExecutionStatistics getExecutionStats(String dataContainer, String dataModel, String executionId) {
         Server server = ServerContext.INSTANCE.get();
-        Storage staging = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX, null);
+        Storage staging = server.getStorageAdmin().get(dataContainer, StorageType.STAGING, null);
         if (staging == null) {
             throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
         }
@@ -322,7 +323,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
     public static boolean hasMatchMergeConfiguration(String typeName) {
         // Read configuration from database
         Server server = ServerContext.INSTANCE.get();
-        Storage systemStorage = server.getStorageAdmin().get(StorageAdmin.SYSTEM_STORAGE, null);
+        Storage systemStorage = server.getStorageAdmin().get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
         if (systemStorage == null) {
             return false;
         }

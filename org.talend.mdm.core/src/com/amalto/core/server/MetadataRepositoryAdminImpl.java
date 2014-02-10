@@ -131,37 +131,30 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
 
     public MetadataRepository get(String metadataRepositoryId) {
         assertMetadataRepositoryId(metadataRepositoryId);
-        synchronized (metadataRepository) {
-            MetadataRepository repository = metadataRepository.get(metadataRepositoryId);
-            if (repository == null) {
+        MetadataRepository repository = metadataRepository.get(metadataRepositoryId);
+        if (repository == null) {
+            try {
+                DataModelPOJOPK pk = new DataModelPOJOPK(StringUtils.substringBeforeLast(metadataRepositoryId, "#")); //$NON-NLS-1$
+                DataModelPOJO dataModel;
                 try {
-                    DataModelPOJOPK pk = new DataModelPOJOPK(StringUtils.substringBeforeLast(metadataRepositoryId, "#")); //$NON-NLS-1$
-                    DataModelPOJO dataModel;
-                    try {
-                        dataModel = dataModelControl.existsDataModel(pk);
-                    } catch (XtentisException e) {
-                        throw new RuntimeException(e);
-                    }
-                    if (dataModel == null) {
-                        return null; // Expected per interface documentation (if not found, return null).
-                    }
-                    String schemaAsString = dataModel.getSchema();
-
-                    repository = new MetadataRepository();
-                    if (metadataRepositoryId.endsWith(StorageAdmin.STAGING_SUFFIX)) {  // Loads additional types for staging area.
-                        repository.load(MetadataRepositoryAdminImpl.class.getResourceAsStream("stagingInternalTypes.xsd")); //$NON-NLS-1$
-                    }
-                    if (schemaAsString != null && !schemaAsString.isEmpty()) {
-                        repository.load(new ByteArrayInputStream(schemaAsString.getBytes("UTF-8"))); //$NON-NLS-1$
-                    }
-                    metadataRepository.put(metadataRepositoryId, repository);
-                } catch (Exception e) {
+                    dataModel = dataModelControl.existsDataModel(pk);
+                } catch (XtentisException e) {
                     throw new RuntimeException(e);
                 }
+                if (dataModel == null) {
+                    return null; // Expected per interface documentation (if not found, return null).
+                }
+                String schemaAsString = dataModel.getSchema();
+                repository = new MetadataRepository();
+                if (schemaAsString != null && !schemaAsString.isEmpty()) {
+                    repository.load(new ByteArrayInputStream(schemaAsString.getBytes("UTF-8"))); //$NON-NLS-1$
+                }
+                metadataRepository.put(metadataRepositoryId, repository);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-
-            return repository;
         }
+        return repository;
     }
 
     public void remove(String metadataRepositoryId) {

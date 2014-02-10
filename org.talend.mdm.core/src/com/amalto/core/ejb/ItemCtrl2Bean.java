@@ -481,13 +481,14 @@ public class ItemCtrl2Bean implements SessionBean {
             // Check if user is allowed to read the cluster
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
+            String dataModelName = dataClusterPOJOPK.getUniqueId();
             if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$
                 authorized = true;
-            } else if (user.userCanRead(DataClusterPOJO.class, dataClusterPOJOPK.getUniqueId())) {
+            } else if (user.userCanRead(DataClusterPOJO.class, dataModelName)) {
                 authorized = true;
             }
             if (!authorized) {
-                throw new XtentisException("Unauthorized read access on data cluster '" + dataClusterPOJOPK.getUniqueId() + "' by user '"
+                throw new XtentisException("Unauthorized read access on data cluster '" + dataModelName + "' by user '"
                         + user.getUsername() + "'");
             }
             // get the universe and revision ID
@@ -500,7 +501,8 @@ public class ItemCtrl2Bean implements SessionBean {
             Server server = ServerContext.INSTANCE.get();
             String typeName = StringUtils.substringBefore(viewablePaths.get(0), "/"); //$NON-NLS-1$
             String revisionId = universe.getConceptRevisionID(typeName);
-            Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), revisionId);
+            StorageAdmin storageAdmin = server.getStorageAdmin();
+            Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName), revisionId);
             if (storage == null) {
                 // build the patterns to revision ID map
                 LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
@@ -510,7 +512,7 @@ public class ItemCtrl2Bean implements SessionBean {
                 }
                 // build the patterns to cluster map - only one cluster at this stage
                 LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-                conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
+                conceptPatternsToClusterName.put(".*", dataModelName);
                 XmlServerSLWrapperLocal xmlServer = Util.getXmlServerCtrlLocal();
                 String query = xmlServer.getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot,
                         viewablePaths, whereItem, orderBy, direction, start, limit, spellThreshold, returnCount, Collections.<String, ArrayList<String>>emptyMap());
@@ -652,9 +654,11 @@ public class ItemCtrl2Bean implements SessionBean {
                 LOGGER.error(err);
                 throw new XtentisException(err);
             }
-            Server mdmServer = ServerContext.INSTANCE.get();
+            Server server = ServerContext.INSTANCE.get();
             String revisionId = universe.getConceptRevisionID(conceptName);
-            Storage storage = mdmServer.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), revisionId);
+            String dataModelName = dataClusterPOJOPK.getUniqueId();
+            StorageAdmin storageAdmin = server.getStorageAdmin();
+            Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName), revisionId);
             if (storage == null) {
                 // build the patterns to revision ID map
                 LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
@@ -664,10 +668,10 @@ public class ItemCtrl2Bean implements SessionBean {
 
                 // build the patterns to cluster map - only one cluster at this stage
                 LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-                conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
+                conceptPatternsToClusterName.put(".*", dataModelName);
 
-                XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-                return server.countItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
+                XmlServerSLWrapperLocal xmlServer = Util.getXmlServerCtrlLocal();
+                return xmlServer.countItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
             } else {
                 MetadataRepository repository = storage.getMetadataRepository();
                 Collection<ComplexTypeMetadata> types;
@@ -1040,20 +1044,21 @@ public class ItemCtrl2Bean implements SessionBean {
      */
     public Map<String, String> getConceptsInDataCluster(DataClusterPOJOPK dataClusterPOJOPK, UniversePOJO universe)
             throws XtentisException {
+        String dataModelName = dataClusterPOJOPK.getUniqueId();
         try {
             Map<String, String> concepts = new LinkedHashMap<String, String>();
-            Server mdmServer = ServerContext.INSTANCE.get();
-            Storage storage = mdmServer.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId(), null);
-
+            Server server = ServerContext.INSTANCE.get();
+            StorageAdmin storageAdmin = server.getStorageAdmin();
+            Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName), null);
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
             if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
                 authorized = true;
-            } else if (user.userCanRead(DataClusterPOJO.class, dataClusterPOJOPK.getUniqueId())) {
+            } else if (user.userCanRead(DataClusterPOJO.class, dataModelName)) {
                 authorized = true;
             }
             if (!authorized) {
-                throw new RemoteException("Unauthorized read access on data cluster " + dataClusterPOJOPK.getUniqueId()
+                throw new RemoteException("Unauthorized read access on data cluster " + dataModelName
                         + " by user " + user.getUsername());
             }
             // This should be moved to ItemCtrl
@@ -1068,7 +1073,7 @@ public class ItemCtrl2Bean implements SessionBean {
                     int threshold = MDMConfiguration.getAutoEntityFindThreshold();
                     if (totalItemsInDataContainer > threshold) {
                         if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Won't calculate concepts in DataCluster \"" + dataClusterPOJOPK.getUniqueId() //$NON-NLS-1$
+                            LOGGER.debug("Won't calculate concepts in DataCluster \"" + dataModelName //$NON-NLS-1$
                             + "\", because total items in data container " + totalItemsInDataContainer //$NON-NLS-1$
                             + " is over the limit " + threshold + "! "); //$NON-NLS-1$ //$NON-NLS-2$
                         }
@@ -1089,7 +1094,7 @@ public class ItemCtrl2Bean implements SessionBean {
                         revisionsChecked.add(revisionKey);
                     }
                     // fetch all the concepts
-                    String collectionPath = CommonUtil.getPath(revisionID, dataClusterPOJOPK.getUniqueId());
+                    String collectionPath = CommonUtil.getPath(revisionID, dataModelName);
                     query = "distinct-values(collection(\"" + collectionPath + "\")/ii/n/text())"; //$NON-NLS-1$
                     ArrayList<String> conceptsFound = runQuery(revisionID, dataClusterPOJOPK, query, null);
                     // validate the concepts found
@@ -1104,7 +1109,7 @@ public class ItemCtrl2Bean implements SessionBean {
                 String revisionKey = (revisionID == null) || "".equals(revisionID) ? "__$DEFAULT$__" : revisionID; //$NON-NLS-1$ //$NON-NLS-2$
                 if (!revisionsChecked.contains(revisionKey)) {
                     // fetch all the concepts
-                    String collectionPath = CommonUtil.getPath(revisionID, dataClusterPOJOPK.getUniqueId());
+                    String collectionPath = CommonUtil.getPath(revisionID, dataModelName);
                     query = "distinct-values(collection(\"" + collectionPath + "\")/ii/n/text())"; //$NON-NLS-1$
                     ArrayList<String> conceptsFound = runQuery(revisionID, dataClusterPOJOPK, query, null);
                     // validate the concepts found
@@ -1118,7 +1123,7 @@ public class ItemCtrl2Bean implements SessionBean {
                 MetadataRepository repository = storage.getMetadataRepository();
                 Collection<ComplexTypeMetadata> types;
                 if (Util.isSystemDC(dataClusterPOJOPK)) {
-                    types = SystemStorageWrapper.filter(repository, dataClusterPOJOPK.getUniqueId());
+                    types = SystemStorageWrapper.filter(repository, dataModelName);
                 } else {
                     types = MetadataUtils.sortTypes(repository);
                 }
@@ -1128,7 +1133,7 @@ public class ItemCtrl2Bean implements SessionBean {
             }
             return concepts;
         } catch (Exception e) {
-            String err = "Unable to search for concept names in the data cluster '" + dataClusterPOJOPK.getUniqueId() + "'";
+            String err = "Unable to search for concept names in the data cluster '" + dataModelName + "'";
             LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }

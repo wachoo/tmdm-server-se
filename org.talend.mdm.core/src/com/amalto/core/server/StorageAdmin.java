@@ -44,22 +44,24 @@ public interface StorageAdmin {
     /**
      * Removes a storage from MDM: this is what happens when a user deletes a container. This method does not
      * always removes container's data (this depends on the value of <code>dropExistingData</code>).
-     * @param revisionID A revision id (or null for HEAD revision).
-     * @param storageName A storage name.
+     *
+     * @param storageName      A storage name.
+     * @param type             The storage {@link com.amalto.core.storage.StorageType type} (Staging, Master...).
+     * @param revisionID       A revision id (or null for HEAD revision).
      * @param dropExistingData <code>true</code> removes also storage data during operation.
      */
-    // TODO Should this method take a StorageType parameter or delete both MASTER and STAGING at the same time?
-    void delete(String revisionID, String storageName, boolean dropExistingData);
+    void delete(String storageName, StorageType type, String revisionID, boolean dropExistingData);
 
     /**
      * Deletes all storages for a given revision. This code is equivalent to:
      * <code>
      * String[] names = storageAdmin.getAll(revisionId);
      * for(String name : names) {
-     *     storageAdmin.delete(revisionId, dropExistingData);
+     * storageAdmin.delete(revisionId, dropExistingData);
      * }
      * </code>
-     * @param revisionID A revision id (or null for HEAD revision).
+     *
+     * @param revisionID       A revision id (or null for HEAD revision).
      * @param dropExistingData <code>true</code> removes also storage data during operation.
      */
     void deleteAll(String revisionID, boolean dropExistingData);
@@ -67,22 +69,21 @@ public interface StorageAdmin {
     /**
      * Creates a new storage based on parameter information. If a storage already exists, this return the previously created
      * instance.
-     * @param dataModelName A data model name (one managed by {@link MetadataRepositoryAdmin#get(String)}).
-     * @param storageName A non-null, non-empty identifier for the new storage instance.
+     *
+     * @param dataModelName  A data model name (one managed by {@link MetadataRepositoryAdmin#get(String)}).
+     * @param storageName    A non-null, non-empty identifier for the new storage instance.
+     * @param type           The storage {@link com.amalto.core.storage.StorageType type} (Staging, Master...).
      * @param dataSourceName A datasource name (a data source that must exists in datasources configuration file).
-     * @param revisionId A revision id (<code>null</code> is the same as "HEAD" for the HEAD revision).
-     * @return A previously created instance or a new instance ready for immediate usage.
+     * @param revisionId     A revision id (<code>null</code> is the same as "HEAD" for the HEAD revision).   @return A previously created instance or a new instance ready for immediate usage.
      */
-    // TODO This API should also take a StorageType parameter.
-    Storage create(String dataModelName, String storageName, String dataSourceName, String revisionId);
+    Storage create(String dataModelName, String storageName, StorageType type, String dataSourceName, String revisionId);
 
     /**
-     * @param revision A revision id (<code>null</code> is the same as "HEAD" for the HEAD revision).
      * @param storageName A non-null, non-empty identifier for the storage instance.
-     * @param storageType Indicates whether caller checks for {@link StorageType#MASTER} or {@link StorageType#STAGING}.
-     * @return Returns <code>true</code> if storage already exist for this name, revision and type.
+     * @param storageType Indicates whether caller checks for {@link com.amalto.core.storage.StorageType#MASTER} or {@link com.amalto.core.storage.StorageType#STAGING}.  @return Returns <code>true</code> if storage already exist for this name, revision and type.
+     * @param revision    A revision id (<code>null</code> is the same as "HEAD" for the HEAD revision).
      */
-    boolean exist(String revision, String storageName, StorageType storageType);
+    boolean exist(String storageName, StorageType storageType, String revision);
 
     /**
      * To be closed on MDM server shutdown: this method ensures all managed storages are correctly closed.
@@ -97,19 +98,20 @@ public interface StorageAdmin {
 
     /**
      * @param storageName A {@link com.amalto.core.storage.Storage} name.
-     * @param revisionId A revision id.
-     * @return A previously created {@link Storage} or <code>null</code> if no storage was previously created.
-     * @see #create(String, String, String, String)
+     * @param type        The storage {@link com.amalto.core.storage.StorageType type} (Staging, Master...).
+     * @param revisionId  A revision id.  @return A previously created {@link Storage} or <code>null</code> if no storage was previously created.
+     * @see #create(String, String, com.amalto.core.storage.StorageType, String, String)
      */
-    Storage get(String storageName, String revisionId);
+    Storage get(String storageName, StorageType type, String revisionId);
 
     /**
      * @param storageName A {@link com.amalto.core.storage.Storage} name.
+     * @param type        The storage {@link com.amalto.core.storage.StorageType type} (Staging, Master...).
      * @return A list of previously created {@link Storage} for all revisions or empty list if no storage was previously
      * created.
-     * @see #create(String, String, String, String)
+     * @see #create(String, String, com.amalto.core.storage.StorageType, String, String)
      */
-    Collection<Storage> get(String storageName);
+    Collection<Storage> get(String storageName, StorageType type);
 
     /**
      * Returns if <code>storageName</code> is allowed to get a staging area (for instance Update Report and Crossreferencing
@@ -118,4 +120,10 @@ public interface StorageAdmin {
      * @return <code>true</code> if <code>storageName</code> can have a staging area, <code>false</code> otherwise.
      */
     boolean supportStaging(String storageName);
+
+    /**
+     * @param name A data model or a data container name.
+     * @return The {@link com.amalto.core.storage.StorageType type} of storage to be associated with the name.
+     */
+    StorageType getType(String name);
 }

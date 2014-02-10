@@ -113,8 +113,8 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         long start = System.currentTimeMillis();
         {
             // TMDM-4692 Delete both master and staging data containers.
-            getStorageAdmin().delete(revisionID, clusterName, true);
-            getStorageAdmin().delete(revisionID, clusterName + StorageAdmin.STAGING_SUFFIX, true);
+            getStorageAdmin().delete(clusterName, StorageType.MASTER, revisionID, true);
+            getStorageAdmin().delete(clusterName, StorageType.STAGING, revisionID, true);
         }
         return System.currentTimeMillis() - start;
     }
@@ -132,14 +132,14 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         {
             StorageAdmin admin = getStorageAdmin();
             String dataSourceName = admin.getDatasource(clusterName);
-            admin.create(clusterName, clusterName, dataSourceName, null);
+            admin.create(clusterName, clusterName, admin.getType(clusterName), dataSourceName, null);
         }
         return System.currentTimeMillis() - start;
     }
 
     public boolean existCluster(String revision, String cluster) throws XmlServerException {
         StorageType storageType = cluster.endsWith(StorageAdmin.STAGING_SUFFIX) ? StorageType.STAGING : StorageType.MASTER;
-        return getStorageAdmin().exist(revision, cluster, storageType);
+        return getStorageAdmin().exist(cluster, storageType, revision);
     }
 
     public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
@@ -752,12 +752,11 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     protected Storage getStorage(String dataClusterName, String revisionId) {
-        StorageType storageType = dataClusterName.endsWith(StorageAdmin.STAGING_SUFFIX) ? StorageType.STAGING : StorageType.MASTER;
         StorageAdmin admin = getStorageAdmin();
-        if (!admin.exist(revisionId, dataClusterName, storageType)) {
+        if (!admin.exist(dataClusterName, admin.getType(dataClusterName), revisionId)) {
             throw new IllegalStateException("Data container '" + dataClusterName + "' (revision: '" + revisionId + "') does not exist.");
         }
-        Storage storage = admin.get(dataClusterName, revisionId);
+        Storage storage = admin.get(dataClusterName, admin.getType(dataClusterName), revisionId);
         if (!(storage.getDataSource() instanceof RDBMSDataSource)) {
             throw new IllegalStateException("Storage '" + dataClusterName + "' (revision: '" + revisionId + "') is not a SQL storage.");
         }

@@ -93,7 +93,7 @@ public class StorageSaverSource implements SaverSource {
 
     private Storage getStorage(String dataClusterName, String revisionId) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        return storageAdmin.get(dataClusterName, revisionId);
+        return storageAdmin.get(dataClusterName, storageAdmin.getType(dataClusterName), revisionId);
     }
 
     @Override
@@ -115,6 +115,9 @@ public class StorageSaverSource implements SaverSource {
     @Override
     public MetadataRepository getMetadataRepository(String dataModelName) {
         Storage storage = getStorage(dataModelName, null);
+        if (storage == null) {
+            throw new IllegalArgumentException("No storage available for '" + dataModelName + "'.");
+        }
         return storage.getMetadataRepository();
     }
 

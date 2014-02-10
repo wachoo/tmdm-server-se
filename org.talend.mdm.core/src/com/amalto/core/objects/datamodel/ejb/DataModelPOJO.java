@@ -7,6 +7,7 @@ import java.util.Set;
 import com.amalto.commons.core.datamodel.synchronization.DataModelChangeNotifier;
 import com.amalto.core.metadata.LongString;
 import com.amalto.core.query.user.Expression;
+import com.amalto.core.storage.StorageType;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.compare.Change;
@@ -119,7 +120,7 @@ public class DataModelPOJO extends ObjectPOJO{
             MetadataRepositoryAdmin metadataRepositoryAdmin = server.getMetadataRepositoryAdmin();
             metadataRepositoryAdmin.remove(updatedDataModelName);
             StorageAdmin storageAdmin = server.getStorageAdmin();
-            Storage storage = storageAdmin.get(updatedDataModelName, revisionID);
+            Storage storage = storageAdmin.get(updatedDataModelName, storageAdmin.getType(updatedDataModelName), revisionID);
             if (storage != null) {
                 // Storage already exists so update it.
                 MetadataRepository repository = metadataRepositoryAdmin.get(updatedDataModelName);
@@ -145,7 +146,7 @@ public class DataModelPOJO extends ObjectPOJO{
             }
 
             if (storageAdmin.supportStaging(updatedDataModelName)) {
-                Storage stagingStorage = storageAdmin.get(updatedDataModelName + StorageAdmin.STAGING_SUFFIX, revisionID);
+                Storage stagingStorage = storageAdmin.get(updatedDataModelName, StorageType.STAGING, revisionID);
                 if (stagingStorage != null) {
                     // Storage already exists so update it.
                     MetadataRepository stagingRepository = metadataRepositoryAdmin.get(updatedDataModelName

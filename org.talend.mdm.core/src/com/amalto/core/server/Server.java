@@ -34,7 +34,7 @@ public interface Server {
      *                       one per storage type), this parameter is needed.
      * @return <code>true</code> if a datasource that fulfills all parameter is available, <code>false</code> otherwise.
      * @see com.amalto.core.storage.StorageType
-     * @see com.amalto.core.server.StorageAdmin#create(String, String, String, String)
+     * @see StorageAdmin#create(String, String, com.amalto.core.storage.StorageType, String, String)
      */
     boolean hasDataSource(String dataSourceName, String container, StorageType type);
 

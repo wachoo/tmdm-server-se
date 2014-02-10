@@ -27,10 +27,8 @@ import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.compare.HibernateStorageImpactAnalyzer;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.history.MutableDocument;
 import com.amalto.core.query.user.BinaryLogicOperator;
 import com.amalto.core.query.user.Compare;
 import com.amalto.core.query.user.Condition;
@@ -79,9 +77,9 @@ public class MetadataRepositoryTaskTest extends TestCase {
         StorageAdmin storageAdmin = server.getStorageAdmin();
         assertNotNull(storageAdmin);
 
-        Storage staging = storageAdmin.create(metadataRepositoryId, "Storage" + StorageAdmin.STAGING_SUFFIX, "H2-DS1", null); //$NON-NLS-1$//$NON-NLS-2$
+        Storage staging = storageAdmin.create(metadataRepositoryId, "Storage", StorageType.STAGING, "H2-DS1", null); //$NON-NLS-1$//$NON-NLS-2$
 
-        Storage user = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1", null); //$NON-NLS-1$//$NON-NLS-2$
+        Storage user = storageAdmin.create(metadataRepositoryId, "Storage", StorageType.MASTER, "H2-DS1", null); //$NON-NLS-1$//$NON-NLS-2$
 
         MetadataRepository userRepository = user.getMetadataRepository();
 
@@ -91,12 +89,12 @@ public class MetadataRepositoryTaskTest extends TestCase {
         Filter filter = getFilter();
 
         ComplexTypeMetadata product = userRepository.getComplexType("Product"); //$NON-NLS-1$
-        ComplexTypeMetadata productfamily = userRepository.getComplexType("ProductFamily"); //$NON-NLS-1$
+        ComplexTypeMetadata productFamily = userRepository.getComplexType("ProductFamily"); //$NON-NLS-1$
         ComplexTypeMetadata store = userRepository.getComplexType("Store"); //$NON-NLS-1$
         ComplexTypeMetadata person = userRepository.getComplexType("Person"); //$NON-NLS-1$
 
         assertFalse(filter.exclude(product));
-        assertFalse(filter.exclude(productfamily));
+        assertFalse(filter.exclude(productFamily));
         assertFalse(filter.exclude(store));
         assertTrue(filter.exclude(person));
 
@@ -307,23 +305,13 @@ public class MetadataRepositoryTaskTest extends TestCase {
             return new HibernateStorageImpactAnalyzer();
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.amalto.core.storage.Storage#asInternal()
-         */
         @Override
         public Storage asInternal() {
-            // TODO Auto-generated method stub
-            return null;
+            return this;
         }
     }
 
     private static class MockCommitter implements SaverSession.Committer {
-
-        private MutableDocument lastSaved;
-
-        private boolean hasSaved = false;
 
         @Override
         public void begin(String dataCluster) {
@@ -342,8 +330,6 @@ public class MetadataRepositoryTaskTest extends TestCase {
 
         @Override
         public void save(com.amalto.core.history.Document item) {
-            hasSaved = true;
-            lastSaved = (MutableDocument) item;
             if (LOG.isDebugEnabled()) {
                 LOG.debug(item.exportToString());
             }
@@ -354,14 +340,6 @@ public class MetadataRepositoryTaskTest extends TestCase {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Rollback on '" + dataCluster + "'");
             }
-        }
-
-        public Element getCommittedElement() {
-            return lastSaved.asDOM().getDocumentElement();
-        }
-
-        public boolean hasSaved() {
-            return hasSaved;
         }
     }
 }

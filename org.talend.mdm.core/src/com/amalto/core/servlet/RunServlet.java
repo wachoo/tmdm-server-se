@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
@@ -111,7 +112,8 @@ public class RunServlet extends HttpServlet {
                     );
                 } else {
                     String revision = req.getParameter("revision");
-                    Storage storage = ServerContext.INSTANCE.get().getStorageAdmin().get(container, revision);
+                    StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
+                    Storage storage = storageAdmin.get(container, storageAdmin.getType(container), revision);
                     storage.reindex();
                 }
             } else {

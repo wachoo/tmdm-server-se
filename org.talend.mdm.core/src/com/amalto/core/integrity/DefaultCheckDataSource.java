@@ -76,7 +76,7 @@ class DefaultCheckDataSource implements FKIntegrityCheckDataSource {
         LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
         conceptPatternsToClusterName.put(".*", clusterName); //$NON-NLS-1$
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage storage = storageAdmin.get(clusterName, null);
+        Storage storage = storageAdmin.get(clusterName, storageAdmin.getType(clusterName), null);
         if (storage != null) {
             MetadataRepository repository = storage.getMetadataRepository();
             ComplexTypeMetadata complexType = repository.getComplexType(fromTypeName);

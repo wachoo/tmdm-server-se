@@ -12,6 +12,7 @@
 // ============================================================================
 package com.amalto.core.ejb;
 
+import com.amalto.core.storage.StorageType;
 import junit.framework.TestCase;
 
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -49,10 +50,10 @@ public class XmlServerSLWrapperBeanTest extends TestCase {
         StorageAdmin storageAdmin = server.getStorageAdmin();
         assertNotNull(storageAdmin);
 
-        Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS2", null);
+        Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", StorageType.MASTER, "H2-DS2", null);
         assertNotNull(storage);
 
-        Storage newStorage = storageAdmin.create(metadataRepositoryId, "NewStorage", "H2-DS1", null);
+        Storage newStorage = storageAdmin.create(metadataRepositoryId, "NewStorage", StorageType.STAGING, "H2-DS1", null);
         assertNotNull(newStorage);
 
         boolean isSupport = xmlServerSLWrapperBean.supportStaging(null);
@@ -63,9 +64,6 @@ public class XmlServerSLWrapperBeanTest extends TestCase {
 
         isSupport = xmlServerSLWrapperBean.supportStaging("StorageThatDoesNotExist");
         assertFalse(isSupport);
-
-        isSupport = xmlServerSLWrapperBean.supportStaging("Storage");
-        assertTrue(isSupport);
 
     }
 

@@ -25,6 +25,7 @@ import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueSession;
 import javax.naming.InitialContext;
 
+import com.amalto.core.storage.StorageType;
 import org.apache.log4j.Logger;
 
 import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;
@@ -96,7 +97,20 @@ public class DataModelUpdateMDB implements MessageDrivenBean, MessageListener {
                                     Server server = ServerContext.INSTANCE.get();
                                     StorageAdmin storageAdmin = server.getStorageAdmin();
                                     String dataSourceName = storageAdmin.getDatasource(updatedDataModelName);
-                                    storageAdmin.create(updatedDataModelName, updatedDataModelName, dataSourceName, null);
+                                    // Create master storage
+                                    storageAdmin.create(updatedDataModelName,
+                                            updatedDataModelName,
+                                            StorageType.MASTER,
+                                            dataSourceName,
+                                            null);
+                                    // Create staging storage (if supported)
+                                    if (storageAdmin.supportStaging(updatedDataModelName)) {
+                                        storageAdmin.create(updatedDataModelName,
+                                                updatedDataModelName,
+                                                StorageType.STAGING,
+                                                dataSourceName,
+                                                null);
+                                    }
                                 }
                             } catch (Exception e) {
                                 LOGGER.error("Exception occurred during data model initialization.", e);

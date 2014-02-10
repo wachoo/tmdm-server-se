@@ -12,6 +12,7 @@
 package com.amalto.core.server;
 
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageType;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
@@ -534,7 +535,7 @@ public class DefaultXmlServer implements XmlServer {
             return false;
         }
         Server server = ServerContext.INSTANCE.get();
-        Storage storage = server.getStorageAdmin().get(dataCluster + StorageAdmin.STAGING_SUFFIX, null);
+        Storage storage = server.getStorageAdmin().get(dataCluster, StorageType.STAGING, null);
         return storage != null;
     }
 }

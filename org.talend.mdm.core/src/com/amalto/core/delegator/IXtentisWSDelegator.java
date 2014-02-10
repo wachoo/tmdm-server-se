@@ -46,6 +46,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import com.amalto.core.storage.StorageMetadataUtils;
+import com.amalto.core.storage.StorageType;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
@@ -73,7 +74,6 @@ import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.metadata.ClassRepository;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.migration.MigrationRepository;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
@@ -4177,7 +4177,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      */
     public WSBoolean isXmlDB() {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, null); // Retrieves SYSTEM storage
+        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null); // Retrieves SYSTEM storage
         return new WSBoolean(systemStorage == null);
     }
     
@@ -4187,7 +4187,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      */
     public WSDigest getDigest(WSDigestKey wsDigestKey) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, null); // Retrieves SYSTEM storage
+        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null); // Retrieves SYSTEM storage
         if (systemStorage != null) {
             MetadataRepository repository = systemStorage.getMetadataRepository(); // This repository holds all system object types
             String type = wsDigestKey.getType();
@@ -4225,7 +4225,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      */
     public WSLong updateDigest(WSDigest wsDigest) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, null); // Retrieves SYSTEM storage
+        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null); // Retrieves SYSTEM storage
         if (systemStorage != null) {
             MetadataRepository repository = systemStorage.getMetadataRepository(); // This repository holds all system object types
             String type = wsDigest.getWsDigestKey().getType();
