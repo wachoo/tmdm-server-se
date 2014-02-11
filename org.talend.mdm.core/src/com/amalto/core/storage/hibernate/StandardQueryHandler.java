@@ -981,28 +981,42 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     if (compareValue instanceof Object[]) {
                         Field leftField = (Field) condition.getLeft();
                         FieldMetadata fieldMetadata = leftField.getFieldMetadata();
-                        FieldMetadata referencedField = ((ReferenceFieldMetadata) fieldMetadata).getReferencedField();
-                        if (!(referencedField instanceof CompoundFieldMetadata)) {
-                            throw new IllegalArgumentException("Expected field '" + referencedField + "' to be a composite key.");
-                        }
-                        Set<String> aliases = getAliases(fieldMetadata.getContainingType(), fieldMetadata);
                         Criterion current = null;
-                        for (String alias : aliases) {
-                            FieldMetadata[] fields = ((CompoundFieldMetadata) referencedField).getFields();
-                            Object[] keyValues = (Object[]) compareValue;
-                            Criterion[] keyValueCriteria = new Criterion[keyValues.length];
-                            int i = 0;
-                            for (FieldMetadata keyField : fields) {
-                                Object keyValue = StorageMetadataUtils.convert(String.valueOf(keyValues[i]), keyField);
-                                keyValueCriteria[i] = eq(alias + '.' + keyField.getName(), keyValue);
-                                i++;
+                        if (fieldMetadata instanceof ReferenceFieldMetadata) {
+                            FieldMetadata referencedField = ((ReferenceFieldMetadata) fieldMetadata).getReferencedField();
+                            if (!(referencedField instanceof CompoundFieldMetadata)) {
+                                throw new IllegalArgumentException("Expected field '" + referencedField + "' to be a composite key.");
                             }
-                            Criterion newCriterion = makeAnd(keyValueCriteria);
-                            if (current == null) {
-                                current = newCriterion;
-                            } else {
-                                current = or(newCriterion, current);
+                            Set<String> aliases = getAliases(mainType, fieldMetadata);
+                            current = null;
+                            for (String alias : aliases) {
+                                FieldMetadata[] fields = ((CompoundFieldMetadata) referencedField).getFields();
+                                Object[] keyValues = (Object[]) compareValue;
+                                Criterion[] keyValueCriteria = new Criterion[keyValues.length];
+                                int i = 0;
+                                for (FieldMetadata keyField : fields) {
+                                    Object keyValue = StorageMetadataUtils.convert(String.valueOf(keyValues[i]), keyField);
+                                    keyValueCriteria[i] = eq(alias + '.' + keyField.getName(), keyValue);
+                                    i++;
+                                }
+                                Criterion newCriterion = makeAnd(keyValueCriteria);
+                                if (current == null) {
+                                    current = newCriterion;
+                                } else {
+                                    current = or(newCriterion, current);
+                                }
                             }
+                        } else {
+                            Set<String> aliases = getAliases(mainType, fieldMetadata);
+                            if (aliases.isEmpty()) {
+                                throw new IllegalStateException("No alias found for field '" + fieldMetadata.getName() + "'.");
+                            }
+                            for (String alias : aliases) {
+                                current = Restrictions.in(alias + '.' + fieldMetadata.getName(), (Object[]) compareValue);
+                            }
+                        }
+                        if (current == null) {
+                            throw new IllegalStateException("No condition was generated for '" + fieldMetadata.getName() + "'.");
                         }
                         return current;
                     } else {
@@ -1349,6 +1363,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         @Override
         public FieldCondition visit(Id id) {
+            return createConstantCondition();
+        }
+
+        @Override
+        public FieldCondition visit(ConstantCollection collection) {
             return createConstantCondition();
         }
 

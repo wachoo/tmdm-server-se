@@ -248,6 +248,16 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
     }
 
     @Override
+    public Expression visit(ConstantCollection collection) {
+        TypedExpression[] constantExpressions = new TypedExpression[collection.getValues().length];
+        int i = 0;
+        for (Expression expression : collection.getValues()) {
+            constantExpressions[i++] = (TypedExpression) expression.accept(this);
+        }
+        return new ConstantCollection(constantExpressions);
+    }
+
+    @Override
     public Expression visit(StringConstant constant) {
         return getConstant(constant.getValue());
     }

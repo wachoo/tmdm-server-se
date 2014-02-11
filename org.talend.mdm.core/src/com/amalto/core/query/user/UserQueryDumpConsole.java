@@ -410,6 +410,19 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(ConstantCollection collection) {
+        print("[CONSTANT COLLECTION]"); //$NON-NLS-1$
+        increaseIndent();
+        {
+            for (Expression expression : collection.getValues()) {
+                expression.accept(this);
+            }
+        }
+        decreaseIndent();
+        return null;
+    }
+
     public Void visit(StringConstant constant) {
         print("[STRING CONSTANT]"); //$NON-NLS-1$
         increaseIndent();

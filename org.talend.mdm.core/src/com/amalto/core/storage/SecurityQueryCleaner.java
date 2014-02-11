@@ -86,6 +86,11 @@ class SecurityQueryCleaner extends VisitorAdapter<Expression> {
     }
 
     @Override
+    public Expression visit(ConstantCollection collection) {
+        return collection;
+    }
+
+    @Override
     public Expression visit(Expression expression) {
         return expression;
     }

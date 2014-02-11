@@ -168,6 +168,16 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         }
 
         @Override
+        public Object visit(ConstantCollection collection) {
+            Object[] values = new Object[collection.getValues().length];
+            int i = 0;
+            for (Expression expression : collection.getValues()) {
+                values[i++] = expression.accept(this);
+            }
+            return values;
+        }
+
+        @Override
         public Object visit(StringConstant constant) {
             return constant.getValue();
         }

@@ -24,10 +24,7 @@ import org.hibernate.Session;
 import javax.xml.XMLConstants;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 class IdQueryHandler extends AbstractQueryHandler {
 
@@ -80,14 +77,23 @@ class IdQueryHandler extends AbstractQueryHandler {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Calling get()...");
         }
-        Wrapper loadedObject = (Wrapper) session.get(className, (Serializable) idValue);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("get() returned '" + loadedObject + "'");
+        final List<Wrapper> objects;
+        if(idValue instanceof Object[]) {
+            objects = new LinkedList<Wrapper>();
+            Object[] valuesAsArray = (Object[]) idValue;
+            for (Object o : valuesAsArray) {
+                objects.add((Wrapper) session.get(className, (Serializable) o));
+            }
+        } else {
+            objects = Collections.singletonList((Wrapper) session.get(className, (Serializable) idValue));
         }
-        if (loadedObject == null) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("get() returned " + objects.size() + " result(s).");
+        }
+        if (objects.size() == 1 && objects.get(0) == null) {
             return noResult(select);
         } else {
-            Iterator objectIterator = Collections.singleton(loadedObject).iterator();
+            Iterator objectIterator = objects.iterator();
             CloseableIterator<DataRecord> iterator;
             if (!select.isProjection()) {
                 iterator = new ListIterator(mappings, storageClassLoader, objectIterator, callbacks);
@@ -119,7 +125,7 @@ class IdQueryHandler extends AbstractQueryHandler {
             return new HibernateStorageResults(storage, select, iterator) {
                 @Override
                 public int getCount() {
-                    return 1;
+                    return objects.size();
                 }
             };
         }

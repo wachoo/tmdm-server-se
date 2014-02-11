@@ -66,6 +66,8 @@ public interface Visitor<T> {
 
     T visit(Id id);
 
+    T visit(ConstantCollection collection);
+
     T visit(StringConstant constant);
 
     T visit(IntegerConstant constant);

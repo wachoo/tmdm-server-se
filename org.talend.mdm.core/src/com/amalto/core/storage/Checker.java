@@ -119,6 +119,15 @@ class Checker extends VisitorAdapter<Boolean> {
     }
 
     @Override
+    public Boolean visit(ConstantCollection collection) {
+        boolean ret = true;
+        for (Expression expression : collection.getValues()) {
+            ret &= expression.accept(this);
+        }
+        return ret;
+    }
+
+    @Override
     public Boolean visit(StringConstant constant) {
         return true;
     }

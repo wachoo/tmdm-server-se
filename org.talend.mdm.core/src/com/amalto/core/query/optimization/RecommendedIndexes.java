@@ -209,6 +209,11 @@ public class RecommendedIndexes {
             return id.getType().getKeyFields();
         }
 
+        @Override
+        public Collection<FieldMetadata> visit(ConstantCollection collection) {
+            return Collections.emptySet();
+        }
+
         public Collection<FieldMetadata> visit(StringConstant constant) {
             return Collections.emptySet();
         }
