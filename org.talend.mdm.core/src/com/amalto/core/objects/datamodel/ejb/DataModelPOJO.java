@@ -149,8 +149,7 @@ public class DataModelPOJO extends ObjectPOJO{
                 Storage stagingStorage = storageAdmin.get(updatedDataModelName, StorageType.STAGING, revisionID);
                 if (stagingStorage != null) {
                     // Storage already exists so update it.
-                    MetadataRepository stagingRepository = metadataRepositoryAdmin.get(updatedDataModelName
-                            + StorageAdmin.STAGING_SUFFIX);
+                    MetadataRepository stagingRepository = metadataRepositoryAdmin.get(updatedDataModelName);
                     Set<Expression> indexedExpressions = metadataRepositoryAdmin.getIndexedExpressions(updatedDataModelName);
                     stagingStorage.prepare(stagingRepository, indexedExpressions, true, false);
                 } else {
