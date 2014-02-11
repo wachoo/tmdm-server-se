@@ -35,7 +35,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
-import org.talend.mdm.webapp.browserecords.client.widget.StagingItemsDetailToolBar;
+import org.talend.mdm.webapp.browserecords.client.widget.StagingItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.TabItemListener;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -91,11 +91,11 @@ public class TreeDetailUtil {
         initItemsDetailPanelById(fromWhichApp, ids, concept, isFkToolBar, isHierarchyCall, ItemDetailToolBar.VIEW_OPERATION);
     }
 
-    public static void initStagingItemsDetailPanelById(final String fromWhichApp, String ids, final String concept,
-            final Boolean isFkToolBar, final Boolean isHierarchyCall) {
+    public static void initItemsDetailPanelById(final String fromWhichApp, String ids, final String concept,
+            final Boolean isFkToolBar, final Boolean isHierarchyCall, Boolean isStaging) {
         setAppHeader();
-        initStagingItemsDetailPanelById(fromWhichApp, ids, concept, isFkToolBar, isHierarchyCall,
-                ItemDetailToolBar.VIEW_OPERATION);
+        initItemsDetailPanelById(fromWhichApp, ids, concept, isFkToolBar, isHierarchyCall, ItemDetailToolBar.VIEW_OPERATION,
+                isStaging);
     }
 
     public static void initItemsDetailPanelById(final String fromWhichApp, String ids, final String concept,
@@ -120,13 +120,11 @@ public class TreeDetailUtil {
         });
     }
 
-    public static void initStagingItemsDetailPanelById(final String fromWhichApp, String ids, final String concept,
-            final Boolean isFkToolBar, final Boolean isHierarchyCall, final String operation) {
-
+    public static void initItemsDetailPanelById(final String fromWhichApp, String ids, final String concept,
+            final Boolean isFkToolBar, final Boolean isHierarchyCall, final String operation, final boolean isStaging) {
         String[] idArr = parseKey(ids);
         final ItemsDetailPanel panel = ItemsDetailPanel.newInstance();
-        final BrowseStagingRecordsServiceAsync brService = (BrowseStagingRecordsServiceAsync) Registry
-                .get(BrowseRecords.BROWSESTAGINGRECORDS_SERVICE);
+        final BrowseRecordsServiceAsync brService = getBrowseRecordsService(isStaging);
         brService.getItemBeanById(concept, idArr, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() {
 
             @Override
@@ -135,17 +133,13 @@ public class TreeDetailUtil {
 
                             @Override
                             public void onSuccess(ViewBean viewBean) {
-
-                                ItemPanel itemPanel = new ItemPanel(viewBean, item, operation, panel,
-                                        new StagingItemsDetailToolBar(item, operation, viewBean, panel),
-                                        new StagingItemTreeDetail(panel));
+                                ItemPanel itemPanel = createItemPanel(viewBean, item, operation, panel, isStaging);
                                 initDetailPanel(viewBean, panel, itemPanel, item, fromWhichApp, isFkToolBar, isHierarchyCall);
                             }
 
                         });
             }
         });
-
     }
 
     private static void initDetailPanel(ViewBean viewBean, ItemsDetailPanel panel, ItemPanel itemPanel, ItemBean item,
@@ -198,6 +192,41 @@ public class TreeDetailUtil {
         itemsDetailPanel.setOutMost(isOutMost);
 
         ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, itemsDetailPanel);
+        itemPanel.getToolBar().setOutMost(isOutMost);
+        itemPanel.getToolBar().setFkToolBar(isFkToolBar);
+        itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
+
+        List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
+        if (itemBean != null) {
+            breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
+            breads.add(new BreadCrumbModel(itemBean.getConcept(), itemBean.getLabel(), itemBean.getIds(), itemBean
+                    .getDisplayPKInfo().equals(itemBean.getLabel()) ? null : itemBean.getDisplayPKInfo(), true));
+            itemsDetailPanel.setId(itemBean.getIds());
+            itemsDetailPanel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
+            itemsDetailPanel.addTabItem(itemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getIds());
+            itemsDetailPanel.initBreadCrumb(new BreadCrumb(breads, itemsDetailPanel));
+
+            if (isOutMost) {
+                TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(itemBean.getConcept());
+                String tabItemId = typeModel.getLabel(Locale.getLanguage()) + " " + new Date().getTime(); //$NON-NLS-1$
+                itemsDetailPanel.setHeading(typeModel.getLabel(Locale.getLanguage()));
+                itemsDetailPanel.setItemId(tabItemId);
+                renderTreeDetailPanel(tabItemId, itemsDetailPanel);
+            } else {
+                ItemsMainTabPanel.getInstance().addMainTabItem(itemBean.getLabel(), itemsDetailPanel, itemBean.getConcept());
+            }
+            CommonUtil.setCurrentCachedEntity(itemBean.getConcept() + itemsDetailPanel.isOutMost(), itemPanel);
+        }
+    }
+
+    public static void initItemsDetailPanelByItemPanel(ViewBean viewBean, ItemBean itemBean, boolean isFkToolBar,
+            boolean isHierarchyCall, boolean isOutMost, boolean isStaging) {
+
+        final ItemsDetailPanel itemsDetailPanel = ItemsDetailPanel.newInstance();
+        itemsDetailPanel.setOutMost(isOutMost);
+
+        ItemPanel itemPanel = createItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, itemsDetailPanel,
+                isStaging);
         itemPanel.getToolBar().setOutMost(isOutMost);
         itemPanel.getToolBar().setFkToolBar(isFkToolBar);
         itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
@@ -368,5 +397,25 @@ public class TreeDetailUtil {
             }
         }
         return false;
+    }
+
+    private static ItemPanel createItemPanel(ViewBean viewBean, ItemBean item, String operation,
+            ItemsDetailPanel itemsDetailPanel, boolean isStaging) {
+        ItemPanel itemPanel;
+        if (isStaging) {
+            itemPanel = new ItemPanel(viewBean, item, operation, itemsDetailPanel, new StagingItemDetailToolBar(item, operation,
+                    viewBean, itemsDetailPanel), new StagingItemTreeDetail(itemsDetailPanel));
+        } else {
+            itemPanel = new ItemPanel(viewBean, item, operation, itemsDetailPanel);
+        }
+        return itemPanel;
+    }
+
+    private static BrowseRecordsServiceAsync getBrowseRecordsService(boolean isStaging) {
+        if (isStaging) {
+            return (BrowseStagingRecordsServiceAsync) Registry.get(BrowseRecords.BROWSESTAGINGRECORDS_SERVICE);
+        } else {
+            return (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
+        }
     }
 }

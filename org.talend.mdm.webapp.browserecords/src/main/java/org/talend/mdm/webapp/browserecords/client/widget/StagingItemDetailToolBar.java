@@ -19,6 +19,9 @@ import org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.CloseStagingTabPostDeleteAction;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.NoOpPostDeleteAction;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.PostDeleteAction;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -35,21 +38,21 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
  * created by yjli on 2014-1-28 Detailled comment
  * 
  */
-public class StagingItemsDetailToolBar extends ItemDetailToolBar {
+public class StagingItemDetailToolBar extends ItemDetailToolBar {
 
     private final BrowseRecordsMessages msg = org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory.getMessages();
 
-    public StagingItemsDetailToolBar() {
+    public StagingItemDetailToolBar() {
         this.setBorders(false);
         this.setLayout(new ToolBarExLayout());
     }
 
-    public StagingItemsDetailToolBar(ItemsDetailPanel itemsDetailPanel) {
+    public StagingItemDetailToolBar(ItemsDetailPanel itemsDetailPanel) {
         this();
         this.itemsDetailPanel = itemsDetailPanel;
     }
 
-    public StagingItemsDetailToolBar(ItemBean itemBean, String operation, ViewBean viewBean, ItemsDetailPanel itemsDetailPanel) {
+    public StagingItemDetailToolBar(ItemBean itemBean, String operation, ViewBean viewBean, ItemsDetailPanel itemsDetailPanel) {
         this(itemsDetailPanel);
         this.itemBean = itemBean;
         this.operation = operation;
@@ -57,7 +60,7 @@ public class StagingItemsDetailToolBar extends ItemDetailToolBar {
         initToolBar();
     }
 
-    public StagingItemsDetailToolBar(ItemBean itemBean, String operation, ViewBean viewBean, ItemsDetailPanel itemsDetailPanel,
+    public StagingItemDetailToolBar(ItemBean itemBean, String operation, ViewBean viewBean, ItemsDetailPanel itemsDetailPanel,
             boolean openTab) {
         this(itemsDetailPanel);
         this.itemBean = itemBean;
@@ -67,7 +70,7 @@ public class StagingItemsDetailToolBar extends ItemDetailToolBar {
         initToolBar();
     }
 
-    public StagingItemsDetailToolBar(ItemBean itemBean, String operation, boolean isFkToolBar, ViewBean viewBean,
+    public StagingItemDetailToolBar(ItemBean itemBean, String operation, boolean isFkToolBar, ViewBean viewBean,
             ItemsDetailPanel itemsDetailPanel) {
         this(itemsDetailPanel);
         this.itemBean = itemBean;
@@ -150,6 +153,11 @@ public class StagingItemsDetailToolBar extends ItemDetailToolBar {
             });
         }
         add(deleteButton);
+    }
+
+    @Override
+    protected PostDeleteAction buildPostDeleteAction() {
+        return new CloseStagingTabPostDeleteAction(StagingItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE);
     }
 
     @Override

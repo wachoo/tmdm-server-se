@@ -65,7 +65,7 @@ public class ItemPanel extends ContentPanel {
     }
 
     public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ItemsDetailPanel itemsDetailPanel,
-            StagingItemsDetailToolBar stagingItemsDetailToolBar, TreeDetail tree) {
+            StagingItemDetailToolBar stagingItemsDetailToolBar, TreeDetail tree) {
         this.tree = tree;
         this.viewBean = viewBean;
         this.item = item;

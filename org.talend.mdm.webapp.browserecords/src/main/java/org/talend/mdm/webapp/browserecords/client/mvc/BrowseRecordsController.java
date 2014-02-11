@@ -37,6 +37,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.StagingGridPanel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
@@ -135,9 +136,9 @@ public class BrowseRecordsController extends Controller {
             saveService = service;
         }
 
-        saveService.saveItem(viewBean, itemBean.getIds(), (new ItemTreeHandler(model, viewBean,
-                ItemTreeHandlingStatus.ToSave)).serializeItem(), isCreate, Locale.getLanguage(),
-                new SessionAwareAsyncCallback<ItemResult>() {
+        saveService.saveItem(viewBean, itemBean.getIds(),
+                (new ItemTreeHandler(model, viewBean, ItemTreeHandlingStatus.ToSave)).serializeItem(), isCreate,
+                Locale.getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
 
                     @Override
                     protected void doOnFailure(Throwable caught) {
@@ -193,6 +194,9 @@ public class BrowseRecordsController extends Controller {
                                 String tabText = typeModel.getLabel(Locale.getLanguage()) + " " + result.getReturnValue(); //$NON-NLS-1$
                                 detailToolBar.updateOutTabPanel(tabText);
                             }
+                        }
+                        if (isStaging) {
+                            StagingGridPanel.getInstance().refresh();
                         }
                         // TMDM-3349 button 'save and close' function
                         if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall() && !detailToolBar.isFkToolBar()) {

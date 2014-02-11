@@ -151,9 +151,9 @@ public class ItemDetailToolBar extends ToolBar {
 
     protected ItemsDetailPanel itemsDetailPanel;
 
-    private boolean isOutMost;
+    protected boolean isOutMost;
 
-    private boolean isHierarchyCall;
+    protected boolean isHierarchyCall;
 
     protected boolean openTab;
 
@@ -473,7 +473,7 @@ public class ItemDetailToolBar extends ToolBar {
                     duplicateItemBean.setIds(""); //$NON-NLS-1$
 
                     TreeDetailUtil.initItemsDetailPanelByItemPanel(viewBean, duplicateItemBean, isFkToolBar, isHierarchyCall,
-                            isOutMost);
+                            isOutMost, isStaging());
                     if (!isOutMost && !isFkToolBar) {
                         if (ItemsListPanel.getInstance().getGrid() != null) {
                             ItemsListPanel.getInstance().getGrid().getSelectionModel().deselectAll();
@@ -516,12 +516,12 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
+                    StagingGridPanel panel = StagingGridPanel.getInstance();
+                    panel.initPanel(itemBean.getIds());
                     if (GWT.isScript()) {
-                        ItemDetailToolBar.this.openBrowseStagingRecordsPanel(itemBean.getIds(),
-                                new StagingGridPanel(itemBean.getConcept(), itemBean.getIds()));
+                        ItemDetailToolBar.this.openBrowseStagingRecordsPanel(itemBean.getIds(), panel);
                     } else {
-                        ItemDetailToolBar.this.openDebugBrowseStagingRecordsPanel(itemBean.getIds(), new StagingGridPanel(
-                                itemBean.getConcept(), itemBean.getIds()));
+                        ItemDetailToolBar.this.openDebugBrowseStagingRecordsPanel(itemBean.getIds(), panel);
                     }
                     // Dispatcher.forwardEvent(BrowseRecordsEvents.SearchStaingView);
                 }
@@ -1423,16 +1423,19 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     protected void deleteRecord() {
-        PostDeleteAction postDeleteAction = new CloseTabPostDeleteAction(ItemDetailToolBar.this, new ListRefresh(
-                ItemDetailToolBar.this, new ContainerUpdate(ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE)));
         List<ItemBean> list = new ArrayList<ItemBean>();
         list.add(itemBean);
         getBrowseRecordsService().checkFKIntegrity(list,
-                new DeleteCallback(DeleteAction.PHYSICAL, postDeleteAction, getBrowseRecordsService()));
+                new DeleteCallback(DeleteAction.PHYSICAL, buildPostDeleteAction(), getBrowseRecordsService()));
     }
 
     protected BrowseRecordsServiceAsync getBrowseRecordsService() {
         return (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
+    }
+
+    protected PostDeleteAction buildPostDeleteAction() {
+        return new CloseTabPostDeleteAction(ItemDetailToolBar.this, new ListRefresh(ItemDetailToolBar.this, new ContainerUpdate(
+                ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE)));
     }
 }

@@ -105,13 +105,9 @@ public class StagingGridPanel extends ContentPanel {
 
     private QueryModel currentQueryModel;
 
-    private PagingLoadConfig pagingLoadConfig;
-
     private boolean isPagingAccurate;
 
     private String taskId;
-
-    private String concept;
 
     private String cluster;
 
@@ -120,6 +116,8 @@ public class StagingGridPanel extends ContentPanel {
     private EntityModel entityModel;
 
     private GridFilters filters;
+
+    private static StagingGridPanel instance;
 
     private BrowseRecordsServiceAsync browseRecordService = (BrowseRecordsServiceAsync) Registry
             .get(BrowseRecords.BROWSERECORDS_SERVICE);
@@ -131,9 +129,8 @@ public class StagingGridPanel extends ContentPanel {
 
         @Override
         public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<ItemBean>> callback) {
-            pagingLoadConfig = (PagingLoadConfig) loadConfig;
             final QueryModel qm = generateQueryModel();
-            qm.setPagingLoadConfig(copyPgLoad(pagingLoadConfig));
+            qm.setPagingLoadConfig(copyPgLoad((PagingLoadConfig) loadConfig));
             int pageSize = pagingBar.getPageSize();
             qm.getPagingLoadConfig().setLimit(pageSize);
             qm.setLanguage(Locale.getLanguage());
@@ -182,6 +179,27 @@ public class StagingGridPanel extends ContentPanel {
                     });
         }
     };
+
+    public static StagingGridPanel getInstance() {
+        if (instance == null) {
+            instance = new StagingGridPanel();
+        }
+        return instance;
+    }
+
+    private StagingGridPanel() {
+        this.cluster = BrowseRecords.getSession().getAppHeader().getDatacluster() + StorageAdmin.STAGING_SUFFIX;
+        this.viewBean = BrowseRecords.getSession().getCurrentView();
+        this.entityModel = BrowseRecords.getSession().getCurrentEntityModel();
+
+        setLayout(new FitLayout());
+        setHeaderVisible(false);
+        setHeading(MessagesFactory.getMessages().staging_data_viewer_title());
+        this.layout();
+        initErrorTitles();
+        ContentPanel gridPanel = generateGrid();
+        add(gridPanel);
+    }
 
     private void initErrorTitles() {
         UserContextModel ucx = UserContextUtil.getUserContext();
@@ -241,23 +259,19 @@ public class StagingGridPanel extends ContentPanel {
 
     private PagingToolBarEx pagingBar = null;
 
-    public StagingGridPanel(String concept, String taskId) {
-        this.concept = concept;
-        this.taskId = taskId;
-        this.cluster = BrowseRecords.getSession().getAppHeader().getDatacluster() + StorageAdmin.STAGING_SUFFIX;
-        this.viewBean = BrowseRecords.getSession().getCurrentView();
-        this.entityModel = BrowseRecords.getSession().getCurrentEntityModel();
-        initPanel();
+    public void initPanel(String stagingTaskId) {
+        this.taskId = stagingTaskId;
+        refresh();
     }
 
-    private void initPanel() {
-        setLayout(new FitLayout());
-        setHeaderVisible(false);
-        setHeading(MessagesFactory.getMessages().staging_data_viewer_title());
-        this.layout();
-        initErrorTitles();
-        ContentPanel gridPanel = generateGrid();
-        add(gridPanel);
+    public void refresh() {
+        selectStagingGridPanel();
+        PagingLoadConfig config = new BaseFilterPagingLoadConfig();
+        config.setOffset(0);
+        int pageSize = pagingBar.getPageSize();
+        config.setLimit(pageSize);
+        loader.load(config);
+        pagingBar.setVisible(true);
     }
 
     private List<ColumnConfig> generateColumnList() {
@@ -454,22 +468,9 @@ public class StagingGridPanel extends ContentPanel {
                 int rowIndex = ge.getRowIndex();
                 if (rowIndex != -1) {
                     ItemBean item = grid.getStore().getAt(rowIndex);
-                    TreeDetailUtil.initStagingItemsDetailPanelById(MessagesFactory.getMessages().browse_staging_records(),
-                            item.getIds(), concept, false, false);
+                    TreeDetailUtil.initItemsDetailPanelById(MessagesFactory.getMessages().browse_staging_records(),
+                            item.getIds(), entityModel.getConceptName(), false, false, true);
                 }
-            }
-        });
-
-        grid.addListener(Events.Attach, new Listener<GridEvent<ItemBean>>() {
-
-            @Override
-            public void handleEvent(GridEvent<ItemBean> be) {
-                PagingLoadConfig config = new BaseFilterPagingLoadConfig();
-                config.setOffset(0);
-                int pageSize = pagingBar.getPageSize();
-                config.setLimit(pageSize);
-                loader.load(config);
-                pagingBar.setVisible(true);
             }
         });
 
@@ -523,4 +524,12 @@ public class StagingGridPanel extends ContentPanel {
         model.set(xpath, value);
         return model;
     }
+
+    private native void selectStagingGridPanel()/*-{
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		var panel = tabPanel.getItem("Staging Data Viewer");
+		if (panel != undefined) {
+			tabPanel.setSelection(panel.getItemId());
+		}
+    }-*/;
 }
