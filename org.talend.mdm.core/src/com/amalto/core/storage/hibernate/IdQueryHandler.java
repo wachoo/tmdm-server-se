@@ -82,15 +82,23 @@ class IdQueryHandler extends AbstractQueryHandler {
             objects = new LinkedList<Wrapper>();
             Object[] valuesAsArray = (Object[]) idValue;
             for (Object o : valuesAsArray) {
-                objects.add((Wrapper) session.get(className, (Serializable) o));
+                Wrapper e = (Wrapper) session.get(className, (Serializable) o);
+                if (e != null) {
+                    objects.add(e);
+                }
             }
         } else {
-            objects = Collections.singletonList((Wrapper) session.get(className, (Serializable) idValue));
+            Wrapper e = (Wrapper) session.get(className, (Serializable) idValue);
+            if (e != null) {
+                objects = Collections.singletonList(e);
+            } else {
+                objects = Collections.emptyList();
+            }
         }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("get() returned " + objects.size() + " result(s).");
         }
-        if (objects.size() == 1 && objects.get(0) == null) {
+        if (objects.isEmpty()) {
             return noResult(select);
         } else {
             Iterator objectIterator = objects.iterator();
