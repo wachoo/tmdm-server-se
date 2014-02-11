@@ -504,8 +504,9 @@ public class HibernateStorage implements Storage {
             RDBMSDataSource.DataSourceDialect dialectType = dataSource.getDialectName();
             SchemaExport export = new SchemaExport(configuration);
             export.setFormat(false);
-            export.setOutputFile(jbossServerTempDir + File.separator + storageName
-                    + "_" + storageType + "_" + dialectType + ".ddl"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            String filename = jbossServerTempDir + File.separator + storageName
+                    + "_" + storageType + "_" + dialectType + ".ddl"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            export.setOutputFile(filename);
             export.setDelimiter(";"); //$NON-NLS-1$
             export.execute(false, false, false, true);
             if (export.getExceptions().size() > 0) {
@@ -514,6 +515,7 @@ public class HibernateStorage implements Storage {
                             (Exception) export.getExceptions().get(i));
                 }
             }
+            LOGGER.info("DDL exported to file '" + filename +"'.");
         } catch (Exception e) {
             LOGGER.error("Error occurred while producing ddl.", e); //$NON-NLS-1$
         }
