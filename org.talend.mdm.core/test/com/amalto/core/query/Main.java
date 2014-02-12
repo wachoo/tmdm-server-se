@@ -15,11 +15,23 @@ import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.StorageWrapper;
+import org.talend.mdm.commmon.util.core.EUUIDCustomType;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @SuppressWarnings("nls")
 public class Main {
 
     public static void main(String[] args) {
+
+        EUUIDCustomType[] values = EUUIDCustomType.values();
+        Set<String> names = new HashSet<String>();
+        for (EUUIDCustomType value : values) {
+            value.getName();
+        }
+
+
         String fieldName = "/home[1]/child[0]";
         System.out.println("wrong = " + isWrong(fieldName));
         fieldName = "/home/child[0]";

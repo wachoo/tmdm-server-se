@@ -234,4 +234,17 @@ public class MetadataRepositoryTest extends TestCase {
         assertNotNull(test);
         assertTrue(test.hasField("shipto/name"));
     }
+
+    public void testCopy() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema21.xsd");
+        repository.load(stream);
+        ComplexTypeMetadata test1 = repository.getComplexType("shiporder");
+
+        MetadataRepository copy = repository.copy();
+        ComplexTypeMetadata test2 = copy.getComplexType("shiporder");
+
+        assertEquals(test1.getName(), test2.getName());
+        assertTrue(test1 != test2);
+    }
 }

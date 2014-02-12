@@ -209,7 +209,8 @@ public class HibernateStorage implements Storage {
         }
         // Loads additional types for staging area.
         if (storageType == StorageType.STAGING) {
-            repository.load(MetadataRepositoryAdmin.class.getResourceAsStream("stagingInternalTypes.xsd")); //$NON-NLS-1$
+            userMetadataRepository = repository.copy(); // See TMDM-6938: prevents staging types to appear in master storage.
+            userMetadataRepository.load(MetadataRepositoryAdmin.class.getResourceAsStream("stagingInternalTypes.xsd")); //$NON-NLS-1$
         }
         // Create class loader for storage's dynamically created classes.
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
