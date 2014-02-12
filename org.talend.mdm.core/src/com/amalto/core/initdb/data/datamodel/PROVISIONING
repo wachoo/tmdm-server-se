@@ -19,6 +19,7 @@
 				&lt;xsd:element maxOccurs="1" minOccurs="0" name="lastvisitdate" nillable="false" type="xsd:long"/&gt;
 				&lt;xsd:element maxOccurs="1" minOccurs="1" name="enabled" nillable="false" type="YESNO"/&gt;
 				&lt;xsd:element maxOccurs="1" minOccurs="0" name="homepage" nillable="false" type="xsd:string"/&gt;
+                &lt;xsd:element maxOccurs="1" minOccurs="0" name="language" nillable="false" type="xsd:string"/&gt;
 				&lt;xsd:element maxOccurs="1" minOccurs="0" name="universe" nillable="false" type="xsd:string"/&gt;
 				&lt;xsd:element maxOccurs="1" minOccurs="0" name="roles" nillable="false"&gt;
 					&lt;xsd:complexType mixed="false"&gt;
