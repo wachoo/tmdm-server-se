@@ -1085,13 +1085,86 @@ public class DocumentSaveTest extends TestCase {
         Document doc = updateReportDocument.asDOM();
         String oldValue = (String) evaluate(doc.getDocumentElement(), "Item/oldValue");
         String newValue = (String) evaluate(doc.getDocumentElement(), "Item/newValue");
-        assertEquals("Portland", oldValue);
+        assertEquals("Chicago", oldValue);
         assertEquals("beforeSaving_Agency", newValue);
 
         committer = new MockCommitter();
         session.end(committer);
         assertTrue(committer.hasSaved());
     }
+    
+    public void testBeforeSavingWithAlterRecord_UPDATE() throws Exception {
+        boolean isReplace = false;
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        //
+        boolean isOK = true;
+        boolean newOutput = true;
+        SaverSource source = new AlterRecordTestSaverSource(repository, true, "test1_original.xml", isOK, newOutput);
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, isReplace, true, true,
+                true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        assertEquals("change the value successfully!", saver.getBeforeSavingMessage());
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+        assertTrue(committer.hasSaved());
+
+        //
+        isOK = true;
+        newOutput = false;
+        source = new AlterRecordTestSaverSource(repository, true, "test1_original.xml", isOK, newOutput);
+
+        session = SaverSession.newSession(source);
+        recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
+        context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, isReplace, true, true, true, false);
+        saver = context.createSaver();
+        saver.save(session, context);
+        assertEquals("change the value successfully!", saver.getBeforeSavingMessage());
+        committer = new MockCommitter();
+        session.end(committer);
+        assertTrue(committer.hasSaved());
+
+        // Test updateReport and final databaseDocument to be committed
+        isOK = true;
+        newOutput = true;
+        source = new AlterRecordTestSaverSource(repository, true, "test1_original.xml", isOK, newOutput);
+
+        session = SaverSession.newSession(source);
+        recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
+        context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, isReplace, true, true, true, false);
+        saver = context.createSaver();
+        saver.save(session, context);
+        assertEquals("change the value successfully!", saver.getBeforeSavingMessage());
+
+        String lineSeparator = System.getProperty("line.separator");
+        String expectedUserXml = "<Agency><Id>5258f292-5670-473b-bc01-8b63434682f3</Id><Name>beforeSaving_Agency</Name></Agency>";
+
+        assertEquals(expectedUserXml, context.getUserDocument().exportToString());
+        MutableDocument updateReportDocument = context.getUpdateReportDocument();
+        assertNotNull(updateReportDocument);
+        Document doc = updateReportDocument.asDOM();
+        String oldValue = (String) evaluate(doc.getDocumentElement(), "Item/oldValue");
+        String newValue = (String) evaluate(doc.getDocumentElement(), "Item/newValue");
+        assertEquals("Chicago", oldValue);
+        assertEquals("beforeSaving_Agency", newValue);
+
+        MutableDocument databaseDocument = context.getDatabaseDocument();
+        assertNotNull(databaseDocument);
+        Document dbDoc = databaseDocument.asDOM();
+        String newName = (String) evaluate(dbDoc.getDocumentElement(), "Name");
+        String newCity = (String) evaluate(dbDoc.getDocumentElement(), "City");
+        assertEquals("beforeSaving_Agency", newName);
+        assertEquals("Chicago", newCity);
+        
+        committer = new MockCommitter();
+        session.end(committer);
+        assertTrue(committer.hasSaved());
+    }    
 
     public void testBeforeSavingWithAutoIncrementPkRecord() throws Exception {
         MetadataRepository repository = new MetadataRepository();

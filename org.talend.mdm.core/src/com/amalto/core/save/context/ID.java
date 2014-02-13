@@ -103,29 +103,31 @@ class ID implements DocumentSaver {
                 context.setUserAction(UserAction.UPDATE);
             }
             context.setId(xmlDocumentId);
-            NonCloseableInputStream nonCloseableInputStream = new NonCloseableInputStream(database.get(dataCluster, typeName, revisionID, xmlDocumentId));
-            try {
-                nonCloseableInputStream.mark(-1);
-
-                Document databaseDomDocument = documentBuilder.parse(nonCloseableInputStream);
-                Element userXmlElement = getUserXmlElement(databaseDomDocument);
-                MutableDocument databaseDocument = new DOMDocument(userXmlElement);
-
-                nonCloseableInputStream.reset();
-
-                Document databaseValidationDomDocument = validationDocumentBuilder.parse(new InputSource(nonCloseableInputStream));
-                userXmlElement = getUserXmlElement(databaseValidationDomDocument);
-                MutableDocument databaseValidationDocument = new DOMDocument(userXmlElement);
-
-                context.setDatabaseDocument(databaseDocument);
-                context.setDatabaseValidationDocument(databaseValidationDocument);
-            } catch (Exception e) {
-                throw new RuntimeException("Exception occurred during database document parsing", e);
-            } finally {
+            if (context.getDatabaseDocument() == null) {
+                NonCloseableInputStream nonCloseableInputStream = new NonCloseableInputStream(database.get(dataCluster, typeName, revisionID, xmlDocumentId));
                 try {
-                    nonCloseableInputStream.forceClose();
-                } catch (IOException e) {
-                    LOGGER.error("Exception occurred during close of stream.", e);
+                    nonCloseableInputStream.mark(-1);
+
+                    Document databaseDomDocument = documentBuilder.parse(nonCloseableInputStream);
+                    Element userXmlElement = getUserXmlElement(databaseDomDocument);
+                    MutableDocument databaseDocument = new DOMDocument(userXmlElement);
+
+                    nonCloseableInputStream.reset();
+
+                    Document databaseValidationDomDocument = validationDocumentBuilder.parse(new InputSource(nonCloseableInputStream));
+                    userXmlElement = getUserXmlElement(databaseValidationDomDocument);
+                    MutableDocument databaseValidationDocument = new DOMDocument(userXmlElement);
+
+                    context.setDatabaseDocument(databaseDocument);
+                    context.setDatabaseValidationDocument(databaseValidationDocument);
+                } catch (Exception e) {
+                    throw new RuntimeException("Exception occurred during database document parsing", e);
+                } finally {
+                    try {
+                        nonCloseableInputStream.forceClose();
+                    } catch (IOException e) {
+                        LOGGER.error("Exception occurred during close of stream.", e);
+                    }
                 }
             }
         } else {

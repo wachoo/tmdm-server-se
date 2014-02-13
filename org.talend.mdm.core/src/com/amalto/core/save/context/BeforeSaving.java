@@ -107,8 +107,6 @@ public class BeforeSaving implements DocumentSaver {
                         if (node != null) {
                             // set back the modified item by the process
                             context.setUserDocument(new DOMDocument(node));
-                            context.setDatabaseDocument(null);
-                            context.setDatabaseValidationDocument(null);
                             if (context.getUserAction() == UserAction.CREATE) {
                                 context.setId(new String[0]); // Will re-read id from document.
                             }
