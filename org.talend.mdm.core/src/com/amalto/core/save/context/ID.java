@@ -86,7 +86,9 @@ class ID implements DocumentSaver {
                 context.setUserAction(UserAction.UPDATE);
             }
             context.setId(xmlDocumentId);
-            context.setDatabaseDocument(database.get(dataCluster, dataModelName, typeName, revisionID, xmlDocumentId));
+            if (context.getDatabaseDocument() == null) {
+                context.setDatabaseDocument(database.get(dataCluster, dataModelName, typeName, revisionID, xmlDocumentId));
+            }
         } else {
             // Throw an exception if trying to update a document that does not exist.
             switch (context.getUserAction()) {

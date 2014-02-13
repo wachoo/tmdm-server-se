@@ -112,7 +112,6 @@ public class BeforeSaving implements DocumentSaver {
                                     context.getDataCluster(),
                                     context.getDataModelName());
                             context.setUserDocument(document);
-                            context.setDatabaseDocument(null);
                             if (context.getUserAction() == UserAction.CREATE) {
                                 context.setId(new String[0]); // Will re-read id from document.
                             }
