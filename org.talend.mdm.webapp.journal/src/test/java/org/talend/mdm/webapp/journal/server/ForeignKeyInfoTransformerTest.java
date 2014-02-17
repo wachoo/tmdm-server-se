@@ -34,7 +34,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit3.PowerMockSuite;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.webapp.journal.server.ForeignKeyInfoTransformer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -110,7 +109,7 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
 
         stub(method(Util.class, "getItemCtrl2Local")).toReturn(itemCtrl2Local);
 
-        String[] fks = new String[] { "b1", "b2", "c1", "c2", "e1", "f1" };
+        String[] fks = new String[] { "b1", "b11", "b12", "b2", "c1", "c2", "e1", "f1" };
 
         ItemPOJO item = null;
         for (String fk : fks) {
@@ -136,6 +135,18 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
 
     public void testCase1_FK_defined_in_anonymoustype_fKInfo_indirectly_under_root() {
         String recordId = "a1";
+        String conceptName = "A";
+        executeTestFor(recordId, conceptName);
+    }
+
+    public void testCase1_FK_defined_in_anonymoustype_fKInfo_indirectly_under_root_with_allNullValue() {
+        String recordId = "a11";
+        String conceptName = "A";
+        executeTestFor(recordId, conceptName);
+    }
+
+    public void testCase1_FK_defined_in_anonymoustype_fKInfo_indirectly_under_root_with_partialnullValues() {
+        String recordId = "a12";
         String conceptName = "A";
         executeTestFor(recordId, conceptName);
     }
@@ -314,6 +325,8 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
         fkPaths.put("a8", "//A[A_Id='a8']/D2/FK_to_B/text()");
         fkPaths.put("a9", "//A[A_Id='a9']/E1/FK_to_C/text()");
         fkPaths.put("a10", "//A[A_Id='a10']/E2/FK_to_C/text()");
+        fkPaths.put("a11", "//A[A_Id='a11']/FK_to_B/text()");
+        fkPaths.put("a12", "//A[A_Id='a12']/FK_to_B/text()");
         fkPaths.put("g1", "//G[G_Id='g1']/FK_to_F/text()");
 
         // entity data to be referenced by other entity data
@@ -325,6 +338,12 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
         xmlDomRecordInputs
                 .put("b1",
                         "<B><B_Id>b1</B_Id><B_Name>bname1</B_Name><B_Title>btitle1</B_Title><B_SubInfo><B_SubInfo_Id>bsubId1</B_SubInfo_Id><B_Sub_Name>bsubname1</B_Sub_Name><B_Sub_Title>bsubtitle1</B_Sub_Title><B_SubSubInfo><B_BBSubInfo_Id>bsubsubId1</B_BBSubInfo_Id><B_Sub_Sub_Name>bsubsubname1</B_Sub_Sub_Name><B_Sub_Sub_Title>bsubsubtitle1</B_Sub_Sub_Title></B_SubSubInfo></B_SubInfo></B>");
+        xmlDomRecordInputs
+                .put("b11",
+                        "<B><B_Id>b11</B_Id><B_Name></B_Name><B_Title></B_Title><B_SubInfo><B_SubInfo_Id></B_SubInfo_Id><B_Sub_Name></B_Sub_Name><B_Sub_Title></B_Sub_Title><B_SubSubInfo><B_BBSubInfo_Id></B_BBSubInfo_Id><B_Sub_Sub_Name></B_Sub_Sub_Name><B_Sub_Sub_Title></B_Sub_Sub_Title></B_SubSubInfo></B_SubInfo></B>");
+        xmlDomRecordInputs
+                .put("b12",
+                        "<B><B_Id>b12</B_Id><B_Name>bname12</B_Name><B_Title></B_Title><B_SubInfo><B_SubInfo_Id></B_SubInfo_Id><B_Sub_Name></B_Sub_Name><B_Sub_Title></B_Sub_Title><B_SubSubInfo><B_BBSubInfo_Id></B_BBSubInfo_Id><B_Sub_Sub_Name></B_Sub_Sub_Name><B_Sub_Sub_Title></B_Sub_Sub_Title></B_SubSubInfo></B_SubInfo></B>");
         xmlDomRecordInputs
                 .put("b2",
                         "<B><B_Id>b2</B_Id><B_Name>bname2</B_Name><B_Title>btitle2</B_Title><B_SubInfo><B_SubInfo_Id>bsubId2</B_SubInfo_Id><B_Sub_Name>bsubname2</B_Sub_Name><B_Sub_Title>bsubtitle2</B_Sub_Title><B_SubSubInfo><B_BBSubInfo_Id>bsubsubId2</B_BBSubInfo_Id><B_Sub_Sub_Name>bsubsubname2</B_Sub_Sub_Name><B_Sub_Sub_Title>bsubsubtitle2</B_Sub_Sub_Title></B_SubSubInfo></B_SubInfo></B>");
@@ -339,6 +358,8 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
         xmlDomRecordInputs.put("d1", "<D><D_Id>d1</D_Id><D_Name>dName1</D_Name><FK_to_E>[e1]</FK_to_E></D>");
         // case 1:
         xmlDomRecordInputs.put("a1", "<A><A_Id>a1</A_Id><A_Name>aName1</A_Name><FK_to_B>[b1]</FK_to_B></A>");
+        xmlDomRecordInputs.put("a11", "<A><A_Id>a11</A_Id><A_Name>aName11</A_Name><FK_to_B>[b11]</FK_to_B></A>");
+        xmlDomRecordInputs.put("a12", "<A><A_Id>a12</A_Id><A_Name>aName12</A_Name><FK_to_B>[b12]</FK_to_B></A>");
         // case 2:
         xmlDomRecordInputs.put("a2", "<A><A_Id>a2</A_Id><A_Name>aName1</A_Name><FK_to_C>[c1]</FK_to_C></A>");
         // case 3:

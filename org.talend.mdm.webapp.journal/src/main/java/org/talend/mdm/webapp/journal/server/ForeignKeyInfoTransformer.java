@@ -90,11 +90,11 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
         Accessor accessor = document.createAccessor(path);
         if (accessor.exist()) { // The field might not be set, so check if it exists.
             String foreignKeyValue = accessor.get(); // Raw foreign key value (surrounded by "[")
-            String resolvedForeignKeyInfo = resolveForeignKeyValue(referenceFieldMetadata, foreignKeyValue); // Value
-                                                                                                             // to
-                                                                                                             // be
-            // displayed to
-            // users
+            String resolvedForeignKeyInfo = resolveForeignKeyValue(referenceFieldMetadata, foreignKeyValue); // Value to be displayed to users
+
+            if ("".equals(resolvedForeignKeyInfo)) { //$NON-NLS-1$
+                resolvedForeignKeyInfo=foreignKeyValue;
+            }
             accessor.set(resolvedForeignKeyInfo);
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Set value " + resolvedForeignKeyInfo + " to " + path); //$NON-NLS-1$ //$NON-NLS-2$
