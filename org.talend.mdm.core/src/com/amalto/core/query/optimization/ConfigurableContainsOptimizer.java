@@ -1,23 +1,53 @@
 /*
  * Copyright (C) 2006-2013 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.query.optimization;
 
-import com.amalto.core.query.user.*;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.commmon.metadata.Types;
+
+import com.amalto.core.query.user.Alias;
+import com.amalto.core.query.user.BigDecimalConstant;
+import com.amalto.core.query.user.BinaryLogicOperator;
+import com.amalto.core.query.user.BooleanConstant;
+import com.amalto.core.query.user.ByteConstant;
+import com.amalto.core.query.user.Compare;
+import com.amalto.core.query.user.Condition;
+import com.amalto.core.query.user.DateConstant;
+import com.amalto.core.query.user.DateTimeConstant;
+import com.amalto.core.query.user.DoubleConstant;
+import com.amalto.core.query.user.Field;
+import com.amalto.core.query.user.FieldFullText;
+import com.amalto.core.query.user.FloatConstant;
+import com.amalto.core.query.user.FullText;
+import com.amalto.core.query.user.Id;
+import com.amalto.core.query.user.IntegerConstant;
+import com.amalto.core.query.user.IsEmpty;
+import com.amalto.core.query.user.IsNull;
+import com.amalto.core.query.user.Isa;
+import com.amalto.core.query.user.LongConstant;
+import com.amalto.core.query.user.NotIsEmpty;
+import com.amalto.core.query.user.NotIsNull;
+import com.amalto.core.query.user.Predicate;
+import com.amalto.core.query.user.Range;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.ShortConstant;
+import com.amalto.core.query.user.StringConstant;
+import com.amalto.core.query.user.TimeConstant;
+import com.amalto.core.query.user.UnaryLogicOperator;
+import com.amalto.core.query.user.Visitor;
+import com.amalto.core.query.user.VisitorAdapter;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 
 public class ConfigurableContainsOptimizer implements Optimizer {
 
@@ -49,21 +79,22 @@ public class ConfigurableContainsOptimizer implements Optimizer {
             }
             if (hasContains(condition)) {
                 switch (containsOptimization) {
-                    case FULL_TEXT:
-                        if (!dataSource.supportFullText()) {
-                            // Don't do any optimization if full text is disabled on datasource.
-                            LOGGER.error("Cannot use '" + containsOptimization + "': datasource '" + dataSource.getName() + "' does not support full text search.");
-                        } else if (!select.getJoins().isEmpty()) {
-                            LOGGER.warn("Cannot use '" + containsOptimization + "': query uses join clause.");
-                        } else if (hasForbiddenFullTextPredicates(condition)) {
-                            LOGGER.warn("Cannot use '" + containsOptimization + "': query uses full text forbidden predicates.");
-                        } else {
-                            condition = select.getCondition().accept(FULL_TEXT_CONTAINS_OPTIMIZATION);
-                        }
-                        break;
-                    case DISABLED:
-                        select.getCondition().accept(DISABLED_CONTAINS);
-                        break;
+                case FULL_TEXT:
+                    if (!dataSource.supportFullText()) {
+                        // Don't do any optimization if full text is disabled on datasource.
+                        LOGGER.error("Cannot use '" + containsOptimization + "': datasource '" + dataSource.getName()
+                                + "' does not support full text search.");
+                    } else if (!select.getJoins().isEmpty()) {
+                        LOGGER.warn("Cannot use '" + containsOptimization + "': query uses join clause.");
+                    } else if (hasForbiddenFullTextPredicates(condition)) {
+                        LOGGER.warn("Cannot use '" + containsOptimization + "': query uses full text forbidden predicates.");
+                    } else {
+                        condition = select.getCondition().accept(FULL_TEXT_CONTAINS_OPTIMIZATION);
+                    }
+                    break;
+                case DISABLED:
+                    select.getCondition().accept(DISABLED_CONTAINS);
+                    break;
                 }
             }
             select.setCondition(condition);
@@ -234,7 +265,8 @@ public class ConfigurableContainsOptimizer implements Optimizer {
 
                 ComplexTypeMetadata type = currentField.getFieldMetadata().getContainingType();
                 if (type.getKeyFields().size() > 1) {
-                    LOGGER.warn("Cannot use contains optimization 'full text' on type '" + type.getName() + "' (use of compound key).");
+                    LOGGER.warn("Cannot use contains optimization 'full text' on type '" + type.getName()
+                            + "' (use of compound key).");
                 } else {
                     if (Types.MULTI_LINGUAL.equals(currentField.getFieldMetadata().getType().getName())) {
                         return condition;
@@ -268,6 +300,7 @@ public class ConfigurableContainsOptimizer implements Optimizer {
     }
 
     private static class HasContains extends VisitorAdapter<Boolean> {
+
         @Override
         public Boolean visit(Compare condition) {
             return condition.getPredicate() == Predicate.CONTAINS;
@@ -330,143 +363,143 @@ public class ConfigurableContainsOptimizer implements Optimizer {
     }
 
     private static class HasForbiddenFullTextPredicates extends VisitorAdapter<Boolean> {
-            @Override
-            public Boolean visit(Compare condition) {
-                return (condition.getPredicate() == Predicate.GREATER_THAN ||
-                        condition.getPredicate() == Predicate.GREATER_THAN_OR_EQUALS ||
-                        condition.getPredicate() == Predicate.LOWER_THAN ||
-                        condition.getPredicate() == Predicate.LOWER_THAN_OR_EQUALS) ||
-                        condition.getLeft().accept(this);
-            }
 
-            @Override
-            public Boolean visit(Condition condition) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(BinaryLogicOperator condition) {
-                return condition.getLeft().accept(this) || condition.getRight().accept(this);
-            }
-
-            @Override
-            public Boolean visit(UnaryLogicOperator condition) {
-                return condition.getCondition().accept(this);
-            }
-
-            @Override
-            public Boolean visit(Range range) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(IsEmpty isEmpty) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(NotIsEmpty notIsEmpty) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(IsNull isNull) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(NotIsNull notIsNull) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(FullText fullText) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(FieldFullText fieldFullText) {
-                return false;
-            }
-            
-            @Override
-            public Boolean visit(Alias alias) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(Field field) {
-                return field.getFieldMetadata() instanceof ReferenceFieldMetadata;
-            }
-
-            @Override
-            public Boolean visit(Id id) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(StringConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(IntegerConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(DateConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(DateTimeConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(BooleanConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(BigDecimalConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(TimeConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(ShortConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(ByteConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(LongConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(DoubleConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(FloatConstant constant) {
-                return false;
-            }
-
-            @Override
-            public Boolean visit(Isa isa) {
-                return false;
-            }
+        @Override
+        public Boolean visit(Compare condition) {
+            return (condition.getPredicate() == Predicate.GREATER_THAN
+                    || condition.getPredicate() == Predicate.GREATER_THAN_OR_EQUALS
+                    || condition.getPredicate() == Predicate.LOWER_THAN || condition.getPredicate() == Predicate.LOWER_THAN_OR_EQUALS)
+                    || condition.getLeft().accept(this);
         }
+
+        @Override
+        public Boolean visit(Condition condition) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BinaryLogicOperator condition) {
+            return condition.getLeft().accept(this) || condition.getRight().accept(this);
+        }
+
+        @Override
+        public Boolean visit(UnaryLogicOperator condition) {
+            return condition.getCondition().accept(this);
+        }
+
+        @Override
+        public Boolean visit(Range range) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(IsEmpty isEmpty) {
+            return true;
+        }
+
+        @Override
+        public Boolean visit(NotIsEmpty notIsEmpty) {
+            return true;
+        }
+
+        @Override
+        public Boolean visit(IsNull isNull) {
+            return true;
+        }
+
+        @Override
+        public Boolean visit(NotIsNull notIsNull) {
+            return true;
+        }
+
+        @Override
+        public Boolean visit(FullText fullText) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(FieldFullText fieldFullText) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(Alias alias) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(Field field) {
+            return field.getFieldMetadata() instanceof ReferenceFieldMetadata;
+        }
+
+        @Override
+        public Boolean visit(Id id) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(StringConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(IntegerConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(DateConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(DateTimeConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BooleanConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BigDecimalConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(TimeConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(ShortConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(ByteConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(LongConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(DoubleConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(FloatConstant constant) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(Isa isa) {
+            return false;
+        }
+    }
 }
