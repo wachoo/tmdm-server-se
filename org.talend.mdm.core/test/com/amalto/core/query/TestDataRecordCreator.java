@@ -102,7 +102,7 @@ class TestDataRecordCreator extends DefaultMetadataVisitor<DataRecord> {
                         return s;
                     }
                 } else {
-                    return UUID.randomUUID().toString();
+                    return field.getPath();
                 }
             } else if (Types.INTEGER.equals(type.getName())
                     || Types.POSITIVE_INTEGER.equals(type.getName())
