@@ -257,7 +257,6 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         if (referenceField.isKey()) {
             throw new UnsupportedOperationException("FK field '" + referenceField.getName() + "' cannot be key in type '" + referenceField.getDeclaringType().getName() + "'"); // Don't support FK as key
         } else {
-            String fieldName = resolver.get(referenceField);
             boolean enforceDataBaseIntegrity = generateConstrains && (!referenceField.allowFKIntegrityOverride() && referenceField.isFKIntegrity());
             if (!referenceField.isMany()) {
                 return newManyToOneElement(referenceField, enforceDataBaseIntegrity);
@@ -327,6 +326,16 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         Attr joinAttribute = document.createAttribute("fetch"); //$NON-NLS-1$
         joinAttribute.setValue("join"); //$NON-NLS-1$
         propertyElement.getAttributes().setNamedItem(joinAttribute);
+        // foreign-key="..."
+        String fkConstraintName = resolver.getFkConstraintName(referencedField);
+        if (!fkConstraintName.isEmpty()) {
+            Attr foreignKeyConstraintName = document.createAttribute("foreign-key"); //$NON-NLS-1$
+            foreignKeyConstraintName.setValue(fkConstraintName);
+            propertyElement.getAttributes().setNamedItem(foreignKeyConstraintName);
+            Attr indexName = document.createAttribute("index"); //$NON-NLS-1$
+            indexName.setValue("FK_" + fkConstraintName); //$NON-NLS-1$
+            propertyElement.getAttributes().setNamedItem(indexName);
+        }
         // Not null
         if (referencedField.isMandatory() && generateConstrains) {
             Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
@@ -386,6 +395,13 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             Attr notFound = document.createAttribute("not-found"); //$NON-NLS-1$
             notFound.setValue("exception"); //$NON-NLS-1$
             manyToMany.getAttributes().setNamedItem(notFound);
+            // foreign-key="..."
+            String fkConstraintName = resolver.getFkConstraintName(referencedField);
+            if (!fkConstraintName.isEmpty()) {
+                Attr foreignKeyConstraintName = document.createAttribute("foreign-key"); //$NON-NLS-1$
+                foreignKeyConstraintName.setValue(fkConstraintName);
+                manyToMany.getAttributes().setNamedItem(foreignKeyConstraintName);
+            }
         } else {
             // Disables all warning/errors from Hibernate.
             Attr integrity = document.createAttribute("unique"); //$NON-NLS-1$

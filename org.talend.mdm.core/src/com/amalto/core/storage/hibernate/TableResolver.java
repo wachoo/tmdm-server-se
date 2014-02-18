@@ -14,6 +14,7 @@ package com.amalto.core.storage.hibernate;
 
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 
 /**
  * This interface provides all API to create table/columns names for the database schema (based on the data model elements).
@@ -65,4 +66,10 @@ interface TableResolver {
      * @return A string that can be used as table name on the database.
      */
     String getCollectionTable(FieldMetadata field);
+
+    /**
+     * @param referenceField A foreign key to generate in the database
+     * @return A unique identifier for the referenced field. Returns empty string if no unique name is required.
+     */
+    String getFkConstraintName(ReferenceFieldMetadata referenceField);
 }

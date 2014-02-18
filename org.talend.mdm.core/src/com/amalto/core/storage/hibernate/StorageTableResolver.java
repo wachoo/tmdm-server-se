@@ -21,9 +21,11 @@ import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 class StorageTableResolver implements TableResolver {
 
@@ -40,6 +42,10 @@ class StorageTableResolver implements TableResolver {
     private final Set<FieldMetadata> indexedFields;
 
     private final int maxLength;
+
+    private final AtomicInteger fkIncrement = new AtomicInteger();
+
+    private final Set<String> referenceFieldNames = new HashSet<String>();
 
     public StorageTableResolver(Set<FieldMetadata> indexedFields) {
         this(indexedFields, Integer.MAX_VALUE);
@@ -124,6 +130,15 @@ class StorageTableResolver implements TableResolver {
                     + referenceField.getReferencedType().getName());
         }
         return formatSQLName(get(field.getContainingType()) + '_' + field.getName());
+    }
+
+    @Override
+    public String getFkConstraintName(ReferenceFieldMetadata referenceField) {
+        if (!referenceFieldNames.add(referenceField.getContainingType().getName() + '_' + referenceField.getName())) {
+            return formatSQLName("FK_" + Math.abs(referenceField.getName().hashCode()) + fkIncrement.incrementAndGet()); //$NON-NLS-1$
+        } else {
+            return StringUtils.EMPTY;
+        }
     }
 
     /**
