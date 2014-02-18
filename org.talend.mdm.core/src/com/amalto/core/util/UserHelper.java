@@ -19,33 +19,33 @@ import java.util.Set;
  * 
  */
 public final class UserHelper {
-    protected static boolean isFromeRemote = false;
-    private UserHelper() {
-        um = new UserManageOptimizedImpl();
-    }
 
     private static UserHelper instance;
 
+    private static UserHelper instanceFromRemote;
+
     private UserManage um;
 
+    private UserHelper(boolean isFromRemote) {
+        um = new UserManageOptimizedImpl(isFromRemote);
+    }
+
     public static synchronized UserHelper getInstance() {
-        if (instance == null) {
-            instance = new UserHelper();
-        }
-
-        return instance;
+        return getInstance(false);
     }
-    
-    public static synchronized UserHelper getInstance(boolean isFromRemotex) {
-        isFromeRemote = isFromRemotex;
-        if (instance == null) {
-            instance = new UserHelper();
-        }
 
-        return instance;
-    }
-    public static void clearInstance() {
-        instance = null;
+    public static synchronized UserHelper getInstance(boolean isFromRemote) {
+        if (!isFromRemote) {
+            if (instance == null) {
+                instance = new UserHelper(false);
+            }
+            return instance;
+        } else {
+            if (instanceFromRemote == null) {
+                instanceFromRemote = new UserHelper(true);
+            }
+            return instanceFromRemote;
+        }
     }
 
     public void overrideUserManage(UserManage _um) {

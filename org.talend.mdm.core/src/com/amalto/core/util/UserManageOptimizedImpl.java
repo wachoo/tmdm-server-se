@@ -19,14 +19,34 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
+import javax.naming.InitialContext;
+
+import org.apache.log4j.Logger;
+
+import com.amalto.core.ejb.remote.ItemCtrl2;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 
 public class UserManageOptimizedImpl extends UserManage {
-    private static final String FROM_HOST = "from.host"; //$NON-NLS-1$
+
+    private static final Logger LOG = Logger.getLogger(UserManageOptimizedImpl.class);
+
+    private static final String FROM_JNDI_HOST = "from.jndi.host"; //$NON-NLS-1$
+
     private static final String FROM_JNDI_PORT = "from.jndi.port"; //$NON-NLS-1$
+
+    private boolean isFromRemote = false;
+
+    private ItemCtrl2 itemCtrl = null;
+
+    protected UserManageOptimizedImpl(boolean isFromRemote) {
+        this.isFromRemote = isFromRemote;
+    }
+
     @Override
     public int getActiveUsers() {
         try {
@@ -81,41 +101,60 @@ public class UserManageOptimizedImpl extends UserManage {
         if (user == null || user.getUserName() == null) {
             return null;
         }
-        InputStream is = null;
         try {
             ArrayList<IWhereItem> conditions = new ArrayList<IWhereItem>();
             conditions.add(new WhereCondition("User/username", //$NON-NLS-1$
                     WhereCondition.EQUALS, user.getUserName(), "NONE")); //$NON-NLS-1$
             IWhereItem whereItem = new WhereAnd(conditions);
-            ArrayList<String> items = null;
-            if (!UserHelper.isFromeRemote) {
-                items = Util.getItemCtrl2Local().getItems(new DataClusterPOJOPK(PROVISIONING_CLUSTER),
-                        USER_CONCEPT, whereItem, -1, 0, 1, false);
+            ArrayList<String> items;
+            if (!isFromRemote) {
+                items = Util.getItemCtrl2Local().getItems(new DataClusterPOJOPK(PROVISIONING_CLUSTER), USER_CONCEPT, whereItem,
+                        -1, 0, 1, false);
             } else {
-                is = UserManageOptimizedImpl.class.getResourceAsStream("ejb.remote.jndi.lookup.properties"); //$NON-NLS-1$
-                Properties properties = new Properties();
-                properties.load(is);
-                
-                items = Util.getItemCtrl2Home(properties.getProperty(FROM_HOST), properties.getProperty(FROM_JNDI_PORT)).
-                        getItems(new DataClusterPOJOPK(PROVISIONING_CLUSTER), USER_CONCEPT, whereItem, -1, 0, 1, false);
+                if (itemCtrl == null) {
+                    String[] jndiProps = getJNDIProperties();
+                    itemCtrl = Util.getItemCtrl2Home(jndiProps[0], jndiProps[1]);
+                }
+                items = itemCtrl.getItems(new DataClusterPOJOPK(PROVISIONING_CLUSTER), USER_CONCEPT, whereItem, -1, 0, 1, false);
             }
             if (items != null && items.size() > 0) {
                 String userXML = items.get(0);
                 return User.parse(userXML);
             }
+            return null;
         } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            if (is != null) {
+        }
+    }
+
+    private String[] getJNDIProperties() throws Exception {
+        String host, port;
+
+        InputStream is = UserManageOptimizedImpl.class.getResourceAsStream("ejb.remote.jndi.lookup.properties"); //$NON-NLS-1$
+        if (is != null) {
+            LOG.info("Retrieving JNDI port from custom file."); //$NON-NLS-1$
+            try {
+                Properties properties = new Properties();
+                properties.load(is);
+                host = properties.getProperty(FROM_JNDI_HOST);
+                port = properties.getProperty(FROM_JNDI_PORT);
+            } finally {
                 try {
                     is.close();
                 } catch (IOException e) {
-                 // do nothing
+                    // do nothing
                 }
-            }            
+            }
+        } else {
+            // Retrieve JNDI properties from MBean
+            // FIXME Specific to JBoss
+            InitialContext ic = new InitialContext();
+            MBeanServerConnection server = (MBeanServerConnection) ic.lookup("jmx/invoker/RMIAdaptor"); //$NON-NLS-1$
+            ObjectName name = new ObjectName("jboss:service=Naming"); //$NON-NLS-1$
+            host = (String) server.getAttribute(name, "BindAddress"); //$NON-NLS-1$
+            port = Integer.toString((Integer) server.getAttribute(name, "Port")); //$NON-NLS-1$
         }
-
-        return null;
+        return new String[] { host, port };
     }
 
     @Override
