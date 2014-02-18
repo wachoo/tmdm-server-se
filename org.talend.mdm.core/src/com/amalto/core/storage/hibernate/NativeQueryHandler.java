@@ -163,7 +163,7 @@ class NativeQueryHandler extends AbstractQueryHandler {
                     if (o != null) {
                         SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, MetadataUtils.getType(o.getClass().getName()));
                         String name = "col" + i++; //$NON-NLS-1$
-                        SimpleTypeFieldMetadata colField = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, name, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), name);
+                        SimpleTypeFieldMetadata colField = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, name, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList());
                         explicitProjectionType.addField(colField);
                         nativeResult.set(colField, o);
                     }
@@ -171,7 +171,7 @@ class NativeQueryHandler extends AbstractQueryHandler {
             } else {
                 SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, MetadataUtils.getType(next.getClass().getName()));
                 String name = "col0"; //$NON-NLS-1$
-                SimpleTypeFieldMetadata colField = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, name, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), name);
+                SimpleTypeFieldMetadata colField = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, name, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList());
                 explicitProjectionType.addField(colField);
                 nativeResult.set(colField, next);
             }

@@ -16,6 +16,7 @@ import org.apache.log4j.Level;
 import org.talend.mdm.commmon.metadata.*;
 import org.apache.log4j.Logger;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -340,49 +341,45 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     }
 
     public Void visit(Field field) {
+        DefaultMetadataVisitor<String> fieldPrinter = new DefaultMetadataVisitor<String>() {
+            @Override
+            public String visit(ReferenceFieldMetadata referenceField) {
+                return referenceField.getEntityTypeName() + '/' + referenceField.getPath();
+            }
+
+            @Override
+            public String visit(SimpleTypeFieldMetadata simpleField) {
+                return simpleField.getEntityTypeName() + '/' + simpleField.getPath();
+            }
+
+            @Override
+            public String visit(EnumerationFieldMetadata enumField) {
+                return enumField.getEntityTypeName() + '/' + enumField.getPath();
+            }
+
+            @Override
+            public String visit(ContainedTypeFieldMetadata containedField) {
+                return containedField.getEntityTypeName() + '/' + containedField.getPath();
+            }
+        };
+
         print("[FIELD]"); //$NON-NLS-1$
-        increaseIndent();
         {
-            field.getFieldMetadata().accept(new DefaultMetadataVisitor<Void>() {
-                @Override
-                public Void visit(ReferenceFieldMetadata referenceField) {
-                    print(getFieldPath(referenceField));
-                    return null;
-                }
-
-                @Override
-                public Void visit(SimpleTypeFieldMetadata simpleField) {
-                    print(getFieldPath(simpleField));
-                    return null;
-                }
-
-                @Override
-                public Void visit(EnumerationFieldMetadata enumField) {
-                    print(getFieldPath(enumField));
-                    return null;
-                }
-
-                @Override
-                public Void visit(ContainedTypeFieldMetadata containedField) {
-                    print(containedField.getName());
-                    return null;
-                }
-
-                private String getFieldPath(FieldMetadata field) {
-                    StringBuilder path = new StringBuilder();
-                    ComplexTypeMetadata containingType = field.getContainingType();
-                    while (containingType != null) {
-                        path.insert(0, containingType.getName() + '/');
-                        if (containingType instanceof ContainedComplexTypeMetadata) {
-                            containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
-                        } else {
-                            containingType = null;
-                        }
+            increaseIndent();
+            {
+                print(field.getFieldMetadata().accept(fieldPrinter));
+            }
+            increaseIndent();
+            {
+                if (field.getPath().size() > 1) {
+                    print("[PATH]"); //$NON-NLS-1$
+                    Iterator<FieldMetadata> pathIterator = field.getPath().iterator();
+                    for (int i = 1; pathIterator.hasNext(); i++) {
+                        print(i + ") " + pathIterator.next().accept(fieldPrinter)); //$NON-NLS-1$
                     }
-                    path.append(field.getName());
-                    return path.toString();
                 }
-            });
+            }
+            decreaseIndent();
         }
         decreaseIndent();
         return null;

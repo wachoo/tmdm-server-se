@@ -49,9 +49,6 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
         for (TypeMetadata type : repository.getUserComplexTypes()) {
             type.accept(this);
         }
-        for (TypeMetadata type : repository.getNonInstantiableTypes()) {
-            type.accept(this);
-        }
         for (TypeMapping typeMapping : mappings.getAllTypeMappings()) {
             typeMapping.freeze();
         }
@@ -100,7 +97,7 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
     }
 
     public MetadataRepository visit(SimpleTypeMetadata simpleType) {
-        internalRepository.addTypeMetadata(simpleType.copy(internalRepository));
+        internalRepository.addTypeMetadata(simpleType.copy());
         return internalRepository;
     }
 
@@ -175,7 +172,7 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
 
         @Override
         public TypeMappingStrategy visit(ContainedTypeFieldMetadata containedField) {
-            ContainedComplexTypeMetadata containedType = containedField.getContainedType();
+            ComplexTypeMetadata containedType = containedField.getContainedType();
             if (containedField.isMany()
                     || !containedType.getSubTypes().isEmpty()
                     || !containedType.getName().startsWith(MetadataRepository.ANONYMOUS_PREFIX)) {

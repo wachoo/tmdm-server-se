@@ -91,6 +91,18 @@ public class StorageMetadataUtils {
         if (Storage.PROJECTION_TYPE.equals(type.getName()) && type.hasField(target.getName())) {
             path.push(type.getField(target.getName()));
         }
+        if (target.getContainingType() instanceof ContainedComplexTypeMetadata) {
+            String targetPath = target.getPath();
+            if (type.hasField(targetPath)) {
+                StringTokenizer tokenizer = new StringTokenizer(targetPath, "/"); //$NON-NLS-1$
+                StringBuilder currentPath = new StringBuilder();
+                while (tokenizer.hasMoreTokens()) {
+                    currentPath.append(tokenizer.nextToken()).append('/');
+                    path.add(type.getField(currentPath.toString()));
+                }
+                return;
+            }
+        }
         //
         if (processedTypes.contains(type)) {
             return;
@@ -99,20 +111,20 @@ public class StorageMetadataUtils {
         Collection<FieldMetadata> fields = type.getFields();
         for (FieldMetadata current : fields) {
             path.push(current);
-            if (current == target) {
+            if (current.equals(target)) {
                 return;
             }
             if (current instanceof ContainedTypeFieldMetadata) {
-                ContainedComplexTypeMetadata containedType = ((ContainedTypeFieldMetadata) current).getContainedType();
+                ComplexTypeMetadata containedType = ((ContainedTypeFieldMetadata) current).getContainedType();
                 _path(containedType, target, path, processedTypes, includeReferences);
-                if (path.peek() == target) {
+                if (path.peek().equals(target)) {
                     return;
                 }
                 for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
                     for (FieldMetadata field : subType.getFields()) {
                         if (field.getDeclaringType() == subType) {
                             _path(subType, target, path, processedTypes, includeReferences);
-                            if (path.peek() == target) {
+                            if (path.peek().equals(target)) {
                                 return;
                             }
                         }
@@ -122,14 +134,14 @@ public class StorageMetadataUtils {
                 if (includeReferences) {
                     ComplexTypeMetadata referencedType = ((ReferenceFieldMetadata) current).getReferencedType();
                     _path(referencedType, target, path, processedTypes, true);
-                    if (path.peek() == target) {
+                    if (path.peek().equals(target)) {
                         return;
                     }
                     for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
                         for (FieldMetadata field : subType.getFields()) {
                             if (field.getDeclaringType() == subType) {
                                 _path(subType, target, path, processedTypes, true);
-                                if (path.peek() == target) {
+                                if (path.peek().equals(target)) {
                                     return;
                                 }
                             }
@@ -184,15 +196,15 @@ public class StorageMetadataUtils {
         Collection<FieldMetadata> fields = type.getFields();
         for (FieldMetadata current : fields) {
             currentPath.push(current);
-            if (current == target) {
+            if (current.equals(target)) {
                 foundPaths.add(new ArrayList<FieldMetadata>(currentPath));
             }
             if (current instanceof ContainedTypeFieldMetadata) {
-                ContainedComplexTypeMetadata containedType = ((ContainedTypeFieldMetadata) current).getContainedType();
+                ComplexTypeMetadata containedType = ((ContainedTypeFieldMetadata) current).getContainedType();
                 _paths(containedType, target, currentPath, foundPaths);
                 for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
                     for (FieldMetadata field : subType.getFields()) {
-                        if (field.getDeclaringType() == subType) {
+                        if (field.getDeclaringType().equals(subType)) {
                             _paths(subType, target, currentPath, foundPaths);
                         }
                     }

@@ -203,8 +203,8 @@ public class StorageIntegrityTest extends TestCase {
 
     private Storage prepareStorage(MetadataRepository repository) {
         Storage storage = new HibernateStorage("MDMStorageIntegrityTest");
-        storage.init(ServerContext.INSTANCE.get().getDefinition(StorageTestCase.DATABASE + "-Default", "MDM"));
-        storage.prepare(repository, false);
+        storage.init(ServerContext.INSTANCE.get().getDefinition(StorageTestCase.DATABASE + "-DS1", "MDM"));
+        storage.prepare(repository, true);
         return storage;
     }
 }

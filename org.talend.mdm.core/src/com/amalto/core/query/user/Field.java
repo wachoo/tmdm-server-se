@@ -16,9 +16,14 @@ import org.talend.mdm.commmon.metadata.MetadataUtils;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
 
+import java.util.Collections;
+import java.util.List;
+
 public class Field implements TypedExpression {
 
     private final FieldMetadata fieldMetadata;
+
+    private List<FieldMetadata> path = Collections.emptyList();
 
     public Field(FieldMetadata fieldMetadata) {
         if (fieldMetadata == null) {
@@ -47,6 +52,14 @@ public class Field implements TypedExpression {
     public String getTypeName() {
         TypeMetadata type = MetadataUtils.getSuperConcreteType(fieldMetadata.getType());
         return type.getName();
+    }
+
+    public void setPath(List<FieldMetadata> path) {
+        this.path = path;
+    }
+
+    public List<FieldMetadata> getPath() {
+        return path;
     }
 
     @Override

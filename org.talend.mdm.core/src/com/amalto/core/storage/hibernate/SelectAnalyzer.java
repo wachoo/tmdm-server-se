@@ -510,12 +510,7 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
             FieldMetadata fieldMetadata = field.getFieldMetadata();
             // Limit join for contained fields
             if (!result.limitJoins) {
-                int level = 0;
-                ComplexTypeMetadata containingType = fieldMetadata.getContainingType();
-                while (containingType instanceof ContainedComplexTypeMetadata) {
-                    containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
-                    level++;
-                }
+                int level = StringUtils.countMatches(fieldMetadata.getPath(), "/"); //$NON-NLS-1$
                 if (level > 2 || !select.getTypes().contains(fieldMetadata.getContainingType())) {
                     result.limitJoins = true;
                 }
