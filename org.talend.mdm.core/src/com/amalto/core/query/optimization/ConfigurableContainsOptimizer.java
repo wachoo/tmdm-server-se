@@ -1,24 +1,60 @@
 /*
  * Copyright (C) 2006-2013 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.query.optimization;
 
-import com.amalto.core.query.user.*;
-import com.amalto.core.query.user.metadata.*;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.commmon.metadata.Types;
+
+import com.amalto.core.query.user.Alias;
+import com.amalto.core.query.user.BigDecimalConstant;
+import com.amalto.core.query.user.BinaryLogicOperator;
+import com.amalto.core.query.user.BooleanConstant;
+import com.amalto.core.query.user.ByteConstant;
+import com.amalto.core.query.user.Compare;
+import com.amalto.core.query.user.Condition;
+import com.amalto.core.query.user.DateConstant;
+import com.amalto.core.query.user.DateTimeConstant;
+import com.amalto.core.query.user.DoubleConstant;
+import com.amalto.core.query.user.Field;
+import com.amalto.core.query.user.FieldFullText;
+import com.amalto.core.query.user.FloatConstant;
+import com.amalto.core.query.user.FullText;
+import com.amalto.core.query.user.Id;
+import com.amalto.core.query.user.IntegerConstant;
+import com.amalto.core.query.user.IsEmpty;
+import com.amalto.core.query.user.IsNull;
+import com.amalto.core.query.user.Isa;
+import com.amalto.core.query.user.LongConstant;
+import com.amalto.core.query.user.NotIsEmpty;
+import com.amalto.core.query.user.NotIsNull;
+import com.amalto.core.query.user.Predicate;
+import com.amalto.core.query.user.Range;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.ShortConstant;
+import com.amalto.core.query.user.StringConstant;
+import com.amalto.core.query.user.TimeConstant;
+import com.amalto.core.query.user.UnaryLogicOperator;
+import com.amalto.core.query.user.Visitor;
+import com.amalto.core.query.user.VisitorAdapter;
+import com.amalto.core.query.user.metadata.GroupSize;
+import com.amalto.core.query.user.metadata.StagingBlockKey;
+import com.amalto.core.query.user.metadata.StagingError;
+import com.amalto.core.query.user.metadata.StagingSource;
+import com.amalto.core.query.user.metadata.StagingStatus;
+import com.amalto.core.query.user.metadata.TaskId;
+import com.amalto.core.query.user.metadata.Timestamp;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 
 public class ConfigurableContainsOptimizer implements Optimizer {
 
@@ -49,21 +85,22 @@ public class ConfigurableContainsOptimizer implements Optimizer {
             }
             if (hasContains(condition)) {
                 switch (containsOptimization) {
-                    case FULL_TEXT:
-                        if (!dataSource.supportFullText()) {
-                            // Don't do any optimization if full text is disabled on datasource.
-                            LOGGER.error("Cannot use '" + containsOptimization + "': datasource '" + dataSource.getName() + "' does not support full text search.");
-                        } else if (!select.getJoins().isEmpty()) {
-                            LOGGER.warn("Cannot use '" + containsOptimization + "': query uses join clause.");
-                        } else if (hasForbiddenFullTextPredicates(condition)) {
-                            LOGGER.warn("Cannot use '" + containsOptimization + "': query uses full text forbidden predicates.");
-                        } else {
-                            condition = select.getCondition().accept(FULL_TEXT_CONTAINS_OPTIMIZATION);
-                        }
-                        break;
-                    case DISABLED:
-                        select.getCondition().accept(DISABLED_CONTAINS);
-                        break;
+                case FULL_TEXT:
+                    if (!dataSource.supportFullText()) {
+                        // Don't do any optimization if full text is disabled on datasource.
+                        LOGGER.error("Cannot use '" + containsOptimization + "': datasource '" + dataSource.getName()
+                                + "' does not support full text search.");
+                    } else if (!select.getJoins().isEmpty()) {
+                        LOGGER.warn("Cannot use '" + containsOptimization + "': query uses join clause.");
+                    } else if (hasForbiddenFullTextPredicates(condition)) {
+                        LOGGER.warn("Cannot use '" + containsOptimization + "': query uses full text forbidden predicates.");
+                    } else {
+                        condition = select.getCondition().accept(FULL_TEXT_CONTAINS_OPTIMIZATION);
+                    }
+                    break;
+                case DISABLED:
+                    select.getCondition().accept(DISABLED_CONTAINS);
+                    break;
                 }
             }
             select.setCondition(condition);
@@ -234,7 +271,8 @@ public class ConfigurableContainsOptimizer implements Optimizer {
 
                 ComplexTypeMetadata type = currentField.getFieldMetadata().getContainingType();
                 if (type.getKeyFields().size() > 1) {
-                    LOGGER.warn("Cannot use contains optimization 'full text' on type '" + type.getName() + "' (use of compound key).");
+                    LOGGER.warn("Cannot use contains optimization 'full text' on type '" + type.getName()
+                            + "' (use of compound key).");
                 } else {
                     if (Types.MULTI_LINGUAL.equals(currentField.getFieldMetadata().getType().getName())) {
                         return condition;
@@ -268,6 +306,7 @@ public class ConfigurableContainsOptimizer implements Optimizer {
     }
 
     private static class HasContains extends VisitorAdapter<Boolean> {
+
         @Override
         public Boolean visit(Compare condition) {
             return condition.getPredicate() == Predicate.CONTAINS && condition.getRight().accept(this);
@@ -390,13 +429,13 @@ public class ConfigurableContainsOptimizer implements Optimizer {
     }
 
     private static class HasForbiddenFullTextPredicates extends VisitorAdapter<Boolean> {
+
         @Override
         public Boolean visit(Compare condition) {
-            return (condition.getPredicate() == Predicate.GREATER_THAN ||
-                    condition.getPredicate() == Predicate.GREATER_THAN_OR_EQUALS ||
-                    condition.getPredicate() == Predicate.LOWER_THAN ||
-                    condition.getPredicate() == Predicate.LOWER_THAN_OR_EQUALS) ||
-                    condition.getLeft().accept(this);
+            return (condition.getPredicate() == Predicate.GREATER_THAN
+                    || condition.getPredicate() == Predicate.GREATER_THAN_OR_EQUALS
+                    || condition.getPredicate() == Predicate.LOWER_THAN || condition.getPredicate() == Predicate.LOWER_THAN_OR_EQUALS)
+                    || condition.getLeft().accept(this);
         }
 
         @Override
@@ -456,22 +495,22 @@ public class ConfigurableContainsOptimizer implements Optimizer {
 
         @Override
         public Boolean visit(IsEmpty isEmpty) {
-            return false;
+            return true;
         }
 
         @Override
         public Boolean visit(NotIsEmpty notIsEmpty) {
-            return false;
+            return true;
         }
 
         @Override
         public Boolean visit(IsNull isNull) {
-            return false;
+            return true;
         }
 
         @Override
         public Boolean visit(NotIsNull notIsNull) {
-            return false;
+            return true;
         }
 
         @Override
