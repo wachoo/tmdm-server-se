@@ -375,8 +375,8 @@ public class StorageFullTextTest extends StorageTestCase {
 
     public void testSimpleSearchWithContainsAndIsEmptyNullCondition() throws Exception {
         UserQueryBuilder qb = from(supplier).where(
-                and(contains(supplier.getField("Contact/Name"), "John"),
-                        or(isEmpty(supplier.getField("Contact/Name")), isNull(supplier.getField("Contact/Email")))));
+                and(contains(supplier.getField("Id"), "4"),
+                        or(isEmpty(supplier.getField("Contact/Email")), isNull(supplier.getField("Contact/Email")))));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
@@ -384,7 +384,9 @@ public class StorageFullTextTest extends StorageTestCase {
             results.close();
         }
 
-        qb = from(supplier).where(or(isEmpty(supplier.getField("Contact/Name")), isNull(supplier.getField("Contact/Email"))));
+        qb = from(supplier).where(
+                and(contains(supplier.getField("Contact/Name"), "John"),
+                        or(isNull(supplier.getField("Contact/Email")), isEmpty(supplier.getField("Contact/Email")))));
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
