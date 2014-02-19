@@ -49,7 +49,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private final Map<FieldMetadata, Set<String>> joinFieldsToAlias = new HashMap<FieldMetadata, Set<String>>();
 
-    private final MappingRepository mappings;
+    protected final MappingRepository mappings;
 
     private final TableResolver resolver;
 
@@ -64,13 +64,13 @@ class StandardQueryHandler extends AbstractQueryHandler {
     private String currentAliasName;
 
     public StandardQueryHandler(Storage storage,
-                                MappingRepository mappings,
-                                TableResolver resolver,
-                                StorageClassLoader storageClassLoader,
-                                Session session,
-                                Select select,
-                                List<TypedExpression> selectedFields,
-                                Set<ResultsCallback> callbacks) {
+            MappingRepository mappings,
+            TableResolver resolver,
+            StorageClassLoader storageClassLoader,
+            Session session,
+            Select select,
+            List<TypedExpression> selectedFields,
+            Set<ResultsCallback> callbacks) {
         super(storage, storageClassLoader, session, select, selectedFields, callbacks);
         this.mappings = mappings;
         this.resolver = resolver;

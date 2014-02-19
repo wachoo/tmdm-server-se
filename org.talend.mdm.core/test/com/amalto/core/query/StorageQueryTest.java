@@ -1127,6 +1127,11 @@ public class StorageQueryTest extends StorageTestCase {
         try {
             assertEquals(3, results.getSize());
             assertEquals(3, results.getCount());
+            int actualCount = 0;
+            for (DataRecord result : results) {
+                actualCount++;
+            }
+            assertEquals(3, actualCount);
         } finally {
             results.close();
         }
@@ -1291,7 +1296,6 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
-
         qb = from(address).selectId(address).select(address.getField("country"))
                 .orderBy(address.getField("country"), OrderBy.Direction.DESC);
         results = storage.fetch(qb.getSelect());
@@ -1335,8 +1339,19 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
-
-        //
+        qb = from(person);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getSize());
+            assertEquals(3, results.getCount());
+            int actualCount = 0;
+            for (DataRecord result : results) {
+                actualCount++;
+            }
+            assertEquals(3, actualCount);
+        } finally {
+            results.close();
+        }
         qb = from(address).selectId(address).where(emptyOrNull(address.getField("OptionalCity")));
         results = storage.fetch(qb.getSelect());
         try {
@@ -1344,8 +1359,6 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
-
-        //
         qb = from(address).selectId(address).where(not(emptyOrNull(address.getField("OptionalCity"))));
         results = storage.fetch(qb.getSelect().normalize());
         try {
@@ -1363,8 +1376,6 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
-
-        //
         qb = from(address).selectId(address).where(not(emptyOrNull(address.getField("enterprise"))));
         results = storage.fetch(qb.getSelect());
         try {
@@ -1963,7 +1974,6 @@ public class StorageQueryTest extends StorageTestCase {
         for (DataRecord result : results) {
             // Test iterator too (even if size is 0).
         }
-
         qb = from(person).where(eq(person.getField("firstname"), "Julien"));
         results = storage.fetch(qb.getExpression());
         try {
