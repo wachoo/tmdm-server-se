@@ -91,8 +91,8 @@ public class ControllerServlet extends HttpServlet {
         html.append("<html>\n");
         html.append("<head>\n");
         html.append("<title>Talend MDM</title>\n");
-        html.append("<meta id='gwt:property' name='gwt:property' http-equiv='X-UA-Compatible' content='IE=8' content='locale=")
-                .append(language).append("'>\n");
+        html.append("<meta id='gwt:property' name='gwt:property' content='locale=").append(language).append("'>\n");
+        html.append("<meta http-equiv='X-UA-Compatible' content='IE=8'>\n");
         html.append("<link rel='stylesheet' type='text/css' href='/core/secure/gxt/resources/css/gxt-all.css'/>\n");
         html.append("<link rel='stylesheet' type='text/css' href='/general/General.css'/>\n");
         html.append("<link rel='stylesheet' type='text/css' href='/general/General-menus.css'/>\n");
