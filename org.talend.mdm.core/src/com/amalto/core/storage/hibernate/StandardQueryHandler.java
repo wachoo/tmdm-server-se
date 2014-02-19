@@ -295,7 +295,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
     public StorageResults visit(final Field field) {
         final FieldMetadata userFieldMetadata = field.getFieldMetadata();
         ComplexTypeMetadata containingType = getContainingType(userFieldMetadata);
-        final Set<String> aliases = getAliases(containingType, userFieldMetadata);
+        final Set<String> aliases = getAliases(containingType, field);
         userFieldMetadata.accept(new DefaultMetadataVisitor<Void>() {
 
             @Override
@@ -350,26 +350,27 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     /**
      * <p>
-     * Generate an alias to the <code>databaseField</code> starting from <code>type</code>. This code ensures all paths
-     * to <code>databaseField</code> are covered (this field might be present several times inside the MDM entity
+     * Generate an alias to the <code>field</code> starting from <code>type</code>. This code ensures all paths
+     * to <code>field</code> are covered (this field might be present several times inside the MDM entity
      * scope).
      * </p>
      *
      * @param type          A type in the query.
-     * @param databaseField A field to include in current Hibernate criteria.
-     * @return A set of aliases that represents the <code>databaseField</code>.
+     * @param field A field to include in current Hibernate criteria.
+     * @return A set of aliases that represents the <code>field</code>.
      */
-    private Set<String> getAliases(ComplexTypeMetadata type, FieldMetadata databaseField) {
-        if (joinFieldsToAlias.containsKey(databaseField)) {
-            return joinFieldsToAlias.get(databaseField);
+    private Set<String> getAliases(ComplexTypeMetadata type, Field field) {
+        if (joinFieldsToAlias.containsKey(field.getFieldMetadata())) {
+            return joinFieldsToAlias.get(field.getFieldMetadata());
         }
+        FieldMetadata fieldMetadata = field.getFieldMetadata();
         String previousAlias = type.getName();
         String alias = null;
-        Set<List<FieldMetadata>> paths;
-        if (databaseField instanceof ReferenceFieldMetadata && !databaseField.getContainingType().isInstantiable()) {
-            paths = MetadataUtils.paths(type, databaseField);
+        Set<List<FieldMetadata>> paths ;
+        if (fieldMetadata instanceof ReferenceFieldMetadata && !fieldMetadata.getContainingType().isInstantiable()) {
+            paths = MetadataUtils.paths(type, fieldMetadata);
         } else {
-            paths = Collections.singleton(MetadataUtils.path(type, databaseField, true));
+            paths = Collections.singleton(field.getPath());
         }
         Set<String> aliases = new HashSet<String>(paths.size());
         for (List<FieldMetadata> path : paths) {
@@ -512,7 +513,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             Field field = (Field) orderByExpression;
             FieldMetadata userFieldMetadata = field.getFieldMetadata();
             ComplexTypeMetadata containingType = getContainingType(userFieldMetadata);
-            Set<String> aliases = getAliases(containingType, userFieldMetadata);
+            Set<String> aliases = getAliases(containingType, field);
             condition.criterionFieldNames = new ArrayList<String>(aliases.size());
             for (String alias : aliases) {
                 condition.criterionFieldNames.add(alias + '.' + userFieldMetadata.getName());
@@ -663,7 +664,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                             + mainType.getName() + "'.");
                 }
                 // Generate the joins
-                Set<String> aliases = getAliases(mainType, fieldCondition.fieldMetadata);
+                Set<String> aliases = getAliases(mainType, fieldCondition.field);
                 generateJoinPath(aliases, JoinFragment.INNER_JOIN, path);
                 // Find the criteria that does the join to the table to check (only way to get the SQL alias for table).
                 Criteria foundSubCriteria = findCriteria(criteria, aliases);
@@ -900,8 +901,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 Set<String> aliases = Collections.singleton(fieldMetadata.getContainingType().getName());
                 // TODO Ugly code path to fix once test coverage is ok.
                 if (!mainType.equals(fieldMetadata.getContainingType()) || fieldMetadata instanceof ReferenceFieldMetadata) {
-                    (new Field(fieldMetadata)).accept(StandardQueryHandler.this);
-                    aliases = getAliases(mainType, fieldMetadata);
+                    leftField.accept(StandardQueryHandler.this);
+                    aliases = getAliases(mainType, leftField);
                     if (!fieldMetadata.isMany()) {
                         leftFieldCondition.criterionFieldNames.clear();
                         for (String alias : aliases) {
@@ -977,7 +978,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         if (!(referencedField instanceof CompoundFieldMetadata)) {
                             throw new IllegalArgumentException("Expected field '" + referencedField + "' to be a composite key.");
                         }
-                        Set<String> aliases = getAliases(fieldMetadata.getContainingType(), fieldMetadata);
+                        Set<String> aliases = getAliases(mainType, leftField);
                         Criterion current = null;
                         for (String alias : aliases) {
                             FieldMetadata[] fields = ((CompoundFieldMetadata) referencedField).getFields();
@@ -1322,6 +1323,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             // StandardQueryHandler.this.mappingMetadataRepository);
             condition.criterionFieldNames.add(getFieldName(field));
             condition.fieldMetadata = field.getFieldMetadata();
+            condition.field = field;
             condition.isProperty = true;
             return condition;
         }
@@ -1418,7 +1420,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             FieldCondition fieldCondition = new FieldCondition();
             Field field = type.getField();
             FieldMetadata fieldMetadata = field.getFieldMetadata();
-            Set<String> aliases = getAliases(fieldMetadata.getContainingType(), fieldMetadata);
+            Set<String> aliases = getAliases(fieldMetadata.getContainingType(), field);
             for (String alias : aliases) {
                 fieldCondition.criterionFieldNames.add(alias + ".class"); //$NON-NLS-1$
             }

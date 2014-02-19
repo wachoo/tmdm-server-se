@@ -11,34 +11,44 @@
 
 package com.amalto.core.storage.hibernate;
 
-import org.apache.commons.collections.map.MultiKeyMap;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MappingRepository {
 
-    private final MultiKeyMap userToMapping = new MultiKeyMap();
-
-    private final MultiKeyMap databaseToMapping = new MultiKeyMap();
+    private final Map<TypeMetadata, TypeMapping> userToMapping = new HashMap<TypeMetadata, TypeMapping>();
 
     public TypeMapping getMappingFromUser(TypeMetadata type) {
         if (type instanceof TypeMapping) {
             return (TypeMapping) type;
         }
-        return (TypeMapping) userToMapping.get(type.getName(), type.isInstantiable());
+        TypeMapping mapping = userToMapping.get(type);
+        if (mapping == null && type instanceof ComplexTypeMetadata) {
+            // In case, type is a nested type, only the entity type is in repository
+            mapping = userToMapping.get(((ComplexTypeMetadata) type).getEntity());
+        }
+        return mapping;
     }
 
     public TypeMapping getMappingFromDatabase(TypeMetadata type) {
         if (type instanceof TypeMapping) {
             return (TypeMapping) type;
         }
-        return (TypeMapping) databaseToMapping.get(type.getName(), type.isInstantiable());
+        for (Map.Entry<TypeMetadata, TypeMapping> entry : userToMapping.entrySet()) {
+            TypeMapping mapping = entry.getValue();
+            if (mapping.getDatabase().equals(type)) {
+                return mapping;
+            }
+        }
+        return null;
     }
 
-    public void addMapping(TypeMetadata type, TypeMapping mapping) {
-        userToMapping.put(type.getName(), type.isInstantiable(), mapping);
-        databaseToMapping.put(mapping.getDatabase().getName(), type.isInstantiable(), mapping);
+    public void addMapping(TypeMapping mapping) {
+        userToMapping.put(mapping.getUser(), mapping);
     }
 
     public Collection<TypeMapping> getAllTypeMappings() {

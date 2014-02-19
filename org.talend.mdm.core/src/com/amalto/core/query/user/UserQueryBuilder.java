@@ -181,7 +181,20 @@ public class UserQueryBuilder {
         if (field instanceof ReferenceFieldMetadata) {
             throw new IllegalArgumentException("Cannot perform type check on a foreign key.");
         }
-        Condition current = new Isa(new Field(field), type);
+        // Get the matching type from the field definition (field uses a contained version of the type).
+        ComplexTypeMetadata fieldType = type;
+        if (!(fieldType instanceof ContainedComplexTypeMetadata)) {
+            fieldType = (ComplexTypeMetadata) field.getType();
+            if (!fieldType.getName().equals(type.getName())) {
+                for (ComplexTypeMetadata subType : fieldType.getSubTypes()) {
+                    if (subType.getName().equals(type.getName())) {
+                        fieldType = subType;
+                        break;
+                    }
+                }
+            }
+        }
+        Condition current = new Isa(new Field(field), fieldType);
         if (!type.getSubTypes().isEmpty()) {
             for (ComplexTypeMetadata subType : type.getSubTypes()) {
                 current = or(current, isa(field, subType));

@@ -72,8 +72,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                     referenceField.getWriteUsers(),
                     referenceField.getHideUsers(),
-                    referenceField.getWorkflowAccessRights(),
-                    name);
+                    referenceField.getWorkflowAccessRights());
             database.addField(newFlattenField);
         } else {
             newFlattenField = new SoftFieldRef(internalRepository, context.getFieldColumn(referenceField), referenceField.getContainingType());
@@ -84,7 +83,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(ContainedComplexTypeMetadata containedType) {
-        mappings.addMapping(containedType, typeMapping);
+        mappings.addMapping(typeMapping);
         Collection<FieldMetadata> fields = containedType.getFields();
         for (FieldMetadata field : fields) {
             field.accept(this);
@@ -96,7 +95,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     public TypeMapping visit(ContainedTypeFieldMetadata containedField) {
         prefix.add(containedField.getName());
         {
-            ContainedComplexTypeMetadata containedType = containedField.getContainedType();
+            ComplexTypeMetadata containedType = containedField.getContainedType();
             containedType.accept(this);
             for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
                 for (FieldMetadata subTypeField : subType.getFields()) {
@@ -122,8 +121,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     simpleField.getType(),
                     simpleField.getWriteUsers(),
                     simpleField.getHideUsers(),
-                    simpleField.getWorkflowAccessRights(),
-                    context.getFieldColumn(simpleField));
+                    simpleField.getWorkflowAccessRights());
             database.addField(newFlattenField);
         } else {
             SoftTypeRef internalDeclaringType;
@@ -140,8 +138,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     simpleField.getType(),
                     simpleField.getWriteUsers(),
                     simpleField.getHideUsers(),
-                    simpleField.getWorkflowAccessRights(),
-                    context.getFieldColumn(simpleField));
+                    simpleField.getWorkflowAccessRights());
             newFlattenField.setDeclaringType(internalDeclaringType);
             database.addField(newFlattenField);
         }
@@ -164,8 +161,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     enumField.getType(),
                     enumField.getWriteUsers(),
                     enumField.getHideUsers(),
-                    enumField.getWorkflowAccessRights(),
-                    context.getFieldColumn(enumField));
+                    enumField.getWorkflowAccessRights());
             database.addField(newFlattenField);
         } else {
             newFlattenField = new SoftFieldRef(internalRepository,
@@ -187,7 +183,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         ComplexTypeMetadata database = typeMapping.getDatabase();
         Collection<TypeMetadata> superTypes = complexType.getSuperTypes();
         for (TypeMetadata superType : superTypes) {
-            database.addSuperType(new SoftTypeRef(internalRepository, superType.getNamespace(), superType.getName(), true), internalRepository);
+            database.addSuperType(new SoftTypeRef(internalRepository, superType.getNamespace(), superType.getName(), true));
         }
         forceKey = true;
         for (FieldMetadata keyField : keyFields) {
@@ -204,8 +200,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     type,
                     Collections.<String>emptyList(),
                     Collections.<String>emptyList(),
-                    Collections.<String>emptyList(),
-                    ScatteredMappingCreator.GENERATED_ID);
+                    Collections.<String>emptyList());
             database.addField(fieldMetadata);
         }
         return typeMapping;

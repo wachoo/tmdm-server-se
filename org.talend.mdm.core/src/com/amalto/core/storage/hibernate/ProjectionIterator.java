@@ -186,8 +186,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
                     fieldType,
                     Collections.<String>emptyList(),
                     Collections.<String>emptyList(),
-                    Collections.<String>emptyList(),
-                    fieldName);
+                    Collections.<String>emptyList());
             currentElement = new ProjectionElement();
             currentElement.field = field;
         }
@@ -221,8 +220,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
                     new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                     Collections.<String>emptyList(),
                     Collections.<String>emptyList(),
-                    Collections.<String>emptyList(),
-                    StringUtils.EMPTY);
+                    Collections.<String>emptyList());
             currentElement = new ProjectionElement();
             currentElement.field = field;
         }

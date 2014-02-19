@@ -95,13 +95,6 @@ public class UserQueryHelper {
                 if (!whereCondition.isRightValueXPath()) { // Value based comparison
                     if (isPerformingTypeCheck) {
                         if (!WhereCondition.EMPTY_NULL.equals(whereCondition.getOperator())) {
-                            TypeMetadata typeForCheck = repository.getNonInstantiableType(repository.getUserNamespace(), value);
-                            if (typeForCheck == null) {
-                                throw new IllegalArgumentException("Type '" + value + "' was not found.");
-                            }
-                            if (!(typeForCheck instanceof ComplexTypeMetadata)) {
-                                throw new IllegalArgumentException("Expected type '" + value + "' to be a complex type.");
-                            }
                             if (!(field instanceof Alias)) {
                                 throw new IllegalArgumentException("Expected field '" + leftFieldName + "' to be an alias.");
                             }
@@ -110,7 +103,16 @@ public class UserQueryHelper {
                                 throw new IllegalArgumentException("Expected alias '" + leftFieldName + "' to be an alias of type.");
                             }
                             Type fieldExpression = (Type) alias.getTypedExpression();
-                            condition = isa(fieldExpression.getField().getFieldMetadata(), ((ComplexTypeMetadata) typeForCheck));
+                            ComplexTypeMetadata typeForCheck = (ComplexTypeMetadata) fieldExpression.getField().getFieldMetadata().getType();
+                            if (!typeForCheck.getName().equals(value)) {
+                                for (ComplexTypeMetadata subType : typeForCheck.getSubTypes()) {
+                                    if (subType.getName().equals(value)) {
+                                        typeForCheck = subType;
+                                        break;
+                                    }
+                                }
+                            }
+                            condition = isa(fieldExpression.getField().getFieldMetadata(), typeForCheck);
                         } else {
                             // TMDM-6831: Consider a "emptyOrNull(type)" as a "isa(field, actual_field_type)".
                             Alias alias = (Alias) field;
