@@ -14,7 +14,6 @@
 package com.amalto.core.query;
 
 import com.amalto.core.storage.*;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.optimization.UpdateReportOptimizer;
@@ -1194,18 +1193,32 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
-
-        //
         qb = from(person).limit(-1);
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(3, results.getSize());
             assertEquals(3, results.getCount());
+            int actualCount = 0;
+            for (DataRecord result : results) {
+                actualCount++;
+            }
+            assertEquals(3, actualCount);
         } finally {
             results.close();
         }
-
-        //
+        qb = from(person);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getSize());
+            assertEquals(3, results.getCount());
+            int actualCount = 0;
+            for (DataRecord result : results) {
+                actualCount++;
+            }
+            assertEquals(3, actualCount);
+        } finally {
+            results.close();
+        }
         qb = from(person).limit(1).start(1);
         results = storage.fetch(qb.getSelect());
         try {
@@ -1214,7 +1227,6 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
-
         qb = from(person).limit(1).start(4);
         results = storage.fetch(qb.getSelect());
         try {
@@ -1224,8 +1236,6 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
-
-        //
         qb = from(person).selectId(person).limit(-1);
         results = storage.fetch(qb.getSelect());
         try {
@@ -2037,7 +2047,6 @@ public class StorageQueryTest extends StorageTestCase {
         for (DataRecord result : results) {
             // Test iterator too (even if size is 0).
         }
-
         qb = from(person).where(eq(person.getField("firstname"), "Julien"));
         results = storage.fetch(qb.getExpression());
         try {

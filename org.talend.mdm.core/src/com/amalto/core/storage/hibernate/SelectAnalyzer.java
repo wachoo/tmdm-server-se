@@ -133,23 +133,39 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
             }
         }
         // Instance paging (TMDM-5388).
-        if (!select.isProjection() && select.getTypes().size() == 1 && select.getPaging().getLimit() < Integer.MAX_VALUE) {
+        int limit = select.getPaging().getLimit();
+        if (!select.isProjection() && select.getTypes().size() == 1) {
             ComplexTypeMetadata uniqueType = select.getTypes().get(0);
             if (uniqueType.getSubTypes().isEmpty() && uniqueType.getSuperTypes().isEmpty()) {
-                TypeMapping mappingFromDatabase = mappings.getMappingFromDatabase(uniqueType);
-                if (allowInClauseOptimization(mappingFromDatabase)) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Using \"id in clause\" strategy");
+                if (limit < Integer.MAX_VALUE) {
+                    TypeMapping mappingFromDatabase = mappings.getMappingFromDatabase(uniqueType);
+                    if (allowInClauseOptimization(mappingFromDatabase)) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Using \"id in clause\" strategy");
+                        }
+                        return new InClauseOptimization(storage,
+                                mappings,
+                                resolver,
+                                storageClassLoader,
+                                session,
+                                select,
+                                this.selectedFields,
+                                callbacks,
+                                InClauseOptimization.Mode.CONSTANT);
                     }
-                    return new InClauseOptimization(storage,
+                } else if(select.getPaging().getStart() == 0) {
+                    // Scroll over instances
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Using \"scroll over instances\" strategy");
+                    }
+                    return new InstanceScrollOptimization(storage,
                             mappings,
                             resolver,
                             storageClassLoader,
                             session,
                             select,
                             this.selectedFields,
-                            callbacks,
-                            InClauseOptimization.Mode.CONSTANT);
+                            callbacks);
                 }
             }
         }
