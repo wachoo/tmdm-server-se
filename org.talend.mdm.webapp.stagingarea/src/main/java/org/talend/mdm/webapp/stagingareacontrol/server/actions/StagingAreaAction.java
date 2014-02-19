@@ -13,21 +13,22 @@
 package org.talend.mdm.webapp.stagingareacontrol.server.actions;
 
 import java.io.InputStream;
-import java.util.Properties;
+import java.util.*;
 
+import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.ServerContext;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.OutboundReferences;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
-import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.StagingAreaService;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.ConceptRelationshipModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaConfiguration;
 
 import com.amalto.webapp.core.bean.Configuration;
-import com.amalto.webapp.util.webservices.WSConceptRelationship;
 
-/**
- * DOC suplch  class global comment. Detailled comment
- */
 public class StagingAreaAction implements StagingAreaService {
 
     private static final Logger LOG = Logger.getLogger(StagingAreaAction.class);
@@ -57,9 +58,24 @@ public class StagingAreaAction implements StagingAreaService {
     @Override
     public ConceptRelationshipModel getConceptRelation() throws ServiceException {
         try {
-            Configuration config = Configuration.getConfiguration();
-            WSConceptRelationship relationship = CommonUtil.getPort().getConceptRelation(config.getCluster());
-            return new ConceptRelationshipModel(relationship.getConcepts(), relationship.getRelationShipMap());
+            // Get the data model.
+            Configuration configuration = Configuration.getConfiguration();
+            MetadataRepositoryAdmin admin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
+            MetadataRepository repository = admin.get(configuration.getModel());
+            // List outbound references for the data model.
+            List<String> entityTypeNames = new LinkedList<String>();
+            Map<String, String[]> relations = new HashMap<String, String[]>();
+            for (ComplexTypeMetadata entityType : repository.getUserComplexTypes()) {
+                entityTypeNames.add(entityType.getName());
+                Set<ReferenceFieldMetadata> outboundReferences = entityType.accept(new OutboundReferences());
+                String[] referencedTypes = new String[outboundReferences.size()];
+                int i = 0;
+                for (ReferenceFieldMetadata outboundReference : outboundReferences) {
+                    referencedTypes[i++] = outboundReference.getReferencedType().getName();
+                }
+                relations.put(entityType.getName(), referencedTypes);
+            }
+            return new ConceptRelationshipModel(entityTypeNames.toArray(new String[entityTypeNames.size()]), relations);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());

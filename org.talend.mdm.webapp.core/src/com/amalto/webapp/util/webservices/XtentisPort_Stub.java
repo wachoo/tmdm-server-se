@@ -13789,9 +13789,4 @@ public class XtentisPort_Stub
     public WSBoolean supportStaging() throws RemoteException {
         throw new RuntimeException("Not implemented in web service");
     }
-
-    @Override
-    public WSConceptRelationship getConceptRelation(String cluster) throws RemoteException {
-        throw new RuntimeException("Not implemented in web service");
-    }
 }

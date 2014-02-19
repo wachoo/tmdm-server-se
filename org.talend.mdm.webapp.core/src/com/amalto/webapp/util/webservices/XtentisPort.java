@@ -396,6 +396,4 @@ public interface XtentisPort extends java.rmi.Remote {
     public com.amalto.webapp.util.webservices.WSBoolean isPagingAccurate(WSInt currentTotalSize) throws java.rmi.RemoteException;
 
     public com.amalto.webapp.util.webservices.WSBoolean supportStaging() throws java.rmi.RemoteException;
-
-    public WSConceptRelationship getConceptRelation(String cluster) throws java.rmi.RemoteException;
 }
