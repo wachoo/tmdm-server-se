@@ -23,6 +23,7 @@ import org.apache.xml.serialize.XMLSerializer;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.w3c.dom.*;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import java.io.StringWriter;
 
@@ -157,7 +158,11 @@ public class DOMDocument implements DOMMutableDocument {
 
     public String exportToString() {
         try {
-            return XMLUtils.nodeToString(domDocument.getDocumentElement());
+            Element documentElement = domDocument.getDocumentElement();
+            // TMDM-6900 Ensure the xsi prefix is declared in exported document when save uses a DOM document.
+            documentElement.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
+                    "xmlns:xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI); //$NON-NLS-1$
+            return XMLUtils.nodeToString(documentElement);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
