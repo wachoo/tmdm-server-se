@@ -447,6 +447,10 @@ public interface BrowseRecordsMessages extends Messages {
 
     String multiple_value_separator_field_label();
 
+    String masterRecords_btn();
+
+    String masterRecords_tip();
+
     String stagingRecords_btn();
 
     String stagingRecords_tip();

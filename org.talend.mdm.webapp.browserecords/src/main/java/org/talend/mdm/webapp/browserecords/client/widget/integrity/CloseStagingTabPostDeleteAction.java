@@ -12,8 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.integrity;
 
+import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.StagingGridPanel;
-import org.talend.mdm.webapp.browserecords.client.widget.StagingItemDetailToolBar;
 
 /**
  * created by yjli on 2014-2-11 Detailled comment
@@ -23,9 +23,9 @@ public class CloseStagingTabPostDeleteAction implements PostDeleteAction {
 
     private final PostDeleteAction next;
 
-    private final StagingItemDetailToolBar bar;
+    private final ItemDetailToolBar bar;
 
-    public CloseStagingTabPostDeleteAction(StagingItemDetailToolBar bar, PostDeleteAction next) {
+    public CloseStagingTabPostDeleteAction(ItemDetailToolBar bar, PostDeleteAction next) {
         this.bar = bar;
         this.next = next;
     }

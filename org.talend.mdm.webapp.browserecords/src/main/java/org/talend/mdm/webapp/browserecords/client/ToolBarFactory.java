@@ -47,4 +47,15 @@ public abstract class ToolBarFactory {
 
     public abstract ItemDetailToolBar createItemDetailToolBar(ItemsDetailPanel itemsDetailPanel);
 
+    public abstract ItemDetailToolBar createItemDetailToolBar(boolean isStaging, ItemBean itemBean, String operation,
+            ViewBean viewBean, ItemsDetailPanel itemsDetailPanel);
+
+    public abstract ItemDetailToolBar createItemDetailToolBar(boolean isStaging, ItemBean itemBean, String operation,
+            ViewBean viewBean, ItemsDetailPanel itemsDetailPanel, boolean openTab);
+
+    public abstract ItemDetailToolBar createItemDetailToolBar(boolean isStaging, ItemBean itemBean, String operation,
+            boolean isFkToolBar, ViewBean viewBean, ItemsDetailPanel itemsDetailPanel);
+
+    public abstract ItemDetailToolBar createItemDetailToolBar(boolean isStaging, ItemsDetailPanel itemsDetailPanel);
+
 }

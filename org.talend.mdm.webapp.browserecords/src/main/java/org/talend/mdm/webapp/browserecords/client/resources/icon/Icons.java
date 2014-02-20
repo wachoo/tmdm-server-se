@@ -78,6 +78,9 @@ public interface Icons extends ClientBundle {
     @Source("journal.png")
     ImageResource journal();
 
+    @Source("browse.png")
+    ImageResource masterRecords();
+
     @Source("browsestaging.png")
     ImageResource stagingRecords();
 

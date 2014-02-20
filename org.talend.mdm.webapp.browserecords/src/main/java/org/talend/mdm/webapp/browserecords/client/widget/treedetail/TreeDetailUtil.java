@@ -35,7 +35,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
-import org.talend.mdm.webapp.browserecords.client.widget.StagingItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.TabItemListener;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -133,7 +132,7 @@ public class TreeDetailUtil {
 
                             @Override
                             public void onSuccess(ViewBean viewBean) {
-                                ItemPanel itemPanel = createItemPanel(viewBean, item, operation, panel, isStaging);
+                                ItemPanel itemPanel = new ItemPanel(isStaging, viewBean, item, operation, panel);
                                 initDetailPanel(viewBean, panel, itemPanel, item, fromWhichApp, isFkToolBar, isHierarchyCall);
                             }
 
@@ -225,8 +224,8 @@ public class TreeDetailUtil {
         final ItemsDetailPanel itemsDetailPanel = ItemsDetailPanel.newInstance();
         itemsDetailPanel.setOutMost(isOutMost);
 
-        ItemPanel itemPanel = createItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, itemsDetailPanel,
-                isStaging);
+        ItemPanel itemPanel = new ItemPanel(isStaging, viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION,
+                itemsDetailPanel);
         itemPanel.getToolBar().setOutMost(isOutMost);
         itemPanel.getToolBar().setFkToolBar(isFkToolBar);
         itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
@@ -399,17 +398,18 @@ public class TreeDetailUtil {
         return false;
     }
 
-    private static ItemPanel createItemPanel(ViewBean viewBean, ItemBean item, String operation,
-            ItemsDetailPanel itemsDetailPanel, boolean isStaging) {
-        ItemPanel itemPanel;
-        if (isStaging) {
-            itemPanel = new ItemPanel(viewBean, item, operation, itemsDetailPanel, new StagingItemDetailToolBar(item, operation,
-                    viewBean, itemsDetailPanel), new StagingItemTreeDetail(itemsDetailPanel));
-        } else {
-            itemPanel = new ItemPanel(viewBean, item, operation, itemsDetailPanel);
-        }
-        return itemPanel;
-    }
+    // private static ItemPanel createItemPanel(ViewBean viewBean, ItemBean item, String operation,
+    // ItemsDetailPanel itemsDetailPanel, boolean isStaging) {
+    // ItemPanel itemPanel;
+    // if (isStaging) {
+    // itemPanel = new ItemPanel(viewBean, item, operation, itemsDetailPanel, new StagingItemDetailToolBar(item,
+    // operation,
+    // viewBean, itemsDetailPanel), new StagingItemTreeDetail(itemsDetailPanel));
+    // } else {
+    // itemPanel = new ItemPanel(viewBean, item, operation, itemsDetailPanel);
+    // }
+    // return itemPanel;
+    // }
 
     private static BrowseRecordsServiceAsync getBrowseRecordsService(boolean isStaging) {
         if (isStaging) {

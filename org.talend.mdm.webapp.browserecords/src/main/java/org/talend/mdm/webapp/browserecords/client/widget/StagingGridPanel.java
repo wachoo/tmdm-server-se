@@ -33,8 +33,8 @@ import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
-import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.BrowseStagingRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.ServiceFactory;
 import org.talend.mdm.webapp.browserecords.client.creator.CellEditorCreator;
 import org.talend.mdm.webapp.browserecords.client.creator.CellRendererCreator;
 import org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages;
@@ -57,7 +57,6 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.task.StagingConstants;
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.data.BaseFilterPagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -95,10 +94,6 @@ import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Image;
 
-/**
- * created by yjli on 2014-1-24 Detailled comment
- * 
- */
 public class StagingGridPanel extends ContentPanel {
 
     private Map<Integer, String> errorTitles;
@@ -119,11 +114,7 @@ public class StagingGridPanel extends ContentPanel {
 
     private static StagingGridPanel instance;
 
-    private BrowseRecordsServiceAsync browseRecordService = (BrowseRecordsServiceAsync) Registry
-            .get(BrowseRecords.BROWSERECORDS_SERVICE);
-
-    private BrowseStagingRecordsServiceAsync browseStagingRecordService = (BrowseStagingRecordsServiceAsync) Registry
-            .get(BrowseRecords.BROWSESTAGINGRECORDS_SERVICE);
+    private BrowseStagingRecordsServiceAsync browseStagingRecordService = ServiceFactory.getInstance().getStagingService();
 
     RpcProxy<PagingLoadResult<ItemBean>> proxy = new RpcProxy<PagingLoadResult<ItemBean>>() {
 
@@ -188,7 +179,9 @@ public class StagingGridPanel extends ContentPanel {
     }
 
     private StagingGridPanel() {
-        this.cluster = BrowseRecords.getSession().getAppHeader().getDatacluster() + StorageAdmin.STAGING_SUFFIX;
+        this.cluster = BrowseRecords.getSession().getAppHeader().getDatacluster();
+        this.cluster = this.cluster.endsWith(StorageAdmin.STAGING_SUFFIX) ? this.cluster : this.cluster
+                + StorageAdmin.STAGING_SUFFIX;
         this.viewBean = BrowseRecords.getSession().getCurrentView();
         this.entityModel = BrowseRecords.getSession().getCurrentEntityModel();
 
@@ -219,12 +212,12 @@ public class StagingGridPanel extends ContentPanel {
     }
 
     private native String getDataContainer(JavaScriptObject stagingAreaConfig)/*-{
-		return stagingAreaConfig.dataContainer;
-    }-*/;
+                                                                              return stagingAreaConfig.dataContainer;
+                                                                              }-*/;
 
     private native String getCriteria(JavaScriptObject stagingAreaConfig)/*-{
-		return stagingAreaConfig.criteria;
-    }-*/;
+                                                                         return stagingAreaConfig.criteria;
+                                                                         }-*/;
 
     private RecordsPagingConfig copyPgLoad(PagingLoadConfig pconfig) {
         RecordsPagingConfig rpConfig = new RecordsPagingConfig();
@@ -526,10 +519,10 @@ public class StagingGridPanel extends ContentPanel {
     }
 
     private native void selectStagingGridPanel()/*-{
-		var tabPanel = $wnd.amalto.core.getTabPanel();
-		var panel = tabPanel.getItem("Staging Data Viewer");
-		if (panel != undefined) {
-			tabPanel.setSelection(panel.getItemId());
-		}
-    }-*/;
+                                                var tabPanel = $wnd.amalto.core.getTabPanel();
+                                                var panel = tabPanel.getItem("Staging Data Viewer");
+                                                if (panel != undefined) {
+                                                tabPanel.setSelection(panel.getItemId());
+                                                }
+                                                }-*/;
 }

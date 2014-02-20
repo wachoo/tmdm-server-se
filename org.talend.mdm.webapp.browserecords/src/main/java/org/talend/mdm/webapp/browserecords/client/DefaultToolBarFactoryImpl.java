@@ -41,4 +41,27 @@ public class DefaultToolBarFactoryImpl extends ToolBarFactory {
     public ItemDetailToolBar createItemDetailToolBar(ItemsDetailPanel itemsDetailPanel) {
         return new ItemDetailToolBar(itemsDetailPanel);
     }
+
+    @Override
+    public ItemDetailToolBar createItemDetailToolBar(boolean isStaging, ItemBean itemBean, String operation, ViewBean viewBean,
+            ItemsDetailPanel itemsDetailPanel) {
+        return new ItemDetailToolBar(isStaging, itemBean, operation, viewBean, itemsDetailPanel);
+    }
+
+    @Override
+    public ItemDetailToolBar createItemDetailToolBar(boolean isStaging, ItemBean itemBean, String operation, ViewBean viewBean,
+            ItemsDetailPanel itemsDetailPanel, boolean openTab) {
+        return new ItemDetailToolBar(isStaging, itemBean, operation, viewBean, itemsDetailPanel, openTab);
+    }
+
+    @Override
+    public ItemDetailToolBar createItemDetailToolBar(boolean isStaging, ItemBean itemBean, String operation, boolean isFkToolBar,
+            ViewBean viewBean, ItemsDetailPanel itemsDetailPanel) {
+        return new ItemDetailToolBar(isStaging, itemBean, operation, isFkToolBar, viewBean, itemsDetailPanel);
+    }
+
+    @Override
+    public ItemDetailToolBar createItemDetailToolBar(boolean isStaging, ItemsDetailPanel itemsDetailPanel) {
+        return new ItemDetailToolBar(isStaging, itemsDetailPanel);
+    }
 }

@@ -210,4 +210,9 @@ public class ItemsListPanel4Staging extends ItemsListPanel {
         super.onDetach();
         ItemsListPanel.initialize(new ItemsListPanel4Staging());
     }
+
+    @Override
+    protected Boolean isStaging() {
+        return true;
+    }
 }

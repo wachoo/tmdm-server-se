@@ -23,7 +23,7 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
-import org.talend.mdm.webapp.browserecords.client.BrowseStagingRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.ServiceFactory;
 import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandler;
 import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandlingStatus;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
@@ -131,9 +131,9 @@ public class BrowseRecordsController extends Controller {
                 .getMessages().save_progress_bar_message(), MessagesFactory.getMessages().please_wait());
         BrowseRecordsServiceAsync saveService;
         if (isStaging) {
-            saveService = (BrowseStagingRecordsServiceAsync) Registry.get(BrowseRecords.BROWSESTAGINGRECORDS_SERVICE);
+            saveService = ServiceFactory.getInstance().getStagingService();
         } else {
-            saveService = service;
+            saveService = ServiceFactory.getInstance().getMasterService();
         }
 
         saveService.saveItem(viewBean, itemBean.getIds(),
@@ -273,12 +273,12 @@ public class BrowseRecordsController extends Controller {
 
                         @Override
                         public void onSuccess(ItemBean result) {
-                            AppEvent ae = new AppEvent(event.getType(), result);
+                            event.setData(result);
                             String itemsFormTarget = event.getData(BrowseRecordsView.ITEMS_FORM_TARGET);
                             if (itemsFormTarget != null) {
-                                ae.setData(BrowseRecordsView.ITEMS_FORM_TARGET, itemsFormTarget);
+                                event.setData(BrowseRecordsView.ITEMS_FORM_TARGET, itemsFormTarget);
                             }
-                            forwardToView(view, ae);
+                            forwardToView(view, event);
                         }
                     });
         }

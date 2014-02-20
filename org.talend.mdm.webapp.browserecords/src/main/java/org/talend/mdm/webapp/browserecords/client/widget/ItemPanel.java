@@ -64,16 +64,6 @@ public class ItemPanel extends ContentPanel {
         this.initUI(null);
     }
 
-    public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ItemsDetailPanel itemsDetailPanel,
-            StagingItemDetailToolBar stagingItemsDetailToolBar, TreeDetail tree) {
-        this.tree = tree;
-        this.viewBean = viewBean;
-        this.item = item;
-        this.toolBar = stagingItemsDetailToolBar;
-        this.operation = operation;
-        this.initUI(null);
-    }
-
     public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ItemsDetailPanel itemsDetailPanel, boolean openTab) {
         this(itemsDetailPanel);
         this.viewBean = viewBean;
@@ -101,6 +91,64 @@ public class ItemPanel extends ContentPanel {
         this.viewBean = viewBean;
         this.item = item;
         this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(item, operation, viewBean, itemsDetailPanel, openTab);
+        this.operation = operation;
+        this.isForeignKeyPanel = true;
+        this.contenPanel = contenPanel;
+        this.initUI(root);
+    }
+
+    public ItemPanel(boolean isStaging, ViewBean viewBean, ItemBean item, String operation, ItemsDetailPanel itemsDetailPanel) {
+        this(itemsDetailPanel);
+        this.viewBean = viewBean;
+        this.item = item;
+        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(isStaging, item, operation, viewBean,
+                itemsDetailPanel);
+        this.operation = operation;
+        this.initUI(null);
+    }
+
+    public ItemPanel(boolean isStaging, ViewBean viewBean, ItemBean item, String operation, ItemsDetailPanel itemsDetailPanel,
+            boolean openTab) {
+        this(itemsDetailPanel);
+        this.viewBean = viewBean;
+        this.item = item;
+        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(isStaging, item, operation, viewBean,
+                itemsDetailPanel, openTab);
+        this.operation = operation;
+        this.initUI(null);
+    }
+
+    public ItemPanel(boolean isStaging, ViewBean viewBean, ItemBean item, String operation, ItemsDetailPanel itemsDetailPanel,
+            boolean openTab, boolean isFKItemPanel) {
+        this(itemsDetailPanel);
+        this.viewBean = viewBean;
+        this.item = item;
+        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(isStaging, item, operation, viewBean,
+                itemsDetailPanel, openTab);
+        this.operation = operation;
+        this.initUI(null);
+    }
+
+    public ItemPanel(boolean isStaging, ViewBean viewBean, ItemBean item, String operation, ContentPanel contenPanel,
+            DynamicTreeItem root, ItemsDetailPanel itemsDetailPanel) {
+        tree = new TreeDetail(itemsDetailPanel);
+        this.viewBean = viewBean;
+        this.item = item;
+        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(isStaging, item, operation, viewBean,
+                itemsDetailPanel);
+        this.operation = operation;
+        this.isForeignKeyPanel = true;
+        this.contenPanel = contenPanel;
+        this.initUI(root);
+    }
+
+    public ItemPanel(boolean isStaging, ViewBean viewBean, ItemBean item, String operation, ContentPanel contenPanel,
+            DynamicTreeItem root, ItemsDetailPanel itemsDetailPanel, boolean openTab) {
+        tree = new TreeDetail(itemsDetailPanel);
+        this.viewBean = viewBean;
+        this.item = item;
+        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(isStaging, item, operation, viewBean,
+                itemsDetailPanel, openTab);
         this.operation = operation;
         this.isForeignKeyPanel = true;
         this.contenPanel = contenPanel;

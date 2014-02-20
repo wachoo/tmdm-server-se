@@ -180,6 +180,7 @@ public class BrowseRecordsView extends View {
     private void onViewItem(AppEvent event) {
 
         ItemBean item = (ItemBean) event.getData();
+        Boolean isStaging = event.getData("isStaging"); //$NON-NLS-1$
         String itemConcept = null;
         String itemLabel = null;
         String itemDisplayPKInfo = null;
@@ -210,8 +211,8 @@ public class BrowseRecordsView extends View {
         if (TARGET_IN_NEW_TAB.equals(event.getData(BrowseRecordsView.ITEMS_FORM_TARGET))) {
             // Open in a new tab in ItemsMainTabPanel
 
-            ItemsDetailPanel itemsDetailPanel = this.buildNewItemsDetailPanel(viewBean, item, operation, itemIds, itemPkInfoList,
-                    itemDescription, itemLabel, breads);
+            ItemsDetailPanel itemsDetailPanel = this.buildNewItemsDetailPanel(isStaging, viewBean, item, operation, itemIds,
+                    itemPkInfoList, itemDescription, itemLabel, breads);
 
             itemsMainTabPanel.addMainTabItem(itemLabel + " " + itemIds, //$NON-NLS-1$ 
                     itemsDetailPanel, itemIds);
@@ -235,8 +236,8 @@ public class BrowseRecordsView extends View {
                     // Create new ItemDetailPanel within the default tab
 
                     defaultTabItem.removeAll();
-                    defaultTabItem.add(this.buildNewItemsDetailPanel(viewBean, item, operation, DEFAULT_ITEMVIEW, itemPkInfoList,
-                            itemDescription, itemDisplayLabel, breads));
+                    defaultTabItem.add(this.buildNewItemsDetailPanel(isStaging, viewBean, item, operation, DEFAULT_ITEMVIEW,
+                            itemPkInfoList, itemDescription, itemDisplayLabel, breads));
                 } else {
                     // ItemsDetailPanel exists in default tab of ItemsMainTabPanel
                     // Reuse the ItemsDetailPanel
@@ -244,7 +245,7 @@ public class BrowseRecordsView extends View {
                     itemsDetailPanel.clearAll();
                     itemsDetailPanel.initBanner(itemPkInfoList, itemDescription);
 
-                    ItemPanel itemPanel = new ItemPanel(viewBean, item, operation, itemsDetailPanel, true);
+                    ItemPanel itemPanel = new ItemPanel(isStaging, viewBean, item, operation, itemsDetailPanel, true);
                     itemsDetailPanel.addTabItem(itemDisplayLabel, itemPanel, ItemsDetailPanel.SINGLETON, DEFAULT_ITEMVIEW);
 
                     itemsDetailPanel.initBreadCrumb(new BreadCrumb(breads, itemsDetailPanel));
@@ -255,7 +256,8 @@ public class BrowseRecordsView extends View {
                 // Default tab does not exist in ItemsMainTabPanel, create it
 
                 TabItem tabItem = this.buildNewItemsMainTabPanelTabItem(itemDisplayLabel, itemIds, this.buildNewItemsDetailPanel(
-                        viewBean, item, operation, DEFAULT_ITEMVIEW, itemPkInfoList, itemDescription, itemDisplayLabel, breads));
+                        isStaging, viewBean, item, operation, DEFAULT_ITEMVIEW, itemPkInfoList, itemDescription,
+                        itemDisplayLabel, breads));
                 itemsMainTabPanel.insert(tabItem, 0);
                 itemsMainTabPanel.setSelection(tabItem);
             }
@@ -277,10 +279,10 @@ public class BrowseRecordsView extends View {
         return tabItem;
     }
 
-    private ItemsDetailPanel buildNewItemsDetailPanel(ViewBean viewBean, ItemBean item, String operation, String itemIds,
-            List<String> itemPkInfoList, String itemDescription, String itemLabel, List<BreadCrumbModel> breads) {
+    private ItemsDetailPanel buildNewItemsDetailPanel(boolean isStaing, ViewBean viewBean, ItemBean item, String operation,
+            String itemIds, List<String> itemPkInfoList, String itemDescription, String itemLabel, List<BreadCrumbModel> breads) {
         ItemsDetailPanel itemsDetailPanel = ItemsDetailPanel.newInstance();
-        ItemPanel itemPanel = new ItemPanel(viewBean, item, operation, itemsDetailPanel, true);
+        ItemPanel itemPanel = new ItemPanel(isStaing, viewBean, item, operation, itemsDetailPanel, true);
 
         itemsDetailPanel.setId(itemIds);
 

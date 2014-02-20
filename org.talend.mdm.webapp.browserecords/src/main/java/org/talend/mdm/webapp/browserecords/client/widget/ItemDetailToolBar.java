@@ -23,6 +23,7 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.ServiceFactory;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
@@ -32,6 +33,7 @@ import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
@@ -48,8 +50,8 @@ import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
+import com.amalto.core.storage.task.StagingConstants;
 import com.extjs.gxt.ui.client.GXT;
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -119,6 +121,8 @@ public class ItemDetailToolBar extends ToolBar {
 
     private Button journalButton;
 
+    private Button masterRecordButton;
+
     private Button stagingRecordsButton;
 
     private Button refreshButton;
@@ -157,6 +161,8 @@ public class ItemDetailToolBar extends ToolBar {
 
     protected boolean openTab;
 
+    private boolean isStaging;
+
     public ItemDetailToolBar() {
         this.setBorders(false);
         this.setLayout(new ToolBarExLayout());
@@ -188,6 +194,41 @@ public class ItemDetailToolBar extends ToolBar {
     public ItemDetailToolBar(ItemBean itemBean, String operation, boolean isFkToolBar, ViewBean viewBean,
             ItemsDetailPanel itemsDetailPanel) {
         this(itemsDetailPanel);
+        this.itemBean = itemBean;
+        this.operation = operation;
+        this.isFkToolBar = isFkToolBar;
+        this.viewBean = viewBean;
+        initToolBar();
+    }
+
+    public ItemDetailToolBar(boolean isStaging, ItemsDetailPanel itemsDetailPanel) {
+        this();
+        this.isStaging = isStaging;
+        this.itemsDetailPanel = itemsDetailPanel;
+    }
+
+    public ItemDetailToolBar(boolean isStaging, ItemBean itemBean, String operation, ViewBean viewBean,
+            ItemsDetailPanel itemsDetailPanel) {
+        this(isStaging, itemsDetailPanel);
+        this.itemBean = itemBean;
+        this.operation = operation;
+        this.viewBean = viewBean;
+        initToolBar();
+    }
+
+    public ItemDetailToolBar(boolean isStaging, ItemBean itemBean, String operation, ViewBean viewBean,
+            ItemsDetailPanel itemsDetailPanel, boolean openTab) {
+        this(isStaging, itemsDetailPanel);
+        this.itemBean = itemBean;
+        this.operation = operation;
+        this.viewBean = viewBean;
+        this.openTab = openTab;
+        initToolBar();
+    }
+
+    public ItemDetailToolBar(boolean isStaging, ItemBean itemBean, String operation, boolean isFkToolBar, ViewBean viewBean,
+            ItemsDetailPanel itemsDetailPanel) {
+        this(isStaging, itemsDetailPanel);
         this.itemBean = itemBean;
         this.operation = operation;
         this.isFkToolBar = isFkToolBar;
@@ -245,35 +286,55 @@ public class ItemDetailToolBar extends ToolBar {
         this.addSaveQuitButton();
         this.addSeparator();
         this.addDeleteButton();
-        this.addSeparator();
-        this.addDuplicateButton();
-        this.addSeparator();
-        this.addJournalButton();
-        if (itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty()) {
-            this.addStagingRecordsButton();
-        }
-        this.addSeparator();
-        this.addFreshButton();
-        if (this.openTab) {
+        if (isStaging) {
+            if (StagingConstants.SUCCESS_VALIDATE.equals(itemBean.get(itemBean.getConcept() + StagingConstant.STAGING_STATUS))) {
+                this.addSeparator();
+                addMasterRecordButton();
+            }
             this.addSeparator();
-            this.addOpenTabButton(false);
+            this.addFreshButton();
+            if (this.openTab) {
+                this.addSeparator();
+                this.addOpenTabButton(false);
+            }
+            this.addOpenTaskButton();
+            checkEntitlement(viewBean);
+        } else {
+            this.addSeparator();
+            this.addJournalButton();
+            if (itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty()) {
+                this.addSeparator();
+                this.addStagingRecordsButton();
+            }
+            this.addSeparator();
+            this.addFreshButton();
+            if (this.openTab) {
+                this.addSeparator();
+                this.addOpenTabButton(false);
+            }
+            if (isUseRelations()) {
+                this.addRelationButton();
+            }
+            this.addOpenTaskButton();
+            this.addWorkFlosCombo();
+            checkEntitlement(viewBean);
         }
-        if (isUseRelations()) {
-            this.addRelationButton();
-        }
-        this.addOpenTaskButton();
-        this.addWorkFlosCombo();
-        checkEntitlement(viewBean);
     }
 
     protected void initCreateToolBar() {
-        this.addSaveButton();
-        this.addSeparator();
-        this.addSaveQuitButton();
-        if (isUseRelations()) {
-            this.addRelationButton();
+        if (isStaging) {
+            this.addSaveButton();
+            this.addSeparator();
+            this.addSaveQuitButton();
+        } else {
+            this.addSaveButton();
+            this.addSeparator();
+            this.addSaveQuitButton();
+            if (isUseRelations()) {
+                this.addRelationButton();
+            }
+            this.addWorkFlosCombo();
         }
-        this.addWorkFlosCombo();
     }
 
     protected boolean isUseRelations() {
@@ -396,11 +457,34 @@ public class ItemDetailToolBar extends ToolBar {
 
     protected void addDeleteButton() {
         if (deleteButton == null) {
-            deleteButton = new Button(MessagesFactory.getMessages().delete_btn());
-            deleteButton.setId("deleteButton"); //$NON-NLS-1$
-            deleteButton.setToolTip(MessagesFactory.getMessages().delete_tip());
-            deleteButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
-            addDeleteMenu();
+            if (isStaging) {
+                deleteButton = new Button(MessagesFactory.getMessages().mark_as_deleted());
+                deleteButton.setId("deleteButton"); //$NON-NLS-1$
+                deleteButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
+
+                deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                    @Override
+                    public void componentSelected(ButtonEvent ce) {
+                        MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
+                                .mark_deleted_confirm(), new Listener<MessageBoxEvent>() {
+
+                            @Override
+                            public void handleEvent(MessageBoxEvent be) {
+                                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                    deleteRecord();
+                                }
+                            }
+                        });
+                    }
+                });
+            } else {
+                deleteButton = new Button(MessagesFactory.getMessages().delete_btn());
+                deleteButton.setId("deleteButton"); //$NON-NLS-1$
+                deleteButton.setToolTip(MessagesFactory.getMessages().delete_tip());
+                deleteButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
+                addDeleteMenu();
+            }
         }
         add(deleteButton);
     }
@@ -473,7 +557,7 @@ public class ItemDetailToolBar extends ToolBar {
                     duplicateItemBean.setIds(""); //$NON-NLS-1$
 
                     TreeDetailUtil.initItemsDetailPanelByItemPanel(viewBean, duplicateItemBean, isFkToolBar, isHierarchyCall,
-                            isOutMost, isStaging());
+                            isOutMost, isStaging);
                     if (!isOutMost && !isFkToolBar) {
                         if (ItemsListPanel.getInstance().getGrid() != null) {
                             ItemsListPanel.getInstance().getGrid().getSelectionModel().deselectAll();
@@ -503,6 +587,24 @@ public class ItemDetailToolBar extends ToolBar {
             });
         }
         add(journalButton);
+    }
+
+    private void addMasterRecordButton() {
+        if (masterRecordButton == null) {
+            masterRecordButton = new Button(MessagesFactory.getMessages().masterRecords_btn());
+            masterRecordButton.setId("deleteButton"); //$NON-NLS-1$
+            masterRecordButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.masterRecords()));
+            masterRecordButton.setToolTip(MessagesFactory.getMessages().masterRecords_tip());
+            masterRecordButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                @Override
+                public void componentSelected(ButtonEvent ce) {
+                    TreeDetailUtil.initItemsDetailPanelById("", itemBean.getIds(), itemBean.getConcept(), isFkToolBar, //$NON-NLS-1$
+                            isHierarchyCall, ItemDetailToolBar.VIEW_OPERATION, false);
+                }
+            });
+        }
+        add(masterRecordButton);
     }
 
     protected void addStagingRecordsButton() {
@@ -851,23 +953,41 @@ public class ItemDetailToolBar extends ToolBar {
     }-*/;
 
     protected void initSmartViewToolBar() {
-        addGeneratedViewButton();
-        addSeparator();
-        addSmartViewCombo();
-        addDeleteButton();
-        addSeparator();
-        addPrintButton();
-        addSeparator();
-        this.addDuplicateButton();
-        this.addSeparator();
-        this.addJournalButton();
-        this.addSeparator();
-        this.addFreshButton();
-        if (this.openTab) {
+        if (isStaging) {
+            addGeneratedViewButton();
+            addSeparator();
+            addSmartViewCombo();
+            addDeleteButton();
+            addSeparator();
+            addPrintButton();
+            addSeparator();
+            this.addDuplicateButton();
             this.addSeparator();
-            this.addOpenTabButton(true);
+            this.addFreshButton();
+            if (this.openTab) {
+                this.addSeparator();
+                this.addOpenTabButton(true);
+            }
+        } else {
+            addGeneratedViewButton();
+            addSeparator();
+            addSmartViewCombo();
+            addDeleteButton();
+            addSeparator();
+            addPrintButton();
+            addSeparator();
+            this.addDuplicateButton();
+            this.addSeparator();
+            this.addJournalButton();
+            this.addSeparator();
+            this.addFreshButton();
+            if (this.openTab) {
+                this.addSeparator();
+                this.addOpenTabButton(true);
+            }
+            this.addWorkFlosCombo();
         }
-        this.addWorkFlosCombo();
+
     }
 
     private void updateSmartViewToolBar() {
@@ -1067,8 +1187,8 @@ public class ItemDetailToolBar extends ToolBar {
             ItemPanel itemPanel = (ItemPanel) widget;
             validate = true;
             model = itemPanel.getTree().getRootModel();
-            app.setData("ItemBean", itemPanel.getItem());
-            app.setData("isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION)
+            app.setData("ItemBean", itemPanel.getItem()); //$NON-NLS-1$
+            app.setData("isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) //$NON-NLS-1$
                     || itemPanel.getOperation().equals(ItemDetailToolBar.DUPLICATE_OPERATION) ? true : false);
         } else if (widget instanceof ForeignKeyTreeDetail) { // save foreign key
             ForeignKeyTreeDetail fkDetail = (ForeignKeyTreeDetail) widget;
@@ -1077,14 +1197,14 @@ public class ItemDetailToolBar extends ToolBar {
                 model = fkDetail.getRootModel();
                 app.setData(
                         "ItemBean", fkDetail.isCreate() ? new ItemBean(fkDetail.getViewBean().getBindingEntityModel().getConceptName(), "", "") : itemBean); //$NON-NLS-1$ 
-                app.setData("isCreate", fkDetail.isCreate());
+                app.setData("isCreate", fkDetail.isCreate()); //$NON-NLS-1$
             }
         }
-        app.setData("viewBean", viewBean);
+        app.setData("viewBean", viewBean); //$NON-NLS-1$
         app.setData(model);
         app.setData("isClose", isClose); //$NON-NLS-1$
-        app.setData("itemDetailToolBar", this);
-        app.setData("isStaging", isStaging());
+        app.setData("itemDetailToolBar", this); //$NON-NLS-1$
+        app.setData("isStaging", isStaging); //$NON-NLS-1$
         app.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
 
         if (validate) {
@@ -1096,10 +1216,6 @@ public class ItemDetailToolBar extends ToolBar {
             }
             MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().save_error(), null);
         }
-    }
-
-    protected Boolean isStaging() {
-        return false;
     }
 
     public void setSelectItem(ItemBaseModel selectItem) {
@@ -1360,7 +1476,7 @@ public class ItemDetailToolBar extends ToolBar {
 		window.open(url);
     }-*/;
 
-    private void openDebugBrowseStagingRecordsPanel(String ids, StagingGridPanel source) {
+    protected void openDebugBrowseStagingRecordsPanel(String ids, StagingGridPanel source) {
         Window window = new Window();
         window.setLayout(new FitLayout());
         window.add(source);
@@ -1370,7 +1486,7 @@ public class ItemDetailToolBar extends ToolBar {
         window.show();
     }
 
-    private native void openBrowseStagingRecordsPanel(String ids, StagingGridPanel source)/*-{
+    protected native void openBrowseStagingRecordsPanel(String ids, StagingGridPanel source)/*-{
 		var tabPanel = $wnd.amalto.core.getTabPanel();
 		var browseStagingRecordsPanel = tabPanel.getItem(ids);
 		if (browseStagingRecordsPanel == undefined) {
@@ -1430,7 +1546,11 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     protected BrowseRecordsServiceAsync getBrowseRecordsService() {
-        return (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
+        if (isStaging) {
+            return ServiceFactory.getInstance().getStagingService();
+        } else {
+            return ServiceFactory.getInstance().getMasterService();
+        }
 
     }
 

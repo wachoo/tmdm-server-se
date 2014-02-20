@@ -17,8 +17,10 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.StorageProvider;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
-import org.talend.mdm.webapp.browserecords.client.ToolBarFactory;
+import org.talend.mdm.webapp.browserecords.client.BrowseStagingRecordsService;
+import org.talend.mdm.webapp.browserecords.client.ServiceFactory;
 import org.talend.mdm.webapp.browserecords.client.WidgetFactory;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
@@ -59,6 +61,8 @@ import com.google.gwt.user.client.ui.SimplePanel;
 public class BrowseRecordsInStaging implements EntryPoint {
 
     public static final String BROWSERECORD_ID = "BrowseRecordsInStaging"; //$NON-NLS-1$
+
+    public static final String BROWSEMASTERRECORDS_SERVICE = "BrowseMasterRecordsService"; //$NON-NLS-1$
 
     private static JavaScriptObject stagingArea;
 
@@ -119,6 +123,14 @@ public class BrowseRecordsInStaging implements EntryPoint {
         ServiceEnhancer.customizeService(service);
         Registry.register(BrowseRecords.BROWSERECORDS_SERVICE, service);
 
+        ServiceDefTarget browseMasterRecordsService = GWT.create(BrowseRecordsService.class);
+        ServiceEnhancer.customizeService(browseMasterRecordsService);
+        Registry.register(BrowseRecordsInStaging.BROWSEMASTERRECORDS_SERVICE, browseMasterRecordsService);
+
+        ServiceDefTarget browseStagingRecordsService = GWT.create(BrowseStagingRecordsService.class);
+        ServiceEnhancer.customizeService(browseStagingRecordsService);
+        Registry.register(BrowseRecords.BROWSESTAGINGRECORDS_SERVICE, browseStagingRecordsService);
+
         initCurrentStateProvicer();
         registerPubService();
 
@@ -134,7 +146,7 @@ public class BrowseRecordsInStaging implements EntryPoint {
     }
 
     private void initExtendedEnviroment() {
-        ToolBarFactory.initialize(new ToolBarFactory4Staging());
+        ServiceFactory.initialize(new ServiceFactory4Staging());
         WidgetFactory.initialize(new WidgetFactory4Staging());
         ItemsListPanel.initialize(new ItemsListPanel4Staging());
         ItemsToolBar.initialize(new ItemsToolBarCreator() {

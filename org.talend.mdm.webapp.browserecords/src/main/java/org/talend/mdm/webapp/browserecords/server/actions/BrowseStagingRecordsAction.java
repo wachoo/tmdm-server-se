@@ -35,10 +35,6 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.amalto.core.server.StorageAdmin;
 
-/**
- * created by talend2 on 2014-1-27 Detailled comment
- * 
- */
 public class BrowseStagingRecordsAction extends BrowseRecordsAction implements BrowseStagingRecordsService {
 
     private final Logger LOG = Logger.getLogger(BrowseStagingRecordsAction.class);

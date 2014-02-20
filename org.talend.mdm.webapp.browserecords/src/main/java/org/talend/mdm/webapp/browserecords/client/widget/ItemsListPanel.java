@@ -75,6 +75,7 @@ import com.extjs.gxt.ui.client.event.RowEditorEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
@@ -568,7 +569,9 @@ public class ItemsListPanel extends ContentPanel {
                                     }
                                     gridUpdateLock = true;
                                     refresh(itemBean.getIds(), false);
-                                    Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, itemBean);
+                                    AppEvent event = new AppEvent(BrowseRecordsEvents.ViewItem, itemBean);
+                                    event.setData("isStaging", isStaging()); //$NON-NLS-1$
+                                    Dispatcher.forwardEvent(event);
                                     gridUpdateLock = false;
                                 }
                             }
@@ -747,7 +750,9 @@ public class ItemsListPanel extends ContentPanel {
                                 }
 
                                 if (refreshItemForm) {
-                                    Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, itemBean);
+                                    AppEvent event = new AppEvent(BrowseRecordsEvents.ViewItem, itemBean);
+                                    event.setData("isStaging", isStaging()); //$NON-NLS-1$
+                                    Dispatcher.forwardEvent(event);
                                 }
                             }
                         });
@@ -816,7 +821,9 @@ public class ItemsListPanel extends ContentPanel {
             gridUpdateLock = true;
             BrowseRecords.getSession().put(UserSession.CURRENT_CACHED_ENTITY, null);
             BrowseRecords.getSession().put(UserSession.CURRENT_CACHED_FKTABS, null);
-            Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, item);
+            AppEvent event = new AppEvent(BrowseRecordsEvents.ViewItem, item);
+            event.setData("isStaging", isStaging()); //$NON-NLS-1$
+            Dispatcher.forwardEvent(event);
             gridUpdateLock = false;
         }
     }
@@ -899,5 +906,9 @@ public class ItemsListPanel extends ContentPanel {
             ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
             ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
         }
+    }
+
+    protected Boolean isStaging() {
+        return false;
     }
 }
