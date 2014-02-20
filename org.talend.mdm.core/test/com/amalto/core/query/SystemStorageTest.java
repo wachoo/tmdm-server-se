@@ -403,6 +403,7 @@ public class SystemStorageTest extends TestCase {
                             assertNotNull(menuPOJO);
                             for (MenuEntryPOJO menuEntry : menuPOJO.getMenuEntries()) {
                                 assertNotNull(menuEntry.getApplication());
+                                assertTrue(!menuEntry.getDescriptions().isEmpty());
                             }
                         }
                         if ("data-model-pOJO".equals(presentType.getName())) {

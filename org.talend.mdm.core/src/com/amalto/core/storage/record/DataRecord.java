@@ -102,6 +102,14 @@ public class DataRecord {
             } else if (recordMetadata.getRecordProperties().containsKey(field.getName())) { // Try to read from metadata
                 return recordMetadata.getRecordProperties().get(field.getName());
             }
+            // Last chance for finding value: reused field might not be hashCode-equals so does a by-name lookup.
+            if (field instanceof ContainedTypeFieldMetadata) {
+                for (Map.Entry<FieldMetadata, Object> entry : fieldToValue.entrySet()) {
+                    if (field.getName().equals(entry.getKey().getName())) {
+                        return entry.getValue();
+                    }
+                }
+            }
             return null;
         }
     }
