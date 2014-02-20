@@ -23,6 +23,7 @@ import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import java.io.StringWriter;
 
@@ -73,6 +74,9 @@ public class DOMDocument implements MutableDocument {
     public String exportToString() {
         try {
             OutputFormat format = new OutputFormat(domDocument);
+            // TMDM-6900 Ensure the xsi prefix is declared in exported document when save uses a DOM document.
+            domDocument.getDocumentElement().setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
+                    "xmlns:xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI); //$NON-NLS-1$
             format.setOmitXMLDeclaration(true);
             StringWriter stringOut = new StringWriter();
             XMLSerializer serial = new XMLSerializer(stringOut, format);
