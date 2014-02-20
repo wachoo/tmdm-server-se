@@ -24,6 +24,7 @@ import org.apache.commons.collections.iterators.TransformIterator;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.compare.Compare;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
 import java.util.*;
@@ -220,6 +221,11 @@ public class StagingStorage implements Storage {
     @Override
     public ImpactAnalyzer getImpactAnalyzer() {
         return delegate.getImpactAnalyzer();
+    }
+
+    @Override
+    public void adapt(Compare.DiffResults diffResults, boolean force) {
+        delegate.adapt(diffResults, force);
     }
 
     private static class StagingUpdateAction {

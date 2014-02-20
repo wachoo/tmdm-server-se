@@ -44,8 +44,8 @@ import org.hibernate.search.impl.SearchFactoryImpl;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.hibernate.tool.hbm2ddl.SchemaValidator;
-import org.talend.mdm.commmon.metadata.compare.HibernateStorageImpactAnalyzer;
-import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
+import org.talend.mdm.commmon.metadata.compare.*;
+import org.talend.mdm.commmon.metadata.compare.Compare;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -775,6 +775,13 @@ public class HibernateStorage implements Storage {
     @Override
     public ImpactAnalyzer getImpactAnalyzer() {
         return new HibernateStorageImpactAnalyzer();
+    }
+
+    @Override
+    public void adapt(Compare.DiffResults diffResults, boolean force) {
+        ImpactAnalyzer analyzer = getImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> impacts = analyzer.analyzeImpacts(diffResults);
+        // TODO Implement database schema update
     }
 
     @Override

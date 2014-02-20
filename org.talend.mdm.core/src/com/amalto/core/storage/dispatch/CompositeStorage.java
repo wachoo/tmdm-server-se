@@ -21,6 +21,7 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import org.apache.commons.collections.set.CompositeSet;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.compare.Compare;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
 import java.util.*;
@@ -229,6 +230,13 @@ public class CompositeStorage implements Storage {
             analyzers.add(storage.getImpactAnalyzer());
         }
         return new CompositeImpactAnalyzer(analyzers);
+    }
+
+    @Override
+    public void adapt(Compare.DiffResults diffResults, boolean force) {
+        for (Storage storage : storages) {
+            storage.adapt(diffResults, force);
+        }
     }
 
 }

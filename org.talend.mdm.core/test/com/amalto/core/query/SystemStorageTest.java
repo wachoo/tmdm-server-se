@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2006-2013 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.query;
@@ -37,6 +36,7 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.compare.Compare;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -80,6 +80,7 @@ public class SystemStorageTest extends TestCase {
 
         LOG.info("Preparing storage for tests...");
         Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), new SecuredStorage.UserDelegator() {
+
             @Override
             public boolean hide(FieldMetadata field) {
                 return false;
@@ -92,7 +93,7 @@ public class SystemStorageTest extends TestCase {
         });
         ClassRepository repository = buildRepository();
         storage.init(getDatasource("H2-Default"));
-        storage.prepare(repository, Collections.<Expression>emptySet(), true, true);
+        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
         LOG.info("Storage prepared.");
     }
 
@@ -159,7 +160,8 @@ public class SystemStorageTest extends TestCase {
             }
             FileInputStream fis2 = new FileInputStream(file);
             try {
-                dataRecordReader.read("1", repository, complexType, new XmlSAXDataRecordReader.Input(reader, new InputSource(fis2)));
+                dataRecordReader.read("1", repository, complexType, new XmlSAXDataRecordReader.Input(reader,
+                        new InputSource(fis2)));
             } catch (Exception e) {
                 System.out.println("Error: " + file);
                 error++;
@@ -210,12 +212,18 @@ public class SystemStorageTest extends TestCase {
 
         LOG.info("Preparing storage for tests...");
         HibernateStorage hibernateStorage = new HibernateStorage("MDM", StorageType.SYSTEM) {
+
             @Override
             protected TypeMappingStrategy getMappingStrategy() {
                 return TypeMappingStrategy.SCATTERED_CLOB;
             }
+
+            @Override
+            public void adapt(Compare.DiffResults diffResults, boolean force) {
+            }
         };
         Storage storage = new SecuredStorage(hibernateStorage, new SecuredStorage.UserDelegator() {
+
             @Override
             public boolean hide(FieldMetadata field) {
                 return false;
@@ -228,7 +236,7 @@ public class SystemStorageTest extends TestCase {
         });
         ClassRepository repository = buildRepository();
         storage.init(getDatasource("RDBMS-1-NO-FT"));
-        storage.prepare(repository, Collections.<Expression>emptySet(), true, true);
+        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
         LOG.info("Storage prepared.");
         // Test CONTAINS
         ComplexTypeMetadata type = repository.getComplexType("failed-routing-order-v2-pOJO");
@@ -270,12 +278,18 @@ public class SystemStorageTest extends TestCase {
 
         LOG.info("Preparing storage for tests...");
         HibernateStorage hibernateStorage = new HibernateStorage("MDM", StorageType.SYSTEM) {
+
             @Override
             protected TypeMappingStrategy getMappingStrategy() {
                 return TypeMappingStrategy.SCATTERED_CLOB;
             }
+
+            @Override
+            public void adapt(Compare.DiffResults diffResults, boolean force) {
+            }
         };
         Storage storage = new SecuredStorage(hibernateStorage, new SecuredStorage.UserDelegator() {
+
             @Override
             public boolean hide(FieldMetadata field) {
                 return false;
@@ -288,7 +302,7 @@ public class SystemStorageTest extends TestCase {
         });
         ClassRepository repository = buildRepository();
         storage.init(getDatasource("H2-Default"));
-        storage.prepare(repository, Collections.<Expression>emptySet(), true, true);
+        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
         LOG.info("Storage prepared.");
         // Test CONTAINS
         ComplexTypeMetadata type = repository.getComplexType("failed-routing-order-v2-pOJO");
@@ -330,6 +344,7 @@ public class SystemStorageTest extends TestCase {
 
         LOG.info("Preparing storage for tests...");
         Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), new SecuredStorage.UserDelegator() {
+
             @Override
             public boolean hide(FieldMetadata field) {
                 return false;
@@ -342,7 +357,7 @@ public class SystemStorageTest extends TestCase {
         });
         ClassRepository repository = buildRepository();
         storage.init(getDatasource("H2-Default"));
-        storage.prepare(repository, Collections.<Expression>emptySet(), true, true);
+        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
         LOG.info("Storage prepared.");
 
         Collection<File> files = getConfigFiles();
@@ -394,7 +409,8 @@ public class SystemStorageTest extends TestCase {
                 StorageResults results = storage.fetch(qb.getSelect());
                 try {
                     total += results.getCount();
-                    SystemDataRecordXmlWriter writer = new SystemDataRecordXmlWriter((ClassRepository) storage.getMetadataRepository(), presentType);
+                    SystemDataRecordXmlWriter writer = new SystemDataRecordXmlWriter(
+                            (ClassRepository) storage.getMetadataRepository(), presentType);
                     for (DataRecord result : results) {
                         StringWriter stringWriter = new StringWriter();
                         if ("menu-pOJO".equals(presentType.getName())) {
@@ -425,8 +441,7 @@ public class SystemStorageTest extends TestCase {
     public void test50UserParse() throws Exception {
         ClassRepository repository = buildRepository();
         // Additional setup to get User type in repository
-        String[] models = new String[]{
-                "/com/amalto/core/initdb/data/datamodel/PROVISIONING" //$NON-NLS-1$
+        String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/PROVISIONING" //$NON-NLS-1$
         };
         for (String model : models) {
             InputStream builtInStream = this.getClass().getResourceAsStream(model);
@@ -438,12 +453,12 @@ public class SystemStorageTest extends TestCase {
                 repository.load(new ByteArrayInputStream(modelPOJO.getSchema().getBytes("UTF-8"))); //$NON-NLS-1$
             } catch (Exception e) {
                 throw new RuntimeException("Could not parse builtin data model '" + model + "'.", e);
-        } finally {
+            } finally {
                 try {
                     builtInStream.close();
                 } catch (IOException e) {
                     // Ignored
-        }
+                }
             }
         }
         // Parse a user XML from a 5.0 install
@@ -457,27 +472,28 @@ public class SystemStorageTest extends TestCase {
     private static Collection<File> getConfigFiles() throws URISyntaxException {
         URL data = InitDBUtil.class.getResource("data");
         return FileUtils.listFiles(new File(data.toURI()), new IOFileFilter() {
-                    @Override
-                    public boolean accept(File file) {
-                        return true;
-                    }
 
-                    @Override
-                    public boolean accept(File file, String s) {
-                        return true;
-                    }
-                }, new IOFileFilter() {
-                    @Override
-                    public boolean accept(File file) {
-                        return !".svn".equals(file.getName());
-                    }
+            @Override
+            public boolean accept(File file) {
+                return true;
+            }
 
-                    @Override
-                    public boolean accept(File file, String s) {
-                        return !".svn".equals(file.getName());
-                    }
-                }
-        );
+            @Override
+            public boolean accept(File file, String s) {
+                return true;
+            }
+        }, new IOFileFilter() {
+
+            @Override
+            public boolean accept(File file) {
+                return !".svn".equals(file.getName());
+            }
+
+            @Override
+            public boolean accept(File file, String s) {
+                return !".svn".equals(file.getName());
+            }
+        });
     }
 
     protected static DataSourceDefinition getDatasource(String dataSourceName) {

@@ -77,7 +77,9 @@
         <init-param>
             <param-name>jaxrs.serviceClasses</param-name>
             <param-value>
-                com.amalto.core.storage.task.staging.StagingTaskService com.amalto.core.storage.transaction.TransactionService com.amalto.core.storage.task.matching.ExplainTaskService com.amalto.core.storage.task.matching.SimilarTaskService
+                com.amalto.core.storage.task.staging.StagingTaskService com.amalto.core.storage.transaction.TransactionService
+                com.amalto.core.storage.task.matching.ExplainTaskService com.amalto.core.storage.task.matching.SimilarTaskService
+                com.amalto.core.storage.system.SystemModels
             </param-value>
         </init-param>
         <init-param>
@@ -134,7 +136,7 @@
         <servlet-name>CXFServlet</servlet-name>
         <url-pattern>/services/*</url-pattern>
     </servlet-mapping>
-        <servlet-mapping>
+    <servlet-mapping>
         <servlet-name>LogViewerServlet</servlet-name>
         <url-pattern>/logviewer/log</url-pattern>
     </servlet-mapping>
@@ -194,7 +196,7 @@
             <role-name>administration</role-name>
         </auth-constraint>
     </security-constraint>
-    
+
     <login-config>
         <auth-method>BASIC</auth-method>
         <realm-name>xtentisSecurity</realm-name>

@@ -19,6 +19,7 @@ import com.amalto.core.storage.transaction.StorageTransaction;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.compare.Compare;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
 import java.util.Set;
@@ -154,6 +155,11 @@ public class SecuredStorage implements Storage {
     @Override
     public ImpactAnalyzer getImpactAnalyzer() {
         return delegate.getImpactAnalyzer();
+    }
+
+    @Override
+    public void adapt(Compare.DiffResults diffResults, boolean force) {
+        delegate.adapt(diffResults, force);
     }
 
 }

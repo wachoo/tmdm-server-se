@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2006-2013 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage;
@@ -18,6 +17,7 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.compare.Compare;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
 import java.util.*;
@@ -25,8 +25,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p>
- * An implementation of {@link com.amalto.core.storage.Storage} that caches {@link com.amalto.core.storage.Storage#fetch(com.amalto.core.query.user.Expression) fetch}
- * results. Cache key is the hashCode of the {@link com.amalto.core.query.user.Expression} used to read records.
+ * An implementation of {@link com.amalto.core.storage.Storage} that caches
+ * {@link com.amalto.core.storage.Storage#fetch(com.amalto.core.query.user.Expression) fetch} results. Cache key is the
+ * hashCode of the {@link com.amalto.core.query.user.Expression} used to read records.
  * </p>
  * <p>
  * Cache results are evicted on the following conditions:
@@ -55,8 +56,11 @@ public class CacheStorage implements Storage {
     }
 
     static class CacheValue {
+
         AtomicInteger tokenCount = new AtomicInteger(MAX_TOKEN);
+
         long lastAccessTime = System.currentTimeMillis();
+
         List<DataRecord> results = Collections.emptyList();
     }
 
@@ -81,7 +85,8 @@ public class CacheStorage implements Storage {
     }
 
     @Override
-    public void prepare(MetadataRepository repository, Set<Expression> optimizedExpressions, boolean force, boolean dropExistingData) {
+    public void prepare(MetadataRepository repository, Set<Expression> optimizedExpressions, boolean force,
+            boolean dropExistingData) {
         delegate.prepare(repository, optimizedExpressions, force, dropExistingData);
     }
 
@@ -105,7 +110,8 @@ public class CacheStorage implements Storage {
                 if (cacheValue.tokenCount.get() > 0 || timeSpentInCache < MAX_CACHE_LIFETIME) {
                     // Cache hit!
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Cache hit! Using value for '" + userQuery + "' (token left: " + cacheValue.tokenCount.get() + ").");
+                        LOGGER.debug("Cache hit! Using value for '" + userQuery + "' (token left: " + cacheValue.tokenCount.get()
+                                + ").");
                     }
                     cacheValue.lastAccessTime = System.currentTimeMillis();
                     return new CacheResults(cacheValue.results);
@@ -221,6 +227,11 @@ public class CacheStorage implements Storage {
     @Override
     public ImpactAnalyzer getImpactAnalyzer() {
         return delegate.getImpactAnalyzer();
+    }
+
+    @Override
+    public void adapt(Compare.DiffResults diffResults, boolean force) {
+        delegate.adapt(diffResults, force);
     }
 
     private static class CacheResults implements StorageResults {

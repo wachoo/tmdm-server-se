@@ -306,6 +306,10 @@ public class MetadataRepositoryTaskTest extends TestCase {
         }
 
         @Override
+        public void adapt(org.talend.mdm.commmon.metadata.compare.Compare.DiffResults diffResults, boolean force) {
+        }
+
+        @Override
         public Storage asInternal() {
             return this;
         }
