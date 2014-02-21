@@ -1212,7 +1212,7 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("change the value successfully!", saver.getBeforeSavingMessage());
 
         String lineSeparator = System.getProperty("line.separator");
-        StringBuilder expectedUserXmlBuilder = new StringBuilder("<Agency>");
+        StringBuilder expectedUserXmlBuilder = new StringBuilder("<Agency xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
         expectedUserXmlBuilder.append(lineSeparator);
         expectedUserXmlBuilder.append("<Id>5258f292-5670-473b-bc01-8b63434682f3</Id>");
         expectedUserXmlBuilder.append(lineSeparator);

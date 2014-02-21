@@ -316,8 +316,8 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     protected void generateNoOp(String path) {
         if (generateTouchActions) {
-            boolean exist = originalDocument.createAccessor(path).exist();
-            if (exist && !touchedPaths.contains(path) && path != null) {
+            boolean exist = (path != null && originalDocument.createAccessor(path).exist());
+            if (exist && !touchedPaths.contains(path)) {
                 touchedPaths.add(path);
                 actions.add(new TouchAction(path, date, source, userName));
             }
