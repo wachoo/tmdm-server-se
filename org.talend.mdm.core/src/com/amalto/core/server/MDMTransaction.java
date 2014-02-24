@@ -1,26 +1,27 @@
 /*
  * Copyright (C) 2006-2013 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.server;
 
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.transaction.StorageTransaction;
-import com.amalto.core.storage.transaction.Transaction;
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.apache.commons.collections.MapIterator;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 
-import java.util.*;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.transaction.StorageTransaction;
+import com.amalto.core.storage.transaction.Transaction;
 
 class MDMTransaction implements Transaction {
 
@@ -118,7 +119,7 @@ class MDMTransaction implements Transaction {
         synchronized (storageTransactions) {
             if (storageTransactions.isEmpty()) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Transaction '" + getId() + "' has no longer storage transactions. Removing it.");
+                    LOGGER.debug("Transaction '" + getId() + "' no longer has storage transactions. Removing it.");
                 }
                 transactionComplete();
             }
@@ -152,12 +153,12 @@ class MDMTransaction implements Transaction {
             }
         }
         switch (lifetime) {
-            case AD_HOC:
-                return storageTransaction.autonomous();
-            case LONG:
-                return storageTransaction.dependent();
-            default:
-                throw new NotImplementedException("No support for life time '" + lifetime + "'");
+        case AD_HOC:
+            return storageTransaction.autonomous();
+        case LONG:
+            return storageTransaction.dependent();
+        default:
+            throw new NotImplementedException("No support for life time '" + lifetime + "'");
         }
     }
 
@@ -178,10 +179,7 @@ class MDMTransaction implements Transaction {
 
     @Override
     public String toString() {
-        return "MDMTransaction{" +
-                "id='" + id + '\'' +
-                ", storageTransactions=" + storageTransactions +
-                ", lifetime=" + lifetime +
-                '}';
+        return "MDMTransaction{" + "id='" + id + '\'' + ", storageTransactions=" + storageTransactions + ", lifetime=" + lifetime
+                + '}';
     }
 }
