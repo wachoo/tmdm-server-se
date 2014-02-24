@@ -134,7 +134,10 @@ class StorageTableResolver implements TableResolver {
 
     @Override
     public String getFkConstraintName(ReferenceFieldMetadata referenceField) {
-        if (!referenceFieldNames.add(referenceField.getContainingType().getName() + '_' + referenceField.getName())) {
+        // TMDM-6896 Uses containing type length since FK collision issues happens when same FK is contained in a type
+        // with same
+        // length but different name.
+        if (!referenceFieldNames.add(referenceField.getContainingType().getName().length() + '_' + referenceField.getName())) {
             return formatSQLName("FK_" + Math.abs(referenceField.getName().hashCode()) + fkIncrement.incrementAndGet()); //$NON-NLS-1$
         } else {
             return StringUtils.EMPTY;
