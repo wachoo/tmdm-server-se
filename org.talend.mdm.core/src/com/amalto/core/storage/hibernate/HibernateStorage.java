@@ -795,29 +795,24 @@ public class HibernateStorage implements Storage {
 
     @Override
     public void adapt(MetadataRepository newRepository, boolean force) {
+        if (newRepository == null) {
+            throw new IllegalArgumentException("New data model can not be null.");
+        }
+        // Compute diff between current data model and new one.
         ImpactAnalyzer analyzer = getImpactAnalyzer();
         MetadataRepository previousRepository = getMetadataRepository();
         Compare.DiffResults diffResults = Compare.compare(previousRepository, newRepository);
+        if (diffResults.getActions().isEmpty()) {
+            LOGGER.info("No change detected, no database schema update to perform.");
+            return;
+        }
+        // Analyze impact to find types to delete
         Map<ImpactAnalyzer.Impact, List<Change>> impacts = analyzer.analyzeImpacts(diffResults);
         Set<ComplexTypeMetadata> typesToDrop = new HashSet<ComplexTypeMetadata>();
-        // Analyze impact to find types to delete
         for (Map.Entry<ImpactAnalyzer.Impact, List<Change>> impactCategory : impacts.entrySet()) {
             ImpactAnalyzer.Impact category = impactCategory.getKey();
             switch (category) {
             case HIGH:
-                if (force) {
-                    for (List<Change> changes : impacts.values()) {
-                        for (Change change : changes) {
-                            MetadataVisitable element = change.getElement();
-                            if (element instanceof FieldMetadata) {
-                                typesToDrop.add(((FieldMetadata) element).getContainingType().getEntity());
-                            } else if (element instanceof ComplexTypeMetadata) {
-                                typesToDrop.add((ComplexTypeMetadata) element);
-                            }
-                        }
-                    }
-                }
-                break;
             case MEDIUM:
                 if (force) {
                     for (List<Change> changes : impacts.values()) {
@@ -828,81 +823,102 @@ public class HibernateStorage implements Storage {
                             } else if (element instanceof ComplexTypeMetadata) {
                                 typesToDrop.add((ComplexTypeMetadata) element);
                             }
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("Change '" + change.getMessage() + "' requires a database schema update.");
+                            }
                         }
                     }
                 }
                 break;
             case LOW:
-                break;
+                if (LOGGER.isTraceEnabled()) {
+                    for (List<Change> changes : impacts.values()) {
+                        for (Change change : changes) {
+                            LOGGER.trace("Change '" + change.getMessage() + "' does NOT require a database schema update.");
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        if (typesToDrop.isEmpty()) { // If no type to drop, exit method
+            LOGGER.info("Schema changes do no require to drop any database schema element.");
+            return;
+        }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(typesToDrop.size() + " type(s) scheduled for deletion: " + Arrays.toString(typesToDrop.toArray()) + ".");
+        }
+        // Find dependent types to delete
+        Set<ComplexTypeMetadata> additionalTypes = new HashSet<ComplexTypeMetadata>();
+        for (ComplexTypeMetadata typeToDrop : typesToDrop) {
+            Set<ReferenceFieldMetadata> inboundReferences = previousRepository.accept(new InboundReferences(typeToDrop));
+            for (ReferenceFieldMetadata inboundReference : inboundReferences) {
+                additionalTypes.add(inboundReference.getContainingType().getEntity());
             }
         }
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Types scheduled for deletion: " + typesToDrop.size() + " (" + Arrays.toString(typesToDrop.toArray())
-                    + ")");
+            LOGGER.debug(additionalTypes.size() + " additional type(s) scheduled for deletion (inbound references): "
+                    + Arrays.toString(additionalTypes.toArray()) + ".");
         }
-        if (!typesToDrop.isEmpty()) {
-            // Find dependent types to delete
-            Set<ComplexTypeMetadata> additionalTypes = new HashSet<ComplexTypeMetadata>();
-            for (ComplexTypeMetadata typeToDrop : typesToDrop) {
-                Set<ReferenceFieldMetadata> inboundReferences = previousRepository.accept(new InboundReferences(typeToDrop));
-                for (ReferenceFieldMetadata inboundReference : inboundReferences) {
-                    additionalTypes.add(inboundReference.getContainingType().getEntity());
+        typesToDrop.addAll(additionalTypes);
+        // Sort in dependency order
+        ArrayList<ComplexTypeMetadata> types = new ArrayList<ComplexTypeMetadata>(typesToDrop);
+        List<ComplexTypeMetadata> sortedTypesToDrop = MetadataUtils.sortTypes(previousRepository, types);
+        // Get table names to drop
+        List<String> tablesToDrop = new LinkedList<String>();
+        TableClosureVisitor visitor = new TableClosureVisitor();
+        for (ComplexTypeMetadata typeMetadata : sortedTypesToDrop) {
+            PersistentClass metadata = configuration.getClassMapping(ClassCreator.PACKAGE_PREFIX
+                    + tableResolver.get(typeMetadata));
+            tablesToDrop.addAll((Collection<String>) metadata.accept(visitor));
+        }
+        if (LOGGER.isTraceEnabled()) {
+            StringBuilder aggregatedTableNames = new StringBuilder();
+            for (String table : tablesToDrop) {
+                aggregatedTableNames.append(table).append(' ');
+            }
+            LOGGER.trace("Table(s) scheduled for drop: " + aggregatedTableNames);
+        }
+        // Execute drop table
+        Connection connection = null;
+        try {
+            connection = DriverManager.getConnection(dataSource.getConnectionURL());
+            int successCount = 0;
+            for (String table : tablesToDrop) {
+                Statement statement = connection.createStatement();
+                try {
+                    statement.executeUpdate("DROP TABLE " + table); //$NON-NLS-1$
+                    successCount++;
+                } catch (SQLException e) {
+                    LOGGER.warn("Could not delete '" + table + "'.");
+                } finally {
+                    statement.close();
                 }
             }
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Additional types scheduled for deletion (inbound references): " + additionalTypes.size() + " ("
-                        + Arrays.toString(additionalTypes.toArray()) + ")");
+                LOGGER.debug("Successfully deleted " + successCount + " (out of " + tablesToDrop.size() + " tables).");
             }
-            typesToDrop.addAll(additionalTypes);
-            // Sort in dependency order
-            ArrayList<ComplexTypeMetadata> types = new ArrayList<ComplexTypeMetadata>(typesToDrop);
-            List<ComplexTypeMetadata> sortedTypesToDrop = MetadataUtils.sortTypes(previousRepository, types);
-            // Get table names to drop
-            List<String> tablesToDrop = new LinkedList<String>();
-            for (ComplexTypeMetadata typeMetadata : sortedTypesToDrop) {
-                PersistentClass metadata = configuration.getClassMapping(ClassCreator.PACKAGE_PREFIX
-                        + tableResolver.get(typeMetadata));
-                tablesToDrop.addAll((Collection<String>) metadata.accept(new TableClosureVisitor()));
-            }
-            if (LOGGER.isTraceEnabled()) {
-                StringBuilder aggregatedTableNames = new StringBuilder();
-                for (String table : tablesToDrop) {
-                    aggregatedTableNames.append(table).append(' ');
-                }
-                LOGGER.trace("Table scheduled for drop: " + aggregatedTableNames);
-            }
-            // Execute drop table
-            Connection connection = null;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not acquire connection to database.", e);
+        } finally {
             try {
-                connection = DriverManager.getConnection(dataSource.getConnectionURL());
-                for (String table : tablesToDrop) {
-                    Statement statement = connection.createStatement();
-                    try {
-                        statement.executeUpdate("DROP TABLE " + table); //$NON-NLS-1$
-                    } catch (SQLException e) {
-                        LOGGER.warn("Could not delete '" + table + "'");
-                    } finally {
-                        statement.close();
-                    }
+                if (connection != null) {
+                    connection.close();
                 }
             } catch (SQLException e) {
-                throw new RuntimeException("Could not drop tables", e);
-            } finally {
-                try {
-                    if (connection != null) {
-                        connection.close();
-                    }
-                } catch (SQLException e) {
-                    LOGGER.error("Unexpected error on connection close.", e);
-                }
+                LOGGER.error("Unexpected error on connection close.", e);
             }
-        } else {
-            LOGGER.info("Schema changes do no require to drop any database schema element.");
         }
         // Reinitialize Hibernate
-        close(false);
-        internalInit();
-        prepare(newRepository, false);
+        LOGGER.info("Completing database schema update.");
+        try {
+            close(false);
+            internalInit();
+            prepare(newRepository, false);
+            LOGGER.info("Database schema update complete.");
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to complete database schema update.", e);
+        }
     }
 
     @Override
