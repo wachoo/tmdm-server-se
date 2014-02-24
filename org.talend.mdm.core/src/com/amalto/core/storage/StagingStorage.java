@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2006-2013 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage;
@@ -24,7 +23,6 @@ import org.apache.commons.collections.iterators.TransformIterator;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.metadata.compare.Compare;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
 import java.util.*;
@@ -48,13 +46,19 @@ public class StagingStorage implements Storage {
         // Initialize staging update actions
         updateActions.put(StagingConstants.NEW, new StagingUpdateAction(StagingConstants.NEW, true));
         updateActions.put(StagingConstants.SUCCESS_MERGE_CLUSTERS, new StagingUpdateAction(StagingConstants.NEW, true));
-        updateActions.put(StagingConstants.SUCCESS_MERGED_RECORD_TO_RESOLVE, new StagingUpdateAction(StagingConstants.SUCCESS_MERGED_RECORD_TO_RESOLVE, false));
-        updateActions.put(StagingConstants.SUCCESS_VALIDATE, new StagingUpdateAction(StagingConstants.SUCCESS_MERGED_RECORD, false));
+        updateActions.put(StagingConstants.SUCCESS_MERGED_RECORD_TO_RESOLVE, new StagingUpdateAction(
+                StagingConstants.SUCCESS_MERGED_RECORD_TO_RESOLVE, false));
+        updateActions.put(StagingConstants.SUCCESS_VALIDATE, new StagingUpdateAction(StagingConstants.SUCCESS_MERGED_RECORD,
+                false));
         updateActions.put(StagingConstants.DELETED, new StagingUpdateAction(StagingConstants.DELETED, false));
-        updateActions.put(StagingConstants.FAIL_VALIDATE_VALIDATION, new StagingUpdateAction(StagingConstants.SUCCESS_MERGED_RECORD, false));
-        updateActions.put(StagingConstants.FAIL_VALIDATE_CONSTRAINTS, new StagingUpdateAction(StagingConstants.SUCCESS_MERGED_RECORD, false));
-        updateActions.put(StagingConstants.SUCCESS_MERGED_RECORD, new StagingUpdateAction(StagingConstants.SUCCESS_MERGED_RECORD, false));
-        updateActions.put(StagingConstants.TASK_RESOLVED_RECORD, new StagingUpdateAction(StagingConstants.TASK_RESOLVED_RECORD, false));
+        updateActions.put(StagingConstants.FAIL_VALIDATE_VALIDATION, new StagingUpdateAction(
+                StagingConstants.SUCCESS_MERGED_RECORD, false));
+        updateActions.put(StagingConstants.FAIL_VALIDATE_CONSTRAINTS, new StagingUpdateAction(
+                StagingConstants.SUCCESS_MERGED_RECORD, false));
+        updateActions.put(StagingConstants.SUCCESS_MERGED_RECORD, new StagingUpdateAction(StagingConstants.SUCCESS_MERGED_RECORD,
+                false));
+        updateActions.put(StagingConstants.TASK_RESOLVED_RECORD, new StagingUpdateAction(StagingConstants.TASK_RESOLVED_RECORD,
+                false));
         updateActions.put(StagingConstants.NEED_REMATCH, new StagingUpdateAction(StagingConstants.NEED_REMATCH, false));
     }
 
@@ -79,7 +83,8 @@ public class StagingStorage implements Storage {
     }
 
     @Override
-    public void prepare(MetadataRepository repository, Set<Expression> optimizedExpressions, boolean force, boolean dropExistingData) {
+    public void prepare(MetadataRepository repository, Set<Expression> optimizedExpressions, boolean force,
+            boolean dropExistingData) {
         delegate.prepare(repository, optimizedExpressions, force, dropExistingData);
     }
 
@@ -106,6 +111,7 @@ public class StagingStorage implements Storage {
     @Override
     public void update(Iterable<DataRecord> records) {
         final TransformIterator iterator = new TransformIterator(records.iterator(), new Transformer() {
+
             @Override
             public Object transform(Object input) {
                 DataRecord dataRecord = (DataRecord) input;
@@ -141,6 +147,7 @@ public class StagingStorage implements Storage {
             }
         });
         Iterable<DataRecord> transformedRecords = new Iterable<DataRecord>() {
+
             @Override
             public Iterator<DataRecord> iterator() {
                 return iterator;
@@ -224,8 +231,8 @@ public class StagingStorage implements Storage {
     }
 
     @Override
-    public void adapt(Compare.DiffResults diffResults, boolean force) {
-        delegate.adapt(diffResults, force);
+    public void adapt(MetadataRepository newRepository, boolean force) {
+        delegate.adapt(newRepository, force);
     }
 
     private static class StagingUpdateAction {

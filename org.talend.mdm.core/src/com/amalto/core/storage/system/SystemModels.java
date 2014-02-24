@@ -56,7 +56,7 @@ public class SystemModels {
         newRepository.load(dataModel);
         Compare.DiffResults diffResults = Compare.compare(previousRepository, newRepository);
         // Ask the storage to adapt its structure following the changes
-        storage.adapt(diffResults, force);
+        storage.adapt(newRepository, force);
     }
 
     @POST

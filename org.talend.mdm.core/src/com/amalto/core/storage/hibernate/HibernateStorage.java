@@ -10,33 +10,33 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.server.MetadataRepositoryAdmin;
-import com.amalto.core.storage.StorageMetadataUtils;
-import com.amalto.core.query.optimization.*;
-import com.amalto.core.query.user.*;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.datasource.DataSourceDefinition;
-import com.amalto.core.storage.transaction.StorageTransaction;
-import com.amalto.core.storage.transaction.TransactionManager;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import net.sf.ehcache.CacheManager;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Level;
-import org.hibernate.cfg.Environment;
-import org.hibernate.search.FullTextSession;
-import org.talend.mdm.commmon.metadata.*;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.datasource.DataSource;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
-import com.amalto.core.storage.prepare.*;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordConverter;
-import com.amalto.core.storage.record.metadata.DataRecordMetadata;
-import net.sf.ehcache.CacheManager;
 import org.apache.log4j.Logger;
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.Environment;
 import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.mapping.*;
+import org.hibernate.search.FullTextSession;
 import org.hibernate.search.MassIndexer;
 import org.hibernate.search.Search;
 import org.hibernate.search.event.ContextHolder;
@@ -44,21 +44,36 @@ import org.hibernate.search.impl.SearchFactoryImpl;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.hibernate.tool.hbm2ddl.SchemaValidator;
-import org.talend.mdm.commmon.metadata.compare.*;
+import org.talend.mdm.commmon.metadata.*;
+import org.talend.mdm.commmon.metadata.compare.Change;
 import org.talend.mdm.commmon.metadata.compare.Compare;
+import org.talend.mdm.commmon.metadata.compare.HibernateStorageImpactAnalyzer;
+import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.sql.SQLException;
-import java.util.*;
+import com.amalto.core.query.optimization.*;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.UserQueryDumpConsole;
+import com.amalto.core.query.user.Visitor;
+import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageMetadataUtils;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
+import com.amalto.core.storage.prepare.*;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordConverter;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import com.amalto.core.storage.transaction.StorageTransaction;
+import com.amalto.core.storage.transaction.TransactionManager;
 
 public class HibernateStorage implements Storage {
 
@@ -70,10 +85,12 @@ public class HibernateStorage implements Storage {
 
     private static final Logger LOGGER = Logger.getLogger(HibernateStorage.class);
 
-    private static final Optimizer[] OPTIMIZERS = new Optimizer[]{
-            new RangeOptimizer(), // Transforms (value > n AND value < p) into (RANGE(n,p)).
+    private static final Optimizer[] OPTIMIZERS = new Optimizer[] { new RangeOptimizer(), // Transforms (value > n AND
+                                                                                          // value < p) into
+                                                                                          // (RANGE(n,p)).
             new ContainsOptimizer(), // Transforms all '*' in CONTAINS into '%'.
-            new UpdateReportOptimizer() // Adds queries on super types if update report query a concept name with super types.
+            new UpdateReportOptimizer() // Adds queries on super types if update report query a concept name with super
+                                        // types.
     };
 
     private static final String FORBIDDEN_PREFIX = "x_talend_"; //$NON-NLS-1$
@@ -84,7 +101,8 @@ public class HibernateStorage implements Storage {
     private static final boolean autoPrepare = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty(
             "db.autoPrepare", "true")); //$NON-NLS-1$ //$NON-NLS-2$
 
-    private static final Boolean FLUSH_ON_LOAD = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("db.flush.on.load", "false")); //$NON-NLS-1$ //$NON-NLS-2$
+    private static final Boolean FLUSH_ON_LOAD = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty(
+            "db.flush.on.load", "false")); //$NON-NLS-1$ //$NON-NLS-2$
 
     private final String storageName;
 
@@ -114,7 +132,7 @@ public class HibernateStorage implements Storage {
 
     /**
      * Create a {@link StorageType#MASTER} storage.
-     *
+     * 
      * @param storageName Name for this storage. <b>by convention</b>, this is the MDM container name.
      * @see StorageType#MASTER
      */
@@ -124,12 +142,25 @@ public class HibernateStorage implements Storage {
 
     /**
      * @param storageName Name for this storage. <b>By convention</b>, this is the MDM container name.
-     * @param type        Tells whether this storage is a staging area or not.
+     * @param type Tells whether this storage is a staging area or not.
      * @see StorageType
      */
     public HibernateStorage(String storageName, StorageType type) {
         this.storageName = storageName;
         this.storageType = type;
+    }
+
+    private static boolean isIndexable(TypeMetadata fieldType) {
+        if (Types.MULTI_LINGUAL.equals(fieldType.getName())) {
+            return false;
+        }
+        if (fieldType.getData(MetadataRepository.DATA_MAX_LENGTH) != null) {
+            Object maxLength = fieldType.getData(MetadataRepository.DATA_MAX_LENGTH);
+            if (maxLength != null && Integer.parseInt(String.valueOf(maxLength)) > MappingGenerator.MAX_VARCHAR_TEXT_LIMIT) {
+                return false; // Don't take into indexed fields long text fields
+            }
+        }
+        return true;
     }
 
     @Override
@@ -166,8 +197,8 @@ public class HibernateStorage implements Storage {
             throw new IllegalArgumentException("Data source is expected to be a RDBMS data source.");
         }
         if (dataSource.isShared()) {
-            LOGGER.warn("Datasource '" + dataSource.getName() + "' (for storage type: " + storageType + ") is shared " +
-                    "with at least another one other storage type, please review datasource configuration.");
+            LOGGER.warn("Datasource '" + dataSource.getName() + "' (for storage type: " + storageType + ") is shared "
+                    + "with at least another one other storage type, please review datasource configuration.");
         }
         this.dataSource = (RDBMSDataSource) dataSource;
         internalInit();
@@ -184,10 +215,8 @@ public class HibernateStorage implements Storage {
     }
 
     @Override
-    public synchronized void prepare(MetadataRepository repository,
-                                     Set<Expression> optimizedExpressions,
-                                     boolean force,
-                                     boolean dropExistingData) {
+    public synchronized void prepare(MetadataRepository repository, Set<Expression> optimizedExpressions, boolean force,
+            boolean dropExistingData) {
         if (!force && isPrepared) {
             return; // No op operation
         }
@@ -209,7 +238,8 @@ public class HibernateStorage implements Storage {
         }
         // Loads additional types for staging area.
         if (storageType == StorageType.STAGING) {
-            userMetadataRepository = repository.copy(); // See TMDM-6938: prevents staging types to appear in master storage.
+            userMetadataRepository = repository.copy(); // See TMDM-6938: prevents staging types to appear in master
+                                                        // storage.
             userMetadataRepository.load(MetadataRepositoryAdmin.class.getResourceAsStream("stagingInternalTypes.xsd")); //$NON-NLS-1$
         }
         // Create class loader for storage's dynamically created classes.
@@ -221,12 +251,9 @@ public class HibernateStorage implements Storage {
             } catch (ClassNotFoundException e) {
                 clazz = (Class<? extends StorageClassLoader>) Class.forName(CLASS_LOADER);
             }
-            Constructor<? extends StorageClassLoader> constructor = clazz.getConstructor(ClassLoader.class,
-                    String.class,
+            Constructor<? extends StorageClassLoader> constructor = clazz.getConstructor(ClassLoader.class, String.class,
                     StorageType.class);
-            storageClassLoader = constructor.newInstance(contextClassLoader,
-                    storageName,
-                    storageType);
+            storageClassLoader = constructor.newInstance(contextClassLoader, storageName, storageType);
             storageClassLoader.setDataSourceConfiguration(dataSource);
             storageClassLoader.generateHibernateConfig(); // Checks if configuration can be generated.
         } catch (Exception e) {
@@ -268,67 +295,70 @@ public class HibernateStorage implements Storage {
             // Set fields to be indexed in database.
             Set<FieldMetadata> databaseIndexedFields = new HashSet<FieldMetadata>();
             switch (storageType) {
-                case MASTER:
-                    // Adds indexes on user defined fields
-                    for (Expression optimizedExpression : optimizedExpressions) {
-                        Collection<FieldMetadata> indexedFields = RecommendedIndexes.get(optimizedExpression);
-                        for (FieldMetadata indexedField : indexedFields) {
-                            // TMDM-5896: Don't index Composite Key fields
-                            if (indexedField instanceof CompoundFieldMetadata) {
-                                continue;
+            case MASTER:
+                // Adds indexes on user defined fields
+                for (Expression optimizedExpression : optimizedExpressions) {
+                    Collection<FieldMetadata> indexedFields = RecommendedIndexes.get(optimizedExpression);
+                    for (FieldMetadata indexedField : indexedFields) {
+                        // TMDM-5896: Don't index Composite Key fields
+                        if (indexedField instanceof CompoundFieldMetadata) {
+                            continue;
+                        }
+                        // TMDM-5311: Don't index TEXT fields
+                        TypeMetadata indexedFieldType = indexedField.getType();
+                        if (!isIndexable(indexedFieldType)) {
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("Ignore index on field '" + indexedField.getName()
+                                        + "' because value is stored in TEXT.");
                             }
-                            // TMDM-5311: Don't index TEXT fields
-                            TypeMetadata indexedFieldType = indexedField.getType();
-                            if (!isIndexable(indexedFieldType)) {
-                                if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.debug("Ignore index on field '" + indexedField.getName() + "' because value is stored in TEXT.");
-                                }
-                                continue;
+                            continue;
+                        }
+                        // Go up the containment tree in case containing type is anonymous.
+                        ComplexTypeMetadata containingType = indexedField.getContainingType().getEntity();
+                        TypeMapping mapping = mappingRepository.getMappingFromUser(containingType);
+                        FieldMetadata databaseField = mapping.getDatabase(indexedField);
+                        if (!isIndexable(databaseField.getType())) {
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("Ignore index on field '" + indexedField.getName()
+                                        + "' because value (in database mapping) is stored in TEXT.");
                             }
-                            // Go up the containment tree in case containing type is anonymous.
-                            ComplexTypeMetadata containingType = indexedField.getContainingType().getEntity();
-                            TypeMapping mapping = mappingRepository.getMappingFromUser(containingType);
-                            FieldMetadata databaseField = mapping.getDatabase(indexedField);
-                            if (!isIndexable(databaseField.getType())) {
-                                if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.debug("Ignore index on field '" + indexedField.getName() + "' because value (in database mapping) is stored in TEXT.");
-                                }
-                                continue; // Don't take into indexed fields long text fields
-                            }
-                            databaseIndexedFields.add(databaseField);
-                            if (!databaseField.getContainingType().isInstantiable()) {
-                                Collection<ComplexTypeMetadata> roots = RecommendedIndexes.getRoots(optimizedExpression);
-                                for (ComplexTypeMetadata root : roots) {
-                                    List<FieldMetadata> path = StorageMetadataUtils.path(mappingRepository.getMappingFromUser(root).getDatabase(), databaseField);
-                                    if (path.size() > 1) {
-                                        databaseIndexedFields.addAll(path.subList(0, path.size() - 1));
-                                    } else {
-                                        LOGGER.warn("Failed to properly index field '" + databaseField + "'.");
-                                    }
+                            continue; // Don't take into indexed fields long text fields
+                        }
+                        databaseIndexedFields.add(databaseField);
+                        if (!databaseField.getContainingType().isInstantiable()) {
+                            Collection<ComplexTypeMetadata> roots = RecommendedIndexes.getRoots(optimizedExpression);
+                            for (ComplexTypeMetadata root : roots) {
+                                List<FieldMetadata> path = StorageMetadataUtils.path(mappingRepository.getMappingFromUser(root)
+                                        .getDatabase(), databaseField);
+                                if (path.size() > 1) {
+                                    databaseIndexedFields.addAll(path.subList(0, path.size() - 1));
+                                } else {
+                                    LOGGER.warn("Failed to properly index field '" + databaseField + "'.");
                                 }
                             }
                         }
                     }
-                    break;
-                case STAGING:
-                    // Adds "staging status" as indexed field
-                    if (!optimizedExpressions.isEmpty()) {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Ignoring " + optimizedExpressions.size() + " to optimize (disabled on staging area).");
-                        }
+                }
+                break;
+            case STAGING:
+                // Adds "staging status" as indexed field
+                if (!optimizedExpressions.isEmpty()) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Ignoring " + optimizedExpressions.size() + " to optimize (disabled on staging area).");
                     }
-                    for (TypeMapping typeMapping : mappingRepository.getAllTypeMappings()) {
-                        ComplexTypeMetadata database = typeMapping.getDatabase();
-                        if (database.hasField(METADATA_STAGING_STATUS)) {
-                            databaseIndexedFields.add(database.getField(METADATA_STAGING_STATUS));
-                        }
-                        if (database.hasField(METADATA_STAGING_BLOCK_KEY)) {
-                            databaseIndexedFields.add(database.getField(METADATA_STAGING_BLOCK_KEY));
-                        }
+                }
+                for (TypeMapping typeMapping : mappingRepository.getAllTypeMappings()) {
+                    ComplexTypeMetadata database = typeMapping.getDatabase();
+                    if (database.hasField(METADATA_STAGING_STATUS)) {
+                        databaseIndexedFields.add(database.getField(METADATA_STAGING_STATUS));
                     }
-                    break;
-                case SYSTEM: // Nothing to index on SYSTEM
-                    break;
+                    if (database.hasField(METADATA_STAGING_BLOCK_KEY)) {
+                        databaseIndexedFields.add(database.getField(METADATA_STAGING_BLOCK_KEY));
+                    }
+                }
+                break;
+            case SYSTEM: // Nothing to index on SYSTEM
+                break;
             }
             // Don't add FK in indexes if using H2
             if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.H2) {
@@ -342,45 +372,45 @@ public class HibernateStorage implements Storage {
             }
             // Set table/column name length limitation
             switch (dataSource.getDialectName()) {
-                case ORACLE_10G:
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Oracle database is being used. Limit table name length to 30.");
-                    }
-                    tableResolver = new OracleStorageTableResolver(databaseIndexedFields, 30);
-                    break;
-                case MYSQL:
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("MySQL database is being used. Limit table name length to 64.");
-                    }
-                    tableResolver = new StorageTableResolver(databaseIndexedFields, 64);
-                    break;
-                case SQL_SERVER:
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("SQL Server database is being used. Limit table name length to 128.");
-                    }
-                    tableResolver = new StorageTableResolver(databaseIndexedFields, 128);
-                    break;
-                case POSTGRES:
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Postgres database is being used. Limit table name length to 63.");
-                    }
-                    tableResolver = new StorageTableResolver(databaseIndexedFields, 63);
-                    break;
-                case H2:
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("No limitation for table name length.");
-                    }
-                    tableResolver = new StorageTableResolver(databaseIndexedFields);
-                    break;
+            case ORACLE_10G:
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Oracle database is being used. Limit table name length to 30.");
+                }
+                tableResolver = new OracleStorageTableResolver(databaseIndexedFields, 30);
+                break;
+            case MYSQL:
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("MySQL database is being used. Limit table name length to 64.");
+                }
+                tableResolver = new StorageTableResolver(databaseIndexedFields, 64);
+                break;
+            case SQL_SERVER:
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("SQL Server database is being used. Limit table name length to 128.");
+                }
+                tableResolver = new StorageTableResolver(databaseIndexedFields, 128);
+                break;
+            case POSTGRES:
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Postgres database is being used. Limit table name length to 63.");
+                }
+                tableResolver = new StorageTableResolver(databaseIndexedFields, 63);
+                break;
+            case H2:
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("No limitation for table name length.");
+                }
+                tableResolver = new StorageTableResolver(databaseIndexedFields);
+                break;
             }
             storageClassLoader.setTableResolver(tableResolver);
             // Master, Staging and System share same class creator.
             switch (storageType) {
-                case MASTER:
-                case STAGING:
-                case SYSTEM:
-                    hibernateClassCreator = new ClassCreator(storageClassLoader);
-                    break;
+            case MASTER:
+            case STAGING:
+            case SYSTEM:
+                hibernateClassCreator = new ClassCreator(storageClassLoader);
+                break;
             }
             // Create Hibernate classes (after some modifications to the types).
             try {
@@ -409,27 +439,27 @@ public class HibernateStorage implements Storage {
                 RDBMSDataSource.SchemaGeneration schemaGeneration = dataSource.getSchemaGeneration();
                 List exceptions = Collections.emptyList();
                 switch (schemaGeneration) {
-                    case CREATE:
-                        SchemaExport schemaExport = new SchemaExport(configuration);
-                        schemaExport.create(false, true);
-                        // Exception may happen during recreation (hibernate may perform statements on tables that does
-                        // not exist): these exceptions are supposed to be harmless (but log them to DEBUG just in case).
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Exception(s) occurred during schema creation:");
-                            for (Object exceptionObject : schemaExport.getExceptions()) {
-                                LOGGER.debug(((Exception) exceptionObject).getMessage());
-                            }
+                case CREATE:
+                    SchemaExport schemaExport = new SchemaExport(configuration);
+                    schemaExport.create(false, true);
+                    // Exception may happen during recreation (hibernate may perform statements on tables that does
+                    // not exist): these exceptions are supposed to be harmless (but log them to DEBUG just in case).
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Exception(s) occurred during schema creation:");
+                        for (Object exceptionObject : schemaExport.getExceptions()) {
+                            LOGGER.debug(((Exception) exceptionObject).getMessage());
                         }
-                        break;
-                    case VALIDATE:
-                        SchemaValidator schemaValidator = new SchemaValidator(configuration);
-                        schemaValidator.validate(); // This is supposed to throw exception on validation issue.
-                        break;
-                    case UPDATE:
-                        SchemaUpdate schemaUpdate = new SchemaUpdate(configuration);
-                        schemaUpdate.execute(false, true);
-                        exceptions = schemaUpdate.getExceptions();
-                        break;
+                    }
+                    break;
+                case VALIDATE:
+                    SchemaValidator schemaValidator = new SchemaValidator(configuration);
+                    schemaValidator.validate(); // This is supposed to throw exception on validation issue.
+                    break;
+                case UPDATE:
+                    SchemaUpdate schemaUpdate = new SchemaUpdate(configuration);
+                    schemaUpdate.execute(false, true);
+                    exceptions = schemaUpdate.getExceptions();
+                    break;
                 }
                 // Throw an exception if schema update met issue(s).
                 if (!exceptions.isEmpty()) {
@@ -480,19 +510,6 @@ public class HibernateStorage implements Storage {
         }
     }
 
-    private static boolean isIndexable(TypeMetadata fieldType) {
-        if (Types.MULTI_LINGUAL.equals(fieldType.getName())) {
-            return false;
-        }
-        if (fieldType.getData(MetadataRepository.DATA_MAX_LENGTH) != null) {
-            Object maxLength = fieldType.getData(MetadataRepository.DATA_MAX_LENGTH);
-            if (maxLength != null && Integer.parseInt(String.valueOf(maxLength)) > MappingGenerator.MAX_VARCHAR_TEXT_LIMIT) {
-                return false; // Don't take into indexed fields long text fields
-            }
-        }
-        return true;
-    }
-
     private void traceDDL() {
         try {
             if (configuration == null) {
@@ -502,8 +519,7 @@ public class HibernateStorage implements Storage {
             RDBMSDataSource.DataSourceDialect dialectType = dataSource.getDialectName();
             SchemaExport export = new SchemaExport(configuration);
             export.setFormat(false);
-            String filename = jbossServerTempDir + File.separator + storageName
-                    + "_" + storageType + "_" + dialectType + ".ddl"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            String filename = jbossServerTempDir + File.separator + storageName + "_" + storageType + "_" + dialectType + ".ddl"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             export.setOutputFile(filename);
             export.setDelimiter(";"); //$NON-NLS-1$
             export.execute(false, false, false, true);
@@ -513,28 +529,26 @@ public class HibernateStorage implements Storage {
                             (Exception) export.getExceptions().get(i));
                 }
             }
-            LOGGER.info("DDL exported to file '" + filename +"'.");
+            LOGGER.info("DDL exported to file '" + filename + "'.");
         } catch (Exception e) {
             LOGGER.error("Error occurred while producing ddl.", e); //$NON-NLS-1$
         }
     }
 
-
     protected TypeMappingStrategy getMappingStrategy() {
         switch (storageType) {
-            case SYSTEM:
-                switch (dataSource.getDialectName()) {
-                    case ORACLE_10G: // Oracle needs to store long string values to CLOBs.
-                        return TypeMappingStrategy.SCATTERED_CLOB;
-                    default:
-                        return TypeMappingStrategy.SCATTERED;
-                }
-
-            case MASTER:
-            case STAGING:
-                return TypeMappingStrategy.AUTO;
+        case SYSTEM:
+            switch (dataSource.getDialectName()) {
+            case ORACLE_10G: // Oracle needs to store long string values to CLOBs.
+                return TypeMappingStrategy.SCATTERED_CLOB;
             default:
-                throw new IllegalArgumentException("Storage type '" + storageType + "' is not supported.");
+                return TypeMappingStrategy.SCATTERED;
+            }
+        case MASTER:
+        case STAGING:
+            return TypeMappingStrategy.AUTO;
+        default:
+            throw new IllegalArgumentException("Storage type '" + storageType + "' is not supported.");
         }
     }
 
@@ -544,17 +558,17 @@ public class HibernateStorage implements Storage {
             mappingStrategy.setUseTechnicalFK(dataSource.generateTechnicalFK());
             // TODO Not nice to setUseTechnicalFK, change this
             switch (storageType) {
-                case SYSTEM:
-                    typeMappingRepository = new SystemTypeMappingRepository(mappingStrategy);
-                    break;
-                case MASTER:
-                    typeMappingRepository = new UserTypeMappingRepository(mappingStrategy);
-                    break;
-                case STAGING:
-                    typeMappingRepository = new StagingTypeMappingRepository(mappingStrategy);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Storage type '" + storageType + "' is not supported.");
+            case SYSTEM:
+                typeMappingRepository = new SystemTypeMappingRepository(mappingStrategy);
+                break;
+            case MASTER:
+                typeMappingRepository = new UserTypeMappingRepository(mappingStrategy);
+                break;
+            case STAGING:
+                typeMappingRepository = new StagingTypeMappingRepository(mappingStrategy);
+                break;
+            default:
+                throw new IllegalArgumentException("Storage type '" + storageType + "' is not supported.");
             }
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Selected type mapping strategy: " + mappingStrategy);
@@ -566,7 +580,7 @@ public class HibernateStorage implements Storage {
     @Override
     public synchronized void prepare(MetadataRepository repository, boolean dropExistingData) {
         if (!isPrepared) {
-            prepare(repository, Collections.<Expression>emptySet(), false, dropExistingData);
+            prepare(repository, Collections.<Expression> emptySet(), false, dropExistingData);
         }
     }
 
@@ -588,7 +602,8 @@ public class HibernateStorage implements Storage {
             }
             Session session = factory.getCurrentSession();
             // Call back closes session once calling code has consumed all results.
-            Set<ResultsCallback> callbacks = Collections.<ResultsCallback>singleton(new ResultsCallback() {
+            Set<ResultsCallback> callbacks = Collections.<ResultsCallback> singleton(new ResultsCallback() {
+
                 @Override
                 public void onBeginOfResults() {
                     storageClassLoader.bind(Thread.currentThread());
@@ -694,10 +709,11 @@ public class HibernateStorage implements Storage {
     @Override
     public void reindex() {
         if (!dataSource.supportFullText()) {
-            LOGGER.error("Can not reindex storage '" + storageName + "': datasource '" + dataSource.getName() + "' does not support full text.");
+            LOGGER.error("Can not reindex storage '" + storageName + "': datasource '" + dataSource.getName()
+                    + "' does not support full text.");
             return;
         }
-        LOGGER.info("Reindexing full-text for " + storageName + "...");
+        LOGGER.info("Re-indexing full-text for " + storageName + "...");
         Session session = factory.getCurrentSession();
         MassIndexer indexer = Search.getFullTextSession(session).createIndexer();
         indexer.optimizeOnFinish(true);
@@ -710,7 +726,7 @@ public class HibernateStorage implements Storage {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
-            LOGGER.info("Reindexing done.");
+            LOGGER.info("Re-indexing done.");
         }
     }
 
@@ -778,10 +794,115 @@ public class HibernateStorage implements Storage {
     }
 
     @Override
-    public void adapt(Compare.DiffResults diffResults, boolean force) {
+    public void adapt(MetadataRepository newRepository, boolean force) {
         ImpactAnalyzer analyzer = getImpactAnalyzer();
+        MetadataRepository previousRepository = getMetadataRepository();
+        Compare.DiffResults diffResults = Compare.compare(previousRepository, newRepository);
         Map<ImpactAnalyzer.Impact, List<Change>> impacts = analyzer.analyzeImpacts(diffResults);
-        // TODO Implement database schema update
+        Set<ComplexTypeMetadata> typesToDrop = new HashSet<ComplexTypeMetadata>();
+        // Analyze impact to find types to delete
+        for (Map.Entry<ImpactAnalyzer.Impact, List<Change>> impactCategory : impacts.entrySet()) {
+            ImpactAnalyzer.Impact category = impactCategory.getKey();
+            switch (category) {
+            case HIGH:
+                if (force) {
+                    for (List<Change> changes : impacts.values()) {
+                        for (Change change : changes) {
+                            MetadataVisitable element = change.getElement();
+                            if (element instanceof FieldMetadata) {
+                                typesToDrop.add(((FieldMetadata) element).getContainingType().getEntity());
+                            } else if (element instanceof ComplexTypeMetadata) {
+                                typesToDrop.add((ComplexTypeMetadata) element);
+                            }
+                        }
+                    }
+                }
+                break;
+            case MEDIUM:
+                if (force) {
+                    for (List<Change> changes : impacts.values()) {
+                        for (Change change : changes) {
+                            MetadataVisitable element = change.getElement();
+                            if (element instanceof FieldMetadata) {
+                                typesToDrop.add(((FieldMetadata) element).getContainingType().getEntity());
+                            } else if (element instanceof ComplexTypeMetadata) {
+                                typesToDrop.add((ComplexTypeMetadata) element);
+                            }
+                        }
+                    }
+                }
+                break;
+            case LOW:
+                break;
+            }
+        }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Types scheduled for deletion: " + typesToDrop.size() + " (" + Arrays.toString(typesToDrop.toArray())
+                    + ")");
+        }
+        if (!typesToDrop.isEmpty()) {
+            // Find dependent types to delete
+            Set<ComplexTypeMetadata> additionalTypes = new HashSet<ComplexTypeMetadata>();
+            for (ComplexTypeMetadata typeToDrop : typesToDrop) {
+                Set<ReferenceFieldMetadata> inboundReferences = previousRepository.accept(new InboundReferences(typeToDrop));
+                for (ReferenceFieldMetadata inboundReference : inboundReferences) {
+                    additionalTypes.add(inboundReference.getContainingType().getEntity());
+                }
+            }
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Additional types scheduled for deletion (inbound references): " + additionalTypes.size() + " ("
+                        + Arrays.toString(additionalTypes.toArray()) + ")");
+            }
+            typesToDrop.addAll(additionalTypes);
+            // Sort in dependency order
+            ArrayList<ComplexTypeMetadata> types = new ArrayList<ComplexTypeMetadata>(typesToDrop);
+            List<ComplexTypeMetadata> sortedTypesToDrop = MetadataUtils.sortTypes(previousRepository, types);
+            // Get table names to drop
+            List<String> tablesToDrop = new LinkedList<String>();
+            for (ComplexTypeMetadata typeMetadata : sortedTypesToDrop) {
+                PersistentClass metadata = configuration.getClassMapping(ClassCreator.PACKAGE_PREFIX
+                        + tableResolver.get(typeMetadata));
+                tablesToDrop.addAll((Collection<String>) metadata.accept(new TableClosureVisitor()));
+            }
+            if (LOGGER.isTraceEnabled()) {
+                StringBuilder aggregatedTableNames = new StringBuilder();
+                for (String table : tablesToDrop) {
+                    aggregatedTableNames.append(table).append(' ');
+                }
+                LOGGER.trace("Table scheduled for drop: " + aggregatedTableNames);
+            }
+            // Execute drop table
+            Connection connection = null;
+            try {
+                connection = DriverManager.getConnection(dataSource.getConnectionURL());
+                for (String table : tablesToDrop) {
+                    Statement statement = connection.createStatement();
+                    try {
+                        statement.executeUpdate("DROP TABLE " + table); //$NON-NLS-1$
+                    } catch (SQLException e) {
+                        LOGGER.warn("Could not delete '" + table + "'");
+                    } finally {
+                        statement.close();
+                    }
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException("Could not drop tables", e);
+            } finally {
+                try {
+                    if (connection != null) {
+                        connection.close();
+                    }
+                } catch (SQLException e) {
+                    LOGGER.error("Unexpected error on connection close.", e);
+                }
+            }
+        } else {
+            LOGGER.info("Schema changes do no require to drop any database schema element.");
+        }
+        // Reinitialize Hibernate
+        close(false);
+        internalInit();
+        prepare(newRepository, false);
     }
 
     @Override
@@ -797,7 +918,8 @@ public class HibernateStorage implements Storage {
                 if (types.size() == 1 && select.getCondition() == null) {
                     FlushMode previousFlushMode = session.getFlushMode();
                     try {
-                        session.setFlushMode(FlushMode.ALWAYS); // Force Hibernate to actually send SQL query to database during delete.
+                        session.setFlushMode(FlushMode.ALWAYS); // Force Hibernate to actually send SQL query to
+                                                                // database during delete.
                         ComplexTypeMetadata mainType = types.get(0);
                         TypeMapping mapping = mappingRepository.getMappingFromUser(mainType);
                         // Compute (and eventually sort) types to delete
@@ -805,7 +927,8 @@ public class HibernateStorage implements Storage {
                         MetadataRepository internalRepository = typeMappingRepository.getInternalRepository();
                         if (mapping instanceof ScatteredTypeMapping) {
                             MetadataVisitor<List<ComplexTypeMetadata>> transitiveClosure = new TypeTransitiveClosure();
-                            typesToDelete = MetadataUtils.sortTypes(internalRepository, mapping.getDatabase().accept(transitiveClosure));
+                            List<ComplexTypeMetadata> typeClosure = mapping.getDatabase().accept(transitiveClosure);
+                            typesToDelete = MetadataUtils.sortTypes(internalRepository, typeClosure);
                         } else {
                             Collection<ComplexTypeMetadata> subTypes = mapping.getDatabase().getSubTypes();
                             if (subTypes.isEmpty()) {
@@ -817,8 +940,10 @@ public class HibernateStorage implements Storage {
                             }
                         }
                         for (ComplexTypeMetadata typeToDelete : typesToDelete) {
-                            Set<ReferenceFieldMetadata> references = internalRepository.accept(new InboundReferences(typeToDelete));
-                            // Empty values from intermediate tables to this non instantiable type and unset inbound references
+                            InboundReferences inboundReferences = new InboundReferences(typeToDelete);
+                            Set<ReferenceFieldMetadata> references = internalRepository.accept(inboundReferences);
+                            // Empty values from intermediate tables to this non instantiable type and unset inbound
+                            // references
                             for (ReferenceFieldMetadata reference : references) {
                                 if (reference.isMany()) {
                                     String formattedTableName = tableResolver.getCollectionTable(reference);
@@ -827,21 +952,24 @@ public class HibernateStorage implements Storage {
                                     String referenceTableName = tableResolver.get(reference.getContainingType());
                                     List<String> fkColumnNames;
                                     if (reference.getReferencedField() instanceof CompoundFieldMetadata) {
-                                        FieldMetadata[] fields = ((CompoundFieldMetadata) reference.getReferencedField()).getFields();
+                                        FieldMetadata[] fields = ((CompoundFieldMetadata) reference.getReferencedField())
+                                                .getFields();
                                         fkColumnNames = new ArrayList<String>(fields.length);
                                         for (FieldMetadata field : fields) {
                                             fkColumnNames.add(tableResolver.get(field, reference.getName()));
                                         }
                                     } else {
-                                        fkColumnNames = Collections.singletonList(tableResolver.get(reference.getReferencedField(), reference.getName()));
+                                        fkColumnNames = Collections.singletonList(tableResolver.get(
+                                                reference.getReferencedField(), reference.getName()));
                                     }
                                     for (String fkColumnName : fkColumnNames) {
-                                        session.createSQLQuery("update " + referenceTableName + " set " + fkColumnName + " = NULL").executeUpdate(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                        session.createSQLQuery(
+                                                "update " + referenceTableName + " set " + fkColumnName + " = NULL").executeUpdate(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                                     }
                                 }
                             }
                             // Empty values in type isMany=true reference
-                            for (FieldMetadata field  : typeToDelete.getFields()) {
+                            for (FieldMetadata field : typeToDelete.getFields()) {
                                 if (field.isMany()) {
                                     String formattedTableName = tableResolver.getCollectionTable(field);
                                     session.createSQLQuery("delete from " + formattedTableName).executeUpdate(); //$NON-NLS-1$
@@ -866,7 +994,7 @@ public class HibernateStorage implements Storage {
             if (userQuery instanceof Select) {
                 ((Select) userQuery).setForUpdate(true);
             }
-            Iterable<DataRecord> records = internalFetch(session, userQuery, Collections.<ResultsCallback>emptySet());
+            Iterable<DataRecord> records = internalFetch(session, userQuery, Collections.<ResultsCallback> emptySet());
             for (DataRecord currentDataRecord : records) {
                 ComplexTypeMetadata currentType = currentDataRecord.getType();
                 TypeMapping mapping = mappingRepository.getMappingFromUser(currentType);
@@ -966,7 +1094,8 @@ public class HibernateStorage implements Storage {
             }
             if (factory != null) {
                 factory.close();
-                factory = null; // SessionFactory#close() documentation advises to remove all references to SessionFactory.
+                factory = null; // SessionFactory#close() documentation advises to remove all references to
+                                // SessionFactory.
             }
         } finally {
             if (storageClassLoader != null) {
@@ -974,6 +1103,8 @@ public class HibernateStorage implements Storage {
                 storageClassLoader.close();
                 storageClassLoader = null;
             }
+            isPrepared = false;
+            configuration = null;
         }
         // Reset caches
         ListIterator.resetTypeReaders();
@@ -1012,7 +1143,8 @@ public class HibernateStorage implements Storage {
             userQuery.accept(new UserQueryDumpConsole(LOGGER));
         }
         // Analyze query
-        SelectAnalyzer selectAnalysis = new SelectAnalyzer(mappingRepository, storageClassLoader, session, callbacks, this, tableResolver);
+        SelectAnalyzer selectAnalysis = new SelectAnalyzer(mappingRepository, storageClassLoader, session, callbacks, this,
+                tableResolver);
         Visitor<StorageResults> queryHandler = userQuery.accept(selectAnalysis);
         // Transform query using mappings
         Expression internalExpression = expression;
@@ -1052,16 +1184,28 @@ public class HibernateStorage implements Storage {
         return storageClassLoader;
     }
 
+    @Override
+    public String toString() {
+        return storageName + '(' + storageType + ')';
+    }
+
     private static class MetadataChecker extends DefaultMetadataVisitor<Object> {
 
         final Set<TypeMetadata> processedTypes = new HashSet<TypeMetadata>();
+
+        private static void assertField(FieldMetadata field) {
+            if (field.getName().toLowerCase().startsWith(FORBIDDEN_PREFIX)) {
+                throw new IllegalArgumentException("Field '" + field.getName() + "' of type '"
+                        + field.getContainingType().getName() + "' is not allowed to start with " + FORBIDDEN_PREFIX);
+            }
+        }
 
         @Override
         public Object visit(SimpleTypeFieldMetadata simpleField) {
             String simpleFieldTypeName = simpleField.getType().getName();
             if (NoSupportTypes.getType(simpleFieldTypeName) != null) {
                 throw new IllegalArgumentException("No support for field type '" + simpleFieldTypeName + "' (field '"
-                        + simpleField.getName() + "' of type '" + simpleField.getContainingType().getName() + "').");                
+                        + simpleField.getName() + "' of type '" + simpleField.getContainingType().getName() + "').");
             }
             assertField(simpleField);
             return super.visit(simpleField);
@@ -1089,13 +1233,6 @@ public class HibernateStorage implements Storage {
             assertField(enumField);
             return super.visit(enumField);
         }
-
-        private static void assertField(FieldMetadata field) {
-            if (field.getName().toLowerCase().startsWith(FORBIDDEN_PREFIX)) {
-                throw new IllegalArgumentException("Field '" + field.getName() + "' of type '"
-                        + field.getContainingType().getName() + "' is not allowed to start with " + FORBIDDEN_PREFIX);
-            }
-        }
     }
 
     private static class LocalEntityResolver implements EntityResolver {
@@ -1117,11 +1254,6 @@ public class HibernateStorage implements Storage {
             }
             return null;
         }
-    }
-
-    @Override
-    public String toString() {
-        return storageName + '(' + storageType + ')';
     }
 
     private static class TypeTransitiveClosure extends DefaultMetadataVisitor<List<ComplexTypeMetadata>> {
@@ -1146,4 +1278,127 @@ public class HibernateStorage implements Storage {
         }
     }
 
+    private static class TableClosureVisitor implements PersistentClassVisitor {
+
+        private static List<String> getTableNames(PersistentClass persistentClass) {
+            List<String> orderedTableNames = new LinkedList<String>();
+            // Get table names for properties
+            Set<String> tableNames = new HashSet<String>();
+            Iterator propertyClosureIterator = persistentClass.getPropertyClosureIterator();
+            ValueVisitor visitor = new ValueVisitor();
+            while (propertyClosureIterator.hasNext()) {
+                Property property = (Property) propertyClosureIterator.next();
+                tableNames.add((String) property.getValue().accept(visitor));
+            }
+            orderedTableNames.addAll(tableNames);
+            // Adds main table
+            Iterator tableClosureIterator = persistentClass.getTableClosureIterator();
+            while (tableClosureIterator.hasNext()) {
+                Table table = (Table) tableClosureIterator.next();
+                if (tableNames.contains(table.getName())) {
+                    orderedTableNames.remove(table.getName());
+                    orderedTableNames.add(table.getName());
+                }
+            }
+            return orderedTableNames;
+        }
+
+        @Override
+        public Object accept(RootClass class1) {
+            return getTableNames(class1);
+        }
+
+        @Override
+        public Object accept(UnionSubclass subclass) {
+            return getTableNames(subclass);
+        }
+
+        @Override
+        public Object accept(SingleTableSubclass subclass) {
+            return getTableNames(subclass);
+        }
+
+        @Override
+        public Object accept(JoinedSubclass subclass) {
+            return getTableNames(subclass);
+        }
+
+        @Override
+        public Object accept(Subclass subclass) {
+            return getTableNames(subclass);
+        }
+
+        private static class ValueVisitor implements org.hibernate.mapping.ValueVisitor {
+
+            @Override
+            public Object accept(Bag bag) {
+                return bag.getCollectionTable().getName();
+            }
+
+            @Override
+            public Object accept(IdentifierBag bag) {
+                return bag.getCollectionTable().getName();
+            }
+
+            @Override
+            public Object accept(org.hibernate.mapping.List list) {
+                return list.getCollectionTable().getName();
+            }
+
+            @Override
+            public Object accept(PrimitiveArray primitiveArray) {
+                return primitiveArray.getCollectionTable().getName();
+            }
+
+            @Override
+            public Object accept(Array list) {
+                return list.getCollectionTable().getName();
+            }
+
+            @Override
+            public Object accept(org.hibernate.mapping.Map map) {
+                return map.getCollectionTable().getName();
+            }
+
+            @Override
+            public Object accept(OneToMany many) {
+                return many.getTable().getName();
+            }
+
+            @Override
+            public Object accept(org.hibernate.mapping.Set set) {
+                return set.getCollectionTable().getName();
+            }
+
+            @Override
+            public Object accept(Any any) {
+                return any.getTable().getName();
+            }
+
+            @Override
+            public Object accept(SimpleValue value) {
+                return value.getTable().getName();
+            }
+
+            @Override
+            public Object accept(DependantValue value) {
+                return value.getTable().getName();
+            }
+
+            @Override
+            public Object accept(Component component) {
+                return component.getTable().getName();
+            }
+
+            @Override
+            public Object accept(ManyToOne mto) {
+                return mto.getTable().getName();
+            }
+
+            @Override
+            public Object accept(OneToOne oto) {
+                return oto.getTable().getName();
+            }
+        }
+    }
 }

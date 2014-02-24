@@ -17,7 +17,6 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.metadata.compare.Compare;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
 import java.util.*;
@@ -230,8 +229,8 @@ public class CacheStorage implements Storage {
     }
 
     @Override
-    public void adapt(Compare.DiffResults diffResults, boolean force) {
-        delegate.adapt(diffResults, force);
+    public void adapt(MetadataRepository newRepository, boolean force) {
+        delegate.adapt(newRepository, force);
     }
 
     private static class CacheResults implements StorageResults {

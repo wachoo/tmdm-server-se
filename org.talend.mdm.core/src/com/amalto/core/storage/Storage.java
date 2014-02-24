@@ -16,7 +16,6 @@ import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.metadata.compare.Compare;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
 import java.util.Set;
@@ -276,14 +275,14 @@ public interface Storage {
      * Adapts the underlying storage schema to match the changes in <code>diffResults</code>. Storage operations will
      * stop during update, but it isn't a "restart" (restart are done by stop and recreating the storage instance).
      * 
-     * @param diffResults The changes made on the data model.
+     * @param newRepository The new version of the data model.
      * @param force <code>true</code> to force all changes (even
      * {@link org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer.Impact#HIGH high} and
      * {@link org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer.Impact#MEDIUM medium} changes ).
      * @see org.talend.mdm.commmon.metadata.compare.Compare#compare(org.talend.mdm.commmon.metadata.MetadataRepository,
      * org.talend.mdm.commmon.metadata.MetadataRepository)
      */
-    void adapt(Compare.DiffResults diffResults, boolean force);
+    void adapt(MetadataRepository newRepository, boolean force);
 
     enum FullTextSuggestion {
         /**

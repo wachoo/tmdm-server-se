@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2006-2013 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.server;
@@ -23,7 +22,6 @@ import com.amalto.core.storage.transaction.Transaction;
 import com.amalto.core.storage.transaction.TransactionManager;
 import junit.framework.TestCase;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.metadata.compare.Compare;
 import org.talend.mdm.commmon.metadata.compare.HibernateStorageImpactAnalyzer;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
@@ -210,7 +208,8 @@ public class TransactionTest extends TestCase {
         }
 
         @Override
-        public void prepare(MetadataRepository repository, Set<Expression> optimizedExpressions, boolean force, boolean dropExistingData) {
+        public void prepare(MetadataRepository repository, Set<Expression> optimizedExpressions, boolean force,
+                boolean dropExistingData) {
         }
 
         @Override
@@ -300,10 +299,11 @@ public class TransactionTest extends TestCase {
         }
 
         @Override
-        public void adapt(Compare.DiffResults diffResults, boolean force) {
+        public void adapt(MetadataRepository newRepository, boolean force) {
         }
 
         private class MockStorageTransaction extends StorageTransaction {
+
             @Override
             public Storage getStorage() {
                 return MockStorage.this;

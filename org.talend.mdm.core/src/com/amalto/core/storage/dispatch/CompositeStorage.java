@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2006-2013 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.dispatch;
@@ -21,7 +20,6 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import org.apache.commons.collections.set.CompositeSet;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.metadata.compare.Compare;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
 import java.util.*;
@@ -36,7 +34,7 @@ public class CompositeStorage implements Storage {
 
     /**
      * @param storages All the {@link com.amalto.core.storage.Storage} instances to be used in this composite Storage
-     *                 implementation.
+     * implementation.
      */
     public CompositeStorage(Storage... storages) {
         this.storages = storages;
@@ -73,7 +71,8 @@ public class CompositeStorage implements Storage {
     }
 
     @Override
-    public void prepare(MetadataRepository repository, Set<Expression> optimizedExpressions, boolean force, boolean dropExistingData) {
+    public void prepare(MetadataRepository repository, Set<Expression> optimizedExpressions, boolean force,
+            boolean dropExistingData) {
         for (Storage storage : storages) {
             storage.prepare(repository, optimizedExpressions, force, dropExistingData);
         }
@@ -233,9 +232,9 @@ public class CompositeStorage implements Storage {
     }
 
     @Override
-    public void adapt(Compare.DiffResults diffResults, boolean force) {
+    public void adapt(MetadataRepository newRepository, boolean force) {
         for (Storage storage : storages) {
-            storage.adapt(diffResults, force);
+            storage.adapt(newRepository, force);
         }
     }
 

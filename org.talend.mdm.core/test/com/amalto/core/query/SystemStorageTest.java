@@ -29,14 +29,13 @@ import com.amalto.core.storage.SecuredStorage;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.*;
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.compare.Compare;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -219,7 +218,7 @@ public class SystemStorageTest extends TestCase {
             }
 
             @Override
-            public void adapt(Compare.DiffResults diffResults, boolean force) {
+            public void adapt(MetadataRepository newRepository, boolean force) {
             }
         };
         Storage storage = new SecuredStorage(hibernateStorage, new SecuredStorage.UserDelegator() {
@@ -285,7 +284,7 @@ public class SystemStorageTest extends TestCase {
             }
 
             @Override
-            public void adapt(Compare.DiffResults diffResults, boolean force) {
+            public void adapt(MetadataRepository newRepository, boolean force) {
             }
         };
         Storage storage = new SecuredStorage(hibernateStorage, new SecuredStorage.UserDelegator() {

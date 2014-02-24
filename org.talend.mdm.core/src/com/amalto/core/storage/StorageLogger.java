@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage;
@@ -20,7 +19,6 @@ import com.amalto.core.storage.transaction.StorageTransaction;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ConsoleDumpMetadataVisitor;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.metadata.compare.Compare;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
 import java.util.Set;
@@ -67,7 +65,8 @@ public class StorageLogger implements Storage {
         throw new RuntimeException(e);
     }
 
-    public void prepare(MetadataRepository repository, Set<Expression> optimizedExpressions, boolean force, boolean dropExistingData) {
+    public void prepare(MetadataRepository repository, Set<Expression> optimizedExpressions, boolean force,
+            boolean dropExistingData) {
         try {
             delegate.prepare(repository, optimizedExpressions, force, dropExistingData);
         } catch (Exception e) {
@@ -189,7 +188,7 @@ public class StorageLogger implements Storage {
     }
 
     @Override
-    public void adapt(Compare.DiffResults diffResults, boolean force) {
-        delegate.adapt(diffResults, force);
+    public void adapt(MetadataRepository newRepository, boolean force) {
+        delegate.adapt(newRepository, force);
     }
 }
