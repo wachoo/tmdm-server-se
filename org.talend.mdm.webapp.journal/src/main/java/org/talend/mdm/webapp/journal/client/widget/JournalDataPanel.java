@@ -97,12 +97,29 @@ public class JournalDataPanel extends FormPanel {
     
     private Window treeWindow;
     
+    private TreeStore<JournalTreeModel> store;
+
+    private JournalTreeModel root;
+    
     private JournalGridModel journalGridModel;
+    
+    private LayoutContainer main;
+    
+    private LabelField entityField;
+    private LabelField sourceField;
+    private LabelField dataContainerField;
+    private LabelField dataModelField;
+    private LabelField keyField;
+    private LabelField operationTypeField;
+    private LabelField oeprationTimeField;
+    private LabelField revisionIdField;
+    
     
     public JournalDataPanel(final JournalTreeModel root, final JournalGridModel journalGridModel) {
         this.setFrame(false);
         this.setItemId(journalGridModel.getIds());
         this.journalGridModel = journalGridModel;
+        this.root = root;
         this.setHeading(MessagesFactory.getMessages().update_report_detail_label());
         this.setBodyBorder(false);
         this.setLayout(new FitLayout());
@@ -189,84 +206,12 @@ public class JournalDataPanel extends FormPanel {
         this.addButton(nextUpdateReportButton);
         this.addButton(openRecordButton);
 
-        treeWindow = new Window();
-        treeWindow.setHeading(MessagesFactory.getMessages().updatereport_label());
-        treeWindow.setWidth(400);
-        treeWindow.setHeight(450);
-        treeWindow.setLayout(new FitLayout());
-        treeWindow.setScrollMode(Scroll.NONE);
-        
-        TreeStore<JournalTreeModel> store = new TreeStore<JournalTreeModel>();  
-        store.add(root, true);
-        tree = new TreePanel<JournalTreeModel>(store);
-        tree.setDisplayProperty("name"); //$NON-NLS-1$
-        tree.getStyle().setLeafIcon(AbstractImagePrototype.create(Icons.INSTANCE.leaf()));
-        
-        ContentPanel contentPanel = new ContentPanel();
-        contentPanel.setHeaderVisible(false);
-        contentPanel.setScrollMode(Scroll.AUTO);
-        contentPanel.setLayout(new FitLayout());
-        contentPanel.add(tree);
-        treeWindow.add(contentPanel);
+        initializeTreeWindow();
               
         this.setHeading(MessagesFactory.getMessages().change_properties());
         this.setButtonAlign(HorizontalAlignment.RIGHT);
         
-        LayoutContainer main = new LayoutContainer();
-        main.setLayout(new ColumnLayout());
-        
-        LayoutContainer left = new LayoutContainer();
-        left.setStyleAttribute("paddingRight", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
-        FormLayout layout = new FormLayout();
-        layout.setLabelAlign(LabelAlign.LEFT);
-        layout.setLabelWidth(150);
-        left.setWidth(350);
-        left.setLayout(layout);
-        
-        LabelField entityField = new LabelField();
-        entityField.setFieldLabel(MessagesFactory.getMessages().entity_label() + " : "); //$NON-NLS-1$     
-        entityField.setValue(journalGridModel.getEntity());
-        left.add(entityField);
-        LabelField sourceField = new LabelField();
-        sourceField.setFieldLabel(MessagesFactory.getMessages().source_label() + " : "); //$NON-NLS-1$
-        sourceField.setValue(journalGridModel.getSource());
-        left.add(sourceField);
-        LabelField dataContainerField = new LabelField();
-        dataContainerField.setFieldLabel(MessagesFactory.getMessages().data_container_label() + " : "); //$NON-NLS-1$
-        dataContainerField.setValue(journalGridModel.getDataContainer());
-        left.add(dataContainerField);
-        LabelField dataModelField = new LabelField();
-        dataModelField.setFieldLabel(MessagesFactory.getMessages().data_model_label() + " : "); //$NON-NLS-1$
-        dataModelField.setValue(journalGridModel.getDataModel());
-        left.add(dataModelField);
-
-        LayoutContainer right = new LayoutContainer();
-        right.setStyleAttribute("paddingLeft", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
-        layout = new FormLayout();    
-        layout.setLabelAlign(LabelAlign.LEFT);
-        layout.setLabelWidth(150);
-        right.setWidth(350);
-        right.setLayout(layout);
-        
-        LabelField keyField = new LabelField();
-        keyField.setFieldLabel(MessagesFactory.getMessages().key_label() + " : "); //$NON-NLS-1$
-        keyField.setValue(journalGridModel.getKey());        
-        right.add(keyField);
-        LabelField operationTypeField = new LabelField();
-        operationTypeField.setFieldLabel(MessagesFactory.getMessages().operation_type_label() + " : "); //$NON-NLS-1$
-        operationTypeField.setValue(journalGridModel.getOperationType());
-        right.add(operationTypeField);
-        LabelField oeprationTimeField = new LabelField();
-        oeprationTimeField.setFieldLabel(MessagesFactory.getMessages().operation_time_label() + " : "); //$NON-NLS-1$
-        oeprationTimeField.setValue(journalGridModel.getOperationDate());
-        right.add(oeprationTimeField);
-        LabelField revisionIdField = new LabelField();
-        revisionIdField.setFieldLabel(MessagesFactory.getMessages().revision_id_label() + " : "); //$NON-NLS-1$
-        revisionIdField.setValue(journalGridModel.getRevisionId());
-        right.add(revisionIdField);     
-
-        main.add(left, new ColumnData(.5));
-        main.add(right, new ColumnData(.5));
+        initializeMain();
         FormData formData = new FormData("100%"); //$NON-NLS-1$
         formData.setMargins(new Margins(10, 10, 10, 10));
         this.add(main, formData);        
@@ -322,6 +267,86 @@ public class JournalDataPanel extends FormPanel {
         };
         
         gridLoader.addLoadListener(myListener);
+    }
+
+    private void initializeMain() {
+        main = new LayoutContainer();
+        main.setLayout(new ColumnLayout());
+        
+        LayoutContainer left = new LayoutContainer();
+        left.setStyleAttribute("paddingRight", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
+        FormLayout layout = new FormLayout();
+        layout.setLabelAlign(LabelAlign.LEFT);
+        layout.setLabelWidth(150);
+        left.setWidth(350);
+        left.setLayout(layout);
+        
+        entityField = new LabelField();
+        entityField.setFieldLabel(MessagesFactory.getMessages().entity_label() + " : "); //$NON-NLS-1$     
+        entityField.setValue(this.journalGridModel.getEntity());
+        left.add(entityField);
+        sourceField = new LabelField();
+        sourceField.setFieldLabel(MessagesFactory.getMessages().source_label() + " : "); //$NON-NLS-1$
+        sourceField.setValue(this.journalGridModel.getSource());
+        left.add(sourceField);
+        dataContainerField = new LabelField();
+        dataContainerField.setFieldLabel(MessagesFactory.getMessages().data_container_label() + " : "); //$NON-NLS-1$
+        dataContainerField.setValue(this.journalGridModel.getDataContainer());
+        left.add(dataContainerField);
+        dataModelField = new LabelField();
+        dataModelField.setFieldLabel(MessagesFactory.getMessages().data_model_label() + " : "); //$NON-NLS-1$
+        dataModelField.setValue(this.journalGridModel.getDataModel());
+        left.add(dataModelField);
+
+        LayoutContainer right = new LayoutContainer();
+        right.setStyleAttribute("paddingLeft", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
+        layout = new FormLayout();    
+        layout.setLabelAlign(LabelAlign.LEFT);
+        layout.setLabelWidth(150);
+        right.setWidth(350);
+        right.setLayout(layout);
+        
+        keyField = new LabelField();
+        keyField.setFieldLabel(MessagesFactory.getMessages().key_label() + " : "); //$NON-NLS-1$
+        keyField.setValue(this.journalGridModel.getKey());        
+        right.add(keyField);
+        operationTypeField = new LabelField();
+        operationTypeField.setFieldLabel(MessagesFactory.getMessages().operation_type_label() + " : "); //$NON-NLS-1$
+        operationTypeField.setValue(this.journalGridModel.getOperationType());
+        right.add(operationTypeField);
+        oeprationTimeField = new LabelField();
+        oeprationTimeField.setFieldLabel(MessagesFactory.getMessages().operation_time_label() + " : "); //$NON-NLS-1$
+        oeprationTimeField.setValue(this.journalGridModel.getOperationDate());
+        right.add(oeprationTimeField);
+        revisionIdField = new LabelField();
+        revisionIdField.setFieldLabel(MessagesFactory.getMessages().revision_id_label() + " : "); //$NON-NLS-1$
+        revisionIdField.setValue(this.journalGridModel.getRevisionId());
+        right.add(revisionIdField);     
+
+        main.add(left, new ColumnData(.5));
+        main.add(right, new ColumnData(.5));
+    }
+
+    private void initializeTreeWindow() {
+        treeWindow = new Window();
+        treeWindow.setHeading(MessagesFactory.getMessages().updatereport_label());
+        treeWindow.setWidth(400);
+        treeWindow.setHeight(450);
+        treeWindow.setLayout(new FitLayout());
+        treeWindow.setScrollMode(Scroll.NONE);
+        
+        store = new TreeStore<JournalTreeModel>();  
+        store.add(this.root, true);
+        tree = new TreePanel<JournalTreeModel>(store);
+        tree.setDisplayProperty("name"); //$NON-NLS-1$
+        tree.getStyle().setLeafIcon(AbstractImagePrototype.create(Icons.INSTANCE.leaf()));
+        
+        ContentPanel contentPanel = new ContentPanel();
+        contentPanel.setHeaderVisible(false);
+        contentPanel.setScrollMode(Scroll.AUTO);
+        contentPanel.setLayout(new FitLayout());
+        contentPanel.add(tree);
+        treeWindow.add(contentPanel);
     }
 
     public TreePanel<JournalTreeModel> getTree() {
