@@ -55,6 +55,7 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
 
     }
 
+    @Override
     public void RenderForeignKey(final ItemNodeModel parentModel, final List<ItemNodeModel> fkNodeModelList,
             final TypeModel fkTypeModel, final ItemDetailToolBar toolBar, final ViewBean pkViewBean, final ContentPanel cp,
             final ItemsDetailPanel detailPanel) {
@@ -72,10 +73,10 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
                 fieldMap = fkTreeDetail.getFieldMap();
                 root = (DynamicTreeItem) fkTreeDetail.getRoot();
             }
-            final ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel(concept + "_ForeignKeyTablePanel"); //$NON-NLS-1$
+            final ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel(concept + "_ForeignKeyTablePanel", toolBar.isStaging()); //$NON-NLS-1$
 
-            final ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel, root,
-                    detailPanel, toolBar.isOpenTab());
+            final ItemPanel itemPanel = new ItemPanel(toolBar.isStaging(), pkViewBean, toolBar.getItemBean(),
+                    toolBar.getOperation(), fkPanel, root, detailPanel, toolBar.isOpenTab());
             itemPanel.getToolBar().setOutMost(toolBar.isOutMost());
             itemPanel.getToolBar().setHierarchyCall(toolBar.isHierarchyCall());
             // TMDM-3380. FK Tab Title should not support the dynamic label. If FK exist dynamic label, it should remove
@@ -85,25 +86,31 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             String xpathLabel = ForeignKeyUtil.transferXpathToLabel(parentModel)
                     + LabelUtil.getFKTabLabel(fkTypeModel.getLabel(UrlUtil.getLanguage()));
             xpathLabel = xpathLabel.substring(xpathLabel.indexOf('/') + 1);
-            if(cp != detailPanel.getTreeDetail())
+            if (cp != detailPanel.getTreeDetail()) {
                 return;
+            }
             ItemDetailTabPanelContentHandle handle = detailPanel.addTabItem(xpathLabel, itemPanel, ItemsDetailPanel.MULTIPLE,
                     GWT.getModuleName() + DOM.createUniqueId());
             relationFk.put(parentModel, handle);
             // lazy render FK
             ForeignKeyHandler handler = new ForeignKeyHandler() {
-                
+
+                @Override
                 public void onSelect() {
                     BrowseRecordsMessages msg = MessagesFactory.getMessages();
-                    final MessageBox renderFkProgress = MessageBox.wait(msg.rendering_title(), msg.render_message(), msg.rendering_progress());
+                    final MessageBox renderFkProgress = MessageBox.wait(msg.rendering_title(), msg.render_message(),
+                            msg.rendering_progress());
                     service.getEntityModel(concept, Locale.getLanguage(), new SessionAwareAsyncCallback<EntityModel>() {
 
+                        @Override
                         public void onSuccess(EntityModel entityModel) {
-                            fkPanel.initContent(entityModel, parentModel, fkNodeModelList, fkTypeModel, fieldMap, detailPanel, pkViewBean);
+                            fkPanel.initContent(entityModel, parentModel, fkNodeModelList, fkTypeModel, fieldMap, detailPanel,
+                                    pkViewBean);
                             itemPanel.layout(true);
                             renderFkProgress.close();
                         }
-                        
+
+                        @Override
                         protected void doOnFailure(Throwable caught) {
                             renderFkProgress.close();
                             super.doOnFailure(caught);
@@ -115,22 +122,24 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             HashMap<String, ItemPanel> cachedEntityMap = BrowseRecords.getSession().getCurrentCachedEntity();
             String ids = toolBar.getItemBean().getIds() != null ? toolBar.getItemBean().getIds() : ""; //$NON-NLS-1$
             String key = toolBar.getItemBean().getConcept() + ids + detailPanel.isOutMost();
-            if(cachedEntityMap != null && cachedEntityMap.containsKey(key)){
+            if (cachedEntityMap != null && cachedEntityMap.containsKey(key)) {
                 ForeignKeyTabModel fkTabModel = new ForeignKeyTabModel(parentModel, xpathLabel, itemPanel, handler);
                 HashMap<String, LinkedHashMap<String, ForeignKeyTabModel>> cachedFkPanels = BrowseRecords.getSession()
                         .getCurrentCachedFKTabs();
-                if (cachedFkPanels == null)
+                if (cachedFkPanels == null) {
                     cachedFkPanels = new HashMap<String, LinkedHashMap<String, ForeignKeyTabModel>>();
+                }
                 if (!cachedFkPanels.containsKey(key)) {
                     cachedFkPanels.put(key, new LinkedHashMap<String, ForeignKeyTabModel>());
                 }
                 cachedFkPanels.get(key).put(xpathLabel, fkTabModel);
                 BrowseRecords.getSession().put(UserSession.CURRENT_CACHED_FKTABS, cachedFkPanels);
             }
-            
+
         }
     }
 
+    @Override
     public void removeRelationFkPanel(ItemNodeModel parentModel) {
         ItemDetailTabPanelContentHandle tabItem = relationFk.get(parentModel);
         if (tabItem != null) {
@@ -139,6 +148,7 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
         }
     }
 
+    @Override
     public void setRelationFk(ItemNodeModel parentModel, ItemDetailTabPanelContentHandle handle) {
         relationFk.put(parentModel, handle);
     }

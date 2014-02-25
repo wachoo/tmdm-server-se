@@ -25,7 +25,7 @@ public class ItemsToolBar4Staging extends ItemsToolBar {
 
     private final BrowseRecordsInStagingMessages msg = org.talend.mdm.webapp.browserecordsinstaging.client.i18n.MessagesFactory
             .getMessages();
-    
+
     public ItemsToolBar4Staging() {
         super();
         deleteMenu.setText(msg.mark_as_deleted());
@@ -48,5 +48,10 @@ public class ItemsToolBar4Staging extends ItemsToolBar {
                 }
             }
         });
+    }
+
+    @Override
+    protected boolean isStaging() {
+        return true;
     }
 }

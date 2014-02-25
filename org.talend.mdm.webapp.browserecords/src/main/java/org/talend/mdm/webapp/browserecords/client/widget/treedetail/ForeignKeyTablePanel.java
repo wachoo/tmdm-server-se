@@ -125,13 +125,16 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
     private VerticalPanel bottomPanel = new VerticalPanel();
 
-    public ForeignKeyTablePanel(String panelName) {
+    private boolean isStaging;
+
+    public ForeignKeyTablePanel(String panelName, boolean isStaging) {
         super();
         this.setHeaderVisible(false);
         this.setLayout(new FitLayout());
         this.setAutoWidth(true);
         this.setBodyBorder(false);
         this.panelName = panelName;
+        this.isStaging = isStaging;
         initBaseComponent();
     }
 
@@ -421,6 +424,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 Dispatcher dispatch = Dispatcher.get();
                 AppEvent event = new AppEvent(BrowseRecordsEvents.CreateForeignKeyView, entityModel.getConceptName());
                 event.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
+                event.setData(BrowseRecordsView.IS_STAGING, isStaging);
                 dispatch.dispatch(event);
             }
         });

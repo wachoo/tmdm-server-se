@@ -51,11 +51,11 @@ public class TreeDetailGWTTest extends GWTTestCase {
         session.put(UserSession.APP_HEADER, new AppHeader());
         Registry.register(BrowseRecords.USER_SESSION, session);
     }
-    
-    public void testValidateNode(){
+
+    public void testValidateNode() {
         Map<String, Field<?>> fieldMap = new HashMap<String, Field<?>>();
         EntityModel entity = new EntityModel();
-        
+
         ItemNodeModel root = new ItemNodeModel("Product");
         ItemNodeModel id = new ItemNodeModel("Id");
         id.setKey(true);
@@ -63,11 +63,11 @@ public class TreeDetailGWTTest extends GWTTestCase {
         id.setValid(true);
         root.add(id);
         fieldMap.put(id.getId().toString(), new FormatTextField());
-        
+
         ItemNodeModel feature = new ItemNodeModel("Feature");
         feature.setMandatory(false);
         root.add(feature);
-        
+
         ItemNodeModel size = new ItemNodeModel("Size");
         size.setMandatory(true);
         size.setValid(true);
@@ -75,7 +75,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
         field.render(DOM.createElement("Size"));
         fieldMap.put(size.getId().toString(), field);
         feature.add(size);
-                
+
         ItemNodeModel color = new ItemNodeModel("Color");
         color.setMandatory(true);
         color.setValid(false);
@@ -85,15 +85,15 @@ public class TreeDetailGWTTest extends GWTTestCase {
         fieldMap.put(color.getId().toString(), field);
         entity.getMetaDataTypes().put(color.getTypePath(), new SimpleTypeModel());
         feature.add(color);
-        
-        TreeDetail detail = new TreeDetail(null); 
+
+        TreeDetail detail = new TreeDetail(null);
         ViewBean viewBean = new ViewBean();
         viewBean.setBindingEntityModel(entity);
         detail.setViewBean(viewBean);
 
     }
 
-    public void testIsFKDisplayedIntoTab(){
+    public void testIsFKDisplayedIntoTab() {
         Map<String, TypeModel> metaDataTypes = new HashMap<String, TypeModel>();
 
         ItemNodeModel product = new ItemNodeModel("Produce");
@@ -143,7 +143,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
         storeType.setTypePath("Product/Store");
         storeType.setForeignkey("Store/Id");
         storeType.setNotSeparateFk(false);
-        
+
         ItemNodeModel store1 = new ItemNodeModel("Store");
         store1.setTypePath(storeType.getTypePath());
         stores.add(store1);
@@ -162,7 +162,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
         otherNode.setTypePath(otherNodeType.getTypePath());
         metaDataTypes.put(otherNodeType.getTypePath(), otherNodeType);
         product.add(otherNode);
-        
+
         ItemNodeModel oNode1 = new ItemNodeModel("O1");
         SimpleTypeModel o1Type = new SimpleTypeModel();
         o1Type.setTypePath("Product/OtherNodeType/O1");
@@ -172,7 +172,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
         otherNodeType.addSubType(o1Type);
         oNode1.setTypePath(o1Type.getTypePath());
         otherNode.add(oNode1);
-        
+
         ItemNodeModel oNode2 = new ItemNodeModel("O2");
         SimpleTypeModel o2Type = new SimpleTypeModel();
         o2Type.setTypePath("Product/OtherNodeType/O2");
@@ -188,8 +188,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
         otherNodeType.addSubType(o3Type);
         oNode3.setTypePath(o3Type.getTypePath());
         otherNode.add(oNode3);
-        
-        
+
         assertEquals(TreeDetail.isFKDisplayedIntoTab(product, productType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(picture, pictureType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(name, nameType, metaDataTypes), false);
@@ -203,7 +202,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
         assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode1, o1Type, metaDataTypes));
         assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode2, o2Type, metaDataTypes));
         assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode3, o3Type, metaDataTypes));
-        
+
         familyType.setNotSeparateFk(true);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(product, productType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(picture, pictureType, metaDataTypes), false);
@@ -234,9 +233,9 @@ public class TreeDetailGWTTest extends GWTTestCase {
         assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode1, o1Type, metaDataTypes));
         assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode2, o2Type, metaDataTypes));
         assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode3, o3Type, metaDataTypes));
-        
+
         o1Type.setNotSeparateFk(true);
-        
+
         assertEquals(TreeDetail.isFKDisplayedIntoTab(product, productType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(picture, pictureType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(name, nameType, metaDataTypes), false);
@@ -250,7 +249,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
         assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode1, o1Type, metaDataTypes));
         assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode2, o2Type, metaDataTypes));
         assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode3, o3Type, metaDataTypes));
-        
+
     }
 
     public void testProgressBar() {
@@ -270,7 +269,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
         assertEquals(msg.delete_item_progress(), progressBar.getProgressText());
         progressBar.close();
     }
-    
+
     public void testForeignKeyLazyRender() {
         final ItemsDetailPanel itemsDetailPanel = ItemsDetailPanel.newInstance();
         // add PK tabPanel
@@ -279,12 +278,13 @@ public class TreeDetailGWTTest extends GWTTestCase {
         // add FK tabPanel (FK lazy render)
         ItemPanel fkTabPanel = new ItemPanel(itemsDetailPanel);
         // add ForeignKeyTablePanel
-        final ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel("FK Lazy render");
+        final ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel("FK Lazy render", false);
         fkTabPanel.add(fkPanel, new RowData(1, 1));
         itemsDetailPanel.addTabItem("FKTab", fkTabPanel, ItemsDetailPanel.MULTIPLE, "FK");
         // lazy render FK
         itemsDetailPanel.addFkHandler(fkTabPanel, new ForeignKeyHandler() {
 
+            @Override
             public void onSelect() {
                 // render FK
                 EntityModel entityModel = new EntityModel();
@@ -349,11 +349,11 @@ public class TreeDetailGWTTest extends GWTTestCase {
     /**
      * Test Model Structure: <br>
      * Root<br>
-     *    |_id<br>
-     *    |_name<br>
-     *    |_cp(autoExpand=false)<br>
-     *       |_title<br>
-     *       |_content<br>
+     * |_id<br>
+     * |_name<br>
+     * |_cp(autoExpand=false)<br>
+     * |_title<br>
+     * |_content<br>
      */
     public void testNodeLazyLoading() {
         ViewBean viewBean = getViewBean();
@@ -375,17 +375,17 @@ public class TreeDetailGWTTest extends GWTTestCase {
         assertTrue(((ItemNodeModel) cpItem.getChild(0).getUserObject()).getName().equals("title"));
         assertTrue(((ItemNodeModel) cpItem.getChild(1).getUserObject()).getName().equals("content"));
     }
-    
+
     /**
      * Model Structure: <br>
      * Test<br>
-     *    |_id<br>
-     *    |_name<br>
-     *    |_oem(visible rule: fn:matches(../name ,"test"))<br>
-     *       |_oem_type(enumeration:a,b,c)<br>
-     *       |_a(visible rule: fn:starts-with(../oem_type,"a"))<br>
-     *       |_b(visible rule: fn:starts-with(../oem_type,"b"))<br>
-     *       |_c(visible rule: fn:starts-with(../oem_type,"c"))<br>
+     * |_id<br>
+     * |_name<br>
+     * |_oem(visible rule: fn:matches(../name ,"test"))<br>
+     * |_oem_type(enumeration:a,b,c)<br>
+     * |_a(visible rule: fn:starts-with(../oem_type,"a"))<br>
+     * |_b(visible rule: fn:starts-with(../oem_type,"b"))<br>
+     * |_c(visible rule: fn:starts-with(../oem_type,"c"))<br>
      */
     public void testRecrusiveSetItems() {
         // 1. Build Parameter(ItemNodeModel testNode)
@@ -564,6 +564,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
 
     }
 
+    @Override
     public String getModuleName() {
         return "org.talend.mdm.webapp.browserecords.TestBrowseRecords";
     }

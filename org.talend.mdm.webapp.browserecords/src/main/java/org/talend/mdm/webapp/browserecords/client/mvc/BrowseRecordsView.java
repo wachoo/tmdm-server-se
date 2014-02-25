@@ -78,6 +78,8 @@ public class BrowseRecordsView extends View {
 
     public static final String ITEMS_DETAIL_PANEL = "itemsDetailPanel"; //$NON-NLS-1$
 
+    public static final String IS_STAGING = "isStaging"; //$NON-NLS-1$
+
     public BrowseRecordsView(Controller controller) {
         super(controller);
     }
@@ -304,6 +306,7 @@ public class BrowseRecordsView extends View {
 
     private void onCreateForeignKeyView(AppEvent event) {
         ViewBean viewBean = event.getData();
+        Boolean isStaging = event.getData(BrowseRecordsView.IS_STAGING);
         ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
         ItemPanel itemPanelWidget = (ItemPanel) detailPanel.getCurrentlySelectedTabWidget();
         String concept = viewBean.getBindingEntityModel().getConceptName();
@@ -330,7 +333,7 @@ public class BrowseRecordsView extends View {
         // set itemPanel
         ItemPanel itemPanel = new ItemPanel(panel);
         panel.addTabItem(itemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getConcept());
-        itemPanel.initTreeDetail(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION);
+        itemPanel.initTreeDetail(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION, isStaging);
         itemPanel.getToolBar().setFkToolBar(true);
         itemPanel.getToolBar().setOutMost(itemPanelWidget.getToolBar().isOutMost());
         itemPanel.getToolBar().setHierarchyCall(itemPanelWidget.getToolBar().isHierarchyCall());

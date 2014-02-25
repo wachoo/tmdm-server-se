@@ -216,23 +216,14 @@ public class ItemDetailToolBar extends ToolBar {
         initToolBar();
     }
 
-    public ItemDetailToolBar(boolean isStaging, ItemBean itemBean, String operation, ViewBean viewBean,
-            ItemsDetailPanel itemsDetailPanel, boolean openTab) {
-        this(isStaging, itemsDetailPanel);
-        this.itemBean = itemBean;
-        this.operation = operation;
-        this.viewBean = viewBean;
-        this.openTab = openTab;
-        initToolBar();
-    }
-
     public ItemDetailToolBar(boolean isStaging, ItemBean itemBean, String operation, boolean isFkToolBar, ViewBean viewBean,
-            ItemsDetailPanel itemsDetailPanel) {
+            ItemsDetailPanel itemsDetailPanel, boolean openTab) {
         this(isStaging, itemsDetailPanel);
         this.itemBean = itemBean;
         this.operation = operation;
         this.isFkToolBar = isFkToolBar;
         this.viewBean = viewBean;
+        this.openTab = openTab;
         initToolBar();
     }
 
@@ -287,7 +278,9 @@ public class ItemDetailToolBar extends ToolBar {
         this.addSeparator();
         this.addDeleteButton();
         if (isStaging) {
-            if (StagingConstants.SUCCESS_VALIDATE.equals(itemBean.get(itemBean.getConcept() + StagingConstant.STAGING_STATUS))) {
+            if (!isFkToolBar
+                    && StagingConstants.SUCCESS_VALIDATE.equals(itemBean.get(itemBean.getConcept()
+                            + StagingConstant.STAGING_STATUS))) {
                 this.addSeparator();
                 addMasterRecordButton();
             }
@@ -302,7 +295,7 @@ public class ItemDetailToolBar extends ToolBar {
         } else {
             this.addSeparator();
             this.addJournalButton();
-            if (itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty()) {
+            if (!isFkToolBar && itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty()) {
                 this.addSeparator();
                 this.addStagingRecordsButton();
             }
@@ -1557,5 +1550,9 @@ public class ItemDetailToolBar extends ToolBar {
     protected PostDeleteAction buildPostDeleteAction() {
         return new CloseTabPostDeleteAction(ItemDetailToolBar.this, new ListRefresh(ItemDetailToolBar.this, new ContainerUpdate(
                 ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE)));
+    }
+
+    public boolean isStaging() {
+        return isStaging;
     }
 }

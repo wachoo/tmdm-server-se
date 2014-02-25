@@ -323,7 +323,7 @@ public class ItemsToolBar extends ToolBar {
                 ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
                 ItemPanel itemPanel = new ItemPanel(panel);
                 panel.addTabItem(itemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getConcept());
-                itemPanel.initTreeDetail(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION);
+                itemPanel.initTreeDetail(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION, isStaging());
                 ItemsMainTabPanel.getInstance().addMainTabItem(itemBean.getLabel(), panel, itemBean.getConcept());
                 CommonUtil.setCurrentCachedEntity(itemBean.getConcept() + panel.isOutMost(), itemPanel);
             }
@@ -1123,5 +1123,9 @@ public class ItemsToolBar extends ToolBar {
 
             }
         }
+    }
+
+    protected boolean isStaging() {
+        return false;
     }
 }

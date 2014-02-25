@@ -112,18 +112,7 @@ public class ItemPanel extends ContentPanel {
         this(itemsDetailPanel);
         this.viewBean = viewBean;
         this.item = item;
-        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(isStaging, item, operation, viewBean,
-                itemsDetailPanel, openTab);
-        this.operation = operation;
-        this.initUI(null);
-    }
-
-    public ItemPanel(boolean isStaging, ViewBean viewBean, ItemBean item, String operation, ItemsDetailPanel itemsDetailPanel,
-            boolean openTab, boolean isFKItemPanel) {
-        this(itemsDetailPanel);
-        this.viewBean = viewBean;
-        this.item = item;
-        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(isStaging, item, operation, viewBean,
+        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(isStaging, item, operation, false, viewBean,
                 itemsDetailPanel, openTab);
         this.operation = operation;
         this.initUI(null);
@@ -147,7 +136,7 @@ public class ItemPanel extends ContentPanel {
         tree = new TreeDetail(itemsDetailPanel);
         this.viewBean = viewBean;
         this.item = item;
-        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(isStaging, item, operation, viewBean,
+        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(isStaging, item, operation, true, viewBean,
                 itemsDetailPanel, openTab);
         this.operation = operation;
         this.isForeignKeyPanel = true;
@@ -242,18 +231,19 @@ public class ItemPanel extends ContentPanel {
         return viewBean;
     }
 
-    public void initTreeDetail(ViewBean viewBean, ItemBean item, String operation) {
+    public void initTreeDetail(ViewBean viewBean, ItemBean item, String operation, boolean isStaging) {
         this.viewBean = viewBean;
         this.item = item;
-        this.toolBar = ToolBarFactory.getInstance()
-                .createItemDetailToolBar(item, operation, viewBean, tree.getItemsDetailPanel());
+        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(isStaging, item, operation, viewBean,
+                tree.getItemsDetailPanel());
         this.operation = operation;
         this.initUI(null);
     }
 
-    public void initTreeDetail(ViewBean viewBean, ItemBean item, Map<String, List<String>> initDataMap, String operation) {
+    public void initTreeDetail(ViewBean viewBean, ItemBean item, Map<String, List<String>> initDataMap,
+            String operation,boolean isStaging) {
         this.initDataMap = initDataMap;
-        initTreeDetail(viewBean, item, operation);
+        initTreeDetail(viewBean, item, operation, isStaging);
 
     }
 }

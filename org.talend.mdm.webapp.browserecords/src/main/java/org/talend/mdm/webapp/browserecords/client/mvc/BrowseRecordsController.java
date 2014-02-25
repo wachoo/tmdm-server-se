@@ -294,6 +294,7 @@ public class BrowseRecordsController extends Controller {
                 // forward
                 AppEvent ae = new AppEvent(event.getType(), viewBean);
                 ae.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, detailPanel);
+                ae.setData(BrowseRecordsView.IS_STAGING, event.getData(BrowseRecordsView.IS_STAGING));
                 forwardToView(view, ae);
             }
         });
