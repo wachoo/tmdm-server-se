@@ -2,7 +2,6 @@ package org.talend.mdm.webapp.general.server.actions;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.server.util.XmlUtil;
 import org.talend.mdm.webapp.general.client.GeneralService;
 import org.talend.mdm.webapp.general.gwt.GWTConfigurationContext;
 import org.talend.mdm.webapp.general.gwt.GwtWebContextFactory;
@@ -199,7 +199,7 @@ public class GeneralAction implements GeneralService {
                 @Override
                 public void doInit() throws Exception {
 
-                    InputStream is = Utils.class.getResourceAsStream("/languages.xml"); //$NON-NLS-1$
+                    InputStream is = XmlUtil.getXmlStream("languages.xml"); //$NON-NLS-1$
                     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                     DocumentBuilder builder = factory.newDocumentBuilder();
                     Document doc = builder.parse(is);
@@ -261,11 +261,12 @@ public class GeneralAction implements GeneralService {
         } catch (Exception e) {
             LOG.error(e.getMessage());
             if (e instanceof LicenseUserNumberValidationException) {
-                throw new org.talend.mdm.webapp.base.client.exception.LicenseUserNumberValidationException(e.getLocalizedMessage());    
+                throw new org.talend.mdm.webapp.base.client.exception.LicenseUserNumberValidationException(
+                        e.getLocalizedMessage());
             } else {
                 throw new ServiceException(e.getLocalizedMessage());
             }
-            
+
         }
     }
 

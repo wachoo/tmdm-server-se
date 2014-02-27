@@ -80,6 +80,10 @@ public final class XmlUtil {
         return document;
     }
 
+    public static InputStream getXmlStream(String fileName) {
+        return XmlUtil.class.getResourceAsStream("/" + fileName); //$NON-NLS-1$
+    }
+
     public static org.w3c.dom.Document parseDocument(Document doc4j) throws ServiceException {
         org.dom4j.io.DOMWriter d4Writer = new org.dom4j.io.DOMWriter();
         try {
@@ -92,7 +96,7 @@ public final class XmlUtil {
 
     public static Document mergeDoc(Document mainDoc, Document subDoc, String contextPath) {
         org.dom4j.Element el = (org.dom4j.Element) mainDoc.selectSingleNode(contextPath);
-        org.dom4j.Element root = (org.dom4j.Element) subDoc.getRootElement();
+        org.dom4j.Element root = subDoc.getRootElement();
         List children = root.elements();
         for (int i = 0; i < children.size(); i++) {
             org.dom4j.Element child = (org.dom4j.Element) children.get(i);
@@ -196,38 +200,39 @@ public final class XmlUtil {
             Iterator<?> children = current.elementIterator(pathSlice);
             if (children.hasNext()) {
                 current = (Element) children.next();
-            } else
+            } else {
                 return null;
+            }
         }
         return current;
     }
-    
+
     public static String queryNodeText(Document document, String xPath) {
         StringBuffer value = new StringBuffer();
         String[] pathSlices = xPath.split("/"); //$NON-NLS-1$
-        if (pathSlices.length > 1){
-            Element current = document.getRootElement();               
-            Iterator<?> children = current.elementIterator(pathSlices[pathSlices.length-1]);
+        if (pathSlices.length > 1) {
+            Element current = document.getRootElement();
+            Iterator<?> children = current.elementIterator(pathSlices[pathSlices.length - 1]);
             if (children.hasNext()) {
-                Node node = (Node)children.next();
+                Node node = (Node) children.next();
                 value.append(node.getText());
-                recursionNode(node,value);
-            }  
+                recursionNode(node, value);
+            }
         }
         return value.toString();
     }
-    
-    public static void recursionNode(Node node,StringBuffer value){
-        Element element = (Element)node;
+
+    public static void recursionNode(Node node, StringBuffer value) {
+        Element element = (Element) node;
         int size = element.nodeCount();
         for (int i = 0; i < size; i++) {
             Node chilidNode = element.node(i);
             if (chilidNode instanceof Element) {
-                if (!"".equals(value.toString())){ //$NON-NLS-1$
+                if (!"".equals(value.toString())) { //$NON-NLS-1$
                     value.append(" "); //$NON-NLS-1$                     
                 }
-                value.append(chilidNode.getText()); 
-                recursionNode(chilidNode,value);
+                value.append(chilidNode.getText());
+                recursionNode(chilidNode, value);
             }
         }
     }
@@ -241,8 +246,8 @@ public final class XmlUtil {
     public static List<String> findLinks(Document document) {
         List<String> urls = new ArrayList<String>();
         List<?> list = document.selectNodes("//a/@href"); //$NON-NLS-1$
-        for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
-            Attribute attribute = (Attribute) iter.next();
+        for (Object name : list) {
+            Attribute attribute = (Attribute) name;
             String url = attribute.getValue();
             urls.add(url);
         }
@@ -252,8 +257,9 @@ public final class XmlUtil {
     public static Document createDocument(DocumentCreate documentCreate) {
         Document document = DocumentHelper.createDocument();
         documentCreate.create(document);
-        if (logger.isDebugEnabled())
+        if (logger.isDebugEnabled()) {
             logger.debug("New Document has bean created"); //$NON-NLS-1$
+        }
 
         return document;
     }
@@ -266,8 +272,9 @@ public final class XmlUtil {
         } else if (printMode.toLowerCase().equals("compact")) { //$NON-NLS-1$
             // Compact format
             format = OutputFormat.createCompactFormat();
-        } else
+        } else {
             format = null;
+        }
 
         format.setEncoding(encoding);
 
@@ -276,8 +283,9 @@ public final class XmlUtil {
         writer.write(document);
         writer.close();
 
-        if (logger.isDebugEnabled())
+        if (logger.isDebugEnabled()) {
             logger.debug("New xml file has bean exported on " + filePath); //$NON-NLS-1$
+        }
     }
 
     public static String toXml(Document document) {
@@ -306,8 +314,9 @@ public final class XmlUtil {
         // return the transformed document
         Document transformedDoc = result.getDocument();
 
-        if (logger.isDebugEnabled())
+        if (logger.isDebugEnabled()) {
             logger.debug("The xml file style transformed successfully "); //$NON-NLS-1$
+        }
         return transformedDoc;
     }
 
@@ -371,8 +380,9 @@ public final class XmlUtil {
                 writer.write(errorHandler.getErrors());
             } else {
                 isValidated = true;
-                if (logger.isDebugEnabled())
+                if (logger.isDebugEnabled()) {
                     logger.debug("XML file validation succeeded! "); //$NON-NLS-1$
+                }
             }
         } catch (Exception ex) {
             isValidated = false;
@@ -394,26 +404,27 @@ public final class XmlUtil {
     }
 
     public static void completeXMLByXPath(Document doc, String xPath) {
-        if (!xPath.startsWith("/")) //$NON-NLS-1$
+        if (!xPath.startsWith("/")) {
             xPath = "/" + xPath; //$NON-NLS-1$
+        }
         String[] nodeList = xPath.split("/"); //$NON-NLS-1$
         String tmpPath = nodeList[0];
         Element element = null;
         for (int i = 1; i < nodeList.length; i++) {
             tmpPath = tmpPath + "/" + nodeList[i]; //$NON-NLS-1$            
-                        
-            if(doc.selectSingleNode(tmpPath) != null){
+
+            if (doc.selectSingleNode(tmpPath) != null) {
                 element = (Element) doc.selectSingleNode(tmpPath);
                 continue;
             }
-            
+
             Pattern pattern = Pattern.compile("(.+)(\\[.+\\])"); //$NON-NLS-1$
             Matcher matcher = pattern.matcher(nodeList[i]);
-            if(!matcher.matches()) {
+            if (!matcher.matches()) {
                 element = element.addElement(nodeList[i]);
             } else {
                 element = element.addElement(matcher.group(1));
-            }                
+            }
         }
-    }   
+    }
 }
