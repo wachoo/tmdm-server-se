@@ -52,15 +52,15 @@ public interface StagingConstants {
     /**
      * Indicates a deleted record.
      */
-    String DELETED = "206";
+    String DELETED = "206"; //$NON-NLS-1$
     /**
      * Indicates record merged using with a DSC task resolution.
      */
-    String TASK_RESOLVED_RECORD = "207";
+    String TASK_RESOLVED_RECORD = "207"; //$NON-NLS-1$
     /**
      * Indicates a deleted record.
      */
-    String NEED_REMATCH = "208";
+    String NEED_REMATCH = "208"; //$NON-NLS-1$
     /**
      * Generic fail status.
      */
