@@ -222,6 +222,11 @@ public class VisitorAdapter<T> implements Visitor<T> {
         throw new NotImplementedException();
     }
 
+    @Override
+    public T visit(At at) {
+        throw new NotImplementedException();
+    }
+
     public T visit(Isa isa) {
         throw new NotImplementedException();
     }

@@ -39,6 +39,8 @@ public class Select implements Expression {
 
     private boolean forUpdate = false;
 
+    private At history;
+
     public Select() {
     }
 
@@ -210,5 +212,13 @@ public class Select implements Expression {
 
     public void setForUpdate(boolean forUpdate) {
         this.forUpdate = forUpdate;
+    }
+
+    public void setHistory(At history) {
+        this.history = history;
+    }
+
+    public At getHistory() {
+        return history;
     }
 }

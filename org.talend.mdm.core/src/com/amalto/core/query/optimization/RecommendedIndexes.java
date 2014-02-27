@@ -1,6 +1,7 @@
 package com.amalto.core.query.optimization;
 
 import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.At;
 import com.amalto.core.query.user.metadata.*;
 import org.talend.mdm.commmon.metadata.*;
 
@@ -334,6 +335,11 @@ public class RecommendedIndexes {
         @Override
         public Collection<FieldMetadata> visit(FieldFullText fieldFullText) {
             return fieldFullText.getField().accept(this);
+        }
+
+        @Override
+        public Collection<FieldMetadata> visit(At at) {
+            return Collections.emptySet();
         }
     }
 }

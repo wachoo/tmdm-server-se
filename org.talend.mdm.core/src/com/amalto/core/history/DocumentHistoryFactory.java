@@ -11,6 +11,10 @@
 
 package com.amalto.core.history;
 
+import com.amalto.core.history.action.ActionFactory;
+
+import java.lang.reflect.Constructor;
+
 /**
  *
  */
@@ -30,6 +34,17 @@ public class DocumentHistoryFactory {
     public DocumentHistory create() {
         try {
             Object documentHistoryObject = Class.forName(IMPLEMENTATION_CLASS_NAME).newInstance();
+            return (DocumentHistory) documentHistoryObject;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public DocumentHistory create(ActionFactory actionFactory, DocumentFactory documentFactory) {
+        try {
+            Class<?> clazz = Class.forName(IMPLEMENTATION_CLASS_NAME);
+            Constructor<?> constructor = clazz.getConstructor(ActionFactory.class, DocumentFactory.class);
+            Object documentHistoryObject = constructor.newInstance(actionFactory, documentFactory);
             return (DocumentHistory) documentHistoryObject;
         } catch (Exception e) {
             throw new RuntimeException(e);

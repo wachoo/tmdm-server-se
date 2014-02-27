@@ -19,7 +19,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
 
+import java.text.ParseException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -373,6 +375,50 @@ public class UserQueryBuilder {
 
     public UserQueryBuilder forUpdate() {
         expressionAsSelect().setForUpdate(true);
+        return this;
+    }
+
+    public UserQueryBuilder at(String dateTime) {
+        // Parse date time
+        long dateTimeAsLong;
+        try {
+            dateTimeAsLong = Long.parseLong(dateTime); // A long?
+        } catch (NumberFormatException e) {
+            // Try date format parsing
+            try {
+                Date date = DateTimeConstant.DATE_FORMAT.parse(dateTime); // Or maybe a XML date?
+                dateTimeAsLong = date.getTime();
+            } catch (ParseException e1) {
+                throw new IllegalArgumentException("Date '" + dateTime + "' is neither a long nor a date time that can be parsed.", e1);
+            }
+        }
+        // Select the history navigation information
+        expressionAsSelect().setHistory(new At(dateTimeAsLong));
+        return this;
+    }
+
+    public UserQueryBuilder swing(String swing) {
+        // Before calling swing, at() should be called to give a fixed point in record history.
+        At history = expressionAsSelect().getHistory();
+        if (history == null) {
+            throw new IllegalStateException("Can swing in record history: no date pivot was specified.");
+        }
+        // Set the 'swing' (i.e. where user wants to move in history).
+        At.Swing swingValue;
+        if (swing != null) {
+            try {
+                swingValue = At.Swing.valueOf(swing.trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                StringBuilder builder = new StringBuilder();
+                for (At.Swing allowedValue : At.Swing.values()) {
+                    builder.append(allowedValue.name()).append(' ');
+                }
+                throw new RuntimeException("Value '" + swing + "' is not valid. Only ( " + builder + ") are.");
+            }
+        } else {
+            swingValue = At.Swing.CLOSEST; // Default behavior
+        }
+        history.setSwing(swingValue);
         return this;
     }
 

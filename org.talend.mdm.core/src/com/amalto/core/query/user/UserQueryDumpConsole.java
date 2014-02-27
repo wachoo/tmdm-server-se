@@ -16,6 +16,7 @@ import org.apache.log4j.Level;
 import org.talend.mdm.commmon.metadata.*;
 import org.apache.log4j.Logger;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -656,6 +657,20 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         {
             print("Value -> " + fieldFullText.getValue()); //$NON-NLS-1$
             fieldFullText.getField().accept(this);
+        }
+        decreaseIndent();
+        return null;
+    }
+
+    @Override
+    public Void visit(At at) {
+        print("[HISTORY]"); //$NON-NLS-1$
+        increaseIndent();
+        {
+            synchronized (DateTimeConstant.DATE_FORMAT) {
+                print("Date: " + DateTimeConstant.DATE_FORMAT.format(new Date(at.getDateTime()))); //$NON-NLS-1$
+                print("Swing: " + at.getSwing()); //$NON-NLS-1$
+            }
         }
         decreaseIndent();
         return null;

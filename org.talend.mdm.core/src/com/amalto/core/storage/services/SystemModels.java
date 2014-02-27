@@ -8,7 +8,7 @@
  * 92150 Suresnes, France
  */
 
-package com.amalto.core.storage.system;
+package com.amalto.core.storage.services;
 
 import java.io.InputStream;
 import java.io.StringWriter;
