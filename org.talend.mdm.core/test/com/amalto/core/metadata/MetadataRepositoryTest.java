@@ -1,20 +1,20 @@
 /*
  * Copyright (C) 2006-2013 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.metadata;
 
-import junit.framework.TestCase;
-import org.talend.mdm.commmon.metadata.*;
-
 import java.io.InputStream;
+
+import junit.framework.TestCase;
+
+import org.talend.mdm.commmon.metadata.*;
 
 /**
  * Schema parsing <br>
@@ -79,7 +79,6 @@ public class MetadataRepositoryTest extends TestCase {
         repository.load(stream);
         // repository.accept(visitor);
     }
-
 
     public void test7() {
         MetadataRepository repository = new MetadataRepository();
@@ -169,7 +168,7 @@ public class MetadataRepositoryTest extends TestCase {
         ComplexTypeMetadata person = repository.getComplexType("Person");
         assertNotNull(person);
         assertEquals(2, person.getKeyFields().size());
-        String[] expectedOrder = {"lastname", "firstname"};
+        String[] expectedOrder = { "lastname", "firstname" };
         int i = 0;
         for (FieldMetadata keyField : person.getKeyFields()) {
             assertEquals(expectedOrder[i++], keyField.getName());
@@ -246,5 +245,17 @@ public class MetadataRepositoryTest extends TestCase {
 
         assertEquals(test1.getName(), test2.getName());
         assertTrue(test1 != test2);
+    }
+
+    public void test22() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema22.xsd");
+        repository.load(stream);
+        // repository.accept(visitor);
+        ComplexTypeMetadata box = repository.getComplexType("Box");
+        assertNotNull(box);
+        FieldMetadata field = box.getField("FieldCTFK/Name");
+        assertNotNull(field);
+        assertEquals("Box/FieldCTFK/Name", field.getEntityTypeName() + "/" + field.getPath());
     }
 }
