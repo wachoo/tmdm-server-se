@@ -140,8 +140,11 @@ public class SkipAttributeDocumentBuilder extends DocumentBuilder {
                         // Add a xmlns:attribute to document element
                         Attr attribute = document.createAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:" + StringUtils.substringBefore(qualifiedName, ":"));
                         attribute.setValue(namespaceURI);
-                        element.getOwnerDocument().getDocumentElement().setAttributeNodeNS(attribute);
-                        declaredNamespaces.add(namespaceURI);
+                        Element documentElement = element.getOwnerDocument().getDocumentElement();
+                        if (documentElement != null) {
+                            documentElement.setAttributeNodeNS(attribute);
+                            declaredNamespaces.add(namespaceURI);
+                        }
                     }
                 }
             }
