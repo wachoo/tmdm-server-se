@@ -32,6 +32,7 @@ public class StorageWrapperTest extends TestCase {
         final Storage storage = prepareStorage(repository);
 
         StorageWrapper wrapper = new StorageWrapper() {
+
             @Override
             protected Storage getStorage(String dataClusterName) {
                 return storage;
@@ -43,19 +44,31 @@ public class StorageWrapperTest extends TestCase {
             }
         };
         String xml = "<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>333</i><t>1372654669313</t><taskId></taskId><p> <Product><Id>333</Id><Name>333</Name><Description>333</Description><Price>333</Price></Product></p></ii>"; //$NON-NLS-1$
-        wrapper.putDocumentFromString(xml, "Product.Product.333", "Product", null); //$NON-NLS-1$ //$NON-NLS-2$
+        wrapper.start("Product");
+        {
+            wrapper.putDocumentFromString(xml, "Product.Product.333", "Product", null); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        wrapper.commit("Product");
         String item = wrapper.getDocumentAsString(null, "Product", "Product.Product.333"); //$NON-NLS-1$ //$NON-NLS-2$
         assertNotNull(item);
         assertTrue(item.contains("<i>333</i>")); //$NON-NLS-1$
 
         xml = "<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>33&amp;44</i><t>1372654669313</t><taskId></taskId><p> <Product><Id>33&amp;44</Id><Name>333</Name><Description>333</Description><Price>333</Price></Product></p></ii>"; //$NON-NLS-1$
-        wrapper.putDocumentFromString(xml, "Product.Product.33&44", "Product", null); //$NON-NLS-1$ //$NON-NLS-2$
+        wrapper.start("Product");
+        {
+            wrapper.putDocumentFromString(xml, "Product.Product.33&44", "Product", null); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        wrapper.commit("Product");
         item = wrapper.getDocumentAsString(null, "Product", "Product.Product.33&44"); //$NON-NLS-1$ //$NON-NLS-2$
         assertNotNull(item);
         assertTrue(item.contains("<i>33&amp;44</i>")); //$NON-NLS-1$
 
         xml = "<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>&quot;555&lt;666&gt;444&quot;</i><t>1372654669313</t><taskId></taskId><p> <Product><Id>&quot;555&lt;666&gt;444&quot;</Id><Name>333</Name><Description>333</Description><Price>333</Price></Product></p></ii>"; //$NON-NLS-1$
-        wrapper.putDocumentFromString(xml, "Product.Product.\"555<666>444\"", "Product", null); //$NON-NLS-1$ //$NON-NLS-2$
+        wrapper.start("Product");
+        {
+            wrapper.putDocumentFromString(xml, "Product.Product.\"555<666>444\"", "Product", null); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        wrapper.commit("Product");
         item = wrapper.getDocumentAsString(null, "Product", "Product.Product.\"555<666>444\""); //$NON-NLS-1$ //$NON-NLS-2$
         assertNotNull(item);
         assertTrue(item.contains("<i>&quot;555&lt;666&gt;444&quot;</i>")); //$NON-NLS-1$
