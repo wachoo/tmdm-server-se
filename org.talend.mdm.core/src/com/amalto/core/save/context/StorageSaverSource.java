@@ -102,7 +102,6 @@ public class StorageSaverSource implements SaverSource {
         if (storage == null) {
             return false;
         }
-        storage.begin();
         StorageResults results = storage.fetch(buildQueryByID(storage, typeName, key)); // Expect a transaction to be active
         try {
             Iterator<DataRecord> iterator = results.iterator();
