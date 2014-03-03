@@ -41,7 +41,7 @@ public class FieldFullText extends FullText {
             return false;
         }
         FieldFullText that = (FieldFullText) o;
-        return !(field != null ? !field.equals(that.field) : that.field != null);
+        return !(field != null ? !field.equals(that.field) : that.field != null) && this.getValue().equals(that.getValue());
     }
 
     @Override
