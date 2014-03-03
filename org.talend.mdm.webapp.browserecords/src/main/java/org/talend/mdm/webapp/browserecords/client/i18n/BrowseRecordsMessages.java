@@ -484,4 +484,6 @@ public interface BrowseRecordsMessages extends Messages {
     String mark_as_deleted();
 
     String mark_deleted_confirm();
+
+    String no_golden_record_in_group(String groupId);
 }

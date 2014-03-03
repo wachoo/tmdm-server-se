@@ -44,18 +44,18 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface BrowseRecordsServiceAsync {
 
     void getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model, String dataClusterPK, boolean ifFKFilter,
-            String value,String language, AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback);
+            String value, String language, AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback);
 
     void getForeignKeyPolymTypeList(String xpathForeignKey, String language, AsyncCallback<List<Restriction>> callback);
 
     void switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter,
             AsyncCallback<ForeignKeyDrawer> callback);
 
-    void queryItemBeans(QueryModel config,String language, AsyncCallback<ItemBasePageLoadResult<ItemBean>> callback);
+    void queryItemBeans(QueryModel config, String language, AsyncCallback<ItemBasePageLoadResult<ItemBean>> callback);
 
     void queryItemBeanById(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String id, String language,
             AsyncCallback<ItemBean> callback);
-    
+
     void saveItemBean(ItemBean item, String language, AsyncCallback<String> callback);
 
     void getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, String language, AsyncCallback<ItemBean> callback);
@@ -122,6 +122,9 @@ public interface BrowseRecordsServiceAsync {
 
     void updateItems(List<UpdateItemModel> updateItems, String language, AsyncCallback<List<ItemResult>> callback);
 
+    void getGoldenRecordIdByGroupId(String dataClusterPK, String viewPK, String concept, String[] keys, String groupId,
+            AsyncCallback<String> callback);
+
     void formatValue(FormatModel model, AsyncCallback<String> callback);
 
     void getEntityModel(String concept, String language, AsyncCallback<EntityModel> callback);
@@ -136,5 +139,4 @@ public interface BrowseRecordsServiceAsync {
             AsyncCallback<Map<ViewBean, Map<String, List<String>>>> callback);
 
     void isExistId(String concept, String[] ids, String language, AsyncCallback<Boolean> callback);
-
 }

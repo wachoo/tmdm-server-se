@@ -77,6 +77,7 @@ import org.talend.mdm.webapp.browserecords.client.model.RecordsPagingConfig;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
 import org.talend.mdm.webapp.browserecords.client.model.SearchTemplate;
 import org.talend.mdm.webapp.browserecords.client.model.UpdateItemModel;
+import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
@@ -106,6 +107,7 @@ import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.task.StagingConstants;
 import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -2329,6 +2331,56 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             LOG.error(ex.getMessage(), ex);
             throw new ServiceException(MESSAGES.getMessage(locale,
                     "format_exception_failure", model.getFormat(), model.getObject().toString())); //$NON-NLS-1$
+        }
+    }
+
+    @Override
+    public String getGoldenRecordIdByGroupId(String dataClusterPK, String viewPK, String concept, String[] keys, String groupId)
+            throws ServiceException {
+
+        WSWhereCondition whereCondition_Status_SUCCESS_MERGED = new WSWhereCondition(concept + StagingConstant.STAGING_STATUS,
+                WSWhereOperator.EQUALS, StagingConstants.SUCCESS_MERGED_RECORD_TO_RESOLVE, WSStringPredicate.NONE, false);
+        WSWhereCondition whereCondition_Status_SUCCESS_VALIDATE = new WSWhereCondition(concept + StagingConstant.STAGING_STATUS,
+                WSWhereOperator.EQUALS, StagingConstants.SUCCESS_VALIDATE, WSStringPredicate.NONE, false);
+
+        WSWhereItem whereItem_Status_SUCCESS_MERGED = new WSWhereItem(whereCondition_Status_SUCCESS_MERGED, null, null);
+        WSWhereItem whereItem_Status_SUCCESS_VALIDATE = new WSWhereItem(whereCondition_Status_SUCCESS_VALIDATE, null, null);
+        WSWhereItem[] whereItem_Status_Array = { whereItem_Status_SUCCESS_MERGED, whereItem_Status_SUCCESS_VALIDATE };
+        WSWhereOr whereOr = new WSWhereOr(whereItem_Status_Array);
+        WSWhereItem whereItem_Status = new WSWhereItem(null, null, whereOr);
+
+        WSWhereCondition whereCondition_TaskID = new WSWhereCondition(StagingConstant.STAGING_TASKID.substring(1),
+                WSWhereOperator.EQUALS, groupId, WSStringPredicate.NONE, false);
+        WSWhereItem whereItem_TaskID = new WSWhereItem(whereCondition_TaskID, null, null);
+
+        WSWhereItem[] whereItem_Array = { whereItem_TaskID, whereItem_Status };
+        WSWhereAnd whereAnd = new WSWhereAnd(whereItem_Array);
+
+        WSWhereItem whereItem = new WSWhereItem(null, whereAnd, null);
+        try {
+            StringBuilder ids = new StringBuilder();
+            String[] results = CommonUtil
+                    .getPort()
+                    .viewSearch(
+                            new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewPK), whereItem, -1, 0, 5, null,
+                                    null)).getStrings();
+            if (results.length == 2) {
+                Document doc = parseResultDocument(results[1], "result"); //$NON-NLS-1$
+
+                for (String key : keys) {
+                    String id = Util.getFirstTextNode(doc.getDocumentElement(), "." + key.substring(key.lastIndexOf('/'))); //$NON-NLS-1$
+                    if (id != null) {
+                        if (ids.length() != 0) {
+                            ids.append("."); //$NON-NLS-1$
+                        }
+                        ids.append(id);
+                    }
+                }
+            }
+            return ids.toString();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
     }
 

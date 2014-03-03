@@ -278,9 +278,7 @@ public class ItemDetailToolBar extends ToolBar {
         this.addSeparator();
         this.addDeleteButton();
         if (isStaging) {
-            if (!isFkToolBar
-                    && StagingConstants.SUCCESS_VALIDATE.equals(itemBean.get(itemBean.getConcept()
-                            + StagingConstant.STAGING_STATUS))) {
+            if (!isFkToolBar && itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty()) {
                 this.addSeparator();
                 addMasterRecordButton();
             }
@@ -597,8 +595,24 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-                    TreeDetailUtil.initItemsDetailPanelById("", itemBean.getIds(), itemBean.getConcept(), isFkToolBar, //$NON-NLS-1$
-                            isHierarchyCall, ItemDetailToolBar.VIEW_OPERATION, false);
+
+                    getBrowseRecordsService().getGoldenRecordIdByGroupId(
+                            BrowseRecords.getSession().getAppHeader().getDatacluster(),
+                            BrowseRecords.getSession().getCurrentView().getViewPK(), itemBean.getConcept(),
+                            BrowseRecords.getSession().getCurrentEntityModel().getKeys(), itemBean.getTaskId(),
+                            new SessionAwareAsyncCallback<String>() {
+
+                                @Override
+                                public void onSuccess(String ids) {
+                                    if (!ids.isEmpty()) {
+                                        TreeDetailUtil.initItemsDetailPanelById("", ids, itemBean.getConcept(), isFkToolBar, //$NON-NLS-1$
+                                                isHierarchyCall, ItemDetailToolBar.VIEW_OPERATION, false);
+                                    } else {
+                                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory
+                                                .getMessages().no_golden_record_in_group(itemBean.getTaskId()), null);
+                                    }
+                                }
+                            });
                 }
             });
         }

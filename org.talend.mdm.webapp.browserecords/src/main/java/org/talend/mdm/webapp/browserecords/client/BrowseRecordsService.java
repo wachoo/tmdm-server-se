@@ -46,7 +46,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("BrowseRecordsService")
 public interface BrowseRecordsService extends RemoteService {
 
-    ItemBasePageLoadResult<ItemBean> queryItemBeans(final QueryModel config,String language) throws ServiceException;
+    ItemBasePageLoadResult<ItemBean> queryItemBeans(final QueryModel config, String language) throws ServiceException;
 
     ItemBean queryItemBeanById(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String id, String language)
             throws ServiceException;
@@ -56,7 +56,7 @@ public interface BrowseRecordsService extends RemoteService {
     String saveItemBean(ItemBean item, String language) throws ServiceException;
 
     ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
-            String dataClusterPK, boolean ifFKFilter, String value,String language) throws ServiceException;
+            String dataClusterPK, boolean ifFKFilter, String value, String language) throws ServiceException;
 
     List<Restriction> getForeignKeyPolymTypeList(String xpathForeignKey, String language) throws ServiceException;
 
@@ -134,6 +134,8 @@ public interface BrowseRecordsService extends RemoteService {
     boolean isItemModifiedByOthers(ItemBean itemBean) throws ServiceException;
 
     String formatValue(FormatModel model) throws ServiceException;
+
+    String getGoldenRecordIdByGroupId(String dataClusterPK, String viewPK, String concept, String[] keys, String groupId) throws ServiceException;
 
     Map<ViewBean, Map<String, List<String>>> getForeignKeyValues(String concept, String[] ids, String language)
             throws ServiceException;
