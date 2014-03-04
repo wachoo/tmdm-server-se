@@ -12,34 +12,16 @@
 // ============================================================================
 package org.talend.mdm.webapp.general.server.util;
 
-import java.util.List;
-
 import junit.framework.TestCase;
-
-import org.talend.mdm.webapp.general.model.LanguageBean;
-import org.talend.mdm.webapp.general.server.actions.GeneralAction;
-
-
 
 @SuppressWarnings("nls")
 public class UtilsTest extends TestCase {
 
-    public void testGetLanguages() throws Exception {
-
-        List<LanguageBean> langs = (new GeneralAction()).getLanguages("en");
-        assertTrue(langs.size() > 0);
-        
-        LanguageBean lang = langs.get(0);
-        assertEquals("en", lang.getValue());
-        assertEquals("English", lang.getText());
-        assertEquals("MM/dd/yyyy HH:mm:ss", lang.getDateTimeFormat());
-        assertTrue(lang.isSelected());
-
-        lang = langs.get(1);
-        assertEquals("fr", lang.getValue());
-        assertEquals("Français", lang.getText());
-        assertFalse(lang.isSelected());
-        
+    public void testSetLanguages() throws Exception {
+        String xml = "<User><username>administrator</username><password>200ceb26807d6bf99fd6f4f0d1ca54d4</password><givenname>Default</givenname><familyname>Administrator</familyname><company>Company</company><id>null</id><realemail>admin@company.com</realemail><viewrealemail>no</viewrealemail><registrationdate>1393637417135</registrationdate><lastvisitdate>0</lastvisitdate><enabled>yes</enabled><homepage>Home</homepage><language>en</language><roles><role>System_Admin</role><role>administration</role></roles></User>";
+        assertEquals("en", xml.substring(xml.indexOf("<language>") + 10, xml.indexOf("</language>")));
+        xml = Utils.setLanguage(xml, "fr");
+        assertEquals("fr", xml.substring(xml.indexOf("<language>") + 10, xml.indexOf("</language>")));
     }
 
 }
