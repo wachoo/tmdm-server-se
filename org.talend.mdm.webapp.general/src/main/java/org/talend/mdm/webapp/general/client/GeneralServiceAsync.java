@@ -45,4 +45,6 @@ public interface GeneralServiceAsync {
 
     void supportStaging(String dataCluster, AsyncCallback<Boolean> callback);
 
+    void setDefaultLanguage(String language, AsyncCallback<Void> callback);
+
 }

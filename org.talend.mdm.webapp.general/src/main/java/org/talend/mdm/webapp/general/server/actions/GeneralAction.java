@@ -46,7 +46,10 @@ import com.amalto.webapp.util.webservices.WSDataModel;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSGetDataCluster;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
+import com.amalto.webapp.util.webservices.WSGetItem;
+import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSLogout;
+import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSRegexDataClusterPKs;
 import com.amalto.webapp.util.webservices.WSRegexDataModelPKs;
 
@@ -58,6 +61,10 @@ public class GeneralAction implements GeneralService {
 
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.general.client.i18n.GeneralMessages", GeneralAction.class.getClassLoader()); //$NON-NLS-1$
+
+    private static final String PROVISIONING_CONCEPT = "User"; //$NON-NLS-1$
+
+    private String DATACLUSTER_PK = "PROVISIONING"; //$NON-NLS-1$
 
     @Override
     public ProductInfo getProductInfo() throws ServiceException {
@@ -233,8 +240,12 @@ public class GeneralAction implements GeneralService {
                 }
 
             });
-
-            return Utils.getLanguages(language);
+            String lang = language;
+            String storeLang = com.amalto.webapp.core.util.Util.getDefaultLanguage();
+            if (storeLang != null && !"".equals(storeLang)) { //$NON-NLS-1$
+                lang = storeLang;
+            }
+            return Utils.getLanguages(lang);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -276,6 +287,23 @@ public class GeneralAction implements GeneralService {
             return Util.getPort().supportStaging().is_true();
         } catch (Exception e) {
             throw new ServiceException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void setDefaultLanguage(String language) throws ServiceException {
+        try {
+            String userName = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
+            WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(DATACLUSTER_PK), PROVISIONING_CONCEPT, new String[] { userName });
+            if (userName != null && userName.length() > 0) {
+                String userXml = Util.getPort().getItem(new WSGetItem(itemPK)).getContent();
+                userXml = Utils.setLanguage(userXml, language);
+                Util.getPort().putItem(
+                        new WSPutItem(new WSDataClusterPK(DATACLUSTER_PK), userXml, new WSDataModelPK(DATACLUSTER_PK), false));
+            }
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
     }
 

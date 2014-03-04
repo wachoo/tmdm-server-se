@@ -149,6 +149,10 @@ public class Util {
 
     public static String DATE_FORMAT_PREFIX = "%t"; //$NON-NLS-1$  
 
+    private static final String PROVISIONING_CONCEPT = "User"; //$NON-NLS-1$
+
+    private static final String DATACLUSTER_PK = "PROVISIONING"; //$NON-NLS-1$
+
     /*********************************************************************
      * WEB SERVICES
      *********************************************************************/
@@ -160,8 +164,9 @@ public class Util {
         } catch (Exception e) {
             throw new XtentisWebappException("Unable to access the logged user data"); //$NON-NLS-1$
         }
-        if (as == null)
+        if (as == null) {
             throw new XtentisWebappException("Session Expired"); //$NON-NLS-1$
+        }
         // org.apache.log4j.Category.getInstance(Util.class).debug("getPort() ");
         String[] mdm = as.getMDMData();
         String url = "http://" + mdm[0] + "/talend/TalendPort"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -236,11 +241,13 @@ public class Util {
 
     /**
      * Join an array of strings into a single string using a separator
+     * 
      * @return a single string or null
      */
     public static String joinStrings(String[] strings, String separator) {
-        if (strings == null)
+        if (strings == null) {
             return null;
+        }
         String res = ""; //$NON-NLS-1$
         for (int i = 0; i < strings.length; i++) {
             res += (i > 0) ? separator : ""; //$NON-NLS-1$
@@ -251,20 +258,25 @@ public class Util {
 
     /**
      * Returns the first part - eg. the concept - from the path
+     * 
      * @return the Concept Name
      */
     public static String getConceptFromPath(String path) {
-        if (path == null || path.trim().length() == 0)
+        if (path == null || path.trim().length() == 0) {
             return null;
-        if (path.startsWith("/")) //$NON-NLS-1$
+        }
+        if (path.startsWith("/")) {
             path = path.substring(1);
+        }
 
         Pattern p = Pattern.compile("(.*?)[\\[|/].*"); //$NON-NLS-1$
-        if (!path.endsWith("/")) //$NON-NLS-1$
+        if (!path.endsWith("/")) {
             path += "/"; //$NON-NLS-1$
+        }
         Matcher m = p.matcher(path);
-        if (m.matches())
+        if (m.matches()) {
             return m.group(1);
+        }
         return null;
     }
 
@@ -317,12 +329,13 @@ public class Util {
     }
 
     public static WSWhereItem getConditionFromFKFilter(String foreignKey, String foreignKeyInfo, String fkFilter,
-            boolean formatFkValue)
-            throws Exception {
-        if (fkFilter == null || fkFilter.length() == 0)
+            boolean formatFkValue) throws Exception {
+        if (fkFilter == null || fkFilter.length() == 0) {
             return null;
-        if (fkFilter.equals("null")) //$NON-NLS-1$
+        }
+        if (fkFilter.equals("null")) {
             return null;
+        }
 
         int additionalInfo = fkFilter.indexOf("-", fkFilter.lastIndexOf("#") > -1 ? fkFilter.lastIndexOf("#") + 1 : 0); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         String additionalValue = null;
@@ -365,7 +378,7 @@ public class Util {
 
         if (condition.size() > 0) {
             WSWhereItem whereItem;
-            if (MDMConfiguration.isSqlDataBase()){
+            if (MDMConfiguration.isSqlDataBase()) {
                 whereItem = makeWhereItem(condition);
             } else {
                 WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
@@ -409,7 +422,7 @@ public class Util {
                 stackOp.push(predicate);
             }
         }
-        while (!stackOp.isEmpty()){
+        while (!stackOp.isEmpty()) {
             rpn.add(stackOp.pop());
         }
 
@@ -435,54 +448,62 @@ public class Util {
     }
 
     public static WSWhereCondition convertLine(String[] values) {
-        if (values.length < 3)
+        if (values.length < 3) {
             return null;
+        }
         WSWhereCondition wc = new WSWhereCondition();
 
         wc.setLeftPath(values[0]);
 
         if (values.length >= 3) {
             WSWhereOperator operator = null;
-            if (values[1].equals("Contains")) //$NON-NLS-1$
+            if (values[1].equals("Contains")) {
                 operator = WSWhereOperator.CONTAINS;
-            else if (values[1].equals("Contains Text Of")) //$NON-NLS-1$
+            } else if (values[1].equals("Contains Text Of")) {
                 operator = WSWhereOperator.JOIN;
-            else if (values[1].equals("=")) //$NON-NLS-1$
+            } else if (values[1].equals("=")) {
                 operator = WSWhereOperator.EQUALS;
-            else if (values[1].equals(">")) //$NON-NLS-1$
+            } else if (values[1].equals(">")) {
                 operator = WSWhereOperator.GREATER_THAN;
-            else if (values[1].equals(">=")) //$NON-NLS-1$
+            } else if (values[1].equals(">=")) {
                 operator = WSWhereOperator.GREATER_THAN_OR_EQUAL;
-            else if (values[1].equals("<")) //$NON-NLS-1$
+            } else if (values[1].equals("<")) {
                 operator = WSWhereOperator.LOWER_THAN;
-            else if (values[1].equals("<=")) //$NON-NLS-1$
+            } else if (values[1].equals("<=")) {
                 operator = WSWhereOperator.LOWER_THAN_OR_EQUAL;
-            else if (values[1].equals("!=")) //$NON-NLS-1$
+            } else if (values[1].equals("!=")) {
                 operator = WSWhereOperator.NOT_EQUALS;
-            else if (values[1].equals("Starts With")) //$NON-NLS-1$
+            } else if (values[1].equals("Starts With")) {
                 operator = WSWhereOperator.STARTSWITH;
-            else if (values[1].equals("Strict Contains")) //$NON-NLS-1$
+            } else if (values[1].equals("Strict Contains")) {
                 operator = WSWhereOperator.STRICTCONTAINS;
+            }
             wc.setOperator(operator);
-            if (values[2] != null && values[2].matches("^\".*\"$")) //$NON-NLS-1$
+            if (values[2] != null && values[2].matches("^\".*\"$")) {
                 values[2] = values[2].substring(1, values[2].length() - 1);
+            }
             wc.setRightValueOrPath(values[2]);
         }
 
         if (values.length >= 4) {
             WSStringPredicate predicate = null;
-            if (values[3].equals("")) //$NON-NLS-1$
+            if (values[3].equals("")) {
                 predicate = WSStringPredicate.NONE;
-            else if (values[3].equals("Or")) //$NON-NLS-1$
+            } else if (values[3].equals("Or")) {
                 predicate = WSStringPredicate.OR;
-            if (values[3].equals("And")) //$NON-NLS-1$
+            }
+            if (values[3].equals("And")) {
                 predicate = WSStringPredicate.AND;
-            if (values[3].equals("Strict And")) //$NON-NLS-1$
+            }
+            if (values[3].equals("Strict And")) {
                 predicate = WSStringPredicate.STRICTAND;
-            if (values[3].equals("Exactly")) //$NON-NLS-1$
+            }
+            if (values[3].equals("Exactly")) {
                 predicate = WSStringPredicate.EXACTLY;
-            if (values[3].equals("Not")) //$NON-NLS-1$
+            }
+            if (values[3].equals("Not")) {
                 predicate = WSStringPredicate.NOT;
+            }
             wc.setStringPredicate(predicate);
         } else {
             wc.setStringPredicate(WSStringPredicate.NONE);
@@ -678,20 +699,27 @@ public class Util {
     }
 
     public static com.amalto.webapp.util.webservices.WSWhereOperator changeToWSOperator(String operator) {
-        if ("=".equals(operator)) //$NON-NLS-1$
+        if ("=".equals(operator)) {
             return com.amalto.webapp.util.webservices.WSWhereOperator.EQUALS;
-        if ("!=".equals(operator)) //$NON-NLS-1$
+        }
+        if ("!=".equals(operator)) {
             return com.amalto.webapp.util.webservices.WSWhereOperator.NOT_EQUALS;
-        if ("<".equals(operator)) //$NON-NLS-1$
+        }
+        if ("<".equals(operator)) {
             return com.amalto.webapp.util.webservices.WSWhereOperator.LOWER_THAN;
-        if ("<=".equals(operator)) //$NON-NLS-1$
+        }
+        if ("<=".equals(operator)) {
             return com.amalto.webapp.util.webservices.WSWhereOperator.LOWER_THAN_OR_EQUAL;
-        if (">".equals(operator)) //$NON-NLS-1$
+        }
+        if (">".equals(operator)) {
             return com.amalto.webapp.util.webservices.WSWhereOperator.GREATER_THAN;
-        if (">=".equals(operator)) //$NON-NLS-1$
+        }
+        if (">=".equals(operator)) {
             return com.amalto.webapp.util.webservices.WSWhereOperator.GREATER_THAN_OR_EQUAL;
-        if ("&=".equals(operator)) //$NON-NLS-1$
+        }
+        if ("&=".equals(operator)) {
             return com.amalto.webapp.util.webservices.WSWhereOperator.CONTAINS;
+        }
         return null;
     }
 
@@ -763,13 +791,15 @@ public class Util {
     public static NodeList getNodeList(Node contextNode, String xPath, String namespace, String prefix) throws Exception {
         XObject xo = XPathAPI.eval(contextNode, xPath, (namespace == null) ? contextNode : Util.getRootElement("nsholder", //$NON-NLS-1$
                 namespace, prefix));
-        if (xo.getType() != XObject.CLASS_NODESET)
+        if (xo.getType() != XObject.CLASS_NODESET) {
             return null;
+        }
         return xo.nodelist();
     }
 
     /**
      * Returns a namespaced root element of a document Useful to create a namespace holder element
+     * 
      * @return the root Element
      */
     public static Element getRootElement(String elementName, String namespace, String prefix) throws Exception {
@@ -835,13 +865,16 @@ public class Util {
     public static String[] getTextNodes(Node contextNode, String xPath, Node namespaceNode) throws XtentisWebappException {
         String[] results;
         // test for hard-coded values
-        if (xPath.startsWith("\"") && xPath.endsWith("\"")) //$NON-NLS-1$ //$NON-NLS-2$
+        if (xPath.startsWith("\"") && xPath.endsWith("\"")) {
             return new String[] { xPath.substring(1, xPath.length() - 1) };
+        }
 
         // test for incomplete path (elements missing /text())
-        if (!xPath.matches(".*@[^/\\]]+")) // attribute //$NON-NLS-1$
-            if (!xPath.endsWith(")")) // function //$NON-NLS-1$
+        if (!xPath.matches(".*@[^/\\]]+")) {
+            if (!xPath.endsWith(")")) {
                 xPath += "/text()"; //$NON-NLS-1$
+            }
+        }
         try {
             XObject xo = XPathAPI.eval(contextNode, xPath, namespaceNode);
             if (xo.getType() == XObject.CLASS_NODESET) {
@@ -865,13 +898,15 @@ public class Util {
 
     public static String getFirstTextNode(Node contextNode, String xPath, Node namespaceNode) throws XtentisWebappException {
         String[] res = getTextNodes(contextNode, xPath, namespaceNode);
-        if (res.length == 0)
+        if (res.length == 0) {
             return null;
+        }
         return res[0];
     }
 
     /**
      * Get the first text node matching the Xpath
+     * 
      * @return the String or null if not found
      * @throws XtentisWebappException
      */
@@ -1014,8 +1049,7 @@ public class Util {
     }
 
     /**
-     * ******************************************************************
-     * WEB SERVICES
+     * ****************************************************************** WEB SERVICES
      * *******************************************************************
      */
 
@@ -1046,8 +1080,9 @@ public class Util {
 
     public static WSBase64KeyValue[] getKeyValuesFromMap(HashMap<String, Object> params) throws RemoteException {
         try {
-            if (params == null)
+            if (params == null) {
                 return null;
+            }
             WSBase64KeyValue[] keyValues = new WSBase64KeyValue[params.size()];
             Set<String> keys = params.keySet();
             int i = 0;
@@ -1129,30 +1164,31 @@ public class Util {
      */
     public static WSWhereOperator getOperator(String option) {
         WSWhereOperator res = null;
-        if (option.equalsIgnoreCase("CONTAINS")) //$NON-NLS-1$
+        if (option.equalsIgnoreCase("CONTAINS")) {
             res = WSWhereOperator.CONTAINS;
-        else if (option.equalsIgnoreCase("EQUALS")) //$NON-NLS-1$
+        } else if (option.equalsIgnoreCase("EQUALS")) {
             res = WSWhereOperator.EQUALS;
-        else if (option.equalsIgnoreCase("GREATER_THAN")) //$NON-NLS-1$
+        } else if (option.equalsIgnoreCase("GREATER_THAN")) {
             res = WSWhereOperator.GREATER_THAN;
-        else if (option.equalsIgnoreCase("GREATER_THAN_OR_EQUAL")) //$NON-NLS-1$
+        } else if (option.equalsIgnoreCase("GREATER_THAN_OR_EQUAL")) {
             res = WSWhereOperator.GREATER_THAN_OR_EQUAL;
-        else if (option.equalsIgnoreCase("JOIN")) //$NON-NLS-1$
+        } else if (option.equalsIgnoreCase("JOIN")) {
             res = WSWhereOperator.JOIN;
-        else if (option.equalsIgnoreCase("LOWER_THAN")) //$NON-NLS-1$
+        } else if (option.equalsIgnoreCase("LOWER_THAN")) {
             res = WSWhereOperator.LOWER_THAN;
-        else if (option.equalsIgnoreCase("LOWER_THAN_OR_EQUAL")) //$NON-NLS-1$
+        } else if (option.equalsIgnoreCase("LOWER_THAN_OR_EQUAL")) {
             res = WSWhereOperator.LOWER_THAN_OR_EQUAL;
-        else if (option.equalsIgnoreCase("NOT_EQUALS")) //$NON-NLS-1$
+        } else if (option.equalsIgnoreCase("NOT_EQUALS")) {
             res = WSWhereOperator.NOT_EQUALS;
-        else if (option.equalsIgnoreCase("STARTSWITH")) //$NON-NLS-1$
+        } else if (option.equalsIgnoreCase("STARTSWITH")) {
             res = WSWhereOperator.STARTSWITH;
-        else if (option.equalsIgnoreCase("STRICTCONTAINS")) //$NON-NLS-1$
+        } else if (option.equalsIgnoreCase("STRICTCONTAINS")) {
             res = WSWhereOperator.STRICTCONTAINS;
-        else if (option.equalsIgnoreCase("FULLTEXTSEARCH")) //$NON-NLS-1$
+        } else if (option.equalsIgnoreCase("FULLTEXTSEARCH")) {
             res = WSWhereOperator.FULLTEXTSEARCH;
-        else if (option.equalsIgnoreCase("EMPTY_NULL")) //$NON-NLS-1$
+        } else if (option.equalsIgnoreCase("EMPTY_NULL")) {
             res = WSWhereOperator.EMPTY_NULL;
+        }
         return res;
     }
 
@@ -1160,11 +1196,13 @@ public class Util {
      * check the certain column is digit
      */
     public static boolean checkDigist(ArrayList<String[]> itemsBrowserContent, int col) {
-        if (col == -1)
+        if (col == -1) {
             return false;
+        }
         for (String[] temp : itemsBrowserContent) {
-            if (!temp[col].matches("^(-|)[0-9]+(\\.?)[0-9]*$")) //$NON-NLS-1$
+            if (!temp[col].matches("^(-|)[0-9]+(\\.?)[0-9]*$")) {
                 return false;
+            }
         }
         return true;
     }
@@ -1174,8 +1212,9 @@ public class Util {
      */
     public static void sortCollections(ArrayList<String[]> itemsBrowserContent, int col, String dir) {
         System.out.println(dir);
-        if (col < 0)
+        if (col < 0) {
             return;
+        }
         if ("descending".equals(dir)) { //$NON-NLS-1$
             for (int j = 1; j < itemsBrowserContent.size(); j++) {
                 String temp[] = itemsBrowserContent.get(j);
@@ -1211,9 +1250,11 @@ public class Util {
      */
     public static int getSortCol(String[] columns, String title) {
         int col = -1;
-        for (int i = 0; i < columns.length; i++)
-            if (("/" + columns[i]).equals(title)) //$NON-NLS-1$
+        for (int i = 0; i < columns.length; i++) {
+            if (("/" + columns[i]).equals(title)) {
                 return i;
+            }
+        }
         return col;
     }
 
@@ -1265,11 +1306,13 @@ public class Util {
                 if (subCria.startsWith("(")) { //$NON-NLS-1$
                     subCria = subCria.substring(1);
                 }
-                if (subCria.endsWith(")")) //$NON-NLS-1$
+                if (subCria.endsWith(")")) {
                     subCria = subCria.substring(0, subCria.length() - 1);
+                }
                 WSWhereItem whereItem = buildWhereItem(subCria);
-                if (whereItem != null)
+                if (whereItem != null) {
                     condition.add(whereItem);
+                }
             }
             if (condition.size() > 0) {
                 WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
@@ -1288,11 +1331,11 @@ public class Util {
 
         filterXpaths = filters[0];
         filterOperators = filters[1];
-        if (filters.length <= 2)
+        if (filters.length <= 2) {
             filterValues = " "; //$NON-NLS-1$
-        else if (filters.length == 3)
+        } else if (filters.length == 3) {
             filterValues = filters[2];
-        else {// more than 3 mean filterValues contains whitespace
+        } else {// more than 3 mean filterValues contains whitespace
             StringBuilder sb = new StringBuilder();
             for (int i = 2; i < filters.length; i++) {
                 sb.append(filters[i]);
@@ -1303,8 +1346,9 @@ public class Util {
             filterValues = sb.toString();
         }
 
-        if (filterXpaths == null || filterXpaths.trim().equals("")) //$NON-NLS-1$
+        if (filterXpaths == null || filterXpaths.trim().equals("")) {
             return null;
+        }
 
         WSWhereCondition wc = new WSWhereCondition(filterXpaths, Util.getOperator(filterOperators), filterValues,
                 WSStringPredicate.NONE, false);
@@ -1328,8 +1372,9 @@ public class Util {
     public static String getFormatedFKInfo(String info, String conceptName) {
         info = info.substring(info.startsWith("/") ? 1 : 0); //$NON-NLS-1$
         String formatedInfo = info;
-        if (info.startsWith("./")) //$NON-NLS-1$
+        if (info.startsWith("./")) {
             formatedInfo = info.replaceFirst("./", conceptName + "/"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
         return formatedInfo;
     }
 
@@ -1349,8 +1394,9 @@ public class Util {
         if (!isCustomFilter(fkFilter)) {
             // get FK filter
             WSWhereItem fkFilterWi = getConditionFromFKFilter(xpathForeignKey, xpathInfoForeignKey, fkFilter);
-            if (fkFilterWi != null)
+            if (fkFilterWi != null) {
                 whereItem = fkFilterWi;
+            }
         }
 
         Configuration config = Configuration.getInstance();
@@ -1376,8 +1422,9 @@ public class Util {
             // records
             if (value != null && !"".equals(value.trim()) && !".*".equals(value.trim())) { //$NON-NLS-1$ //$NON-NLS-2$
                 List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
-                if (whereItem != null)
+                if (whereItem != null) {
                     condition.add(whereItem);
+                }
                 String queryKeyWord = isCount ? " CONTAINS " : " EQUALS "; //$NON-NLS-1$ //$NON-NLS-2$
                 String fkWhere = initXpathForeignKey + "/../*" + queryKeyWord + value; //$NON-NLS-1$ 
                 if (xpathInfoForeignKey.trim().length() > 0) {
@@ -1389,20 +1436,23 @@ public class Util {
                             realXpathForeignKey = fks[0];
                             for (int i = 0; i < fks.length; i++) {
                                 ids.append(fks[i] + queryKeyWord + value);
-                                if (i != fks.length - 1)
+                                if (i != fks.length - 1) {
                                     ids.append(" OR "); //$NON-NLS-1$
+                                }
                             }
                         }
                     }
                     StringBuilder sb = new StringBuilder();
-                    if (isCount)
+                    if (isCount) {
                         for (String fkInfo : xpathInfos) {
-                            sb.append(fkInfo.startsWith(".") ? convertAbsolutePath( //$NON-NLS-1$
-                                    (realXpathForeignKey != null && realXpathForeignKey.trim().length() > 0) ? realXpathForeignKey
-                                            : xpathForeignKey, fkInfo)
-                                    : fkInfo).append(" CONTAINS ").append(value); //$NON-NLS-1$
+                            sb.append(
+                                    fkInfo.startsWith(".") ? convertAbsolutePath( //$NON-NLS-1$
+                                            (realXpathForeignKey != null && realXpathForeignKey.trim().length() > 0) ? realXpathForeignKey
+                                                    : xpathForeignKey, fkInfo)
+                                            : fkInfo).append(" CONTAINS ").append(value); //$NON-NLS-1$
                             sb.append(" OR "); //$NON-NLS-1$
                         }
+                    }
                     if (realXpathForeignKey != null) {
                         sb.append(ids.toString());
                     } else {
@@ -1544,8 +1594,9 @@ public class Util {
             }
             // get FK filter
             WSWhereItem fkFilterWi = getConditionFromFKFilter(xpathForeignKey, xpathForeignKeyinfo, fkFilter);
-            if (fkFilterWi != null)
+            if (fkFilterWi != null) {
                 whereItem = fkFilterWi;
+            }
 
             if (criteriaValue != null && criteriaValue.trim().length() > 0) {
                 List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
@@ -1563,8 +1614,9 @@ public class Util {
                 condition.add(wc);
                 WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
                 WSWhereItem wAnd = new WSWhereItem(null, and, null);
-                if (wAnd != null)
+                if (wAnd != null) {
                     whereItem = wAnd;
+                }
             }
             count = getPort().count(new WSCount(new WSDataClusterPK(config.getCluster()), conceptName, whereItem,// null,
                     -1)).getValue();
@@ -1584,8 +1636,9 @@ public class Util {
 
     public static boolean isCustomFilter(String fkFilter) {
         boolean isCustom = false;
-        if (fkFilter != null && fkFilter.startsWith("$CFFP:")) //$NON-NLS-1$
+        if (fkFilter != null && fkFilter.startsWith("$CFFP:")) {
             isCustom = true;
+        }
         return isCustom;
     }
 
@@ -1668,18 +1721,19 @@ public class Util {
             Calendar dateTime = Calendar.getInstance();
             dateTime.setTime(sdf.parse(value.trim()));
             return dateTime;
-        } else if (type.equals("byte")) //$NON-NLS-1$
+        } else if (type.equals("byte")) {
             return Byte.valueOf(value);
-        else if (type.equals("short")) //$NON-NLS-1$
+        } else if (type.equals("short")) {
             return Short.valueOf(value);
-        else if (type.equals("int") || type.equals("integer")) //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (type.equals("int") || type.equals("integer")) {
             return Integer.valueOf(value);
-        else if (type.equals("long")) //$NON-NLS-1$
+        } else if (type.equals("long")) {
             return Long.valueOf(value);
-        else if (type.equals("float")) //$NON-NLS-1$
+        } else if (type.equals("float")) {
             return Float.valueOf(value);
-        else if (type.equals("double")) //$NON-NLS-1$
+        } else if (type.equals("double")) {
             return Double.valueOf(value);
+        }
         return null;
     }
 
@@ -1709,6 +1763,7 @@ public class Util {
         JXPathContext ctx = JXPathContext.newContext(doc);
         AbstractFactory factory = new AbstractFactory() {
 
+            @Override
             public boolean createObject(JXPathContext context, Pointer pointer, Object parent, String name, int index) {
                 if (parent instanceof Node) {
                     try {
@@ -1734,10 +1789,12 @@ public class Util {
                     } catch (Exception e) {
                         return false;
                     }
-                } else
+                } else {
                     return false;
+                }
             }
 
+            @Override
             public boolean declareVariable(JXPathContext context, String name) {
                 return false;
             }
@@ -1769,15 +1826,17 @@ public class Util {
 
         String username = Util.getLoginUserName();
         String universename = Util.getLoginUniverse();
-        if (universename != null && universename.length() > 0)
+        if (universename != null && universename.length() > 0) {
             revisionId = Util.getRevisionIdFromUniverse(universename, concept);
+        }
 
         StringBuilder keyBuilder = new StringBuilder();
         if (ids != null) {
             for (int i = 0; i < ids.length; i++) {
                 keyBuilder.append(ids[i]);
-                if (i != ids.length - 1)
+                if (i != ids.length - 1) {
                     keyBuilder.append("."); //$NON-NLS-1$
+                }
             }
         }
         String key = keyBuilder.length() == 0 ? "null" : keyBuilder.toString(); //$NON-NLS-1$
@@ -1796,37 +1855,42 @@ public class Util {
             for (UpdateReportItem item : list) {
                 String oldValue = item.getOldValue() == null ? "" : item.getOldValue(); //$NON-NLS-1$
                 String newValue = item.getNewValue() == null ? "" : item.getNewValue(); //$NON-NLS-1$
-                if (newValue.equals(oldValue))
+                if (newValue.equals(oldValue)) {
                     continue;
+                }
                 sb.append("<Item>   <path>").append(StringEscapeUtils.escapeXml(item.getPath())).append("</path>   <oldValue>")//$NON-NLS-1$ //$NON-NLS-2$
                         .append(StringEscapeUtils.escapeXml(oldValue)).append("</oldValue>   <newValue>")//$NON-NLS-1$
                         .append(StringEscapeUtils.escapeXml(newValue)).append("</newValue></Item>");//$NON-NLS-1$
                 isUpdate = true;
             }
-            if (!isUpdate)
+            if (!isUpdate) {
                 return null;
+            }
         }
         sb.append("</Update>");//$NON-NLS-1$
         return sb.toString();
     }
 
     public static String persistentUpdateReport(String xml2, boolean routeAfterSaving) throws Exception {
-        if (xml2 == null)
+        if (xml2 == null) {
             return "OK"; //$NON-NLS-1$
+        }
 
         WSItemPK itemPK = Util.getPort().putItem(
                 new WSPutItem(new WSDataClusterPK("UpdateReport"), xml2, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$ //$NON-NLS-2$
 
-        if (routeAfterSaving)
+        if (routeAfterSaving) {
             Util.getPort().routeItemV2(new WSRouteItemV2(itemPK));
+        }
 
         return "OK"; //$NON-NLS-1$
     }
 
     public static String stripLeadingAndTrailingQuotes(String str) {
 
-        if (str == null)
+        if (str == null) {
             return ""; //$NON-NLS-1$
+        }
 
         if (str.startsWith("\"")) //$NON-NLS-1$
         {
@@ -1894,15 +1958,16 @@ public class Util {
 
         String[] keys = copyKey.getFields();
         for (int i = 0; i < keys.length; i++) {
-            if (".".equals(key.getSelector())) //$NON-NLS-1$
+            if (".".equals(key.getSelector())) {
                 keys[i] = concept + "/" + keys[i]; //$NON-NLS-1$ 
-            else
+            } else {
                 keys[i] = key.getSelector() + keys[i];
+            }
         }
         return keys;
     }
-    
-    public static String convertDocument2String(Document doc, boolean isContainHead) throws Exception{
+
+    public static String convertDocument2String(Document doc, boolean isContainHead) throws Exception {
         DOMSource domSource = new DOMSource(doc);
         StringWriter writer = new StringWriter();
         StreamResult result = new StreamResult(writer);
@@ -1914,7 +1979,7 @@ public class Util {
         } else {
             String xmlString = writer.toString();
             return xmlString.replaceAll("<\\?.*\\?>", ""); //$NON-NLS-1$ //$NON-NLS-2$
-        }         
+        }
     }
 
     public static boolean causeIs(Throwable throwable, Class<?> cls) {
@@ -1941,31 +2006,35 @@ public class Util {
 
     @Deprecated
     public static String getExceptionMessage(String message, String language) {
-        if (message == null || message.contains("<msg/>")) //$NON-NLS-1$
+        if (message == null || message.contains("<msg/>")) {
             return ""; //$NON-NLS-1$
+        }
         // Message tip : "<msg>[EN:validate error][FR:validate error]</msg>"
         if (message.contains("<msg>")) { //$NON-NLS-1$
             int index = message.indexOf(language.toUpperCase() + ":"); //$NON-NLS-1$
-            if (index != -1)
+            if (index != -1) {
                 return message.substring(index + language.length() + 1, index + message.substring(index).indexOf("]")); //$NON-NLS-1$
-            else
+            } else {
                 return message.substring(message.indexOf("<msg>"), message.indexOf("</msg>") + 6); //$NON-NLS-1$//$NON-NLS-2$
+            }
         }
         return message;
     }
-    
+
     public static Set<String> getNoAccessRoleSet(XSElementDecl decl) {
         Set<String> roleSet = new HashSet<String>();
         XSAnnotation xsa = decl.getAnnotation();
-        if (xsa == null)
+        if (xsa == null) {
             return roleSet;
+        }
         Element el = (Element) xsa.getAnnotation();
         NodeList annotList = el.getChildNodes();
         for (int k = 0; k < annotList.getLength(); k++) {
             if ("appinfo".equals(annotList.item(k).getLocalName())) { //$NON-NLS-1$
                 Node source1 = annotList.item(k).getAttributes().getNamedItem("source"); //$NON-NLS-1$         
-                if (source1 == null)
+                if (source1 == null) {
                     continue;
+                }
                 String appinfoSource = annotList.item(k).getAttributes().getNamedItem("source").getNodeValue(); //$NON-NLS-1$
 
                 if ("X_Hide".equals(appinfoSource)) { //$NON-NLS-1$
@@ -1979,23 +2048,41 @@ public class Util {
     public static boolean isAuth(Set<String> roleSet) throws Exception {
         String roles = getPrincipalMember("Roles"); //$NON-NLS-1$
         String[] roleArr = roles.split(","); //$NON-NLS-1$
-        for (String role : roleArr)
-            if (roleSet.contains(role))
+        for (String role : roleArr) {
+            if (roleSet.contains(role)) {
                 return false;
+            }
+        }
         return true;
     }
-    
+
     public static void filterAuthViews(Map<String, String> viewMap) throws Exception {
-        if(viewMap==null||viewMap.size()==0)
+        if (viewMap == null || viewMap.size() == 0) {
             return;
+        }
 
         if (Webapp.INSTANCE.isEnterpriseVersion()) {
             for (String viewInstanceId : viewMap.keySet()) {
                 ILocalUser localUser = LocalUser.getLocalUser();
                 if (!localUser.userCanWrite(ViewPOJO.class, viewInstanceId)
-                        && !localUser.userCanRead(ViewPOJO.class, viewInstanceId))
+                        && !localUser.userCanRead(ViewPOJO.class, viewInstanceId)) {
                     viewMap.remove(viewInstanceId);
+                }
             }
         }
+    }
+
+    public static String getDefaultLanguage() throws Exception {
+        String defaultlang = ""; //$NON-NLS-1$
+        String userName = Util.getAjaxSubject().getUsername();
+        WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(DATACLUSTER_PK), PROVISIONING_CONCEPT, new String[] { userName });
+        if (userName != null && userName.length() > 0) {
+            String xml = Util.getPort().getItem(new WSGetItem(itemPK)).getContent();
+
+            if (xml != null && xml.indexOf("<language>") > 0) { //$NON-NLS-1$
+                return xml.substring(xml.indexOf("<language>") + 10, xml.indexOf("</language>")); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+        }
+        return defaultlang;
     }
 }

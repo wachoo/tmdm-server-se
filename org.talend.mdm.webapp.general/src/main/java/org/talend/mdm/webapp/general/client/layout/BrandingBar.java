@@ -78,28 +78,36 @@ public class BrandingBar extends ContentPanel {
             @Override
             public void onChange(ChangeEvent event) {
 
-                String path = Location.getPath();
+                GeneralServiceAsync service = (GeneralServiceAsync) Registry.get(General.OVERALL_SERVICE);
+                service.setDefaultLanguage(languageBox.getValue(languageBox.getSelectedIndex()),
+                        new SessionAwareAsyncCallback<Void>() {
 
-                String query = Location.getQueryString();
-                String lang = Location.getParameter("language"); //$NON-NLS-1$
+                            @Override
+                            public void onSuccess(Void result) {
+                                String path = Location.getPath();
+                                String query = Location.getQueryString();
+                                String lang = Location.getParameter("language"); //$NON-NLS-1$
 
-                if (lang == null || lang.trim().length() == 0) {
-                    if (query == null || query.length() == 0) {
-                        setHref(path + "?language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$
-                    } else {
-                        setHref(path + query + "&language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$
-                    }
-                } else {
+                                if (lang == null || lang.trim().length() == 0) {
+                                    if (query == null || query.length() == 0) {
+                                        setHref(path + "?language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$
+                                    } else {
+                                        setHref(path + query
+                                                + "&language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$
+                                    }
+                                } else {
 
-                    if (query.indexOf("&language=" + lang + "&") != -1) { //$NON-NLS-1$ //$NON-NLS-2$
-                        query = query.replace("&language=" + lang + "&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    } else if (query.endsWith("&language=" + lang)) { //$NON-NLS-1$
-                        query = query.replace("&language=" + lang, ""); //$NON-NLS-1$ //$NON-NLS-2$
-                    } else if (query.startsWith("?language=" + lang)) { //$NON-NLS-1$
-                        query = query.replaceAll("language=" + lang + "&?", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    }
-                    setHref(path + query + "&language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$                    
-                }
+                                    if (query.indexOf("&language=" + lang + "&") != -1) { //$NON-NLS-1$ //$NON-NLS-2$
+                                        query = query.replace("&language=" + lang + "&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                    } else if (query.endsWith("&language=" + lang)) { //$NON-NLS-1$
+                                        query = query.replace("&language=" + lang, ""); //$NON-NLS-1$ //$NON-NLS-2$
+                                    } else if (query.startsWith("?language=" + lang)) { //$NON-NLS-1$
+                                        query = query.replaceAll("language=" + lang + "&?", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                    }
+                                    setHref(path + query + "&language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$     
+                                }
+                            }
+                        });
             }
         });
 
