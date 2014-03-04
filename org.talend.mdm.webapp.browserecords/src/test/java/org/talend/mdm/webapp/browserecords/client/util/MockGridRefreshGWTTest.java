@@ -298,6 +298,7 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
 
         service.saveItem(new ViewBean(), "", "", false, "en", new SessionAwareAsyncCallback<ItemResult>() {
 
+            @Override
             public void onSuccess(ItemResult result) {
                 assertEquals(ItemResult.SUCCESS, result.getStatus());
                 // Grid will call refresh() when only fkToolBar = false, isOutMost = false, isHierarchyCall = false
@@ -367,10 +368,10 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
     }
 
-
     private void onDeleteItemBeans() {
         service.deleteItemBeans(null, true, "en", new SessionAwareAsyncCallback<List<String>>() {
 
+            @Override
             public void onSuccess(List<String> result) {
                 assertNotNull(result);
                 gridRefresh();
@@ -384,164 +385,206 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
 
     class MockBrowseRecordsServiceAsync implements BrowseRecordsServiceAsync {
 
+        @Override
         public void saveItem(ViewBean viewBean, String ids, String xml, boolean isCreate, String language,
                 AsyncCallback<ItemResult> callback) {
             callback.onSuccess(new ItemResult(ItemResult.SUCCESS));
         }
 
+        @Override
         public void getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model, String dataClusterPK, boolean ifFKFilter,
-                String value, String language,AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback) {
+                String value, String language, AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback) {
         }
 
+        @Override
         public void getForeignKeyPolymTypeList(String xpathForeignKey, String language, AsyncCallback<List<Restriction>> callback) {
         }
 
+        @Override
         public void switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey,
                 String fkFilter, AsyncCallback<ForeignKeyDrawer> callback) {
         }
 
-        public void queryItemBeans(QueryModel config, String language,AsyncCallback<ItemBasePageLoadResult<ItemBean>> callback) {
+        @Override
+        public void queryItemBeans(QueryModel config, String language, AsyncCallback<ItemBasePageLoadResult<ItemBean>> callback) {
         }
 
+        @Override
         public void saveItemBean(ItemBean item, String language, AsyncCallback<String> callback) {
         }
 
+        @Override
         public void getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, String language,
                 AsyncCallback<ItemBean> callback) {
         }
 
+        @Override
         public void getView(String viewPk, String language, AsyncCallback<ViewBean> callback) {
         }
 
+        @Override
         public void deleteItemBeans(List<ItemBean> items, boolean override, String language, AsyncCallback<List<String>> callback) {
             callback.onSuccess(new ArrayList<String>());
         }
 
+        @Override
         public void checkFKIntegrity(List<ItemBean> selectedItems, AsyncCallback<Map<ItemBean, FKIntegrityResult>> asyncCallback) {
         }
 
+        @Override
         public void logicalDeleteItem(ItemBean item, String path, boolean override, AsyncCallback<Void> callback) {
 
         }
 
+        @Override
         public void logicalDeleteItems(List<ItemBean> items, String path, boolean override, AsyncCallback<Void> callback) {
         }
 
+        @Override
         public void getViewsList(String language, AsyncCallback<List<ItemBaseModel>> callback) {
         }
 
+        @Override
         public void getCriteriaByBookmark(String bookmark, AsyncCallback<String> callback) {
         }
 
+        @Override
         public void getUserCriterias(String view, AsyncCallback<List<ItemBaseModel>> callback) {
         }
 
+        @Override
         public void getAppHeader(AsyncCallback<AppHeader> callback) {
         }
 
+        @Override
         public void getCurrentDataModel(AsyncCallback<String> callback) {
         }
 
+        @Override
         public void getCurrentDataCluster(AsyncCallback<String> callback) {
         }
 
+        @Override
         public void querySearchTemplates(String view, boolean isShared, BasePagingLoadConfigImpl load,
                 AsyncCallback<ItemBasePageLoadResult<ItemBaseModel>> callback) {
         }
 
+        @Override
         public void deleteSearchTemplate(String id, AsyncCallback<Void> callback) {
         }
 
+        @Override
         public void isExistCriteria(String dataObjectLabel, String id, AsyncCallback<Boolean> callback) {
         }
 
+        @Override
         public void saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString,
                 AsyncCallback<Void> callback) {
         }
 
+        @Override
         public void getItemNodeModel(ItemBean item, EntityModel entity, String language, AsyncCallback<ItemNodeModel> callback) {
         }
 
+        @Override
         public void getMandatoryFieldList(String tableName, AsyncCallback<List<String>> callback) {
         }
 
+        @Override
         public void saveItem(String concept, String ids, String xml, boolean isCreate, String language,
                 AsyncCallback<ItemResult> callback) {
         }
 
+        @Override
         public void getColumnTreeLayout(String concept, AsyncCallback<ColumnTreeLayoutModel> callback) {
         }
 
+        @Override
         public void getForeignKeyModel(String concept, String ids, String language, AsyncCallback<ForeignKeyModel> callback) {
         }
 
+        @Override
         public void getRunnableProcessList(String concept, String language, AsyncCallback<List<ItemBaseModel>> callback) {
         }
 
+        @Override
         public void processItem(String concept, String[] ids, String transformerPK, AsyncCallback<String> callback) {
         }
 
+        @Override
         public void getLineageEntity(String concept, AsyncCallback<List<String>> callback) {
         }
 
+        @Override
         public void getSmartViewList(String regex, AsyncCallback<List<ItemBaseModel>> callback) {
         }
 
+        @Override
         public void getItemBeanById(String concept, String[] ids, String language, AsyncCallback<ItemBean> callback) {
 
         }
 
+        @Override
         public void executeVisibleRule(ViewBean viewBean, String xml, AsyncCallback<List<VisibleRuleResult>> asyncCallback) {
 
         }
 
+        @Override
         public void isItemModifiedByOthers(ItemBean itemBean, AsyncCallback<Boolean> callback) {
 
         }
 
+        @Override
         public void updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, String language,
                 AsyncCallback<ItemResult> callback) {
 
         }
 
+        @Override
         public void updateItems(List<UpdateItemModel> updateItems, String language, AsyncCallback<List<ItemResult>> callback) {
 
         }
 
+        @Override
         public void formatValue(FormatModel model, AsyncCallback<String> callback) {
 
         }
 
+        @Override
         public void getEntityModel(String concept, String language, AsyncCallback<EntityModel> callback) {
 
         }
 
+        @Override
         public void createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath, String realType,
                 String language, AsyncCallback<ItemNodeModel> callback) {
         }
 
+        @Override
         public void createDefaultItemNodeModel(ViewBean viewBean, Map<String, List<String>> initDataMap, String language,
                 AsyncCallback<ItemNodeModel> callback) {
 
         }
 
+        @Override
         public void getForeignKeyValues(String concept, String[] ids, String language,
                 AsyncCallback<Map<ViewBean, Map<String, List<String>>>> callback) {
 
         }
 
+        @Override
         public void isExistId(String concept, String[] ids, String language, AsyncCallback<Boolean> callback) {
 
         }
 
-        /* (non-Javadoc)
-         * @see org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync#queryItemBeanById(java.lang.String, org.talend.mdm.webapp.browserecords.shared.ViewBean, org.talend.mdm.webapp.base.shared.EntityModel, java.lang.String, java.lang.String, com.google.gwt.user.client.rpc.AsyncCallback)
-         */
         @Override
         public void queryItemBeanById(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String id,
                 String language, AsyncCallback<ItemBean> callback) {
-            // TODO Auto-generated method stub
-            
+        }
+
+        @Override
+        public void getGoldenRecordIdByGroupId(String dataClusterPK, String viewPK, String concept, String[] keys,
+                String groupId, AsyncCallback<String> callback) {
         }
 
     }
