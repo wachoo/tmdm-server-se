@@ -87,6 +87,7 @@ public class WebSaver {
             saver = this.saveItemWithReport(xmlString, !isUpdate, wsPutItemWithReport.getSource(),
                     wsPutItemWithReport.getInvokeBeforeSaving());
             wsPutItemWithReport.setSource(saver.getBeforeSavingMessage());
+            session.end();
             String[] savedId = saver.getSavedId();
             String conceptName = saver.getSavedConceptName();
             return new WSItemPK(wsPutItemWithReport.getWsPutItem().getWsDataClusterPK(), conceptName, savedId);
@@ -104,11 +105,7 @@ public class WebSaver {
                 true, // Always generate an update report
                 beforeSaving, XSystemObjects.DC_PROVISIONING.getName().equals(dataClusterName));
         DocumentSaver saver = context.createSaver();
-        session.begin(dataClusterName);
-        {
-            saver.save(session, context);
-        }
-        session.end();
+        saver.save(session, context);
         return saver;
     }
 
