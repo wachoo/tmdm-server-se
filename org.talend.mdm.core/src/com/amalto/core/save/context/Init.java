@@ -49,6 +49,8 @@ class Init implements DocumentSaver {
                 throw new RuntimeException("Data container '" + dataClusterName + "' does not exist in revision '" + revisionID + "'.");
             }
         }
+        // Start a transaction on data container
+        session.begin(dataClusterName);
         // Continue save
         try {
             next.save(session, context);
