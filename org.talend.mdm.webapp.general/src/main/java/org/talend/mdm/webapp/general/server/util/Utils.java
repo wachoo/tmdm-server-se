@@ -354,10 +354,15 @@ public class Utils {
     }
 
     public static String setLanguage(String xml, String language) throws Exception {
-
-        if (xml != null && xml.indexOf("<language>") > 0) { //$NON-NLS-1$
-            return xml.substring(0, (xml.indexOf("<language>") + 10)) + language + xml.substring(xml.indexOf("</language>")); //$NON-NLS-1$ //$NON-NLS-2$
+        String newXml = xml;
+        if (newXml != null && newXml.length() > 0 && language != null) {
+            if (newXml.indexOf("<language>") > 0) { //$NON-NLS-1$
+                newXml = newXml.substring(0, (newXml.indexOf("<language>") + 10)) + language + newXml.substring(xml.indexOf("</language>")); //$NON-NLS-1$ //$NON-NLS-2$
+            } else {
+                newXml = newXml.substring(0, newXml.indexOf("<realemail>")) + "<language>" + language + "</language>" //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+                        + newXml.substring(newXml.indexOf("<realemail>")); //$NON-NLS-1$
+            }
         }
-        return xml;
+        return newXml;
     }
 }
