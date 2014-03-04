@@ -28,28 +28,37 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
  */
 public class JournalHistoryPanel extends ContentPanel {
     
+    private boolean isAuth;
     private JournalDataPanel journalDataPanel;
     
     private JournalComparisonPanel beforePanel;
     
     private JournalComparisonPanel afterPanel;
     
+    private BorderLayoutData westData;
+    
+    private BorderLayoutData centerData;
+    
+    BorderLayoutData northData;
+    
     public JournalHistoryPanel(JournalTreeModel root, JournalGridModel gridModel, boolean isAuth, int width) {
+        this.isAuth = isAuth;
         this.setFrame(false);
         this.setItemId(gridModel.getIds());
         this.setHeaderVisible(false);
         this.setHeading(MessagesFactory.getMessages().data_change_viewer());
         this.setLayout(new BorderLayout());
         
-        BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 200);
+        northData = new BorderLayoutData(LayoutRegion.NORTH, 200);
         northData.setCollapsible(false);
         northData.setSplit(true);
         northData.setMargins(new Margins(0, 0, 0, 0));        
         
         journalDataPanel = new JournalDataPanel(root, gridModel);
+        journalDataPanel.setjournalHistoryPanel(this);
         this.add(journalDataPanel, northData);        
 
-        BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, width);
+        westData = new BorderLayoutData(LayoutRegion.WEST, width);
         westData.setCollapsible(false);
         westData.setSplit(true);
         westData.setMargins(new Margins(5, 5, 0, 0));
@@ -58,7 +67,7 @@ public class JournalHistoryPanel extends ContentPanel {
                 JournalSearchUtil.buildParameter(gridModel, "before", isAuth),journalDataPanel.getJournalGridModel(),true); //$NON-NLS-1$
         this.add(beforePanel, westData);
         
-        BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
+        centerData = new BorderLayoutData(LayoutRegion.CENTER);
         westData.setCollapsible(false);
         centerData.setMargins(new Margins(5, 0, 0, 0));
         centerData.setSplit(true);
@@ -69,8 +78,26 @@ public class JournalHistoryPanel extends ContentPanel {
         
         beforePanel.setOtherPanel(afterPanel);
         afterPanel.setOtherPanel(beforePanel);
+    }    
+
+    public void update() {
+        this.remove(afterPanel);
+        this.remove(beforePanel);
+        JournalGridModel gridModel = journalDataPanel.getJournalGridModel();
+        this.setItemId(gridModel.getIds());
+        this.beforePanel = new JournalComparisonPanel(MessagesFactory.getMessages().before_label(),
+                JournalSearchUtil.buildParameter(gridModel, "before", this.isAuth),journalDataPanel.getJournalGridModel(),true); //$NON-NLS-1$
+        this.add(beforePanel, westData);
+        this.afterPanel = new JournalComparisonPanel(MessagesFactory.getMessages().after_label(),
+                JournalSearchUtil.buildParameter(gridModel, "current", isAuth),journalDataPanel.getJournalGridModel(),false); //$NON-NLS-1$
+        this.add(afterPanel, centerData);
+        
+        beforePanel.setOtherPanel(afterPanel);
+        afterPanel.setOtherPanel(beforePanel);
+        this.getJournalDataPanel().layout();
+        this.layout();
     }
- 
+    
     public JournalComparisonPanel getBeforePanel() {
         return beforePanel;
     }

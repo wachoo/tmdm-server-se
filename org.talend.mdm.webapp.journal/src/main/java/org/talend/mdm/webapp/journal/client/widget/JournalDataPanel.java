@@ -60,7 +60,8 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
  * DOC Administrator  class global comment. Detailled comment
  */
 public class JournalDataPanel extends FormPanel {
-
+    private JournalHistoryPanel journalHistoryPanel;
+    
     private JournalServiceAsync service = Registry.get(Journal.JOURNAL_SERVICE);
     
     private ListStore<JournalGridModel> gridstore = JournalGridPanel.getInstance().getStore();
@@ -89,6 +90,10 @@ public class JournalDataPanel extends FormPanel {
     
     private int pageIndex;
     
+    private List<JournalGridModel> currentDataList;
+    
+    private boolean turnPage = false;
+    
     private Button prevUpdateReportButton;
 
     private Button nextUpdateReportButton;
@@ -106,14 +111,22 @@ public class JournalDataPanel extends FormPanel {
     private LayoutContainer main;
     
     private LabelField entityField;
+    
     private LabelField sourceField;
+    
     private LabelField dataContainerField;
+    
     private LabelField dataModelField;
+    
     private LabelField keyField;
+    
     private LabelField operationTypeField;
+    
     private LabelField oeprationTimeField;
+    
     private LabelField revisionIdField;
     
+    private SelectionListener<ButtonEvent> updateReportListener;
     
     public JournalDataPanel(final JournalTreeModel root, final JournalGridModel journalGridModel) {
         this.setFrame(false);
@@ -156,14 +169,9 @@ public class JournalDataPanel extends FormPanel {
         
         viewUpdateReportButton = new Button(MessagesFactory.getMessages().view_updatereport_button());
         viewUpdateReportButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.view()));
-        viewUpdateReportButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-            
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                treeWindow.show();
-                tree.setExpanded(root, true);
-            }
-        });
+        
+        this.updateReportListener = createUpdateReportListener(root);
+        viewUpdateReportButton.addSelectionListener(this.updateReportListener);
 
         prevUpdateReportButton = new Button(MessagesFactory.getMessages().prev_updatereport_button());
         prevUpdateReportButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.prev()));        
@@ -174,8 +182,7 @@ public class JournalDataPanel extends FormPanel {
                 naviToPrevious = true;
                 JournalGridModel preGridModel = journalNavigateList.get(0);
                 if (preGridModel != null) {
-                    JournalDataPanel.this.closeHistoryTabPanel(JournalDataPanel.this.journalGridModel.getIds());
-                    JournalDataPanel.this.openTabPanel(preGridModel);
+                    JournalDataPanel.this.updateTabPanel(preGridModel);
                 } else {
                     retrieveNeighbourJournalInOtherPages();
                 }
@@ -191,8 +198,7 @@ public class JournalDataPanel extends FormPanel {
                 naviToPrevious = false;
                 JournalGridModel nextGridModel = journalNavigateList.get(1);
                 if (nextGridModel != null) {
-                    JournalDataPanel.this.closeHistoryTabPanel(JournalDataPanel.this.journalGridModel.getIds());
-                    JournalDataPanel.this.openTabPanel(nextGridModel);
+                    JournalDataPanel.this.updateTabPanel(nextGridModel);
                 } else {
                     retrieveNeighbourJournalInOtherPages();
                 }
@@ -219,54 +225,63 @@ public class JournalDataPanel extends FormPanel {
         gridLoader = (PagingLoader<PagingLoadResult<JournalGridModel>>)gridstore.getLoader();
                
         myListener =  new LoadListener() {
+
+            @Override
             public void loaderLoad(LoadEvent le) {
-                if (navigationMode) {
-                    
-                    List<JournalGridModel> currentData = ((BasePagingLoadResult<JournalGridModel>)le.getData()).getData();
-                    List<JournalGridModel> candidates = findCandidates(currentData);
-                    
-                    if (!candidates.isEmpty()) {
-                        JournalGridModel targetGridModel;
-                        if (naviToPrevious) {
-                            targetGridModel = candidates.get(candidates.size()-1);                    
-                        } else {
-                            targetGridModel =candidates.get(0); 
-                        }
-                        JournalDataPanel.this.closeHistoryTabPanel(JournalDataPanel.this.journalGridModel.getIds());
-                        JournalDataPanel.this.openTabPanel(targetGridModel);
-                        navigationMode = false;
-                    } else if (pageIndex == 1 || pageIndex == totalPages ){
-                        if (naviToPrevious) {
-                            MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages().no_prev_report_msg(),null);
-                            prevUpdateReportButton.setEnabled(false);
-                        } else {
-                            MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages().no_next_report_msg(),null);
-                            nextUpdateReportButton.setEnabled(false);
-                        }                    
-                        navigationMode = false;
-                        pagetoolBar.setActivePage(naviStartPageIndex);
+                currentDataList = ((BasePagingLoadResult<JournalGridModel>) le.getData()).getData();
+                if (!turnPage) {
+                    setJournalNaviList();
+                } else {
+                    JournalGridModel targetGridModel;
+                    if (naviToPrevious) {
+                        targetGridModel = currentDataList.get(currentDataList.size() - 1);
                     } else {
-                        int offset = pagingLoadConfig.getOffset();
-                        int limit = pagingLoadConfig.getLimit();
-                        int nextOffSet = 0;
-                        if (naviToPrevious && pageIndex > 1){
-                            nextOffSet = (offset-limit > 0) ? (offset-limit) : 0;
-                            pageIndex--;                        
-                        } else {
-                            if (pageIndex < totalPages) {
-                                nextOffSet = offset + limit;
-                                pageIndex++;
-                            }
-                        }
-                        pagingLoadConfig.setOffset(nextOffSet);
-                        pagingLoadConfig.setLimit(limit);
-                        gridLoader.load(pagingLoadConfig);
-                    }                                                          
+                        targetGridModel = currentDataList.get(0);
+                    }
+                    JournalDataPanel.this.updateTabPanel(targetGridModel);
+                    turnPage = false;
                 }
+
             }
         };
         
         gridLoader.addLoadListener(myListener);
+    }
+
+    protected void setJournalNaviList() {
+        this.turnPage = false;
+        int index = 0;
+        for (int i = 0; i < currentDataList.size(); i++) {
+            if (this.journalGridModel.getOperationTime().equals(currentDataList.get(i).getOperationTime())) {
+                index = i;
+            }
+        }
+        journalNavigateList = new ArrayList<JournalGridModel>(2);
+        journalNavigateList.add(index == 0 ? null : currentDataList.get(index - 1));
+        journalNavigateList.add(index == currentDataList.size() - 1 ? null : currentDataList.get(index + 1));
+        
+        if (pageIndex == 1 && journalNavigateList.get(0) == null) {
+            prevUpdateReportButton.setEnabled(false);
+        } else {
+            prevUpdateReportButton.setEnabled(true);
+        }
+        
+        if (index == totalPages && journalNavigateList.get(1) == null) {
+            nextUpdateReportButton.setEnabled(false);
+        } else {
+            nextUpdateReportButton.setEnabled(true);
+        }
+    }
+
+    private SelectionListener<ButtonEvent> createUpdateReportListener(final JournalTreeModel newRoot) {
+        return new SelectionListener<ButtonEvent>() {
+            
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                treeWindow.show();
+                tree.setExpanded(newRoot, true);
+            }
+        };
     }
 
     private void initializeMain() {
@@ -365,19 +380,23 @@ public class JournalDataPanel extends FormPanel {
         return MessagesFactory.getMessages().data_change_viewer();
     }    
 
-    public void openTabPanel(final JournalGridModel gridModel) {
+    public void setjournalHistoryPanel(JournalHistoryPanel journalHistoryPanel) {
+        this.journalHistoryPanel = journalHistoryPanel;
+    }
+    
+    public void updateTabPanel(final JournalGridModel gridModel) {
         service.getDetailTreeModel(gridModel.getIds(), new SessionAwareAsyncCallback<JournalTreeModel>() {
 
             @Override
-            public void onSuccess(final JournalTreeModel root) {
+            public void onSuccess(final JournalTreeModel newRoot) {
                 service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
 
                     @Override
                     public void onSuccess(Boolean isEnterprise) {
                         if (GWT.isScript()) {
-                            JournalDataPanel.this.openGWTPanel(isEnterprise, gridModel, root);
+                            JournalDataPanel.this.updateGWTPanel(isEnterprise, gridModel, newRoot);
                         } else {
-                            JournalDataPanel.this.openDebugPanel(isEnterprise, gridModel, root);
+                            JournalDataPanel.this.updateDebugPanel(isEnterprise, gridModel, newRoot);
                         }
                     }
                 });
@@ -385,40 +404,33 @@ public class JournalDataPanel extends FormPanel {
         });
     }
 
-    private void openGWTPanel(Boolean isEnterprise, JournalGridModel gridModel, JournalTreeModel root) {
+    private void updateGWTPanel(Boolean isEnterprise, JournalGridModel gridModel, JournalTreeModel newRoot) {
+        this.update(gridModel, newRoot);
         if (isEnterprise) {
-            int width = JournalTabPanel.getInstance().getWidth() / 2 - 2;
-            JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, root.isAuth(), width);
-            this.openHistoryTabPanel(gridModel.getIds(), journalHistoryPanel);
-            journalHistoryPanel.getJournalDataPanel().getTree().setExpanded(root, true);
-        } else {
-            JournalDataPanel journalDataPanel = new JournalDataPanel(root, gridModel);
-            this.openDataTabPanel(gridModel.getIds(), journalDataPanel);
-            journalDataPanel.getTree().setExpanded(root, true);
+            this.setItemId(this.journalGridModel.getIds());
+            this.journalHistoryPanel.update();
         }
     }
 
-    private void openDebugPanel(Boolean isEnterprise, JournalGridModel gridModel, JournalTreeModel root) {
+    private void updateDebugPanel(Boolean isEnterprise, JournalGridModel gridModel, JournalTreeModel newRoot) {
+        this.update(gridModel, newRoot);
+        this.journalHistoryPanel.update();
         if (isEnterprise) {
-            JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, root.isAuth(), 550);
             Window window = new Window();
             window.setLayout(new FitLayout());
-            window.add(journalHistoryPanel);
+            window.add(this.journalHistoryPanel);
             window.setSize(1100, 700);
             window.setMaximizable(true);
             window.setModal(false);
             window.show();
-            journalHistoryPanel.getJournalDataPanel().getTree().setExpanded(root, true);
         } else {
-            JournalDataPanel journalDataPanel = new JournalDataPanel(root, gridModel);
             Window window = new Window();
             window.setLayout(new FitLayout());
-            window.add(journalDataPanel);
+            window.add(this);
             window.setSize(1100, 700);
             window.setMaximizable(true);
             window.setModal(false);
             window.show();
-            journalDataPanel.getTree().setExpanded(root, true);
         }
     }
     
@@ -428,7 +440,7 @@ public class JournalDataPanel extends FormPanel {
         pageIndex = pagetoolBar.getActivePage();
         pagingLoadConfig = (PagingLoadConfig)gridstore.getLoadConfig();
         
-        List<JournalGridModel> currentDataList = gridstore.findModels("key", this.journalGridModel.getKey()); //$NON-NLS-1$
+        currentDataList = gridstore.getModels();
         journalNavigateList = new ArrayList<JournalGridModel>(2);
 
         int index = 0;
@@ -443,10 +455,14 @@ public class JournalDataPanel extends FormPanel {
         
         if (pageIndex == 1 && journalNavigateList.get(0) == null) {
             prevUpdateReportButton.setEnabled(false);
+        } else {
+            prevUpdateReportButton.setEnabled(true);
         }
         
         if (index == totalPages && journalNavigateList.get(1) == null) {
-            prevUpdateReportButton.setEnabled(false);
+            nextUpdateReportButton.setEnabled(false);
+        } else {
+            nextUpdateReportButton.setEnabled(true);
         }
     }    
     
@@ -465,54 +481,33 @@ public class JournalDataPanel extends FormPanel {
         }
     }
     
-    private void updateNavigateList(List<JournalGridModel> candidates) {
-        if (naviToPrevious) {
-            journalNavigateList.set(0, candidates.get(candidates.size()-1));                    
-        } else {
-            journalNavigateList.set(1, candidates.get(0)); 
-        }
+    private void update(JournalGridModel gridModel, JournalTreeModel newRoot) {
+        this.journalGridModel = gridModel;
+        this.root = newRoot;
+        
+        this.updateUpdateReportListener(newRoot);
+
+        updateMainFieldValues(gridModel);
+        setJournalNavigateList();
+        this.layout();
     }
     
-    private List<JournalGridModel> findCandidates(List<JournalGridModel> dataList) {
-        List<JournalGridModel> tempList = new ArrayList<JournalGridModel>();
-        if (dataList.isEmpty()) {
-            return tempList;
-        }
-        
-        for (JournalGridModel model : dataList) {
-            if (model.getKey().equals(journalGridModel.getKey())) {
-                tempList.add(model);
-            }
-        }
-        
-        return tempList;
+    private void updateUpdateReportListener(JournalTreeModel newRoot) {
+        this.viewUpdateReportButton.removeSelectionListener(this.updateReportListener);
+        this.updateReportListener = createUpdateReportListener(newRoot);
+        this.viewUpdateReportButton.addSelectionListener(this.updateReportListener);
     }
-    
-    private native void closeHistoryTabPanel(String ids)/*-{
-        var tabPanel = $wnd.amalto.core.getTabPanel();
-        tabPanel.remove(ids);
-    }-*/;    
-
-    private native void openHistoryTabPanel(String ids, JournalHistoryPanel source)/*-{
-        var tabPanel = $wnd.amalto.core.getTabPanel();
-        var dataLogViewer = tabPanel.getItem(ids);
-        if (dataLogViewer == undefined) {
-            var panel = @org.talend.mdm.webapp.journal.client.widget.JournalGridPanel::convertHistoryPanel(Lorg/talend/mdm/webapp/journal/client/widget/JournalHistoryPanel;)(source);
-            tabPanel.add(panel);
-        }
-        tabPanel.setSelection(ids);
-    }-*/;
-
-    private native void openDataTabPanel(String ids, JournalDataPanel source)/*-{
-        var tabPanel = $wnd.amalto.core.getTabPanel();
-        var dataLogViewer = tabPanel.getItem(ids);
-        if (dataLogViewer == undefined) {
-            var panel = @org.talend.mdm.webapp.journal.client.widget.JournalGridPanel::convertDataPanel(Lorg/talend/mdm/webapp/journal/client/widget/JournalDataPanel;)(source);
-            tabPanel.add(panel);
-        }
-        tabPanel.setSelection(ids);
-    }-*/;
-    
+    private void updateMainFieldValues(JournalGridModel gridModel) {
+        this.entityField.setValue(gridModel.getEntity());
+        this.sourceField.setValue(gridModel.getSource());
+        this.dataContainerField.setValue(gridModel.getDataContainer());
+        this.dataModelField.setValue(gridModel.getDataModel());
+        this.keyField.setValue(gridModel.getKey());
+        this.operationTypeField.setValue(gridModel.getOperationType());
+        this.oeprationTimeField.setValue(gridModel.getOperationTime());
+        this.revisionIdField.setValue(gridModel.getRevisionId());
+    }
+        
     private native void openBrowseRecordPanel(String title, String key, String concept)/*-{
         var arr = key.split("\.");
         $wnd.amalto.itemsbrowser.ItemsBrowser.editItemDetails(title, arr, concept, function(){});
