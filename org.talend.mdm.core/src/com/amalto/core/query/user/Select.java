@@ -41,6 +41,8 @@ public class Select implements Expression {
 
     private At history;
 
+    private boolean cache;
+
     public Select() {
     }
 
@@ -127,7 +129,11 @@ public class Select implements Expression {
 
     @Override
     public boolean cache() {
-        return true;
+        return cache;
+    }
+
+    public void setCache(boolean cache) {
+        this.cache = cache;
     }
 
     /**

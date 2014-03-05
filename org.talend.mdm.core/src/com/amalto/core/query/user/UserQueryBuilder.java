@@ -377,6 +377,16 @@ public class UserQueryBuilder {
         expressionAsSelect().setForUpdate(true);
         return this;
     }
+    
+    public UserQueryBuilder cache() {
+        expressionAsSelect().setCache(true);
+        return this;
+    }
+    
+    public UserQueryBuilder nocache() {
+        expressionAsSelect().setCache(false);
+        return this;
+    }
 
     public UserQueryBuilder at(String dateTime) {
         // Parse date time
