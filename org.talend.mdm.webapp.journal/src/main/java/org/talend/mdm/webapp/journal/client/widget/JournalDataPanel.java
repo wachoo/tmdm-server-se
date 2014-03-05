@@ -56,9 +56,6 @@ import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
-/**
- * DOC Administrator  class global comment. Detailled comment
- */
 public class JournalDataPanel extends FormPanel {
     private JournalHistoryPanel journalHistoryPanel;
     
@@ -136,7 +133,7 @@ public class JournalDataPanel extends FormPanel {
         this.setHeading(MessagesFactory.getMessages().update_report_detail_label());
         this.setBodyBorder(false);
         this.setLayout(new FitLayout());
-        
+        initializeTreeWindow();
         openRecordButton = new Button(MessagesFactory.getMessages().open_record_button());
         if (UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(journalGridModel.getOperationType())
                 || UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE.equals(journalGridModel.getOperationType())) {
@@ -170,7 +167,7 @@ public class JournalDataPanel extends FormPanel {
         viewUpdateReportButton = new Button(MessagesFactory.getMessages().view_updatereport_button());
         viewUpdateReportButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.view()));
         
-        this.updateReportListener = createUpdateReportListener(root);
+        this.updateReportListener = createUpdateReportListener();
         viewUpdateReportButton.addSelectionListener(this.updateReportListener);
 
         prevUpdateReportButton = new Button(MessagesFactory.getMessages().prev_updatereport_button());
@@ -211,8 +208,6 @@ public class JournalDataPanel extends FormPanel {
         this.addButton(prevUpdateReportButton);
         this.addButton(nextUpdateReportButton);
         this.addButton(openRecordButton);
-
-        initializeTreeWindow();
               
         this.setHeading(MessagesFactory.getMessages().change_properties());
         this.setButtonAlign(HorizontalAlignment.RIGHT);
@@ -273,13 +268,13 @@ public class JournalDataPanel extends FormPanel {
         }
     }
 
-    private SelectionListener<ButtonEvent> createUpdateReportListener(final JournalTreeModel newRoot) {
+    private SelectionListener<ButtonEvent> createUpdateReportListener() {
         return new SelectionListener<ButtonEvent>() {
             
             @Override
             public void componentSelected(ButtonEvent ce) {
                 treeWindow.show();
-                tree.setExpanded(newRoot, true);
+                tree.setExpanded(JournalDataPanel.this.root, true);
             }
         };
     }
@@ -485,18 +480,27 @@ public class JournalDataPanel extends FormPanel {
         this.journalGridModel = gridModel;
         this.root = newRoot;
         
-        this.updateUpdateReportListener(newRoot);
+        updateUpdateReport();
 
         updateMainFieldValues(gridModel);
+        
         setJournalNavigateList();
+        
         this.layout();
     }
     
-    private void updateUpdateReportListener(JournalTreeModel newRoot) {
+    private void updateUpdateReport() {
+        store.removeAll();
+        store.add(this.root, true);
+        updateUpdateReportListener();               
+    }
+    
+    private void updateUpdateReportListener() {
         this.viewUpdateReportButton.removeSelectionListener(this.updateReportListener);
-        this.updateReportListener = createUpdateReportListener(newRoot);
+        this.updateReportListener = createUpdateReportListener();
         this.viewUpdateReportButton.addSelectionListener(this.updateReportListener);
     }
+    
     private void updateMainFieldValues(JournalGridModel gridModel) {
         this.entityField.setValue(gridModel.getEntity());
         this.sourceField.setValue(gridModel.getSource());
