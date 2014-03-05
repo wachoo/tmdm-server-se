@@ -235,9 +235,16 @@ class ScatteredTypeMapping extends TypeMapping {
                 } else {
                     to.set(userField, value);
                 }
-            } else {
+            }
+        }
+        // Set database specific fields
+        ComplexTypeMetadata databaseType = getDatabase();
+        for (FieldMetadata field : databaseType.getFields()) {
+            if (getUser(field) == null) {
+                String fieldName = field.getName();
+                Object value = from.get(fieldName);
                 DataRecordMetadata recordMetadata = to.getRecordMetadata();
-                Map<String,String> recordProperties = recordMetadata.getRecordProperties();
+                Map<String, String> recordProperties = recordMetadata.getRecordProperties();
                 if (!ScatteredMappingCreator.GENERATED_ID.equals(fieldName) && value != null) {
                     try {
                         recordProperties.put(fieldName, String.valueOf(value));
