@@ -525,7 +525,7 @@ public class JournalDataPanel extends FormPanel {
         this.dataModelField.setValue(gridModel.getDataModel());
         this.keyField.setValue(gridModel.getKey());
         this.operationTypeField.setValue(gridModel.getOperationType());
-        this.oeprationTimeField.setValue(gridModel.getOperationTime());
+        this.oeprationTimeField.setValue(gridModel.getOperationDate());
         this.revisionIdField.setValue(gridModel.getRevisionId());
     }
         
