@@ -30,20 +30,20 @@ import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 
-@Path("/system/models")
+@Path("/system/models") //$NON-NLS-1$
 public class SystemModels {
 
     @GET
     @Path("{model}")
-    public String getSchema(@PathParam("model")
+    public String getSchema(@PathParam("model") //$NON-NLS-1$
     String modelName) {
         throw new UnsupportedOperationException("Get a data model content isn't currently supported.");
     }
 
     @PUT
-    @Path("{model}")
-    public void updateModel(@PathParam("model")
-    String modelName, @QueryParam("force")
+    @Path("{model}") //$NON-NLS-1$
+    public void updateModel(@PathParam("model") //$NON-NLS-1$
+    String modelName, @QueryParam("force") //$NON-NLS-1$
     boolean force, InputStream dataModel) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
@@ -51,17 +51,15 @@ public class SystemModels {
             throw new IllegalArgumentException("Container '" + modelName + "' does not exist.");
         }
         // Compare new data model with existing data model
-        MetadataRepository previousRepository = storage.getMetadataRepository();
         MetadataRepository newRepository = new MetadataRepository();
         newRepository.load(dataModel);
-        Compare.DiffResults diffResults = Compare.compare(previousRepository, newRepository);
         // Ask the storage to adapt its structure following the changes
         storage.adapt(newRepository, force);
     }
 
     @POST
-    @Path("{model}")
-    public String analyzeModelChange(@PathParam("model")
+    @Path("{model}") //$NON-NLS-1$
+    public String analyzeModelChange(@PathParam("model") //$NON-NLS-1$
     String modelName, InputStream dataModel) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
