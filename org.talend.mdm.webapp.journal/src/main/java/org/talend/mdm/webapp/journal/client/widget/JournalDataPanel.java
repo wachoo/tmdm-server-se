@@ -16,11 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
+import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.journal.client.Journal;
 import org.talend.mdm.webapp.journal.client.JournalServiceAsync;
 import org.talend.mdm.webapp.journal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.journal.client.resources.icon.Icons;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
+import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 import com.amalto.core.ejb.UpdateReportPOJO;
 import com.extjs.gxt.ui.client.Registry;
@@ -28,10 +31,12 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
+import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.LoadEvent;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
+import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.LoadListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -39,7 +44,6 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -51,9 +55,9 @@ import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public class JournalDataPanel extends FormPanel {
@@ -63,13 +67,13 @@ public class JournalDataPanel extends FormPanel {
     
     private ListStore<JournalGridModel> gridstore = JournalGridPanel.getInstance().getStore();
     
-    private PagingToolBar pagetoolBar = JournalGridPanel.getInstance().getPagetoolBar();
+    private PagingLoadConfig localPagingLoadConfig;
     
-    private PagingLoadConfig pagingLoadConfig;
+    private PagingLoader<PagingLoadResult<JournalGridModel>> localLoader;
     
-    private PagingLoader<PagingLoadResult<JournalGridModel>> gridLoader;
+    private ListStore<JournalGridModel> localStore;
     
-    private LoadListener myListener;
+    private int total;
     
     private int naviStartPageIndex;
     
@@ -80,12 +84,6 @@ public class JournalDataPanel extends FormPanel {
     private List<JournalGridModel> journalNavigateList;
     
     private boolean naviToPrevious;
-    
-    private boolean navigationMode = false;
-    
-    private int totalPages;
-    
-    private int pageIndex;
     
     private List<JournalGridModel> currentDataList;
     
@@ -202,7 +200,7 @@ public class JournalDataPanel extends FormPanel {
             }
         });
 
-        this.setJournalNavigateList();
+        this.initLoadConfig();
         
         this.addButton(viewUpdateReportButton);
         this.addButton(prevUpdateReportButton);
@@ -215,17 +213,46 @@ public class JournalDataPanel extends FormPanel {
         initializeMain();
         FormData formData = new FormData("100%"); //$NON-NLS-1$
         formData.setMargins(new Margins(10, 10, 10, 10));
-        this.add(main, formData);        
+        this.add(main, formData);
         
-        gridLoader = (PagingLoader<PagingLoadResult<JournalGridModel>>)gridstore.getLoader();
-               
-        myListener =  new LoadListener() {
+        final JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);
+        RpcProxy<PagingLoadResult<JournalGridModel>> proxy = new RpcProxy<PagingLoadResult<JournalGridModel>>() {
+
+            @Override
+            protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<JournalGridModel>> callback) {
+                localPagingLoadConfig = (PagingLoadConfig) loadConfig;
+                
+                service.getJournalList(criteria, BasePagingLoadConfigImpl.copyPagingLoad(localPagingLoadConfig),
+                        new SessionAwareAsyncCallback<ItemBasePageLoadResult<JournalGridModel>>() {
+
+                            @Override
+                            public void onSuccess(ItemBasePageLoadResult<JournalGridModel> result) {
+                                total = result.getTotalLength();
+                                callback.onSuccess(new BasePagingLoadResult<JournalGridModel>(result.getData(), result
+                                        .getOffset(), result.getTotalLength()));
+                            }
+
+                            @Override
+                            protected void doOnFailure(Throwable caught) {
+                                total = 0;
+                                super.doOnFailure(caught);
+                                callback.onSuccess(new BasePagingLoadResult<JournalGridModel>(new ArrayList<JournalGridModel>(),
+                                        0, 0));
+                            }
+                        });
+            }
+        };
+        
+        localLoader = new BasePagingLoader<PagingLoadResult<JournalGridModel>>(proxy);
+        localLoader.setRemoteSort(true);
+
+        LoadListener myListener = new LoadListener() {
 
             @Override
             public void loaderLoad(LoadEvent le) {
                 currentDataList = ((BasePagingLoadResult<JournalGridModel>) le.getData()).getData();
                 if (!turnPage) {
-                    setJournalNaviList();
+                    updateJournalNavigationList();
                 } else {
                     JournalGridModel targetGridModel;
                     if (naviToPrevious) {
@@ -239,33 +266,11 @@ public class JournalDataPanel extends FormPanel {
 
             }
         };
-        
-        gridLoader.addLoadListener(myListener);
-    }
 
-    protected void setJournalNaviList() {
-        this.turnPage = false;
-        int index = 0;
-        for (int i = 0; i < currentDataList.size(); i++) {
-            if (this.journalGridModel.getOperationTime().equals(currentDataList.get(i).getOperationTime())) {
-                index = i;
-            }
-        }
-        journalNavigateList = new ArrayList<JournalGridModel>(2);
-        journalNavigateList.add(index == 0 ? null : currentDataList.get(index - 1));
-        journalNavigateList.add(index == currentDataList.size() - 1 ? null : currentDataList.get(index + 1));
-        
-        if (pageIndex == 1 && journalNavigateList.get(0) == null) {
-            prevUpdateReportButton.setEnabled(false);
-        } else {
-            prevUpdateReportButton.setEnabled(true);
-        }
-        
-        if (index == totalPages && journalNavigateList.get(1) == null) {
-            nextUpdateReportButton.setEnabled(false);
-        } else {
-            nextUpdateReportButton.setEnabled(true);
-        }
+        localLoader.addLoadListener(myListener);
+
+        localStore = new ListStore<JournalGridModel>(localLoader);
+        localLoader.load(localPagingLoadConfig);
     }
 
     private SelectionListener<ButtonEvent> createUpdateReportListener() {
@@ -375,7 +380,7 @@ public class JournalDataPanel extends FormPanel {
         return MessagesFactory.getMessages().data_change_viewer();
     }    
 
-    public void setjournalHistoryPanel(JournalHistoryPanel journalHistoryPanel) {
+    public void setJournalHistoryPanel(JournalHistoryPanel journalHistoryPanel) {
         this.journalHistoryPanel = journalHistoryPanel;
     }
     
@@ -429,51 +434,63 @@ public class JournalDataPanel extends FormPanel {
         }
     }
     
-    private void setJournalNavigateList() {
-        navigationMode = false;
-        totalPages = pagetoolBar.getTotalPages();
-        pageIndex = pagetoolBar.getActivePage();
-        pagingLoadConfig = (PagingLoadConfig)gridstore.getLoadConfig();
+    private void initLoadConfig() {
+        PagingLoadConfig pagingLoadConfig = (PagingLoadConfig)gridstore.getLoadConfig();        
         
-        currentDataList = gridstore.getModels();
-        journalNavigateList = new ArrayList<JournalGridModel>(2);
+        localPagingLoadConfig = new BasePagingLoadConfig();
+        localPagingLoadConfig.setOffset(pagingLoadConfig.getOffset());
+        localPagingLoadConfig.setLimit(pagingLoadConfig.getLimit());
+    }    
 
+    protected void updateJournalNavigationList() {
+        this.turnPage = false;
+        
+        int currOffSet = localPagingLoadConfig.getOffset();
+        int currLimit = localPagingLoadConfig.getLimit();
+        
         int index = 0;
         for (int i = 0; i < currentDataList.size(); i++) {
             if (this.journalGridModel.getOperationTime().equals(currentDataList.get(i).getOperationTime())) {
                 index = i;
             }
         }
-        
+        journalNavigateList = new ArrayList<JournalGridModel>(2);
         journalNavigateList.add(index == 0 ? null : currentDataList.get(index - 1));
-        journalNavigateList.add(index == currentDataList.size() - 1 ? null : currentDataList.get(index + 1)); 
+        journalNavigateList.add(index == currentDataList.size() - 1 ? null : currentDataList.get(index + 1));
         
-        if (pageIndex == 1 && journalNavigateList.get(0) == null) {
+        if (currOffSet == 0 && journalNavigateList.get(0) == null) {
             prevUpdateReportButton.setEnabled(false);
         } else {
             prevUpdateReportButton.setEnabled(true);
         }
         
-        if (index == totalPages && journalNavigateList.get(1) == null) {
+        if ( (currOffSet + currLimit) >= total && journalNavigateList.get(1) == null) {
             nextUpdateReportButton.setEnabled(false);
         } else {
             nextUpdateReportButton.setEnabled(true);
-        }
-    }    
+        }        
+    }
     
     private void retrieveNeighbourJournalInOtherPages() {
-        naviStartPageIndex = pageIndex;
-        navigationMode = true;
-        
+        this.turnPage = true;
+        int curOffset = localPagingLoadConfig.getOffset();
+        int limit = localPagingLoadConfig.getLimit();
+        int nextOffSet = 0;
         if (naviToPrevious) {
-            if ( pageIndex > 1) {
-                pagetoolBar.previous();
+            nextOffSet = (curOffset >= limit) ? (curOffset - limit) : curOffset;
+            if (nextOffSet == curOffset) {
+                prevUpdateReportButton.setEnabled(false);
+                return;
             }
         } else {
-            if (pageIndex < totalPages) {
-                pagetoolBar.next();
+            nextOffSet = ((curOffset + limit) < total) ? (curOffset + limit) : curOffset;
+            if (nextOffSet == curOffset) {
+                nextUpdateReportButton.setEnabled(false);
+                return;
             }
         }
+        localPagingLoadConfig.setOffset(nextOffSet);
+        localLoader.load(localPagingLoadConfig);
     }
     
     private void update(JournalGridModel gridModel, JournalTreeModel newRoot) {
@@ -484,7 +501,7 @@ public class JournalDataPanel extends FormPanel {
 
         updateMainFieldValues(gridModel);
         
-        setJournalNavigateList();
+        updateJournalNavigationList();
         
         this.layout();
     }

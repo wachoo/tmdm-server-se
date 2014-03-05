@@ -55,7 +55,7 @@ public class JournalHistoryPanel extends ContentPanel {
         northData.setMargins(new Margins(0, 0, 0, 0));        
         
         journalDataPanel = new JournalDataPanel(root, gridModel);
-        journalDataPanel.setjournalHistoryPanel(this);
+        journalDataPanel.setJournalHistoryPanel(this);
         this.add(journalDataPanel, northData);        
 
         westData = new BorderLayoutData(LayoutRegion.WEST, width);
