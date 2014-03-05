@@ -73,6 +73,7 @@ public class DocumentSaveTest extends TestCase {
         LOG.info("Setting up MDM server environment...");
         ServerContext.INSTANCE.get(new MockServerLifecycle());
         MDMConfiguration.getConfiguration().setProperty("xmlserver.class", "com.amalto.core.storage.DispatchWrapper");
+        SaverSession.setDefaultCommitter(new MockCommitter());
         LOG.info("MDM server environment set.");
     }
 
