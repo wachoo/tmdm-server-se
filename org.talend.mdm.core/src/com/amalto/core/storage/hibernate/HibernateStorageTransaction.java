@@ -71,7 +71,6 @@ class HibernateStorageTransaction extends StorageTransaction {
         if (!transaction.isActive()) {
             session.beginTransaction();
         }
-        session.clear(); // Clear in case session was used before (consider begin() as a marker for a new unit of work in MDM).
     }
 
     @Override

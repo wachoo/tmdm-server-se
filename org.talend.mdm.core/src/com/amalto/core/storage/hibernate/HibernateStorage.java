@@ -614,7 +614,10 @@ public class HibernateStorage implements Storage {
                 TypeMapping mapping = mappingRepository.getMappingFromUser(currentDataRecord.getType());
                 Wrapper o = (Wrapper) currentDataRecord.convert(converter, mapping);
                 if (session.contains(o) && session.isReadOnly(o)) { // A read only instance for an update?
-                    session.setReadOnly(o, false);
+                    // Session#setReadOnly(...) does not always work as expected (especially in case of compound keys
+                    // see TMDM-7014).
+                    session.evict(o);
+                    o = (Wrapper) currentDataRecord.convert(converter, mapping);
                 }
                 o.timestamp(System.currentTimeMillis());
                 DataRecordMetadata recordMetadata = currentDataRecord.getRecordMetadata();
