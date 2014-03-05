@@ -40,12 +40,16 @@ public class SaverSession {
 
     private static SaverSource defaultSaverSource;
 
-    private static DefaultCommitter defaultCommitter;
+    private static Committer defaultCommitter;
 
     private boolean hasMetAutoIncrement = false;
 
     public SaverSession(SaverSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    static void setDefaultCommitter(Committer committer) {
+        defaultCommitter = committer;
     }
 
     /**
