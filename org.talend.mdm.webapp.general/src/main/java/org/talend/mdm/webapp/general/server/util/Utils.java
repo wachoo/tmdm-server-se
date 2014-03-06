@@ -328,9 +328,16 @@ public class Utils {
 
     public static String setLanguage(String xml, String language) throws Exception {
         Document doc = XMLUtils.parse(xml);
-        if (doc.getElementsByTagName("language") != null) { //$NON-NLS-1$
-            doc.getElementsByTagName("language").item(0).setTextContent(language); //$NON-NLS-1$
-            return XMLUtils.nodeToString(doc);
+        if (doc.hasChildNodes()) {
+            if (doc.getElementsByTagName("language").item(0) != null) { //$NON-NLS-1$
+                doc.getElementsByTagName("language").item(0).setTextContent(language); //$NON-NLS-1$
+                return XMLUtils.nodeToString(doc);
+            } else {
+                Element node = doc.createElement("language"); //$NON-NLS-1$
+                node.setTextContent(language);
+                doc.getDocumentElement().appendChild(node);
+                return XMLUtils.nodeToString(doc);
+            }
         }
         return xml;
     }
