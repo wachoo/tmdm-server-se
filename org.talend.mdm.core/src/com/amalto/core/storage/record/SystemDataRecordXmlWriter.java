@@ -1,27 +1,43 @@
 /*
  * Copyright (C) 2006-2013 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.record;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.lang.reflect.Modifier;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.Types;
+
 import com.amalto.core.metadata.ClassRepository;
-import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringEscapeUtils;
-
-import java.io.*;
-import java.lang.reflect.Modifier;
-import java.util.*;
 
 public class SystemDataRecordXmlWriter implements DataRecordWriter {
 
@@ -37,17 +53,20 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
         this.rootElementName = type.getName();
     }
 
+    @Override
     public void write(DataRecord record, OutputStream output) throws IOException {
         Writer out = new BufferedWriter(new OutputStreamWriter(output, "UTF-8")); //$NON-NLS-1$
         write(record, out);
     }
 
+    @Override
     public void write(DataRecord record, Writer writer) throws IOException {
         FieldPrinter fieldPrinter = new FieldPrinter(record, writer);
-        Set<FieldMetadata> fields = type == null ? new HashSet<FieldMetadata>(record.getType().getFields()) : new HashSet<FieldMetadata>(type.getFields());
+        Set<FieldMetadata> fields = type == null ? new HashSet<FieldMetadata>(record.getType().getFields())
+                : new HashSet<FieldMetadata>(type.getFields());
         // Print isMany=false as attributes
         fieldPrinter.printAttributes(true);
-        writer.write("<" + getRootElementName(record)); //$NON-NLS-1$ //$NON-NLS-2$
+        writer.write("<" + getRootElementName(record)); //$NON-NLS-1$ 
         Iterator<FieldMetadata> iterator = fields.iterator();
         while (iterator.hasNext()) {
             FieldMetadata field = iterator.next();
@@ -68,10 +87,8 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
     }
 
     private static boolean isValidAttributeType(TypeMetadata type) {
-        return !(Types.STRING.equals(type.getName())
-                || Types.DATE.equals(type.getName())
-                || Types.BOOLEAN.equals(type.getName())
-                || ClassRepository.EMBEDDED_XML.equals(type.getName()));
+        return !(Types.STRING.equals(type.getName()) || Types.DATE.equals(type.getName()) || Types.BOOLEAN.equals(type.getName()) || ClassRepository.EMBEDDED_XML
+                .equals(type.getName()));
     }
 
     private String getRootElementName(DataRecord record) {
@@ -123,11 +140,13 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
                 }
                 return null;
             } catch (IOException e) {
-                throw new RuntimeException("Could not serialize XML for contained field '" + containedField.getName() + "' of type '" + containedField.getContainingType().getName() + "'.", e);
+                throw new RuntimeException("Could not serialize XML for contained field '" + containedField.getName()
+                        + "' of type '" + containedField.getContainingType().getName() + "'.", e);
             }
         }
 
-        private void handleContainedField(ContainedTypeFieldMetadata containedField, DataRecord containedRecord) throws IOException {
+        private void handleContainedField(ContainedTypeFieldMetadata containedField, DataRecord containedRecord)
+                throws IOException {
             if (ClassRepository.MAP_TYPE_NAME.equals(containedRecord.getType().getName())) {
                 out.write(String.valueOf(containedRecord.get("value")));
             } else {
@@ -140,8 +159,7 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
                 } else {
                     out.write("<" + containedField.getName() + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" //$NON-NLS-1$
                             + " xsi:type=\"java:" //$NON-NLS-1$
-                            + javaClass.getName()
-                            + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
+                            + javaClass.getName() + "\">"); //$NON-NLS-1$ 
                 }
                 for (FieldMetadata field : fields) {
                     field.accept(fieldPrinter);
@@ -171,8 +189,7 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
                                 out.write("<" + simpleField.getName() //$NON-NLS-1$
                                         + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" //$NON-NLS-1$
                                         + " xsi:type=\"java:" //$NON-NLS-1$
-                                        + value.getClass().getName()
-                                        + "\">"); //$NON-NLS-1$
+                                        + value.getClass().getName() + "\">"); //$NON-NLS-1$
                             }
                             handleSimpleValue(simpleField, value);
                             out.write("</" + simpleField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -194,8 +211,7 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
                                     out.write("<" + simpleField.getName() //$NON-NLS-1$
                                             + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" //$NON-NLS-1$
                                             + " xsi:type=\"java:" //$NON-NLS-1$
-                                            + currentValue.getClass().getName()
-                                            + "\">"); //$NON-NLS-1$
+                                            + currentValue.getClass().getName() + "\">"); //$NON-NLS-1$
                                 }
                                 handleSimpleValue(simpleField, currentValue);
                                 out.write("</" + simpleField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -203,12 +219,15 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
                         }
                     }
                 } else {
-                    // TMDM-5572: Prints empty elements for null values
-                    out.write("<" + simpleField.getName() + "/>"); //$NON-NLS-1$ //$NON-NLS-2$
-             }                
+                    if (!printAttributes) {
+                        // TMDM-5572: Prints empty elements for null values
+                        out.write("<" + simpleField.getName() + "/>"); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
+                }
                 return null;
             } catch (IOException e) {
-                throw new RuntimeException("Could not serialize XML for simple field '" + simpleField.getName() + "' of type '" + simpleField.getContainingType().getName() + "'.", e);
+                throw new RuntimeException("Could not serialize XML for simple field '" + simpleField.getName() + "' of type '"
+                        + simpleField.getContainingType().getName() + "'.", e);
             }
         }
 
@@ -221,11 +240,11 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
             if (value == null) {
                 throw new IllegalArgumentException("Not supposed to write null values to XML.");
             }
-            if (Types.DATE.equals(simpleField.getType().getName())) { //$NON-NLS-1$
+            if (Types.DATE.equals(simpleField.getType().getName())) {
                 synchronized (DateConstant.DATE_FORMAT) {
                     out.write((DateConstant.DATE_FORMAT).format(value));
                 }
-            } else if (Types.DATETIME.equals(simpleField.getType().getName())) { //$NON-NLS-1$
+            } else if (Types.DATETIME.equals(simpleField.getType().getName())) {
                 synchronized (DateTimeConstant.DATE_FORMAT) {
                     out.write((DateTimeConstant.DATE_FORMAT).format(value));
                 }
