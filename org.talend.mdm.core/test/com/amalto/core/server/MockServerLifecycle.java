@@ -10,6 +10,7 @@
 
 package com.amalto.core.server;
 
+import com.amalto.core.storage.datasource.DataSourceDefinition;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.core.storage.Storage;
@@ -51,8 +52,10 @@ public class MockServerLifecycle implements ServerLifecycle {
     }
 
     @Override
-    public Storage createStorage(String storageName, String dataSourceName, StorageType storageType) {
-        return new HibernateStorage(storageName, storageType);
+    public Storage createStorage(String storageName, StorageType storageType, DataSourceDefinition definition) {
+        HibernateStorage storage = new HibernateStorage(storageName, storageType);
+        storage.init(definition);
+        return storage;
     }
 
     @Override

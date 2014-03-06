@@ -15,21 +15,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.*;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
@@ -38,6 +29,8 @@ import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.amalto.core.server.DataSourceExtension;
 
 public class DataSourceFactory {
 
@@ -63,57 +56,6 @@ public class DataSourceFactory {
         return INSTANCE;
     }
 
-    public boolean hasDataSource(String dataSourceName) {
-        return hasDataSource(readDataSourcesConfiguration(), dataSourceName);
-    }
-
-    public boolean hasDataSource(InputStream configurationStream, String dataSourceName) {
-        if (dataSourceName == null) {
-            throw new IllegalArgumentException("Data source name can not be null.");
-        }
-        Map<String, DataSourceDefinition> dataSourceMap = readDocument(configurationStream);
-        return dataSourceMap.get(dataSourceName) != null;
-    }
-
-    public DataSourceDefinition getDataSource(String dataSourceName, String container, String revisionId) {
-        return getDataSource(readDataSourcesConfiguration(), dataSourceName, container, revisionId);
-    }
-
-    public DataSourceDefinition getDataSource(InputStream configurationStream, String dataSourceName, String container,
-            String revisionId) {
-        if (dataSourceName == null) {
-            throw new IllegalArgumentException("Data source name can not be null.");
-        }
-        if (container == null) {
-            throw new IllegalArgumentException("Container name can not be null.");
-        }
-        Map<String, DataSourceDefinition> dataSourceMap = readDocument(configurationStream);
-        DataSourceDefinition dataSource = dataSourceMap.get(dataSourceName);
-        if (dataSource == null) {
-            throw new IllegalArgumentException("Data source '" + dataSourceName + "' can not be found in configuration.");
-        }
-        // Additional post parsing (replace potential ${container} with container parameter value).
-        replacePlaceholder(dataSource.getMaster(), CONTAINER_PLACEHOLDER, container);
-        replacePlaceholder(dataSource.getSystem(), CONTAINER_PLACEHOLDER, StringUtils.EMPTY); // TMDM-6527: Call this for lower case processing.
-        if (dataSource.hasStaging()) {
-            replacePlaceholder(dataSource.getStaging(), CONTAINER_PLACEHOLDER, container);
-        }
-        if (revisionId != null && !"HEAD".equals(revisionId)) { //$NON-NLS-1$
-            // Additional post parsing (replace potential ${revision} with revision id parameter value).
-            replacePlaceholder(dataSource.getMaster(), REVISION_PLACEHOLDER, revisionId);
-            if (dataSource.hasStaging()) {
-                replacePlaceholder(dataSource.getStaging(), REVISION_PLACEHOLDER, revisionId);
-            }
-        } else {
-            // Additional post parsing (replace potential ${revision} with revision id parameter value).
-            replacePlaceholder(dataSource.getMaster(), REVISION_PLACEHOLDER, StringUtils.EMPTY);
-            if (dataSource.hasStaging()) {
-                replacePlaceholder(dataSource.getStaging(), REVISION_PLACEHOLDER, StringUtils.EMPTY);
-            }
-        }
-        return dataSource;
-    }
-
     private static void replacePlaceholder(DataSource dataSource, String placeholderName, String value) {
         if (dataSource instanceof RDBMSDataSource) {
             RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) dataSource;
@@ -122,49 +64,51 @@ public class DataSourceFactory {
             String processedConnectionURL;
             RDBMSDataSource.DataSourceDialect dialect = ((RDBMSDataSource) dataSource).getDialectName();
             switch (dialect) {
-                case POSTGRES:
-                    // Postgres always creates lower case database name
-                    processedConnectionURL = connectionURL.replace(placeholderName, value).toLowerCase();
-                    break;
-                case MYSQL:
-                    // TMDM-6559: MySQL doesn't like '-' in database name
-                    processedConnectionURL = connectionURL.replace(placeholderName, value);
-                    if (processedConnectionURL.indexOf('-') > 0) {
-                        URI uri = URI.create(processedConnectionURL.substring(5)); // Uses URI-based parsing to prevent replace of '-' in host name.
-                        if (uri.getPath().indexOf('-') > 0) {
-                            LOGGER.warn("JDBC URL '" + processedConnectionURL + "' contains character(s) not supported by MySQL.");
-                            processedConnectionURL = processedConnectionURL.replace(uri.getPath(), uri.getPath().replace('-', '_'));
-                        }
+            case POSTGRES:
+                // Postgres always creates lower case database name
+                processedConnectionURL = connectionURL.replace(placeholderName, value).toLowerCase();
+                break;
+            case MYSQL:
+                // TMDM-6559: MySQL doesn't like '-' in database name
+                processedConnectionURL = connectionURL.replace(placeholderName, value);
+                if (processedConnectionURL.indexOf('-') > 0) {
+                    URI uri = URI.create(processedConnectionURL.substring(5)); // Uses URI-based parsing to prevent
+                                                                               // replace of '-' in host name.
+                    if (uri.getPath().indexOf('-') > 0) {
+                        LOGGER.warn("JDBC URL '" + processedConnectionURL + "' contains character(s) not supported by MySQL.");
+                        processedConnectionURL = processedConnectionURL.replace(uri.getPath(), uri.getPath().replace('-', '_'));
                     }
-                    break;
-                case H2:
-                case ORACLE_10G:
-                case SQL_SERVER:
-                default: // default for all databases
-                    processedConnectionURL = connectionURL.replace(placeholderName, value);
-                    break;
+                }
+                break;
+            case H2:
+            case ORACLE_10G:
+            case SQL_SERVER:
+            default: // default for all databases
+                processedConnectionURL = connectionURL.replace(placeholderName, value);
+                break;
             }
             rdbmsDataSource.setConnectionURL(processedConnectionURL);
             // Database name
             String databaseName = rdbmsDataSource.getDatabaseName();
             String processedDatabaseName = databaseName.replace(placeholderName, value);
             switch (dialect) {
-                case POSTGRES:
-                    // Postgres always creates lower case database name
-                    processedDatabaseName = processedDatabaseName.toLowerCase();
-                    break;
-                case MYSQL:
-                    if (processedDatabaseName.indexOf('-') > 0) {
-                        LOGGER.warn("Database name '" + processedDatabaseName + "' contains character(s) not supported by MySQL.");
-                    }
-                    processedDatabaseName = processedDatabaseName.replace('-', '_'); // TMDM-6559: MySQL doesn't like '-' in database name
-                    break;
-                case H2:
-                case ORACLE_10G:
-                case SQL_SERVER:
-                default:
-                    // Nothing to do for other databases
-                    break;
+            case POSTGRES:
+                // Postgres always creates lower case database name
+                processedDatabaseName = processedDatabaseName.toLowerCase();
+                break;
+            case MYSQL:
+                if (processedDatabaseName.indexOf('-') > 0) {
+                    LOGGER.warn("Database name '" + processedDatabaseName + "' contains character(s) not supported by MySQL.");
+                }
+                processedDatabaseName = processedDatabaseName.replace('-', '_'); // TMDM-6559: MySQL doesn't like '-' in
+                                                                                 // database name
+                break;
+            case H2:
+            case ORACLE_10G:
+            case SQL_SERVER:
+            default:
+                // Nothing to do for other databases
+                break;
             }
             rdbmsDataSource.setDatabaseName(processedDatabaseName);
             // User name
@@ -324,6 +268,28 @@ public class DataSourceFactory {
                     generateTechnicalFK, advancedProperties, connectionURL, databaseName, containsOptimization, initPassword,
                     initUserName, initConnectionURL);
         } else {
+            // Invoke extensions for datasource extensions
+            ServiceLoader<DataSourceExtension> extensions = ServiceLoader.load(DataSourceExtension.class);
+            if (LOGGER.isDebugEnabled()) {
+                StringBuilder extensionsAsString = new StringBuilder();
+                int i = 0;
+                for (DataSourceExtension extension : extensions) {
+                    extensionsAsString.append(extension.getClass().getName()).append(' ');
+                    i++;
+                }
+                if (i == 0) {
+                    LOGGER.debug("No datasource extension found");
+                } else {
+                    LOGGER.debug("Found datasource extensions (" + i + " found): " + extensionsAsString);
+                }
+            }
+            for (DataSourceExtension extension : extensions) {
+                if (extension.accept(type)) {
+                    return extension.create(dataSource);
+                } else {
+                    LOGGER.debug("Extension '" + extension + "' is not eligible for datasource type '" + type + "'.");
+                }
+            }
             throw new NotImplementedException("No support for type '" + type + "'.");
         }
     }
@@ -334,6 +300,58 @@ public class DataSourceFactory {
             result = xPath.compile(expression);
         }
         return result.evaluate(node, returnType);
+    }
+
+    public boolean hasDataSource(String dataSourceName) {
+        return hasDataSource(readDataSourcesConfiguration(), dataSourceName);
+    }
+
+    public boolean hasDataSource(InputStream configurationStream, String dataSourceName) {
+        if (dataSourceName == null) {
+            throw new IllegalArgumentException("Data source name can not be null.");
+        }
+        Map<String, DataSourceDefinition> dataSourceMap = readDocument(configurationStream);
+        return dataSourceMap.get(dataSourceName) != null;
+    }
+
+    public DataSourceDefinition getDataSource(String dataSourceName, String container, String revisionId) {
+        return getDataSource(readDataSourcesConfiguration(), dataSourceName, container, revisionId);
+    }
+
+    public DataSourceDefinition getDataSource(InputStream configurationStream, String dataSourceName, String container,
+            String revisionId) {
+        if (dataSourceName == null) {
+            throw new IllegalArgumentException("Data source name can not be null.");
+        }
+        if (container == null) {
+            throw new IllegalArgumentException("Container name can not be null.");
+        }
+        Map<String, DataSourceDefinition> dataSourceMap = readDocument(configurationStream);
+        DataSourceDefinition dataSource = dataSourceMap.get(dataSourceName);
+        if (dataSource == null) {
+            throw new IllegalArgumentException("Data source '" + dataSourceName + "' can not be found in configuration.");
+        }
+        // Additional post parsing (replace potential ${container} with container parameter value).
+        replacePlaceholder(dataSource.getMaster(), CONTAINER_PLACEHOLDER, container);
+        // TMDM-6527: Call this for lower case processing.
+        replacePlaceholder(dataSource.getSystem(), CONTAINER_PLACEHOLDER, StringUtils.EMPTY);
+        if (dataSource.hasStaging()) {
+            replacePlaceholder(dataSource.getStaging(), CONTAINER_PLACEHOLDER, container);
+        }
+        if (revisionId != null && !"HEAD".equals(revisionId)) { //$NON-NLS-1$
+            // Additional post parsing (replace potential ${revision} with revision id parameter value).
+            replacePlaceholder(dataSource.getMaster(), REVISION_PLACEHOLDER, revisionId);
+            if (dataSource.hasStaging()) {
+                replacePlaceholder(dataSource.getStaging(), REVISION_PLACEHOLDER, revisionId);
+            }
+        } else {
+            // Additional post parsing (replace potential ${revision} with revision id parameter value).
+            replacePlaceholder(dataSource.getMaster(), REVISION_PLACEHOLDER, StringUtils.EMPTY);
+            if (dataSource.hasStaging()) {
+                replacePlaceholder(dataSource.getStaging(), REVISION_PLACEHOLDER, StringUtils.EMPTY);
+            }
+        }
+        return dataSource;
     }
 
 }

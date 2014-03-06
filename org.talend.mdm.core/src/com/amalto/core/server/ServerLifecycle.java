@@ -15,6 +15,7 @@ package com.amalto.core.server;
 
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
 
 /**
  *
@@ -33,7 +34,7 @@ public interface ServerLifecycle {
 
     void destroyMetadataRepositoryAdmin(MetadataRepositoryAdmin metadataRepositoryAdmin);
 
-    Storage createStorage(String storageName, String dataSourceName, StorageType storageType);
+    Storage createStorage(String storageName, StorageType storageType, DataSourceDefinition definition);
 
     void destroyStorage(Storage storage, boolean dropExistingData);
 }

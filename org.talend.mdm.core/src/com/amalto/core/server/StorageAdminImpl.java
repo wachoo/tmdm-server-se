@@ -118,11 +118,6 @@ public class StorageAdminImpl implements StorageAdmin {
                     internalCreateStorage(actualDataModelName, actualStorageName, dataSourceName, StorageType.STAGING, revisionId);
                 }
             }
-            // Invoke hooks for storage creations
-            ServiceLoader<Hook> hooks =  ServiceLoader.load(Hook.class);
-            for (Hook hook : hooks) {
-                masterDataModelStorage = hook.onStorageCreate(masterDataModelStorage);
-            }
             return masterDataModelStorage;
         } catch (Exception e) {
             throw new RuntimeException("Could not create storage '" + actualStorageName + "' with data model '" + dataModelName + "'.", e);
@@ -268,8 +263,7 @@ public class StorageAdminImpl implements StorageAdmin {
                 }
             }
         }
-        Storage dataModelStorage = instance.getLifecycle().createStorage(storageName, dataSourceName, storageType);
-        dataModelStorage.init(definition);
+        Storage dataModelStorage = instance.getLifecycle().createStorage(storageName, storageType, definition);
         MetadataRepositoryAdmin metadataRepositoryAdmin = instance.get().getMetadataRepositoryAdmin();
         boolean hasDataModel = metadataRepositoryAdmin.exist(dataModelName);
         if (!hasDataModel) {
