@@ -24,7 +24,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
-import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.general.model.GroupItem;
 import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
@@ -34,17 +33,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.amalto.commons.core.utils.XMLUtils;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.SystemLocale;
 import com.amalto.webapp.core.util.SystemLocaleFactory;
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSGetItem;
-import com.amalto.webapp.util.webservices.WSItemPK;
-import com.amalto.webapp.util.webservices.WSPutItem;
 
 public class Utils {
 
@@ -59,10 +54,6 @@ public class Utils {
     private static final String WELCOMECONTEXT = "welcomeportal", WELCOMEAPP = "WelcomePortal";//$NON-NLS-1$ //$NON-NLS-2$
 
     private static final String DEFAULT_LANG = "en"; //$NON-NLS-1$
-
-    private static final String PROVISIONING_CONCEPT = "User"; //$NON-NLS-1$
-
-    private static final String DATACLUSTER_PK = "PROVISIONING"; //$NON-NLS-1$
 
     /** a reference to the factory used to create Gxt instances */
     private static GxtFactory gxtFactory = new GxtFactory(GXT_PROPERTIES, EXCLUDING_PROPERTIES, GXT_CSS_RESOURCES);
@@ -335,34 +326,12 @@ public class Utils {
         return giList;
     }
 
-    public static Boolean setDefaultLanguage(String language) throws Exception {
-        try {
-            String userName = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
-            WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(DATACLUSTER_PK), PROVISIONING_CONCEPT, new String[] { userName });
-            if (userName != null && userName.length() > 0) {
-                String userXml = Util.getPort().getItem(new WSGetItem(itemPK)).getContent();
-                userXml = Utils.setLanguage(userXml, language);
-                Util.getPort().putItem(
-                        new WSPutItem(new WSDataClusterPK(DATACLUSTER_PK), userXml, new WSDataModelPK(DATACLUSTER_PK), false));
-                return true;
-            }
-            return false;
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
-        }
-    }
-
     public static String setLanguage(String xml, String language) throws Exception {
-        String newXml = xml;
-        if (newXml != null && newXml.length() > 0 && language != null) {
-            if (newXml.indexOf("<language>") > 0) { //$NON-NLS-1$
-                newXml = newXml.substring(0, (newXml.indexOf("<language>") + 10)) + language + newXml.substring(xml.indexOf("</language>")); //$NON-NLS-1$ //$NON-NLS-2$
-            } else {
-                newXml = newXml.substring(0, newXml.indexOf("<realemail>")) + "<language>" + language + "</language>" //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-                        + newXml.substring(newXml.indexOf("<realemail>")); //$NON-NLS-1$
-            }
+        Document doc = XMLUtils.parse(xml);
+        if (doc.getElementsByTagName("language") != null) { //$NON-NLS-1$
+            doc.getElementsByTagName("language").item(0).setTextContent(language); //$NON-NLS-1$
+            return XMLUtils.nodeToString(doc);
         }
-        return newXml;
+        return xml;
     }
 }

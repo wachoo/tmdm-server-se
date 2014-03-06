@@ -297,9 +297,9 @@ public class GeneralAction implements GeneralService {
             WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(DATACLUSTER_PK), PROVISIONING_CONCEPT, new String[] { userName });
             if (userName != null && userName.length() > 0) {
                 String userXml = Util.getPort().getItem(new WSGetItem(itemPK)).getContent();
-                userXml = Utils.setLanguage(userXml, language);
                 Util.getPort().putItem(
-                        new WSPutItem(new WSDataClusterPK(DATACLUSTER_PK), userXml, new WSDataModelPK(DATACLUSTER_PK), false));
+                        new WSPutItem(new WSDataClusterPK(DATACLUSTER_PK), Utils.setLanguage(userXml, language),
+                                new WSDataModelPK(DATACLUSTER_PK), false));
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

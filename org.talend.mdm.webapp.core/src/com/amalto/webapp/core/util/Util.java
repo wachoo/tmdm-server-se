@@ -83,6 +83,7 @@ import org.xml.sax.InputSource;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
+import com.amalto.commons.core.utils.XMLUtils;
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.UpdateReportPOJO;
@@ -2077,10 +2078,10 @@ public class Util {
         String userName = Util.getAjaxSubject().getUsername();
         WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(DATACLUSTER_PK), PROVISIONING_CONCEPT, new String[] { userName });
         if (userName != null && userName.length() > 0) {
-            String xml = Util.getPort().getItem(new WSGetItem(itemPK)).getContent();
 
-            if (xml != null && xml.indexOf("<language>") > 0) { //$NON-NLS-1$
-                return xml.substring(xml.indexOf("<language>") + 10, xml.indexOf("</language>")); //$NON-NLS-1$ //$NON-NLS-2$
+            Document doc = XMLUtils.parse(Util.getPort().getItem(new WSGetItem(itemPK)).getContent());
+            if (doc.getElementsByTagName("language") != null) { //$NON-NLS-1$
+                return doc.getElementsByTagName("language").item(0).getTextContent(); //$NON-NLS-1$
             }
         }
         return defaultlang;
