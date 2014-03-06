@@ -65,17 +65,13 @@ public class JournalDataPanel extends FormPanel {
     
     private JournalServiceAsync service = Registry.get(Journal.JOURNAL_SERVICE);
     
-    private ListStore<JournalGridModel> gridstore = JournalGridPanel.getInstance().getStore();
+    private ListStore<JournalGridModel> gridStore = JournalGridPanel.getInstance().getStore();
     
     private PagingLoadConfig localPagingLoadConfig;
     
-    private PagingLoader<PagingLoadResult<JournalGridModel>> localLoader;
+    private PagingLoader<PagingLoadResult<JournalGridModel>> localLoader;       
     
-    private ListStore<JournalGridModel> localStore;
-    
-    private int total;
-    
-    private int naviStartPageIndex;
+    private int total;      
     
     private Button openRecordButton;
     
@@ -97,7 +93,7 @@ public class JournalDataPanel extends FormPanel {
     
     private Window treeWindow;
     
-    private TreeStore<JournalTreeModel> store;
+    private TreeStore<JournalTreeModel> treeStore;
 
     private JournalTreeModel root;
     
@@ -246,30 +242,28 @@ public class JournalDataPanel extends FormPanel {
         localLoader = new BasePagingLoader<PagingLoadResult<JournalGridModel>>(proxy);
         localLoader.setRemoteSort(true);
 
-        LoadListener myListener = new LoadListener() {
+        localLoader.addLoadListener(
+                new LoadListener() {
 
-            @Override
-            public void loaderLoad(LoadEvent le) {
-                currentDataList = ((BasePagingLoadResult<JournalGridModel>) le.getData()).getData();
-                if (!turnPage) {
-                    updateJournalNavigationList();
-                } else {
-                    JournalGridModel targetGridModel;
-                    if (naviToPrevious) {
-                        targetGridModel = currentDataList.get(currentDataList.size() - 1);
-                    } else {
-                        targetGridModel = currentDataList.get(0);
+                    @Override
+                    public void loaderLoad(LoadEvent le) {
+                        currentDataList = ((BasePagingLoadResult<JournalGridModel>) le.getData()).getData();
+                        if (!turnPage) {
+                            updateJournalNavigationList();
+                        } else {
+                            JournalGridModel targetGridModel;
+                            if (naviToPrevious) {
+                                targetGridModel = currentDataList.get(currentDataList.size() - 1);
+                            } else {
+                                targetGridModel = currentDataList.get(0);
+                            }
+                            JournalDataPanel.this.updateTabPanel(targetGridModel);
+                            turnPage = false;
+                        }
+
                     }
-                    JournalDataPanel.this.updateTabPanel(targetGridModel);
-                    turnPage = false;
-                }
-
-            }
-        };
-
-        localLoader.addLoadListener(myListener);
-
-        localStore = new ListStore<JournalGridModel>(localLoader);
+                });
+        
         localLoader.load(localPagingLoadConfig);
     }
 
@@ -350,9 +344,9 @@ public class JournalDataPanel extends FormPanel {
         treeWindow.setLayout(new FitLayout());
         treeWindow.setScrollMode(Scroll.NONE);
         
-        store = new TreeStore<JournalTreeModel>();  
-        store.add(this.root, true);
-        tree = new TreePanel<JournalTreeModel>(store);
+        treeStore = new TreeStore<JournalTreeModel>();  
+        treeStore.add(this.root, true);
+        tree = new TreePanel<JournalTreeModel>(treeStore);
         tree.setDisplayProperty("name"); //$NON-NLS-1$
         tree.getStyle().setLeafIcon(AbstractImagePrototype.create(Icons.INSTANCE.leaf()));
         
@@ -435,7 +429,7 @@ public class JournalDataPanel extends FormPanel {
     }
     
     private void initLoadConfig() {
-        PagingLoadConfig pagingLoadConfig = (PagingLoadConfig)gridstore.getLoadConfig();        
+        PagingLoadConfig pagingLoadConfig = (PagingLoadConfig)gridStore.getLoadConfig();        
         
         localPagingLoadConfig = new BasePagingLoadConfig();
         localPagingLoadConfig.setOffset(pagingLoadConfig.getOffset());
@@ -507,8 +501,8 @@ public class JournalDataPanel extends FormPanel {
     }
     
     private void updateUpdateReport() {
-        store.removeAll();
-        store.add(this.root, true);
+        treeStore.removeAll();
+        treeStore.add(this.root, true);
         updateUpdateReportListener();               
     }
     
