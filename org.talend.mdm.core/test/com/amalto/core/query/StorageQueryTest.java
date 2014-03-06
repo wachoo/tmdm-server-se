@@ -2889,6 +2889,25 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testFullText_OR() throws Exception {
+        UserQueryBuilder qb = from(product).where(or(contains(product.getField("Id"), "1"), contains(product.getField("Id"), "2")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+    
+    public void testFullText_AND() throws Exception {
+        UserQueryBuilder qb = from(product).where(and(contains(product.getField("Id"), "1"), contains(product.getField("Id"), "2")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+    }    
     public void testJoinOptimization() throws Exception {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
                 List<DataRecord> allRecords = new LinkedList<DataRecord>();
