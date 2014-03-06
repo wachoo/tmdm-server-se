@@ -1800,6 +1800,7 @@
             <xsd:element maxOccurs="unbounded" minOccurs="0" name="wsRoutingRuleExpressions" nillable="true" type="tns:WSRoutingRuleExpression"/>
             <xsd:element maxOccurs="1" minOccurs="0" name="condition" nillable="true" type="xsd:string"/>
             <xsd:element maxOccurs="1" minOccurs="0" name="deactive" nillable="true" type="xsd:boolean"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="executeOrder" nillable="true" type="xsd:int"/>
         </xsd:sequence>     
     </xsd:complexType>
     <xsd:element name="WSRoutingRule" type="tns:WSRoutingRule"/>

@@ -45,8 +45,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import com.amalto.core.storage.StorageMetadataUtils;
-import com.amalto.core.storage.StorageType;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
@@ -123,7 +121,9 @@ import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageMetadataUtils;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.util.ArrayListHolder;
 import com.amalto.core.util.DigestHelper;
@@ -2958,6 +2958,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         s.setWsRoutingRuleExpressions(routingExpressions);
         s.setCondition(pojo.getCondition());
         s.setDeactive(pojo.isDeActive());
+        s.setExecuteOrder(pojo.getExecuteOrder());
         return s;
     }
 
@@ -2979,6 +2980,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         pojo.setRoutingExpressions(l);
         pojo.setCondition(ws.getCondition());
         pojo.setDeActive(ws.getDeactive());
+        pojo.setExecuteOrder(ws.getExecuteOrder());
         return pojo;
     }
 
@@ -4170,41 +4172,52 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         ObjectPOJO.clearCache();
         return new WSString("Refresh the item and object cache successfully!");
     }
-    
+
     /**
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
     public WSBoolean isXmlDB() {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null); // Retrieves SYSTEM storage
+        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null); // Retrieves
+                                                                                                         // SYSTEM
+                                                                                                         // storage
         return new WSBoolean(systemStorage == null);
     }
-    
+
     /**
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
     public WSDigest getDigest(WSDigestKey wsDigestKey) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null); // Retrieves SYSTEM storage
+        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null); // Retrieves
+                                                                                                         // SYSTEM
+                                                                                                         // storage
         if (systemStorage != null) {
-            MetadataRepository repository = systemStorage.getMetadataRepository(); // This repository holds all system object types
+            MetadataRepository repository = systemStorage.getMetadataRepository(); // This repository holds all system
+                                                                                   // object types
             String type = wsDigestKey.getType();
             String name = wsDigestKey.getObjectName();
             systemStorage.begin(); // Storage needs an active transaction (even for read operations).
             try {
                 String typeName = DigestHelper.getInstance().getTypeName(type);
                 if (typeName != null) {
-                    ComplexTypeMetadata storageType = repository.getComplexType(ClassRepository.format(typeName)); // Get the type definition for query 
-                    UserQueryBuilder qb = UserQueryBuilder.from(storageType) 
-                            .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name)); //$NON-NLS-1$ // Select instance of type where unique-id equals provided name
+                    ComplexTypeMetadata storageType = repository.getComplexType(ClassRepository.format(typeName)); // Get
+                                                                                                                   // the
+                                                                                                                   // type
+                                                                                                                   // definition
+                                                                                                                   // for
+                                                                                                                   // query
+                    UserQueryBuilder qb = UserQueryBuilder.from(storageType).where(
+                            UserQueryBuilder.eq(storageType.getField("unique-id"), name)); //$NON-NLS-1$ // Select instance of type where unique-id equals provided name
                     StorageResults results = systemStorage.fetch(qb.getSelect());
-                    
+
                     Iterator<DataRecord> iterator = results.iterator();
                     if (iterator.hasNext()) {
                         DataRecord result = iterator.next();
-                        return new WSDigest(wsDigestKey,(String)result.get("digest"), result.getRecordMetadata().getLastModificationTime()); //$NON-NLS-1$
+                        return new WSDigest(wsDigestKey,
+                                (String) result.get("digest"), result.getRecordMetadata().getLastModificationTime()); //$NON-NLS-1$
                     } else {
                         return null;
                     }
@@ -4218,16 +4231,19 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             return null;
         }
     }
-    
+
     /**
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
     public WSLong updateDigest(WSDigest wsDigest) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null); // Retrieves SYSTEM storage
+        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null); // Retrieves
+                                                                                                         // SYSTEM
+                                                                                                         // storage
         if (systemStorage != null) {
-            MetadataRepository repository = systemStorage.getMetadataRepository(); // This repository holds all system object types
+            MetadataRepository repository = systemStorage.getMetadataRepository(); // This repository holds all system
+                                                                                   // object types
             String type = wsDigest.getWsDigestKey().getType();
             String name = wsDigest.getWsDigestKey().getObjectName();
             systemStorage.begin(); // Storage needs an active transaction (even for read operations).
@@ -4239,12 +4255,17 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                             .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name)) //$NON-NLS-1$
                             .forUpdate(); // <- Important line here!
                     StorageResults results = systemStorage.fetch(qb.getSelect());
-                    
+
                     Iterator<DataRecord> iterator = results.iterator();
                     if (iterator.hasNext()) {
                         DataRecord result = iterator.next();
                         FieldMetadata digestField = storageType.getField("digest"); //$NON-NLS-1$
-                        result.set(digestField, StorageMetadataUtils.convert(wsDigest.getDigestValue(), digestField)); // Using convert ensure type is correct
+                        result.set(digestField, StorageMetadataUtils.convert(wsDigest.getDigestValue(), digestField)); // Using
+                                                                                                                       // convert
+                                                                                                                       // ensure
+                                                                                                                       // type
+                                                                                                                       // is
+                                                                                                                       // correct
                         systemStorage.update(result); // No need to set timestamp (update will update it).
                         systemStorage.commit();
                         return new WSLong(result.getRecordMetadata().getLastModificationTime());
@@ -4256,12 +4277,12 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 }
             } catch (Exception e) {
                 systemStorage.rollback();
-                throw new RuntimeException( e );
+                throw new RuntimeException(e);
             }
         } else {
             return null;
         }
-        
+
     }
 
     public WSMatchRulePK putMatchRule(WSPutMatchRule wsPutMatchRule) throws RemoteException {

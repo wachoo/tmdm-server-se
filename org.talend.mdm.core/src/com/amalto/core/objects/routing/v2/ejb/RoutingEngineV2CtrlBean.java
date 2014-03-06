@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,10 @@ import javax.ejb.TimerService;
 import javax.naming.NamingException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
 import bsh.EvalError;
 import bsh.Interpreter;
 
@@ -37,29 +42,19 @@ import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.SynchronizedNow;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-
 
 /**
  * @author bgrieder
- * @ejb.bean name="RoutingEngineV2Ctrl"
- * display-name="RoutingEngineV2Ctrl"
- * description="Routing Engine"
- * jndi-name="amalto/remote/core/routingenginev2ctrl"
- * local-jndi-name = "amalto/local/core/routingenginev2ctrl"
- * type="Stateless"
- * view-type="both"
+ * @ejb.bean name="RoutingEngineV2Ctrl" display-name="RoutingEngineV2Ctrl" description="Routing Engine"
+ * jndi-name="amalto/remote/core/routingenginev2ctrl" local-jndi-name = "amalto/local/core/routingenginev2ctrl"
+ * type="Stateless" view-type="both"
  * @ejb.remote-facade
- * @ejb.permission view-type = "remote"
- * role-name = "administration"
- * @ejb.permission view-type = "local"
- * unchecked = "true"
+ * @ejb.permission view-type = "remote" role-name = "administration"
+ * @ejb.permission view-type = "local" unchecked = "true"
  */
 public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, RoutingEngine {
 
-	/**
+    /**
      * Delay after which the routing rule is executed when the rule must be executed "now"
      */
     private final static long DELAY = 15;
@@ -75,28 +70,31 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
     private SessionContext context;
 
     /**
-     * DocumentCtrlBean.java
-     * Constructor
+     * DocumentCtrlBean.java Constructor
      */
     public RoutingEngineV2CtrlBean() {
     }
 
+    @Override
     public void setSessionContext(SessionContext ctx) throws EJBException, RemoteException {
         context = ctx;
     }
 
+    @Override
     public void ejbRemove() throws EJBException, RemoteException {
     }
 
+    @Override
     public void ejbActivate() throws EJBException, RemoteException {
     }
 
+    @Override
     public void ejbPassivate() throws EJBException, RemoteException {
     }
 
     /**
      * Create method
-     *
+     * 
      * @ejb.create-method view-type = "local"
      */
     public void ejbCreate() throws javax.ejb.CreateException {
@@ -110,19 +108,20 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
 
     /**
      * Routes a document
-     *
+     * 
      * @return the list of routing rules PKs that matched
      * @throws XtentisException
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
+    @Override
     public RoutingRulePOJOPK[] route(ItemPOJOPK itemPOJOPK) throws XtentisException {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("route() ROUTING Item " + itemPOJOPK.getUniqueID());
         }
-        //check subscription engine state			
+        // check subscription engine state
         if (RoutingEngineV2POJO.getInstance().getStatus() == RoutingEngineV2POJO.STOPPED) {
-            //the routing engine is stopped of in Error - throw an Exception
+            // the routing engine is stopped of in Error - throw an Exception
             String err = "Unable to route the Item '" + itemPOJOPK.getUniqueID() + "'. The Subscription Engine is stopped.";
             if (LOGGING_EVENT.equals(itemPOJOPK.getConceptName())) {
                 LOGGER.info("ERROR SYSTRACE: " + err);
@@ -131,12 +130,13 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
             }
             throw new XtentisException(err);
         }
-        //Retrieve the Routing Rule Controller
+        // Retrieve the Routing Rule Controller
         RoutingRuleCtrlLocal routingRuleCtrl;
         try {
             routingRuleCtrl = Util.getRoutingRuleCtrlLocal();
         } catch (NamingException e) {
-            String err = "Unable to route the Item '" + itemPOJOPK.getUniqueID() + "'. " + "The routing rules controller cannot be found: " + e.getMessage();
+            String err = "Unable to route the Item '" + itemPOJOPK.getUniqueID() + "'. "
+                    + "The routing rules controller cannot be found: " + e.getMessage();
             if (LOGGING_EVENT.equals(itemPOJOPK.getConceptName())) {
                 LOGGER.info("ERROR SYSTRACE: " + err, e);
             } else {
@@ -144,7 +144,8 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
             }
             throw new XtentisException(err, e);
         } catch (CreateException e) {
-            String err = "Unable to route the Item '" + itemPOJOPK.getUniqueID() + "'. " + "The routing rules controller cannot be created: " + e.getMessage();
+            String err = "Unable to route the Item '" + itemPOJOPK.getUniqueID() + "'. "
+                    + "The routing rules controller cannot be created: " + e.getMessage();
             if (LOGGING_EVENT.equals(itemPOJOPK.getConceptName())) {
                 LOGGER.info(err, e);
             } else {
@@ -152,12 +153,13 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
             }
             throw new XtentisException(err, e);
         }
-        //Retrieve the Routing Rule Controller
+        // Retrieve the Routing Rule Controller
         RoutingOrderV2CtrlLocal routingOrderCtrl;
         try {
             routingOrderCtrl = Util.getRoutingOrderV2CtrlLocal();
         } catch (NamingException e) {
-            String err = "Unable to route the Item '" + itemPOJOPK.getUniqueID() + "'. " + "The Routing Orders controller cannot be found: " + e.getMessage();
+            String err = "Unable to route the Item '" + itemPOJOPK.getUniqueID() + "'. "
+                    + "The Routing Orders controller cannot be found: " + e.getMessage();
             if (LOGGING_EVENT.equals(itemPOJOPK.getConceptName())) {
                 LOGGER.info("ERROR SYSTRACE: " + err, e);
             } else {
@@ -165,7 +167,8 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
             }
             throw new XtentisException(err, e);
         } catch (CreateException e) {
-            String err = "Unable to route the Item '" + itemPOJOPK.getUniqueID() + "'. " + "The Routing Orders controller cannot be created: " + e.getMessage();
+            String err = "Unable to route the Item '" + itemPOJOPK.getUniqueID() + "'. "
+                    + "The Routing Orders controller cannot be created: " + e.getMessage();
             if (LOGGING_EVENT.equals(itemPOJOPK.getConceptName())) {
                 LOGGER.info(err, e);
             } else {
@@ -173,12 +176,13 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
             }
             throw new XtentisException(err, e);
         }
-        //Retrieve the Item Controller
+        // Retrieve the Item Controller
         ItemCtrl2Local itemCtrl;
         try {
             itemCtrl = Util.getItemCtrl2Local();
         } catch (NamingException e) {
-            String err = "Unable to route the Item '" + itemPOJOPK.getUniqueID() + "'. " + "The Items controller cannot be found: " + e.getMessage();
+            String err = "Unable to route the Item '" + itemPOJOPK.getUniqueID() + "'. "
+                    + "The Items controller cannot be found: " + e.getMessage();
             if (LOGGING_EVENT.equals(itemPOJOPK.getConceptName())) {
                 LOGGER.info("ERROR SYSTRACE: " + err, e);
             } else {
@@ -186,7 +190,8 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
             }
             throw new XtentisException(err, e);
         } catch (CreateException e) {
-            String err = "Unable to route the Item '" + itemPOJOPK.getUniqueID() + "'. " + "The items controller cannot be created: " + e.getMessage();
+            String err = "Unable to route the Item '" + itemPOJOPK.getUniqueID() + "'. "
+                    + "The items controller cannot be created: " + e.getMessage();
             if (LOGGING_EVENT.equals(itemPOJOPK.getConceptName())) {
                 LOGGER.info(err, e);
             } else {
@@ -197,7 +202,9 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
         // The cached ItemPOJO - will only be retrieved if needed: we have expressions on the routing rules
         ItemPOJO itemPOJO = null;
         // Rules that matched
-        ArrayList<RoutingRulePOJOPK> routingRulesThatMatched = new ArrayList<RoutingRulePOJOPK>();
+        // ArrayList<RoutingRulePOJOPK> routingRulesThatMatched = new ArrayList<RoutingRulePOJOPK>();
+        ArrayList<RoutingRulePOJO> routingRulesThatMatched = new ArrayList<RoutingRulePOJO>();
+        ArrayList<RoutingRulePOJOPK> matchedRoutingRulesPks = new ArrayList<RoutingRulePOJOPK>();
         // loop over the known rules
         Collection<RoutingRulePOJOPK> routingRulePOJOPKs = routingRuleCtrl.getRoutingRulePKs("*"); //$NON-NLS-1$
         List<String> serviceJndiList = Util.getRuntimeServiceJndiList();
@@ -207,15 +214,17 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
                 LOGGER.info(routingRule.getName() + " disabled, skip it!");
                 continue;
             }
-            //check integrity of Routing Rule
+            // check integrity of Routing Rule
             if (!serviceJndiList.contains(routingRule.getServiceJNDI())) {
                 LOGGER.info("Unable to lookup \"" + routingRule.getServiceJNDI() + "\", this service not bound!");
                 continue;
             }
-            //check if document type is OK
+            // check if document type is OK
             if (!"*".equals(routingRule.getConcept())) { //$NON-NLS-1$
                 String docType = itemPOJOPK.getConceptName();
-                if (!docType.equals(routingRule.getConcept())) continue;
+                if (!docType.equals(routingRule.getConcept())) {
+                    continue;
+                }
             }
             // check if all routing rule expression matches - null: always matches
             // aiming modify see 4572 add condition to check
@@ -224,11 +233,11 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
                 Collection<RoutingRuleExpressionPOJO> routingExpressions = routingRule.getRoutingExpressions();
                 if (routingExpressions != null) {
                     for (RoutingRuleExpressionPOJO routingExpression : routingExpressions) {
-                        //retrieve the itemPOJO if not already done
+                        // retrieve the itemPOJO if not already done
                         if (itemPOJO == null) {
                             itemPOJO = itemCtrl.getItem(itemPOJOPK);
                         }
-                        //Match the rule
+                        // Match the rule
                         if (!ruleExpressionMatches(itemPOJO, routingExpression)) {
                             matches = false;
                             break;
@@ -256,14 +265,14 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
                             }
                         }
                     }
-                    //compile
+                    // compile
                     ntp.eval("truth = " + compileCondition + ";"); //$NON-NLS-1$ //$NON-NLS-2$
                     boolean truth = (Boolean) ntp.get("truth"); //$NON-NLS-1$
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug(condition + " : " + truth);
                     }
                     if (truth) {
-                        LOGGER.info("Rule \"" + (routingRule.getName() == null ? "" : routingRule.getName()) + "\" triggered! ");
+                        LOGGER.info("Rule \"" + (routingRule.getName() == null ? "" : routingRule.getName()) + "\" matched! ");
                     }
                     if (!truth) {
                         continue;
@@ -275,10 +284,15 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
                 }
             }
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("route() Routing Rule MATCH '" + routingRulePOJOPK.getUniqueId() + "' for item '" + itemPOJOPK.getUniqueID() + "'");
+                LOGGER.debug("route() Routing Rule MATCH '" + routingRulePOJOPK.getUniqueId() + "' for item '"
+                        + itemPOJOPK.getUniqueID() + "'");
             }
             // increment matching routing rules counter
-            routingRulesThatMatched.add(routingRulePOJOPK);
+            routingRulesThatMatched.add(routingRule);
+            matchedRoutingRulesPks.add(routingRulePOJOPK);
+        }
+        Collections.sort(routingRulesThatMatched);
+        for (RoutingRulePOJO routingRule : routingRulesThatMatched) {
             // create the routing Order
             Date now = new Date(synchronizedNow.getTime());
             String name = itemPOJOPK.getUniqueID() + "-" + sdf.format(now);
@@ -299,35 +313,35 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
             } catch (UnsupportedEncodingException e) {
                 LOGGER.error("Unsupported encoding during trigger evaluation.", e);
             }
-            ActiveRoutingOrderV2POJO routingOrderPOJO = new ActiveRoutingOrderV2POJO(
-                    name,
-                    routingRule.isSynchronous() ? now.getTime() : now.getTime() + DELAY,
-                    itemPOJOPK,
-                    "Routing of '" + itemPOJOPK.getUniqueID() + "' to service '" + routingRule.getServiceJNDI().replaceFirst("amalto/local/service/", "") + "'"
-                            + " triggered by rule '" + routingRulePOJOPK.getUniqueId() + "'",
-                    routingRule.getServiceJNDI(),
-                    routingRule.getParameters(),
-                    bindingUniverseName,
-                    bindingUserToken
-            );
+            ActiveRoutingOrderV2POJO routingOrderPOJO = new ActiveRoutingOrderV2POJO(name,
+                    routingRule.isSynchronous() ? now.getTime() : now.getTime() + DELAY, itemPOJOPK, "Routing of '"
+                            + itemPOJOPK.getUniqueID() + "' to service '"
+                            + routingRule.getServiceJNDI().replaceFirst("amalto/local/service/", "") + "'"
+                            + " triggered by rule '" + routingRule.getPK().getUniqueId() + "'", routingRule.getServiceJNDI(),
+                    routingRule.getParameters(), bindingUniverseName, bindingUserToken);
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Routing Order " + routingOrderPOJO.getName() + " bind universe " + routingOrderPOJO.getBindingUniverseName());
+                LOGGER.debug("Routing Order " + routingOrderPOJO.getName() + " bind universe "
+                        + routingOrderPOJO.getBindingUniverseName());
             }
             // there is one case where everything is run now
             if (routingRule.isSynchronous()) {
                 if (RoutingEngineV2POJO.getInstance().getStatus() == RoutingEngineV2POJO.RUNNING
-                        || Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("routing.engine.rules.runsynconpause", "false"))) { //$NON-NLS-1$ //$NON-NLS-2$
+                        || Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty(
+                                "routing.engine.rules.runsynconpause", "false"))) { //$NON-NLS-1$ //$NON-NLS-2$
+                    LOGGER.info("Rule \"" + (routingRule.getName() == null ? "" : routingRule.getName()) + "\" triggered! ");
                     routingOrderCtrl.executeSynchronously(routingOrderPOJO);
                     continue;
                 }
             }
             // save the routing order for later routing
             routingOrderCtrl.putRoutingOrder(routingOrderPOJO);
+            LOGGER.info("Rule \"" + (routingRule.getName() == null ? "" : routingRule.getName()) + "\" triggered! ");
             // make sure that the thread is started
             if (RoutingEngineV2POJO.getInstance().getStatus() == RoutingEngineV2POJO.RUNNING) {
                 Collection<Timer> timers = context.getTimerService().getTimers();
                 if ((timers == null) || (timers.size() < 1)) {
-                    createTimer(new RoutingEngineV2POJOPK(RoutingEngineV2POJO.getInstance().getPK()), RoutingEngineV2POJO.getInstance().getMinRunPeriodMillis());
+                    createTimer(new RoutingEngineV2POJOPK(RoutingEngineV2POJO.getInstance().getPK()), RoutingEngineV2POJO
+                            .getInstance().getMinRunPeriodMillis());
                 }
             }
         }
@@ -336,7 +350,7 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
             LOGGER.info(err);
             return new RoutingRulePOJOPK[0];
         }
-        return routingRulesThatMatched.toArray(new RoutingRulePOJOPK[routingRulesThatMatched.size()]);
+        return matchedRoutingRulesPks.toArray(new RoutingRulePOJOPK[matchedRoutingRulesPks.size()]);
     }
 
     private static String compileCondition(String condition) {
@@ -349,7 +363,7 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
 
     /**
      * Check that a rule actually matches a document
-     *
+     * 
      * @return true if it matches
      * @throws XtentisException
      */
@@ -366,135 +380,141 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
             }
             boolean flag = false;
             for (String content : contents) {
-                if (flag) break;
+                if (flag) {
+                    break;
+                }
                 switch (exp.getOperator()) {
-                    case RoutingRuleExpressionPOJO.CONTAINS:
-                        if (content != null && content.contains(exp.getValue())) {
-                            flag = true;
-                        }
-                        break;
-                    case RoutingRuleExpressionPOJO.EQUALS:
-                        if (content != null && content.equals(exp.getValue())) {
-                            flag = true;
-                        }
-                        break;
-                    case RoutingRuleExpressionPOJO.GREATER_THAN:
-                        try {
-                            expInt = Integer.parseInt(exp.getValue());
-                        } catch (Exception e) {
-                            continue;
-                        }
-                        try {
-                            contentInt = Integer.parseInt(content);
-                        } catch (Exception e) {
-                            continue;
-                        }
-                        if (content != null && contentInt > expInt) {
-                            flag = true;
-                        }
-                        break;
-                    case RoutingRuleExpressionPOJO.GREATER_THAN_OR_EQUAL:
-                        try {
-                            expInt = Integer.parseInt(exp.getValue());
-                        } catch (Exception e) {
-                            continue;
-                        }
-                        try {
-                            contentInt = Integer.parseInt(content);
-                        } catch (Exception e) {
-                            continue;
-                        }
-                        if (content != null && contentInt >= expInt) {
-                            flag = true;
-                        }
-                        break;
-                    case RoutingRuleExpressionPOJO.IS_NOT_NULL:
-                        flag = content != null;
-                        break;
-                    case RoutingRuleExpressionPOJO.LOWER_THAN:
-                        try {
-                            expInt = Integer.parseInt(exp.getValue());
-                        } catch (Exception e) {
-                            continue;
-                        }
-                        try {
-                            contentInt = Integer.parseInt(content);
-                        } catch (Exception e) {
-                            continue;
-                        }
-                        if (content != null && contentInt < expInt) {
-                            flag = true;
-                        }
-                        break;
-                    case RoutingRuleExpressionPOJO.LOWER_THAN_OR_EQUAL:
-                        try {
-                            expInt = Integer.parseInt(exp.getValue());
-                        } catch (Exception e) {
-                            continue;
-                        }
-                        try {
-                            contentInt = Integer.parseInt(content);
-                        } catch (Exception e) {
-                            continue;
-                        }
-                        if (content != null && contentInt <= expInt) {
-                            flag = true;
-                        }
-                        break;
-                    case RoutingRuleExpressionPOJO.MATCHES:
-                        if (content != null && content.matches(exp.getValue())) {
-                            flag = true;
-                        }
-                        break;
-                    case RoutingRuleExpressionPOJO.NOT_EQUALS:
-                        if (content != null && !content.equals(exp.getValue())) {
-                            flag = true;
-                        }
-                        break;
-                    case RoutingRuleExpressionPOJO.STARTSWITH:
-                        if (content != null && content.startsWith(exp.getValue())) {
-                            flag = true;
-                        }
-                        break;
+                case RoutingRuleExpressionPOJO.CONTAINS:
+                    if (content != null && content.contains(exp.getValue())) {
+                        flag = true;
+                    }
+                    break;
+                case RoutingRuleExpressionPOJO.EQUALS:
+                    if (content != null && content.equals(exp.getValue())) {
+                        flag = true;
+                    }
+                    break;
+                case RoutingRuleExpressionPOJO.GREATER_THAN:
+                    try {
+                        expInt = Integer.parseInt(exp.getValue());
+                    } catch (Exception e) {
+                        continue;
+                    }
+                    try {
+                        contentInt = Integer.parseInt(content);
+                    } catch (Exception e) {
+                        continue;
+                    }
+                    if (content != null && contentInt > expInt) {
+                        flag = true;
+                    }
+                    break;
+                case RoutingRuleExpressionPOJO.GREATER_THAN_OR_EQUAL:
+                    try {
+                        expInt = Integer.parseInt(exp.getValue());
+                    } catch (Exception e) {
+                        continue;
+                    }
+                    try {
+                        contentInt = Integer.parseInt(content);
+                    } catch (Exception e) {
+                        continue;
+                    }
+                    if (content != null && contentInt >= expInt) {
+                        flag = true;
+                    }
+                    break;
+                case RoutingRuleExpressionPOJO.IS_NOT_NULL:
+                    flag = content != null;
+                    break;
+                case RoutingRuleExpressionPOJO.LOWER_THAN:
+                    try {
+                        expInt = Integer.parseInt(exp.getValue());
+                    } catch (Exception e) {
+                        continue;
+                    }
+                    try {
+                        contentInt = Integer.parseInt(content);
+                    } catch (Exception e) {
+                        continue;
+                    }
+                    if (content != null && contentInt < expInt) {
+                        flag = true;
+                    }
+                    break;
+                case RoutingRuleExpressionPOJO.LOWER_THAN_OR_EQUAL:
+                    try {
+                        expInt = Integer.parseInt(exp.getValue());
+                    } catch (Exception e) {
+                        continue;
+                    }
+                    try {
+                        contentInt = Integer.parseInt(content);
+                    } catch (Exception e) {
+                        continue;
+                    }
+                    if (content != null && contentInt <= expInt) {
+                        flag = true;
+                    }
+                    break;
+                case RoutingRuleExpressionPOJO.MATCHES:
+                    if (content != null && content.matches(exp.getValue())) {
+                        flag = true;
+                    }
+                    break;
+                case RoutingRuleExpressionPOJO.NOT_EQUALS:
+                    if (content != null && !content.equals(exp.getValue())) {
+                        flag = true;
+                    }
+                    break;
+                case RoutingRuleExpressionPOJO.STARTSWITH:
+                    if (content != null && content.startsWith(exp.getValue())) {
+                        flag = true;
+                    }
+                    break;
                 }
             }
             return flag;
         } catch (TransformerException e) {
-            String err = "Subscription rule expression match: unable extract xpath '" + exp.getXpath() + "' from Item '" + itemPOJO.getItemPOJOPK().getUniqueID() + "': " + e.getLocalizedMessage();
+            String err = "Subscription rule expression match: unable extract xpath '" + exp.getXpath() + "' from Item '"
+                    + itemPOJO.getItemPOJOPK().getUniqueID() + "': " + e.getLocalizedMessage();
             LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
     }
 
     /*****************************************************************
-     *  Engine LifeCycle
+     * Engine LifeCycle
      *****************************************************************/
     /**
      * Starts/restarts the router
-     *
+     * 
      * @throws XtentisException
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
+    @Override
     public void start() throws XtentisException {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("start()");
         }
         RoutingEngineV2POJO.getInstance().setStatus(RoutingEngineV2POJO.RUNNING);
-        //make sure that the thread is started
+        // make sure that the thread is started
         Collection<Timer> timers = context.getTimerService().getTimers();
         if ((timers == null) || timers.isEmpty()) {
-            createTimer(new RoutingEngineV2POJOPK(RoutingEngineV2POJO.getInstance().getPK()), RoutingEngineV2POJO.getInstance().getMinRunPeriodMillis());
+            createTimer(new RoutingEngineV2POJOPK(RoutingEngineV2POJO.getInstance().getPK()), RoutingEngineV2POJO.getInstance()
+                    .getMinRunPeriodMillis());
         }
     }
 
     /**
      * Stops the routing queue
-     *
+     * 
      * @throws XtentisException
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
+    @Override
     public void stop() throws XtentisException {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("stop()");
@@ -504,11 +524,12 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
 
     /**
      * Toggle suspend a routing queue
-     *
+     * 
      * @throws XtentisException
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
+    @Override
     public void suspend(boolean suspend) throws XtentisException {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("suspend() " + suspend);
@@ -519,24 +540,26 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
             RoutingEngineV2POJO.getInstance().setStatus(RoutingEngineV2POJO.RUNNING);
             Collection<Timer> timers = context.getTimerService().getTimers();
             if ((timers == null) || timers.isEmpty()) {
-                createTimer(new RoutingEngineV2POJOPK(RoutingEngineV2POJO.getInstance().getPK()), RoutingEngineV2POJO.getInstance().getMinRunPeriodMillis());
+                createTimer(new RoutingEngineV2POJOPK(RoutingEngineV2POJO.getInstance().getPK()), RoutingEngineV2POJO
+                        .getInstance().getMinRunPeriodMillis());
             }
         }
     }
 
     /**
      * Toggle suspend a routing queue
-     *
+     * 
      * @throws XtentisException
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
+    @Override
     public int getStatus() throws XtentisException {
         return RoutingEngineV2POJO.getInstance().getStatus();
     }
 
     /*****************************************************************
-     *  T I M E R
+     * T I M E R
      *****************************************************************/
 
     /**
@@ -549,6 +572,7 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
         return timer.getHandle();
     }
 
+    @Override
     public void ejbTimeout(Timer timer) {
         // for the moment we have a single static routing engine
         RoutingEngineV2POJO routingEngine = RoutingEngineV2POJO.getInstance();
@@ -568,15 +592,17 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
         try {
             routingOrderCtrl = Util.getRoutingOrderV2CtrlLocal();
         } catch (NamingException e) {
-            //mark the engine as stopped
+            // mark the engine as stopped
             routingEngine.setStatus(RoutingEngineV2POJO.STOPPED);
-            String err = "Unable to execute the scheduled routing orders. The Routing Orders controller cannot be found: " + e.getMessage();
+            String err = "Unable to execute the scheduled routing orders. The Routing Orders controller cannot be found: "
+                    + e.getMessage();
             LOGGER.error(err, e);
             return;
         } catch (CreateException e) {
-            //mark the engine as stopped
+            // mark the engine as stopped
             routingEngine.setStatus(RoutingEngineV2POJO.STOPPED);
-            String err = "Unable to execute the scheduled routing orders. The Routing Orders cannot be created: " + e.getMessage();
+            String err = "Unable to execute the scheduled routing orders. The Routing Orders cannot be created: "
+                    + e.getMessage();
             LOGGER.error(err, e);
             return;
         }
@@ -596,7 +622,7 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
                 String err = "Unable to fetch dead routing orders: " + e.getMessage();
                 LOGGER.info("ERROR SYSTRACE " + err, e);
             }
-            //move the caught ones to error
+            // move the caught ones to error
             if (routingOrders != null) {
                 for (ActiveRoutingOrderV2POJO routingOrder : routingOrders) {
                     String message = "Routing Order " + routingOrder.getAbstractRoutingOrderPOJOPK().getUniqueId()
@@ -610,13 +636,12 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
                         // Remove Current active one
                         routingOrderCtrl.removeRoutingOrder(routingOrder.getAbstractRoutingOrderPOJOPK());
                         // save failed Routing Order
-                        failedRO.setMessage(
-                                failedRO.getMessage() +
-                                        "\n---> FAILED " + sdf.format(new Date()) + ": " + message
-                        );
+                        failedRO.setMessage(failedRO.getMessage() + "\n---> FAILED " + sdf.format(new Date()) + ": " + message);
                         routingOrderCtrl.putRoutingOrder(failedRO);
                     } catch (XtentisException e) {
-                        String err = "Unable to move dead routing order '" + routingOrder.getAbstractRoutingOrderPOJOPK().getUniqueId() + "' to failed queue: " + e.getMessage();
+                        String err = "Unable to move dead routing order '"
+                                + routingOrder.getAbstractRoutingOrderPOJOPK().getUniqueId() + "' to failed queue: "
+                                + e.getMessage();
                         LOGGER.info("ERROR SYSTRACE " + err, e);
                     }
                 }
@@ -625,7 +650,8 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
         // get the number of simultaneous executors
         int numberOfExecutors = routingEngine.getMaxNumberOfExecutors();
         // garbage Collect executors
-        HashMap<String, RoutingEngineV2ExecutorPOJO> previousRunExecutors = new HashMap<String, RoutingEngineV2ExecutorPOJO>(routingEngine.getExecutors());
+        HashMap<String, RoutingEngineV2ExecutorPOJO> previousRunExecutors = new HashMap<String, RoutingEngineV2ExecutorPOJO>(
+                routingEngine.getExecutors());
         HashMap<String, RoutingEngineV2ExecutorPOJO> thisRunExecutors = new HashMap<String, RoutingEngineV2ExecutorPOJO>();
         ArrayList<AbstractRoutingOrderV2POJOPK> slotedRoutingOrderIDs = new ArrayList<AbstractRoutingOrderV2POJOPK>();
         Set<String> tokens = previousRunExecutors.keySet();
@@ -643,13 +669,15 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
                     }
                 } else {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("ejbTimeout() Executor of Routing Order " + routingOrderPK.getUniqueId() + " stopped running");
+                        LOGGER.debug("ejbTimeout() Executor of Routing Order " + routingOrderPK.getUniqueId()
+                                + " stopped running");
                     }
                 }
             } catch (XtentisException e) {
                 // log a systrace
-                String err = "Unable to check the existence of the Active Routing Order '" + routingEngineV2ExecutorPOJO.getExecutingRoutingOrderPK().getUniqueId() + "'" +
-                        ". The executor cannot be reclaimed.";
+                String err = "Unable to check the existence of the Active Routing Order '"
+                        + routingEngineV2ExecutorPOJO.getExecutingRoutingOrderPK().getUniqueId() + "'"
+                        + ". The executor cannot be reclaimed.";
                 LOGGER.error("ERROR SYSTRACE " + err, e);
                 return;
             }
@@ -682,8 +710,9 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
             routingOrders = routingOrderCtrl.findActiveRoutingOrders(System.currentTimeMillis(), availableTokens.size());
         } catch (XtentisException e) {
             // mark the engine as stopped
-            // Likely the database is overloaded -  so just wait a bit
-            String err = "Unable to fetch active routing orders: " + e.getMessage() + ". Routing Engine will be pause for a few seconds.";
+            // Likely the database is overloaded - so just wait a bit
+            String err = "Unable to fetch active routing orders: " + e.getMessage()
+                    + ". Routing Engine will be pause for a few seconds.";
             LOGGER.info("ERROR SYSTRACE " + err, e);
             extraTime = 5000;
         }
@@ -702,7 +731,8 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
             ActiveRoutingOrderV2POJO routingOrder = routingOrders[i];
             // make sure service JNDI is exist
             if (!serviceJndiList.contains(routingOrder.getServiceJNDI())) {
-                LOGGER.info("The service jndi \"" + routingOrder.getServiceJNDI() + "\"is not exist, please delete related Routing Order! ");
+                LOGGER.info("The service jndi \"" + routingOrder.getServiceJNDI()
+                        + "\"is not exist, please delete related Routing Order! ");
                 continue;
             }
             // make sure it is not already in slot (though not yet started)
@@ -711,18 +741,13 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
             }
             // Not already in slot --> we will slot it and execute it
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(
-                        "ejbTimeout() Scheduling Routing Order " + routingOrder.getName() + " on thread ID " + Thread.currentThread().getId()
-                                + " - " + (availableTokens.size() - i - 1) + " tokens left"
-                );
+                LOGGER.debug("ejbTimeout() Scheduling Routing Order " + routingOrder.getName() + " on thread ID "
+                        + Thread.currentThread().getId() + " - " + (availableTokens.size() - i - 1) + " tokens left");
             }
             // slot
             String token = availableTokens.get(tokenIndex++);
-            RoutingEngineV2ExecutorPOJO executor = new RoutingEngineV2ExecutorPOJO(
-                    token,
-                    new RoutingEngineV2POJOPK(routingEngine.getPK()),
-                    routingOrder.getAbstractRoutingOrderPOJOPK()
-            );
+            RoutingEngineV2ExecutorPOJO executor = new RoutingEngineV2ExecutorPOJO(token, new RoutingEngineV2POJOPK(
+                    routingEngine.getPK()), routingOrder.getAbstractRoutingOrderPOJOPK());
             thisRunExecutors.put(token, executor);
             slotedRoutingOrderIDs.add(new ActiveRoutingOrderV2POJOPK(routingOrder.getPK()));
             // update routing Order
@@ -735,14 +760,15 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
                 // mark the engine as stopped
                 routingEngine.setStatus(RoutingEngineV2POJO.STOPPED);
                 // log a systrace
-                String err = "Unable to execute the routing order '" + routingOrder.getPK().getUniqueId() + "': " + e.getMessage()
-                        + "The Engine will be paused for a few additional seconds";
+                String err = "Unable to execute the routing order '" + routingOrder.getPK().getUniqueId() + "': "
+                        + e.getMessage() + "The Engine will be paused for a few additional seconds";
                 LOGGER.error("ERROR SYSTRACE " + err, e);
                 extraTime = 5000;
                 break;
             }
         }
-        // update the Routing Engine with the scheduled or currently executing Executors -- BG I guess this should not be here.....
+        // update the Routing Engine with the scheduled or currently executing Executors -- BG I guess this should not
+        // be here.....
         routingEngine.setExecutors(thisRunExecutors);
         // catch time it took
         long duration = System.currentTimeMillis() - startTime + extraTime;

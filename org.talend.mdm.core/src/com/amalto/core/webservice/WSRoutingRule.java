@@ -16,11 +16,12 @@ public class WSRoutingRule {
     protected com.amalto.core.webservice.WSRoutingRuleExpression[] wsRoutingRuleExpressions;
     protected java.lang.String condition;
     protected java.lang.Boolean deactive;
+    protected java.lang.Integer executeOrder;
     
     public WSRoutingRule() {
     }
     
-    public WSRoutingRule(java.lang.String name, java.lang.String description, boolean synchronous, java.lang.String concept, java.lang.String serviceJNDI, java.lang.String parameters, com.amalto.core.webservice.WSRoutingRuleExpression[] wsRoutingRuleExpressions, java.lang.String condition, java.lang.Boolean deactive) {
+    public WSRoutingRule(java.lang.String name, java.lang.String description, boolean synchronous, java.lang.String concept, java.lang.String serviceJNDI, java.lang.String parameters, com.amalto.core.webservice.WSRoutingRuleExpression[] wsRoutingRuleExpressions, java.lang.String condition, java.lang.Boolean deactive, java.lang.Integer executeOrder) {
         this.name = name;
         this.description = description;
         this.synchronous = synchronous;
@@ -30,6 +31,7 @@ public class WSRoutingRule {
         this.wsRoutingRuleExpressions = wsRoutingRuleExpressions;
         this.condition = condition;
         this.deactive = deactive;
+        this.executeOrder = executeOrder;
     }
     
     public java.lang.String getName() {
@@ -102,5 +104,13 @@ public class WSRoutingRule {
     
     public void setDeactive(java.lang.Boolean deactive) {
         this.deactive = deactive;
+    }
+
+    public java.lang.Integer getExecuteOrder() {
+        return this.executeOrder;
+    }
+
+    public void setExecuteOrder(java.lang.Integer executeOrder) {
+        this.executeOrder = executeOrder;
     }
 }

@@ -68,7 +68,7 @@ import com.amalto.core.util.XtentisException;
  * <li><b>port</b>: the smtp server port</li>
  * <li><b>username</b>: optional; the smtp server username</li>
  * <li><b>password</b>: optional; the smtp server password</li>
- *</ul>
+ * </ul>
  * 
  * @author Bruno Grieder
  * 
@@ -117,6 +117,7 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public String getJNDIName() throws XtentisException {
         return "amalto/local/service/loggingsmtp";
     }
@@ -127,6 +128,7 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public String getDescription(String twoLetterLanguageCode) throws XtentisException {
 
         return "logging smtp service";
@@ -139,6 +141,7 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public String getStatus() throws XtentisException {
         // N/A
         return "N/A";
@@ -174,8 +177,9 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
                 BufferedReader br = new BufferedReader(new InputStreamReader(is, "utf-8"));
                 xslt = "";
                 String line;
-                while ((line = br.readLine()) != null)
+                while ((line = br.readLine()) != null) {
                     xslt += line + "\n";
+                }
             } catch (UnsupportedEncodingException e) {
                 String err = "Unable to read '" + xsltName + "'. UTF-8 is not supported on this machione";
                 org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
@@ -228,16 +232,16 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
 
         try {
 
-            if (Util.getRoutingRuleCtrlLocal().existsRoutingRule(new RoutingRulePOJOPK(routingRuleName)) != null)
+            if (Util.getRoutingRuleCtrlLocal().existsRoutingRule(new RoutingRulePOJOPK(routingRuleName)) != null) {
                 return;
+            }
 
             // TODO change default mail address
-            Util.getRoutingRuleCtrlLocal()
-                    .putRoutingRule(
-                            new RoutingRulePOJO(routingRuleName, "Sends all logging events to the logging stmp service",
-                                    new ArrayList<RoutingRuleExpressionPOJO>(), false, "logging_event", getJNDIName(),
-                                    "from=support@talend.com&to=MDMAdmin@talend.com&subjectprefix=Talend MDM Logging Event ",
-                                    null, true));
+            Util.getRoutingRuleCtrlLocal().putRoutingRule(
+                    new RoutingRulePOJO(routingRuleName, "Sends all logging events to the logging stmp service",
+                            new ArrayList<RoutingRuleExpressionPOJO>(), false, "logging_event", getJNDIName(),
+                            "from=support@talend.com&to=MDMAdmin@talend.com&subjectprefix=Talend MDM Logging Event ", null, true,
+                            0));
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -253,13 +257,15 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public void start() throws XtentisException {
         org.apache.log4j.Logger.getLogger(this.getClass()).debug("start() ");
 
         try {
 
-            if (!configurationLoaded)
+            if (!configurationLoaded) {
                 getConfiguration(null);
+            }
 
             // Create the transformer, once
             createTransformer();
@@ -286,6 +292,7 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public void stop() throws XtentisException {
         // N/A
     }
@@ -296,6 +303,7 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public Serializable receiveFromOutbound(HashMap<String, Serializable> map) throws XtentisException {
         throw new XtentisException("The loggingSMTP service should not receive anything from connectors");
     }
@@ -306,6 +314,7 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public String receiveFromInbound(ItemPOJOPK itemPK, String routingOrderID, String parameters)
             throws com.amalto.core.util.XtentisException {
         org.apache.log4j.Logger.getLogger(this.getClass()).debug("receiveFromInbound() : sending message...");
@@ -324,8 +333,9 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
             return "Error: Service not started";
         }
 
-        if (!configurationLoaded)
+        if (!configurationLoaded) {
             getConfiguration(null);
+        }
 
         Connection conx = null;
 
@@ -343,8 +353,8 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
             if (parameters != null) {
                 String kvs[] = parameters.split("&");
                 if (kvs != null) {
-                    for (int i = 0; i < kvs.length; i++) {
-                        String[] kv = kvs[i].split("=");
+                    for (String kv2 : kvs) {
+                        String[] kv = kv2.split("=");
                         String key = kv[0].trim().toLowerCase();
 
                         if (("logfilename".equals(key)) && (kv.length == 2)) {
@@ -377,10 +387,11 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
             addXmlElement(sb, "cc", cc, true);
 
             if (permanentbcc != null) {
-                if (bcc != null)
+                if (bcc != null) {
                     bcc = bcc + ", " + permanentbcc;
-                else
+                } else {
                     bcc = permanentbcc;
+                }
             }
             addXmlElement(sb, "bcc", bcc, true);
 
@@ -498,6 +509,7 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public String getDefaultConfiguration() {
         return "<configuration>" + "	<host>localhost</host>" + "	<port>25</port>" + "	<username></username>"
                 + "	<password></password>" + "	<permanentbcc></permanentbcc>" + "	<logfilename></logfilename>"
@@ -510,6 +522,7 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
+    @Override
     public String getDocumentation(String twoLettersLanguageCode) throws XtentisException {
         return "This service sends Logging Event emails through the SMTP connector. \n"
                 + "The diference with the SMTP service is that the Logging SMTP service only logs warnings \n"
@@ -532,6 +545,7 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public String getConfiguration(String optionalParameters) throws XtentisException {
         try {
             String configuration = loadConfiguration();
@@ -545,25 +559,29 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
 
             // Parsing & checking of mandatory parameters
             String tmphost = StringEscapeUtils.unescapeXml(Util.getFirstTextNode(d.getDocumentElement(), "host"));
-            if (tmphost == null)
+            if (tmphost == null) {
                 throw new XtentisException("Host required");
-            else
+            } else {
                 this.host = tmphost;
+            }
 
             String tmpport = Util.getFirstTextNode(d.getDocumentElement(), "port");
-            if (tmpport == null)
+            if (tmpport == null) {
                 throw new XtentisException("Port number required");
-            else
+            } else {
                 this.port = new Integer(tmpport);
-            if (this.port.intValue() < 1)
+            }
+            if (this.port.intValue() < 1) {
                 throw new XtentisException("Invalid port number");
+            }
 
             // If username is null then authentication is set to false
             String usertmp = StringEscapeUtils.unescapeXml(Util.getFirstTextNode(d.getDocumentElement(), "username"));
-            if (usertmp == null)
+            if (usertmp == null) {
                 auth = new Boolean(false);
-            else
+            } else {
                 auth = new Boolean(true);
+            }
             username = usertmp;
 
             // Parsing of not so important parameters
@@ -596,6 +614,7 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public void putConfiguration(String configuration) throws XtentisException {
         configurationLoaded = false;
         super.putConfiguration(configuration);
@@ -603,10 +622,11 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
 
     private void addXmlElement(StringBuffer target, String name, String value, boolean escapeXML) {
 
-        if (value == null)
+        if (value == null) {
             value = "";
-        else if (escapeXML)
+        } else if (escapeXML) {
             value = StringEscapeUtils.escapeXml(value);
+        }
 
         target.append("<" + name + ">" + value + "</" + name + ">");
     }
@@ -617,6 +637,7 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public Serializable fetchFromOutbound(String command, String parameters, String schedulePlanID) throws XtentisException {
         // N/A
         return null;
