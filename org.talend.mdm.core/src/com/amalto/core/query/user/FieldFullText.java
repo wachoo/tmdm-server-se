@@ -46,6 +46,11 @@ public class FieldFullText extends FullText {
 
     @Override
     public int hashCode() {
-        return field != null ? field.hashCode() : 0;
+        int hashValue = 0;
+        if (field != null) {
+            hashValue = field.hashCode();
+            hashValue = 31 * hashValue + (this.getValue()==null ? 0 : this.getValue().hashCode());
+        }
+        return hashValue;
     }
 }
