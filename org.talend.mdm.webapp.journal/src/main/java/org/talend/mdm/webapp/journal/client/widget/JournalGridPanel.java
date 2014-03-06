@@ -89,6 +89,8 @@ public class JournalGridPanel extends ContentPanel {
 
     private final String BEFORE_ACTION = "before"; //$NON-NLS-1$
 
+    final JournalSearchCriteria criteria;
+    
     public static JournalGridPanel getInstance() {
         if (instance == null) {
             instance = new JournalGridPanel();
@@ -157,7 +159,7 @@ public class JournalGridPanel extends ContentPanel {
         ccUserName.setWidth(120);
         ccList.add(ccUserName);
 
-        final JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);
+        criteria = Registry.get(Journal.SEARCH_CRITERIA);
         RpcProxy<PagingLoadResult<JournalGridModel>> proxy = new RpcProxy<PagingLoadResult<JournalGridModel>>() {
 
             @Override
@@ -358,7 +360,7 @@ public class JournalGridPanel extends ContentPanel {
 
     private void openDebugPanel(Boolean isEnterprise, JournalGridModel gridModel, JournalTreeModel root) {
         if (isEnterprise) {
-            JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, root.isAuth(), 550);
+            JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, criteria, root.isAuth(), 550);
             Window window = new Window();
             window.setLayout(new FitLayout());
             window.add(journalHistoryPanel);
@@ -383,8 +385,8 @@ public class JournalGridPanel extends ContentPanel {
     private void openGWTPanel(Boolean isEnterprise, JournalGridModel gridModel, JournalTreeModel root) {
         if (isEnterprise) {
             int width = JournalTabPanel.getInstance().getWidth() / 2 - 2;
-            JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, root.isAuth(), width);
-            this.openHistoryTabPanel(gridModel.getIds(), journalHistoryPanel);
+            JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, criteria, root.isAuth(), width);
+            this.openHistoryTabPanel(gridModel.getIds().concat(criteria.toString()), journalHistoryPanel);
             journalHistoryPanel.getJournalDataPanel().getTree().setExpanded(root, true);
         } else {
             JournalDataPanel journalDataPanel = new JournalDataPanel(root, gridModel);

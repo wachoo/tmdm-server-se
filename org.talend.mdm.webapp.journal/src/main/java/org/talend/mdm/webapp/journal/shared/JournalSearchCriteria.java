@@ -93,5 +93,19 @@ public class JournalSearchCriteria implements IsSerializable {
 
     public void setStrict(boolean isStrict) {
         this.isStrict = isStrict;
-    } 
+    }
+    
+    public String toString() {
+        StringBuilder criteraStr= new StringBuilder();
+        
+        if (entity != null) criteraStr.append(entity);
+        if (key != null) criteraStr.append(key);
+        if (source != null) criteraStr.append(source);
+        if (operationType != null) criteraStr.append(operationType);
+        if (startDate != null) criteraStr.append(startDate);
+        if (endDate != null) criteraStr.append(endDate);
+        criteraStr.append(isStrict);   
+        
+        return criteraStr.toString();
+    }
 }
