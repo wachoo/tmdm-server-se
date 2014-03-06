@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.journal.client.widget;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
@@ -61,6 +60,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public class JournalDataPanel extends FormPanel {
+    
     private JournalHistoryPanel journalHistoryPanel;
     
     private JournalServiceAsync service = Registry.get(Journal.JOURNAL_SERVICE);
@@ -248,9 +248,7 @@ public class JournalDataPanel extends FormPanel {
                     @Override
                     public void loaderLoad(LoadEvent le) {
                         currentDataList = ((BasePagingLoadResult<JournalGridModel>) le.getData()).getData();
-                        if (!turnPage) {
-                            updateJournalNavigationList();
-                        } else {
+                        if (turnPage) {
                             JournalGridModel targetGridModel;
                             if (naviToPrevious) {
                                 targetGridModel = currentDataList.get(currentDataList.size() - 1);
@@ -258,9 +256,11 @@ public class JournalDataPanel extends FormPanel {
                                 targetGridModel = currentDataList.get(0);
                             }
                             JournalDataPanel.this.updateTabPanel(targetGridModel);
-                            turnPage = false;
+                            turnPage = false;                            
+                        } else {
+                            //only called from here when the JournalDataPanel opened from gridPanel, other calls to this fuction is issued from update()
+                            updateJournalNavigationList();
                         }
-
                     }
                 });
         
