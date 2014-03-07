@@ -42,6 +42,9 @@ public class TimeSlicer {
      * returns a {@link java.util.Iterator iterator} of {@link com.amalto.core.query.user.Expression expressions} that
      * groups modifications done within the same hour.
      * </p>
+     * <p>
+     * This method uses the default timestamp property {@link UserQueryBuilder#timestamp()}.
+     * </p>
      * 
      * @param expression The original expression to slice into queries on timestamp ranges.
      * @param storage Use to get the last modified record time (upper bound for timestamp) and the less modified record
@@ -53,6 +56,34 @@ public class TimeSlicer {
      * created based on <code>expression</code>.
      */
     public static Iterator<Slice> slice(Expression expression, Storage storage, long step, TimeUnit unit) {
+        return slice(expression, storage, step, unit, timestamp());
+    }
+
+    /**
+     * <p>
+     * "Slices" the <code>expression</code> into smaller queries depending on last modification timestamp. Each slice
+     * contains all records for which last modification time was within <code>step</code>. For example:
+     * </p>
+     * <code>
+     *     TimeSlicer.slice(expression, storage, 1, TimeUnit.HOURS, timestamp())
+     * </code>
+     * <p>
+     * returns a {@link java.util.Iterator iterator} of {@link com.amalto.core.query.user.Expression expressions} that
+     * groups modifications done within the same hour, using the built-in timestamp value.
+     * </p>
+     * 
+     * @param expression The original expression to slice into queries on timestamp ranges.
+     * @param storage Use to get the last modified record time (upper bound for timestamp) and the less modified record
+     * (lower bound for timestamp).
+     * @param step Indicates how long a slice can be (this is a maximum, last slice might be smaller). Parameter is
+     * evaluated with <code>unit</code>.
+     * @param unit The {@link java.util.concurrent.TimeUnit unit} for the <code>step</code>.
+     * @param timestamp The field to be used for time slicing.
+     * @return A {@link java.util.Iterator iterator} to all {@link com.amalto.core.query.user.TimeSlicer.Slice slices}
+     * created based on <code>expression</code>.
+     */
+    public static Iterator<Slice> slice(Expression expression, Storage storage, long step, TimeUnit unit,
+            TypedExpression timestamp) {
         if (expression == null) {
             return null;
         }
@@ -64,29 +95,31 @@ public class TimeSlicer {
         Select select = (Select) expression;
         ComplexTypeMetadata mainType = select.getTypes().get(0);
         // Get lower and upper timestamp bounds
-        UserQueryBuilder upperBoundQuery = from(mainType).select(alias(max(timestamp()), "upper")); //$NON-NLS-1$
-        UserQueryBuilder lowerBoundQuery = from(mainType).select(alias(min(timestamp()), "lower")); //$NON-NLS-1$
+        UserQueryBuilder upperBoundQuery = from(mainType).select(max(timestamp)).where(select.getCondition()).limit(1);
+        UserQueryBuilder lowerBoundQuery = from(mainType).select(min(timestamp)).where(select.getCondition()).limit(1);
         StorageResults upperBoundResult = storage.fetch(upperBoundQuery.getSelect());
         long upperBound;
         try {
-            upperBound = (Long) upperBoundResult.iterator().next().get("upper"); //$NON-NLS-1$
+            Long max = (Long) upperBoundResult.iterator().next().get("max"); //$NON-NLS-1$
+            upperBound = max == null ? 0 : max;
         } finally {
             upperBoundResult.close();
         }
         StorageResults lowerBoundResult = storage.fetch(lowerBoundQuery.getSelect());
         long lowerBound;
         try {
-            lowerBound = (Long) upperBoundResult.iterator().next().get("lower"); //$NON-NLS-1$
+            Long min = (Long) lowerBoundResult.iterator().next().get("min"); //$NON-NLS-1$
+            lowerBound = min == null ? 0 : min;
         } finally {
             lowerBoundResult.close();
         }
         // Create the slice iterator
-        return new SliceIterator(lowerBound, upperBound, unit.toMillis(step), select);
+        return new SliceIterator(lowerBound, upperBound, unit.toMillis(step), select, timestamp);
     }
 
     /**
-     * Represents a slice of the original query: the <code>expression</code> to retrieve the records, the lower and upper bound
-     * for the slice.
+     * Represents a slice of the original query: the <code>expression</code> to retrieve the records, the lower and
+     * upper bound for the slice.
      */
     public static class Slice {
 
@@ -121,15 +154,18 @@ public class TimeSlicer {
 
         private final Select select;
 
+        private final TypedExpression timestamp;
+
         private final long step;
 
         private long currentTimeStamp = 0;
 
-        public SliceIterator(long lowerBound, long upperBound, long step, Select select) {
+        public SliceIterator(long lowerBound, long upperBound, long step, Select select, TypedExpression timestamp) {
             this.currentTimeStamp = lowerBound;
             this.upperBound = upperBound;
             this.step = step;
             this.select = select;
+            this.timestamp = timestamp;
         }
 
         @Override
@@ -146,14 +182,15 @@ public class TimeSlicer {
             try {
                 Select copy = select.copy();
                 Condition previousCondition = copy.getCondition();
-                Condition rangeCondition = and(gte(timestamp(), String.valueOf(currentTimeStamp)),
-                        gte(timestamp(), String.valueOf(currentTimeStamp + step)));
+                long sliceUpperBound = currentTimeStamp + step;
+                Condition rangeCondition = and(gte(timestamp, String.valueOf(currentTimeStamp)),
+                        lt(timestamp, String.valueOf(sliceUpperBound)));
                 if (previousCondition == null) {
                     copy.setCondition(rangeCondition);
                 } else {
                     copy.setCondition(and(previousCondition, rangeCondition));
                 }
-                slice = new Slice(currentTimeStamp, currentTimeStamp + step, copy);
+                slice = new Slice(currentTimeStamp, sliceUpperBound, copy);
             } finally {
                 currentTimeStamp += step;
             }

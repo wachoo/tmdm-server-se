@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Response;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONWriter;
@@ -27,6 +28,7 @@ import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.Field;
 import com.amalto.core.query.user.TimeSlicer;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.ServerContext;
@@ -45,23 +47,27 @@ public class JournalStatistics {
     private static void writeStatsTo(Storage storage, UserQueryBuilder query, String statName, JSONWriter writer)
             throws JSONException {
         Expression expression = query.getExpression();
-        Iterator<TimeSlicer.Slice> slices = TimeSlicer.slice(expression, storage, DEFAULT_SLICE_STEP, DEFAULT_SLICE_UNIT);
+        Field field = new Field(query.getSelect().getTypes().get(0).getField("TimeInMillis"));
+        Iterator<TimeSlicer.Slice> slices = TimeSlicer.slice(expression, storage, DEFAULT_SLICE_STEP, DEFAULT_SLICE_UNIT, field);
         writer.array();
         {
             while (slices.hasNext()) {
-                writer.object();
-                {
-                    TimeSlicer.Slice slice = slices.next();
-                    writer.key("from").value(slice.getLowerBound()); //$NON-NLS-1$
-                    writer.key("to").value(slice.getUpperBound()); //$NON-NLS-1$
-                    StorageResults results = storage.fetch(slice.getExpression()); // Expects a live transaction here.
-                    try {
-                        writer.key(statName).value(results.iterator().next().get("count")); //$NON-NLS-1$
-                    } finally {
-                        results.close();
+                TimeSlicer.Slice slice = slices.next();
+                StorageResults results = storage.fetch(slice.getExpression()); // Expects a live transaction here.
+                try {
+                    Long count = (Long) results.iterator().next().get("count"); //$NON-NLS-1$
+                    if (count > 0) {
+                        writer.object();
+                        {
+                            writer.key(statName).value(count); //$NON-NLS-1$
+                            writer.key("from").value(slice.getLowerBound()); //$NON-NLS-1$
+                            writer.key("to").value(slice.getUpperBound()); //$NON-NLS-1$
+                        }
+                        writer.endObject();
                     }
+                } finally {
+                    results.close();
                 }
-                writer.endObject();
             }
         }
         writer.endArray();
@@ -69,7 +75,8 @@ public class JournalStatistics {
 
     @GET
     @Path("{container}")
-    public String getJournalStatistics(@PathParam("container") String containerName) {
+    public Response getJournalStatistics(@PathParam("container")
+    String containerName) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER, null);
         if (dataStorage == null) {
@@ -82,7 +89,8 @@ public class JournalStatistics {
         JSONWriter writer = new JSONWriter(stringWriter);
         MetadataRepository repository = dataStorage.getMetadataRepository();
         try {
-            writer.object();
+            updateReportStorage.begin();
+            writer.object().key("journal"); //$NON-NLS-1$
             {
                 writer.array();
                 {
@@ -94,19 +102,25 @@ public class JournalStatistics {
                             writer.array();
                             {
                                 // Write create stats
-                                writer.key("creations");
-                                UserQueryBuilder createQuery = from(updateType).select(alias(count(), "count")) //$NON-NLS-1$
-                                        .where(and(eq(updateType.getField("Type"), type.getName()), //$NON-NLS-1$
-                                                eq(updateType.getField("action"), "update") //$NON-NLS-1$ //$NON-NLS-2$
-                                        )).cache();
-                                writeStatsTo(updateReportStorage, createQuery, "create", writer); //$NON-NLS-1$
+                                writer.object().key("creations");
+                                {
+                                    UserQueryBuilder createQuery = from(updateType).select(count()) //$NON-NLS-1$
+                                            .where(and(eq(updateType.getField("Concept"), type.getName()), //$NON-NLS-1$
+                                                    eq(updateType.getField("OperationType"), "CREATE") //$NON-NLS-1$ //$NON-NLS-2$
+                                            )).limit(1).cache();
+                                    writeStatsTo(updateReportStorage, createQuery, "create", writer); //$NON-NLS-1$
+                                }
+                                writer.endObject();
                                 // Write update stats
-                                writer.key("updates");
-                                UserQueryBuilder updateQuery = from(updateType).select(alias(count(), "count")) //$NON-NLS-1$
-                                        .where(and(eq(updateType.getField("Type"), type.getName()), //$NON-NLS-1$
-                                                eq(updateType.getField("action"), "update") //$NON-NLS-1$ //$NON-NLS-2$
-                                        )).cache();
-                                writeStatsTo(updateReportStorage, updateQuery, "update", writer); //$NON-NLS-1$
+                                writer.object().key("updates");
+                                {
+                                    UserQueryBuilder updateQuery = from(updateType).select(alias(count(), "count")) //$NON-NLS-1$
+                                            .where(and(eq(updateType.getField("Concept"), type.getName()), //$NON-NLS-1$
+                                                    eq(updateType.getField("OperationType"), "UPDATE") //$NON-NLS-1$ //$NON-NLS-2$
+                                            )).limit(1).cache();
+                                    writeStatsTo(updateReportStorage, updateQuery, "update", writer); //$NON-NLS-1$
+                                }
+                                writer.endObject();
                             }
                             writer.endArray();
                         }
@@ -117,8 +131,11 @@ public class JournalStatistics {
             }
             writer.endObject();
         } catch (JSONException e) {
+            updateReportStorage.rollback();
             throw new RuntimeException("Could not provide statistics.", e);
+        } finally {
+            updateReportStorage.commit();
         }
-        return stringWriter.toString();
+        return Response.ok().entity(stringWriter.toString()).header("Access-Control-Allow-Origin", "*").build();
     }
 }

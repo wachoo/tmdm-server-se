@@ -1917,7 +1917,18 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             storage.end();
         }
-
+        // Test max on TimeInMillis
+        storage.begin();
+        UserQueryBuilder qb = UserQueryBuilder.from(updateReport).select(max(updateReport.getField("TimeInMillis"))).limit(1);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            for (DataRecord result : results) {
+                assertNotNull(result.get("max"));
+            }
+        } finally {
+            results.close();
+            storage.commit();
+        }
         // build query condition
         ItemPKCriteria criteria = new ItemPKCriteria();
         criteria.setClusterName("UpdateReport");
@@ -1925,7 +1936,7 @@ public class StorageQueryTest extends StorageTestCase {
         String contentKeywords = criteria.getContentKeywords();
         // build Storage whereCondition, the codes come from com.amalto.core.storage.StorageWrapper.buildQueryBuilder(UserQueryBuilder, ItemPKCriteria, ComplexTypeMetadata)
         Condition condition = null;
-        UserQueryBuilder qb = from(updateReport);
+        qb = from(updateReport);
         for (FieldMetadata field : updateReport.getFields()) {
             if (StorageMetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
                 if (!(field instanceof ContainedTypeFieldMetadata)) {
@@ -1940,7 +1951,7 @@ public class StorageQueryTest extends StorageTestCase {
         qb.where(condition);
         assertEquals(condition, qb.getSelect().getCondition());
         storage.begin();
-        StorageResults results = storage.fetch(qb.getSelect());
+        results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
         } finally {

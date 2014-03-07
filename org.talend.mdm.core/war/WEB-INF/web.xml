@@ -77,9 +77,13 @@
         <init-param>
             <param-name>jaxrs.serviceClasses</param-name>
             <param-value>
-                com.amalto.core.storage.task.staging.StagingTaskService com.amalto.core.storage.transaction.TransactionService
-                com.amalto.core.storage.task.matching.ExplainTaskService com.amalto.core.storage.task.matching.SimilarTaskService
-                com.amalto.core.storage.services.SystemModels com.amalto.core.storage.services.DataService
+                com.amalto.core.storage.task.staging.StagingTaskService
+                com.amalto.core.storage.transaction.TransactionService
+                com.amalto.core.storage.task.matching.ExplainTaskService
+                com.amalto.core.storage.task.matching.SimilarTaskService
+                com.amalto.core.storage.services.SystemModels
+                com.amalto.core.storage.services.DataService
+                com.amalto.core.storage.services.JournalStatistics
             </param-value>
         </init-param>
         <init-param>
