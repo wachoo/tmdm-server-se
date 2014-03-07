@@ -20,6 +20,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.compare.Change;
 import org.talend.mdm.commmon.metadata.compare.Compare;
@@ -33,18 +34,20 @@ import com.amalto.core.storage.StorageType;
 @Path("/system/models") //$NON-NLS-1$
 public class SystemModels {
 
+    private static final Logger LOGGER = Logger.getLogger(SystemModels.class);
+
     @GET
     @Path("{model}")
     public String getSchema(@PathParam("model") //$NON-NLS-1$
-    String modelName) {
+            String modelName) {
         throw new UnsupportedOperationException("Get a data model content isn't currently supported.");
     }
 
     @PUT
     @Path("{model}") //$NON-NLS-1$
     public void updateModel(@PathParam("model") //$NON-NLS-1$
-    String modelName, @QueryParam("force") //$NON-NLS-1$
-    boolean force, InputStream dataModel) {
+            String modelName, @QueryParam("force") //$NON-NLS-1$
+            boolean force, InputStream dataModel) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
         if (storage == null) {
@@ -60,7 +63,7 @@ public class SystemModels {
     @POST
     @Path("{model}") //$NON-NLS-1$
     public String analyzeModelChange(@PathParam("model") //$NON-NLS-1$
-    String modelName, InputStream dataModel) {
+            String modelName, InputStream dataModel) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
         if (storage == null) {
@@ -75,24 +78,24 @@ public class SystemModels {
         Map<ImpactAnalyzer.Impact, List<Change>> impacts = storage.getImpactAnalyzer().analyzeImpacts(diffResults);
         // Serialize results to XML
         StringWriter resultAsXml = new StringWriter();
+        XMLStreamWriter writer = null;
         try {
-            XMLStreamWriter writer = XMLOutputFactory.newFactory().createXMLStreamWriter(resultAsXml);
+            writer = XMLOutputFactory.newFactory().createXMLStreamWriter(resultAsXml);
             writer.writeStartElement("result"); //$NON-NLS-1$
             {
                 for (Map.Entry<ImpactAnalyzer.Impact, List<Change>> category : impacts.entrySet()) {
                     writer.writeStartElement(category.getKey().name().toLowerCase());
-                    for (List<Change> changes : impacts.values()) {
-                        for (Change change : changes) {
-                            writer.writeStartElement("change"); //$NON-NLS-1$
+                    List<Change> changes = category.getValue();
+                    for (Change change : changes) {
+                        writer.writeStartElement("change"); //$NON-NLS-1$
+                        {
+                            writer.writeStartElement("message"); //$NON-NLS-1$
                             {
-                                writer.writeStartElement("message"); //$NON-NLS-1$
-                                {
-                                    writer.writeCharacters(change.getMessage());
-                                }
-                                writer.writeEndElement();
+                                writer.writeCharacters(change.getMessage());
                             }
                             writer.writeEndElement();
                         }
+                        writer.writeEndElement();
                     }
                     writer.writeEndElement();
                 }
@@ -100,6 +103,16 @@ public class SystemModels {
             writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new RuntimeException(e);
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.flush();
+                } catch (XMLStreamException e) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Could not flush XML content.", e);
+                    }
+                }
+            }
         }
         return resultAsXml.toString();
     }
