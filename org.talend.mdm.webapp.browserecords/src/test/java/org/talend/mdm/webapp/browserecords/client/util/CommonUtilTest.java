@@ -56,6 +56,21 @@ public class CommonUtilTest extends TestCase {
         }
     }
 
+    public void testParseSimpleSearchExpression_value_with_multi_words() {
+        try {
+            String s = "(Product/Name CONTAINS New York City)";
+            CommonUtil.CriteriaAndC r = CommonUtil.parseSimpleSearchExpression(s.toCharArray(), 0);
+            assertTrue(r.cr instanceof SimpleCriterion);
+            assertTrue(r.c == s.length() - 1);
+            assertTrue(((SimpleCriterion) r.cr).getOperator().equals("CONTAINS"));
+            assertTrue(((SimpleCriterion) r.cr).getKey().equals("Product/Name"));
+            assertTrue(((SimpleCriterion) r.cr).getValue().equals("New York City"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
+    
     public void testParseMultipleSearchExpression() {
         try {
             String s = "((foo/bar EQUALS 3/4) AND ((a/a/a MORETHAN a/b) OR (c/b/f LESSTHAN 3.2)) AND (c/c/c MORETHAN c/c))";
