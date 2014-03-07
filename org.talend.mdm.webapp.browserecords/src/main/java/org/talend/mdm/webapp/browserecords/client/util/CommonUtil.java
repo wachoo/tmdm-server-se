@@ -493,8 +493,15 @@ public class CommonUtil {
     public static CriteriaAndC parseSimpleSearchExpression(char[] s, int c) throws Exception {
         int ce = ++c;
         while (s[++ce] != ')');
-        String[] ts = new String(s, c, ce - c).split(" "); //$NON-NLS-1$        
-        return new CriteriaAndC(new SimpleCriterion(ts[0], ts[1], ts[2]), ce);
+        String[] ts = new String(s, c, ce - c).split(" "); //$NON-NLS-1$
+        
+        int index = 2;
+        
+        String value=ts[index++];
+        while ( index < ts.length) {
+            value = value.concat(" " + ts[index++]); //$NON-NLS-1$
+        }
+        return new CriteriaAndC(new SimpleCriterion(ts[0], ts[1], value), ce);
     }
     
     public static class CriteriaAndC {
