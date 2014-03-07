@@ -190,7 +190,7 @@ public class TimeSlicer {
                 } else {
                     copy.setCondition(and(previousCondition, rangeCondition));
                 }
-                slice = new Slice(currentTimeStamp, sliceUpperBound, copy);
+                slice = new Slice(currentTimeStamp, sliceUpperBound - 1, copy);
             } finally {
                 currentTimeStamp += step;
             }

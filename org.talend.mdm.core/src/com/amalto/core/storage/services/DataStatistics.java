@@ -17,6 +17,9 @@ import java.io.StringWriter;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONWriter;
@@ -35,8 +38,9 @@ import com.amalto.core.storage.record.DataRecord;
 public class DataStatistics {
 
     @GET
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("{container}")
-    public String getDataStatistics(@PathParam("container")
+    public Response getDataStatistics(@PathParam("container")
     String containerName) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER, null);
@@ -48,32 +52,32 @@ public class DataStatistics {
         JSONWriter writer = new JSONWriter(stringWriter);
         MetadataRepository repository = dataStorage.getMetadataRepository();
         try {
-            writer.object();
+            dataStorage.begin();
+            writer.object().key("data"); //$NON-NLS-1$
             {
                 writer.array();
                 {
                     for (ComplexTypeMetadata type : repository.getUserComplexTypes()) {
-                        writer.object();
-                        {
-                            Expression count = from(type).select(alias(count(), "count")).cache().getExpression(); //$NON-NLS-1$
-                            StorageResults typeCount = dataStorage.fetch(count);
-                            long countValue = 0;
-                            for (DataRecord record : typeCount) {
-                                countValue = (Long) record.get("count"); //$NON-NLS-1$
-                            }
-                            // Starts stats for type
-                            writer.key(type.getName()).value(countValue);
+                        Expression count = from(type).select(alias(count(), "count")).limit(1).cache().getExpression(); //$NON-NLS-1$
+                        StorageResults typeCount = dataStorage.fetch(count);
+                        long countValue = 0;
+                        for (DataRecord record : typeCount) {
+                            countValue = (Long) record.get("count"); //$NON-NLS-1$
                         }
-                        writer.endObject();
+                        // Starts stats for type
+                        writer.object().key(type.getName()).value(countValue).endObject();
                     }
                 }
                 writer.endArray();
             }
             writer.endObject();
+            dataStorage.commit();
         } catch (JSONException e) {
+            dataStorage.rollback();
             throw new RuntimeException("Could not provide statistics.", e);
         }
-        return stringWriter.toString();
+        return Response.ok().type(MediaType.APPLICATION_JSON_TYPE).entity(stringWriter.toString())
+                .header("Access-Control-Allow-Origin", "*").build(); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
 }

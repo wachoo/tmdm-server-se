@@ -18,6 +18,9 @@ import java.io.StringWriter;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONWriter;
@@ -36,8 +39,9 @@ import com.amalto.core.storage.record.DataRecord;
 public class MatchingStatistics {
 
     @GET
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("{container}")
-    public String getMatchingStatistics(@PathParam("container")
+    public Response getMatchingStatistics(@PathParam("container")
     String containerName) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage dataStorage = storageAdmin.get(containerName, StorageType.STAGING, null);
@@ -49,7 +53,8 @@ public class MatchingStatistics {
         JSONWriter writer = new JSONWriter(stringWriter);
         MetadataRepository repository = dataStorage.getMetadataRepository();
         try {
-            writer.object();
+            dataStorage.begin();
+            writer.object().key("matching");
             {
                 writer.array();
                 {
@@ -72,9 +77,12 @@ public class MatchingStatistics {
                 writer.endArray();
             }
             writer.endObject();
+            dataStorage.commit();
         } catch (JSONException e) {
+            dataStorage.rollback();
             throw new RuntimeException("Could not provide statistics.", e);
         }
-        return stringWriter.toString();
+        return Response.ok().type(MediaType.APPLICATION_JSON_TYPE).entity(stringWriter.toString())
+                        .header("Access-Control-Allow-Origin", "*").build(); //$NON-NLS-1$ //$NON-NLS-2$
     }
 }

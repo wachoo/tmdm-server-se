@@ -194,6 +194,16 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
     }
 
     @Override
+    public Visitor<StorageResults> visit(Distinct distinct) {
+        return null;
+    }
+
+    @Override
+    public Visitor<StorageResults> visit(GroupSize groupSize) {
+        return null;
+    }
+
+    @Override
     public Visitor<StorageResults> visit(Max max) {
         return null;
     }

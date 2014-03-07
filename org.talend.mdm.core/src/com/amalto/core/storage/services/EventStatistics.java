@@ -16,11 +16,14 @@ import java.io.StringWriter;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONWriter;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import com.amalto.core.query.user.Expression;
@@ -35,7 +38,8 @@ import com.amalto.core.storage.record.DataRecord;
 public class EventStatistics {
 
     @GET
-    public String getEventStatistics() {
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getEventStatistics() {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage system = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
         if (system == null) {
@@ -46,31 +50,57 @@ public class EventStatistics {
         JSONWriter writer = new JSONWriter(stringWriter);
         MetadataRepository repository = system.getMetadataRepository();
         try {
-            writer.object();
+            system.begin();
+            writer.object().key("events"); //$NON-NLS-1$
             {
                 writer.array();
                 {
-                    for (ComplexTypeMetadata type : repository.getUserComplexTypes()) {
-                        writer.object();
-                        {
-                            Expression count = from(type).select(alias(count(), "count")).cache().getExpression(); //$NON-NLS-1$
-                            StorageResults typeCount = system.fetch(count);
-                            long countValue = 0;
-                            for (DataRecord record : typeCount) {
-                                countValue = (Long) record.get("count"); //$NON-NLS-1$
-                            }
-                            // Starts stats for type
-                            writer.key(type.getName()).value(countValue);
-                        }
-                        writer.endObject();
-                    }
+                    // Failed events
+                    ComplexTypeMetadata failedRoutingOrder = repository.getComplexType("failed-routing-order-v2-pOJO"); //$NON-NLS-1$
+                    writeTo(system, failedRoutingOrder, writer, "failed"); //$NON-NLS-1$
+                    // Completed events
+                    ComplexTypeMetadata completedRoutingOrder = repository.getComplexType("completed-routing-order-v2-pOJO"); //$NON-NLS-1$
+                    writeTo(system, completedRoutingOrder, writer, "completed"); //$NON-NLS-1$
                 }
                 writer.endArray();
             }
             writer.endObject();
+            system.commit();
         } catch (JSONException e) {
+            system.rollback();
             throw new RuntimeException("Could not provide statistics.", e);
         }
-        return stringWriter.toString();
+        return Response.ok().type(MediaType.APPLICATION_JSON_TYPE).entity(stringWriter.toString())
+                .header("Access-Control-Allow-Origin", "*").build(); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    private void writeTo(Storage system, ComplexTypeMetadata routingOrderType, JSONWriter writer, String categoryName)
+            throws JSONException {
+        FieldMetadata nameField = routingOrderType.getField("name"); //$NON-NLS-1$
+        Expression routingNames = from(routingOrderType).select(distinct(nameField)).limit(1).cache().getExpression();
+        writer.object().key(categoryName);
+        {
+            writer.array();
+            {
+                StorageResults routingNameResults = system.fetch(routingNames);
+                try {
+                    for (DataRecord routingNameResult : routingNameResults) {
+                        String name = String.valueOf(routingNameResult.get(nameField));
+                        Expression routingNameCount = from(routingOrderType).select(alias(count(), "count")) //$NON-NLS-1$
+                                .where(eq(nameField, name)).limit(1).cache().getExpression();
+                        StorageResults failedCountResult = system.fetch(routingNameCount);
+                        try {
+                            writer.object().key(name).value(failedCountResult.iterator().next().get("count")); //$NON-NLS-1$
+                        } finally {
+                            failedCountResult.close();
+                        }
+                    }
+                } finally {
+                    routingNameResults.close();
+                }
+            }
+            writer.endArray();
+        }
+        writer.endObject();
     }
 }

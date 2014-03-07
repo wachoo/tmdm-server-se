@@ -19,6 +19,8 @@ import java.util.concurrent.TimeUnit;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.codehaus.jettison.json.JSONException;
@@ -47,7 +49,7 @@ public class JournalStatistics {
     private static void writeStatsTo(Storage storage, UserQueryBuilder query, String statName, JSONWriter writer)
             throws JSONException {
         Expression expression = query.getExpression();
-        Field field = new Field(query.getSelect().getTypes().get(0).getField("TimeInMillis"));
+        Field field = new Field(query.getSelect().getTypes().get(0).getField("TimeInMillis")); //$NON-NLS-1$
         Iterator<TimeSlicer.Slice> slices = TimeSlicer.slice(expression, storage, DEFAULT_SLICE_STEP, DEFAULT_SLICE_UNIT, field);
         writer.array();
         {
@@ -74,6 +76,7 @@ public class JournalStatistics {
     }
 
     @GET
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("{container}")
     public Response getJournalStatistics(@PathParam("container")
     String containerName) {
@@ -102,7 +105,7 @@ public class JournalStatistics {
                             writer.array();
                             {
                                 // Write create stats
-                                writer.object().key("creations");
+                                writer.object().key("creations"); //$NON-NLS-1$
                                 {
                                     UserQueryBuilder createQuery = from(updateType).select(count()) //$NON-NLS-1$
                                             .where(and(eq(updateType.getField("Concept"), type.getName()), //$NON-NLS-1$
@@ -112,7 +115,7 @@ public class JournalStatistics {
                                 }
                                 writer.endObject();
                                 // Write update stats
-                                writer.object().key("updates");
+                                writer.object().key("updates"); //$NON-NLS-1$
                                 {
                                     UserQueryBuilder updateQuery = from(updateType).select(alias(count(), "count")) //$NON-NLS-1$
                                             .where(and(eq(updateType.getField("Concept"), type.getName()), //$NON-NLS-1$
@@ -130,12 +133,12 @@ public class JournalStatistics {
                 writer.endArray();
             }
             writer.endObject();
+            updateReportStorage.commit();
         } catch (JSONException e) {
             updateReportStorage.rollback();
             throw new RuntimeException("Could not provide statistics.", e);
-        } finally {
-            updateReportStorage.commit();
         }
-        return Response.ok().entity(stringWriter.toString()).header("Access-Control-Allow-Origin", "*").build();
+        return Response.ok().type(MediaType.APPLICATION_JSON_TYPE).entity(stringWriter.toString())
+                .header("Access-Control-Allow-Origin", "*").build(); //$NON-NLS-1$ //$NON-NLS-2$
     }
 }

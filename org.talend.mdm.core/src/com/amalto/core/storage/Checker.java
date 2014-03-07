@@ -23,6 +23,12 @@ class Checker extends VisitorAdapter<Boolean> {
     }
 
     @Override
+    public Boolean visit(GroupSize groupSize) {
+        // Always allow group size operator.
+        return true;
+    }
+
+    @Override
     public Boolean visit(Count count) {
         // Always allow count operation.
         return true;
