@@ -15,9 +15,10 @@ package org.talend.mdm.webapp.stagingareacontrol.client.rest;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaExecutionModel;
-import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaValidationModel;
-import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerModel;
+import org.talend.mdm.webapp.base.client.rest.RestServiceHandler;
+import org.talend.mdm.webapp.base.client.rest.model.StagingAreaExecutionModel;
+import org.talend.mdm.webapp.base.client.rest.model.StagingAreaValidationModel;
+import org.talend.mdm.webapp.base.client.rest.model.StagingContainerModel;
 
 import com.google.gwt.junit.client.GWTTestCase;
 
@@ -33,12 +34,13 @@ public class RestServiceHandlerGWTTest extends GWTTestCase {
         handler.setClient(new ClientResourceMockWrapper());
     }
 
+    @Override
     public String getModuleName() {
         return "org.talend.mdm.webapp.stagingareacontrol.StagingareaControl"; //$NON-NLS-1$
     }
 
     public void testGetDefaultStagingContainerSummary() {
-        MockStagingContainerModelCallback callback=new MockStagingContainerModelCallback();
+        MockStagingContainerModelCallback callback = new MockStagingContainerModelCallback();
         handler.getDefaultStagingContainerSummary(callback);
         assertTrue(callback.isSucceed());
         assertNotNull(callback.getModel());
@@ -122,6 +124,7 @@ public class RestServiceHandlerGWTTest extends GWTTestCase {
 
         private StagingContainerModel model;
 
+        @Override
         public void onSuccess(StagingContainerModel result) {
             this.model = result;
             this.succeed = true;
@@ -140,6 +143,7 @@ public class RestServiceHandlerGWTTest extends GWTTestCase {
 
         private String text;
 
+        @Override
         public void onSuccess(String result) {
             text = result;
         }
@@ -153,6 +157,7 @@ public class RestServiceHandlerGWTTest extends GWTTestCase {
 
         private boolean success;
 
+        @Override
         public void onSuccess(Boolean result) {
             success = result;
         }
@@ -166,6 +171,7 @@ public class RestServiceHandlerGWTTest extends GWTTestCase {
 
         private int resultSize;
 
+        @Override
         public void onSuccess(List<String> result) {
             resultSize = result.size();
         }
@@ -181,6 +187,7 @@ public class RestServiceHandlerGWTTest extends GWTTestCase {
 
         private StagingAreaExecutionModel model;
 
+        @Override
         public void onSuccess(StagingAreaExecutionModel result) {
             this.model = result;
             this.succeed = true;
@@ -201,6 +208,7 @@ public class RestServiceHandlerGWTTest extends GWTTestCase {
 
         private StagingAreaValidationModel model;
 
+        @Override
         public void onSuccess(StagingAreaValidationModel result) {
             this.model = result;
             this.succeed = true;
@@ -221,6 +229,7 @@ public class RestServiceHandlerGWTTest extends GWTTestCase {
 
         private List<StagingAreaExecutionModel> model;
 
+        @Override
         public void onSuccess(List<StagingAreaExecutionModel> result) {
             this.model = result;
             this.succeed = true;

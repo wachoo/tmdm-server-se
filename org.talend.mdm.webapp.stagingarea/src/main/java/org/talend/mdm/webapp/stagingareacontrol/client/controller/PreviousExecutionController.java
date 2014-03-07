@@ -16,9 +16,9 @@ import java.util.Date;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaExecutionModel;
+import org.talend.mdm.webapp.base.client.rest.RestServiceHandler;
+import org.talend.mdm.webapp.base.client.rest.model.StagingAreaExecutionModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.rest.RestDataProxy;
-import org.talend.mdm.webapp.stagingareacontrol.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.stagingareacontrol.client.view.PreviousExecutionView;
 
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
@@ -54,6 +54,7 @@ public class PreviousExecutionController extends AbstractController {
     static {
         proxy = new RestDataProxy<PagingLoadResult<StagingAreaExecutionModel>>() {
 
+            @Override
             protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<StagingAreaExecutionModel>> callback) {
                 final PagingLoadConfig config = (PagingLoadConfig) loadConfig;
                 searchButton.setEnabled(false);
@@ -62,10 +63,13 @@ public class PreviousExecutionController extends AbstractController {
                 RestServiceHandler.get().countStagingAreaExecutions(dataContainer, criteria,
                         new SessionAwareAsyncCallback<Integer>() {
 
+                            @Override
                             public void onSuccess(final Integer total) {
-                                RestServiceHandler.get().getStagingAreaExecutionsWithPaging(dataContainer,
-                                        config.getOffset(), config.getLimit(), beforeDate,
+                                RestServiceHandler.get().getStagingAreaExecutionsWithPaging(dataContainer, config.getOffset(),
+                                        config.getLimit(), beforeDate,
                                         new SessionAwareAsyncCallback<List<StagingAreaExecutionModel>>() {
+
+                                            @Override
                                             public void onSuccess(List<StagingAreaExecutionModel> result) {
                                                 BasePagingLoadResult<StagingAreaExecutionModel> pagingResult = new BasePagingLoadResult<StagingAreaExecutionModel>(
                                                         result, config.getOffset(), total);
@@ -92,17 +96,19 @@ public class PreviousExecutionController extends AbstractController {
 
         loader.addLoadListener(new LoadListener() {
 
+            @Override
             public void loaderLoad(LoadEvent le) {
                 loadDone = true;
             }
 
+            @Override
             public void loaderLoadException(LoadEvent le) {
                 loadDone = true;
             }
         });
 
     }
-    
+
     public PreviousExecutionController(PreviousExecutionView view) {
         setBindingView(view);
         this.view = (PreviousExecutionView) bindingView;
@@ -122,6 +128,7 @@ public class PreviousExecutionController extends AbstractController {
         taskStore = new ListStore<StagingAreaExecutionModel>(loader);
         taskStore.setKeyProvider(new ModelKeyProvider<StagingAreaExecutionModel>() {
 
+            @Override
             public String getKey(StagingAreaExecutionModel model) {
                 return model.getId();
             }

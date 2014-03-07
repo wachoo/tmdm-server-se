@@ -25,10 +25,10 @@ public class ClientGWTTestSuite extends TestCase /* note this is TestCase and no
 
     public static Test suite() {
         GWTTestSuite suite = new GWTTestSuite("All Gwt Tests go in here");
-        suite.addTestSuite(org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryViewGWTTest.class);
-        suite.addTestSuite(org.talend.mdm.webapp.stagingareacontrol.client.mvc.CurrentValidationGWTTest.class);
-        suite.addTestSuite(org.talend.mdm.webapp.stagingareacontrol.client.rest.RestServiceHandlerGWTTest.class);
-        suite.addTestSuite(org.talend.mdm.webapp.stagingareabrowser.client.model.RecordStatusWrapperGWTTest.class);
+//        suite.addTestSuite(org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryViewGWTTest.class);
+//        suite.addTestSuite(org.talend.mdm.webapp.stagingareacontrol.client.mvc.CurrentValidationGWTTest.class);
+//        suite.addTestSuite(org.talend.mdm.webapp.stagingareacontrol.client.rest.RestServiceHandlerGWTTest.class);
+//        suite.addTestSuite(org.talend.mdm.webapp.stagingareabrowser.client.model.RecordStatusWrapperGWTTest.class);
         return suite;
     }
 

@@ -13,12 +13,12 @@
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.rest.model.StagingContainerModel;
 import org.talend.mdm.webapp.base.client.util.StorageProvider;
 import org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.ConceptRelationshipModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.FilterModel;
-import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerModel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.IconAlign;
@@ -184,11 +184,11 @@ public class StagingContainerSummaryView extends AbstractView {
     }
 
     private native void addClickForRecord(int state, Element el)/*-{
-                                                                var instance = this;
-                                                                el.onclick = function() {
-                                                                instance.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::onOpenRecord(I)(state);
-                                                                };
-                                                                }-*/;
+		var instance = this;
+		el.onclick = function() {
+			instance.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::onOpenRecord(I)(state);
+		};
+    }-*/;
 
     void onOpenRecord(int state) {
         ControllerContainer.get().getSummaryController().openInvalidRecordToBrowseRecord(state);

@@ -12,9 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
+import org.talend.mdm.webapp.base.client.rest.model.StagingAreaValidationModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.GenerateContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
-import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaValidationModel;
 
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -36,7 +36,6 @@ import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.i18n.client.NumberFormat;
 
-
 public class CurrentValidationView extends AbstractView {
 
     public enum Status {
@@ -47,11 +46,11 @@ public class CurrentValidationView extends AbstractView {
     private Status status = Status.None;
 
     private static final long SECOND = 1000L;
-    
+
     private static final long MINITE = SECOND * 60;
-    
+
     private static final long HOUR = MINITE * 60;
-    
+
     private static final long DAY = HOUR * 24;
 
     private Button cancelButton;
@@ -112,11 +111,14 @@ public class CurrentValidationView extends AbstractView {
     @Override
     protected void registerEvent() {
         cancelButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
             @Override
             public void componentSelected(ButtonEvent ce) {
                 MessageBox.confirm(messages.please_confirm(), messages.confirm_message(), new Listener<MessageBoxEvent>() {
+
+                    @Override
                     public void handleEvent(MessageBoxEvent be) {
-                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)){
+                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                             ControllerContainer.get().getCurrentValidationController().cancelValidation();
                         }
                     }
@@ -158,7 +160,8 @@ public class CurrentValidationView extends AbstractView {
         }
         currentValidationModel = stagingAreaValidationModel;
         startDateField.setValue(stagingAreaValidationModel.getStartDate());
-        recordToProcessField.setValue(stagingAreaValidationModel.getTotalRecord() - stagingAreaValidationModel.getProcessedRecords());
+        recordToProcessField.setValue(stagingAreaValidationModel.getTotalRecord()
+                - stagingAreaValidationModel.getProcessedRecords());
         invalidField.setValue(stagingAreaValidationModel.getInvalidRecords());
 
         int process = stagingAreaValidationModel.getProcessedRecords();

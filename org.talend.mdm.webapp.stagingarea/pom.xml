@@ -12,10 +12,6 @@
     <packaging>war</packaging>
     <name>org.talend.mdm.webapp.stagingarea</name>
 
-    <properties>
-        <restlet.version>2.0.14</restlet.version>
-    </properties>
-
     <dependencies>
         <!-- Test dependencies -->
         <dependency>
@@ -59,17 +55,14 @@
         <dependency>
             <groupId>org.restlet.gwt</groupId>
             <artifactId>org.restlet</artifactId>
-            <version>${restlet.version}</version>
         </dependency>
         <dependency>
             <groupId>org.restlet.gwt</groupId>
             <artifactId>org.restlet.ext.json</artifactId>
-            <version>${restlet.version}</version>
         </dependency>
         <dependency>
             <groupId>org.restlet.gwt</groupId>
             <artifactId>org.restlet.ext.xml</artifactId>
-            <version>${restlet.version}</version>
         </dependency>
 
         <!-- MDM dependencies -->

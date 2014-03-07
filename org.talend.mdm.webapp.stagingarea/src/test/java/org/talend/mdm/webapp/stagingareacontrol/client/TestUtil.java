@@ -12,11 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client;
 
+import org.talend.mdm.webapp.base.client.rest.ClientResourceWrapper;
+import org.talend.mdm.webapp.base.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaConfiguration;
-import org.talend.mdm.webapp.stagingareacontrol.client.rest.ClientResourceWrapper;
-import org.talend.mdm.webapp.stagingareacontrol.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.stagingareacontrol.client.view.CurrentValidationView;
 import org.talend.mdm.webapp.stagingareacontrol.client.view.PreviousExecutionView;
 import org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView;
@@ -26,7 +26,7 @@ import org.talend.mdm.webapp.stagingareacontrol.client.view.StagingareaMainView;
 public class TestUtil {
 
     public static native void setContextModel(StagingAreaConfiguration cm)/*-{
-        @org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl::stagingAreaConfig = cm;
+		@org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl::stagingAreaConfig = cm;
     }-*/;
 
     public static void initContainer() {

@@ -14,10 +14,10 @@ package org.talend.mdm.webapp.stagingareacontrol.client.controller;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
+import org.talend.mdm.webapp.base.client.rest.RestServiceHandler;
+import org.talend.mdm.webapp.base.client.rest.model.StagingAreaValidationModel;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl;
-import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaValidationModel;
-import org.talend.mdm.webapp.stagingareacontrol.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.stagingareacontrol.client.view.CurrentValidationView;
 
 import com.google.gwt.dom.client.Document;

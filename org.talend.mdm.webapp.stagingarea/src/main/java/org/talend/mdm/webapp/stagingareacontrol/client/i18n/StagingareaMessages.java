@@ -24,10 +24,6 @@ public interface StagingareaMessages extends Messages {
 
     String previous_validation();
 
-    String server_error();
-
-    String server_error_notification();
-
     String data_container();
 
     String data_model();
@@ -95,12 +91,6 @@ public interface StagingareaMessages extends Messages {
     String confirm_message();
 
     String loading();
-
-    String staging_area_error();
-
-    String staging_area_exception();
-
-    String underlying_cause();
 
     String entity_selector();
 

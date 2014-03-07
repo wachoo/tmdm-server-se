@@ -19,8 +19,8 @@ import org.restlet.client.data.Status;
 import org.restlet.client.engine.io.StringInputStream;
 import org.restlet.client.ext.xml.DomRepresentation;
 import org.restlet.client.representation.InputRepresentation;
-import org.talend.mdm.webapp.stagingareacontrol.client.rest.ClientResourceWrapper;
-import org.talend.mdm.webapp.stagingareacontrol.client.rest.ResourceCallbackHandler;
+import org.talend.mdm.webapp.base.client.rest.ClientResourceWrapper;
+import org.talend.mdm.webapp.base.client.rest.ResourceCallbackHandler;
 
 import com.google.gwt.xml.client.XMLParser;
 
@@ -40,16 +40,16 @@ public class ResourceMockWrapper extends ClientResourceWrapper {
         this.callbackHandler = callbackHandler;
     }
 
+    @Override
     public void request(MediaType mediaType) {
         request();
     }
-    
+
     @Override
     public void request() {
         Response response = new Response(null);
-        
-        if (method.equals(Method.GET)
-                && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/\\?model=TestDataModel$")) {
+
+        if (method.equals(Method.GET) && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/\\?model=TestDataModel$")) {
 
             StringBuilder sb = new StringBuilder();
             sb.append("<staging> ");
@@ -63,8 +63,7 @@ public class ResourceMockWrapper extends ClientResourceWrapper {
             String messageXml = sb.toString();
             DomRepresentation representation = new DomRepresentation(MediaType.TEXT_XML, XMLParser.parse(messageXml));
             response.setEntity(representation);
-        } else if (method.equals(Method.GET)
-                && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/current$")) {
+        } else if (method.equals(Method.GET) && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/current$")) {
 
             if (runValidationTask) {
                 StringBuilder sb = new StringBuilder();

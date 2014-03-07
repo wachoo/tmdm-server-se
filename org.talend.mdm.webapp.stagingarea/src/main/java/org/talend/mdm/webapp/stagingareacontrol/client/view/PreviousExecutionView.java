@@ -17,11 +17,11 @@ import java.util.Date;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
+import org.talend.mdm.webapp.base.client.rest.model.StagingAreaExecutionModel;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.PreviousExecutionController;
-import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaExecutionModel;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;

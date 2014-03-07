@@ -17,10 +17,10 @@ import org.restlet.client.ext.xml.DomRepresentation;
 import org.restlet.client.representation.Representation;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
+import org.talend.mdm.webapp.base.client.rest.RestServiceHandler;
+import org.talend.mdm.webapp.base.client.rest.model.StagingContainerModel;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.FilterModel;
-import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerModel;
-import org.talend.mdm.webapp.stagingareacontrol.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView;
 
 import com.google.gwt.xml.client.Document;

@@ -19,6 +19,8 @@ import org.restlet.client.data.Status;
 import org.restlet.client.engine.io.StringInputStream;
 import org.restlet.client.ext.xml.DomRepresentation;
 import org.restlet.client.representation.InputRepresentation;
+import org.talend.mdm.webapp.base.client.rest.ClientResourceWrapper;
+import org.talend.mdm.webapp.base.client.rest.ResourceCallbackHandler;
 
 import com.google.gwt.xml.client.XMLParser;
 
@@ -36,6 +38,7 @@ public class ClientResourceMockWrapper extends ClientResourceWrapper {
         this.callbackHandler = callbackHandler;
     }
 
+    @Override
     public void request(MediaType mediaType) {
         request();
     }
@@ -98,8 +101,7 @@ public class ClientResourceMockWrapper extends ClientResourceWrapper {
             DomRepresentation representation = new DomRepresentation(MediaType.TEXT_XML, XMLParser.parse(messageXml));
             response.setEntity(representation);
 
-        } else if (method.equals(Method.GET)
- && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/current$")) {
+        } else if (method.equals(Method.GET) && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/current$")) {
             StringBuilder sb = new StringBuilder();
             sb.append("<execution> ");
             sb.append(" <id>1ad084c1-5f70-4b89-aeef-613e7e44f134</id> ");

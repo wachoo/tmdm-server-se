@@ -12,11 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
+import org.talend.mdm.webapp.base.client.rest.model.StagingContainerModel;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.TestUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaConfiguration;
-import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerModel;
 
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.Element;
@@ -35,7 +35,7 @@ public class StagingContainerSummaryViewGWTTest extends GWTTestCase {
     }
 
     public native void setContextModel(StagingAreaConfiguration cm)/*-{
-        @org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl::stagingAreaConfig = cm;
+		@org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl::stagingAreaConfig = cm;
     }-*/;
 
     public void testHtmlContentAfterRefreshSummary() {
@@ -73,9 +73,9 @@ public class StagingContainerSummaryViewGWTTest extends GWTTestCase {
     }
 
     private native HTMLPanel getDetailPanel(StagingContainerSummaryView view)/*-{
-        return view.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::detailPanel;
+		return view.@org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView::detailPanel;
     }-*/;
-    
+
     @Override
     public String getModuleName() {
         return "org.talend.mdm.webapp.stagingareacontrol.StagingareaControl"; //$NON-NLS-1$
