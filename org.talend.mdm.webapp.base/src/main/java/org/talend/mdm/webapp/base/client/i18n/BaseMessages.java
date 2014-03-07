@@ -35,9 +35,9 @@ public interface BaseMessages extends Messages {
     String warning_title();
 
     String confirm_title();
-    
+
     String unknown_error();
-    
+
     String session_timeout_error();
 
     String open_mls_title();
@@ -61,10 +61,20 @@ public interface BaseMessages extends Messages {
     String add_btn();
 
     String remove_btn();
-    
+
     String exception_fk_malform(String fk);
-    
+
     String overwrite_confirm();
-    
+
     String label_exception_id_malform(String id);
+
+    String server_error();
+
+    String server_error_notification();
+
+    String service_rest_error();
+
+    String service_rest_exception();
+
+    String underlying_cause();
 }
