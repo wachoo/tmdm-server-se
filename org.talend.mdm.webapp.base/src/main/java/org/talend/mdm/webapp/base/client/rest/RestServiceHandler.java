@@ -69,7 +69,7 @@ public class RestServiceHandler {
      */
     public void getDefaultStagingContainerSummary(final SessionAwareAsyncCallback<StagingContainerModel> callback) {
         StringBuilder uri = new StringBuilder();
-        uri.append("core/services/tasks/staging"); //$NON-NLS-1$
+        uri.append(BASE_URL).append("core/services/tasks/staging"); //$NON-NLS-1$
         client.init(Method.GET, uri.toString());
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
