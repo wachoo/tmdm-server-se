@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2006-2013 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.query.user;
@@ -54,7 +53,7 @@ public class FieldFullText extends FullText {
         int hashValue = 0;
         if (field != null) {
             hashValue = field.hashCode();
-            hashValue = 31 * hashValue + (this.getValue()==null ? 0 : this.getValue().hashCode());
+            hashValue = 31 * hashValue + (this.getValue() == null ? 0 : this.getValue().hashCode());
         }
         return hashValue;
     }
