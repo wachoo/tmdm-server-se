@@ -41,8 +41,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 @SuppressWarnings("nls")
 public class CommonUtilTest extends TestCase {
 
-    public void testParseSimpleSearchExpression() {
-        try {
+    public void testParseSimpleSearchExpression() throws Exception {
             String s = "(foo/bar EQUALS 3/4)";
             CommonUtil.CriteriaAndC r = CommonUtil.parseSimpleSearchExpression(s.toCharArray(), 0);
             assertTrue(r.cr instanceof SimpleCriterion);
@@ -50,14 +49,9 @@ public class CommonUtilTest extends TestCase {
             assertTrue(((SimpleCriterion) r.cr).getOperator().equals("EQUALS"));
             assertTrue(((SimpleCriterion) r.cr).getKey().equals("foo/bar"));
             assertTrue(((SimpleCriterion) r.cr).getValue().equals("3/4"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
     }
 
-    public void testParseSimpleSearchExpression_value_with_multi_words() {
-        try {
+    public void testParseSimpleSearchExpression_value_with_multi_words() throws Exception {
             String s = "(Product/Name CONTAINS New York City)";
             CommonUtil.CriteriaAndC r = CommonUtil.parseSimpleSearchExpression(s.toCharArray(), 0);
             assertTrue(r.cr instanceof SimpleCriterion);
@@ -65,14 +59,9 @@ public class CommonUtilTest extends TestCase {
             assertTrue(((SimpleCriterion) r.cr).getOperator().equals("CONTAINS"));
             assertTrue(((SimpleCriterion) r.cr).getKey().equals("Product/Name"));
             assertTrue(((SimpleCriterion) r.cr).getValue().equals("New York City"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
     }
     
-    public void testParseMultipleSearchExpression() {
-        try {
+    public void testParseMultipleSearchExpression() throws Exception {
             String s = "((foo/bar EQUALS 3/4) AND ((a/a/a MORETHAN a/b) OR (c/b/f LESSTHAN 3.2)) AND (c/c/c MORETHAN c/c))";
             CommonUtil.CriteriaAndC r = CommonUtil.parseMultipleSearchExpression(s.toCharArray(), 0);
             assertTrue(r.cr instanceof MultipleCriteria);
@@ -101,10 +90,6 @@ public class CommonUtilTest extends TestCase {
             assertTrue(simpleCriterion.getKey().equals("Product/Id"));
             assertTrue(simpleCriterion.getOperator().equals("CONTAINS"));
             assertTrue(simpleCriterion.getValue().equals("*"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
     }
 
     public void testValidateSearchValue() {
