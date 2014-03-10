@@ -2074,16 +2074,18 @@ public class Util {
     }
 
     public static String getDefaultLanguage() throws Exception {
-        String defaultlang = ""; //$NON-NLS-1$
+        String defaultLanguage = ""; //$NON-NLS-1$
         String userName = Util.getAjaxSubject().getUsername();
         WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(DATACLUSTER_PK), PROVISIONING_CONCEPT, new String[] { userName });
         if (userName != null && userName.length() > 0) {
-
             Document doc = XMLUtils.parse(Util.getPort().getItem(new WSGetItem(itemPK)).getContent());
             if (doc.getElementsByTagName("language") != null) { //$NON-NLS-1$
-                return doc.getElementsByTagName("language").item(0).getTextContent(); //$NON-NLS-1$
+                Node language = doc.getElementsByTagName("language").item(0); //$NON-NLS-1$
+                if (language != null) {
+                    return language.getTextContent();
+                }
             }
         }
-        return defaultlang;
+        return defaultLanguage;
     }
 }
