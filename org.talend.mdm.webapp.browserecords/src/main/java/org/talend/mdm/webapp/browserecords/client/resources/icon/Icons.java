@@ -128,4 +128,7 @@ public interface Icons extends ClientBundle {
 
     @Source("status_deleted.png")
     ImageResource statusDeleted();
+
+    @Source("leaf.gif")
+    ImageResource leaf();
 }

@@ -151,8 +151,8 @@ public class BrowseRecords implements EntryPoint {
     }
 
     public void refreshGrid() {
-        ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
-        ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
+        ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchButton);
+        ItemsToolBar.getInstance().searchButton.fireEvent(Events.Select, be);
     }
 
     public void showTreeDetailPanel(final String concept, final String ids) {

@@ -25,11 +25,13 @@ import org.restlet.client.data.Method;
 import org.restlet.client.ext.xml.DomRepresentation;
 import org.restlet.client.representation.InputRepresentation;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.rest.convertor.JsonConvertor;
 import org.talend.mdm.webapp.base.client.rest.convertor.StagingModelConvertor;
 import org.talend.mdm.webapp.base.client.rest.model.StagingAreaExecutionModel;
 import org.talend.mdm.webapp.base.client.rest.model.StagingAreaValidationModel;
 import org.talend.mdm.webapp.base.client.rest.model.StagingContainerModel;
 
+import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.xml.client.Node;
@@ -60,6 +62,31 @@ public class RestServiceHandler {
 
     public void setClient(ClientResourceWrapper client) {
         this.client = client;
+    }
+
+    public void explainGroupResult(String dataCluster, String concept, String groupId,
+            final SessionAwareAsyncCallback<BaseTreeModel> callback) {
+        if (dataCluster == null || dataCluster.isEmpty() || concept == null || concept.isEmpty() || groupId == null
+                || groupId.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+        StringBuilder uri = new StringBuilder();
+        uri.append(BASE_URL)
+                .append("datamanager/services/tasks/matching/") //$NON-NLS-1$
+                .append("explain").append(SEPARATE).append(dataCluster).append(SEPARATE).append("groups").append(SEPARATE).append("?type=").append(concept).append("&group=").append(groupId); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+
+        client.init(Method.GET, uri.toString());
+        client.setCallback(new ResourceSessionAwareCallbackHandler() {
+
+            @Override
+            public void doProcess(Request request, Response response) throws Exception {
+
+                BaseTreeModel result = JsonConvertor.responseToTreeModel(response);
+                callback.onSuccess(result);
+
+            }
+        });
+        client.request();
     }
 
     /**

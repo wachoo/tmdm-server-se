@@ -50,6 +50,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.RecordsPagingConfig;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
+import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.SchemaMockAgent;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
@@ -99,7 +100,7 @@ public class BrowseRecordsActionTest extends TestCase {
     }
 
     public void testDynamicAssembleByResultOrder() throws Exception {
-        String xml = "<result><numeroContrat xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>5005007</numeroContrat><xsi:type xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>AP-RE</xsi:type></result>";
+        String xml = "<result><numeroContrat xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>5005007</numeroContrat><xsi:type xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>AP-RE</xsi:type><taskId>11e18f27-2a8c-4ef8-b80f-5ba27d8fd103</taskId></result>";
         ItemBean itemBean = new ItemBean();
         itemBean.setItemXml(xml);
         ViewBean viewBean = new ViewBean();
@@ -272,10 +273,11 @@ public class BrowseRecordsActionTest extends TestCase {
         // First record
         ItemBean firstItemBean = itemBeans.getData().get(0);
         // First record (xml)
-        String result = "<result><Id xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">1</Id><Name>Mug</Name><Price>1.99</Price><Availability>false</Availability></result>";
+        String result = "<result><Id xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">1</Id><Name>Mug</Name><Price>1.99</Price><Availability>false</Availability><TaskId>1</TaskId></result>";
         assertEquals(result, results[1]);
         // First record (property name list size)
-        assertEquals(viewBean.getViewables().length, firstItemBean.getPropertyNames().size());
+        // TaskId property don't exsit in viewBean,but it should in itemBean object.
+        assertEquals(viewBean.getViewables().length + 1, firstItemBean.getPropertyNames().size());
         // First record (property: Id)
         assertEquals("1", firstItemBean.get("Product/Id"));
         // First record (property: Name)
@@ -284,10 +286,13 @@ public class BrowseRecordsActionTest extends TestCase {
         assertEquals("1.99", firstItemBean.get("Product/Price"));
         // First record (property: Availability)
         assertEquals("false", firstItemBean.get("Product/Availability"));
+        // First record (property: TaskId)
+        assertEquals("1", firstItemBean.get("Product" + StagingConstant.STAGING_TASKID));
         // Second record
         ItemBean secondItemBean = itemBeans.getData().get(1);
         // Second record (property name list size)
-        assertEquals(viewBean.getViewables().length, secondItemBean.getPropertyNames().size());
+        // TaskId property don't exsit in viewBean,but it should in itemBean object.
+        assertEquals(viewBean.getViewables().length + 1, secondItemBean.getPropertyNames().size());
         // Second record (property: Id)
         assertEquals("2", secondItemBean.get("Product/Id"));
         // Second record (property: Name)
@@ -296,10 +301,13 @@ public class BrowseRecordsActionTest extends TestCase {
         assertEquals("2.99", secondItemBean.get("Product/Price"));
         // Second record (property: Availability)
         assertEquals("false", secondItemBean.get("Product/Availability"));
+        // Second record (property: TaskId)
+        assertEquals("2", secondItemBean.get("Product" + StagingConstant.STAGING_TASKID));
         // Third record
         ItemBean thirdItemBean = itemBeans.getData().get(2);
         // Third record (property name list size)
-        assertEquals(viewBean.getViewables().length, thirdItemBean.getPropertyNames().size());
+        // TaskId property don't exsit in viewBean,but it should in itemBean object.
+        assertEquals(viewBean.getViewables().length + 1, thirdItemBean.getPropertyNames().size());
         // Third record (property: Id)
         assertEquals("3", thirdItemBean.get("Product/Id"));
         // Third record (property: Name)
@@ -308,10 +316,13 @@ public class BrowseRecordsActionTest extends TestCase {
         assertEquals("3.99", thirdItemBean.get("Product/Price"));
         // Third record (property: Availability)
         assertEquals("false", thirdItemBean.get("Product/Availability"));
+        // Third record (property: TaskId)
+        assertEquals("3", thirdItemBean.get("Product" + StagingConstant.STAGING_TASKID));
         // Fourth record
         ItemBean fourthItemBean = itemBeans.getData().get(3);
         // Fourth record (property name list size)
-        assertEquals(viewBean.getViewables().length, fourthItemBean.getPropertyNames().size());
+        // TaskId property don't exsit in viewBean,but it should in itemBean object.
+        assertEquals(viewBean.getViewables().length + 1, fourthItemBean.getPropertyNames().size());
         // Fourth record (property: Id)
         assertEquals("4", fourthItemBean.get("Product/Id"));
         // Fourth record (property: Name)
@@ -320,10 +331,13 @@ public class BrowseRecordsActionTest extends TestCase {
         assertEquals("4.99", fourthItemBean.get("Product/Price"));
         // Fourth record (property: Availability)
         assertEquals("true", fourthItemBean.get("Product/Availability"));
+        // Fourth record (property: TaskId)
+        assertEquals("4", fourthItemBean.get("Product" + StagingConstant.STAGING_TASKID));
         // Fifth record
         ItemBean fifthItemBean = itemBeans.getData().get(4);
         // Fifth record (property name list size)
-        assertEquals(viewBean.getViewables().length, fifthItemBean.getPropertyNames().size());
+        // TaskId property don't exsit in viewBean,but it should in itemBean object.
+        assertEquals(viewBean.getViewables().length + 1, fifthItemBean.getPropertyNames().size());
         // Fifth record (property: Id)
         assertEquals("5", fifthItemBean.get("Product/Id"));
         // Fifth record (property: Name)
@@ -332,6 +346,8 @@ public class BrowseRecordsActionTest extends TestCase {
         assertEquals("5.99", fifthItemBean.get("Product/Price"));
         // Fifth record (property: Availability)
         assertEquals("true", fifthItemBean.get("Product/Availability"));
+        // Fifth record (property: TaskId)
+        assertEquals("5", fifthItemBean.get("Product" + StagingConstant.STAGING_TASKID));
     }
 
     public void test_queryItemBeansWithDisplayFormat() throws Exception {
@@ -391,14 +407,17 @@ public class BrowseRecordsActionTest extends TestCase {
         // First record
         ItemBean firstItemBean = itemBeans.getData().get(0);
         // First record (xml)
-        String result = "<result><subelement>1111</subelement><name>qqqqq8</name><d1>2012-11-01</d1><dt1>2012-11-02T12:00:00</dt1><num>55</num></result>";
+        String result = "<result><subelement>1111</subelement><name>qqqqq8</name><d1>2012-11-01</d1><dt1>2012-11-02T12:00:00</dt1><num>55</num><taskid>11e18f27-2a8c-4ef8-b80f-5ba27d8fd101</taskid></result>";
         assertEquals(result, results[1]);
         // First record (property name list size)
-        assertEquals(viewBean.getViewables().length, firstItemBean.getPropertyNames().size());
+        // TaskId property don't exsit in viewBean,but it should in itemBean object.
+        assertEquals(viewBean.getViewables().length + 1, firstItemBean.getPropertyNames().size());
         // First record (property: subelement)
         assertEquals("1111", firstItemBean.get("FormatTest/subelement"));
         // First record (property: Name)
         assertEquals("qqqqq8", firstItemBean.get("FormatTest/name"));
+        // First record (property: TaskId)
+        assertEquals("11e18f27-2a8c-4ef8-b80f-5ba27d8fd101", firstItemBean.get("FormatTest" + StagingConstant.STAGING_TASKID));
         // First record (property: d1)
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ENGLISH);
@@ -422,11 +441,14 @@ public class BrowseRecordsActionTest extends TestCase {
         // Second record
         ItemBean secondItemBean = itemBeans.getData().get(1);
         // Second record (property name list size)
-        assertEquals(viewBean.getViewables().length, secondItemBean.getPropertyNames().size());
+        // TaskId property don't exsit in viewBean,but it should in itemBean object.
+        assertEquals(viewBean.getViewables().length + 1, secondItemBean.getPropertyNames().size());
         // Second record (property: subelement)
         assertEquals("222", secondItemBean.get("FormatTest/subelement"));
         // Second record (property: Name)
         assertEquals("www8", secondItemBean.get("FormatTest/name"));
+        // Second record (property: Name)
+        assertEquals("11e18f27-2a8c-4ef8-b80f-5ba27d8fd102", secondItemBean.get("FormatTest" + StagingConstant.STAGING_TASKID));
         // Second record (property: d1)
 
         sdf = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ENGLISH);

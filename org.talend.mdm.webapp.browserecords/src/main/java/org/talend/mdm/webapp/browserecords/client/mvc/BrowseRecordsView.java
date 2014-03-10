@@ -368,8 +368,8 @@ public class BrowseRecordsView extends View {
     protected void onGetView(final AppEvent event) {
         ViewBean viewBean = event.getData();
         ItemsToolBar.getInstance().updateToolBar(viewBean);
-        ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
-        ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
+        ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchButton);
+        ItemsToolBar.getInstance().searchButton.fireEvent(Events.Select, be);
     }
 
     protected void onSearchView(final AppEvent event) {

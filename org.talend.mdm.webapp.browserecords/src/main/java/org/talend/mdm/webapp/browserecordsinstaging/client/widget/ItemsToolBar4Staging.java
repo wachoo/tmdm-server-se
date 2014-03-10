@@ -20,29 +20,33 @@ import org.talend.mdm.webapp.browserecordsinstaging.client.i18n.BrowseRecordsInS
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 
 public class ItemsToolBar4Staging extends ItemsToolBar {
 
-    private final BrowseRecordsInStagingMessages msg = org.talend.mdm.webapp.browserecordsinstaging.client.i18n.MessagesFactory
+    private final BrowseRecordsInStagingMessages messages = org.talend.mdm.webapp.browserecordsinstaging.client.i18n.MessagesFactory
             .getMessages();
 
     public ItemsToolBar4Staging() {
         super();
-        deleteMenu.setText(msg.mark_as_deleted());
-        deleteMenu.setMenu(null);
+    }
 
-        deleteMenu.addSelectionListener(new SelectionListener<ButtonEvent>() {
+    @Override
+    protected void addDeleteButton() {
+        deleteButton = new Button(messages.mark_as_deleted());
+        deleteButton.setMenu(null);
+        deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
 
                 if (ItemsListPanel.getInstance().getGrid() == null) {
-                    MessageBox.alert(MessagesFactory.getMessages().info_title(), msg.select_mark_item_record(), null);
+                    MessageBox.alert(MessagesFactory.getMessages().info_title(), messages.select_mark_item_record(), null);
                 } else {
                     if (getSelectItemNumber() == 0) {
-                        MessageBox.alert(MessagesFactory.getMessages().info_title(), msg.select_mark_item_record(), null);
+                        MessageBox.alert(MessagesFactory.getMessages().info_title(), messages.select_mark_item_record(), null);
                     } else {
-                        MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), msg.mark_deleted_confirm(),
+                        MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), messages.mark_deleted_confirm(),
                                 new DeleteItemsBoxListener(service));
                     }
                 }

@@ -328,7 +328,7 @@ public class ItemsListPanel extends ContentPanel {
                         createItemBean = null;
                     }
                 } else {
-                    ItemsToolBar.getInstance().searchBut.setEnabled(true);
+                    ItemsToolBar.getInstance().searchButton.setEnabled(true);
                     // ItemsMainTabPanel.getInstance().getCurrentViewTabItem().clearAll();
                 }
                 if (reLoad != null) {
@@ -662,7 +662,7 @@ public class ItemsListPanel extends ContentPanel {
 
     public void setEnabledGridSearchButton(boolean enabled) {
         gridContainer.setEnabled(enabled);
-        ItemsToolBar.getInstance().searchBut.setEnabled(enabled);
+        ItemsToolBar.getInstance().searchButton.setEnabled(enabled);
     }
 
     public void refreshGrid() {
@@ -684,8 +684,8 @@ public class ItemsListPanel extends ContentPanel {
         }
         if (ItemsToolBar.getInstance().getSimplePanel() != null
                 && ItemsToolBar.getInstance().getSimplePanel().getCriteria() != null) {
-            ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
-            ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
+            ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchButton);
+            ItemsToolBar.getInstance().searchButton.fireEvent(Events.Select, be);
         }
     }
 
@@ -760,8 +760,8 @@ public class ItemsListPanel extends ContentPanel {
                 pagingBar.first();
             }
         } else {
-            ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
-            ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
+            ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchButton);
+            ItemsToolBar.getInstance().searchButton.fireEvent(Events.Select, be);
         }
     }
 
@@ -903,8 +903,8 @@ public class ItemsListPanel extends ContentPanel {
         }
         if (ItemsToolBar.getInstance().getSimplePanel() != null
                 && ItemsToolBar.getInstance().getSimplePanel().getCriteria() != null) {
-            ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
-            ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
+            ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchButton);
+            ItemsToolBar.getInstance().searchButton.fireEvent(Events.Select, be);
         }
     }
 

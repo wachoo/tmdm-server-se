@@ -63,6 +63,7 @@ import org.talend.mdm.webapp.base.server.exception.WebBaseException;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.base.shared.EntityModel;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
@@ -568,8 +569,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel,
             Map<String, EntityModel> map, String language) throws Exception {
-        org.talend.mdm.webapp.browserecords.server.util.CommonUtil.dynamicAssembleByResultOrder(itemBean,
-                viewBean.getViewableXpaths(), entityModel, map, language, isStaging());
+        List<String> viewableXpaths = new ArrayList<String>(viewBean.getViewableXpaths());
+        viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_TASKID);
+        org.talend.mdm.webapp.browserecords.server.util.CommonUtil.dynamicAssembleByResultOrder(itemBean, viewableXpaths,
+                entityModel, map, language, isStaging());
     }
 
     @Override
@@ -624,6 +627,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Locale locale = new Locale(language);
             throw new ServiceException(MESSAGES.getMessage(locale, "parse_model_error")); //$NON-NLS-1$
         }
+
+        SimpleTypeModel stagingTaskidType = new SimpleTypeModel(StagingConstant.STAGING_TASKID, DataTypeConstants.STRING);
+        stagingTaskidType.setXpath(concept + StagingConstant.STAGING_TASKID);
+        entityModel.getMetaDataTypes().put(concept + StagingConstant.STAGING_TASKID, stagingTaskidType);
 
         // DisplayRulesUtil.setRoot(DataModelHelper.getEleDecl());
         vb.setBindingEntityModel(entityModel);

@@ -377,8 +377,8 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
             window.hide();
             MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().import_success_label(),
                     null);
-            ButtonEvent buttonEvent = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
-            ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, buttonEvent);
+            ButtonEvent buttonEvent = new ButtonEvent(ItemsToolBar.getInstance().searchButton);
+            ItemsToolBar.getInstance().searchButton.fireEvent(Events.Select, buttonEvent);
         } else {
             String errorMsg = MultilanguageMessageParser.pickOutISOMessage(extractErrorMessage(result));
             if (errorMsg == null || errorMsg.length() == 0 || errorMsg.equals("<f></f>")) { //$NON-NLS-1$

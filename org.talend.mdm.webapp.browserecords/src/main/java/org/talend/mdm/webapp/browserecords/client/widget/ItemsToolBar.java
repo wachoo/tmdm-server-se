@@ -22,6 +22,7 @@ import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
+import org.talend.mdm.webapp.base.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.base.client.util.CriteriaUtil;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.base.shared.EntityModel;
@@ -37,6 +38,7 @@ import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKRelRecordWindow;
@@ -54,11 +56,13 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ListLoadResult;
 import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
@@ -76,6 +80,8 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -99,6 +105,7 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -106,6 +113,24 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Image;
 
 public class ItemsToolBar extends ToolBar {
+
+    protected Button createButton;
+
+    protected Button deleteButton;
+
+    protected Button explainButton;
+
+    protected Button compareButton;
+
+    protected Button uploadButton;
+
+    public final Button searchButton = new Button(MessagesFactory.getMessages().search_btn());
+
+    protected ToggleButton advancedSearchButton;
+
+    protected Button manageBookButton;
+
+    protected Button bookMarkButton;
 
     private final static int PAGE_SIZE = 10;
 
@@ -117,21 +142,7 @@ public class ItemsToolBar extends ToolBar {
 
     private AdvancedSearchPanel advancedPanel;
 
-    private ComboBoxField<ItemBaseModel> entityCombo = new ComboBoxField<ItemBaseModel>();
-
-    public final Button searchBut = new Button(MessagesFactory.getMessages().search_btn());
-
-    private final ToggleButton advancedBut = new ToggleButton(MessagesFactory.getMessages().advsearch_btn());
-
-    private final Button managebookBtn = new Button();
-
-    private final Button bookmarkBtn = new Button();
-
-    private Button createBtn = new Button(MessagesFactory.getMessages().create_btn());
-
-    protected Button deleteMenu = new Button(MessagesFactory.getMessages().delete_btn());
-
-    private Button uploadBtn = new Button(MessagesFactory.getMessages().itemsBrowser_Import_Export());
+    private ComboBoxField<ItemBaseModel> entityCombo;
 
     protected BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
@@ -215,7 +226,7 @@ public class ItemsToolBar extends ToolBar {
             if (!advancedPanel.isVisible()
                     && BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE) != null) {
                 advancedPanel.setVisible(true);
-                advancedBut.toggle(true);
+                advancedSearchButton.toggle(true);
                 advancedPanelVisible = true;
                 ItemsSearchContainer.getInstance().resizeTop(30 + advancedPanel.getOffsetHeight());
             }
@@ -245,37 +256,40 @@ public class ItemsToolBar extends ToolBar {
         ItemsListPanel.getInstance().resetGrid();
         ItemsMainTabPanel.getInstance().removeAll();
 
-        searchBut.setEnabled(true);
-        advancedBut.setEnabled(true);
-        managebookBtn.setEnabled(true);
-        bookmarkBtn.setEnabled(true);
+        searchButton.setEnabled(true);
+        advancedSearchButton.setEnabled(true);
+        manageBookButton.setEnabled(true);
+        bookMarkButton.setEnabled(true);
 
-        createBtn.setEnabled(false);
-        uploadBtn.setEnabled(true);
-        uploadBtn.getMenu().getItemByItemId("importRecords").setEnabled(false); //$NON-NLS-1$
-        deleteMenu.setEnabled(false);
+        createButton.setEnabled(false);
+        uploadButton.setEnabled(true);
+        uploadButton.getMenu().getItemByItemId("importRecords").setEnabled(false); //$NON-NLS-1$
+        deleteButton.setEnabled(false);
         String concept = ViewUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
         if (!viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyCreatable()) {
-            createBtn.setEnabled(true);
-            uploadBtn.getMenu().getItemByItemId("importRecords").setEnabled(true); //$NON-NLS-1$
+            createButton.setEnabled(true);
+            uploadButton.getMenu().getItemByItemId("importRecords").setEnabled(true); //$NON-NLS-1$
+            explainButton.setEnabled(true);
+            compareButton.setEnabled(true);
+
         }
         boolean denyLogicalDelete = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyLogicalDeletable();
         boolean denyPhysicalDelete = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyPhysicalDeleteable();
 
         if (denyLogicalDelete && denyPhysicalDelete) {
-            deleteMenu.setEnabled(false);
+            deleteButton.setEnabled(false);
         } else {
-            deleteMenu.setEnabled(true);
-            if (deleteMenu.getMenu() != null) {
+            deleteButton.setEnabled(true);
+            if (deleteButton.getMenu() != null) {
                 if (denyPhysicalDelete) {
-                    deleteMenu.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(false); //$NON-NLS-1$
+                    deleteButton.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(false); //$NON-NLS-1$
                 } else {
-                    deleteMenu.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(true); //$NON-NLS-1$
+                    deleteButton.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(true); //$NON-NLS-1$
                 }
                 if (denyLogicalDelete) {
-                    deleteMenu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(false); //$NON-NLS-1$
+                    deleteButton.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(false); //$NON-NLS-1$
                 } else {
-                    deleteMenu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(true); //$NON-NLS-1$
+                    deleteButton.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(true); //$NON-NLS-1$
                 }
             }
         }
@@ -291,11 +305,29 @@ public class ItemsToolBar extends ToolBar {
     }
 
     private void initToolBar() {
-        createBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Create()));
-        createBtn.setEnabled(false);
-        createBtn.setId("BrowseRecords_Create"); //$NON-NLS-1$
-        add(createBtn);
-        createBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+        addCreateButton();
+        addDeleteButton();
+        addExpalinButton();
+        addCompareButton();
+        addImportAndExportButton();
+        add(new FillToolItem());
+        addEntityCombo();
+        addSearchPanel();
+        addSearchButton();
+        add(new SeparatorToolItem());
+        addAdvanceSearchButton();
+        add(new SeparatorToolItem());
+        addManageBookButton();
+        addBookMarkButton();
+        initAdvancedPanel();
+    }
+
+    protected void addCreateButton() {
+        createButton = new Button(MessagesFactory.getMessages().create_btn());
+        createButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Create()));
+        createButton.setEnabled(false);
+        createButton.setId("BrowseRecords_Create"); //$NON-NLS-1$
+        createButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
@@ -329,7 +361,14 @@ public class ItemsToolBar extends ToolBar {
             }
 
         });
+        add(createButton);
+    }
 
+    protected void addDeleteButton() {
+        deleteButton = new Button(MessagesFactory.getMessages().delete_btn());
+        deleteButton.setEnabled(false);
+        deleteButton.setId("BrowseRecords_Delete"); //$NON-NLS-1$
+        deleteButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
         Menu sub = new Menu();
         MenuItem delMenu = new MenuItem(MessagesFactory.getMessages().delete_btn());
         delMenu.setId("physicalDelMenuInGrid");//$NON-NLS-1$
@@ -375,14 +414,87 @@ public class ItemsToolBar extends ToolBar {
 
         sub.add(trashMenu);
         sub.add(delMenu);
+        deleteButton.setMenu(sub);
+        add(deleteButton);
+    }
 
-        deleteMenu.setMenu(sub);
-        deleteMenu.setEnabled(false);
-        deleteMenu.setId("BrowseRecords_Delete"); //$NON-NLS-1$
-        deleteMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
-        add(deleteMenu);
+    protected void addExpalinButton() {
+        explainButton = new Button(MessagesFactory.getMessages().explain_button());
+        explainButton.setId("explainButton"); //$NON-NLS-1$
+        explainButton.setEnabled(false);
+        explainButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+        explainButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-        uploadBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                final ItemsListPanel list = ItemsListPanel.getInstance();
+                if (list.getGrid() != null) {
+                    List<ItemBean> selectedItems = list.getGrid().getSelectionModel().getSelectedItems();
+                    if (selectedItems.size() == 1) {
+                        ItemBean itemBean = selectedItems.get(0);
+                        String taskId = itemBean.get(itemBean.getConcept() + StagingConstant.STAGING_TASKID);
+                        RestServiceHandler.get().explainGroupResult(userCluster, itemBean.getConcept(), taskId,
+                                new SessionAwareAsyncCallback<BaseTreeModel>() {
+
+                                    @Override
+                                    public void onSuccess(BaseTreeModel root) {
+
+                                        Window explainWindow = new Window();
+                                        explainWindow.setHeading(MessagesFactory.getMessages().explain_title());
+                                        explainWindow.setSize(400, 500);
+                                        explainWindow.setLayout(new FitLayout());
+                                        explainWindow.setScrollMode(Scroll.NONE);
+
+                                        TreeStore<BaseTreeModel> store = new TreeStore<BaseTreeModel>();
+                                        store.add(root, true);
+                                        TreePanel<BaseTreeModel> tree = new TreePanel<BaseTreeModel>(store);
+                                        tree.setDisplayProperty("name"); //$NON-NLS-1$;
+                                        tree.getStyle().setLeafIcon(AbstractImagePrototype.create(Icons.INSTANCE.leaf()));
+                                        ContentPanel contentPanel = new ContentPanel();
+                                        contentPanel.setHeaderVisible(false);
+                                        contentPanel.setScrollMode(Scroll.AUTO);
+                                        contentPanel.setLayout(new FitLayout());
+                                        contentPanel.add(tree);
+                                        explainWindow.add(contentPanel);
+                                        explainWindow.show();
+                                        tree.expandAll();
+                                    }
+                                });
+                    } else {
+                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                .explain_warning_message(), null);
+                    }
+                }
+
+            }
+        });
+        add(explainButton);
+    }
+
+    protected void addCompareButton() {
+        compareButton = new Button(MessagesFactory.getMessages().compare_button());
+        compareButton.setId("compareButton"); //$NON-NLS-1$
+        compareButton.setEnabled(false);
+        compareButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+        compareButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                final ItemsListPanel list = ItemsListPanel.getInstance();
+                if (list.getGrid() != null) {
+                    List<ItemBean> selectedItems = list.getGrid().getSelectionModel().getSelectedItems();
+
+                }
+            }
+        });
+        add(compareButton);
+    }
+
+    protected void addImportAndExportButton() {
+        uploadButton = new Button(MessagesFactory.getMessages().itemsBrowser_Import_Export());
+        uploadButton.setId("BrowseRecords_UploadMenuInGrid"); //$NON-NLS-1$
+        uploadButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+        uploadButton.setEnabled(false);
         Menu uploadMenu = new Menu();
         MenuItem importMenu = new MenuItem(MessagesFactory.getMessages().import_btn());
         importMenu.setId("importRecords"); //$NON-NLS-1$
@@ -440,15 +552,11 @@ public class ItemsToolBar extends ToolBar {
                 }
             }
         });
+        uploadButton.setMenu(uploadMenu);
+        add(uploadButton);
+    }
 
-        uploadBtn.setId("BrowseRecords_UploadMenuInGrid"); //$NON-NLS-1$
-        uploadBtn.setMenu(uploadMenu);
-
-        uploadBtn.setEnabled(false);
-        add(uploadBtn);
-
-        add(new FillToolItem());
-
+    protected void addEntityCombo() {
         // add entity combo
         RpcProxy<List<ItemBaseModel>> Entityproxy = new RpcProxy<List<ItemBaseModel>>() {
 
@@ -486,7 +594,7 @@ public class ItemsToolBar extends ToolBar {
 
         // HorizontalPanel entityPanel = new HorizontalPanel();
         final ListStore<ItemBaseModel> list = new ListStore<ItemBaseModel>(Entityloader);
-
+        entityCombo = new ComboBoxField<ItemBaseModel>();
         entityCombo.setAutoWidth(true);
         entityCombo.setEmptyText(MessagesFactory.getMessages().empty_entity());
         entityCombo.setLoadingText(MessagesFactory.getMessages().loading());
@@ -507,12 +615,16 @@ public class ItemsToolBar extends ToolBar {
             }
         });
         add(entityCombo);
-        simplePanel = new SimpleCriterionPanel(null, null, searchBut);
-        add(simplePanel);
+    }
 
-        // add simple search button
-        searchBut.setEnabled(false);
-        searchBut.addSelectionListener(new SelectionListener<ButtonEvent>() {
+    protected void addSearchPanel() {
+        simplePanel = new SimpleCriterionPanel(null, null, searchButton);
+        add(simplePanel);
+    }
+
+    protected void addSearchButton() {
+        searchButton.setEnabled(false);
+        searchButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
@@ -533,14 +645,15 @@ public class ItemsToolBar extends ToolBar {
                 }
             }
         });
-        searchBut.setId("BrowseRecords_Search"); //$NON-NLS-1$
-        add(searchBut);
+        searchButton.setId("BrowseRecords_Search"); //$NON-NLS-1$
+        add(searchButton);
+    }
 
-        add(new SeparatorToolItem());
-
-        // add advanced search button
-        advancedBut.setEnabled(false);
-        advancedBut.addSelectionListener(new SelectionListener<ButtonEvent>() {
+    protected void addAdvanceSearchButton() {
+        advancedSearchButton = new ToggleButton(MessagesFactory.getMessages().advsearch_btn());
+        advancedSearchButton.setId("BrowseRecords_AdvancedSearch"); //$NON-NLS-1$
+        advancedSearchButton.setEnabled(false);
+        advancedSearchButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
@@ -562,24 +675,19 @@ public class ItemsToolBar extends ToolBar {
                     MultipleCriteria criteriaStore = (MultipleCriteria) BrowseRecords.getSession().get(
                             UserSession.CUSTOMIZE_CRITERION_STORE);
                     advancedPanel.setCriteria(criteriaStore.toString());
-                    //  advancedPanel.setCriteria("((" + simplePanel.getCriteria().toString() + "))"); //$NON-NLS-1$ //$NON-NLS-2$
-                    //                    advancedPanel.setCriteriaAppearance("((" + simplePanel.getCriteria().toString() + "))", "((" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    //                            + simplePanel.getCriteria().toAppearanceString() + "))"); //$NON-NLS-1$
                 }
-
             }
-
         });
-        advancedBut.setId("BrowseRecords_AdvancedSearch"); //$NON-NLS-1$
-        add(advancedBut);
+        add(advancedSearchButton);
+    }
 
-        add(new SeparatorToolItem());
-
-        // add bookmark management button
-        managebookBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Display()));
-        managebookBtn.setTitle(MessagesFactory.getMessages().bookmarkmanagement_heading());
-        managebookBtn.setEnabled(false);
-        managebookBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+    protected void addManageBookButton() {
+        manageBookButton = new Button();
+        manageBookButton.setId("BrowseRecords_ManageBookMark"); //$NON-NLS-1$
+        manageBookButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Display()));
+        manageBookButton.setTitle(MessagesFactory.getMessages().bookmarkmanagement_heading());
+        manageBookButton.setEnabled(false);
+        manageBookButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
@@ -797,14 +905,16 @@ public class ItemsToolBar extends ToolBar {
             }
 
         });
-        managebookBtn.setId("BrowseRecords_ManageBookMark"); //$NON-NLS-1$
-        add(managebookBtn);
+        add(manageBookButton);
+    }
 
-        // add bookmark save button
-        bookmarkBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
-        bookmarkBtn.setTitle(MessagesFactory.getMessages().advsearch_bookmark());
-        bookmarkBtn.setEnabled(false);
-        bookmarkBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+    protected void addBookMarkButton() {
+        bookMarkButton = new Button();
+        bookMarkButton.setId("BrowseRecords_BookMark"); //$NON-NLS-1$
+        bookMarkButton.setTitle(MessagesFactory.getMessages().advsearch_bookmark());
+        bookMarkButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+        bookMarkButton.setEnabled(false);
+        bookMarkButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
@@ -812,10 +922,7 @@ public class ItemsToolBar extends ToolBar {
             }
 
         });
-        bookmarkBtn.setId("BrowseRecords_BookMark"); //$NON-NLS-1$
-        add(bookmarkBtn);
-
-        initAdvancedPanel();
+        add(bookMarkButton);
     }
 
     private void updateUserCriteriasList() {
@@ -902,7 +1009,7 @@ public class ItemsToolBar extends ToolBar {
         advancedPanelVisible = false;
         advancedPanel.setVisible(advancedPanelVisible);
         ItemsSearchContainer.getInstance().resizeTop(30);
-        advancedBut.toggle(advancedPanelVisible);
+        advancedSearchButton.toggle(advancedPanelVisible);
         // resize result grid
         if (ItemsListPanel.getInstance().gridContainer != null) {
             ItemsListPanel.getInstance().gridContainer.setHeight(ItemsToolBar.this.getParent().getOffsetHeight()
