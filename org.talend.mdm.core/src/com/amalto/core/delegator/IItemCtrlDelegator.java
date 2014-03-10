@@ -229,8 +229,8 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                         qb.select(typeExpression);
                     }
                 }
+                qb.select(repository.getComplexType(typeName), "../../taskId"); //$NON-NLS-1$
                 if (dataModelName.endsWith(StorageAdmin.STAGING_SUFFIX)) {
-                    qb.select(repository.getComplexType(typeName), "../../taskId"); //$NON-NLS-1$
                     qb.select(repository.getComplexType(typeName), "$staging_status$"); //$NON-NLS-1$
                     qb.select(repository.getComplexType(typeName), "$staging_error$"); //$NON-NLS-1$
                     qb.select(repository.getComplexType(typeName), "$staging_source$"); //$NON-NLS-1$
@@ -317,6 +317,13 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                         viewCondition = new WhereOr(Arrays.asList(viewCondition, condition));
                     } else if (WhereCondition.PRE_AND.equals(predicate)) {
                         viewCondition = new WhereAnd(Arrays.asList(viewCondition, condition));
+                    } else if (WhereCondition.PRE_NOT.equals(predicate)) {
+                        // TMDM-6888 Support for NOT (only when one condition).
+                        if (conditions.size() > 1) {
+                            throw new IllegalArgumentException("'Not' predicate not supported for multiple conditions (got "
+                                    + conditions.size() + ")");
+                        }
+                        viewCondition = condition; // Since there's only one condition, no need to break.
                     } else {
                         throw new IllegalArgumentException("Not supported predicate: " + predicate);
                     }
