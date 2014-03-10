@@ -40,7 +40,7 @@ public class UserQueryHelper {
         if (whereItem == null) {
             return NO_OP_CONDITION;
         }
-        if (whereItem instanceof WhereAnd || whereItem instanceof WhereOr) {
+        if (whereItem instanceof WhereAnd || whereItem instanceof WhereOr) { // Handle ANDs and ORs
             List<IWhereItem> whereItems = ((WhereLogicOperator) whereItem).getItems();
             Condition current = NO_OP_CONDITION;
             for (IWhereItem item : whereItems) {
@@ -55,6 +55,7 @@ public class UserQueryHelper {
             WhereCondition whereCondition = (WhereCondition) whereItem;
             String operator = whereCondition.getOperator();
             String value = whereCondition.getRightValueOrPath();
+            boolean isNotCondition = WhereCondition.PRE_NOT.equals(whereCondition.getStringPredicate());
             // Special case for full text: left path is actually the keyword for full text search.
             if (WhereCondition.FULLTEXTSEARCH.equals(operator)) {
                 return fullText(value);
@@ -83,7 +84,11 @@ public class UserQueryHelper {
                                         WSStringPredicate.NONE.getValue()), repository));
                     }
                 }
-                return condition;
+                if (isNotCondition) {
+                    return not(condition);
+                } else {
+                    return condition;
+                }
             }
             List<TypedExpression> fields = getInnerField(leftPath);
             if (fields == null) {
@@ -183,7 +188,11 @@ public class UserQueryHelper {
             if (condition == null) {
                 return NO_OP_CONDITION;
             }
-            return condition;
+            if (isNotCondition) {
+                return not(condition);
+            } else {
+                return condition;
+            }
         } else {
             throw new NotImplementedException("No support for where item of type " + whereItem.getClass().getName());
         }

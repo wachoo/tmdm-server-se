@@ -2413,6 +2413,23 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(Long.valueOf(1364227200000L), value.getValue());
     }
     
+    public void testBuildNotCondition() {
+        UserQueryBuilder qb = from(product);
+        List<IWhereItem> conditions = new ArrayList<IWhereItem>();
+        conditions.add(new WhereCondition("Product/Name", "=", "Renault car", "!"));
+        IWhereItem fullWhere = new WhereAnd(conditions);
+        UnaryLogicOperator condition = (UnaryLogicOperator) UserQueryHelper.buildCondition(qb, fullWhere, repository).normalize();
+        assertNotNull(condition);
+
+        assertTrue(Predicate.NOT.equals(condition.getPredicate()));
+        Compare compare = (Compare) condition.getCondition();
+        assertTrue(compare.getLeft() instanceof Field);
+        assertTrue(Predicate.EQUALS.equals(compare.getPredicate()));
+        assertTrue(compare.getRight() instanceof StringConstant);
+        StringConstant value = (StringConstant) compare.getRight();
+        assertEquals("Renault car", value.getValue());
+    }
+    
     public void testDuplicateFieldNames() {
         UserQueryBuilder qb = from(product);
 
