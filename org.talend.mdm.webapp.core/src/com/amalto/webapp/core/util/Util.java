@@ -2074,7 +2074,7 @@ public class Util {
     }
 
     public static String getDefaultLanguage() throws Exception {
-        String defaultLanguage = ""; //$NON-NLS-1$
+        String defaultLanguage = java.util.Locale.getDefault().getLanguage();
         String userName = Util.getAjaxSubject().getUsername();
         WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(DATACLUSTER_PK), PROVISIONING_CONCEPT, new String[] { userName });
         if (userName != null && userName.length() > 0) {

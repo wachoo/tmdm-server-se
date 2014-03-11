@@ -19,6 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 
 public class LocaleUtil {
 
+    public static String initLanguage;
+
     public static Locale getLocale(HttpServletRequest request) {
         Locale locale;
         String language = request.getParameter("language"); //$NON-NLS-1$
@@ -37,6 +39,11 @@ public class LocaleUtil {
                         break;
                     }
                 }
+            }
+        }
+        if (language == null) {
+            if (initLanguage != null && !"".equals(initLanguage.trim())) { //$NON-NLS-1$
+                language = initLanguage;
             }
         }
         if (language == null) {

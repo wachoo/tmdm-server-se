@@ -34,9 +34,9 @@ import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.core.util.Util;
+import com.amalto.webapp.core.util.SessionListener;
 import com.amalto.webapp.core.util.WebappForbiddenLoginException;
 import com.amalto.webapp.core.util.WebappRepeatedLoginException;
-import com.amalto.webapp.core.util.SessionListener;
 
 public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericControllerServlet {
 
@@ -69,6 +69,14 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
         if (req.getSession().getAttribute("language") != null) { //$NON-NLS-1$
             language = (String) req.getSession().getAttribute("language"); //$NON-NLS-1$
         }
+        try {
+            String lang = getDefaultLanguage();
+            if (lang != null && !"".equals(lang.trim())) { //$NON-NLS-1$
+                language = lang;
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
         if (req.getParameter("language") != null) { //$NON-NLS-1$
             language = req.getParameter("language"); //$NON-NLS-1$
             req.getSession().setAttribute("language", language); //$NON-NLS-1$
@@ -89,8 +97,9 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
             }
 
             // restore the session timeout
-            if (req.getSession().getAttribute("sessionTimeOut") != null) //$NON-NLS-1$
-                req.getSession().setMaxInactiveInterval((Integer) req.getSession().getAttribute("sessionTimeOut")); //$NON-NLS-1$
+            if (req.getSession().getAttribute("sessionTimeOut") != null) {
+                req.getSession().setMaxInactiveInterval((Integer) req.getSession().getAttribute("sessionTimeOut"));
+            }
 
             // Dispatch call
             String jsp = req.getParameter("action"); //$NON-NLS-1$  
@@ -138,8 +147,9 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
         } catch (Exception e) {
             req.getSession().invalidate();
             String message = e.getLocalizedMessage();
-            if (message == null)
-                message = MESSAGES.getMessage(locale, "error.occured"); //$NON-NLS-1$
+            if (message == null) {
+                message = MESSAGES.getMessage(locale, "error.occured");
+            }
             String html = getHtmlError(req.getContextPath(), message, locale, username, false);
             out.write(html);
         }
@@ -150,8 +160,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
         LinkedHashMap<String, String> map = this.getLanguageMap();
         Set<String> set = map.keySet();
         String html = ""; //$NON-NLS-1$
-        for (Iterator<String> iterator = set.iterator(); iterator.hasNext();) {
-            String key = iterator.next();
+        for (String key : set) {
             String value = map.get(key);
             if (key.equals(language)) {
                 html += "       <option value=\"" + key + "\" selected>" + value + "</option>\n"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
@@ -215,12 +224,13 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
         } finally {
-            if (io != null)
+            if (io != null) {
                 try {
                     io.close();
                 } catch (IOException e) {
                     logger.error(e.getMessage(), e);
                 }
+            }
         }
         return map;
     }
