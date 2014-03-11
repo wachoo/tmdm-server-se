@@ -48,7 +48,7 @@ public class SaverSession {
         this.dataSource = dataSource;
     }
 
-    static void setDefaultCommitter(Committer committer) {
+    public static void setDefaultCommitter(Committer committer) {
         defaultCommitter = committer;
     }
 
