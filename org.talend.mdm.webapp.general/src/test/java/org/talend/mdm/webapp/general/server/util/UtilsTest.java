@@ -12,7 +12,19 @@
 // ============================================================================
 package org.talend.mdm.webapp.general.server.util;
 
+import java.io.IOException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
 import junit.framework.TestCase;
+
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
+
+import com.amalto.commons.core.utils.XMLUtils;
 
 @SuppressWarnings("nls")
 public class UtilsTest extends TestCase {
@@ -24,4 +36,15 @@ public class UtilsTest extends TestCase {
         assertEquals("fr", xml.substring(xml.indexOf("<language>") + 10, xml.indexOf("</language>")));
     }
 
+    public void testAddLanguages() throws DOMException, TransformerException, ParserConfigurationException, IOException,
+            SAXException {
+        String xml = "<User></User>";
+        Document doc = XMLUtils.parse(xml);
+        assertNull(doc.getElementsByTagName("language").item(0));
+        Element node = doc.createElement("language");
+        node.setTextContent("en");
+        doc.getDocumentElement().appendChild(node);
+        String newXml = XMLUtils.nodeToString(doc);
+        assertEquals("en", XMLUtils.parse(newXml).getElementsByTagName("language").item(0).getTextContent());
+    }
 }
