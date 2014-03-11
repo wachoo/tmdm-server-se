@@ -17,10 +17,7 @@ import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.accessor.record.DataRecordAccessor;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordWriter;
-import com.amalto.core.storage.record.DataRecordXmlWriter;
-import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import com.amalto.core.storage.record.*;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import org.apache.commons.collections.map.LRUMap;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -47,6 +44,8 @@ public class StorageDocument implements MutableDocument {
     private DataRecord dataRecord;
 
     private String taskId;
+
+    private DataRecord previousDataRecord;
 
     public StorageDocument(String dataModelName, MetadataRepository repository, DataRecord dataRecord) {
         this.dataModelName = dataModelName;
@@ -91,7 +90,12 @@ public class StorageDocument implements MutableDocument {
 
     @Override
     public MutableDocument create(MutableDocument content) {
-        dataRecord = new DataRecord(dataRecord.getType(), new DataRecordMetadataImpl(System.currentTimeMillis(), null));
+        if (content instanceof StorageDocument) {
+            dataRecord = ((StorageDocument) content).getDataRecord();
+        } else {
+            DataRecordReader<String> reader = new XmlStringDataRecordReader();
+            dataRecord = reader.read(content.getRevision(), repository, dataRecord.getType(), content.exportToString());
+        }
         accessorCache.clear();
         return this;
     }
@@ -106,11 +110,15 @@ public class StorageDocument implements MutableDocument {
 
     @Override
     public MutableDocument delete(DeleteType deleteType) {
+        previousDataRecord = dataRecord;
+        dataRecord = new DataRecord(dataRecord.getType(), new DataRecordMetadataImpl(System.currentTimeMillis(), null));
         return this;
     }
 
     @Override
     public MutableDocument recover(DeleteType deleteType) {
+        dataRecord = previousDataRecord;
+        previousDataRecord = null;
         return this;
     }
 
