@@ -32,7 +32,7 @@ public class DataRecordJSONWriter implements DataRecordWriter {
         writer.array();
         {
             for (FieldMetadata field : record.getType().getFields()) {
-                writer.object().key(field.getName());
+                writer.object().key(field.getName().toLowerCase());
                 {
                     if (field instanceof ContainedTypeFieldMetadata) {
                         if (field.isMany()) {
@@ -77,7 +77,7 @@ public class DataRecordJSONWriter implements DataRecordWriter {
     public void write(DataRecord record, Writer writer) throws IOException {
         JSONWriter jsonWriter = new JSONWriter(writer);
         try {
-            jsonWriter.object().key(record.getType().getName());
+            jsonWriter.object().key(record.getType().getName().toLowerCase());
             {
                 writeRecord(record, jsonWriter);
             }
