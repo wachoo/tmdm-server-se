@@ -302,7 +302,8 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     protected void generateNoOp(String path) {
         // TODO Do only this if type is a sequence (useless if type isn't ordered).
-        if (!touchedPaths.contains(path) && path != null) {
+        boolean exist = (path != null && originalDocument.createAccessor(path).exist());
+        if (exist && !touchedPaths.contains(path)) {
             touchedPaths.add(path);
             actions.add(new TouchAction(path, date, source, userName));
         }
