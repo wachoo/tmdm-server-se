@@ -202,7 +202,6 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject, Routin
         // The cached ItemPOJO - will only be retrieved if needed: we have expressions on the routing rules
         ItemPOJO itemPOJO = null;
         // Rules that matched
-        // ArrayList<RoutingRulePOJOPK> routingRulesThatMatched = new ArrayList<RoutingRulePOJOPK>();
         ArrayList<RoutingRulePOJO> routingRulesThatMatched = new ArrayList<RoutingRulePOJO>();
         ArrayList<RoutingRulePOJOPK> matchedRoutingRulesPks = new ArrayList<RoutingRulePOJOPK>();
         // loop over the known rules
