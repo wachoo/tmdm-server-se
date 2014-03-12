@@ -12,9 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
-import org.talend.mdm.webapp.base.client.rest.model.StagingAreaValidationModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.GenerateContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
+import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaValidationModel;
 
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;

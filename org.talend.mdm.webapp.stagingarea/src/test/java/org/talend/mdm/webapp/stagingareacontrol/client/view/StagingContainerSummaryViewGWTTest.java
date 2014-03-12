@@ -12,11 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
-import org.talend.mdm.webapp.base.client.rest.model.StagingContainerModel;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.TestUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaConfiguration;
+import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerModel;
 
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.Element;

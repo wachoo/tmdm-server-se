@@ -13,12 +13,12 @@
 package org.talend.mdm.webapp.stagingareacontrol.client.view;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.rest.model.StagingContainerModel;
 import org.talend.mdm.webapp.base.client.util.StorageProvider;
 import org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.ConceptRelationshipModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.FilterModel;
+import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerModel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.IconAlign;
