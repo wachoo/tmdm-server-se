@@ -87,7 +87,7 @@ public class ClientResourceWrapper {
         } else if (Method.PUT.equals(method)) {
             client.put(mediaType);
         } else  {
-            throw new IllegalArgumentException("Not supported method: " + mediaType);
+            throw new IllegalArgumentException("Not supported method: " + method.getName());
         }
     }
 }
