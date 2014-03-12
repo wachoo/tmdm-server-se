@@ -31,7 +31,10 @@ import net.sf.ehcache.CacheManager;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.Lock;
 import org.hibernate.*;
+import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.exception.ConstraintViolationException;
@@ -41,6 +44,7 @@ import org.hibernate.search.MassIndexer;
 import org.hibernate.search.Search;
 import org.hibernate.search.event.ContextHolder;
 import org.hibernate.search.impl.SearchFactoryImpl;
+import org.hibernate.search.store.DirectoryProvider;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.hibernate.tool.hbm2ddl.SchemaValidator;
@@ -885,6 +889,46 @@ public class HibernateStorage implements Storage {
                 aggregatedTableNames.append(table).append(' ');
             }
             LOGGER.trace("Table(s) scheduled for drop: " + aggregatedTableNames);
+        }
+        // Full text index clean up
+        org.hibernate.classic.Session currentSession = null;
+        try {
+            currentSession = factory.getCurrentSession();
+            FullTextSession s = Search.getFullTextSession(currentSession);
+            for (ComplexTypeMetadata typeMetadata : sortedTypesToDrop) {
+                try {
+                    Class<?> clazz = storageClassLoader.loadClass(ClassCreator.PACKAGE_PREFIX + tableResolver.get(typeMetadata));
+                    DirectoryProvider[] directoryProviders = s.getSearchFactory().getDirectoryProviders(clazz);
+                    for (DirectoryProvider directoryProvider : directoryProviders) {
+                        final Directory directory = directoryProvider.getDirectory();
+                        final String lockName = "delete." + typeMetadata.getName(); //$NON-NLS-1$
+                        // Default 5 sec timeout for lock
+                        Lock.With lock = new Lock.With(directory.makeLock(lockName), 5000) {
+
+                            @Override
+                            protected Object doBody() throws IOException {
+                                String[] files = directory.listAll();
+                                for (String file : files) {
+                                    if (!file.endsWith(lockName)) { // Don't delete our own lock
+                                        directory.deleteFile(file);
+                                    }
+                                }
+                                return null;
+                            }
+                        };
+                        lock.run();
+                        directoryProvider.stop(); // Prevent operations on full text index after clean
+                    }
+                } catch (Exception e) {
+                    LOGGER.warn("Could not remove full text directory for '" + typeMetadata.getName() + "'.", e);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Could not correctly clean full text directory.", e);
+        } finally {
+            if (currentSession != null) {
+                currentSession.close();
+            }
         }
         // Execute drop table
         Connection connection = null;
