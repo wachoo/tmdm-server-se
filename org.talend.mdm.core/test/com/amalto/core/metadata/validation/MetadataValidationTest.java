@@ -295,6 +295,7 @@ public class MetadataValidationTest extends TestCase {
             // Expected
         }
         assertEquals(1, handler.getErrorCount());
+        assertTrue(handler.getErrorPaths().contains("nameEEE"));
         assertTrue(handler.getMessages().contains(ValidationError.TYPE_DOES_NOT_OWN_FIELD));
         assertTrue(handler.getLineNumbers().contains(15));
         assertFalse(handler.getLineNumbers().contains(null));
@@ -521,6 +522,8 @@ public class MetadataValidationTest extends TestCase {
 
         private Set<Integer> lineNumbers = new HashSet<Integer>();
 
+        private Set<String> errorPaths = new HashSet<String>();
+
         @Override
         public void fatal(FieldMetadata field, String message, Element element, Integer lineNumber, Integer columnNumber, ValidationError error) {
             errors.add(error);
@@ -528,6 +531,7 @@ public class MetadataValidationTest extends TestCase {
 
         @Override
         public void error(FieldMetadata field, String message, Element element, Integer lineNumber, Integer columnNumber, ValidationError error) {
+            errorPaths.add(field.getPath());
             errors.add(error);
             lineNumbers.add(lineNumber);
             errorField++;
@@ -581,6 +585,10 @@ public class MetadataValidationTest extends TestCase {
 
         private Set<Integer> getLineNumbers() {
             return lineNumbers;
+        }
+
+        public Set<String> getErrorPaths() {
+            return errorPaths;
         }
     }
 }
