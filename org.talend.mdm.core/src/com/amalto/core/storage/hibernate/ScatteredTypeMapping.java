@@ -92,7 +92,7 @@ class ScatteredTypeMapping extends TypeMapping {
                             if (i < objects.size() && objects.get(i) != null) {
                                 objects.set(i, (Wrapper) _setValues(session, dataRecord, objects.get(i)));
                             } else {
-                                Wrapper object = createObject(contextClassLoader, dataRecord.getType());
+                                Wrapper object = createObject(contextClassLoader, referenceFieldMetadata.getReferencedType());
                                 objects.add((Wrapper) _setValues(session, dataRecord, object));
                                 session.persist(object);
                             }
@@ -175,7 +175,6 @@ class ScatteredTypeMapping extends TypeMapping {
         StorageClassLoader contextClassLoader = (StorageClassLoader) Thread.currentThread().getContextClassLoader();
         for (FieldMetadata userField : to.getType().getFields()) {
             FieldMetadata databaseField = getDatabase(userField);
-            String fieldName = databaseField.getName();
             Object value = readValue(from, databaseField, userField);
             if (userField != null) {
                 if (userField instanceof ContainedTypeFieldMetadata) {
