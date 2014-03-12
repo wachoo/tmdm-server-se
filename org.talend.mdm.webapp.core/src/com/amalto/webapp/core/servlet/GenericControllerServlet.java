@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.amalto.core.util.LocaleUtil;
 import com.amalto.webapp.core.util.GxtFactory;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
@@ -45,38 +44,37 @@ public abstract class GenericControllerServlet extends HttpServlet {
         try {
 
             Locale locale = req.getLocale();
-            String language = "fr";
+            String language = Util.DEFAULT_LANGUAGE;
             if (locale.getLanguage() != null) {
                 language = locale.getLanguage();
             }
-            if (req.getSession().getAttribute("language") != null) {
-                language = (String) req.getSession().getAttribute("language");
+            if (req.getSession().getAttribute("language") != null) { //$NON-NLS-1$
+                language = (String) req.getSession().getAttribute("language"); //$NON-NLS-1$
             }
-            // req.getSession().setAttribute("language",language);
 
-            res.setContentType("text/html; charset=UTF-8");
-            res.setHeader("Content-Type", "text/html; charset=UTF-8");
+            res.setContentType("text/html; charset=UTF-8"); //$NON-NLS-1$
+            res.setHeader("Content-Type", "text/html; charset=UTF-8"); //$NON-NLS-1$//$NON-NLS-2$
 
             // Dispatch call
-            String action = req.getParameter("action");
+            String action = req.getParameter("action"); //$NON-NLS-1$
 
-            if ("logout".equals(action)) {
+            if ("logout".equals(action)) { //$NON-NLS-1$
                 // logout the LocalUser cache
                 try {
                     Util.getPort().logout(new WSLogout());
                 } catch (Exception e) {
-                    String err = "Unable to call logout() on the server side";
+                    String err = "Unable to call logout() on the server side"; //$NON-NLS-1$
                     org.apache.log4j.Logger.getLogger(this.getClass()).warn(err, e);
                 }
                 // invalidate the session
                 req.getSession().invalidate();
-                res.sendRedirect("../index.html");
+                res.sendRedirect("../index.html"); //$NON-NLS-1$
             } else {
-                String html = "<html>" + "<head>" + "<title>Webapp core</title>" + getCommonImport();
+                String html = "<html>" + "<head>" + "<title>Webapp core</title>" + getCommonImport(); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
                 // getJavascriptImports
                 html += getJavascriptImportsHtml();
 
-                html += "</head>" + getBody(language, req) + "</html>";
+                html += "</head>" + getBody(language, req) + "</html>"; //$NON-NLS-1$//$NON-NLS-2$
 
                 out.write(html);
 
@@ -89,7 +87,7 @@ public abstract class GenericControllerServlet extends HttpServlet {
             }
 
         } catch (Exception e) {
-            out.write("<h1>ERROR</H1>");
+            out.write("<h1>ERROR</H1>"); //$NON-NLS-1$
             e.printStackTrace(out);
         } finally {
             // super.doPost(req, res);
@@ -120,10 +118,10 @@ public abstract class GenericControllerServlet extends HttpServlet {
         boolean isItemsbrowserExist = false;
         boolean isItemsbrowser2Exist = false;
         for (String importMenu : imports) {
-            if (importMenu.indexOf("src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"") != -1) {
+            if (importMenu.indexOf("src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"") != -1) { //$NON-NLS-1$
                 isItemsbrowserExist = true;
             }
-            if (importMenu.indexOf("src=\"/itemsbrowser2/secure/js/ItemsBrowser2.js\"") != -1) {
+            if (importMenu.indexOf("src=\"/itemsbrowser2/secure/js/ItemsBrowser2.js\"") != -1) { //$NON-NLS-1$
                 isItemsbrowser2Exist = true;
             }
         }
@@ -142,11 +140,11 @@ public abstract class GenericControllerServlet extends HttpServlet {
                 if (gxtFactory.isExcluded(subMenu.getContext(), subMenu.getApplication())) {
                     continue;
                 }
-                String tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/dwr/interface/"
-                        + subMenu.getApplication() + "Interface.js\"></script>\n";
+                String tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/dwr/interface/" //$NON-NLS-1$//$NON-NLS-2$
+                        + subMenu.getApplication() + "Interface.js\"></script>\n"; //$NON-NLS-1$
                 imports.add(tmp);
-                tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/js/"
-                        + subMenu.getApplication() + ".js\"></script>\n";
+                tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/js/" //$NON-NLS-1$//$NON-NLS-2$
+                        + subMenu.getApplication() + ".js\"></script>\n"; //$NON-NLS-1$
                 imports.add(tmp);
 
                 // tmp
@@ -154,8 +152,8 @@ public abstract class GenericControllerServlet extends HttpServlet {
                 // imports.add(tmp);
                 String gxtEntryModule = gxtFactory.getGxtEntryModule(subMenu.getContext(), subMenu.getApplication());
                 if (gxtEntryModule != null) {
-                    tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/" + gxtEntryModule + "/"
-                            + gxtEntryModule + ".nocache.js\"></script>\n";
+                    tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/" + gxtEntryModule + "/" //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+                            + gxtEntryModule + ".nocache.js\"></script>\n"; //$NON-NLS-1$
                     imports.add(tmp);
                 }
                 i++;
@@ -252,10 +250,6 @@ public abstract class GenericControllerServlet extends HttpServlet {
     }
 
     protected String getDefaultLanguage() throws Exception {
-        String lang = com.amalto.webapp.core.util.Util.getDefaultLanguage();
-        if (!"".equals(lang.trim())) { //$NON-NLS-1$
-            LocaleUtil.initLanguage = lang;
-        }
-        return lang;
+        return com.amalto.webapp.core.util.Util.getDefaultLanguage();
     }
 }

@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.talend.mdm.webapp.general.server.util.Utils;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.amalto.core.util.LocaleUtil;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -51,7 +52,19 @@ public class ControllerServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         Locale locale = LocaleUtil.getLocale(req);
-        String language = locale.getLanguage();
+        String language = locale.getLanguage().toLowerCase();
+        try {
+            String storedLanguage = com.amalto.webapp.core.util.Util.getDefaultLanguage();
+            if (storedLanguage != null && !"".equals(storedLanguage)) { //$NON-NLS-1$
+                language = storedLanguage;
+                locale = new Locale(language.toLowerCase());
+            }
+        } catch (Exception e1) {
+            Log.error("Load User Language Error!", e1); //$NON-NLS-1$
+        }
+        if (req.getParameter("language") != null) { //$NON-NLS-1$
+            language = req.getParameter("language"); //$NON-NLS-1$
+        }
         req.getSession().setAttribute("language", language); //$NON-NLS-1$
         res.setContentType("text/html; charset=UTF-8"); //$NON-NLS-1$
         res.setHeader("Content-Type", "text/html; charset=UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$

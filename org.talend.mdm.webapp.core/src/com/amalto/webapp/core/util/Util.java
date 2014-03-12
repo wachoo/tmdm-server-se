@@ -154,6 +154,8 @@ public class Util {
 
     private static final String DATACLUSTER_PK = "PROVISIONING"; //$NON-NLS-1$
 
+    public static final String DEFAULT_LANGUAGE = "en"; //$NON-NLS-1$
+
     /*********************************************************************
      * WEB SERVICES
      *********************************************************************/
