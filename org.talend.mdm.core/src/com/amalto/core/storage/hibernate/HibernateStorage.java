@@ -873,7 +873,11 @@ public class HibernateStorage implements Storage {
         for (ComplexTypeMetadata typeMetadata : sortedTypesToDrop) {
             PersistentClass metadata = configuration.getClassMapping(ClassCreator.PACKAGE_PREFIX
                     + tableResolver.get(typeMetadata));
-            tablesToDrop.addAll((Collection<String>) metadata.accept(visitor));
+            if (metadata != null) {
+                tablesToDrop.addAll((Collection<String>) metadata.accept(visitor));
+            } else {
+                LOGGER.warn("Could not find table names for type '" + typeMetadata.getName() + "'.");
+            }
         }
         if (LOGGER.isTraceEnabled()) {
             StringBuilder aggregatedTableNames = new StringBuilder();
