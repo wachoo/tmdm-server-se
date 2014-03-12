@@ -22,9 +22,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.amalto.core.query.user.Condition;
-import com.amalto.core.query.user.TypedExpression;
-import com.amalto.core.storage.StagingStorage;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONWriter;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -44,8 +41,8 @@ public class MatchingStatistics {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("{container}")
-    public Response getMatchingStatistics(@PathParam("container")
+    @Path("{container}") //$NON-NLS-1$
+    public Response getMatchingStatistics(@PathParam("container") //$NON-NLS-1$
     String containerName) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage dataStorage = storageAdmin.get(containerName, StorageType.STAGING, null);
@@ -58,19 +55,19 @@ public class MatchingStatistics {
         MetadataRepository repository = dataStorage.getMetadataRepository();
         try {
             dataStorage.begin();
-            writer.object().key("matching");
+            writer.object().key("matching"); //$NON-NLS-1$
             {
                 writer.array();
                 {
                     for (ComplexTypeMetadata type : repository.getUserComplexTypes()) {
-                        if ("TALEND_TASK_EXECUTION".equals(type.getName())) {
+                        if ("TALEND_TASK_EXECUTION".equals(type.getName())) { //$NON-NLS-1$
                             continue;
                         }
                         writer.object();
                         {
                             FieldMetadata keyField = type.getKeyFields().iterator().next();
                             Expression count = from(type)
-                                    .select(alias(count(), "count")).where(gt(groupSize(), "2"))
+                                    .select(alias(count(), "count")).where(gt(groupSize(), "2")) //$NON-NLS-1$ //$NON-NLS-2$
                                     .where(eq(keyField, taskId()))
                                     .cache().getExpression(); //$NON-NLS-1$
                             StorageResults typeCount = dataStorage.fetch(count);
