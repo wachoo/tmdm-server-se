@@ -12,7 +12,12 @@ package com.amalto.core.storage.services;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -20,12 +25,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONWriter;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.xml.sax.*;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.helpers.XMLReaderFactory;
 
+import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
@@ -36,6 +46,10 @@ import com.amalto.core.storage.record.DataRecord;
 
 @Path("/system/stats/events")//$NON-NLS-1$
 public class EventStatistics {
+
+    protected static final Logger LOGGER = Logger.getLogger(EventStatistics.class);
+
+    private final ParameterURLReader handler = new ParameterURLReader();
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -76,25 +90,43 @@ public class EventStatistics {
 
     private void writeTo(Storage system, ComplexTypeMetadata routingOrderType, JSONWriter writer, String categoryName)
             throws JSONException {
-        FieldMetadata nameField = routingOrderType.getField("name"); //$NON-NLS-1$
-        Expression routingNames = from(routingOrderType).select(distinct(nameField)).limit(1).cache().getExpression();
+        FieldMetadata parameters = routingOrderType.getField("service-parameters"); //$NON-NLS-1$
+        Expression routingNames = from(routingOrderType).select(alias(distinct(parameters), parameters.getName())).limit(1)
+                .cache().getExpression();
         writer.object().key(categoryName);
         {
             writer.array();
             {
                 StorageResults routingNameResults = system.fetch(routingNames);
                 try {
+                    XMLReader reader = XMLReaderFactory.createXMLReader();
+                    reader.setContentHandler(handler);
                     for (DataRecord routingNameResult : routingNameResults) {
-                        String name = String.valueOf(routingNameResult.get(nameField));
+                        // Get the URL called by event
+                        String parameter = String.valueOf(routingNameResult.get(parameters));
+                        reader.parse(new InputSource(new StringReader(parameter)));
+                        String url = handler.getUrl();
+                        String formattedUrl;
+                        try {
+                            formattedUrl = (new URI(url)).getHost();
+                        } catch (URISyntaxException e) {
+                            LOGGER.warn("Could not get information from '" + url + "'", e);
+                            formattedUrl = url; // As fallback, put the whole parameter content.
+                        }
+                        // Count the number of similar events
                         Expression routingNameCount = from(routingOrderType).select(alias(count(), "count")) //$NON-NLS-1$
-                                .where(eq(nameField, name)).limit(1).cache().getExpression();
+                                .where(eq(parameters, parameter)).limit(1).cache().getExpression();
                         StorageResults failedCountResult = system.fetch(routingNameCount);
                         try {
-                            writer.object().key(name).value(failedCountResult.iterator().next().get("count")); //$NON-NLS-1$
+                            // ... and write count to result
+                            writer.object().key(formattedUrl)
+                                    .value(failedCountResult.iterator().next().get("count")).endObject(); //$NON-NLS-1$
                         } finally {
                             failedCountResult.close();
                         }
                     }
+                } catch (Exception e) {
+                    throw new RuntimeException("Could not build event statistics for '" + categoryName + "' events");
                 } finally {
                     routingNameResults.close();
                 }
@@ -102,5 +134,44 @@ public class EventStatistics {
             writer.endArray();
         }
         writer.endObject();
+    }
+
+    private static class ParameterURLReader extends DefaultHandler {
+
+        private final ResettableStringWriter url;
+
+        boolean accumulate;
+
+        public ParameterURLReader() {
+            this.url = new ResettableStringWriter();
+            accumulate = false;
+        }
+
+        public String getUrl() {
+            return url.reset();
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+            if ("url".equals(localName)) { //$NON-NLS-1$
+                accumulate = true;
+            }
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            if ("url".equals(localName)) { //$NON-NLS-1$
+                accumulate = false;
+            }
+        }
+
+        @Override
+        public void characters(char[] ch, int start, int length) throws SAXException {
+            if (accumulate) {
+                for (int i = 0; i < length; i++) {
+                    url.append(ch[start + i]);
+                }
+            }
+        }
     }
 }
