@@ -22,9 +22,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.amalto.core.query.user.Condition;
+import com.amalto.core.query.user.TypedExpression;
+import com.amalto.core.storage.StagingStorage;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONWriter;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import com.amalto.core.query.user.Expression;
@@ -59,10 +63,16 @@ public class MatchingStatistics {
                 writer.array();
                 {
                     for (ComplexTypeMetadata type : repository.getUserComplexTypes()) {
+                        if ("TALEND_TASK_EXECUTION".equals(type.getName())) {
+                            continue;
+                        }
                         writer.object();
                         {
+                            FieldMetadata keyField = type.getKeyFields().iterator().next();
                             Expression count = from(type)
-                                    .select(alias(count(), "count")).where(gt(groupSize(), "2")).cache().getExpression(); //$NON-NLS-1$
+                                    .select(alias(count(), "count")).where(gt(groupSize(), "2"))
+                                    .where(eq(keyField, taskId()))
+                                    .cache().getExpression(); //$NON-NLS-1$
                             StorageResults typeCount = dataStorage.fetch(count);
                             long countValue = 0;
                             for (DataRecord record : typeCount) {
