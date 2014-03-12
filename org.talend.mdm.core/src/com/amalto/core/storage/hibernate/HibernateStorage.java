@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.amalto.core.query.user.*;
+import com.amalto.core.server.StorageAdmin;
 import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -54,15 +56,12 @@ import org.talend.mdm.commmon.metadata.compare.Compare;
 import org.talend.mdm.commmon.metadata.compare.HibernateStorageImpactAnalyzer;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.amalto.core.query.optimization.*;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.query.user.UserQueryDumpConsole;
-import com.amalto.core.query.user.Visitor;
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
@@ -78,6 +77,10 @@ import com.amalto.core.storage.record.DataRecordConverter;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.TransactionManager;
+
+import static com.amalto.core.query.user.UserQueryBuilder.and;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 public class HibernateStorage implements Storage {
 
@@ -800,6 +803,7 @@ public class HibernateStorage implements Storage {
         return new HibernateStorageImpactAnalyzer();
     }
 
+    // TODO Refactor method (too big)
     @Override
     public void adapt(MetadataRepository newRepository, boolean force) {
         if (newRepository == null) {
@@ -929,6 +933,33 @@ public class HibernateStorage implements Storage {
             if (currentSession != null) {
                 currentSession.close();
             }
+        }
+        // Clean update reports
+        StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
+        Storage storage = storageAdmin.get(XSystemObjects.DC_UPDATE_PREPORT.getName(), StorageType.MASTER, null);
+        try {
+            if (storage == null) {
+                LOGGER.warn("No update report storage available.");
+            } else {
+                ComplexTypeMetadata update = storage.getMetadataRepository().getComplexType("Update"); //$NON-NLS-1$
+                storage.begin();
+                for (ComplexTypeMetadata type : sortedTypesToDrop) {
+                    try {
+                        UserQueryBuilder qb = from(update)
+                                .where(and(
+                                        eq(update.getField("Concept"), type.getName()), eq(update.getField("DataCluster"), getName()))); //$NON-NLS-1$ //$NON-NLS-2$
+                        storage.delete(qb.getExpression());
+                    } catch (Exception e) {
+                        LOGGER.warn("Could not remove update reports for '" + type.getName() + "'.", e);
+                    }
+                }
+                storage.commit();
+            }
+        } catch (Exception e) {
+            if (storage != null) {
+                storage.rollback();
+            }
+            LOGGER.warn("Could not correctly clean update reports", e);
         }
         // Execute drop table
         Connection connection = null;
