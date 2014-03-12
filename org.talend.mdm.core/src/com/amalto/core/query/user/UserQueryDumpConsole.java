@@ -13,6 +13,7 @@ package com.amalto.core.query.user;
 
 import com.amalto.core.query.user.metadata.*;
 import org.apache.log4j.Level;
+import org.apache.log4j.Priority;
 import org.talend.mdm.commmon.metadata.*;
 import org.apache.log4j.Logger;
 
@@ -25,13 +26,10 @@ import java.util.List;
  */
 public class UserQueryDumpConsole implements Visitor<Void> {
 
-    private int indent;
-
-    private Logger logger;
-
-    private Level priority;
+    private final DumpPrinter printer;
 
     public UserQueryDumpConsole() {
+        printer = ConsolePrinter.INSTANCE;
     }
 
     public UserQueryDumpConsole(Logger logger) {
@@ -39,8 +37,11 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     }
 
     public UserQueryDumpConsole(Logger logger, Level priority) {
-        this.logger = logger;
-        this.priority = priority;
+        printer = new LogPrinter(logger, priority);
+    }
+
+    public UserQueryDumpConsole(DumpPrinter printer) {
+        this.printer = printer;
     }
 
     public Void visit(Select select) {
@@ -137,11 +138,11 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     }
 
     private void increaseIndent() {
-        indent++;
+        printer.increaseIndent();
     }
 
     private void decreaseIndent() {
-        indent--;
+        printer.decreaseIndent();
     }
 
     public Void visit(Condition condition) {
@@ -708,18 +709,77 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     }
 
     private void print(String message) {
-        if (logger != null) {
+        printer.print(message);
+    }
+    
+    public static interface DumpPrinter {
+        
+        void increaseIndent();
+        
+        void print(String message);
+        
+        void decreaseIndent();
+    }
+    
+    public static class ConsolePrinter implements DumpPrinter {
+
+        public static DumpPrinter INSTANCE = new ConsolePrinter();
+
+        private int indent;
+
+        private ConsolePrinter() {
+        }
+
+        @Override
+        public void increaseIndent() {
+            indent++;
+        }
+
+        @Override
+        public void print(String message) {
+            for (int i = 0; i < indent; i++) {
+                System.out.print('\t');
+            }
+            System.out.println(message);
+        }
+
+        @Override
+        public void decreaseIndent() {
+            indent--;
+        }
+    }
+
+    public static class LogPrinter implements DumpPrinter {
+
+        private final Logger logger;
+
+        private final Priority priority;
+
+        private int indent;
+
+        LogPrinter(Logger logger, Priority priority) {
+            this.logger = logger;
+            this.priority = priority;
+        }
+
+        @Override
+        public void increaseIndent() {
+            indent++;
+        }
+
+        @Override
+        public void print(String message) {
             StringBuilder indentString = new StringBuilder();
             for (int i = 0; i < indent; i++) {
                 indentString.append('\t');
             }
             indentString.append(message);
             logger.log(priority, indentString.toString());
-        } else {
-            for (int i = 0; i < indent; i++) {
-                System.out.print('\t');
-            }
-            System.out.println(message);
+        }
+
+        @Override
+        public void decreaseIndent() {
+            indent--;
         }
     }
 }
