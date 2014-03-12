@@ -36,14 +36,6 @@ public class ClientResourceWrapper {
 
     private Object postEntity;
 
-    public ClientResourceWrapper() {
-
-    }
-
-    public ClientResourceWrapper(Method method, String uri) {
-        init(method, uri);
-    }
-
     public void init(Method methodParameter, String uriParameter) {
         this.method = methodParameter;
         this.uri = uriParameter;
@@ -62,6 +54,8 @@ public class ClientResourceWrapper {
             @Override
             public void handle(Request request, Response response) {
                 int statusCode = response.getStatus().getCode();
+                // Why is there status "1223" in here check:
+                // http://stackoverflow.com/questions/10046972/msie-returns-status-code-of-1223-for-ajax-request
                 if (statusCode >= 200 && statusCode <= 299 || statusCode == 1223) {
                     callbackHandler.process(request, response);
                 } else {
@@ -84,16 +78,16 @@ public class ClientResourceWrapper {
         if (mediaType == null) {
             mediaType = DEFAULT_MEDIA_TYPE;
         }
-
-        if (method.equals(Method.GET)) {
+        if (Method.GET.equals(method)) {
             client.get(mediaType);
-        } else if (method.equals(Method.POST)) {
+        } else if (Method.POST.equals(method)) {
             client.post(postEntity, mediaType);
-        } else if (method.equals(Method.DELETE)) {
+        } else if (Method.DELETE.equals(method)) {
             client.delete(mediaType);
+        } else if (Method.PUT.equals(method)) {
+            client.put(mediaType);
+        } else  {
+            throw new IllegalArgumentException("Not supported method: " + mediaType);
         }
-
-        // TODO: to support more HTTP methods
     }
-
 }
