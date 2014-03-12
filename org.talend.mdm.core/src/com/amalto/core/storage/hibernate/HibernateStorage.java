@@ -889,7 +889,8 @@ public class HibernateStorage implements Storage {
         // Execute drop table
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection(dataSource.getConnectionURL());
+            connection = DriverManager.getConnection(dataSource.getConnectionURL(), dataSource.getUserName(),
+                    dataSource.getPassword());
             int successCount = 0;
             for (String table : tablesToDrop) {
                 Statement statement = connection.createStatement();
