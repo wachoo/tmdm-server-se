@@ -979,7 +979,7 @@ public class HibernateStorage implements Storage {
                 }
             }
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Successfully deleted " + successCount + " (out of " + tablesToDrop.size() + " tables).");
+                LOGGER.debug("Successfully deleted " + successCount + " tables (out of " + tablesToDrop.size() + " tables).");
             }
         } catch (SQLException e) {
             throw new RuntimeException("Could not acquire connection to database.", e);
