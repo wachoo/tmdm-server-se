@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceLoader;
 
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
@@ -124,10 +125,12 @@ public class ServerContext {
             List<Storage> storageForDispatch = new LinkedList<Storage>();
             // Adds a JDBC storage
             // TODO Move Hibernate storage to an extension?
-            Storage storage = new HibernateStorage(storageName, storageType);
-            storage.init(definition);
-            storage = defaultWrap(storage);
-            storageForDispatch.add(storage);
+            if (definition.get(storageType) instanceof RDBMSDataSource) {
+                Storage storage = new HibernateStorage(storageName, storageType);
+                storage.init(definition);
+                storage = defaultWrap(storage);
+                storageForDispatch.add(storage);
+            }
             // Invoke extensions for storage extensions
             ServiceLoader<StorageExtension> extensions = ServiceLoader.load(StorageExtension.class);
             for (StorageExtension extension : extensions) {

@@ -66,6 +66,9 @@ public class DataRecord {
      * empty string if no key is defined.
      */
     public static String getId(DataRecord dataRecord) {
+        if (dataRecord == null) {
+            return null;
+        }
         StringBuilder builder = new StringBuilder();
         for (FieldMetadata keyField : dataRecord.getType().getKeyFields()) {
             builder.append('[').append(dataRecord.get(keyField)).append(']');

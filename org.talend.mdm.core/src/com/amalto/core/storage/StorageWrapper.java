@@ -756,11 +756,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         if (!admin.exist(dataClusterName, admin.getType(dataClusterName), revisionId)) {
             throw new IllegalStateException("Data container '" + dataClusterName + "' (revision: '" + revisionId + "') does not exist.");
         }
-        Storage storage = admin.get(dataClusterName, admin.getType(dataClusterName), revisionId);
-        if (!(storage.getDataSource() instanceof RDBMSDataSource)) {
-            throw new IllegalStateException("Storage '" + dataClusterName + "' (revision: '" + revisionId + "') is not a SQL storage.");
-        }
-        return storage;
+        return admin.get(dataClusterName, admin.getType(dataClusterName), revisionId);
     }
 
     public void start(String dataClusterName) throws XmlServerException {
