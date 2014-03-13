@@ -2392,16 +2392,20 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public String getRecordXml(String concept, List<String> idsList) throws ServiceException {
-        StringBuilder xmlResult = new StringBuilder();
+    public List<ItemBean> getRecords(String concept, List<String> idsList) throws ServiceException {
+        List<ItemBean> records = new ArrayList<ItemBean>();
+        ItemBean itemBean;
         try {
             for (int i = 0; i < idsList.size(); i++) {
                 String[] ids = StringUtils.splitPreserveAllTokens(idsList.get(i), '.');
                 WSItem wsItem = CommonUtil.getPort().getItem(
                         new WSGetItem(new WSItemPK(new WSDataClusterPK(this.getCurrentDataCluster()), concept, ids)));
-                xmlResult.append(wsItem.getContent());
+                itemBean = new ItemBean();
+                itemBean.setItemXml(wsItem.getContent());
+                itemBean.setTaskId(wsItem.getTaskId());
+                records.add(itemBean);
             }
-            return xmlResult.toString();
+            return records;
         } catch (Exception exception) {
             LOG.error(exception.getMessage(), exception);
             throw new ServiceException(exception.getLocalizedMessage());

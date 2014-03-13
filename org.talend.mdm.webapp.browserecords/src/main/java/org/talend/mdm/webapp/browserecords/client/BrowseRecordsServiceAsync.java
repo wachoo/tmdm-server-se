@@ -125,7 +125,7 @@ public interface BrowseRecordsServiceAsync {
     void getGoldenRecordIdByGroupId(String dataClusterPK, String viewPK, String concept, String[] keys, String groupId,
             AsyncCallback<String> callback);
 
-    void getRecordXml(String concept, List<String> idsList, AsyncCallback<String> callback);
+    void getRecords(String concept, List<String> idsList, AsyncCallback<List<ItemBean>> callback);
 
     void formatValue(FormatModel model, AsyncCallback<String> callback);
 
