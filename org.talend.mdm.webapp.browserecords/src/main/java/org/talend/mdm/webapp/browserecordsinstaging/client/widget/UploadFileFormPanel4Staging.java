@@ -14,22 +14,11 @@ package org.talend.mdm.webapp.browserecordsinstaging.client.widget;
 
 import org.talend.mdm.webapp.browserecords.client.widget.UploadFileFormPanel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecordsinstaging.shared.StagingConstants;
 
 import com.extjs.gxt.ui.client.widget.Window;
 
-/**
- * created by yjli on 2013-10-18 Detailled comment
- * 
- */
 public class UploadFileFormPanel4Staging extends UploadFileFormPanel {
-
-    public static final String TITLE_STAGING_TASKID = "Match Group"; //$NON-NLS-1$
-
-    public static final String TITLE_STAGING_STATUS = "Status"; //$NON-NLS-1$
-
-    public static final String TITLE_STAGING_SOURCE = "Source"; //$NON-NLS-1$
-
-    public static final String TITLE_STAGING_ERROR = "Error"; //$NON-NLS-1$
 
     /**
      * DOC talend2 UploadFileFormPanel4Staging constructor comment.
@@ -46,10 +35,10 @@ public class UploadFileFormPanel4Staging extends UploadFileFormPanel {
     protected String getHeaderString() {
         StringBuilder header = new StringBuilder();
         header.append(super.getHeaderString());
-        header.append(TITLE_STAGING_TASKID);
-        header.append(TITLE_STAGING_STATUS);
-        header.append(TITLE_STAGING_SOURCE);
-        header.append(TITLE_STAGING_ERROR);
+        header.append(StagingConstants.TITLE_STAGING_TASKID);
+        header.append(StagingConstants.TITLE_STAGING_STATUS);
+        header.append(StagingConstants.TITLE_STAGING_SOURCE);
+        header.append(StagingConstants.TITLE_STAGING_ERROR);
         return header.toString();
     }
 
@@ -57,13 +46,13 @@ public class UploadFileFormPanel4Staging extends UploadFileFormPanel {
     protected String getViewableXpathString() {
         StringBuilder viewableXpath = new StringBuilder();
         viewableXpath.append(super.getViewableXpathString());
-        viewableXpath.append(TITLE_STAGING_TASKID);
+        viewableXpath.append(StagingConstants.TITLE_STAGING_TASKID);
         viewableXpath.append("@true"); //$NON-NLS-1$
-        viewableXpath.append(TITLE_STAGING_STATUS);
+        viewableXpath.append(StagingConstants.TITLE_STAGING_STATUS);
         viewableXpath.append("@true"); //$NON-NLS-1$
-        viewableXpath.append(TITLE_STAGING_SOURCE);
+        viewableXpath.append(StagingConstants.TITLE_STAGING_SOURCE);
         viewableXpath.append("@true"); //$NON-NLS-1$
-        viewableXpath.append(TITLE_STAGING_ERROR);
+        viewableXpath.append(StagingConstants.TITLE_STAGING_ERROR);
         viewableXpath.append("@true"); //$NON-NLS-1$
         return viewableXpath.toString();
     }
