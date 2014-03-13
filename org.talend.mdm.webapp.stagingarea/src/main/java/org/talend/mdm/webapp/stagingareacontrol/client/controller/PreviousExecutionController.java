@@ -12,16 +12,13 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.controller;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaExecutionModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.rest.RestDataProxy;
-import org.talend.mdm.webapp.stagingareacontrol.client.rest.StagingModelConvertor;
+import org.talend.mdm.webapp.stagingareacontrol.client.rest.StagingRestServiceHandler;
 import org.talend.mdm.webapp.stagingareacontrol.client.view.PreviousExecutionView;
 
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
@@ -35,8 +32,6 @@ import com.extjs.gxt.ui.client.event.LoadListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.NodeList;
 
 public class PreviousExecutionController extends AbstractController {
 
@@ -65,53 +60,21 @@ public class PreviousExecutionController extends AbstractController {
                 searchButton.setEnabled(false);
                 StagingAreaExecutionModel criteria = new StagingAreaExecutionModel();
                 criteria.setStartDate(beforeDate);
-                RestServiceHandler.get().countStagingAreaExecutions(dataContainer, criteria.getStartDate(),
+                StagingRestServiceHandler.get().countStagingAreaExecutions(dataContainer, criteria,
                         new SessionAwareAsyncCallback<Integer>() {
 
                             @Override
                             public void onSuccess(final Integer total) {
-                                RestServiceHandler.get().getStagingAreaExecutionsWithPaging(dataContainer, config.getOffset(),
-                                        config.getLimit(), beforeDate, new SessionAwareAsyncCallback<NodeList>() {
+                                StagingRestServiceHandler.get().getStagingAreaExecutionsWithPaging(dataContainer,
+                                        config.getOffset(), config.getLimit(), beforeDate,
+                                        new SessionAwareAsyncCallback<List<StagingAreaExecutionModel>>() {
 
                                             @Override
-                                            public void onSuccess(NodeList areaExecutionsNodelist) {
-                                                final Map<String, StagingAreaExecutionModel> exeIds = new LinkedHashMap<String, StagingAreaExecutionModel>();
-                                                if (areaExecutionsNodelist != null) {
-                                                    for (int i = 0; i < areaExecutionsNodelist.getLength(); i++) {
-                                                        Node node = areaExecutionsNodelist.item(i);
-                                                        if (node.getNodeType() == Node.ELEMENT_NODE) {
-                                                            exeIds.put(node.getFirstChild().getNodeValue(), null);
-                                                        }
-                                                    }
-                                                }
-                                                final int[] counter = new int[1];
-                                                for (final String exeId : exeIds.keySet()) {
-                                                    RestServiceHandler.get().getStagingAreaExecution(dataContainer, exeId,
-                                                            new SessionAwareAsyncCallback<NodeList>() {
-
-                                                                @Override
-                                                                public void onSuccess(NodeList areaExecutionNodelist) {
-                                                                    StagingAreaExecutionModel stagingAreaExecutionModel = StagingModelConvertor
-                                                                            .convertNodeListToStagingAreaExecutionModel(areaExecutionNodelist);
-                                                                    exeIds.put(exeId, stagingAreaExecutionModel);
-                                                                    counter[0]++;
-                                                                    if (counter[0] == exeIds.size()) {
-                                                                        BasePagingLoadResult<StagingAreaExecutionModel> pagingResult = new BasePagingLoadResult<StagingAreaExecutionModel>(
-                                                                                new ArrayList<StagingAreaExecutionModel>(exeIds
-                                                                                        .values()), config.getOffset(), total);
-                                                                        callback.onSuccess(pagingResult);
-                                                                        searchButton.setEnabled(true);
-                                                                    }
-                                                                }
-
-                                                                @Override
-                                                                protected void doOnFailure(Throwable caught) {
-                                                                    counter[0]++;
-                                                                    onFailure(caught);
-                                                                }
-                                                            });
-                                                }
-
+                                            public void onSuccess(List<StagingAreaExecutionModel> result) {
+                                                BasePagingLoadResult<StagingAreaExecutionModel> pagingResult = new BasePagingLoadResult<StagingAreaExecutionModel>(
+                                                        result, config.getOffset(), total);
+                                                callback.onSuccess(pagingResult);
+                                                searchButton.setEnabled(true);
                                             }
                                         });
                             }

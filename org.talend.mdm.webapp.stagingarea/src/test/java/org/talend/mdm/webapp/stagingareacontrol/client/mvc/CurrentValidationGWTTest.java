@@ -12,10 +12,10 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingareacontrol.client.mvc;
 
-import org.talend.mdm.webapp.base.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.stagingareacontrol.client.GenerateContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.TestUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
+import org.talend.mdm.webapp.stagingareacontrol.client.rest.StagingRestServiceHandler;
 import org.talend.mdm.webapp.stagingareacontrol.client.view.CurrentValidationView;
 import org.talend.mdm.webapp.stagingareacontrol.client.view.ResourceMockWrapper;
 import org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView;
@@ -33,7 +33,7 @@ public class CurrentValidationGWTTest extends GWTTestCase {
     @Override
     protected void gwtSetUp() throws Exception {
         super.gwtSetUp();
-        RestServiceHandler.get().setClient(new ResourceMockWrapper());
+        StagingRestServiceHandler.get().setClient(new ResourceMockWrapper());
 
         TestUtil.initRestServices(new ResourceMockWrapper());
         TestUtil.initUserContext("TestDataContainer", "TestDataModel");

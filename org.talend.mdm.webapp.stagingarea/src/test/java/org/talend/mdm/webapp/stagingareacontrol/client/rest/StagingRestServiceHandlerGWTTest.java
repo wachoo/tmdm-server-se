@@ -15,23 +15,22 @@ package org.talend.mdm.webapp.stagingareacontrol.client.rest;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaExecutionModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaValidationModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerModel;
 
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.junit.client.GWTTestCase;
-import com.google.gwt.xml.client.NodeList;
 
 @SuppressWarnings("nls")
-public class RestServiceHandlerGWTTest extends GWTTestCase {
+public class StagingRestServiceHandlerGWTTest extends GWTTestCase {
 
-    RestServiceHandler handler;
+    StagingRestServiceHandler handler;
 
     @Override
     protected void gwtSetUp() throws Exception {
         super.gwtSetUp();
-        handler = RestServiceHandler.get();
+        handler = StagingRestServiceHandler.get();
         handler.setClient(new ClientResourceMockWrapper());
     }
 
@@ -87,10 +86,12 @@ public class RestServiceHandlerGWTTest extends GWTTestCase {
 
     public void testGetStagingAreaExecutionsWithPaging() {
         MockStagingAreaExecutionArrayModel callback = new MockStagingAreaExecutionArrayModel();
-        handler.getStagingAreaExecutionsWithPaging("TestDataContainer", 1, 10,
-                RestServiceHandler.DEFAULT_DATE_FORMAT.parse("2012-12-12T00:00:00"), callback);
+        handler.getStagingAreaExecutionsWithPaging("TestDataContainer", 1, 10, DateTimeFormat.getFormat("yyyy-MM-dd'T'HH:mm:ss")
+                .parse("2012-12-12T00:00:00"), callback);
         assertTrue(callback.isSucceed());
-        assertEquals(2, callback.getNodeList().getLength());
+        assertEquals(2, callback.getModel().size());
+        assertEquals("fa011993-648f-48b3-9e4d-9c71de82f91a", callback.getModel().get(0).getId());
+        assertEquals(772, callback.getModel().get(0).getTotalRecord());
     }
 
     public void testGetValidationTaskStatus() {
@@ -117,15 +118,15 @@ public class RestServiceHandlerGWTTest extends GWTTestCase {
         assertTrue(callback.isSuccess());
     }
 
-    private class MockStagingContainerModelCallback extends SessionAwareAsyncCallback<NodeList> {
+    private class MockStagingContainerModelCallback extends SessionAwareAsyncCallback<StagingContainerModel> {
 
         private boolean succeed = false;
 
         private StagingContainerModel model;
 
         @Override
-        public void onSuccess(NodeList nodeList) {
-            this.model = StagingModelConvertor.convertNodeListToStagingContainerModel(nodeList);
+        public void onSuccess(StagingContainerModel result) {
+            this.model = result;
             this.succeed = true;
         }
 
@@ -180,15 +181,15 @@ public class RestServiceHandlerGWTTest extends GWTTestCase {
         }
     }
 
-    private class MockStagingAreaExecutionModel extends SessionAwareAsyncCallback<NodeList> {
+    private class MockStagingAreaExecutionModel extends SessionAwareAsyncCallback<StagingAreaExecutionModel> {
 
         private boolean succeed = false;
 
         private StagingAreaExecutionModel model;
 
         @Override
-        public void onSuccess(NodeList nodeList) {
-            this.model = StagingModelConvertor.convertNodeListToStagingAreaExecutionModel(nodeList);
+        public void onSuccess(StagingAreaExecutionModel result) {
+            this.model = result;
             this.succeed = true;
         }
 
@@ -201,15 +202,15 @@ public class RestServiceHandlerGWTTest extends GWTTestCase {
         }
     }
 
-    private class MockStagingAreaValidationModel extends SessionAwareAsyncCallback<NodeList> {
+    private class MockStagingAreaValidationModel extends SessionAwareAsyncCallback<StagingAreaValidationModel> {
 
         private boolean succeed = false;
 
         private StagingAreaValidationModel model;
 
         @Override
-        public void onSuccess(NodeList nodeList) {
-            this.model = StagingModelConvertor.convertNodeListToStagingAreaValidationModel(nodeList);
+        public void onSuccess(StagingAreaValidationModel result) {
+            this.model = result;
             this.succeed = true;
         }
 
@@ -222,20 +223,20 @@ public class RestServiceHandlerGWTTest extends GWTTestCase {
         }
     }
 
-    private class MockStagingAreaExecutionArrayModel extends SessionAwareAsyncCallback<NodeList> {
+    private class MockStagingAreaExecutionArrayModel extends SessionAwareAsyncCallback<List<StagingAreaExecutionModel>> {
 
         private boolean succeed = false;
 
-        private NodeList nodeList;
+        private List<StagingAreaExecutionModel> model;
 
         @Override
-        public void onSuccess(NodeList nodeList) {
-            this.nodeList = nodeList;
+        public void onSuccess(List<StagingAreaExecutionModel> result) {
+            this.model = result;
             this.succeed = true;
         }
 
-        public NodeList getNodeList() {
-            return nodeList;
+        public List<StagingAreaExecutionModel> getModel() {
+            return model;
         }
 
         public boolean isSucceed() {

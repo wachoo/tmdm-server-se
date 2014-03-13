@@ -17,16 +17,14 @@ import org.restlet.client.ext.xml.DomRepresentation;
 import org.restlet.client.representation.Representation;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
-import org.talend.mdm.webapp.base.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.FilterModel;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingContainerModel;
-import org.talend.mdm.webapp.stagingareacontrol.client.rest.StagingModelConvertor;
+import org.talend.mdm.webapp.stagingareacontrol.client.rest.StagingRestServiceHandler;
 import org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView;
 
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
 
 public class StagingContainerSummaryController extends AbstractController {
@@ -40,14 +38,12 @@ public class StagingContainerSummaryController extends AbstractController {
 
     public void refreshView() {
         final UserContextModel ucx = UserContextUtil.getUserContext();
-        RestServiceHandler.get().getStagingContainerSummary(ucx.getDataContainer(), ucx.getDataModel(),
-                new SessionAwareAsyncCallback<NodeList>() {
+        StagingRestServiceHandler.get().getStagingContainerSummary(ucx.getDataContainer(), ucx.getDataModel(),
+                new SessionAwareAsyncCallback<StagingContainerModel>() {
 
                     @Override
-                    public void onSuccess(NodeList nodeList) {
-                        StagingContainerModel model = StagingModelConvertor
-                                .convertNodeListToStagingContainerModel(nodeList);
-                        view.refresh(model);
+                    public void onSuccess(StagingContainerModel result) {
+                        view.refresh(result);
                     }
                 });
     }
@@ -95,7 +91,7 @@ public class StagingContainerSummaryController extends AbstractController {
         if (filterModel != null) {
             entity = new DomRepresentation(MediaType.APPLICATION_XML, buildFilterDocument(filterModel));
         }
-        RestServiceHandler.get().runValidationTask(ucx.getDataContainer(), ucx.getDataModel(), entity,
+        StagingRestServiceHandler.get().runValidationTask(ucx.getDataContainer(), ucx.getDataModel(), entity,
                 new SessionAwareAsyncCallback<String>() {
 
                     @Override

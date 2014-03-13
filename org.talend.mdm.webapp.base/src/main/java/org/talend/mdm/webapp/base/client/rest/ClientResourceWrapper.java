@@ -13,6 +13,8 @@
 package org.talend.mdm.webapp.base.client.rest;
 
 import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 
 import org.restlet.client.Request;
 import org.restlet.client.Response;
@@ -46,6 +48,23 @@ public class ClientResourceWrapper {
             timestamp = "&" + timestamp; //$NON-NLS-1$
         }
         client = new ClientResource(method, uri + timestamp); //
+    }
+
+    public void init(Method methodParameter, String uriParameter, Map<String, String> parameterMap) {
+        if (parameterMap != null) {
+            StringBuilder parameter = new StringBuilder();
+            Set<String> keySet = parameterMap.keySet();
+            for (Object name : keySet) {
+                if (parameter.length() > 0) {
+                    parameter.append("&"); //$NON-NLS-1$
+                }
+                parameter.append(name).append("=").append(parameterMap.get(name)); //$NON-NLS-1$
+            }
+            if (parameter.length() > 0) {
+                uriParameter = uriParameter + "?" + parameter.toString(); //$NON-NLS-1$
+            }
+        }
+        init(methodParameter, uriParameter);
     }
 
     public void setCallback(final ResourceCallbackHandler callbackHandler) {
@@ -86,7 +105,7 @@ public class ClientResourceWrapper {
             client.delete(mediaType);
         } else if (Method.PUT.equals(method)) {
             client.put(mediaType);
-        } else  {
+        } else {
             throw new IllegalArgumentException("Not supported method: " + method.getName());
         }
     }

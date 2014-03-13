@@ -62,7 +62,7 @@ public class ClientResourceMockWrapper extends ClientResourceWrapper {
             DomRepresentation representation = new DomRepresentation(MediaType.TEXT_XML, XMLParser.parse(messageXml));
             response.setEntity(representation);
 
-        } else if (method.equals(Method.GET) && uri.matches("^.+/core/services/tasks/staging/Product/\\?model=Product$")) {
+        } else if (method.equals(Method.GET) && uri.matches("^.+/core/services/tasks/staging/Product/\\?.+$")) {
 
             StringBuilder sb = new StringBuilder();
             sb.append("<staging> ");
@@ -77,8 +77,7 @@ public class ClientResourceMockWrapper extends ClientResourceWrapper {
             DomRepresentation representation = new DomRepresentation(MediaType.TEXT_XML, XMLParser.parse(messageXml));
             response.setEntity(representation);
 
-        } else if (method.equals(Method.GET)
-                && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/(\\?start=1&size=10&before=2012-12-12T00:00:00)?$")) {
+        } else if (method.equals(Method.GET) && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/(\\?.+)?$")) {
 
             String messageXml = "<executions><execution>fa011993-648f-48b3-9e4d-9c71de82f91a</execution><execution>4ad4e1c7-7769-45c1-90ad-16b54aa0262b</execution></executions>";
             DomRepresentation representation = new DomRepresentation(MediaType.TEXT_XML, XMLParser.parse(messageXml));
@@ -114,8 +113,7 @@ public class ClientResourceMockWrapper extends ClientResourceWrapper {
             DomRepresentation representation = new DomRepresentation(MediaType.TEXT_XML, XMLParser.parse(messageXml));
             response.setEntity(representation);
 
-        } else if (method.equals(Method.POST)
-                && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/\\?model=TestDataModel$")) {
+        } else if (method.equals(Method.POST) && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/\\?.+$")) {
             String message = "1ad084c1-5f70-4b89-aeef-613e7e44f134";
             StringInputStream stringStream = new StringInputStream(message);
             InputRepresentation representation = new InputRepresentation(stringStream);

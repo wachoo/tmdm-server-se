@@ -13,10 +13,10 @@
 package org.talend.mdm.webapp.stagingareacontrol.client;
 
 import org.talend.mdm.webapp.base.client.rest.ClientResourceWrapper;
-import org.talend.mdm.webapp.base.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaConfiguration;
+import org.talend.mdm.webapp.stagingareacontrol.client.rest.StagingRestServiceHandler;
 import org.talend.mdm.webapp.stagingareacontrol.client.view.CurrentValidationView;
 import org.talend.mdm.webapp.stagingareacontrol.client.view.PreviousExecutionView;
 import org.talend.mdm.webapp.stagingareacontrol.client.view.StagingContainerSummaryView;
@@ -51,7 +51,7 @@ public class TestUtil {
     }
 
     public static void initRestServices(ClientResourceWrapper resourceWrapper) {
-        RestServiceHandler.get().setClient(resourceWrapper);
+        StagingRestServiceHandler.get().setClient(resourceWrapper);
     }
 
 }

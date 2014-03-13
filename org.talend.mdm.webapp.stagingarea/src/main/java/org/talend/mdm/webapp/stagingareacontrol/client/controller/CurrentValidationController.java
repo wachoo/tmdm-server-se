@@ -14,17 +14,15 @@ package org.talend.mdm.webapp.stagingareacontrol.client.controller;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
-import org.talend.mdm.webapp.base.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl;
 import org.talend.mdm.webapp.stagingareacontrol.client.model.StagingAreaValidationModel;
-import org.talend.mdm.webapp.stagingareacontrol.client.rest.StagingModelConvertor;
+import org.talend.mdm.webapp.stagingareacontrol.client.rest.StagingRestServiceHandler;
 import org.talend.mdm.webapp.stagingareacontrol.client.view.CurrentValidationView;
 
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.xml.client.NodeList;
 
 public class CurrentValidationController extends AbstractController {
 
@@ -107,40 +105,40 @@ public class CurrentValidationController extends AbstractController {
 
     private void refreshView(final Callback callback) {
         UserContextModel ucx = UserContextUtil.getUserContext();
-        RestServiceHandler.get().getValidationTaskStatus(ucx.getDataContainer(), new SessionAwareAsyncCallback<NodeList>() {
+        StagingRestServiceHandler.get().getValidationTaskStatus(ucx.getDataContainer(),
+                new SessionAwareAsyncCallback<StagingAreaValidationModel>() {
 
-            @Override
-            public void onSuccess(NodeList nodes) {
-                StagingAreaValidationModel model = StagingModelConvertor.convertNodeListToStagingAreaValidationModel(nodes);
-                if (model != null) {
-                    ControllerContainer.get().getSummaryController().setEnabledStartValidation(false);
-                    view.setStatus(CurrentValidationView.Status.HasValidation);
-                    if (auto) {
-                        view.refresh(model);
+                    @Override
+                    public void onSuccess(StagingAreaValidationModel result) {
+                        if (result != null) {
+                            ControllerContainer.get().getSummaryController().setEnabledStartValidation(false);
+                            view.setStatus(CurrentValidationView.Status.HasValidation);
+                            if (auto) {
+                                view.refresh(result);
+                            }
+                            if (callback != null) {
+                                callback.callback();
+                            }
+                        } else {
+                            ControllerContainer.get().getSummaryController().refreshView();
+                            ControllerContainer.get().getSummaryController().setEnabledStartValidation(true);
+                            view.setStatus(CurrentValidationView.Status.None);
+                            ControllerContainer.get().getPreviousExecutionController().searchByBeforeDate();
+                        }
                     }
-                    if (callback != null) {
-                        callback.callback();
-                    }
-                } else {
-                    ControllerContainer.get().getSummaryController().refreshView();
-                    ControllerContainer.get().getSummaryController().setEnabledStartValidation(true);
-                    view.setStatus(CurrentValidationView.Status.None);
-                    ControllerContainer.get().getPreviousExecutionController().searchByBeforeDate();
-                }
-            }
 
-            @Override
-            protected void doOnFailure(Throwable caught) {
-                ControllerContainer.get().getSummaryController().setEnabledStartValidation(true);
-                view.setStatus(CurrentValidationView.Status.None);
-                ControllerContainer.get().getPreviousExecutionController().searchByBeforeDate();
-            }
-        });
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
+                        ControllerContainer.get().getSummaryController().setEnabledStartValidation(true);
+                        view.setStatus(CurrentValidationView.Status.None);
+                        ControllerContainer.get().getPreviousExecutionController().searchByBeforeDate();
+                    }
+                });
     }
 
     public void cancelValidation() {
         UserContextModel ucx = UserContextUtil.getUserContext();
-        RestServiceHandler.get().cancelValidationTask(ucx.getDataContainer(), new SessionAwareAsyncCallback<Boolean>() {
+        StagingRestServiceHandler.get().cancelValidationTask(ucx.getDataContainer(), new SessionAwareAsyncCallback<Boolean>() {
 
             @Override
             public void onSuccess(Boolean result) {
