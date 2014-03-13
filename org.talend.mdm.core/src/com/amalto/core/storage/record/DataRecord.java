@@ -73,6 +73,25 @@ public class DataRecord {
         return builder.toString();
     }
 
+    /**
+     * Returns a typed version of the provided <code>id</code> based on <code>type</code>.
+     * @param type A {@link org.talend.mdm.commmon.metadata.ComplexTypeMetadata type}.
+     * @param id A serialized id (in the form of [id0]...[idN]).
+     * @return A typed version of the id (each item of the return is typed based on key field type).
+     */
+    public static Object[] parseId(ComplexTypeMetadata type, String id) {
+        FieldMetadata[] keyFields = type.getKeyFields().toArray(new FieldMetadata[type.getKeyFields().size()]);
+        Object[] keyValues = new Object[keyFields.length];
+        StringTokenizer tokenizer = new StringTokenizer(id, "]"); //$NON-NLS-1$
+        int i = 0;
+        while (tokenizer.hasMoreTokens()) {
+            String currentKeyValue = tokenizer.nextToken().substring(1);
+            keyValues[i] = StorageMetadataUtils.convert(currentKeyValue, keyFields[i]);
+            i++;
+        }
+        return keyValues;
+    }
+
     public String getRevisionId() {
         return revisionId;
     }

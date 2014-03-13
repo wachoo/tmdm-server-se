@@ -212,17 +212,19 @@ public class DataRecordXmlWriter implements DataRecordWriter {
             if (value == null) {
                 throw new IllegalArgumentException("Not supposed to write null values to XML.");
             }
-            if (Types.DATE.equals(simpleField.getType().getName())) {
-                synchronized (DateConstant.DATE_FORMAT) {
-                    out.write((DateConstant.DATE_FORMAT).format(value));
-                }
-            } else if (Types.DATETIME.equals(simpleField.getType().getName())) {
-                synchronized (DateTimeConstant.DATE_FORMAT) {
-                    out.write((DateTimeConstant.DATE_FORMAT).format(value));
-                }
-            } else if (Types.TIME.equals(simpleField.getType().getName())) {
-                synchronized (TimeConstant.TIME_FORMAT) {
-                    out.write((TimeConstant.TIME_FORMAT).format(value));
+            if (!(value instanceof String)) {
+                if (Types.DATE.equals(simpleField.getType().getName())) {
+                    synchronized (DateConstant.DATE_FORMAT) {
+                        out.write((DateConstant.DATE_FORMAT).format(value));
+                    }
+                } else if (Types.DATETIME.equals(simpleField.getType().getName())) {
+                    synchronized (DateTimeConstant.DATE_FORMAT) {
+                        out.write((DateTimeConstant.DATE_FORMAT).format(value));
+                    }
+                } else if (Types.TIME.equals(simpleField.getType().getName())) {
+                    synchronized (TimeConstant.TIME_FORMAT) {
+                        out.write((TimeConstant.TIME_FORMAT).format(value));
+                    }
                 }
             } else {
                 out.write(StringEscapeUtils.escapeXml(value.toString()));
