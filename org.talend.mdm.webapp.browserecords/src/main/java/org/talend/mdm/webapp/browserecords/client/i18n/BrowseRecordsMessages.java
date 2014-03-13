@@ -276,10 +276,14 @@ public interface BrowseRecordsMessages extends Messages {
     String explain_button();
 
     String explain_title();
-    
-    String explain_warning_message();
+
+    String explain_choose_more_warning_message();
+
+    String no_taskid_warning_message();
 
     String compare_button();
+
+    String compare_choose_one_warning_message();
 
     String delete_tip();
 
@@ -494,4 +498,6 @@ public interface BrowseRecordsMessages extends Messages {
     String mark_deleted_confirm();
 
     String no_golden_record_in_group(String groupId);
+
+    String record_not_found_msg();
 }

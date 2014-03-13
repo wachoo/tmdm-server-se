@@ -2391,6 +2391,23 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
+    @Override
+    public String getRecordXml(String concept, List<String> idsList) throws ServiceException {
+        StringBuilder xmlResult = new StringBuilder();
+        try {
+            for (int i = 0; i < idsList.size(); i++) {
+                String[] ids = StringUtils.splitPreserveAllTokens(idsList.get(i), '.');
+                WSItem wsItem = CommonUtil.getPort().getItem(
+                        new WSGetItem(new WSItemPK(new WSDataClusterPK(this.getCurrentDataCluster()), concept, ids)));
+                xmlResult.append(wsItem.getContent());
+            }
+            return xmlResult.toString();
+        } catch (Exception exception) {
+            LOG.error(exception.getMessage(), exception);
+            throw new ServiceException(exception.getLocalizedMessage());
+        }
+    }
+
     private TypeModel findTypeModelByTypePath(Map<String, TypeModel> metaDataTypes, String typePath, String language)
             throws ServiceException {
         try {

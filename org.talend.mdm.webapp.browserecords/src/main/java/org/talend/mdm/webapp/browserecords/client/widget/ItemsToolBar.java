@@ -22,7 +22,6 @@ import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
-import org.talend.mdm.webapp.base.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.base.client.util.CriteriaUtil;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.base.shared.EntityModel;
@@ -36,6 +35,7 @@ import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
+import org.talend.mdm.webapp.browserecords.client.rest.ExplainRestServiceHandler;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
@@ -54,6 +54,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.integrity.NoOpPostDelet
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.PostDeleteAction;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
+import com.amalto.core.server.StorageAdmin;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -307,7 +308,7 @@ public class ItemsToolBar extends ToolBar {
     private void initToolBar() {
         addCreateButton();
         addDeleteButton();
-        addExpalinButton();
+        addExplainButton();
         addCompareButton();
         addImportAndExportButton();
         add(new FillToolItem());
@@ -418,7 +419,7 @@ public class ItemsToolBar extends ToolBar {
         add(deleteButton);
     }
 
-    protected void addExpalinButton() {
+    protected void addExplainButton() {
         explainButton = new Button(MessagesFactory.getMessages().explain_button());
         explainButton.setId("explainButton"); //$NON-NLS-1$
         explainButton.setEnabled(false);
@@ -433,36 +434,23 @@ public class ItemsToolBar extends ToolBar {
                     if (selectedItems.size() == 1) {
                         ItemBean itemBean = selectedItems.get(0);
                         String taskId = itemBean.get(itemBean.getConcept() + StagingConstant.STAGING_TASKID);
-                        RestServiceHandler.get().explainGroupResult(userCluster, itemBean.getConcept(), taskId,
-                                new SessionAwareAsyncCallback<BaseTreeModel>() {
+                        if (taskId != null && !taskId.isEmpty()) {
+                            ExplainRestServiceHandler.get().explainGroupResult(
+                                    userCluster.replace(StorageAdmin.STAGING_SUFFIX, ""), itemBean.getConcept(), taskId, //$NON-NLS-1$
+                                    new SessionAwareAsyncCallback<BaseTreeModel>() {
 
-                                    @Override
-                                    public void onSuccess(BaseTreeModel root) {
-
-                                        Window explainWindow = new Window();
-                                        explainWindow.setHeading(MessagesFactory.getMessages().explain_title());
-                                        explainWindow.setSize(400, 500);
-                                        explainWindow.setLayout(new FitLayout());
-                                        explainWindow.setScrollMode(Scroll.NONE);
-
-                                        TreeStore<BaseTreeModel> store = new TreeStore<BaseTreeModel>();
-                                        store.add(root, true);
-                                        TreePanel<BaseTreeModel> tree = new TreePanel<BaseTreeModel>(store);
-                                        tree.setDisplayProperty("name"); //$NON-NLS-1$;
-                                        tree.getStyle().setLeafIcon(AbstractImagePrototype.create(Icons.INSTANCE.leaf()));
-                                        ContentPanel contentPanel = new ContentPanel();
-                                        contentPanel.setHeaderVisible(false);
-                                        contentPanel.setScrollMode(Scroll.AUTO);
-                                        contentPanel.setLayout(new FitLayout());
-                                        contentPanel.add(tree);
-                                        explainWindow.add(contentPanel);
-                                        explainWindow.show();
-                                        tree.expandAll();
-                                    }
-                                });
+                                        @Override
+                                        public void onSuccess(BaseTreeModel root) {
+                                            showExplainResult(root);
+                                        }
+                                    });
+                        } else {
+                            MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                    .no_taskid_warning_message(), null);
+                        }
                     } else {
                         MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                                .explain_warning_message(), null);
+                                .explain_choose_more_warning_message(), null);
                     }
                 }
 
@@ -482,8 +470,47 @@ public class ItemsToolBar extends ToolBar {
             public void componentSelected(ButtonEvent ce) {
                 final ItemsListPanel list = ItemsListPanel.getInstance();
                 if (list.getGrid() != null) {
+                    final String concept = ViewUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
+                    List<String> idsList = new ArrayList<String>();
                     List<ItemBean> selectedItems = list.getGrid().getSelectionModel().getSelectedItems();
+                    if (selectedItems.size() > 1) {
+                        for (int i = 0; i < selectedItems.size(); i++) {
+                            idsList.add(selectedItems.get(i).getIds());
+                        }
+                        service.getRecordXml(concept, idsList, new SessionAwareAsyncCallback<String>() {
 
+                            @Override
+                            public void onSuccess(final String recordXml) {
+                                if (recordXml != null && !recordXml.isEmpty()) {
+                                    service.getCurrentDataModel(new SessionAwareAsyncCallback<String>() {
+
+                                        @Override
+                                        public void onSuccess(String modelName) {
+                                            if (modelName != null && !modelName.isEmpty()) {
+                                                ExplainRestServiceHandler.get().compareRecords(modelName, concept, recordXml,
+                                                        new SessionAwareAsyncCallback<BaseTreeModel>() {
+
+                                                            @Override
+                                                            public void onSuccess(BaseTreeModel root) {
+                                                                showExplainResult(root);
+                                                            }
+                                                        });
+                                            } else {
+                                                MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory
+                                                        .getMessages().data_model_not_specified(), null);
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                            .record_not_found_msg(), null);
+                                }
+                            }
+                        });
+                    } else {
+                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                .compare_choose_one_warning_message(), null);
+                    }
                 }
             }
         });
@@ -1190,6 +1217,28 @@ public class ItemsToolBar extends ToolBar {
                     }
 
                 });
+    }
+
+    private void showExplainResult(BaseTreeModel root) {
+        Window explainWindow = new Window();
+        explainWindow.setHeading(MessagesFactory.getMessages().explain_title());
+        explainWindow.setSize(800, 600);
+        explainWindow.setLayout(new FitLayout());
+        explainWindow.setScrollMode(Scroll.NONE);
+
+        TreeStore<BaseTreeModel> store = new TreeStore<BaseTreeModel>();
+        store.add(root, true);
+        TreePanel<BaseTreeModel> tree = new TreePanel<BaseTreeModel>(store);
+        tree.setDisplayProperty("name"); //$NON-NLS-1$;
+        tree.getStyle().setLeafIcon(AbstractImagePrototype.create(Icons.INSTANCE.leaf()));
+        ContentPanel contentPanel = new ContentPanel();
+        contentPanel.setHeaderVisible(false);
+        contentPanel.setScrollMode(Scroll.AUTO);
+        contentPanel.setLayout(new FitLayout());
+        contentPanel.add(tree);
+        explainWindow.add(contentPanel);
+        explainWindow.show();
+        tree.expandAll();
     }
 
     public ItemBaseModel getCurrentModel() {

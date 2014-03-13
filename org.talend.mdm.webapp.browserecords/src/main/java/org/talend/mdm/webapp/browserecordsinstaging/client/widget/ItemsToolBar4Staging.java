@@ -13,19 +13,17 @@
 package org.talend.mdm.webapp.browserecordsinstaging.client.widget;
 
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar;
-import org.talend.mdm.webapp.browserecordsinstaging.client.i18n.BrowseRecordsInStagingMessages;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public class ItemsToolBar4Staging extends ItemsToolBar {
-
-    private final BrowseRecordsInStagingMessages messages = org.talend.mdm.webapp.browserecordsinstaging.client.i18n.MessagesFactory
-            .getMessages();
 
     public ItemsToolBar4Staging() {
         super();
@@ -33,7 +31,11 @@ public class ItemsToolBar4Staging extends ItemsToolBar {
 
     @Override
     protected void addDeleteButton() {
-        deleteButton = new Button(messages.mark_as_deleted());
+        deleteButton = new Button(org.talend.mdm.webapp.browserecordsinstaging.client.i18n.MessagesFactory.getMessages()
+                .mark_as_deleted());
+        deleteButton.setEnabled(false);
+        deleteButton.setId("BrowseRecords_Delete"); //$NON-NLS-1$
+        deleteButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
         deleteButton.setMenu(null);
         deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
@@ -41,17 +43,23 @@ public class ItemsToolBar4Staging extends ItemsToolBar {
             public void componentSelected(ButtonEvent ce) {
 
                 if (ItemsListPanel.getInstance().getGrid() == null) {
-                    MessageBox.alert(MessagesFactory.getMessages().info_title(), messages.select_mark_item_record(), null);
+                    MessageBox.alert(MessagesFactory.getMessages().info_title(),
+                            org.talend.mdm.webapp.browserecordsinstaging.client.i18n.MessagesFactory.getMessages()
+                                    .select_mark_item_record(), null);
                 } else {
                     if (getSelectItemNumber() == 0) {
-                        MessageBox.alert(MessagesFactory.getMessages().info_title(), messages.select_mark_item_record(), null);
+                        MessageBox.alert(MessagesFactory.getMessages().info_title(),
+                                org.talend.mdm.webapp.browserecordsinstaging.client.i18n.MessagesFactory.getMessages()
+                                        .select_mark_item_record(), null);
                     } else {
-                        MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), messages.mark_deleted_confirm(),
-                                new DeleteItemsBoxListener(service));
+                        MessageBox.confirm(MessagesFactory.getMessages().confirm_title(),
+                                org.talend.mdm.webapp.browserecordsinstaging.client.i18n.MessagesFactory.getMessages()
+                                        .mark_deleted_confirm(), new DeleteItemsBoxListener(service));
                     }
                 }
             }
         });
+        add(deleteButton);
     }
 
     @Override

@@ -135,7 +135,10 @@ public interface BrowseRecordsService extends RemoteService {
 
     String formatValue(FormatModel model) throws ServiceException;
 
-    String getGoldenRecordIdByGroupId(String dataClusterPK, String viewPK, String concept, String[] keys, String groupId) throws ServiceException;
+    String getGoldenRecordIdByGroupId(String dataClusterPK, String viewPK, String concept, String[] keys, String groupId)
+            throws ServiceException;
+
+    String getRecordXml(String concept, List<String> idsList) throws ServiceException;
 
     Map<ViewBean, Map<String, List<String>>> getForeignKeyValues(String concept, String[] ids, String language)
             throws ServiceException;

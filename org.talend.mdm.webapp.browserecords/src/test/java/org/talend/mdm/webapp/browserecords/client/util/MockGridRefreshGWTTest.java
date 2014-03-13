@@ -587,6 +587,18 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
                 String groupId, AsyncCallback<String> callback) {
         }
 
+        /*
+         * (non-Javadoc)
+         * 
+         * @see org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync#getRecordXml(java.lang.String,
+         * java.util.List, com.google.gwt.user.client.rpc.AsyncCallback)
+         */
+        @Override
+        public void getRecordXml(String concept, List<String> idsList, AsyncCallback<String> callback) {
+            // TODO Auto-generated method stub
+
+        }
+
     }
 
     @Override
