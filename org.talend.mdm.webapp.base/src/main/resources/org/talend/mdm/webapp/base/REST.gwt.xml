@@ -1,0 +1,12 @@
+<module>
+    <!-- Inherit the core Web Toolkit stuff. -->
+    <inherits name='com.google.gwt.user.User' />
+
+    <inherits name="org.restlet.Restlet" />
+    <inherits name="org.restlet.JSON" />
+    <inherits name="org.restlet.XML" />
+
+    <source path='client'>
+        <include name='org/talend/mdm/webapp/base/client/rest/**' />
+    </source>
+</module>
