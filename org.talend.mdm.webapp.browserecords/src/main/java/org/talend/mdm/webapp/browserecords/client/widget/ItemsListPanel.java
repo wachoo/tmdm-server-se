@@ -630,7 +630,7 @@ public class ItemsListPanel extends ContentPanel {
                     opt = ItemDetailToolBar.SMARTVIEW_OPERATION;
                 }
 
-                TreeDetailUtil.initItemsDetailPanelById("", m.getIds(), m.getConcept(), false, false, opt); //$NON-NLS-1$
+                TreeDetailUtil.initItemsDetailPanelById("", m.getIds(), m.getConcept(), false, false, opt, isStaging()); //$NON-NLS-1$
             }
         });
         contextMenu.add(openInTab);

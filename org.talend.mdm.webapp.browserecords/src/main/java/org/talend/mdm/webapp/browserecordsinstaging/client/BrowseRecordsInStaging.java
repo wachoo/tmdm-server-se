@@ -62,8 +62,6 @@ public class BrowseRecordsInStaging implements EntryPoint {
 
     public static final String BROWSERECORD_ID = "BrowseRecordsInStaging"; //$NON-NLS-1$
 
-    public static final String BROWSEMASTERRECORDS_SERVICE = "BrowseMasterRecordsService"; //$NON-NLS-1$
-
     private static JavaScriptObject stagingArea;
 
     public static JavaScriptObject getStagingArea() {
@@ -125,7 +123,7 @@ public class BrowseRecordsInStaging implements EntryPoint {
 
         ServiceDefTarget browseMasterRecordsService = GWT.create(BrowseRecordsService.class);
         ServiceEnhancer.customizeService(browseMasterRecordsService);
-        Registry.register(BrowseRecordsInStaging.BROWSEMASTERRECORDS_SERVICE, browseMasterRecordsService);
+        Registry.register(BrowseRecords.BROWSEMASTERRECORDS_SERVICE, browseMasterRecordsService);
 
         ServiceDefTarget browseStagingRecordsService = GWT.create(BrowseStagingRecordsService.class);
         ServiceEnhancer.customizeService(browseStagingRecordsService);

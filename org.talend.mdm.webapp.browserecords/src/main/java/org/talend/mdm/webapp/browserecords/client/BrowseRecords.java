@@ -55,6 +55,8 @@ public class BrowseRecords implements EntryPoint {
      */
     public static final String BROWSERECORDS_SERVICE = "BrowseRecordsService"; //$NON-NLS-1$
 
+    public static final String BROWSEMASTERRECORDS_SERVICE = "BrowseMasterRecordsService"; //$NON-NLS-1$
+
     public static final String BROWSESTAGINGRECORDS_SERVICE = "BrowseStagingRecordsService"; //$NON-NLS-1$
 
     public static final String USER_SESSION = "UserSession"; //$NON-NLS-1$
@@ -121,6 +123,7 @@ public class BrowseRecords implements EntryPoint {
         ServiceDefTarget browseRecordService = GWT.create(BrowseRecordsService.class);
         ServiceEnhancer.customizeService(browseRecordService);
         Registry.register(BROWSERECORDS_SERVICE, browseRecordService);
+        Registry.register(BROWSEMASTERRECORDS_SERVICE, browseRecordService);
 
         ServiceDefTarget browseStagingRecordService = GWT.create(BrowseStagingRecordsService.class);
         ServiceEnhancer.customizeService(browseStagingRecordService);

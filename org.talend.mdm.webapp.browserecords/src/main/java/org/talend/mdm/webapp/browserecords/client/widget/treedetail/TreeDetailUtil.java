@@ -398,24 +398,11 @@ public class TreeDetailUtil {
         return false;
     }
 
-    // private static ItemPanel createItemPanel(ViewBean viewBean, ItemBean item, String operation,
-    // ItemsDetailPanel itemsDetailPanel, boolean isStaging) {
-    // ItemPanel itemPanel;
-    // if (isStaging) {
-    // itemPanel = new ItemPanel(viewBean, item, operation, itemsDetailPanel, new StagingItemDetailToolBar(item,
-    // operation,
-    // viewBean, itemsDetailPanel), new StagingItemTreeDetail(itemsDetailPanel));
-    // } else {
-    // itemPanel = new ItemPanel(viewBean, item, operation, itemsDetailPanel);
-    // }
-    // return itemPanel;
-    // }
-
     private static BrowseRecordsServiceAsync getBrowseRecordsService(boolean isStaging) {
         if (isStaging) {
             return (BrowseStagingRecordsServiceAsync) Registry.get(BrowseRecords.BROWSESTAGINGRECORDS_SERVICE);
         } else {
-            return (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
+            return (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSEMASTERRECORDS_SERVICE);
         }
     }
 }

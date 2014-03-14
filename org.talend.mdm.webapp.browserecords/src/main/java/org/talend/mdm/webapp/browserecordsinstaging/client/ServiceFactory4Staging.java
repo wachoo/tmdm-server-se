@@ -23,7 +23,7 @@ public class ServiceFactory4Staging extends ServiceFactory {
 
     @Override
     public BrowseRecordsServiceAsync getMasterService() {
-        return Registry.get(BrowseRecordsInStaging.BROWSEMASTERRECORDS_SERVICE);
+        return Registry.get(BrowseRecords.BROWSEMASTERRECORDS_SERVICE);
     }
 
     @Override

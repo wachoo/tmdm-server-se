@@ -831,7 +831,7 @@ public class ItemDetailToolBar extends ToolBar {
                     }
                 }
                 TreeDetailUtil.initItemsDetailPanelById(fromWhichApp, itemBean.getIds(), itemBean.getConcept(), isFkToolBar,
-                        isHierarchyCall, opt);
+                        isHierarchyCall, opt, isStaging);
             }
         });
         openTabButton.setWidth(30);
