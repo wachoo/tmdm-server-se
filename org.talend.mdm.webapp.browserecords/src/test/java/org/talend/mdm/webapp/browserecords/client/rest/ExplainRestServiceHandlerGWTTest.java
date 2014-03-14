@@ -42,11 +42,24 @@ public class ExplainRestServiceHandlerGWTTest extends GWTTestCase {
         assertEquals(expectedValue, value);
     }
 
+    public void testSimulateMatch() {
+        String ids = "1" + "\n" + "4" + "\n" + "7"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$
+        String dataCluster = "Product"; //$NON-NLS-1$
+        String concept = "Product"; //$NON-NLS-1$
+        MockBaseTreeModelCallback callback = new MockBaseTreeModelCallback();
+        handler.simulateMatch(dataCluster, concept, ids, callback);
+        assertTrue(callback.isSucceed());
+        BaseTreeModel model = callback.getModel();
+        assertNotNull(model);
+        String value = printAllTreeByRoot(model);
+        String expectedValue = "groups : [groups : [group : [result : [id : 7] : [confidence : 1] : [related_ids : [7]] : [values : [value : [field : Name] : [value : C]]]] : [details : [detail : [id : 7] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 1] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 4]]]] : [group : [result : [id : 1] : [confidence : 1] : [related_ids : [1]] : [values : [value : [field : Name] : [value : A]]]] : [details : [detail : [id : 7] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 1] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 4]]]] : [group : [result : [id : 4] : [confidence : 1] : [related_ids : [4]] : [values : [value : [field : Name] : [value : B]]]] : [details : [detail : [id : 7] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 1] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 4]]]]]"; //$NON-NLS-1$
+        assertEquals(expectedValue, value);
+    }
+
     public void testCompareRecords() {
         String dataModel = "Product"; //$NON-NLS-1$
         String concept = "Product"; //$NON-NLS-1$
         String xmlRecord = "<Product><Id>11e18f27-2a8c-4ef8-b80f-5ba27d8fd103</Id><Name>C</Name><Description>8</Description><Features><Sizes/><Colors/></Features><Price>19.00</Price><Stores/></Product><Product><Id>17cd4337-6073-4778-a50d-748247249a99</Id><Name>D</Name><Description>D</Description><Features><Sizes/><Colors/></Features><Price>2222.00</Price><Stores/></Product><Product><Id>74849595-27be-4b48-9238-cca56c6e6658</Id><Name>B</Name><Description>4</Description><Features><Sizes/><Colors/></Features><Price>16.00</Price><Stores/></Product>"; //$NON-NLS-1$
-
         MockBaseTreeModelCallback callback = new MockBaseTreeModelCallback();
         handler.compareRecords(dataModel, concept, xmlRecord, callback);
         assertTrue(callback.isSucceed());
