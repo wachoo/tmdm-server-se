@@ -588,7 +588,7 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
 
         @Override
-        public void getRecordXml(String concept, List<String> idsList, AsyncCallback<String> callback) {
+        public void getRecords(String concept, List<String> idsList, AsyncCallback<List<ItemBean>> callback) {
 
         }
     }

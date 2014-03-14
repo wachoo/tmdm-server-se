@@ -35,7 +35,7 @@ import com.google.gwt.json.client.JSONValue;
 
 public class ExplainRestServiceHandler {
 
-    private String restServiceUrl = RestServiceHelper.BASE_URL + "datamanager/services/tasks/matching"; //$NON-NLS-1$
+    private String restServiceUrl = RestServiceHelper.BASE_URL + "datamanager/services/tasks/matching/explain"; //$NON-NLS-1$
 
     final private String ROOT_NAME = "groups"; //$NON-NLS-1$
 
@@ -69,8 +69,7 @@ public class ExplainRestServiceHandler {
             throw new IllegalArgumentException();
         }
         StringBuilder uri = new StringBuilder();
-        uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR)
-                .append("explain").append(RestServiceHelper.SEPARATOR).append(dataCluster).append(RestServiceHelper.SEPARATOR) //$NON-NLS-1$
+        uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR).append(dataCluster).append(RestServiceHelper.SEPARATOR)
                 .append("groups").append(RestServiceHelper.SEPARATOR); //$NON-NLS-1$
         Map<String, String> parameterMap = new HashMap<String, String>();
         parameterMap.put("type", concept); //$NON-NLS-1$
@@ -91,13 +90,41 @@ public class ExplainRestServiceHandler {
         client.request();
     }
 
+    public void simulateMatch(String dataCluster, String concept, String ids,
+            final SessionAwareAsyncCallback<BaseTreeModel> callback) {
+        if (dataCluster == null || dataCluster.isEmpty() || concept == null || concept.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+        StringBuilder uri = new StringBuilder();
+        uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR).append(dataCluster).append(RestServiceHelper.SEPARATOR)
+                .append("records").append(RestServiceHelper.SEPARATOR); //$NON-NLS-1$
+        Map<String, String> parameterMap = new HashMap<String, String>();
+        parameterMap.put("type", concept); //$NON-NLS-1$
+
+        client.init(Method.POST, uri.toString(), parameterMap);
+        client.setPostEntity(new StringRepresentation(ids, MediaType.TEXT_PLAIN));
+        client.setCallback(new ResourceSessionAwareCallbackHandler() {
+
+            @Override
+            public void doProcess(Request request, Response response) throws Exception {
+                BaseTreeModel result = null;
+                JsonRepresentation jsonRepresentation = RestServiceHelper.getJsonRepresentationFromResponse(response);
+                if (jsonRepresentation != null) {
+                    result = buildTreeModelFromJsonRepresentation(jsonRepresentation);
+                }
+                callback.onSuccess(result);
+            }
+        });
+        client.request(MediaType.TEXT_PLAIN);
+    }
+
     public void compareRecords(String dataModel, String concept, String recordXml,
             final SessionAwareAsyncCallback<BaseTreeModel> callback) {
         if (dataModel == null || dataModel.isEmpty() || concept == null || concept.isEmpty()) {
             throw new IllegalArgumentException();
         }
         StringBuilder uri = new StringBuilder();
-        uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR).append("explain").append(RestServiceHelper.SEPARATOR); //$NON-NLS-1$
+        uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR);
         Map<String, String> parameterMap = new HashMap<String, String>();
         parameterMap.put("model", dataModel); //$NON-NLS-1$
         parameterMap.put("type", concept); //$NON-NLS-1$

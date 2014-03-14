@@ -38,7 +38,6 @@ import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.rest.ExplainRestServiceHandler;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
-import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKRelRecordWindow;
@@ -119,9 +118,7 @@ public class ItemsToolBar extends ToolBar {
 
     protected Button deleteButton;
 
-    protected Button explainButton;
-
-    protected Button compareButton;
+    protected Button simulateMatchButton;
 
     protected Button uploadButton;
 
@@ -270,8 +267,7 @@ public class ItemsToolBar extends ToolBar {
         if (!viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyCreatable()) {
             createButton.setEnabled(true);
             uploadButton.getMenu().getItemByItemId("importRecords").setEnabled(true); //$NON-NLS-1$
-            explainButton.setEnabled(true);
-            compareButton.setEnabled(true);
+            simulateMatchButton.setEnabled(true);
 
         }
         boolean denyLogicalDelete = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyLogicalDeletable();
@@ -308,8 +304,7 @@ public class ItemsToolBar extends ToolBar {
     private void initToolBar() {
         addCreateButton();
         addDeleteButton();
-        addExplainButton();
-        addCompareButton();
+        addSimulateMatchButton();
         addImportAndExportButton();
         add(new FillToolItem());
         addEntityCombo();
@@ -419,94 +414,37 @@ public class ItemsToolBar extends ToolBar {
         add(deleteButton);
     }
 
-    protected void addExplainButton() {
-        explainButton = new Button(MessagesFactory.getMessages().explain_button());
-        explainButton.setId("explainButton"); //$NON-NLS-1$
-        explainButton.setEnabled(false);
-        explainButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
-        explainButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+    protected void addSimulateMatchButton() {
+        simulateMatchButton = new Button(MessagesFactory.getMessages().compare_button());
+        simulateMatchButton.setId("compareButton"); //$NON-NLS-1$
+        simulateMatchButton.setToolTip(MessagesFactory.getMessages().compare_tip());
+        simulateMatchButton.setEnabled(false);
+        simulateMatchButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+        simulateMatchButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                final ItemsListPanel list = ItemsListPanel.getInstance();
-                if (list.getGrid() != null) {
-                    List<ItemBean> selectedItems = list.getGrid().getSelectionModel().getSelectedItems();
-                    if (selectedItems.size() == 1) {
-                        ItemBean itemBean = selectedItems.get(0);
-                        String taskId = itemBean.get(itemBean.getConcept() + StagingConstant.STAGING_TASKID);
-                        if (taskId != null && !taskId.isEmpty()) {
-                            ExplainRestServiceHandler.get().explainGroupResult(
-                                    userCluster.replace(StorageAdmin.STAGING_SUFFIX, ""), itemBean.getConcept(), taskId, //$NON-NLS-1$
-                                    new SessionAwareAsyncCallback<BaseTreeModel>() {
-
-                                        @Override
-                                        public void onSuccess(BaseTreeModel root) {
-                                            showExplainResult(root);
-                                        }
-                                    });
-                        } else {
-                            MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                                    .no_taskid_warning_message(), null);
-                        }
-                    } else {
-                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                                .explain_choose_more_warning_message(), null);
-                    }
-                }
-
-            }
-        });
-        add(explainButton);
-    }
-
-    protected void addCompareButton() {
-        compareButton = new Button(MessagesFactory.getMessages().compare_button());
-        compareButton.setId("compareButton"); //$NON-NLS-1$
-        compareButton.setEnabled(false);
-        compareButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
-        compareButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                final ItemsListPanel list = ItemsListPanel.getInstance();
+                ItemsListPanel list = ItemsListPanel.getInstance();
                 if (list.getGrid() != null) {
                     final String concept = ViewUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
-                    List<String> idsList = new ArrayList<String>();
+                    StringBuilder ids = new StringBuilder();
                     List<ItemBean> selectedItems = list.getGrid().getSelectionModel().getSelectedItems();
                     if (selectedItems.size() > 1) {
-                        for (int i = 0; i < selectedItems.size(); i++) {
-                            idsList.add(selectedItems.get(i).getIds());
+                        ids.append(selectedItems.get(0).getIds());
+                        for (int i = 1; i < selectedItems.size(); i++) {
+                            ids.append("\n"); //$NON-NLS-1$
+                            ids.append(selectedItems.get(i).getIds());
                         }
-                        service.getRecordXml(concept, idsList, new SessionAwareAsyncCallback<String>() {
+                        ExplainRestServiceHandler.get().simulateMatch(
+                                BrowseRecords.getSession().getAppHeader().getDatacluster()
+                                        .replace(StorageAdmin.STAGING_SUFFIX, ""), concept, ids.toString(), //$NON-NLS-1$
+                                new SessionAwareAsyncCallback<BaseTreeModel>() {
 
-                            @Override
-                            public void onSuccess(final String recordXml) {
-                                if (recordXml != null && !recordXml.isEmpty()) {
-                                    service.getCurrentDataModel(new SessionAwareAsyncCallback<String>() {
-
-                                        @Override
-                                        public void onSuccess(String modelName) {
-                                            if (modelName != null && !modelName.isEmpty()) {
-                                                ExplainRestServiceHandler.get().compareRecords(modelName, concept, recordXml,
-                                                        new SessionAwareAsyncCallback<BaseTreeModel>() {
-
-                                                            @Override
-                                                            public void onSuccess(BaseTreeModel root) {
-                                                                showExplainResult(root);
-                                                            }
-                                                        });
-                                            } else {
-                                                MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory
-                                                        .getMessages().data_model_not_specified(), null);
-                                            }
-                                        }
-                                    });
-                                } else {
-                                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                                            .record_not_found_msg(), null);
-                                }
-                            }
-                        });
+                                    @Override
+                                    public void onSuccess(BaseTreeModel root) {
+                                        showExplainResult(root);
+                                    }
+                                });
                     } else {
                         MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
                                 .compare_choose_one_warning_message(), null);
@@ -514,7 +452,7 @@ public class ItemsToolBar extends ToolBar {
                 }
             }
         });
-        add(compareButton);
+        add(simulateMatchButton);
     }
 
     protected void addImportAndExportButton() {
@@ -1221,7 +1159,7 @@ public class ItemsToolBar extends ToolBar {
 
     private void showExplainResult(BaseTreeModel root) {
         Window explainWindow = new Window();
-        explainWindow.setHeading(MessagesFactory.getMessages().explain_title());
+        explainWindow.setHeading(MessagesFactory.getMessages().compare_result_title());
         explainWindow.setSize(800, 600);
         explainWindow.setLayout(new FitLayout());
         explainWindow.setScrollMode(Scroll.NONE);

@@ -31,9 +31,9 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
+import org.talend.mdm.webapp.browserecords.client.rest.ExplainRestServiceHandler;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
-import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
@@ -50,10 +50,12 @@ import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
-import com.amalto.core.storage.task.StagingConstants;
+import com.amalto.core.server.StorageAdmin;
 import com.extjs.gxt.ui.client.GXT;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.core.El;
+import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -66,8 +68,10 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -86,6 +90,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.http.client.URL;
@@ -120,6 +125,8 @@ public class ItemDetailToolBar extends ToolBar {
     private Button duplicateButton;
 
     private Button journalButton;
+
+    private Button explainButton;
 
     private Button masterRecordButton;
 
@@ -268,6 +275,7 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     protected void initViewToolBar() {
+        boolean hasTaskId = itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty();
         if (!operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)) {
             addPersonalViewButton();
             this.addSeparator();
@@ -277,54 +285,44 @@ public class ItemDetailToolBar extends ToolBar {
         this.addSaveQuitButton();
         this.addSeparator();
         this.addDeleteButton();
-        if (isStaging) {
-            if (!isFkToolBar && itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty()) {
+        if (!isFkToolBar && hasTaskId) {
+            this.addSeparator();
+            this.addExplainButton();
+            if (isStaging) {
                 this.addSeparator();
                 addMasterRecordButton();
-            }
-            this.addSeparator();
-            this.addDuplicateButton();
-            this.addSeparator();
-            this.addFreshButton();
-            if (this.openTab) {
-                this.addSeparator();
-                this.addOpenTabButton(false);
-            }
-            this.addOpenTaskButton();
-            checkEntitlement(viewBean);
-        } else {
-            this.addSeparator();
-            this.addDuplicateButton();
-            this.addSeparator();
-            this.addJournalButton();
-            if (!isFkToolBar && itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty()) {
+            } else {
                 this.addSeparator();
                 this.addStagingRecordsButton();
             }
-            this.addSeparator();
-            this.addFreshButton();
-            if (this.openTab) {
-                this.addSeparator();
-                this.addOpenTabButton(false);
-            }
-            if (isUseRelations()) {
-                this.addRelationButton();
-            }
-            this.addOpenTaskButton();
-            this.addWorkFlosCombo();
-            checkEntitlement(viewBean);
         }
+        this.addSeparator();
+        this.addDuplicateButton();
+        if (!isStaging) {
+            this.addSeparator();
+            this.addJournalButton();
+        }
+        this.addSeparator();
+        this.addFreshButton();
+        if (this.openTab) {
+            this.addSeparator();
+            this.addOpenTabButton(false);
+        }
+        if (isUseRelations() && !isStaging) {
+            this.addRelationButton();
+        }
+        this.addOpenTaskButton();
+        if (!isStaging) {
+            this.addWorkFlosCombo();
+        }
+        checkEntitlement(viewBean);
     }
 
     protected void initCreateToolBar() {
-        if (isStaging) {
-            this.addSaveButton();
-            this.addSeparator();
-            this.addSaveQuitButton();
-        } else {
-            this.addSaveButton();
-            this.addSeparator();
-            this.addSaveQuitButton();
+        this.addSaveButton();
+        this.addSeparator();
+        this.addSaveQuitButton();
+        if (!isStaging) {
             if (isUseRelations()) {
                 this.addRelationButton();
             }
@@ -584,6 +582,39 @@ public class ItemDetailToolBar extends ToolBar {
         add(journalButton);
     }
 
+    protected void addExplainButton() {
+        explainButton = new Button(MessagesFactory.getMessages().explain_button());
+        explainButton.setId("explainButton"); //$NON-NLS-1$
+        explainButton.setToolTip(MessagesFactory.getMessages().explain_tip());
+        explainButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+        explainButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                final ItemsListPanel list = ItemsListPanel.getInstance();
+                if (list.getGrid() != null) {
+                    String taskId = itemBean.getTaskId();
+                    if (taskId != null && !taskId.isEmpty()) {
+                        ExplainRestServiceHandler.get().explainGroupResult(
+                                BrowseRecords.getSession().getAppHeader().getDatacluster()
+                                        .replace(StorageAdmin.STAGING_SUFFIX, ""), itemBean.getConcept(), taskId, //$NON-NLS-1$
+                                new SessionAwareAsyncCallback<BaseTreeModel>() {
+
+                                    @Override
+                                    public void onSuccess(BaseTreeModel root) {
+                                        showExplainResult(root);
+                                    }
+                                });
+                    } else {
+                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                .no_taskid_warning_message(), null);
+                    }
+                }
+            }
+        });
+        add(explainButton);
+    }
+
     private void addMasterRecordButton() {
         if (masterRecordButton == null) {
             masterRecordButton = new Button(MessagesFactory.getMessages().masterRecords_btn());
@@ -638,7 +669,6 @@ public class ItemDetailToolBar extends ToolBar {
                     } else {
                         ItemDetailToolBar.this.openDebugBrowseStagingRecordsPanel(itemBean.getIds(), panel);
                     }
-                    // Dispatcher.forwardEvent(BrowseRecordsEvents.SearchStaingView);
                 }
             });
         }
@@ -966,23 +996,28 @@ public class ItemDetailToolBar extends ToolBar {
     }-*/;
 
     protected void initSmartViewToolBar() {
+        boolean hasTaskId = itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty();
         addGeneratedViewButton();
         addSeparator();
         addSmartViewCombo();
+        addSeparator();
         addDeleteButton();
-        if (isStaging && !isFkToolBar
-                && StagingConstants.SUCCESS_VALIDATE.equals(itemBean.get(itemBean.getConcept() + StagingConstant.STAGING_STATUS))) {
-            this.addSeparator();
-            addMasterRecordButton();
+        addSeparator();
+        if (!isFkToolBar && hasTaskId) {
+            addSeparator();
+            addExplainButton();
+            if (isStaging) {
+                addSeparator();
+                addMasterRecordButton();
+            } else {
+                addSeparator();
+                addStagingRecordsButton();
+            }
         }
         addSeparator();
         addPrintButton();
         addSeparator();
-        this.addDuplicateButton();
-        if (!isStaging && !isFkToolBar && itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty()) {
-            this.addSeparator();
-            this.addStagingRecordsButton();
-        }
+        addDuplicateButton();
         this.addSeparator();
         this.addFreshButton();
         if (this.openTab) {
@@ -1220,6 +1255,28 @@ public class ItemDetailToolBar extends ToolBar {
             }
             MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().save_error(), null);
         }
+    }
+
+    private void showExplainResult(BaseTreeModel root) {
+        Window explainWindow = new Window();
+        explainWindow.setHeading(MessagesFactory.getMessages().explain_result_title());
+        explainWindow.setSize(800, 600);
+        explainWindow.setLayout(new FitLayout());
+        explainWindow.setScrollMode(Scroll.NONE);
+
+        TreeStore<BaseTreeModel> store = new TreeStore<BaseTreeModel>();
+        store.add(root, true);
+        TreePanel<BaseTreeModel> tree = new TreePanel<BaseTreeModel>(store);
+        tree.setDisplayProperty("name"); //$NON-NLS-1$;
+        tree.getStyle().setLeafIcon(AbstractImagePrototype.create(Icons.INSTANCE.leaf()));
+        ContentPanel contentPanel = new ContentPanel();
+        contentPanel.setHeaderVisible(false);
+        contentPanel.setScrollMode(Scroll.AUTO);
+        contentPanel.setLayout(new FitLayout());
+        contentPanel.add(tree);
+        explainWindow.add(contentPanel);
+        explainWindow.show();
+        tree.expandAll();
     }
 
     public void setSelectItem(ItemBaseModel selectItem) {

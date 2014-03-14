@@ -275,13 +275,17 @@ public interface BrowseRecordsMessages extends Messages {
 
     String explain_button();
 
-    String explain_title();
+    String explain_tip();
 
-    String explain_choose_more_warning_message();
+    String explain_result_title();
 
     String no_taskid_warning_message();
 
     String compare_button();
+
+    String compare_tip();
+
+    String compare_result_title();
 
     String compare_choose_one_warning_message();
 
