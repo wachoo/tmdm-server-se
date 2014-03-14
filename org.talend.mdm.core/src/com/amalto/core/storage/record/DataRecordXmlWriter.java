@@ -225,6 +225,8 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                     synchronized (TimeConstant.TIME_FORMAT) {
                         out.write((TimeConstant.TIME_FORMAT).format(value));
                     }
+                } else {
+                    out.write(StringEscapeUtils.escapeXml(value.toString()));
                 }
             } else {
                 out.write(StringEscapeUtils.escapeXml(value.toString()));
