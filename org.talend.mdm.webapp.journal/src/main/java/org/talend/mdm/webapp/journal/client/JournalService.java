@@ -56,6 +56,4 @@ public interface JournalService extends RemoteService {
     Map<String, Boolean> getDataRecordExistence(List<JournalGridModel> journalGridModels) throws ServiceException;
     
     boolean checkConflict(String itemPk, String conceptName, String id) throws ServiceException;
-    
-    List<JournalGridModel>getJournalList(JournalGridModel journalGridModel) throws ServiceException;
 }

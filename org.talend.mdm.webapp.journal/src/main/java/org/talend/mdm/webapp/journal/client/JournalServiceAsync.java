@@ -30,9 +30,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface JournalServiceAsync {
 
     void getJournalList(JournalSearchCriteria criteria, BasePagingLoadConfigImpl load,
-            AsyncCallback<ItemBasePageLoadResult<JournalGridModel>> callback);
-    
-    void getJournalList(JournalGridModel journalGridModel, AsyncCallback<List<JournalGridModel>> callback);
+            AsyncCallback<ItemBasePageLoadResult<JournalGridModel>> callback);    
 
     void getDetailTreeModel(String ids, AsyncCallback<JournalTreeModel> callback);
 
