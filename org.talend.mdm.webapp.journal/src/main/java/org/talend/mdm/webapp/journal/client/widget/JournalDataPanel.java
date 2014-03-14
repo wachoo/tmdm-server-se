@@ -260,9 +260,9 @@ public class JournalDataPanel extends FormPanel {
                                     JournalDataPanel.this.keyExistences = existenceMap;
                                     JournalGridModel targetGridModel;
                                     if (naviToPrevious) {
-                                        targetGridModel = getPrevJouranlWithExistentRecord(currentDataList.size() - 1);
+                                        targetGridModel = getPrevJournalWithExistentRecord(currentDataList.size() - 1);
                                     } else {
-                                        targetGridModel = getNextJouranlWithExistentRecord(0);
+                                        targetGridModel = getNextJournalWithExistentRecord(0);
                                     }
                                     JournalDataPanel.this.updateTabPanel(targetGridModel);
                                     turnPage = false; 
@@ -466,11 +466,12 @@ public class JournalDataPanel extends FormPanel {
         for (int i = 0; i < currentDataList.size(); i++) {
             if (this.journalGridModel.getOperationTime().equals(currentDataList.get(i).getOperationTime())) {
                 index = i;
+                break;
             }
         }
         journalNavigateList = new ArrayList<JournalGridModel>(2);
-        journalNavigateList.add(index == 0 ? null : getPrevJouranlWithExistentRecord(index));
-        journalNavigateList.add(index == currentDataList.size() - 1 ? null : getNextJouranlWithExistentRecord(index));
+        journalNavigateList.add(index == 0 ? null : getPrevJournalWithExistentRecord(index));
+        journalNavigateList.add(index == currentDataList.size() - 1 ? null : getNextJournalWithExistentRecord(index));
         
         if (currOffSet == 0 && journalNavigateList.get(0) == null) {
             prevUpdateReportButton.setEnabled(false);
@@ -486,11 +487,13 @@ public class JournalDataPanel extends FormPanel {
     }
     
 
-    private JournalGridModel getNextJouranlWithExistentRecord(int startFrom) {
+    private JournalGridModel getNextJournalWithExistentRecord(int startFrom) {
+        int offSet = localPagingLoadConfig.getOffset();
+        int limit = localPagingLoadConfig.getLimit();
         int start = startFrom;
         String key;
         boolean exists = false;
-        while (++start > 0) {
+        while (++start < offSet + limit) {
             key = currentDataList.get(start).getKey();
             if (keyExistences.get(key)) {
                 exists = true;
@@ -500,11 +503,12 @@ public class JournalDataPanel extends FormPanel {
         return !exists ? null : currentDataList.get(start);
     }
 
-    private JournalGridModel getPrevJouranlWithExistentRecord(int startFrom) {
+    private JournalGridModel getPrevJournalWithExistentRecord(int startFrom) {
+        int offSet = localPagingLoadConfig.getOffset();
         int start = startFrom;
         String key;
         boolean exists = false;
-        while (--start > 0) {
+        while (--start >= offSet) {
             key = currentDataList.get(start).getKey();
             if (keyExistences.get(key)) {
                 exists = true;
