@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.journal.server;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -230,22 +229,6 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         } else {
             return true;
         }
-    }
-
-    private List<JournalGridModel> extractPrevAndNextJounals(List<JournalGridModel> dataList, JournalGridModel journalGridModel) {
-        List<JournalGridModel> navigateContextList = new ArrayList<JournalGridModel>(2);
-
-        int index = 0;
-        for (int i = 0; i < dataList.size(); i++) {
-            if (journalGridModel.getOperationTime().equals(dataList.get(i).getOperationTime())) {
-                index = i;
-            }
-        }
-
-        navigateContextList.add(index == 0 ? null : dataList.get(index - 1));
-        navigateContextList.add(index == dataList.size() - 1 ? null : dataList.get(index + 1));
-
-        return navigateContextList;
     }
     
     @Override

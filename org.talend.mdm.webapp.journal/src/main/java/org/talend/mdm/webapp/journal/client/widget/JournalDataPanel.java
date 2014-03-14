@@ -259,10 +259,12 @@ public class JournalDataPanel extends FormPanel {
                                 public void onSuccess(Map<String, Boolean> existenceMap) {
                                     JournalDataPanel.this.keyExistences = existenceMap;
                                     JournalGridModel targetGridModel;
+                                    //here need to check current journal(iso prev/next one) has its data record existes(then open it), thus
+                                    //need to use adjusted index value
                                     if (naviToPrevious) {
-                                        targetGridModel = getPrevJournalWithExistentRecord(currentDataList.size() - 1);
+                                        targetGridModel = getPrevJournalWithExistentRecord(currentDataList.size());
                                     } else {
-                                        targetGridModel = getNextJournalWithExistentRecord(0);
+                                        targetGridModel = getNextJournalWithExistentRecord(-1);
                                     }
                                     JournalDataPanel.this.updateTabPanel(targetGridModel);
                                     turnPage = false; 
@@ -469,6 +471,7 @@ public class JournalDataPanel extends FormPanel {
                 break;
             }
         }
+        
         journalNavigateList = new ArrayList<JournalGridModel>(2);
         journalNavigateList.add(index == 0 ? null : getPrevJournalWithExistentRecord(index));
         journalNavigateList.add(index == currentDataList.size() - 1 ? null : getNextJournalWithExistentRecord(index));
@@ -488,12 +491,11 @@ public class JournalDataPanel extends FormPanel {
     
 
     private JournalGridModel getNextJournalWithExistentRecord(int startFrom) {
-        int offSet = localPagingLoadConfig.getOffset();
         int limit = localPagingLoadConfig.getLimit();
         int start = startFrom;
         String key;
         boolean exists = false;
-        while (++start < offSet + limit) {
+        while (++start < limit) {
             key = currentDataList.get(start).getKey();
             if (keyExistences.get(key)) {
                 exists = true;
@@ -504,11 +506,10 @@ public class JournalDataPanel extends FormPanel {
     }
 
     private JournalGridModel getPrevJournalWithExistentRecord(int startFrom) {
-        int offSet = localPagingLoadConfig.getOffset();
         int start = startFrom;
         String key;
         boolean exists = false;
-        while (--start >= offSet) {
+        while (--start >= 0) {
             key = currentDataList.get(start).getKey();
             if (keyExistences.get(key)) {
                 exists = true;
