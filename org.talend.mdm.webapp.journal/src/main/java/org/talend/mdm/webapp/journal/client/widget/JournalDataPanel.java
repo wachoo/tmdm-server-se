@@ -14,6 +14,8 @@ package org.talend.mdm.webapp.journal.client.widget;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
@@ -82,6 +84,8 @@ public class JournalDataPanel extends FormPanel {
     private boolean naviToPrevious;
     
     private List<JournalGridModel> currentDataList;
+    
+    private Map<String, Boolean> keyExistences;
     
     private boolean turnPage = false;
     
@@ -248,18 +252,34 @@ public class JournalDataPanel extends FormPanel {
                     @Override
                     public void loaderLoad(LoadEvent le) {
                         currentDataList = ((BasePagingLoadResult<JournalGridModel>) le.getData()).getData();
+                        
                         if (turnPage) {
-                            JournalGridModel targetGridModel;
-                            if (naviToPrevious) {
-                                targetGridModel = currentDataList.get(currentDataList.size() - 1);
-                            } else {
-                                targetGridModel = currentDataList.get(0);
-                            }
-                            JournalDataPanel.this.updateTabPanel(targetGridModel);
-                            turnPage = false;                            
+                            service.getDataRecordExistence(currentDataList, new SessionAwareAsyncCallback<Map<String, Boolean>>() {
+                                @Override
+                                public void onSuccess(Map<String, Boolean> existenceMap) {
+                                    JournalDataPanel.this.keyExistences = existenceMap;
+                                    JournalGridModel targetGridModel;
+                                    if (naviToPrevious) {
+                                        targetGridModel = getPrevJouranlWithExistentRecord(currentDataList.size() - 1);
+                                    } else {
+                                        targetGridModel = getNextJouranlWithExistentRecord(0);
+                                    }
+                                    JournalDataPanel.this.updateTabPanel(targetGridModel);
+                                    turnPage = false; 
+                                }
+
+                            });                           
                         } else {
-                            //only called from here when the JournalDataPanel opened from gridPanel, other calls to this fuction is issued from update()
-                            updateJournalNavigationList();
+                            //updateJournalNavigationList only called from here when the JournalDataPanel opened from gridPanel, 
+                            //other calls to this fuction is issued from update()
+                            service.getDataRecordExistence(currentDataList, new SessionAwareAsyncCallback<Map<String, Boolean>>() {
+                                @Override
+                                public void onSuccess(Map<String, Boolean> existenceMap) {
+                                    JournalDataPanel.this.keyExistences = existenceMap;
+                                    updateJournalNavigationList();
+                                }
+
+                            });
                         }
                     }
                 });
@@ -449,8 +469,8 @@ public class JournalDataPanel extends FormPanel {
             }
         }
         journalNavigateList = new ArrayList<JournalGridModel>(2);
-        journalNavigateList.add(index == 0 ? null : currentDataList.get(index - 1));
-        journalNavigateList.add(index == currentDataList.size() - 1 ? null : currentDataList.get(index + 1));
+        journalNavigateList.add(index == 0 ? null : getPrevJouranlWithExistentRecord(index));
+        journalNavigateList.add(index == currentDataList.size() - 1 ? null : getNextJouranlWithExistentRecord(index));
         
         if (currOffSet == 0 && journalNavigateList.get(0) == null) {
             prevUpdateReportButton.setEnabled(false);
@@ -465,6 +485,35 @@ public class JournalDataPanel extends FormPanel {
         }        
     }
     
+
+    private JournalGridModel getNextJouranlWithExistentRecord(int startFrom) {
+        int start = startFrom;
+        String key;
+        boolean exists = false;
+        while (++start > 0) {
+            key = currentDataList.get(start).getKey();
+            if (keyExistences.get(key)) {
+                exists = true;
+                break;
+            }
+        }
+        return !exists ? null : currentDataList.get(start);
+    }
+
+    private JournalGridModel getPrevJouranlWithExistentRecord(int startFrom) {
+        int start = startFrom;
+        String key;
+        boolean exists = false;
+        while (--start > 0) {
+            key = currentDataList.get(start).getKey();
+            if (keyExistences.get(key)) {
+                exists = true;
+                break;
+            }
+        }
+        return !exists ? null : currentDataList.get(start);
+    }
+
     private void retrieveNeighbourJournalInOtherPages() {
         this.turnPage = true;
         int curOffset = localPagingLoadConfig.getOffset();

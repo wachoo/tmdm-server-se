@@ -13,6 +13,8 @@
 package org.talend.mdm.webapp.journal.client;
 
 import java.util.List;
+import java.util.Map;
+
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
@@ -49,6 +51,8 @@ public interface JournalServiceAsync {
     void isAdmin(AsyncCallback<Boolean> callback);
     
     void isJournalHistoryExist(JournalParameters parameter,AsyncCallback<Boolean> callback);
+    
+    void getDataRecordExistence(List<JournalGridModel> journalGridModels, AsyncCallback<Map<String, Boolean>> callback);
     
     void checkConflict(String itemPk, String conceptName, String id,AsyncCallback<Boolean> callback);
 }
