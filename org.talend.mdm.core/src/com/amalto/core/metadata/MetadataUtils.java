@@ -25,6 +25,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
 
+import org.apache.log4j.Logger;
+
 import javax.xml.XMLConstants;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -643,7 +645,10 @@ public class MetadataUtils {
         byte[][] dependencyGraph = new byte[typeNumber][typeNumber];
         for (final ComplexTypeMetadata type : types) {
             dependencyGraph[getId(type, types)] = type.accept(new DefaultMetadataVisitor<byte[]>() {
+
                 Set<TypeMetadata> processedTypes = new HashSet<TypeMetadata>();
+
+                Set<TypeMetadata> processedReferences = new HashSet<TypeMetadata>();
 
                 byte[] lineContent = new byte[typeNumber]; // Stores dependencies of current type
 
@@ -691,8 +696,19 @@ public class MetadataUtils {
 
                 @Override
                 public byte[] visit(ReferenceFieldMetadata referenceField) {
+                    boolean isInherited = !referenceField.getDeclaringType().equals(referenceField.getContainingType());
+                    // Only handle FK declared IN the type (inherited FKs are already processed).
+                    if (isInherited) {
+                        return lineContent;
+                    }
+                    // Within entity count only once references to other type
                     ComplexTypeMetadata referencedType = referenceField.getReferencedType();
-                    if (!type.equals(referencedType) && referenceField.isFKIntegrity()) { // Don't count a dependency to itself as a dependency.
+                    if (!processedReferences.add(referencedType)) {
+                        return lineContent;
+                    }
+                    // Don't count a dependency to itself as a dependency and only takes into account FK
+                    // integrity-enabled FKs.
+                    if (!type.equals(referencedType) && referenceField.isFKIntegrity() && referenceField.isMandatory()) {
                         if (sortAllTypes || referencedType.isInstantiable()) {
                             if (types.contains(referencedType)) {
                                 lineContent[getId(referencedType, types)]++;
@@ -707,10 +723,15 @@ public class MetadataUtils {
                 }
             });
         }
+        // Log dependency matrix (before sort)
+        if (LOGGER.isTraceEnabled()) {
+            StringBuilder builder = logDependencyMatrix(dependencyGraph);
+            LOGGER.trace(builder.toString());
+        }
         /*
-        * TOPOLOGICAL SORTING
-        * See "Kahn, A. B. (1962), "Topological sorting of large networks", Communications of the ACM"
-        */
+         * TOPOLOGICAL SORTING See "Kahn, A. B. (1962), "Topological sorting of large
+         * networks", Communications of the ACM"
+         */
         List<ComplexTypeMetadata> sortedTypes = new LinkedList<ComplexTypeMetadata>();
         Set<ComplexTypeMetadata> noIncomingEdges = new HashSet<ComplexTypeMetadata>();
         int lineNumber = 0;
@@ -736,6 +757,11 @@ public class MetadataUtils {
                 }
             }
         }
+        // Log dependency matrix (after sort)
+        if (LOGGER.isTraceEnabled()) {
+            StringBuilder builder = logDependencyMatrix(dependencyGraph);
+            LOGGER.trace(builder.toString());
+        }
         // Check for cycles
         if (sortedTypes.size() < dependencyGraph.length) {
             lineNumber = 0;
@@ -753,12 +779,17 @@ public class MetadataUtils {
                         boolean hasMetDependency = false;
                         for (ReferenceFieldMetadata incomingField : incomingFields) {
                             ComplexTypeMetadata containingType = repository.getComplexType(incomingField.getEntityTypeName());
-                            int currentDependency = getId(containingType, types);
-                            if (hasIncomingEdges(dependencyGraph[currentDependency])) {
-                                dependencyGraph[currentLineNumber][currentDependency]--;
-                                currentLineNumber = currentDependency;
-                                hasMetDependency = true;
-                                break;
+                            // Containing type might be null if incoming reference is in the reusable type definition
+                            // (but we only care about the entity relations, so use of the reusable types
+                            // in entities).
+                            if (containingType != null) {
+                                int currentDependency = getId(containingType, types);
+                                if (hasIncomingEdges(dependencyGraph[currentDependency])) {
+                                    dependencyGraph[currentLineNumber][currentDependency]--;
+                                    currentLineNumber = currentDependency;
+                                    hasMetDependency = true;
+                                    break;
+                                }
                             }
                         }
                         if (!hasMetDependency) {
@@ -766,7 +797,8 @@ public class MetadataUtils {
                         }
                     } while (currentLineNumber != lineNumber);
                     if (dependencyPath.size() > 1) {
-                        dependencyPath.add(getType(types, lineNumber)); // Include cycle start to get a better exception message.
+                        dependencyPath.add(getType(types, lineNumber)); // Include cycle start to get a better exception
+                                                                        // message.
                         cycles.add(dependencyPath);
                     }
                 }
@@ -789,8 +821,11 @@ public class MetadataUtils {
                             Set<ReferenceFieldMetadata> inboundReferences = repository.accept(new ForeignKeyIntegrity(currentType));
                             cyclesAsString.append(" ( possible fields: ");
                             for (ReferenceFieldMetadata inboundReference : inboundReferences) {
-                                String xPath = inboundReference.getPath();
-                                cyclesAsString.append(xPath).append(' ');
+                                ComplexTypeMetadata entity = repository.getComplexType(inboundReference.getEntityTypeName());
+                                if (entity != null) {
+                                    String xPath = inboundReference.getEntityTypeName() + '/' + inboundReference.getPath();
+                                    cyclesAsString.append(xPath).append(' ');
+                                }
                             }
                             cyclesAsString.append(')');
                         }
@@ -804,6 +839,47 @@ public class MetadataUtils {
             }
         }
         return sortedTypes;
+    }
+
+    private static StringBuilder logDependencyMatrix(byte[][] dependencyGraph) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Dependency matrix").append('\n');
+        int maxSpace = getNumberLength(dependencyGraph.length);
+        for (int i = 0; i <= maxSpace; i++) {
+            builder.append(' ');
+        }
+        for (int i = 0; i < dependencyGraph.length; i++) {
+            builder.append(i);
+            for (int j = 0; j <= maxSpace - getNumberLength(i); j++) {
+                builder.append(' ');
+            }
+        }
+        builder.append('\n');
+        int line = 0;
+        for (byte[] lineContent : dependencyGraph) {
+            builder.append(line);
+            for (int j = 0; j <= maxSpace - getNumberLength(line); j++) {
+                builder.append(' ');
+            }
+            for (byte b : lineContent) {
+                builder.append(b);
+                for (int j = 0; j <= maxSpace - getNumberLength(b); j++) {
+                    builder.append(' ');
+                }
+            }
+            builder.append('\n');
+            line++;
+        }
+        return builder;
+    }
+
+    private static int getNumberLength(int number) {
+        int length = 1;
+        while (number >= 10) {
+            number %= 10;
+            length++;
+        }
+        return length;
     }
 
     private static ComplexTypeMetadata getType(List<ComplexTypeMetadata> types, int lineNumber) {
