@@ -241,7 +241,7 @@ public class GeneralAction implements GeneralService {
 
             });
             String lang = language;
-            String storeLang = com.amalto.webapp.core.util.Util.getDefaultLanguage();
+            String storeLang = Utils.getDefaultLanguage();
             if (storeLang != null && !"".equals(storeLang)) { //$NON-NLS-1$
                 lang = storeLang;
             } else {

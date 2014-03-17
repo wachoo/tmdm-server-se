@@ -341,4 +341,8 @@ public class Utils {
         }
         return xml;
     }
+
+    public static String getDefaultLanguage() throws Exception {
+        return com.amalto.webapp.core.util.Util.getDefaultLanguage();
+    }
 }
