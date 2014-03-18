@@ -15,7 +15,12 @@ import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -31,23 +36,23 @@ import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 
-@Path("/system/models") //$NON-NLS-1$
+@Path("/system/models")
 public class SystemModels {
 
     private static final Logger LOGGER = Logger.getLogger(SystemModels.class);
 
     @GET
     @Path("{model}")
-    public String getSchema(@PathParam("model") //$NON-NLS-1$
-            String modelName) {
+    public String getSchema(@PathParam("model")
+    String modelName) {
         throw new UnsupportedOperationException("Get a data model content isn't currently supported.");
     }
 
     @PUT
-    @Path("{model}") //$NON-NLS-1$
-    public void updateModel(@PathParam("model") //$NON-NLS-1$
-            String modelName, @QueryParam("force") //$NON-NLS-1$
-            boolean force, InputStream dataModel) {
+    @Path("{model}")
+    public void updateModel(@PathParam("model")
+    String modelName, @QueryParam("force")
+    boolean force, InputStream dataModel) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
         if (storage == null) {
@@ -61,13 +66,13 @@ public class SystemModels {
     }
 
     @POST
-    @Path("{model}") //$NON-NLS-1$
-    public String analyzeModelChange(@PathParam("model") //$NON-NLS-1$
-            String modelName, InputStream dataModel) {
+    @Path("{model}")
+    public String analyzeModelChange(@PathParam("model")
+    String modelName, InputStream dataModel) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
         if (storage == null) {
-            throw new IllegalArgumentException("Container '" + modelName + "' does not exist.");
+            LOGGER.warn("Container '" + modelName + "' does not exist. Skip impact analyzing for model change.");
         }
         // Compare new data model with existing data model
         MetadataRepository previousRepository = storage.getMetadataRepository();
