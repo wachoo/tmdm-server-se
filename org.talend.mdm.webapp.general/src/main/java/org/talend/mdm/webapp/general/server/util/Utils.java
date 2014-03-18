@@ -24,6 +24,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.general.model.GroupItem;
 import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
@@ -40,6 +41,11 @@ import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.SystemLocale;
 import com.amalto.webapp.core.util.SystemLocaleFactory;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSDataModelPK;
+import com.amalto.webapp.util.webservices.WSGetItem;
+import com.amalto.webapp.util.webservices.WSItemPK;
+import com.amalto.webapp.util.webservices.WSPutItem;
 
 public class Utils {
 
@@ -54,6 +60,10 @@ public class Utils {
     private static final String WELCOMECONTEXT = "welcomeportal", WELCOMEAPP = "WelcomePortal";//$NON-NLS-1$ //$NON-NLS-2$
 
     private static final String DEFAULT_LANG = "en"; //$NON-NLS-1$
+
+    private static final String PROVISIONING_CONCEPT = "User"; //$NON-NLS-1$
+
+    private static final String DATACLUSTER_PK = "PROVISIONING"; //$NON-NLS-1$
 
     /** a reference to the factory used to create Gxt instances */
     private static GxtFactory gxtFactory = new GxtFactory(GXT_PROPERTIES, EXCLUDING_PROPERTIES, GXT_CSS_RESOURCES);
@@ -344,5 +354,23 @@ public class Utils {
 
     public static String getDefaultLanguage() throws Exception {
         return com.amalto.webapp.core.util.Util.getDefaultLanguage();
+    }
+
+    public static Boolean setDefaultLanguage(String language) throws Exception {
+        try {
+            String userName = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
+            WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(DATACLUSTER_PK), PROVISIONING_CONCEPT, new String[] { userName });
+            if (userName != null && userName.length() > 0) {
+                String userXml = Util.getPort().getItem(new WSGetItem(itemPK)).getContent();
+                Util.getPort().putItem(
+                        new WSPutItem(new WSDataClusterPK(DATACLUSTER_PK), Utils.setLanguage(userXml, language),
+                                new WSDataModelPK(DATACLUSTER_PK), false));
+                return true;
+            }
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
+        return false;
     }
 }

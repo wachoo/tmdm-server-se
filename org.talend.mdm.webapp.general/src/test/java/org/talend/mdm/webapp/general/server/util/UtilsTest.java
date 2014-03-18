@@ -68,29 +68,37 @@ public class UtilsTest extends TestCase {
 
         List<LanguageBean> enList = new ArrayList<LanguageBean>();
         List<LanguageBean> frList = new ArrayList<LanguageBean>();
-        LanguageBean enBean = new LanguageBean();
-        LanguageBean frBean = new LanguageBean();
-        enBean.setText("en");
-        enBean.setValue("en");
-        enBean.setSelected(true);
-        frBean.setText("fr");
-        frBean.setValue("fr");
-        frBean.setSelected(false);
-        enList.add(enBean);
-        enList.add(frBean);
+        LanguageBean beanA = new LanguageBean();
+        LanguageBean beanB = new LanguageBean();
+        LanguageBean beanC = new LanguageBean();
+        LanguageBean beanD = new LanguageBean();
 
-        enBean.setSelected(false);
-        frBean.setSelected(true);
-        frList.add(enBean);
-        frList.add(frBean);
+        beanA.setText("en");
+        beanA.setValue("en");
+        beanB.setText("fr");
+        beanB.setValue("fr");
+        beanC.setText("en");
+        beanC.setValue("en");
+        beanD.setText("fr");
+        beanD.setValue("fr");
+
+        beanA.setSelected(true);
+        beanB.setSelected(false);
+        enList.add(beanA);
+        enList.add(beanB);
+
+        beanC.setSelected(false);
+        beanD.setSelected(true);
+        frList.add(beanC);
+        frList.add(beanD);
 
         GeneralAction generalAction = new GeneralAction();
 
-        Mockito.when(Utils.getDefaultLanguage()).thenReturn("fr");
-        Mockito.when(Utils.getLanguages("en")).thenReturn(enList);
-        Mockito.when(Utils.getLanguages("fr")).thenReturn(frList);
+        PowerMockito.when(Utils.getDefaultLanguage()).thenReturn("fr");
+        PowerMockito.when(Utils.getLanguages("en")).thenReturn(enList);
+        PowerMockito.when(Utils.getLanguages("fr")).thenReturn(frList);
 
-        List<LanguageBean> result = generalAction.getLanguages("fr");
+        List<LanguageBean> result = generalAction.getLanguages("en");
         String lang = "";
         for (LanguageBean langBean : result) {
             if (langBean.isSelected()) {
@@ -100,5 +108,16 @@ public class UtilsTest extends TestCase {
         assertEquals("fr", lang);
         assertEquals(result.size(), 2);
 
+        PowerMockito.when(Utils.getDefaultLanguage()).thenReturn("");
+        PowerMockito.when(Utils.setDefaultLanguage(Mockito.<String> any())).thenReturn(true);
+
+        result = generalAction.getLanguages("en");
+        for (LanguageBean langBean : result) {
+            if (langBean.isSelected()) {
+                lang = langBean.getValue();
+            }
+        }
+        assertEquals("en", lang);
+        assertEquals(result.size(), 2);
     }
 }
