@@ -53,7 +53,7 @@ public class ActionsPanel extends ContentPanel {
         dataContainerBox.setDisplayField("value"); //$NON-NLS-1$
         dataContainerBox.setValueField("value"); //$NON-NLS-1$
         dataContainerBox.setAllowBlank(false);
-        dataContainerBox.setWidth(100);
+        dataContainerBox.setWidth(windowResizeDelay);
         dataContainerBox.setStore(containerStore);
         dataContainerBox.setTypeAhead(true);
         dataContainerBox.setTriggerAction(TriggerAction.ALL);
@@ -62,11 +62,12 @@ public class ActionsPanel extends ContentPanel {
         dataModelBox.setDisplayField("value"); //$NON-NLS-1$
         dataModelBox.setValueField("value"); //$NON-NLS-1$
         dataModelBox.setAllowBlank(false);
-        dataModelBox.setWidth(100);
+        dataModelBox.setWidth(windowResizeDelay);
         dataModelBox.setStore(dataStore);
         dataModelBox.setTypeAhead(true);
         dataModelBox.setTriggerAction(TriggerAction.ALL);
         dataModelBox.setEditable(disabled);
+        saveBtn.disable();
         FormData formData = new FormData();
         formData.setMargins(new Margins(5));
         this.add(dataContainerBox, formData);
@@ -99,6 +100,7 @@ public class ActionsPanel extends ContentPanel {
             @Override
             public void selectionChanged(SelectionChangedEvent<ComboBoxModel> se) {
                 if (se.getSelectedItem() == null) {
+                    saveBtn.disable();
                     return;
                 }
                 String selectedValue = se.getSelectedItem().get("value"); //$NON-NLS-1$
@@ -129,6 +131,7 @@ public class ActionsPanel extends ContentPanel {
             @Override
             public void selectionChanged(SelectionChangedEvent<ComboBoxModel> se) {
                 if (se.getSelectedItem() == null) {
+                    saveBtn.disable();
                     return;
                 }
                 String selectedValue = se.getSelectedItem().get("value"); //$NON-NLS-1$
