@@ -123,6 +123,7 @@ public class TreeDetailUtil {
             final Boolean isFkToolBar, final Boolean isHierarchyCall, final String operation, final boolean isStaging) {
         String[] idArr = parseKey(ids);
         final ItemsDetailPanel panel = ItemsDetailPanel.newInstance();
+        panel.setStaging(isStaging);
         final BrowseRecordsServiceAsync brService = getBrowseRecordsService(isStaging);
         brService.getItemBeanById(concept, idArr, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() {
 
@@ -222,6 +223,7 @@ public class TreeDetailUtil {
             boolean isHierarchyCall, boolean isOutMost, boolean isStaging) {
 
         final ItemsDetailPanel itemsDetailPanel = ItemsDetailPanel.newInstance();
+        itemsDetailPanel.setStaging(isStaging);
         itemsDetailPanel.setOutMost(isOutMost);
 
         ItemPanel itemPanel = new ItemPanel(isStaging, viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION,

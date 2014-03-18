@@ -23,6 +23,10 @@ public class AppHeader implements IsSerializable {
 
     private String datacluster = null;
 
+    private String masterDataCluster = null;
+
+    private String stagingDataCluster = null;
+
     private boolean isStandAloneMode = false;
 
     private int autoTextAreaLength;
@@ -62,6 +66,22 @@ public class AppHeader implements IsSerializable {
 
     public void setDatacluster(String datacluster) {
         this.datacluster = datacluster;
+    }
+
+    public String getMasterDataCluster() {
+        return this.masterDataCluster;
+    }
+
+    public void setMasterDataCluster(String masterDataCluster) {
+        this.masterDataCluster = masterDataCluster;
+    }
+
+    public String getStagingDataCluster() {
+        return this.stagingDataCluster;
+    }
+
+    public void setStagingDataCluster(String stagingDataCluster) {
+        this.stagingDataCluster = stagingDataCluster;
     }
 
     public int getAutoTextAreaLength() {

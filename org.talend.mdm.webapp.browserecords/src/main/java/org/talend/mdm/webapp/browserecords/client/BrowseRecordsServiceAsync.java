@@ -82,6 +82,8 @@ public interface BrowseRecordsServiceAsync {
 
     void getCurrentDataCluster(AsyncCallback<String> callback);
 
+    void getCurrentDataCluster(boolean isStaging, AsyncCallback<String> callback);
+
     void querySearchTemplates(String view, boolean isShared, BasePagingLoadConfigImpl load,
             AsyncCallback<ItemBasePageLoadResult<ItemBaseModel>> callback);
 
@@ -91,7 +93,8 @@ public interface BrowseRecordsServiceAsync {
 
     void saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString, AsyncCallback<Void> callback);
 
-    void getItemNodeModel(ItemBean item, EntityModel entity, String language, AsyncCallback<ItemNodeModel> callback);
+    void getItemNodeModel(ItemBean item, EntityModel entity, boolean isStaging, String language,
+            AsyncCallback<ItemNodeModel> callback);
 
     void getMandatoryFieldList(String tableName, AsyncCallback<List<String>> callback);
 
@@ -101,7 +104,8 @@ public interface BrowseRecordsServiceAsync {
 
     void getColumnTreeLayout(String concept, AsyncCallback<ColumnTreeLayoutModel> callback);
 
-    void getForeignKeyModel(String concept, String ids, String language, AsyncCallback<ForeignKeyModel> callback);
+    void getForeignKeyModel(String concept, String ids, boolean isStaging, String language,
+            AsyncCallback<ForeignKeyModel> callback);
 
     void getRunnableProcessList(String concept, String language, AsyncCallback<List<ItemBaseModel>> callback);
 
@@ -135,7 +139,7 @@ public interface BrowseRecordsServiceAsync {
             AsyncCallback<ItemNodeModel> callback);
 
     void createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath, String realType,
-            String language, AsyncCallback<ItemNodeModel> callback);
+            boolean isStaging, String language, AsyncCallback<ItemNodeModel> callback);
 
     void getForeignKeyValues(String concept, String[] ids, String language,
             AsyncCallback<Map<ViewBean, Map<String, List<String>>>> callback);

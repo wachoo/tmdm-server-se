@@ -50,7 +50,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
-import com.amalto.core.server.StorageAdmin;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SortDir;
@@ -351,7 +350,7 @@ public class ItemDetailToolBar extends ToolBar {
             if (!this.isOutMost) {
                 this.openTab = true;
             }
-            getBrowseRecordsService().getForeignKeyModel(itemBean.getConcept(), ids, Locale.getLanguage(),
+            getBrowseRecordsService().getForeignKeyModel(itemBean.getConcept(), ids, isStaging, Locale.getLanguage(),
                     new SessionAwareAsyncCallback<ForeignKeyModel>() {
 
                         @Override
@@ -596,8 +595,7 @@ public class ItemDetailToolBar extends ToolBar {
                     String taskId = itemBean.getTaskId();
                     if (taskId != null && !taskId.isEmpty()) {
                         ExplainRestServiceHandler.get().explainGroupResult(
-                                BrowseRecords.getSession().getAppHeader().getDatacluster()
-                                        .replace(StorageAdmin.STAGING_SUFFIX, ""), itemBean.getConcept(), taskId, //$NON-NLS-1$
+                                BrowseRecords.getSession().getAppHeader().getMasterDataCluster(), itemBean.getConcept(), taskId,
                                 new SessionAwareAsyncCallback<BaseTreeModel>() {
 
                                     @Override
@@ -628,7 +626,7 @@ public class ItemDetailToolBar extends ToolBar {
                 public void componentSelected(ButtonEvent ce) {
 
                     getBrowseRecordsService().getGoldenRecordIdByGroupId(
-                            BrowseRecords.getSession().getAppHeader().getDatacluster(),
+                            BrowseRecords.getSession().getAppHeader().getStagingDataCluster(),
                             BrowseRecords.getSession().getCurrentView().getViewPK(), itemBean.getConcept(),
                             BrowseRecords.getSession().getCurrentEntityModel().getKeys(), itemBean.getTaskId(),
                             new SessionAwareAsyncCallback<String>() {

@@ -85,9 +85,11 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
     private ClickHandler handler = new ClickHandler() {
 
+        @Override
         public void onClick(ClickEvent arg0) {
-            if (selectedItem == null)
+            if (selectedItem == null) {
                 return;
+            }
             // final DynamicTreeItem selected = (DynamicTreeItem) tree.getSelectedItem();
             final DynamicTreeItem parentItem = (DynamicTreeItem) selectedItem.getParentItem();
 
@@ -107,17 +109,20 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     int selectModelIndex = parentModel.indexOf(selectedModel);
                     parentModel.insert(model, selectModelIndex + 1);
                     // if it has default value
-                    if (typeModel.getDefaultValue() != null)
+                    if (typeModel.getDefaultValue() != null) {
                         model.setObjectValue(typeModel.getDefaultValue());
+                    }
                     parentItem.insertItem(buildGWTTree(model, true), parentItem.getChildIndex(selectedItem) + 1);
                     occurMap.put(countMapItem, count + 1);
-                } else
+                } else {
                     MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
                             .multiOccurrence_maximize(count), null);
+                }
             } else {
                 MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages().delete_confirm(),
                         new Listener<MessageBoxEvent>() {
 
+                            @Override
                             public void handleEvent(MessageBoxEvent be) {
                                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                                     if (count > 1 && count > typeModel.getMinOccurs()) {
@@ -127,12 +132,14 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                                         if (parentModel.getChildCount() > 0) {
                                             ItemNodeModel child = (ItemNodeModel) parentModel.getChild(0);
                                             Field<?> field = fieldMap.get(child.getId().toString());
-                                            if (field != null)
+                                            if (field != null) {
                                                 TreeDetailGridFieldCreator.updateMandatory(field, child, fieldMap);
+                                            }
                                         }
-                                    } else
+                                    } else {
                                         MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
                                                 .multiOccurrence_minimize(count), null);
+                                    }
                                 }
                             }
                         });
@@ -158,8 +165,9 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.model = fkModel.getNodeModel();
         this.viewBean = fkModel.getViewBean();
         this.columnLayoutModel = viewBean.getColumnLayoutModel();
-        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(fkModel.getItemBean(), isCreate ? ItemDetailToolBar.CREATE_OPERATION
-                : ItemDetailToolBar.VIEW_OPERATION, true, viewBean, itemsDetailPanel);
+        this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(fkModel.getItemBean(),
+                isCreate ? ItemDetailToolBar.CREATE_OPERATION : ItemDetailToolBar.VIEW_OPERATION, true, viewBean,
+                itemsDetailPanel);
         this.setTopComponent(toolBar);
         itemsDetailPanel.clearContent();
         itemsDetailPanel.initBanner(fkModel.getItemBean().getPkInfoList(), fkModel.getItemBean().getDescription());
@@ -177,8 +185,9 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     viewBean.getBindingEntityModel().getMetaDataTypes().get(viewBean.getBindingEntityModel().getConceptName()),
                     Locale.getLanguage(), true, false, false);
             rootModel = models.get(0);
-        } else
+        } else {
             rootModel = this.model;
+        }
         renderTree(rootModel);
     }
 
@@ -187,8 +196,9 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         tree = new TreeEx();
         tree.addItem(root);
         root.setState(true);
-        if (root.getElement().getFirstChildElement() != null)
+        if (root.getElement().getFirstChildElement() != null) {
             root.getElement().getFirstChildElement().setClassName("rootNode"); //$NON-NLS-1$
+        }
         if (this.columnLayoutModel != null) {// TODO if create a new ForeignKey, tree UI can not render according to the
                                              // layout template
             HorizontalPanel hp = new HorizontalPanel();
@@ -208,15 +218,17 @@ public class ForeignKeyTreeDetail extends ContentPanel {
             addTreeListener(tree);
         }
         String foreignKeyDeleteMessage = rootModel.get("foreignKeyDeleteMessage"); //$NON-NLS-1$
-        if (foreignKeyDeleteMessage != null && foreignKeyDeleteMessage.trim().length() > 0)
+        if (foreignKeyDeleteMessage != null && foreignKeyDeleteMessage.trim().length() > 0) {
             MessageBox.alert(MessagesFactory.getMessages().warning_title(), foreignKeyDeleteMessage, null).getDialog()
                     .setWidth(600);
+        }
     }
 
     // get selected item in tree
     private void addTreeListener(TreeEx tree) {
         tree.addSelectionHandler(new SelectionHandler<TreeItemEx>() {
 
+            @Override
             public void onSelection(SelectionEvent<TreeItemEx> event) {
                 selectedItem = (DynamicTreeItem) event.getSelectedItem();
             }
@@ -227,9 +239,10 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
         final ItemBean item = fkModel.getItemBean();
         item.set("isRefresh", true); //$NON-NLS-1$
-        service.getItemNodeModel(item, viewBean.getBindingEntityModel(), Locale.getLanguage(),
+        service.getItemNodeModel(item, viewBean.getBindingEntityModel(), itemsDetailPanel.isStaging(), Locale.getLanguage(),
                 new SessionAwareAsyncCallback<ItemNodeModel>() {
 
+                    @Override
                     public void onSuccess(ItemNodeModel nodeModel) {
                         fkModel.setNodeModel(nodeModel);
                         model = nodeModel;
@@ -257,7 +270,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.viewBean = viewBean;
         buildPanel(viewBean);
     }
-    
+
     private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, boolean withDefaultValue) {
         Map<TypeModel, List<ItemNodeModel>> foreighKeyMap = new LinkedHashMap<TypeModel, List<ItemNodeModel>>();
         Map<TypeModel, ItemNodeModel> foreignKeyParentMap = new LinkedHashMap<TypeModel, ItemNodeModel>();
@@ -268,7 +281,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         this, itemsDetailPanel);
             }
         }
-        return reuslt;        
+        return reuslt;
     }
 
     private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, boolean withDefaultValue,
@@ -285,10 +298,12 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                 ItemNodeModel node = (ItemNodeModel) model;
                 TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getTypePath());
                 if (withDefaultValue && typeModel.getDefaultValue() != null
-                        && (node.getObjectValue() == null || node.getObjectValue().equals(""))) //$NON-NLS-1$
+                        && (node.getObjectValue() == null || node.getObjectValue().equals(""))) {
                     node.setObjectValue(typeModel.getDefaultValue());
-                if (this.isCreate && this.model != null && node.isKey()) // duplicate
+                }
+                if (this.isCreate && this.model != null && node.isKey()) {
                     node.setObjectValue(null); // id
+                }
 
                 boolean isFKDisplayedIntoTab = fkRender != null
                         && TreeDetail.isFKDisplayedIntoTab(node, typeModel, metaDataTypes);
@@ -305,15 +320,17 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         item.addItem(childItem);
                         int count = 0;
                         CountMapItem countMapItem = new CountMapItem(node.getBindingPath(), itemNode);
-                        if (occurMap.containsKey(countMapItem))
+                        if (occurMap.containsKey(countMapItem)) {
                             count = occurMap.get(countMapItem);
+                        }
                         occurMap.put(countMapItem, count + 1);
                     }
                 }
             }
 
-            if (itemNodeChildren.size() > 0 && item.getChildCount() == 0)
+            if (itemNodeChildren.size() > 0 && item.getChildCount() == 0) {
                 return null; // All went to FK Tab, in that case return null so the tree item is not added
+            }
 
             item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
         }
@@ -339,14 +356,16 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         if (typeModel.getForeignkey() == null && (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1)) {
                             i--;
                             continue;
-                        } else
+                        } else {
                             break;
+                        }
                     }
                 }
             }
         }
-        if (treeRootNode.getElement().getFirstChildElement() != null)
+        if (treeRootNode.getElement().getFirstChildElement() != null) {
             treeRootNode.getElement().getFirstChildElement().setClassName("rootNode"); //$NON-NLS-1$
+        }
         treeRootNode.setState(true);
         return tree;
     }
@@ -463,9 +482,9 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     boolean parentIsMayNull = rootNode.getParent() != null && !rootNode.isMandatory();
                     if (tm.getForeignkey() != null) {
                         // fk minOccurs check
-                        if (!map.containsKey(tm))
+                        if (!map.containsKey(tm)) {
                             map.put(tm, 0);
-                        else if (parentIsMayNull && fkValidateMap.get(tm).isNodeValid()) {
+                        } else if (parentIsMayNull && fkValidateMap.get(tm).isNodeValid()) {
                             map.put(tm, map.get(tm) + 1);
                             continue;
                         }

@@ -284,6 +284,7 @@ public class BrowseRecordsView extends View {
     private ItemsDetailPanel buildNewItemsDetailPanel(boolean isStaing, ViewBean viewBean, ItemBean item, String operation,
             String itemIds, List<String> itemPkInfoList, String itemDescription, String itemLabel, List<BreadCrumbModel> breads) {
         ItemsDetailPanel itemsDetailPanel = ItemsDetailPanel.newInstance();
+        itemsDetailPanel.setStaging(isStaing);
         ItemPanel itemPanel = new ItemPanel(isStaing, viewBean, item, operation, itemsDetailPanel, true);
 
         itemsDetailPanel.setId(itemIds);
@@ -318,6 +319,7 @@ public class BrowseRecordsView extends View {
         itemBean.setLabel(typeModel.getLabel(Locale.getLanguage()));
 
         ItemsDetailPanel panel = ItemsDetailPanel.newInstance();
+        panel.setStaging(isStaging);
         panel.setOutMost(detailPanel.isOutMost());
         // set banner
         List<String> pkInfoList = new ArrayList<String>();

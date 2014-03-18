@@ -50,6 +50,8 @@ public class ItemPanel extends ContentPanel {
 
     private ContentPanel contenPanel;
 
+    private boolean isStaging;
+
     public ItemPanel(ItemsDetailPanel itemsDetailPanel) {
         tree = new TreeDetail(itemsDetailPanel);
         itemsDetailPanel.setTreeDetail(tree);
@@ -104,6 +106,7 @@ public class ItemPanel extends ContentPanel {
         this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(isStaging, item, operation, viewBean,
                 itemsDetailPanel);
         this.operation = operation;
+        this.isStaging = isStaging;
         this.initUI(null);
     }
 
@@ -115,6 +118,7 @@ public class ItemPanel extends ContentPanel {
         this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(isStaging, item, operation, false, viewBean,
                 itemsDetailPanel, openTab);
         this.operation = operation;
+        this.isStaging = isStaging;
         this.initUI(null);
     }
 
@@ -128,6 +132,7 @@ public class ItemPanel extends ContentPanel {
         this.operation = operation;
         this.isForeignKeyPanel = true;
         this.contenPanel = contenPanel;
+        this.isStaging = isStaging;
         this.initUI(root);
     }
 
@@ -141,6 +146,7 @@ public class ItemPanel extends ContentPanel {
         this.operation = operation;
         this.isForeignKeyPanel = true;
         this.contenPanel = contenPanel;
+        this.isStaging = isStaging;
         this.initUI(root);
     }
 
@@ -153,16 +159,16 @@ public class ItemPanel extends ContentPanel {
         if (!isForeignKeyPanel) {
             tree.setToolBar(toolBar);
             if (ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
-                tree.initTree(viewBean, null, initDataMap, operation);
+                tree.initTree(viewBean, null, initDataMap, operation, isStaging);
             } else if (ItemDetailToolBar.VIEW_OPERATION.equals(operation)) {
-                tree.initTree(viewBean, item);
+                tree.initTree(viewBean, item, isStaging);
             } else if (ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
-                tree.initTree(viewBean, item, initDataMap, operation);
+                tree.initTree(viewBean, item, initDataMap, operation, isStaging);
             } else if (ItemDetailToolBar.PERSONALEVIEW_OPERATION.equals(operation)
                     || ItemDetailToolBar.SMARTVIEW_OPERATION.equals(operation)) {
-                tree.initTree(viewBean, item);
+                tree.initTree(viewBean, item, isStaging);
             } else {
-                tree.initTree(viewBean, null);
+                tree.initTree(viewBean, null, isStaging);
             }
             tree.expand();
             this.add(tree, new RowData(1, 1));

@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,16 +76,18 @@ public class ItemsDetailPanel extends ContentPanel {
 
     private boolean isOutMost;
 
+    private boolean isStaging;
+
     public static interface ItemsDetailPanelCreator {
         ItemsDetailPanel newInstance();
     }
-    
+
     private static ItemsDetailPanelCreator creator;
-    
+
     public static void initialize(ItemsDetailPanelCreator impl) {
         ItemsDetailPanel.creator = impl;
     }
-    
+
     protected ItemsDetailPanel() {
         super();
         breadCrumb.getElement().getStyle().setOverflow(Overflow.HIDDEN);
@@ -94,14 +95,14 @@ public class ItemsDetailPanel extends ContentPanel {
         this.setHeaderVisible(false);
         this.initPanel();
     }
-    
+
     public static ItemsDetailPanel newInstance() {
         if (creator == null) {
             return new ItemsDetailPanel();
         }
         return creator.newInstance();
     }
-    
+
     public interface ForeignKeyHandler {
 
         void onSelect();
@@ -130,6 +131,7 @@ public class ItemsDetailPanel extends ContentPanel {
         ncBorder.add(breadCrumb);
         ncBorder.addListener(Events.Resize, new Listener<BaseEvent>() {
 
+            @Override
             public void handleEvent(BaseEvent be) {
                 BreadCrumb bc = (BreadCrumb) breadCrumb.getWidget();
                 if (bc != null) {
@@ -149,6 +151,7 @@ public class ItemsDetailPanel extends ContentPanel {
         // For some reason this is not automatic
         mainPanel.addListener(Events.Resize, new Listener<BoxComponentEvent>() {
 
+            @Override
             public void handleEvent(final BoxComponentEvent event) {
                 bannerWrapper.setWidth(mainPanel.getWidth());
             }
@@ -159,6 +162,7 @@ public class ItemsDetailPanel extends ContentPanel {
         // Resize tab panel explicitly or it will vertically overflow the parent container of fixed height
         mainPanel.addListener(Events.Resize, new Listener<BoxComponentEvent>() {
 
+            @Override
             public void handleEvent(final BoxComponentEvent event) {
                 int newHeight = mainPanel.getHeight() - BANNER_HEIGHT;
                 if (newHeight < 0) {
@@ -217,6 +221,12 @@ public class ItemsDetailPanel extends ContentPanel {
         textTitle.setText(null);
         banner.removeAll();
         banner.layout(true);
+        if (isStaging) {
+            Image img = new Image("/browserecords/secure/img/staging.png"); //$NON-NLS-1$
+            img.getElement().getStyle().setFloat(Float.RIGHT);
+            img.getElement().getStyle().setMarginTop(6D, Unit.PX);
+            banner.add(img);
+        }
     }
 
     public void clearAll() {
@@ -249,7 +259,7 @@ public class ItemsDetailPanel extends ContentPanel {
 
         return itemsDetailTabPanel.getFirstTabWidget();
     }
-    
+
     public Widget getPrimaryKeyTabWidget() {
         return itemsDetailTabPanel.getPrimaryKeyTabWidget();
     }
@@ -338,6 +348,7 @@ public class ItemsDetailPanel extends ContentPanel {
             // Resize listener for the tab panel, recalculate sizes needed and resize everything within
             this.addListener(Events.Resize, new Listener<BoxComponentEvent>() {
 
+                @Override
                 public void handleEvent(final BoxComponentEvent event) {
                     // Recalculate tabContent size
                     ItemsDetailTabPanel.this.calcTabContentSize();
@@ -375,13 +386,15 @@ public class ItemsDetailPanel extends ContentPanel {
             if (this.handlerRegistration != null) {
                 handlerRegistration.removeHandler();
             }
-            if (fkHandlerMap != null)
+            if (fkHandlerMap != null) {
                 fkHandlerMap.clear();
+            }
 
             this.tabBar = new TabBar();
             // Tab selection listener for tab panel, change the content displayed and size it appropriately
             this.handlerRegistration = this.tabBar.addSelectionHandler(new SelectionHandler<Integer>() {
 
+                @Override
                 public void onSelection(SelectionEvent<Integer> arg0) {
 
                     ItemsDetailTabPanel.this.tabContent.removeAll();
@@ -394,7 +407,7 @@ public class ItemsDetailPanel extends ContentPanel {
 
                     newPanel.setHeight(ItemsDetailTabPanel.this.curTabContentInnerHeight);
                     newPanel.setWidth(ItemsDetailTabPanel.this.curTabContentInnerWidth);
-                    
+
                     ForeignKeyHandler fkHandler = fkHandlerMap.get(newPanel);
                     if (fkHandler != null) {
                         fkHandler.onSelect();
@@ -421,18 +434,21 @@ public class ItemsDetailPanel extends ContentPanel {
          */
         private void calcTabContentSize() {
             this.curTabContentHeight = this.getHeight() - TAB_BAR_HEIGHT - SCROLL_BAR_HEIGHT;
-            if (this.curTabContentHeight < 0)
+            if (this.curTabContentHeight < 0) {
                 this.curTabContentHeight = 0;
+            }
 
             this.curTabContentWidth = this.getWidth();
 
             this.curTabContentInnerHeight = this.curTabContentHeight - 1;
-            if (this.curTabContentInnerHeight < 0)
+            if (this.curTabContentInnerHeight < 0) {
                 this.curTabContentInnerHeight = 0;
+            }
 
             this.curTabContentInnerWidth = this.curTabContentWidth - 2;
-            if (this.curTabContentInnerWidth < 0)
+            if (this.curTabContentInnerWidth < 0) {
                 this.curTabContentInnerWidth = 0;
+            }
         }
 
         /**
@@ -652,8 +668,9 @@ public class ItemsDetailPanel extends ContentPanel {
         public Widget getPrimaryKeyTabWidget() {
             if (this.tabPanels.size() > 0) {
                 for (ContentPanel panel : this.tabPanels) {
-                    if (PKTAB.equals(panel.getId()))
+                    if (PKTAB.equals(panel.getId())) {
                         return panel;
+                    }
                 }
             }
             return null;
@@ -863,4 +880,11 @@ public class ItemsDetailPanel extends ContentPanel {
         this.isOutMost = isOutMost;
     }
 
+    public boolean isStaging() {
+        return this.isStaging;
+    }
+
+    public void setStaging(boolean isStaging) {
+        this.isStaging = isStaging;
+    }
 }

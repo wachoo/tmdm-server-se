@@ -87,6 +87,8 @@ public interface BrowseRecordsService extends RemoteService {
 
     String getCurrentDataCluster() throws ServiceException;
 
+    String getCurrentDataCluster(boolean isStaging) throws ServiceException;
+
     ItemBasePageLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, BasePagingLoadConfigImpl load)
             throws ServiceException;
 
@@ -96,13 +98,13 @@ public interface BrowseRecordsService extends RemoteService {
 
     void saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString) throws ServiceException;
 
-    ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws ServiceException;
+    ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, boolean isStaging, String language) throws ServiceException;
 
     ItemNodeModel createDefaultItemNodeModel(ViewBean viewBean, Map<String, List<String>> initDataMap, String language)
             throws ServiceException;
 
     ItemNodeModel createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath, String realType,
-            String language) throws ServiceException;
+            boolean isStaging, String language) throws ServiceException;
 
     List<String> getMandatoryFieldList(String tableName) throws ServiceException;
 
@@ -117,7 +119,7 @@ public interface BrowseRecordsService extends RemoteService {
 
     ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws ServiceException;
 
-    ForeignKeyModel getForeignKeyModel(String concept, String ids, String language) throws ServiceException;
+    ForeignKeyModel getForeignKeyModel(String concept, String ids, boolean isStaging, String language) throws ServiceException;
 
     List<ItemBaseModel> getRunnableProcessList(String concept, String language) throws ServiceException;
 

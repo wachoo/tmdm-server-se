@@ -483,10 +483,6 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
 
         @Override
-        public void getItemNodeModel(ItemBean item, EntityModel entity, String language, AsyncCallback<ItemNodeModel> callback) {
-        }
-
-        @Override
         public void getMandatoryFieldList(String tableName, AsyncCallback<List<String>> callback) {
         }
 
@@ -497,10 +493,6 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
 
         @Override
         public void getColumnTreeLayout(String concept, AsyncCallback<ColumnTreeLayoutModel> callback) {
-        }
-
-        @Override
-        public void getForeignKeyModel(String concept, String ids, String language, AsyncCallback<ForeignKeyModel> callback) {
         }
 
         @Override
@@ -556,11 +548,6 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
 
         @Override
-        public void createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath, String realType,
-                String language, AsyncCallback<ItemNodeModel> callback) {
-        }
-
-        @Override
         public void createDefaultItemNodeModel(ViewBean viewBean, Map<String, List<String>> initDataMap, String language,
                 AsyncCallback<ItemNodeModel> callback) {
 
@@ -590,6 +577,28 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         @Override
         public void getRecords(String concept, List<String> idsList, AsyncCallback<List<ItemBean>> callback) {
 
+        }
+
+        @Override
+        public void getCurrentDataCluster(boolean isStaging, AsyncCallback<String> callback) {
+
+        }
+
+        @Override
+        public void getItemNodeModel(ItemBean item, EntityModel entity, boolean isStaging, String language,
+                AsyncCallback<ItemNodeModel> callback) {
+
+        }
+
+        @Override
+        public void getForeignKeyModel(String concept, String ids, boolean isStaging, String language,
+                AsyncCallback<ForeignKeyModel> callback) {
+
+        }
+
+        @Override
+        public void createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath, String realType,
+                boolean isStaging, String language, AsyncCallback<ItemNodeModel> callback) {
         }
     }
 

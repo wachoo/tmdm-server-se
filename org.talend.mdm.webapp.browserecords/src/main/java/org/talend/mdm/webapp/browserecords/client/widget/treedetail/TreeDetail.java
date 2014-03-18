@@ -104,6 +104,8 @@ public class TreeDetail extends ContentPanel {
 
     private List<RenderCompleteCallBack> renderCompleteCallBackList = new ArrayList<RenderCompleteCallBack>();
 
+    private boolean isStaing;
+
     public ForeignKeyRender getFkRender() {
         return fkRender;
     }
@@ -193,11 +195,13 @@ public class TreeDetail extends ContentPanel {
         });
     }
 
-    public void initTree(ViewBean viewBean, ItemBean itemBean) {
-        initTree(viewBean, itemBean, null, null);
+    public void initTree(ViewBean viewBean, ItemBean itemBean, boolean isStaging) {
+        initTree(viewBean, itemBean, null, null, isStaging);
     }
 
-    public void initTree(final ViewBean viewBean, ItemBean itemBean, Map<String, List<String>> initDataMap, final String operation) {
+    public void initTree(final ViewBean viewBean, ItemBean itemBean, Map<String, List<String>> initDataMap,
+            final String operation, boolean isStaging) {
+        this.isStaing = isStaging;
         this.viewBean = viewBean;
         if (itemBean == null) {
             buildPanel(operation, initDataMap);
@@ -205,7 +209,7 @@ public class TreeDetail extends ContentPanel {
             final BrowseRecordsServiceAsync itemService = getItemService();
             BrowseRecordsMessages msg = MessagesFactory.getMessages();
             final MessageBox loadProgress = MessageBox.wait(msg.load_title(), msg.load_message(), msg.load_progress());
-            itemService.getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), Locale.getLanguage(),
+            itemService.getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), isStaging, Locale.getLanguage(),
                     new SessionAwareAsyncCallback<ItemNodeModel>() {
 
                         @Override
@@ -405,7 +409,7 @@ public class TreeDetail extends ContentPanel {
         treeNode.removeAll();
         String xml = (new ItemTreeHandler(rootNode, viewBean, ItemTreeHandlingStatus.InUse)).serializeItem();
 
-        getItemService().createSubItemNodeModel(viewBean, xml, typePath, contextPath, treeNode.getRealType(),
+        getItemService().createSubItemNodeModel(viewBean, xml, typePath, contextPath, treeNode.getRealType(), isStaing,
                 UrlUtil.getLanguage(), new SessionAwareAsyncCallback<ItemNodeModel>() {
 
                     @Override
@@ -796,7 +800,7 @@ public class TreeDetail extends ContentPanel {
 
     public void refreshTree(final ItemBean item) {
         item.set("isRefresh", true); //$NON-NLS-1$
-        getItemService().getItemNodeModel(item, viewBean.getBindingEntityModel(), Locale.getLanguage(),
+        getItemService().getItemNodeModel(item, viewBean.getBindingEntityModel(), isStaing, Locale.getLanguage(),
                 new SessionAwareAsyncCallback<ItemNodeModel>() {
 
                     @Override

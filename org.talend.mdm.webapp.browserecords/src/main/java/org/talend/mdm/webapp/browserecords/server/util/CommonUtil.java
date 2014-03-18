@@ -263,9 +263,8 @@ public class CommonUtil {
                         itemBean.setForeignkeyDesc(
                                 path + "-" + el.getText(), //$NON-NLS-1$
                                 org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel,
-                                        el.getText(), false, modelType, map.get(typeModel.getXpath()), language, isStaging));
-                    } else if (typeModel != null
-                            && DataTypeConstants.BOOLEAN.equals(typeModel.getType())) {
+                                        el.getText(), false, modelType, map.get(typeModel.getXpath()), isStaging, language));
+                    } else if (typeModel != null && DataTypeConstants.BOOLEAN.equals(typeModel.getType())) {
                         if (Constants.BOOLEAN_TRUE_DISPLAY_VALUE.equals(el.getText())
                                 || Constants.BOOLEAN_TRUE_VALUE.equals(el.getText())) {
                             itemBean.set(path, Constants.BOOLEAN_TRUE_VALUE);
@@ -298,7 +297,7 @@ public class CommonUtil {
     }
 
     public static ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids, boolean isNeedExceptionMessage, String modelType,
-            EntityModel entityModel, String language, boolean isStaging) throws Exception {
+            EntityModel entityModel, boolean isStaging, String language) throws Exception {
         String xpathForeignKey = model.getForeignkey();
         if (xpathForeignKey == null) {
             return null;
@@ -324,11 +323,7 @@ public class CommonUtil {
                     bean.setConceptName(conceptName);
                 }
                 pk.setConceptName(conceptName);
-                String cluster = getCurrentDataCluster();
-                if (isStaging) {
-                    cluster += StorageAdmin.STAGING_SUFFIX;
-                }
-
+                String cluster = getCurrentDataCluster(isStaging);
                 pk.setDataClusterPOJOPK(new DataClusterPOJOPK(cluster));
                 ItemPOJO item = com.amalto.core.util.Util.getItemCtrl2Local().getItem(pk);
 
@@ -473,6 +468,16 @@ public class CommonUtil {
     public static String getCurrentDataCluster() throws Exception {
         Configuration config = Configuration.getConfiguration();
         return config.getCluster();
+    }
+
+    public static String getCurrentDataCluster(boolean isStaging) throws Exception {
+        String cluster = getCurrentDataCluster();
+        if (isStaging) {
+            if (cluster != null && !cluster.endsWith(StorageAdmin.STAGING_SUFFIX)) {
+                cluster += StorageAdmin.STAGING_SUFFIX;
+            }
+        }
+        return cluster;
     }
 
     public static String getCurrentDataModel() throws Exception {

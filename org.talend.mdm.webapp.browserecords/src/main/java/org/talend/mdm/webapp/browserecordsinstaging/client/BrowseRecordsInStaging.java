@@ -31,13 +31,11 @@ import org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
-import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel.ItemsDetailPanelCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar.ItemsToolBarCreator;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
-import org.talend.mdm.webapp.browserecordsinstaging.client.widget.ItemsDetailPanel4Staging;
 import org.talend.mdm.webapp.browserecordsinstaging.client.widget.ItemsListPanel4Staging;
 import org.talend.mdm.webapp.browserecordsinstaging.client.widget.ItemsToolBar4Staging;
 
@@ -152,13 +150,6 @@ public class BrowseRecordsInStaging implements EntryPoint {
             @Override
             public ItemsToolBar newInstance() {
                 return new ItemsToolBar4Staging();
-            }
-        });
-        ItemsDetailPanel.initialize(new ItemsDetailPanelCreator() {
-
-            @Override
-            public ItemsDetailPanel newInstance() {
-                return new ItemsDetailPanel4Staging();
             }
         });
     }

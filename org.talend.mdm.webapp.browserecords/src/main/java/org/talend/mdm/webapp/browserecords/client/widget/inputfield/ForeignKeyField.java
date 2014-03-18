@@ -37,7 +37,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
     private Image relationFKBtn = new Image(Icons.INSTANCE.link_go());
 
     private String foreignKeyName;
-    
+
     private String foreignKey;
 
     private ForeignKeyListWindow fkWindow = new ForeignKeyListWindow();
@@ -49,7 +49,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
     private ItemsDetailPanel itemsDetailPanel;
 
     private boolean validateFlag = true;
-    
+
     public ForeignKeyField(String currentNodeXpath, String fkFilter, String foreignKey, List<String> foreignKeyInfo,
             ItemsDetailPanel itemsDetailPanel) {
         this.validateFlag = BrowseRecords.getSession().getAppHeader().isAutoValidate();
@@ -67,7 +67,8 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         fkWindow.setBlinkModal(true);
     }
 
-    public ForeignKeyField(String foreignKey, List<String> foreignKeyInfo, ForeignKeyFieldList fkFieldList, ItemsDetailPanel itemsDetailPanel) {
+    public ForeignKeyField(String foreignKey, List<String> foreignKeyInfo, ForeignKeyFieldList fkFieldList,
+            ItemsDetailPanel itemsDetailPanel) {
         this(null, null, foreignKey, foreignKeyInfo, itemsDetailPanel);
         this.fkFieldList = fkFieldList;
         this.isFkList = true;
@@ -81,6 +82,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         return fkWindow;
     }
 
+    @Override
     protected void onRender(Element target, int index) {
         El wrap = new El(DOM.createTable());
         Element tbody = DOM.createTBody();
@@ -90,7 +92,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         Element tdIcon = DOM.createTD();
         fktr.appendChild(tdInput);
         fktr.appendChild(tdIcon);
-        
+
         wrap.appendChild(tbody);
         wrap.setElementAttribute("cellSpacing", "0"); //$NON-NLS-1$ //$NON-NLS-2$
         wrap.addStyleName("x-form-field-wrap"); //$NON-NLS-1$
@@ -134,12 +136,14 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         super.onRender(target, index);
     }
 
+    @Override
     public int getWidth() {
         // when isChrome, it need to add foreignDiv's width
         // TMDM-4153: FK mandatory icons display issue on main tab by using chrome browser
         return GXT.isChrome ? getOffsetWidth() + 75 : getOffsetWidth();
     }
 
+    @Override
     public void setReadOnly(boolean readOnly) {
         super.setReadOnly(readOnly);
         updateCtrlButton();
@@ -155,6 +159,8 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
     private void addListener() {
         addFKBtn.setTitle(MessagesFactory.getMessages().fk_add_title());
         addFKBtn.addClickHandler(new ClickHandler() {
+
+            @Override
             public void onClick(ClickEvent arg0) {
                 Dispatcher dispatch = Dispatcher.get();
                 AppEvent event = new AppEvent(BrowseRecordsEvents.CreateForeignKeyView, foreignKeyName);
@@ -164,9 +170,12 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         });
         selectFKBtn.setTitle(MessagesFactory.getMessages().fk_select_title());
         selectFKBtn.addClickHandler(new ClickHandler() {
+
+            @Override
             public void onClick(ClickEvent arg0) {
                 Dispatcher dispatch = Dispatcher.get();
-                AppEvent event = new AppEvent(BrowseRecordsEvents.SelectForeignKeyView, ForeignKeyField.this.foreignKey.split("/")[0]); //$NON-NLS-1$
+                AppEvent event = new AppEvent(BrowseRecordsEvents.SelectForeignKeyView, ForeignKeyField.this.foreignKey
+                        .split("/")[0]); //$NON-NLS-1$
                 event.setData("detailPanel", itemsDetailPanel); //$NON-NLS-1$
                 event.setSource(ForeignKeyField.this.getFkWindow());
                 dispatch.dispatch(event);
@@ -174,30 +183,37 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         });
         cleanFKBtn.setTitle(MessagesFactory.getMessages().fk_del_title());
         cleanFKBtn.addClickHandler(new ClickHandler() {
+
+            @Override
             public void onClick(ClickEvent arg0) {
-                if (!isFkList)
+                if (!isFkList) {
                     clear();
-                else
+                } else {
                     fkFieldList.removeForeignKeyWidget(ForeignKeyField.this.getValue());
+                }
             }
         });
         relationFKBtn.setTitle(MessagesFactory.getMessages().fk_open_title());
         relationFKBtn.addClickHandler(new ClickHandler() {
 
+            @Override
             public void onClick(ClickEvent arg0) {
                 ForeignKeyBean fkBean = ForeignKeyField.this.getValue();
-                if (fkBean == null || fkBean.getId() == null || "".equals(fkBean.getId())) //$NON-NLS-1$
+                if (fkBean == null || fkBean.getId() == null || "".equals(fkBean.getId())) {
                     return;
+                }
                 Dispatcher dispatch = Dispatcher.get();
                 AppEvent event = new AppEvent(BrowseRecordsEvents.ViewForeignKey);
                 event.setData("ids", ForeignKeyField.this.getValue().getId().replaceAll("^\\[|\\]$", "").replace("][", ".")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
                 event.setData("concept", ForeignKeyField.this.foreignKeyName); //$NON-NLS-1$
+                event.setData("isStaging", itemsDetailPanel.isStaging()); //$NON-NLS-1$
                 event.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
                 dispatch.dispatch(event);
             }
         });
     }
 
+    @Override
     protected void doAttachChildren() {
         super.doAttachChildren();
         ComponentHelper.doAttach(addFKBtn);
@@ -206,6 +222,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         ComponentHelper.doAttach(relationFKBtn);
     }
 
+    @Override
     protected void doDetachChildren() {
         super.doDetachChildren();
         ComponentHelper.doDetach(addFKBtn);
@@ -214,6 +231,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         ComponentHelper.doDetach(relationFKBtn);
     }
 
+    @Override
     public void setCriteriaFK(final ForeignKeyBean fk) {
         if (fk != null && fk.getConceptName() != null && fk.getConceptName().trim().length() > 0) {
             this.foreignKeyName = fk.getConceptName();
@@ -221,15 +239,18 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         setValue(fk);
     }
 
+    @Override
     public void setValue(ForeignKeyBean fk) {
         super.setValue(fk);
     }
 
+    @Override
     public void clear() {
         super.clear();
         this.validate();
     }
 
+    @Override
     public ForeignKeyBean getValue() {
         return value;
     }
@@ -239,12 +260,14 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         fkWindow.setHeading(MessagesFactory.getMessages().fk_RelatedRecord());
     }
 
+    @Override
     public boolean validateValue(String value) {
-        if(!validateFlag)
+        if (!validateFlag) {
             return true;
+        }
         return super.validateValue(value);
     }
-    
+
     public void setValidateFlag(boolean validateFlag) {
         this.validateFlag = validateFlag;
     }

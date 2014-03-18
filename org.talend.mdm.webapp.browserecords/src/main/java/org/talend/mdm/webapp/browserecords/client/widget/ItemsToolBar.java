@@ -53,7 +53,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.integrity.NoOpPostDelet
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.PostDeleteAction;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
-import com.amalto.core.server.StorageAdmin;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -339,6 +338,7 @@ public class ItemsToolBar extends ToolBar {
                 }
 
                 ItemsDetailPanel panel = ItemsDetailPanel.newInstance();
+                panel.setStaging(isStaging());
                 List<String> pkInfoList = new ArrayList<String>();
                 pkInfoList.add(itemBean.getLabel());
                 panel.initBanner(pkInfoList, itemBean.getDescription());
@@ -436,8 +436,7 @@ public class ItemsToolBar extends ToolBar {
                             ids.append(selectedItems.get(i).getIds());
                         }
                         ExplainRestServiceHandler.get().simulateMatch(
-                                BrowseRecords.getSession().getAppHeader().getDatacluster()
-                                        .replace(StorageAdmin.STAGING_SUFFIX, ""), concept, ids.toString(), //$NON-NLS-1$
+                                BrowseRecords.getSession().getAppHeader().getMasterDataCluster(), concept, ids.toString(),
                                 new SessionAwareAsyncCallback<BaseTreeModel>() {
 
                                     @Override

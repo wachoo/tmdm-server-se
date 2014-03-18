@@ -115,7 +115,7 @@ public class BrowseRecordsActionTest extends TestCase {
 
     public void testMultiOccurenceNode() throws Exception {
         String language = "en"; //$NON-NLS-1$
-        ItemNodeModel model = action.getItemNodeModel(getItemBean(), TestData.getEntityModel(), language);
+        ItemNodeModel model = action.getItemNodeModel(getItemBean(), TestData.getEntityModel(), false, language);
         List<ModelData> child = model.getChildren();
 
         for (int i = 0; i < child.size(); i++) {
@@ -484,7 +484,7 @@ public class BrowseRecordsActionTest extends TestCase {
         ViewBean viewBean = getViewBean(concept, "ContractInheritance.xsd");
         ItemBean item = new ItemBean(concept, ids, getXml("ContractSampleTwo.xml"));
         // call getItemNodeModel
-        ItemNodeModel root = action.getItemNodeModel(item, viewBean.getBindingEntityModel(), language);
+        ItemNodeModel root = action.getItemNodeModel(item, viewBean.getBindingEntityModel(), false, language);
         assertEquals(4, root.getChildCount());
         // the first node
         ItemNodeModel firstNode = (ItemNodeModel) root.getChild(0);
@@ -579,7 +579,7 @@ public class BrowseRecordsActionTest extends TestCase {
         String ids = "1";
         ViewBean viewBean = getViewBean(concept, "ContractInheritance.xsd");
         ItemBean item = new ItemBean(concept, ids, getXml("ContractSampleOne.xml"));
-        ItemNodeModel root = action.getItemNodeModel(item, viewBean.getBindingEntityModel(), language);
+        ItemNodeModel root = action.getItemNodeModel(item, viewBean.getBindingEntityModel(), false, language);
         assertEquals(4, root.getChildCount());
 
         ItemNodeModel detailModel = (ItemNodeModel) root.getChild(2);
@@ -603,7 +603,7 @@ public class BrowseRecordsActionTest extends TestCase {
         String xml = getXml("ContractSampleTwo.xml");
 
         ItemNodeModel newSubTypeModel = action.createSubItemNodeModel(viewBean, xml, typePath, contextPath,
-                subTypeModel.getRealType(), language);
+                subTypeModel.getRealType(), false, language);
 
         assertEquals("ContractDetailSubTypeTwo", newSubTypeModel.getRealType());
         assertEquals("Contract/detail:ContractDetailSubType/subType", newSubTypeModel.getTypePath());

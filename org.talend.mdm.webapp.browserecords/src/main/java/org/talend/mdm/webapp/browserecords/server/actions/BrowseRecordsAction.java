@@ -538,7 +538,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                                             value.getTextContent(),
                                                             false,
                                                             modelType,
-                                                            getEntityModel(typeModel.getForeignkey().split("/")[0], language), language, isStaging())); //$NON-NLS-1$
+                                                            getEntityModel(typeModel.getForeignkey().split("/")[0], language), isStaging(), language)); //$NON-NLS-1$
 
                                 } else {
                                     itemBean.set(path, value.getTextContent());
@@ -1190,6 +1190,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         try {
             AppHeader header = new AppHeader();
             header.setDatacluster(getCurrentDataCluster());
+            header.setMasterDataCluster(getCurrentDataCluster(false));
+            header.setStagingDataCluster(getCurrentDataCluster(true));
             header.setDatamodel(getCurrentDataModel());
             header.setStandAloneMode(BaseConfiguration.isStandalone());
             header.setAutoTextAreaLength(BrowseRecordsConfiguration.getAutoTextAreaLength());
@@ -1371,8 +1373,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     @Override
     public String getCurrentDataCluster() throws ServiceException {
+        return getCurrentDataCluster(false);
+    }
+
+    @Override
+    public String getCurrentDataCluster(boolean isStaging) throws ServiceException {
         try {
-            return org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getCurrentDataCluster();
+            return org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getCurrentDataCluster(isStaging);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -1420,7 +1427,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws ServiceException {
+    public ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, boolean isStaging, String language)
+            throws ServiceException {
         try {
             if (item.get("isRefresh") != null && (!"".equals(item.getIds()) && item.getIds() != null)) { //$NON-NLS-1$ //$NON-NLS-2$ 
                 item = getItem(item, "Browse_items_" + item.getConcept(), entity, language); // itemBean need to be get from server when refresh tree. //$NON-NLS-1$
@@ -1438,7 +1446,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Map<String, Integer> multiNodeIndex = new HashMap<String, Integer>();
             StringBuffer foreignKeyDeleteMessage = new StringBuffer();
             ItemNodeModel itemModel = builderNode(multiNodeIndex, root, entity,
-                    "", "", true, foreignKeyDeleteMessage, false, language); //$NON-NLS-1$ //$NON-NLS-2$
+                    "", "", true, foreignKeyDeleteMessage, false, isStaging, language); //$NON-NLS-1$ //$NON-NLS-2$
             DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), "", itemModel, metaDataTypes, language); //$NON-NLS-1$
             itemModel.set("time", item.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
             itemModel.set("foreignKeyDeleteMessage", foreignKeyDeleteMessage.toString()); //$NON-NLS-1$
@@ -1492,7 +1500,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Map<String, Integer> multiNodeIndex = new HashMap<String, Integer>();
             StringBuffer foreignKeyDeleteMessage = new StringBuffer();
             Element root = resultDoc.getDocumentElement();
-            itemModel = builderNode(multiNodeIndex, root, entity, "", "", false, foreignKeyDeleteMessage, true, language); //$NON-NLS-1$ //$NON-NLS-2$
+            itemModel = builderNode(multiNodeIndex, root, entity, "", "", false, foreignKeyDeleteMessage, true, false, language); //$NON-NLS-1$ //$NON-NLS-2$
             DynamicLabelUtil.getDynamicLabel(doc4j, "", itemModel, metaDataTypes, language); //$NON-NLS-1$
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
@@ -1506,7 +1514,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     @Override
     public ItemNodeModel createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath,
-            String realType, String language) throws ServiceException {
+            String realType, boolean isStaging, String language) throws ServiceException {
         EntityModel entity = viewBean.getBindingEntityModel();
         String concept = entity.getConceptName();
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
@@ -1533,7 +1541,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 baseXpathWithInheritance = typePath.substring(0, typePath.lastIndexOf("/")); //$NON-NLS-1$
             }
             itemModel = builderNode(multiNodeIndex, root, entity, baseXpathWithInheritance,
-                    "", true, foreignKeyDeleteMessage, true, language); //$NON-NLS-1$
+                    "", true, foreignKeyDeleteMessage, true, isStaging, language); //$NON-NLS-1$
             DynamicLabelUtil.getDynamicLabel(doc4j, baseXpath, itemModel, metaDataTypes, language);
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
@@ -1546,8 +1554,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     private ItemNodeModel builderNode(Map<String, Integer> multiNodeIndex, Element el, EntityModel entity, String baseXpath,
-            String xpath, boolean isPolyType, StringBuffer foreignKeyDeleteMessage, boolean isCreate, String language)
-            throws Exception {
+            String xpath, boolean isPolyType, StringBuffer foreignKeyDeleteMessage, boolean isCreate, boolean isStaging,
+            String language) throws Exception {
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
         String realType = el.getAttribute("xsi:type"); //$NON-NLS-1$
         if (isPolyType) {
@@ -1604,9 +1612,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (modelType != null && modelType.trim().length() > 0) {
                 nodeModel.setTypeName(modelType);
             }
-            ForeignKeyBean fkBean = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(model,
-                    el.getTextContent(), true, modelType,
-                    getEntityModel(foreignKey.split("/")[0], language), language, isStaging()); //$NON-NLS-1$
+            ForeignKeyBean fkBean = org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                    .getForeignKeyDesc(model, el.getTextContent(), true, modelType,
+                            getEntityModel(foreignKey.split("/")[0], language), isStaging, language); //$NON-NLS-1$
             if (fkBean != null) {
                 String fkNotFoundMessage = fkBean.get("foreignKeyDeleteMessage"); //$NON-NLS-1$
                 if (fkNotFoundMessage != null) {// fix bug TMDM-2757
@@ -1656,7 +1664,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                         && typeModel.getTypePathObject().getAllAliasXpaths() != null && typeModel
                                         .getTypePathObject().getAllAliasXpaths().contains(tem_typePath))) {
                             ItemNodeModel childNode = builderNode(multiNodeIndex, (Element) child, entity, baseXpath, xpath,
-                                    isPolyType, foreignKeyDeleteMessage, isCreate, language);
+                                    isPolyType, foreignKeyDeleteMessage, isCreate, isStaging, language);
                             nodeModel.add(childNode);
                             existNodeFlag = true;
                             if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
@@ -1881,7 +1889,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public ForeignKeyModel getForeignKeyModel(String concept, String ids, String language) throws ServiceException {
+    public ForeignKeyModel getForeignKeyModel(String concept, String ids, boolean isStaging, String language)
+            throws ServiceException {
         try {
             String viewPk = "Browse_items_" + concept; //$NON-NLS-1$
             ViewBean viewBean = getView(viewPk, language);
@@ -1893,7 +1902,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             } else if (checkSmartViewExistsByOpt(concept, language)) {
                 itemBean.setSmartViewMode(ItemBean.PERSOMODE);
             }
-            ItemNodeModel nodeModel = getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), language);
+            ItemNodeModel nodeModel = getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), isStaging, language);
             return new ForeignKeyModel(viewBean, itemBean, nodeModel);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
