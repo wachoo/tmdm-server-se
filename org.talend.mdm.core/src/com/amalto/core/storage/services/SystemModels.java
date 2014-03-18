@@ -73,6 +73,7 @@ public class SystemModels {
         Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
         if (storage == null) {
             LOGGER.warn("Container '" + modelName + "' does not exist. Skip impact analyzing for model change.");
+            return ""; //$NON-NLS-1$
         }
         // Compare new data model with existing data model
         MetadataRepository previousRepository = storage.getMetadataRepository();
