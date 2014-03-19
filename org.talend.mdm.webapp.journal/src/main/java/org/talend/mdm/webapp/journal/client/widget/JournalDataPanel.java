@@ -13,8 +13,10 @@
 package org.talend.mdm.webapp.journal.client.widget;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
@@ -252,14 +254,16 @@ public class JournalDataPanel extends FormPanel {
                     @Override
                     public void loaderLoad(LoadEvent le) {
                         currentDataList = ((BasePagingLoadResult<JournalGridModel>) le.getData()).getData();
-                        
-                        if (turnPage) {
-                            service.getDataRecordExistence(currentDataList, new SessionAwareAsyncCallback<Map<String, Boolean>>() {
-                                @Override
-                                public void onSuccess(Map<String, Boolean> existenceMap) {
-                                    JournalDataPanel.this.keyExistences = existenceMap;
+                        List<JournalGridModel> journalListWithUniqueRecords = extractSubJournalList(currentDataList);
+
+                        service.getDataRecordExistence(journalListWithUniqueRecords, new SessionAwareAsyncCallback<Map<String, Boolean>>() {
+                            @Override
+                            public void onSuccess(Map<String, Boolean> existenceMap) {
+                                JournalDataPanel.this.keyExistences = existenceMap;
+                                
+                                if (turnPage) {
                                     JournalGridModel targetGridModel;
-                                    //here need to check current journal(iso prev/next one) has its data record existes(then open it), thus
+                                    //here need to check current journal(iso prev/next one) has its data record exists(then open the journal), thus
                                     //need to use adjusted index value
                                     if (naviToPrevious) {
                                         targetGridModel = getPrevJournalWithExistentRecord(currentDataList.size());
@@ -268,21 +272,24 @@ public class JournalDataPanel extends FormPanel {
                                     }
                                     JournalDataPanel.this.updateTabPanel(targetGridModel);
                                     turnPage = false; 
+                                } else {//updateJournalNavigationList only called from here when the JournalDataPanel opened from gridPanel, 
+                                    //other calls to this fuction is issued from update()
+                                    updateJournalNavigationList();  
                                 }
 
-                            });                           
-                        } else {
-                            //updateJournalNavigationList only called from here when the JournalDataPanel opened from gridPanel, 
-                            //other calls to this fuction is issued from update()
-                            service.getDataRecordExistence(currentDataList, new SessionAwareAsyncCallback<Map<String, Boolean>>() {
-                                @Override
-                                public void onSuccess(Map<String, Boolean> existenceMap) {
-                                    JournalDataPanel.this.keyExistences = existenceMap;
-                                    updateJournalNavigationList();
-                                }
+                            }
+                        });                           
+                    }
 
-                            });
+                    private List<JournalGridModel> extractSubJournalList(List<JournalGridModel> journalDataList) {
+                        Set<String> uniqueKeys = new HashSet<String>();
+                        List<JournalGridModel> tempList = new ArrayList<JournalGridModel>();
+                        for (JournalGridModel journal : journalDataList) {
+                            if (uniqueKeys.add(journal.getKey())) {
+                                tempList.add(journal);
+                            }
                         }
+                        return tempList;
                     }
                 });
         
