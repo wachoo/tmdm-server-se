@@ -15,7 +15,7 @@ package org.talend.mdm.webapp.welcomeportal.client.i18n;
 import com.google.gwt.i18n.client.Messages;
 
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public interface WelcomePortalMessages extends Messages {
 
@@ -54,6 +54,8 @@ public interface WelcomePortalMessages extends Messages {
     String tasks_title();
 
     String process_title();
+
+    String chart_title();
 
     String alerts_title();
 

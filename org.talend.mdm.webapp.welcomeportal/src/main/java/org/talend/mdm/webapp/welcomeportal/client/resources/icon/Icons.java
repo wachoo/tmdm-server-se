@@ -17,7 +17,7 @@ import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public interface Icons extends ClientBundle {
 
@@ -40,10 +40,13 @@ public interface Icons extends ClientBundle {
 
     @Source("updatereport.png")
     ImageResource journal();
-    
+
     @Source("launch_process.png")
     ImageResource launch();
 
     @Source("find.png")
     ImageResource find();
+
+    @Source("chart.png")
+    ImageResource chart();
 }

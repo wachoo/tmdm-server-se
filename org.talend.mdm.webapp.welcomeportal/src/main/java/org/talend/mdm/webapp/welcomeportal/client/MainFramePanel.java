@@ -18,6 +18,7 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
+import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -34,17 +35,40 @@ import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.FlowData;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextBox;
+import com.googlecode.gflot.client.DataPoint;
+import com.googlecode.gflot.client.PieDataPoint;
+import com.googlecode.gflot.client.PlotModel;
+import com.googlecode.gflot.client.Series;
+import com.googlecode.gflot.client.SeriesHandler;
+import com.googlecode.gflot.client.SimplePlot;
+import com.googlecode.gflot.client.Tick;
+import com.googlecode.gflot.client.options.AxesOptions;
+import com.googlecode.gflot.client.options.BarSeriesOptions;
+import com.googlecode.gflot.client.options.CategoriesAxisOptions;
+import com.googlecode.gflot.client.options.GlobalSeriesOptions;
+import com.googlecode.gflot.client.options.GridOptions;
+import com.googlecode.gflot.client.options.LegendOptions;
+import com.googlecode.gflot.client.options.LineSeriesOptions;
+import com.googlecode.gflot.client.options.PieSeriesOptions;
+import com.googlecode.gflot.client.options.PieSeriesOptions.Label.Background;
+import com.googlecode.gflot.client.options.PieSeriesOptions.Label.Formatter;
+import com.googlecode.gflot.client.options.PlotOptions;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -52,6 +76,8 @@ import com.google.gwt.user.client.ui.TextBox;
 public class MainFramePanel extends Portal {
 
     private WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
+
+    Portlet chart;
 
     public MainFramePanel(int numColumns) {
         super(numColumns);
@@ -65,6 +91,7 @@ public class MainFramePanel extends Portal {
         initTaskPortlet();
         initProcessPortlet();
         initSearchPortlet();
+        initChartPortlet();
     }
 
     private void itemClick(final String context, final String application) {
@@ -422,6 +449,130 @@ public class MainFramePanel extends Portal {
             }
 
         });
+    }
+
+    private void initChartPortlet() {
+
+        service.getCurrentDataContainer(new SessionAwareAsyncCallback<String>() {
+
+            @Override
+            public void onSuccess(String dataContainer) {
+
+                StatisticsRestServiceHandler.getInstance().getContainerStats(dataContainer,
+                        new SessionAwareAsyncCallback<JSONArray>() {
+
+                            @Override
+                            public void onSuccess(JSONArray jsonArray) {
+                                String name = WelcomePortal.CHART;
+                                chart = configPortlet(name);
+                                chart.setHeading(MessagesFactory.getMessages().chart_title());
+                                chart.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.chart()));
+
+                                applyChartPortlet(jsonArray);
+                                MainFramePanel.this.add(chart, 0);
+                            }
+                        });
+
+            }
+        });
+
+    }
+
+    private void applyChartPortlet(JSONArray jsonArray) {
+
+        chart.add(createEntityPlot(jsonArray), new FlowData(10));
+        // A dummy stack bar chart
+        // chart.add(createJournalPlot(), new FlowData(10));
+    }
+
+    private SimplePlot createEntityPlot(JSONArray jsonArray) {
+
+        SimplePlot plot;
+        final NumberFormat formatter = NumberFormat.getFormat("0.#");
+        final PlotModel model = new PlotModel();
+        final PlotOptions plotOptions = PlotOptions.create();
+
+        // activate the pie
+        plotOptions.setGlobalSeriesOptions(GlobalSeriesOptions.create().setPieSeriesOptions(
+                PieSeriesOptions
+                        .create()
+                        .setShow(true)
+                        .setRadius(1)
+                        .setInnerRadius(0.2)
+                        .setLabel(
+                                com.googlecode.gflot.client.options.PieSeriesOptions.Label.create().setShow(true)
+                                        .setRadius(3d / 4d).setBackground(Background.create().setOpacity(0.8)).setThreshold(0.05)
+                                        .setFormatter(new Formatter() {
+
+                                            @Override
+                                            public String format(String label, Series series) {
+                                                return "<div style=\"font-size:8pt;text-align:center;padding:2px;color:white;\">"
+                                                        + label + "<br/>" + formatter.format(series.getData().getY(0)) + " / "
+                                                        + formatter.format(series.getPercent()) + "%</div>";
+                                            }
+                                        }))));
+        plotOptions.setLegendOptions(LegendOptions.create().setShow(false));
+        plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
+
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject jsonObject = jsonArray.get(i).isObject();
+            String name = jsonObject.keySet().iterator().next();
+            int value = new Double(jsonObject.get(name).isNumber().doubleValue()).intValue();
+            // create series
+            SeriesHandler series1 = model.addSeries(Series.of(name));
+            series1.add(PieDataPoint.of(value));
+        }
+        // create the plot
+        plot = new SimplePlot(model, plotOptions);
+        plot.setWidth(400);
+        plot.setHeight(300);
+        return plot;
+    }
+
+    // A dummy Stack Bar chart
+    private SimplePlot createJournalPlot() {
+        PlotModel model = new PlotModel();
+        PlotOptions plotOptions = PlotOptions.create();
+        JsArray categories = (JsArray) JsArray.createArray();
+        categories.push(Tick.of(1, "Product"));
+        categories.push(Tick.of(2, "ProductFamily"));
+        categories.push(Tick.of(3, "Store"));
+        plotOptions.setGlobalSeriesOptions(
+                GlobalSeriesOptions.create().setLineSeriesOptions(LineSeriesOptions.create().setShow(false).setFill(true))
+                        .setBarsSeriesOptions(BarSeriesOptions.create().setShow(true).setBarWidth(0.6)).setStack(true))
+                .setXAxesOptions(
+                        AxesOptions.create().addAxisOptions(
+                                CategoriesAxisOptions.create().setCategories("Product", "ProductFamily", "Store")));
+        plotOptions.setLegendOptions(LegendOptions.create().setShow(false));
+
+        // create series
+        SeriesHandler series1 = model.addSeries(Series.of("Creation"));
+        SeriesHandler series2 = model.addSeries(Series.of("Update"));
+        SeriesHandler series3 = model.addSeries(Series.of("Logic Delete"));
+        SeriesHandler series4 = model.addSeries(Series.of("Physic Delete"));
+
+        // add data
+        series1.add(DataPoint.of("Product", 100));
+        series2.add(DataPoint.of("Product", 200));
+        series3.add(DataPoint.of("Product", 20));
+        series4.add(DataPoint.of("Product", 10));
+
+        series1.add(DataPoint.of("ProductFamily", 300));
+        series2.add(DataPoint.of("ProductFamily", 100));
+        series3.add(DataPoint.of("ProductFamily", 50));
+        series4.add(DataPoint.of("ProductFamily", 40));
+
+        series1.add(DataPoint.of("Store", 30));
+        series2.add(DataPoint.of("Store", 60));
+        series3.add(DataPoint.of("Store", 2));
+        series4.add(DataPoint.of("Store", 2));
+
+        // create the plot
+        SimplePlot plot = new SimplePlot(model, plotOptions);
+        plot.setWidth(400);
+        plot.setHeight(300);
+        return plot;
+
     }
 
     private Portlet configPortlet(final String name) {

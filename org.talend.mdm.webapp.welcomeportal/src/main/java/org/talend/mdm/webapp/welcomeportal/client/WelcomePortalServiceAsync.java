@@ -53,4 +53,6 @@ public interface WelcomePortalServiceAsync {
 
     void getLicenseWarning(String language, AsyncCallback<String> callback);
 
+    void getCurrentDataContainer(AsyncCallback<String> callback);
+
 }

@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalService;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
+import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
@@ -239,5 +240,16 @@ public class WelcomePortalAction implements WelcomePortalService {
     @Override
     public String getMenuLabel(String language, String id) throws Exception {
         return Menu.getMenuLabel(language, id);
+    }
+
+    @Override
+    public String getCurrentDataContainer() throws ServiceException {
+        try {
+            Configuration config = Configuration.getConfiguration();
+            return config.getCluster();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
     }
 }
