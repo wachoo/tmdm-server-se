@@ -50,7 +50,5 @@ public interface JournalServiceAsync {
     
     void isJournalHistoryExist(JournalParameters parameter,AsyncCallback<Boolean> callback);
     
-    void getDataRecordExistence(List<JournalGridModel> journalGridModels, AsyncCallback<Map<String, Boolean>> callback);
-    
     void checkConflict(String itemPk, String conceptName, String id,AsyncCallback<Boolean> callback);
 }

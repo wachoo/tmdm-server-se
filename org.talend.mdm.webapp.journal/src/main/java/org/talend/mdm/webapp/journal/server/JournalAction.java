@@ -229,40 +229,6 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         } else {
             return true;
         }
-    }
-    
-    @Override
-    public Map<String, Boolean> getDataRecordExistence(List<JournalGridModel> journalGridModels) throws ServiceException {
-        Map<String, Boolean> keyExistences = new HashMap<String, Boolean>(journalGridModels.size());
-        try {
-            String key;
-            WSBoolean wsBoolean;
-            for (JournalGridModel journalGridModel : journalGridModels) {
-                key = journalGridModel.getKey();
-                wsBoolean = CommonUtil.getPort().existsItem(
-                        new WSExistsItem(new WSItemPK(new WSDataClusterPK(journalGridModel.getDataContainer()), journalGridModel.getEntity(), parseKey(key))));
-                keyExistences.put(key, wsBoolean.is_true());
-            }
-            return keyExistences;
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
-        }
-    }
-
-    private static String[] parseKey(String keyStr) {
-        String [] ids = keyStr.split("\\."); //$NON-NLS-1$
-        
-        if (keyStr.endsWith(".")) { //$NON-NLS-1$
-            String [] idsPlus = new String[ids.length+1];
-            for (int i=0; i < ids.length; i++) {
-                idsPlus[i] = ids[i];
-            }
-            idsPlus[ids.length] = ""; //$NON-NLS-1$
-            return idsPlus;
-        } else {
-            return ids;
-        }
     }    
     
     private JournalSearchCriteria buildCriteria(String entity, String key, String source, String operationType, String startDate,
