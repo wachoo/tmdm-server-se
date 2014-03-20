@@ -35,8 +35,12 @@ public abstract class StorageTransaction {
 
     /**
      * Commits pending changes to the underlying storage.
+     * 
      * @see #autonomous()
      * @see #dependent()
+     * @throws java.lang.RuntimeException Implementations are expected to throw {@link java.lang.RuntimeException} in
+     * case commit can not be completed. If such event occurs, {@link #hasFailed()} is expected to return
+     * <code>true</code>.
      */
     public void commit() {
         if (isAutonomous) {
