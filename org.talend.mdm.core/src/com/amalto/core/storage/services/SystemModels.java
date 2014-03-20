@@ -25,6 +25,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.compare.Change;
@@ -36,21 +37,21 @@ import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 
-@Path("/system/models")
+@Path("/system/models") //$NON-NLS-1$
 public class SystemModels {
 
     private static final Logger LOGGER = Logger.getLogger(SystemModels.class);
 
     @GET
-    @Path("{model}")
-    public String getSchema(@PathParam("model")
+    @Path("{model}") //$NON-NLS-1$
+    public String getSchema(@PathParam("model") //$NON-NLS-1$
     String modelName) {
         throw new UnsupportedOperationException("Get a data model content isn't currently supported.");
     }
 
     @PUT
-    @Path("{model}")
-    public void updateModel(@PathParam("model")
+    @Path("{model}") //$NON-NLS-1$
+    public void updateModel(@PathParam("model") //$NON-NLS-1$
     String modelName, @QueryParam("force")
     boolean force, InputStream dataModel) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
@@ -66,14 +67,14 @@ public class SystemModels {
     }
 
     @POST
-    @Path("{model}")
-    public String analyzeModelChange(@PathParam("model")
+    @Path("{model}") //$NON-NLS-1$
+    public String analyzeModelChange(@PathParam("model") //$NON-NLS-1$
     String modelName, InputStream dataModel) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
         if (storage == null) {
             LOGGER.warn("Container '" + modelName + "' does not exist. Skip impact analyzing for model change.");
-            return ""; //$NON-NLS-1$
+            return StringUtils.EMPTY;
         }
         // Compare new data model with existing data model
         MetadataRepository previousRepository = storage.getMetadataRepository();
